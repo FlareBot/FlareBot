@@ -101,7 +101,7 @@ public class VideoThread extends Thread {
                 message.edit("Downloading video!");
 
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o", "cached/%(title)s" + "-" + videoId + ".%(ext)s", "--extract-audio", "--audio-format"
-                        , "mp3", "--ffmpeg-location", "ffmpeg/bin", link);
+                        , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
                 builder.redirectErrorStream(true);
                 Process process = builder.start();
