@@ -34,6 +34,7 @@ public class InfoCommand implements Command {
                 + "\nMemory Usage: " + getMb(runtime.totalMemory() - runtime.freeMemory())
                 + "\nFree Memory: " + getMb(runtime.freeMemory())
                 + "\n" + DIVIDER
+                + "\nSupport Server: http://discord.me/flarebot"
                 + "\nMade with love by bwfcwalshy#1284 and Arsen#3291\n"
                 + "```";
 
