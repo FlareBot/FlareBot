@@ -14,16 +14,16 @@ public class GithubListener implements EventListener<PushEvent> {
     @Override
     public void handle(PushEvent e) {
         StringBuilder sb = new StringBuilder();
-        sb.append("New push by **")
+        sb.append("New commit by **")
                 .append(e.getPusher().getName())
                 .append("** in branch ")
                 .append("`")
                 .append(e.getRef().substring(e.getRef().lastIndexOf('/') + 1))
                 .append("`\n");
         for(Commit commit : e.getCommits()){
-            sb.append("`")
-                    .append(commit.getId()).append("` ")
-                    .append(commit.getMessage());
+            sb.append(":arrow_up: ").append("`")
+                    .append(commit.getId()).append("`").append(" :pencil: ").append("`")
+                    .append(commit.getMessage()).append("`");
         }
         MessageUtils.sendMessage(FlareBot.getInstance().getClient().getChannelByID("229236239201468417"), sb.toString());
     }
