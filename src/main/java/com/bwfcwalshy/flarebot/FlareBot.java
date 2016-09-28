@@ -210,12 +210,14 @@ public class FlareBot {
         stop();
         if(update){
             LOGGER.debug("Updating bot!");
-            ProcessBuilder builder = new ProcessBuilder("update.jar");
+            ProcessBuilder builder = new ProcessBuilder("java", "-jar", "Update.jar");
             try {
                 Process process = builder.start();
                 BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
                 while (process.isAlive()) {
-                    if (br.readLine().equalsIgnoreCase("Built jar"))
+                    String line = br.readLine();
+                    System.out.println(line);
+                    if (line.equalsIgnoreCase("Built jar"))
                         break;
                 }
             }catch(IOException e){
