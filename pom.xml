@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.bwfcwalshy</groupId>
     <artifactId>flarebot</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->

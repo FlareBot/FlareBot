@@ -85,7 +85,6 @@ public class VideoThread extends Thread {
                 }
                 link = videoElement.select("a").first().attr("href");
                 // I check the index of 2 chars so I need to add 2
-                FlareBot.LOGGER.debug(YOUTUBE_URL + link);
                 Document doc2 = Jsoup.connect(YOUTUBE_URL + link).get();
                 videoName = MessageUtils.escapeFile(doc2.title().replace(" - YouTube", ""));
                 videoFile = videoName + "-" + link.substring(link.indexOf("v=") + 2);
