@@ -98,7 +98,7 @@ public class FlareBot {
     }
 
     public void init(String tkn) {
-        Runtime.getRuntime().addShutdownHook(new Thread(this::quit));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> quit(false)));
 
         try {
             client = new ClientBuilder().withToken(tkn).login();
@@ -167,6 +167,7 @@ public class FlareBot {
 //        registerCommand(new WebhooksCommand(this));
         registerCommand(new WelcomeCommand(this));
         registerCommand(new PermissionsCommand());
+        registerCommand(new UpdateCommand());
 
         client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
 
@@ -175,8 +176,9 @@ public class FlareBot {
 
         Scanner scanner = new Scanner(System.in);
         if (scanner.next().equalsIgnoreCase("exit")) {
-            quit();
-            System.exit(0);
+            quit(false);
+        }else if(scanner.next().equalsIgnoreCase("update")){
+            quit(true);
         }
 
         new FlarebotTask("PermissionSaver" + System.currentTimeMillis()){
@@ -191,7 +193,7 @@ public class FlareBot {
         }.repeat(300000, 300000);
     }
 
-    public void quit() {
+    public void quit(boolean update) {
         if (!client.isReady()) return;
         LOGGER.debug("Stopping bot.");
         if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
@@ -206,7 +208,21 @@ public class FlareBot {
         }
 
         stop();
-        LOGGER.debug("Exiting.");
+        if(update){
+            LOGGER.debug("Updating bot!");
+            ProcessBuilder builder = new ProcessBuilder("update.jar");
+            try {
+                Process process = builder.start();
+                BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                while (process.isAlive()) {
+                    if (br.readLine().equalsIgnoreCase("Built jar"))
+                        break;
+                }
+            }catch(IOException e){
+                LOGGER.error("Error while updating!", e);
+            }
+        }else
+            LOGGER.debug("Exiting.");
         System.exit(0);
     }
 

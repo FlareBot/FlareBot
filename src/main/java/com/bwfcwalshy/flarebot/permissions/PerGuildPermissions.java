@@ -89,4 +89,11 @@ public class PerGuildPermissions {
         PerGuildPermissions otherGuild = (PerGuildPermissions) other;
         return otherGuild.getGuildID().equals(getGuildID());
     }
+
+    public boolean isCreator(IUser user) {
+        if(user.getID().equals("158310004187725824") || user.getID().equals("155954930191040513"))
+            return true;
+        else
+            return false;
+    }
 }
