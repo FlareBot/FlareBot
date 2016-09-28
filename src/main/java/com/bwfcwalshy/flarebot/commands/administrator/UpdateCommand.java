@@ -49,28 +49,22 @@ public class UpdateCommand implements Command {
      * @param s2 This is the string being compared with. Use this for things like current version.
      * @return If s1 is greater than s2.
      */
-    private boolean isHigher(String s1, String s2){
+    private boolean isHigher(String s1, String s2) {
         String[] split = s1.split("\\.");
         int s1Major = Integer.parseInt(split[0]);
         int s1Minor = Integer.parseInt(split[1]);
         int s1Build = 0;
-        if(split.length == 3)
+        if (split.length == 3)
             s1Build = Integer.parseInt(split[2]);
 
         String[] split2 = s2.split("\\.");
         int s2Major = Integer.parseInt(split[0]);
         int s2Minor = Integer.parseInt(split[0]);
         int s2Build = 0;
-        if(split2.length == 3)
+        if (split2.length == 3)
             s2Build = Integer.parseInt(split[0]);
 
-        if(s1Major > s2Major)
-            return true;
-        if(s1Minor > s2Minor)
-            return true;
-        if(s1Build > s2Build)
-            return true;
-        return false;
+        return s1Major > s2Major || s1Minor > s2Minor || s1Build > s2Build;
     }
 
     @Override
