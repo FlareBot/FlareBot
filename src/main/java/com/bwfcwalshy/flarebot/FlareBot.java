@@ -246,7 +246,7 @@ public class FlareBot {
         int seconds = (int) ((System.currentTimeMillis() - startTime) / 1000);
         int s = seconds % 60;
         int minutes = (seconds / 60) % 60;
-        int hours = (minutes / 60) % 60;
+        int hours = (minutes / 60) % 24;
         return (hours < 10 ? "0" + hours : hours) + "h " + (minutes < 10 ? "0" + minutes : minutes) + "m " + (s < 10 ? "0" + s : s) + "s";
     }
 
