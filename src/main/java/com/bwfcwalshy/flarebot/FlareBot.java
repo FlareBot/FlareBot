@@ -29,6 +29,7 @@ import sx.blah.discord.util.RateLimitException;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class FlareBot {
@@ -261,11 +262,11 @@ public class FlareBot {
     }
 
     public String getUptime() {
-        int seconds = (int) ((System.currentTimeMillis() - startTime) / 1000);
-        int s = seconds % 60;
-        int minutes = (seconds / 60) % 60;
-        int hours = (minutes / 60) % 24;
-        return (hours < 10 ? "0" + hours : hours) + "h " + (minutes < 10 ? "0" + minutes : minutes) + "m " + (s < 10 ? "0" + s : s) + "s";
+        long totalSeconds = ((System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1)) - startTime) / 1000;
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = (totalSeconds / 3600);
+        return (hours < 10 ? "0" + hours : hours) + "h " + (minutes < 10 ? "0" + minutes : minutes) + "m " + (seconds < 10 ? "0" + seconds : seconds) + "s";
     }
 
     public MusicManager getMusicManager() {
