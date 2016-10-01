@@ -13,6 +13,8 @@ public class GithubListener implements EventListener<PushEvent> {
 
     @Override
     public void handle(PushEvent e) {
+        if(!FlareBot.getInstance().getClient().isReady())
+            return;
         StringBuilder sb = new StringBuilder();
         sb.append("New commit by **")
                 .append(e.getPusher().getName())
