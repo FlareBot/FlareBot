@@ -285,7 +285,6 @@ public class FlareBot {
             e.printStackTrace();
         }
         LOGGER.debug("Saved.");
-        if (!client.isReady()) return;
         LOGGER.debug("Stopping bot.");
         if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
             client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
