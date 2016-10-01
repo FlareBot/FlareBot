@@ -194,13 +194,7 @@ public class FlareBot {
                 }
             }
         }.repeat(300000, 300000);
-
-        new FlarebotTask("StatusUpdater" + System.currentTimeMillis()){
-            @Override
-            public void run() {
-                client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
-            }
-        }.repeat(1, 60000);
+        client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
     }
 
     public void quit(boolean update) {
