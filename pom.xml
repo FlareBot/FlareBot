@@ -52,7 +52,7 @@
     </dependencies>
 
     <build>
-        <defaultGoal>clean package install</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
         <finalName>FlareBot</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
@@ -79,7 +79,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>install</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>

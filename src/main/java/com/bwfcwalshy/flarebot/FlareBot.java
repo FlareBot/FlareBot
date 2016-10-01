@@ -15,6 +15,7 @@ import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.google.gson.*;
 import org.apache.commons.cli.*;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.Discord4J;
@@ -28,6 +29,10 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -66,7 +71,7 @@ public class FlareBot {
             CommandLineParser parser = new DefaultParser();
             CommandLine parsed = parser.parse(options, args);
             tkn = parsed.getOptionValue("t");
-            if(parsed.hasOption("s"))
+            if (parsed.hasOption("s"))
                 FlareBot.secret = parsed.getOptionValue("s");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
@@ -165,7 +170,6 @@ public class FlareBot {
         registerCommand(new AutoAssignCommand(this));
         registerCommand(new QuitCommand());
         registerCommand(new RolesCommand());
-//        registerCommand(new WebhooksCommand(this));
         registerCommand(new WelcomeCommand(this));
         registerCommand(new PermissionsCommand());
         registerCommand(new UpdateCommand());
@@ -178,11 +182,11 @@ public class FlareBot {
         Scanner scanner = new Scanner(System.in);
         if (scanner.next().equalsIgnoreCase("exit")) {
             quit(false);
-        }else if(scanner.next().equalsIgnoreCase("update")){
+        } else if (scanner.next().equalsIgnoreCase("update")) {
             quit(true);
         }
 
-        new FlarebotTask("PermissionSaver" + System.currentTimeMillis()){
+        new FlarebotTask("PermissionSaver" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 try {
@@ -195,37 +199,70 @@ public class FlareBot {
     }
 
     public void quit(boolean update) {
-        if (!client.isReady()) return;
-        LOGGER.debug("Stopping bot.");
-        if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
-            client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
-        try {
-            client.logout();
-        } catch (RateLimitException e) {
-            e.printStackTrace();
-        } catch (DiscordException e) {
-            if (!e.getMessage().contains("CloudFlare"))
-                e.printStackTrace();
-        }
-
-        stop();
-        if(update){
+        if (update) {
             LOGGER.debug("Updating bot!");
-            ProcessBuilder builder = new ProcessBuilder("java", "-jar", "Update.jar");
             try {
-                Process process = builder.start();
-                BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while (process.isAlive()) {
-                    String line = br.readLine();
-                    System.out.println(line);
-                    if (line.equalsIgnoreCase("Built jar"))
-                        break;
+                File git = new File("FlareBot" + File.separator);
+                if (!git.exists() || !git.isDirectory()) {
+                    ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/bwfcwalshyPluginDev/FlareBot.git", git.getAbsolutePath());
+                    clone.redirectErrorStream(true);
+                    Process p = clone.start();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String out = "";
+                    while (p.isAlive()) {
+                        String line;
+                        if ((line = reader.readLine()) != null) {
+                            out += line + System.getProperty("line.seperator");
+                        }
+                    }
+                    if (p.exitValue() != 0) {
+                        LOGGER.error("Could not update!!!!\n" + out);
+                        return;
+                    }
+                } else {
+                    ProcessBuilder builder = new ProcessBuilder("git", "pull");
+                    builder.directory(git);
+                    Process p = builder.start();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    String out = "";
+                    while (p.isAlive()) {
+                        String line;
+                        if ((line = reader.readLine()) != null) {
+                            out += line + System.getProperty("line.seperator");
+                        }
+                    }
+                    if (p.exitValue() != 0) {
+                        LOGGER.error("Could not update!!!!\n" + out);
+                        return;
+                    }
                 }
-            }catch(IOException e){
-                LOGGER.error("Error while updating!", e);
+                ProcessBuilder maven = new ProcessBuilder("mvn", "clean", "package", "-e");
+                maven.directory(git);
+                Process p = maven.start();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String out = "";
+                while (p.isAlive()) {
+                    String line;
+                    if ((line = reader.readLine()) != null) {
+                        out += line + System.getProperty("line.seperator");
+                    }
+                }
+                if (p.exitValue() != 0) {
+                    LOGGER.error("Could not update!!!!\n" + out);
+                    return;
+                }
+                File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")); // pfft this will go well..
+                Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
+                File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
+                InputStream stream = new FileInputStream(built);
+                OutputStream targetStream = new FileOutputStream(current);
+                IOUtils.copy(stream, targetStream);
+            } catch (IOException e) {
+                LOGGER.error("Could not update!", e);
             }
-        }else
+        } else
             LOGGER.debug("Exiting.");
+        stop();
         System.exit(0);
     }
 
@@ -239,6 +276,15 @@ public class FlareBot {
             e.printStackTrace();
         }
         LOGGER.debug("Saved.");
+        if (!client.isReady()) return;
+        LOGGER.debug("Stopping bot.");
+        if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
+            client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
+        try {
+            client.logout();
+        } catch (RateLimitException | DiscordException e) {
+            LOGGER.error(Markers.NO_ANNOUNCE, "Problem", e);
+        }
     }
 
     private void registerCommand(Command command) {

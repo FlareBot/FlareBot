@@ -17,7 +17,7 @@ import java.io.StringWriter;
 public class ErrorCatcher extends Filter<ILoggingEvent> {
     @Override
     public FilterReply decide(ILoggingEvent event) {
-        if (FlareBot.getInstance().getClient().isReady() && event.getLevel() == Level.ERROR) {
+        if (event.getMarker() != Markers.NO_ANNOUNCE && FlareBot.getInstance().getClient().isReady() && event.getLevel() == Level.ERROR) {
             String msg = event.getFormattedMessage();
 
             if(event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy){
@@ -34,6 +34,6 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
             }
             MessageUtils.sendMessage(FlareBot.getInstance().getClient().getChannelByID("226786557862871040"), msg);
         }
-        return FilterReply.ACCEPT;
+        return FilterReply.NEUTRAL;
     }
 }
