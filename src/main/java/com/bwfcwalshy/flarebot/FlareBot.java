@@ -177,13 +177,6 @@ public class FlareBot {
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        Scanner scanner = new Scanner(System.in);
-        if (scanner.next().equalsIgnoreCase("exit")) {
-            quit(false);
-        } else if (scanner.next().equalsIgnoreCase("update")) {
-            quit(true);
-        }
-
         new FlarebotTask("PermissionSaver" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -195,6 +188,14 @@ public class FlareBot {
             }
         }.repeat(300000, 300000);
         client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
+        Scanner scanner = new Scanner(System.in);
+
+        if (scanner.next().equalsIgnoreCase("exit")) {
+            quit(false);
+        } else if (scanner.next().equalsIgnoreCase("update")) {
+            quit(true);
+        }
+
     }
 
     public void quit(boolean update) {
