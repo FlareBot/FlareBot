@@ -105,7 +105,7 @@ public class FlareBot {
     }
 
     public void init(String tkn) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> quit(false)));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
             client = new ClientBuilder().withToken(tkn).login();
@@ -284,14 +284,16 @@ public class FlareBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        LOGGER.debug("Saved.");
-        LOGGER.debug("Stopping bot.");
-        if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
-            client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
-        try {
-            client.logout();
-        } catch (RateLimitException | DiscordException e) {
-            LOGGER.error(Markers.NO_ANNOUNCE, "Problem", e);
+        if(client.isReady()) {
+            LOGGER.debug("Saved.");
+            LOGGER.debug("Stopping bot.");
+            if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
+                client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
+            try {
+                client.logout();
+            } catch (RateLimitException | DiscordException e) {
+                LOGGER.error(Markers.NO_ANNOUNCE, "Problem", e);
+            }
         }
     }
 
