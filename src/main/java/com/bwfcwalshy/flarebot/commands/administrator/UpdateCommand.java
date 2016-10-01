@@ -58,11 +58,11 @@ public class UpdateCommand implements Command {
             s1Build = Integer.parseInt(split[2]);
 
         String[] split2 = s2.split("\\.");
-        int s2Major = Integer.parseInt(split[0]);
-        int s2Minor = Integer.parseInt(split[0]);
+        int s2Major = Integer.parseInt(split2[0]);
+        int s2Minor = Integer.parseInt(split2[0]);
         int s2Build = 0;
         if (split2.length == 3)
-            s2Build = Integer.parseInt(split[0]);
+            s2Build = Integer.parseInt(split2[0]);
 
         return s1Major > s2Major || s1Minor > s2Minor || s1Build > s2Build;
     }
