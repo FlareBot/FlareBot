@@ -174,9 +174,6 @@ public class FlareBot {
         registerCommand(new WelcomeCommand(this));
         registerCommand(new PermissionsCommand());
         registerCommand(new UpdateCommand());
-
-        client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
-
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
@@ -197,6 +194,13 @@ public class FlareBot {
                 }
             }
         }.repeat(300000, 300000);
+
+        new FlarebotTask("StatusUpdater" + System.currentTimeMillis()){
+            @Override
+            public void run() {
+                client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
+            }
+        }.repeat(1, 60000);
     }
 
     public void quit(boolean update) {
@@ -285,6 +289,8 @@ public class FlareBot {
             e.printStackTrace();
         }
         LOGGER.debug("Saved.");
+        if(!client.isReady())
+            return;
         LOGGER.debug("Stopping bot.");
         if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
             client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
