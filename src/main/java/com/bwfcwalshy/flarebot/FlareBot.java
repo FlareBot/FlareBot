@@ -34,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class FlareBot {
@@ -308,7 +307,7 @@ public class FlareBot {
     }
 
     public String getUptime() {
-        long totalSeconds = ((System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1)) - startTime) / 1000;
+        long totalSeconds = (System.currentTimeMillis() - startTime) / 1000;
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;
         long hours = (totalSeconds / 3600);
