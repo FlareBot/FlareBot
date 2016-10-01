@@ -7,6 +7,7 @@ import com.bwfcwalshy.flarebot.commands.CommandType;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.Status;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,13 +21,12 @@ public class UpdateCommand implements Command {
         if(getPermissions(channel).isCreator(sender)){
             try {
                 URL url = new URL("https://raw.githubusercontent.com/bwfcwalshyPluginDev/FlareBot/master/pom.xml");
-                boolean searching = true;
                 BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
                 String line;
-                while (searching) {
+                while (true) {
                     line = br.readLine();
                     if(line != null && (line.contains("<version>") && line.contains("</version>"))){
-                        searching = false;
+                        FlareBot.getInstance().getClient().changeStatus(Status.game("Updating.."));
                         String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "").replaceAll("\t", "");
                         String currentVersion = FlareBot.getInstance().getVersion();
                         if(isHigher(latestVersion, currentVersion)){
@@ -35,6 +35,7 @@ public class UpdateCommand implements Command {
                         }else{
                             MessageUtils.sendMessage(channel, "I am currently up to date! Current version: `" + currentVersion + "`");
                         }
+                        break;
                     }
                 }
             }catch(IOException e){
