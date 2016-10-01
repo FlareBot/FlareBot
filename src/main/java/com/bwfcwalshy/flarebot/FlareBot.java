@@ -284,16 +284,14 @@ public class FlareBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(client.isReady()) {
-            LOGGER.debug("Saved.");
-            LOGGER.debug("Stopping bot.");
-            if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
-                client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
-            try {
-                client.logout();
-            } catch (RateLimitException | DiscordException e) {
-                LOGGER.error(Markers.NO_ANNOUNCE, "Problem", e);
-            }
+        LOGGER.debug("Saved.");
+        LOGGER.debug("Stopping bot.");
+        if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
+            client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
+        try {
+            client.logout();
+        } catch (RateLimitException | DiscordException e) {
+            LOGGER.error(Markers.NO_ANNOUNCE, "Problem", e);
         }
     }
 
