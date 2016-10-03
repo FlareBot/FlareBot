@@ -8,6 +8,8 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
+import java.util.Arrays;
+
 public class HelpCommand implements Command {
 
     private FlareBot flareBot;
@@ -18,10 +20,16 @@ public class HelpCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if(args.length == 1){
-            CommandType type = CommandType.valueOf(args[0].toUpperCase());
-            if(type != null && type != CommandType.HIDDEN){
+            CommandType type;
+            try {
+                type = CommandType.valueOf(args[0].toUpperCase());
+            } catch (IllegalArgumentException ignored){
+                MessageUtils.sendMessage(channel, "No such category!");
+                return;
+            }
+            if(type != CommandType.HIDDEN){
                 StringBuilder sb = new StringBuilder();
-                sb.append("**FlareBot _" + type.toString() + "_ Commands**\n```xl\n");
+                sb.append("**FlareBot _").append(type.toString()).append("_ Commands**\n```fix\n");
                 for(Command commands : flareBot.getCommandsByType(type)){
                     sb.append("  " + FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
                 }
@@ -38,14 +46,15 @@ public class HelpCommand implements Command {
 
     private void sendCommands(IChannel channel){
         StringBuilder sb = new StringBuilder();
-        sb.append("**FlareBot commands**\n```xl\n");
-        for(CommandType type : CommandType.getTypes()) {
+        sb.append("**FlareBot commands**\n```fix\n");
+        Arrays.stream(CommandType.getTypes()).filter(type -> type != CommandType.HIDDEN).forEach(type -> {
             sb.append(type.toString()).append("\n");
+            int i = 0;
             for (Command commands : flareBot.getCommandsByType(type)) {
-                sb.append("  " + FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
+                sb.append("  Command #").append(++i).append(" ").append(FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
             }
             sb.append("\n");
-        }
+        });
         sb.append("```");
 
         MessageUtils.sendMessage(channel, sb.toString());
