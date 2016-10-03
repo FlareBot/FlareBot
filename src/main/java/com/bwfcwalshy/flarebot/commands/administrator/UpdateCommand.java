@@ -28,7 +28,7 @@ public class UpdateCommand implements Command {
                     if(line != null && (line.contains("<version>") && line.contains("</version>"))){
                         String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "").replaceAll("\t", "");
                         String currentVersion = FlareBot.getInstance().getVersion();
-                        if(isHigher(latestVersion, currentVersion)){
+                        if((args.length == 1 && args[0].equalsIgnoreCase("force")) || isHigher(latestVersion, currentVersion)){
                             FlareBot.getInstance().getClient().changeStatus(Status.game("Updating.."));
                             MessageUtils.sendMessage(channel, "Updating to version `" + latestVersion + "` from `" + currentVersion + "`");
                             FlareBot.getInstance().quit(true);

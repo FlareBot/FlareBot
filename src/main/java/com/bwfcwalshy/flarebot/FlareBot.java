@@ -187,7 +187,12 @@ public class FlareBot {
                 }
             }
         }.repeat(300000, 300000);
-        client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
+        new FlarebotTask("FixThatStatus" + System.currentTimeMillis()){
+            @Override
+            public void run() {
+                client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
+            }
+        }.repeat(60000, 60000);
         Scanner scanner = new Scanner(System.in);
 
         if (scanner.next().equalsIgnoreCase("exit")) {

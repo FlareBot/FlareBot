@@ -49,9 +49,8 @@ public class HelpCommand implements Command {
         sb.append("**FlareBot commands**\n```fix\n");
         Arrays.stream(CommandType.getTypes()).filter(type -> type != CommandType.HIDDEN).forEach(type -> {
             sb.append(type.toString()).append("\n");
-            int i = 0;
             for (Command commands : flareBot.getCommandsByType(type)) {
-                sb.append("  Command #").append(++i).append(" ").append(FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
+                sb.append("  ").append(FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
             }
             sb.append("\n");
         });
