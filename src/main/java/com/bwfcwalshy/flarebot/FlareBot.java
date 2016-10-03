@@ -192,7 +192,7 @@ public class FlareBot {
             public void run() {
                 client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
             }
-        }.repeat(60000, 60000);
+        }.repeat(10, 60000);
         Scanner scanner = new Scanner(System.in);
 
         if (scanner.next().equalsIgnoreCase("exit")) {
