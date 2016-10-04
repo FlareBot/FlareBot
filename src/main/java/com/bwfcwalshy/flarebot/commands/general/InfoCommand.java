@@ -4,10 +4,13 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.sun.management.OperatingSystemMXBean;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+
+import java.lang.management.ManagementFactory;
 
 public class InfoCommand implements Command {
 
@@ -33,11 +36,12 @@ public class InfoCommand implements Command {
                 + "\nUptime: " + flareBot.getUptime()
                 + "\nMemory Usage: " + getMb(runtime.totalMemory() - runtime.freeMemory())
                 + "\nFree Memory: " + getMb(runtime.freeMemory())
-                + "\n" + DIVIDER
+                + "\nCPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 100))
+                + "%\n" + DIVIDER
                 + "\nSupport Server: http://discord.me/flarebot"
                 + "\nMade with love by bwfcwalshy#1284 and Arsen#3291\n"
-                + "https://github.com/bwfcwalshyPluginDev/FlareBot\n"
-                + "```";
+                + "```\n"
+                + "https://github.com/bwfcwalshyPluginDev/FlareBot";
 
         MessageUtils.sendMessage(channel, msg);
     }

@@ -90,7 +90,11 @@ public class Events {
                                     return;
                                 }
                             }
-                            cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
+                            try {
+                                cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
+                            }catch (Exception ex){
+                                MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
+                            }
                             return;
                         }
                     }

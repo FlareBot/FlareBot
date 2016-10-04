@@ -7,7 +7,6 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -41,7 +40,7 @@ public class MessageUtils {
         return s.replaceAll("[/\\\\*:?\"<>|]", "");
     } // Jesus christ
 
-    public static IMessage sendException(String s, IOException e, IChannel channel) {
+    public static IMessage sendException(String s, Exception e, IChannel channel) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
