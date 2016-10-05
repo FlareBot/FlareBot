@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.bwfcwalshy</groupId>
     <artifactId>flarebot</artifactId>
-    <version>1.0.13</version>
+    <version>1.0.14</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>com.github.austinv11</groupId>
             <artifactId>Discord4j</artifactId>
-            <version>dev-SNAPSHOT</version>
+            <version>websocket-rewrite-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

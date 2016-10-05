@@ -292,7 +292,7 @@ public class FlareBot {
         if(!client.isReady())
             return;
         LOGGER.debug("Stopping bot.");
-        if (client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
+        if (client.isLoggedIn() && client.isReady() && client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
             client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
         try {
             client.logout();
