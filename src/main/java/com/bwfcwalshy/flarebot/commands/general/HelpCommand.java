@@ -35,7 +35,7 @@ public class HelpCommand implements Command {
                 }
                 sb.append("```");
 
-                MessageUtils.sendMessage(channel, sb.toString());
+                MessageUtils.sendMessage(channel, sb);
             }else{
                 sendCommands(channel);
             }

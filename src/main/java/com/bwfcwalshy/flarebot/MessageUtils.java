@@ -12,10 +12,10 @@ import java.io.StringWriter;
 
 public class MessageUtils {
 
-    public static IMessage sendMessage(IChannel channel, String message){
+    public static IMessage sendMessage(IChannel channel, CharSequence message){
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
-                return channel.sendMessage(message.substring(0, Math.min(message.length(), 1999)));
+                return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
             } catch (MissingPermissionsException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             } catch (DiscordException e) {
