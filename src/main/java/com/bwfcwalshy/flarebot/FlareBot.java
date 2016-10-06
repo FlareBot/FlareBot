@@ -217,7 +217,7 @@ public class FlareBot {
                     while (p.isAlive()) {
                         String line;
                         if ((line = reader.readLine()) != null) {
-                            out += line + System.getProperty("line.seperator");
+                            out += line + '\n';
                         }
                     }
                     if (p.exitValue() != 0) {
@@ -233,7 +233,7 @@ public class FlareBot {
                     while (p.isAlive()) {
                         String line;
                         if ((line = reader.readLine()) != null) {
-                            out += line + System.getProperty("line.seperator");
+                            out += line + '\n';
                         }
                     }
                     if (p.exitValue() != 0) {
@@ -249,7 +249,7 @@ public class FlareBot {
                 while (p.isAlive()) {
                     String line;
                     if ((line = reader.readLine()) != null) {
-                        out += line + System.getProperty("line.seperator");
+                        out += line + '\n';
                     }
                 }
                 if (p.exitValue() != 0) {
