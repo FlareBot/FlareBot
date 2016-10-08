@@ -36,7 +36,7 @@ public class MusicManager {
             //track.getMetadata().put("duration", duration);
             player.queue(track);
         } catch (IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
+            FlareBot.LOGGER.error("Could not add song", e);
         }
         players.put(guildId, player);
     }

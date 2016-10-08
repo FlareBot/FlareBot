@@ -27,21 +27,22 @@ public class VideoThread extends Thread {
     private IChannel channel;
     private boolean isUrl = false;
     private boolean isShortened = false;
+
     public VideoThread(String term, IUser user, IChannel channel) {
         this.searchTerm = term;
         this.user = user;
         this.channel = channel;
-        if(manager == null) manager = FlareBot.getInstance().getMusicManager();
+        if (manager == null) manager = FlareBot.getInstance().getMusicManager();
         start();
     }
 
-    public VideoThread(String termOrUrl, IUser user, IChannel channel, boolean url, boolean shortened){
+    public VideoThread(String termOrUrl, IUser user, IChannel channel, boolean url, boolean shortened) {
         this.searchTerm = termOrUrl;
         this.user = user;
         this.channel = channel;
         this.isUrl = url;
         this.isShortened = shortened;
-        if(manager == null) manager = FlareBot.getInstance().getMusicManager();
+        if (manager == null) manager = FlareBot.getInstance().getMusicManager();
         start();
     }
 
@@ -51,7 +52,7 @@ public class VideoThread extends Thread {
     private static final String EXTENSION = ".mp3";
 
     @Override
-    public void run(){
+    public void run() {
         long a = System.currentTimeMillis();
         //TODO: Severely clean this up!!!
         try {
@@ -60,25 +61,25 @@ public class VideoThread extends Thread {
             String videoFile;
             String link;
             String videoId;
-            if(isUrl){
-                if(isShortened){
+            if (isUrl) {
+                if (isShortened) {
                     searchTerm = YOUTUBE_URL + searchTerm.replaceFirst("http(s)?:\\/\\/youtu.be", "");
                 }
                 message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                 Document doc = Jsoup.connect(searchTerm).get();
                 videoId = searchTerm.replaceFirst("http(s)?:\\/\\/wwww.youtube.com/watch?v=", "");
                 // Playlist
-                if(videoId.contains("&list")) videoId.substring(0, videoId.indexOf("&list")+5);
+                if (videoId.contains("&list")) videoId.substring(0, videoId.indexOf("&list") + 5);
                 videoName = MessageUtils.escapeFile(doc.title().replace(" - YouTube", ""));
                 videoFile = videoName + "-" + videoId;
                 link = searchTerm;
-            }else {
+            } else {
                 message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
                 Document doc = Jsoup.connect(SEARCH_URL + URLEncoder.encode(searchTerm, "UTF-8")).get();
 
                 Element videoElement = doc.getElementsByClass("yt-lockup-title").get(0);
-                for(Element e : videoElement.children()){
-                    if(e.className().contains("ad-badge")) {
+                for (Element e : videoElement.children()) {
+                    if (e.className().contains("ad-badge")) {
                         videoElement = doc.getElementsByClass("yt-lockup-title").get(1);
                         break;
                     }
@@ -88,26 +89,27 @@ public class VideoThread extends Thread {
                 Document doc2 = Jsoup.connect(YOUTUBE_URL + link).get();
                 videoName = MessageUtils.escapeFile(doc2.title().replace(" - YouTube", ""));
                 videoFile = videoName + "-" + link.substring(link.indexOf("v=") + 2);
-                videoId = link.substring(link.indexOf("v=")+2);
+                videoId = link.substring(link.indexOf("v=") + 2);
 
                 link = YOUTUBE_URL + link;
             }
-            if(new File("cached" + File.separator + videoFile + EXTENSION).exists()){
+            if (new File("cached" + File.separator + videoFile + EXTENSION).exists()) {
                 message.edit("Loading cached video!");
                 manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION);
                 message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
-            }else{
+            } else {
                 message.edit("Downloading video!");
 
-                ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o", "cached/%(title)s" + "-" + videoId + ".%(ext)s", "--extract-audio", "--audio-format"
+                ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-k", "-o",
+                        "cached/%(title)s" + "-" + videoId + ".%(ext)s", "--extract-audio", "--audio-format"
                         , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
                 builder.redirectErrorStream(true);
                 Process process = builder.start();
-                try(BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
-                    while(process.isAlive()){
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    while (process.isAlive()) {
                         String line;
-                        if((line = reader.readLine()) != null){
+                        if ((line = reader.readLine()) != null) {
                             FlareBot.LOGGER.debug(line);
                         }
                     }
@@ -115,11 +117,8 @@ public class VideoThread extends Thread {
                 manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION);
                 message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
             }
-        } catch (IOException | RateLimitException e) {
+        } catch (IOException | RateLimitException | DiscordException e) {
             FlareBot.LOGGER.error(e.getMessage(), e);
-        } catch (DiscordException e) {
-            if(!e.getMessage().contains("CloudFlare"))
-                FlareBot.LOGGER.error(e.getMessage(), e);
         } catch (MissingPermissionsException ignored) {
         }
         long b = System.currentTimeMillis();
