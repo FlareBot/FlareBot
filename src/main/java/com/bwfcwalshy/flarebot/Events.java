@@ -12,6 +12,7 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Events {
@@ -68,6 +69,9 @@ public class Events {
 
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
+                    MessageUtils.sendMessage(e.getMessage().getChannel(),
+                            "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                    e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                     if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
                         if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
                             MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
@@ -84,6 +88,9 @@ public class Events {
                 } else {
                     for (String alias : cmd.getAliases()) {
                         if (alias.equalsIgnoreCase(command)) {
+                            MessageUtils.sendMessage(e.getMessage().getChannel(),
+                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                            e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                             if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
                                 if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
                                     MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
