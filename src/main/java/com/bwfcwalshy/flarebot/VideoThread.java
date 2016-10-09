@@ -9,7 +9,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.RequestBuffer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -54,7 +54,8 @@ public class VideoThread extends Thread {
     @Override
     public void run() {
         long a = System.currentTimeMillis();
-        //TODO: Severely clean this up!!!
+        // TODO: Severely clean this up!!!
+        // ^ EDIT BY Arsen: A space goes there..
         try {
             IMessage message;
             String videoName;
@@ -63,11 +64,11 @@ public class VideoThread extends Thread {
             String videoId;
             if (isUrl) {
                 if (isShortened) {
-                    searchTerm = YOUTUBE_URL + searchTerm.replaceFirst("http(s)?:\\/\\/youtu.be", "");
+                    searchTerm = YOUTUBE_URL + searchTerm.replaceFirst("http(s)?://youtu\\.be", "");
                 }
                 message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                 Document doc = Jsoup.connect(searchTerm).get();
-                videoId = searchTerm.replaceFirst("http(s)?:\\/\\/wwww.youtube.com/watch?v=", "");
+                videoId = searchTerm.replaceFirst("http(s)?://(www\\.)?youtube\\.com/watch\\?v=", "");
                 // Playlist
                 if (videoId.contains("&list")) videoId.substring(0, videoId.indexOf("&list") + 5);
                 videoName = MessageUtils.escapeFile(doc.title().replace(" - YouTube", ""));
@@ -88,20 +89,31 @@ public class VideoThread extends Thread {
                 // I check the index of 2 chars so I need to add 2
                 Document doc2 = Jsoup.connect(YOUTUBE_URL + link).get();
                 videoName = MessageUtils.escapeFile(doc2.title().replace(" - YouTube", ""));
-                videoFile = videoName + "-" + link.substring(link.indexOf("v=") + 2);
                 videoId = link.substring(link.indexOf("v=") + 2);
+                videoFile = videoName + "-" + videoId;
 
                 link = YOUTUBE_URL + link;
             }
-            if (new File("cached" + File.separator + videoFile + EXTENSION).exists()) {
-                message.edit("Loading cached video!");
+            File video = new File("cached" + File.separator + videoFile + EXTENSION);
+            if (video.exists()) {
                 manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION);
-                message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
+                RequestBuffer.request(() -> {
+                    try {
+                        message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
+                    } catch (MissingPermissionsException | DiscordException e) {
+                        FlareBot.LOGGER.error("Could not edit own message!", e);
+                    }
+                });
             } else {
-                message.edit("Downloading video!");
-
+                RequestBuffer.request(() -> {
+                    try {
+                        message.edit("Downloading video!");
+                    } catch (MissingPermissionsException | DiscordException e) {
+                        FlareBot.LOGGER.error("Could not edit own message!", e);
+                    }
+                });
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-k", "-o",
-                        "cached/%(title)s" + "-" + videoId + ".%(ext)s", "--extract-audio", "--audio-format"
+                        video.getAbsolutePath(), "--extract-audio", "--audio-format"
                         , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
                 builder.redirectErrorStream(true);
@@ -114,13 +126,24 @@ public class VideoThread extends Thread {
                         }
                     }
                 }
-                if(manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION)) {
-                    message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
-                } else message.edit("Failed to add **" + videoName + "**!");
+                if (manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION)) {
+                    RequestBuffer.request(() -> {
+                        try {
+                            message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
+                        } catch (MissingPermissionsException | DiscordException e) {
+                            FlareBot.LOGGER.error("Could not edit own message!", e);
+                        }
+                    });
+                } else RequestBuffer.request(() -> {
+                    try {
+                        message.edit("Failed to add **" + videoName + "**!");
+                    } catch (MissingPermissionsException | DiscordException e) {
+                        FlareBot.LOGGER.error("Could not edit own message!", e);
+                    }
+                });
             }
-        } catch (IOException | RateLimitException | DiscordException e) {
+        } catch (IOException e) {
             FlareBot.LOGGER.error(e.getMessage(), e);
-        } catch (MissingPermissionsException ignored) {
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
