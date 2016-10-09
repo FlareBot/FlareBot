@@ -69,7 +69,7 @@ public class Events {
 
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
-                    MessageUtils.sendMessage(e.getMessage().getChannel(),
+                    FlareBot.LOGGER.info(
                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                     if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
@@ -88,7 +88,7 @@ public class Events {
                 } else {
                     for (String alias : cmd.getAliases()) {
                         if (alias.equalsIgnoreCase(command)) {
-                            MessageUtils.sendMessage(e.getMessage().getChannel(),
+                            FlareBot.LOGGER.info(
                                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                             e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                             if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
