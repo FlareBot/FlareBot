@@ -113,7 +113,8 @@ public class VideoThread extends Thread {
                     }
                 });
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-k", "-o",
-                        video.getAbsolutePath(), "--extract-audio", "--audio-format"
+                        video.getAbsolutePath().substring(0, video.getAbsolutePath().length() - 4),
+                        "--extract-audio", "--audio-format"
                         , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
                 builder.redirectErrorStream(true);
