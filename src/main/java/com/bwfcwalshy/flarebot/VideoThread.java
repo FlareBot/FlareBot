@@ -113,7 +113,7 @@ public class VideoThread extends Thread {
                     }
                 });
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-k", "-o",
-                        video + ".%(ext)s",
+                        videoFile + ".%(ext)s",
                         "--extract-audio", "--audio-format"
                         , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
@@ -139,7 +139,7 @@ public class VideoThread extends Thread {
                     return;
                 }
             }
-            if (manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION)) {
+            if (manager.addSong(channel.getGuild().getID(), video.getName())) {
                 RequestBuffer.request(() -> {
                     try {
                         message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
