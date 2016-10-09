@@ -110,12 +110,13 @@ public class VideoThread extends Thread {
                     while (process.isAlive()) {
                         String line;
                         if ((line = reader.readLine()) != null) {
-                            FlareBot.LOGGER.debug(line);
+                            FlareBot.LOGGER.info("[YT-DL] " + line);
                         }
                     }
                 }
-                manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION);
-                message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
+                if(manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION)) {
+                    message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
+                } else message.edit("Failed to add **" + videoName + "**!");
             }
         } catch (IOException | RateLimitException | DiscordException e) {
             FlareBot.LOGGER.error(e.getMessage(), e);

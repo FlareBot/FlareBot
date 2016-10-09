@@ -22,11 +22,9 @@ public class MusicManager {
         this.bot = flareBot;
     }
 
-    public void addSong(String guildId, String musicFile){
-        AudioPlayer player;
-        if(players.containsKey(guildId))
-            player = players.get(guildId);
-        else player = AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(guildId));
+    public boolean addSong(String guildId, String musicFile){
+        AudioPlayer player = players.computeIfAbsent(guildId,
+                id -> AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(id)));
         try {
             AudioInputStream input = AudioSystem.getAudioInputStream(new File("cached" + File.separator + musicFile));
             //FileProvider file = new FileProvider("cached" + File.separator + musicFile);
@@ -37,8 +35,10 @@ public class MusicManager {
             player.queue(track);
         } catch (IOException | UnsupportedAudioFileException e) {
             FlareBot.LOGGER.error("Could not add song", e);
+            return false;
         }
         players.put(guildId, player);
+        return true;
     }
 
     public void pause(String guildId){
