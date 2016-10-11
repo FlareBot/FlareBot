@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
 
 public class VideoThread extends Thread {
 
@@ -82,11 +80,9 @@ public class VideoThread extends Thread {
 
                 int i = 0;
                 Element videoElement = doc.getElementsByClass("yt-lockup-title").get(i);
-                for (Element e : videoElement.children()) {
-                    if (e.className().contains("ad-badge")) {
-                        videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                        break;
-                    }
+                Element lookedAt = videoElement.children().first();
+                while(lookedAt.hasClass("ad-badge")){
+                    lookedAt = videoElement.child(++i);
                 }
                 link = videoElement.select("a").first().attr("href");
                 // I check the index of 2 chars so I need to add 2
