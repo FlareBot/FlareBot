@@ -41,6 +41,7 @@ public class FlareBot {
     private static FlareBot instance;
     private static String[] args;
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
+    static String dBotsAuth;
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
     @SuppressWarnings("FieldCanBeLocal")
@@ -67,6 +68,12 @@ public class FlareBot {
         secret.setRequired(false);
         options.addOption(secret);
 
+        Option dBots = new Option("db", true, "Discord Bots token");
+        dBots.setArgName("discord-bots");
+        dBots.setLongOpt("discord-bots-token");
+        dBots.setRequired(false);
+        options.addOption(dBots);
+
         String tkn;
         try {
             CommandLineParser parser = new DefaultParser();
@@ -74,6 +81,8 @@ public class FlareBot {
             tkn = parsed.getOptionValue("t");
             if (parsed.hasOption("s"))
                 FlareBot.secret = parsed.getOptionValue("s");
+            if (parsed.hasOption("db"))
+                FlareBot.dBotsAuth = parsed.getOptionValue("db");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/bwfcwalshyPluginDev/FlareBot", true);
@@ -192,7 +201,7 @@ public class FlareBot {
             public void run() {
                 client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
             }
-        }.repeat(10, 60000);
+        }.repeat(10, 32000);
         Scanner scanner = new Scanner(System.in);
 
         if (scanner.next().equalsIgnoreCase("exit")) {

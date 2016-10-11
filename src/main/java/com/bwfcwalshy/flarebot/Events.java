@@ -2,7 +2,12 @@ package com.bwfcwalshy.flarebot;
 
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.util.Welcome;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.handle.impl.events.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.UserJoinEvent;
@@ -12,12 +17,15 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class Events {
 
     private FlareBot flareBot;
+
+    private HttpClient client = HttpClientBuilder.create().build();
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -51,6 +59,22 @@ public class Events {
                         }
                     });
                 } else autoAssignRoles.remove(s);
+            }
+        }
+    }
+
+    @EventSubscriber
+    public void onGuild(GuildCreateEvent e){
+        if(FlareBot.dBotsAuth != null){
+            try {
+                HttpPost req =
+                        new HttpPost("https://bots.discord.pw/api/bots/" + flareBot.getClient().getOurUser().getID() + "/stats");
+                StringEntity ent = new StringEntity("");
+                req.setEntity(ent);
+                req.setHeader("Authorization", FlareBot.dBotsAuth);
+                client.execute(req);
+            } catch (IOException e1) {
+                FlareBot.LOGGER.error("Could not POST data to DBots", e1);
             }
         }
     }
