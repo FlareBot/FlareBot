@@ -157,14 +157,6 @@ public class VideoThread extends Thread {
                     FlareBot.LOGGER.error("Could not edit own message!", e);
                 }
             });
-            Files.walk(new File("cached" + File.separator).toPath(), FileVisitOption.FOLLOW_LINKS)
-                    .filter(path -> !path.endsWith(".mp3"))
-                    .forEach(path -> {
-                        try {
-                            Files.deleteIfExists(path);
-                        } catch (IOException ignored) {
-                        }
-                    });
         } catch (IOException | InterruptedException e) {
             FlareBot.LOGGER.error(e.getMessage(), e);
         }
