@@ -8,8 +8,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MusicManager {
 
@@ -18,7 +18,7 @@ public class MusicManager {
 
     private FlareBot bot;
     public MusicManager(FlareBot flareBot){
-        players = new HashMap<>();
+        players = new ConcurrentHashMap<>();
         this.bot = flareBot;
     }
 

@@ -83,6 +83,9 @@ public class Events {
                         cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
                     } catch (Exception ex) {
                         MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
+                        FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
+                                + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                        e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), e);
                     }
                     return;
                 } else {
