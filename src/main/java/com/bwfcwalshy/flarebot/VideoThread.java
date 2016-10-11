@@ -78,10 +78,11 @@ public class VideoThread extends Thread {
                 message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
                 Document doc = Jsoup.connect(SEARCH_URL + URLEncoder.encode(searchTerm, "UTF-8")).get();
 
-                Element videoElement = doc.getElementsByClass("yt-lockup-title").get(0);
+                int i = 0;
+                Element videoElement = doc.getElementsByClass("yt-lockup-title").get(i);
                 for (Element e : videoElement.children()) {
                     if (e.className().contains("ad-badge")) {
-                        videoElement = doc.getElementsByClass("yt-lockup-title").get(1);
+                        videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
                         break;
                     }
                 }

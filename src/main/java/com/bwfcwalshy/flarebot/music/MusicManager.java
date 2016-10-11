@@ -71,8 +71,9 @@ public class MusicManager {
 
     public void setVolume(String guildId, int i){
         if(i >= 0 && i <= 100){
-            FlareBot.LOGGER.debug(String.valueOf((float) i /100));
-            FlareBot.LOGGER.debug(String.valueOf(players.get(guildId).getVolume()));
+            if(!players.containsKey(guildId)){
+                return;
+            }
             players.get(guildId).setVolume((float) i / 100);
         }
     }
