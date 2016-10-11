@@ -1,3 +1,8 @@
 .idea
-.gitignore
 flarebot.iml
+cached/
+modules/
+perms.json
+roles.json
+target/
+welcomes.json
