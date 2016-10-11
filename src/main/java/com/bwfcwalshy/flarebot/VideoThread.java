@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
 
 public class VideoThread extends Thread {
 
@@ -113,7 +115,7 @@ public class VideoThread extends Thread {
                         FlareBot.LOGGER.error("Could not edit own message!", e);
                     }
                 });
-                ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-k", "-o",
+                ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
                         "cached" + File.separator + videoFile + ".%(ext)s",
                         "--extract-audio", "--audio-format"
                         , "mp3", link);
@@ -155,6 +157,14 @@ public class VideoThread extends Thread {
                     FlareBot.LOGGER.error("Could not edit own message!", e);
                 }
             });
+            Files.walk(new File("cached" + File.separator).toPath(), FileVisitOption.FOLLOW_LINKS)
+                    .filter(path -> !path.endsWith(".mp3"))
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException ignored) {
+                        }
+                    });
         } catch (IOException | InterruptedException e) {
             FlareBot.LOGGER.error(e.getMessage(), e);
         }
