@@ -15,6 +15,8 @@ import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.google.gson.*;
 import org.apache.commons.cli.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -220,7 +222,9 @@ public class FlareBot {
                                 "}");
                         req.setEntity(ent);
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
-                        http.execute(req);
+                        HttpEntity e = http.execute(req).getEntity();
+                        InputStream res = e.getContent();
+                        LOGGER.info(IOUtils.toString(res, e.getContentEncoding().getValue()));
                     } catch (IOException e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
                     }

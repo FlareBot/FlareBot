@@ -11,7 +11,7 @@
         <appender-ref ref="STDOUT" />
     </root>
     <configuration>
-        <logger name="org.apache" level="WARN" />
-        <logger name="httpclient" level="WARN" />
+        <logger name="org.apache" level="NONE" />
+        <logger name="httpclient" level="NONE" />
     </configuration>
 </configuration>
