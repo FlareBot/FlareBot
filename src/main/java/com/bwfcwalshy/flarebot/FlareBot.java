@@ -203,23 +203,23 @@ public class FlareBot {
                 }
             }
         }.repeat(300000, 300000);
-        new FlarebotTask("FixThatStatus" + System.currentTimeMillis()){
+        new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
             }
         }.repeat(10, 32000);
-        new FlarebotTask("PostData"+System.currentTimeMillis()){
+        new FlarebotTask("PostData" + System.currentTimeMillis()) {
 
             @Override
             public void run() {
-                if(FlareBot.dBotsAuth != null){
+                if (FlareBot.dBotsAuth != null) {
                     try {
                         HttpPost req =
                                 new HttpPost("https://bots.discord.pw/api/bots/" + getClient().getOurUser().getID() + "/stats");
-                        StringEntity ent = new StringEntity("{\n" +
-                                "    \"server_count\": " + getClient().getGuilds().size() + '\n' +
-                                "}");
+                        StringEntity ent = new StringEntity(GSON.toJson(new Object() {
+                            int server_count = getClient().getGuilds().size();
+                        }));
                         req.setEntity(ent);
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
                         HttpEntity e = http.execute(req).getEntity();
@@ -327,7 +327,7 @@ public class FlareBot {
             e.printStackTrace();
         }
         LOGGER.debug("Saved.");
-        if(!client.isReady())
+        if (!client.isReady())
             return;
         LOGGER.debug("Stopping bot.");
         if (client.isReady() && client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
