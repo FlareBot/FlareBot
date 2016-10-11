@@ -224,7 +224,7 @@ public class FlareBot {
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
                         HttpEntity e = http.execute(req).getEntity();
                         InputStream res = e.getContent();
-                        LOGGER.info(IOUtils.toString(res, e.getContentEncoding().getValue()));
+                        LOGGER.info(IOUtils.toString(res, "UTF-8"));
                     } catch (IOException e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
                     }
