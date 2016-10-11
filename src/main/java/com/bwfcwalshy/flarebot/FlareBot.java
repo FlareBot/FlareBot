@@ -15,6 +15,10 @@ import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.google.gson.*;
 import org.apache.commons.cli.*;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.Discord4J;
@@ -41,7 +45,8 @@ public class FlareBot {
     private static FlareBot instance;
     private static String[] args;
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
-    static String dBotsAuth;
+    private static String dBotsAuth;
+    private HttpClient http = HttpClientBuilder.create().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
     @SuppressWarnings("FieldCanBeLocal")
@@ -202,6 +207,26 @@ public class FlareBot {
                 client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
             }
         }.repeat(10, 32000);
+        new FlarebotTask("PostData"+System.currentTimeMillis()){
+
+            @Override
+            public void run() {
+                if(FlareBot.dBotsAuth != null){
+                    try {
+                        HttpPost req =
+                                new HttpPost("https://bots.discord.pw/api/bots/" + getClient().getOurUser().getID() + "/stats");
+                        StringEntity ent = new StringEntity("{\n" +
+                                "    \"server_count\": " + getClient().getGuilds().size() + '\n' +
+                                "}");
+                        req.setEntity(ent);
+                        req.setHeader("Authorization", FlareBot.dBotsAuth);
+                        http.execute(req);
+                    } catch (IOException e1) {
+                        FlareBot.LOGGER.error("Could not POST data to DBots", e1);
+                    }
+                }
+            }
+        }.repeat(10, 10000);
         Scanner scanner = new Scanner(System.in);
 
         if (scanner.next().equalsIgnoreCase("exit")) {
