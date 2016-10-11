@@ -48,7 +48,7 @@ public class FlareBot {
     private static String[] args;
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     private static String dBotsAuth;
-    private HttpClient http = HttpClientBuilder.create().build();
+    private HttpClient http = HttpClientBuilder.create().disableCookieManagement().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
     @SuppressWarnings("FieldCanBeLocal")
@@ -222,6 +222,7 @@ public class FlareBot {
                         }));
                         req.setEntity(ent);
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
+                        req.setHeader("Content-Type", "application/json");
                         HttpEntity e = http.execute(req).getEntity();
                         InputStream res = e.getContent();
                         LOGGER.info(IOUtils.toString(res, "UTF-8"));
