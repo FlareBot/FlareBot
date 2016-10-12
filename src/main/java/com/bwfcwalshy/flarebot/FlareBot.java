@@ -15,7 +15,6 @@ import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.google.gson.*;
 import org.apache.commons.cli.*;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -224,7 +223,6 @@ public class FlareBot {
                         req.setHeader("Content-Type", "application/json");
                         HttpResponse e = http.execute(req);
                         InputStream res = e.getEntity().getContent();
-                        LOGGER.info(IOUtils.toString(res, "UTF-8") + " | " + e.getStatusLine().getStatusCode());
                     } catch (IOException e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
                     }
