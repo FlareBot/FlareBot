@@ -1,5 +1,7 @@
 package com.bwfcwalshy.flarebot.scheduler;
 
+import com.bwfcwalshy.flarebot.FlareBot;
+
 import java.util.*;
 
 /**
@@ -18,6 +20,7 @@ public class Scheduler {
         TimerTask toPut = new TimerTask() {
             @Override
             public void run() {
+                FlareBot.LOGGER.info("Running task '" + taskName + '\'');
                 task.run();
             }
         };
