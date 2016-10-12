@@ -24,7 +24,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 .append("`\n");
         for(Commit commit : e.getCommits()){
             sb.append(":arrow_up: ").append("`")
-                    .append(commit.getId()).append("`").append(" :pencil: ").append("`")
+                    .append(commit.getId().substring(0, 7)).append("`").append(" :pencil: ").append("`")
                     .append(commit.getMessage()).append("`")
                     .append('\n').append(commit.getUrl());
 
