@@ -112,7 +112,7 @@ public class VideoThread extends Thread {
                     }
                 });
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
-                        "cached" + File.separator + videoFile + ".%(ext)s",
+                        "cached" + File.separator + "%(NAME)s.%(ext)s",
                         "--extract-audio", "--audio-format"
                         , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
