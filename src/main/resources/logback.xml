@@ -1,17 +1,15 @@
 <configuration>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="com.bwfcwalshy.flarebot.ErrorCatcher" />
+        <filter class="com.bwfcwalshy.flarebot.ErrorCatcher"/>
         <encoder>
             <pattern>[%d{yyyy.MM.dd HH:mm} %t %-5level] %msg%n</pattern>
         </encoder>
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT"/>
     </root>
-    <configuration>
-        <logger name="org.apache" level="NONE" />
-        <logger name="httpclient" level="NONE" />
-    </configuration>
+    <logger name="org.apache" level="NONE"/>
+    <logger name="httpclient" level="NONE"/>
 </configuration>
