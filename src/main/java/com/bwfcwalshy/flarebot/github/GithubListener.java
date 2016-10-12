@@ -25,7 +25,9 @@ public class GithubListener implements EventListener<PushEvent> {
         for(Commit commit : e.getCommits()){
             sb.append(":arrow_up: ").append("`")
                     .append(commit.getId()).append("`").append(" :pencil: ").append("`")
-                    .append(commit.getMessage()).append("`");
+                    .append(commit.getMessage()).append("`")
+                    .append('\n').append(commit.getUrl());
+
         }
         MessageUtils.sendMessage(FlareBot.getInstance().getClient().getChannelByID("229236239201468417"), sb.toString());
     }
