@@ -123,7 +123,7 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
-            client = new ClientBuilder().withToken(tkn).login();
+            client = new ClientBuilder().withMaxReconnectAttempts(30).withToken(tkn).login();
             client.getDispatcher().registerListener(new Events(this));
             Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
