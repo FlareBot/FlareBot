@@ -211,15 +211,17 @@ public class FlareBot {
         }.repeat(10, 32000);
         new FlarebotTask("PostData" + System.currentTimeMillis()) {
 
+            class DBotsPost {
+                public int server_count = FlareBot.getInstance().getClient().getGuilds().size();
+            }
+
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
                     try {
                         HttpPost req =
                                 new HttpPost("https://bots.discord.pw/api/bots/" + getClient().getOurUser().getID() + "/stats");
-                        StringEntity ent = new StringEntity(GSON.toJson(new Object() {
-                            int server_count = getClient().getGuilds().size();
-                        }));
+                        StringEntity ent = new StringEntity(GSON.toJson(new DBotsPost()));
                         req.setEntity(ent);
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
                         req.setHeader("Content-Type", "application/json");
