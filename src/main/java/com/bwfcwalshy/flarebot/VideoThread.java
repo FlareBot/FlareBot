@@ -59,7 +59,6 @@ public class VideoThread extends Thread {
         try {
             IMessage message;
             String videoName;
-            String videoFile;
             String link;
             String videoId;
             if (isUrl) {
@@ -72,7 +71,6 @@ public class VideoThread extends Thread {
                 // Playlist
                 if (videoId.contains("&list")) videoId.substring(0, videoId.indexOf("&list") + 5);
                 videoName = MessageUtils.escapeFile(doc.title().replace(" - YouTube", ""));
-                videoFile = videoName + "-" + videoId;
                 link = searchTerm;
             } else {
                 message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
@@ -82,8 +80,6 @@ public class VideoThread extends Thread {
                 Element videoElement = doc.getElementsByClass("yt-lockup-title").get(i);
                 boolean hasAd = true;
                 while (hasAd) {
-//                    videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-//                    lookedAt = videoElement.children().first();
                     for (Element e : videoElement.children()) {
                         if (e.toString().contains("href=\"https://googleads")) {
                             videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
@@ -93,15 +89,14 @@ public class VideoThread extends Thread {
                     hasAd = false;
                 }
                 link = videoElement.select("a").first().attr("href");
-                // I check the index of 2 chars so I need to add 2
                 Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
                 videoName = MessageUtils.escapeFile(doc2.title().substring(0, doc2.title().length() - 10));
+                // I check the index of 2 chars so I need to add 2
                 videoId = link.substring(link.indexOf("v=") + 2);
-                videoFile = videoName + "-" + videoId;
 
                 link = YOUTUBE_URL + link;
             }
-            File video = new File("cached" + File.separator + videoFile + EXTENSION);
+            File video = new File("cached" + File.separator + videoId + EXTENSION);
 //            if (video.exists()) {
 //                manager.addSong(channel.getGuild().getID(), videoFile + EXTENSION);
 //                RequestBuffer.request(() -> {
@@ -120,7 +115,7 @@ public class VideoThread extends Thread {
                     }
                 });
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
-                        "cached" + File.separator + "%(title)s-%(id)s.%(ext)s",
+                        "cached" + File.separator + "%(id)s.%(ext)s",
                         "--extract-audio", "--audio-format"
                         , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
