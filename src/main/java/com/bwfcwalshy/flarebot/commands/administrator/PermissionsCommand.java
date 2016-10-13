@@ -67,7 +67,7 @@ public class PermissionsCommand implements Command {
                 Group group3 = getPermissions(channel).getGroup(args[1]);
                 if (getPermissions(channel).removePermission(group3.getName(), args[2]))
                     MessageUtils.sendMessage(channel, "Success");
-                else MessageUtils.sendMessage(channel, "Group never had that permission");
+                else MessageUtils.sendMessage(channel, "Group already had that permission");
                 break;
             case "removepermission":
                 if (args.length < 3) {
