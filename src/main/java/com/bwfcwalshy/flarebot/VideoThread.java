@@ -141,7 +141,7 @@ public class VideoThread extends Thread {
                     return;
                 }
             }
-            if (manager.addSong(channel.getGuild().getID(), video.getName())) {
+            if (manager.addSong(channel.getGuild().getID(), video.getName(), videoName)) {
                 RequestBuffer.request(() -> {
                     try {
                         message.edit(user.mention() + " added: **" + videoName + "** to the playlist!");
