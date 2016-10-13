@@ -13,8 +13,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateCommand implements Command {
+
+    public static volatile AtomicBoolean updating = new AtomicBoolean(false);
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
@@ -31,6 +34,7 @@ public class UpdateCommand implements Command {
                         if((args.length == 1 && args[0].equalsIgnoreCase("force")) || isHigher(latestVersion, currentVersion)){
                             FlareBot.getInstance().getClient().changeStatus(Status.game("Updating.."));
                             MessageUtils.sendMessage(channel, "Updating to version `" + latestVersion + "` from `" + currentVersion + "`");
+                            updating.set(true);
                             FlareBot.getInstance().quit(true);
                         }else{
                             MessageUtils.sendMessage(channel, "I am currently up to date! Current version: `" + currentVersion + "`");
