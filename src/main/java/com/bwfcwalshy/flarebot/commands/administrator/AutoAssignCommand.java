@@ -50,7 +50,7 @@ public class AutoAssignCommand implements Command {
             } else if (args.length > 2) {
                 String passedRole = "";
                 for(int i = 1; i < args.length; i++)
-                    passedRole += args[i];
+                    passedRole += args[i] + ' ';
                 passedRole = passedRole.trim();
                 if (args[0].equalsIgnoreCase("add")) {
                     if (!validRole(channel.getGuild(), passedRole)) {
