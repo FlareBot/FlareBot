@@ -86,7 +86,6 @@ public class VideoThread extends Thread {
 //                    lookedAt = videoElement.children().first();
                     for (Element e : videoElement.children()) {
                         if (e.toString().contains("href=\"https://googleads")) {
-                            FlareBot.LOGGER.info(String.valueOf(videoElement.equals(doc.getElementsByClass("yt-lockup-title").get(++i))));
                             videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
                             break;
                         }
