@@ -80,10 +80,17 @@ public class VideoThread extends Thread {
 
                 int i = 0;
                 Element videoElement = doc.getElementsByClass("yt-lockup-title").get(i);
-                Element lookedAt = videoElement.children().first();
-                while(lookedAt.hasClass("ad-badge")){
-                    videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                    lookedAt = videoElement.children().first();
+                boolean hasAd = true;
+                while (hasAd) {
+//                    videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
+//                    lookedAt = videoElement.children().first();
+                    for (Element e : videoElement.children()) {
+                        if (e.className().contains("ad-badge")) {
+                            videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
+                            break;
+                        }
+                    }
+                    hasAd = false;
                 }
                 link = videoElement.select("a").first().attr("href");
                 // I check the index of 2 chars so I need to add 2
