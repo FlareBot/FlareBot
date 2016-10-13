@@ -91,9 +91,6 @@ public class PerGuildPermissions {
     }
 
     public boolean isCreator(IUser user) {
-        if(user.getID().equals("158310004187725824") || user.getID().equals("155954930191040513"))
-            return true;
-        else
-            return false;
+        return user.getID().equals("158310004187725824") || user.getID().equals("155954930191040513");
     }
 }

@@ -31,7 +31,7 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage(channel, "No such user!");
                     return;
                 }
-                if (getPermissions(channel).hasGroup(args[1])) {
+                if (!getPermissions(channel).hasGroup(args[1])) {
                     MessageUtils.sendMessage(channel, "No such group!");
                     return;
                 }
@@ -50,7 +50,7 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage(channel, "No such user!");
                     return;
                 }
-                if (getPermissions(channel).hasGroup(args[1])) {
+                if (!getPermissions(channel).hasGroup(args[1])) {
                     MessageUtils.sendMessage(channel, "No such group!");
                     return;
                 }
@@ -84,13 +84,13 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage(channel, getDescription());
                     return;
                 }
-                if (getPermissions(channel).hasGroup(args[1])) {
+                if (!getPermissions(channel).hasGroup(args[1])) {
                     MessageUtils.sendMessage(channel, "No such group!");
                     return;
                 }
                 Group group5 = getPermissions(channel).getGroup(args[1]);
                 StringBuilder perms = new StringBuilder("**Permissions for group ").append(group5.getName())
-                        .append("**\n```fix");
+                        .append("**\n```fix\n");
                 group5.getPermissions().forEach(perm -> perms.append(perm).append('\n'));
                 perms.append("\n```");
                 MessageUtils.sendMessage(channel, perms);

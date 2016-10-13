@@ -229,7 +229,7 @@ public class FlareBot {
                     }
                 }
             }
-        }.repeat(10, 10000);
+        }.repeat(10, 600000);
         Scanner scanner = new Scanner(System.in);
 
         if (scanner.next().equalsIgnoreCase("exit")) {
