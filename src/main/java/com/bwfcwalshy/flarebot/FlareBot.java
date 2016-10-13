@@ -39,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class FlareBot {
@@ -55,7 +56,7 @@ public class FlareBot {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    private final List<Welcome> welcomes = new ArrayList<>();
+    private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
 
     public static void main(String[] args) {
@@ -454,22 +455,11 @@ public class FlareBot {
         try {
             if (welcomeFile.exists()) {
                 BufferedReader br;
-                try {
-                    br = new BufferedReader(new FileReader(welcomeFile));
-                } catch (FileNotFoundException e) {
-                    LOGGER.error("Could not load welcomes!", e);
-                    return;
-                }
-                if (br.readLine() == null) return;
-                JsonParser parser = new JsonParser();
-                JsonObject parsed = parser.parse(new FileReader(welcomeFile)).getAsJsonObject();
-                JsonArray guilds = parsed.getAsJsonArray("guilds");
-                for (JsonElement o : guilds) {
-                    JsonObject guild = o.getAsJsonObject();
-                    this.welcomes.add(new Welcome(guild.get("guildId").getAsString(), guild.get("channelId").getAsString()).setMessage(guild.get("message").getAsString()));
-                }
+                welcomes = GSON.fromJson(new FileReader(welcomeFile), Welcomes.class);
             } else {
                 welcomeFile.createNewFile();
+                welcomes = new Welcomes();
+                saveWelcomes();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -484,23 +474,12 @@ public class FlareBot {
                 e.printStackTrace();
             }
         }
-        JsonObject obj = new JsonObject();
-        JsonArray guildsArray = new JsonArray();
-
-        for (Welcome welcome : welcomes) {
-            JsonObject guildObj = new JsonObject();
-            guildObj.addProperty("guildId", welcome.getGuildId());
-            guildObj.addProperty("channelId", welcome.getChannelId());
-            guildObj.addProperty("message", welcome.getMessage());
-            guildsArray.add(guildObj);
-        }
-        obj.add("guilds", guildsArray);
         try {
 //            try (Writer fw = new FileWriter(welcomeFile)) {
 //                GSON.toJson(obj, fw);
 //            }
             FileWriter fw = new FileWriter(welcomeFile);
-            fw.write(GSON.toJson(obj));
+            fw.write(GSON.toJson(welcomes));
             fw.flush();
             fw.close();
         } catch (IOException e) {
@@ -523,4 +502,6 @@ public class FlareBot {
         }
         return null;
     }
+
+    public static class Welcomes extends CopyOnWriteArrayList<Welcome> {}
 }

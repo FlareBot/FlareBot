@@ -35,7 +35,7 @@ public class Events {
             if (channel != null) {
                 String msg = welcome.getMessage().replace("%user%", e.getUser().getName()).replace("%guild%", e.getGuild().getName()).replace("%mention%", e.getUser().mention());
                 MessageUtils.sendMessage(channel, msg);
-            }
+            } else flareBot.getWelcomes().remove(welcome);
         }
         if (flareBot.getAutoAssignRoles().containsKey(e.getGuild().getID())) {
             List<String> autoAssignRoles = flareBot.getAutoAssignRoles().get(e.getGuild().getID());
