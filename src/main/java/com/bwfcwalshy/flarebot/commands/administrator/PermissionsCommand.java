@@ -79,6 +79,22 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage(channel, "Success");
                 else MessageUtils.sendMessage(channel, "Group never had that permission");
                 break;
+            case "list":
+                if (args.length < 2) {
+                    MessageUtils.sendMessage(channel, getDescription());
+                    return;
+                }
+                if (getPermissions(channel).hasGroup(args[1])) {
+                    MessageUtils.sendMessage(channel, "No such group!");
+                    return;
+                }
+                Group group5 = getPermissions(channel).getGroup(args[1]);
+                StringBuilder perms = new StringBuilder("**Permissions for group ").append(group5.getName())
+                        .append("**\n```fix");
+                group5.getPermissions().forEach(perm -> perms.append(perm).append('\n'));
+                perms.append("\n```");
+                MessageUtils.sendMessage(channel, perms);
+                break;
             case "save":
                 try {
                     FlareBot.getInstance().getPermissions().save();
@@ -104,7 +120,7 @@ public class PermissionsCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "permissions givegroup | revokegroup <user> <group> for user management or addpermission | removepermission <group> <permission> for group management. permissions save to save.";
+        return "permissions givegroup | revokegroup <user> <group> for user management or list | addpermission | removepermission <group> <permission> for group management. permissions save to save.";
     }
 
     @Override
