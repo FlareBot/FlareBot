@@ -64,10 +64,6 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage(channel, getDescription());
                     return;
                 }
-                if (getPermissions(channel).hasGroup(args[1])) {
-                    MessageUtils.sendMessage(channel, "No such group!");
-                    return;
-                }
                 Group group3 = getPermissions(channel).getGroup(args[1]);
                 if (getPermissions(channel).removePermission(group3.getName(), args[2]))
                     MessageUtils.sendMessage(channel, "Success");
@@ -76,10 +72,6 @@ public class PermissionsCommand implements Command {
             case "removepermission":
                 if (args.length < 3) {
                     MessageUtils.sendMessage(channel, getDescription());
-                    return;
-                }
-                if (getPermissions(channel).hasGroup(args[1])) {
-                    MessageUtils.sendMessage(channel, "No such group!");
                     return;
                 }
                 Group group4 = getPermissions(channel).getGroup(args[1]);
