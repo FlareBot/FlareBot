@@ -205,7 +205,7 @@ public class FlareBot {
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                if(UpdateCommand.updating.get())
+                if(!UpdateCommand.updating.get())
                     client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
             }
         }.repeat(10, 32000);
