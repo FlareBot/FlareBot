@@ -47,9 +47,12 @@ public class AutoAssignCommand implements Command {
                 } else {
                     MessageUtils.sendMessage(channel, sender.mention() + " Invalid argument!");
                 }
-            } else if (args.length == 2) {
+            } else if (args.length > 2) {
+                String passedRole = "";
+                for(int i = 1; i < args.length; i++)
+                    passedRole += args[i];
+                passedRole = passedRole.trim();
                 if (args[0].equalsIgnoreCase("add")) {
-                    String passedRole = args[1];
                     if (!validRole(channel.getGuild(), passedRole)) {
                         MessageUtils.sendMessage(channel, sender.mention() + " That is not a valid role!");
                         return;
@@ -68,7 +71,6 @@ public class AutoAssignCommand implements Command {
                         MessageUtils.sendMessage(channel, role.getName() + " is already being assigned!");
                     }
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    String passedRole = args[1];
                     if (!validRole(channel.getGuild(), passedRole)) {
                         MessageUtils.sendMessage(channel, sender.mention() + " That is not a valid role!");
                         return;
