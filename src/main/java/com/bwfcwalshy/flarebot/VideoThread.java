@@ -87,7 +87,7 @@ public class VideoThread extends Thread {
                 link = videoElement.select("a").first().attr("href");
                 // I check the index of 2 chars so I need to add 2
                 Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
-                videoName = MessageUtils.escapeFile(doc2.title().replace(" - YouTube", ""));
+                videoName = MessageUtils.escapeFile(doc2.title().substring(0, doc2.title().length() - 10));
                 videoId = link.substring(link.indexOf("v=") + 2);
                 videoFile = videoName + "-" + videoId;
 
@@ -112,7 +112,7 @@ public class VideoThread extends Thread {
                     }
                 });
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
-                        "cached" + File.separator + "%(NAME)s.%(ext)s",
+                        "cached" + File.separator + "%(title)s-%(id)s.%(ext)s",
                         "--extract-audio", "--audio-format"
                         , "mp3", link);
                 FlareBot.LOGGER.debug("Downloading");
