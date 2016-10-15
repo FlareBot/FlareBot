@@ -41,7 +41,7 @@ public class InfoCommand implements Command {
                 + "\nSupport Server: http://discord.me/flarebot"
                 + "\nMade with love by bwfcwalshy#1284 and Arsen#3291\n"
                 + "```\n"
-                + "https://github.com/bwfcwalshyPluginDev/FlareBot";
+                + "https://github.com/ArsenArsen/FlareBot";
 
         MessageUtils.sendMessage(channel, msg);
     }
