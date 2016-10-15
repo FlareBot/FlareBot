@@ -191,7 +191,7 @@ public class VideoThread extends Thread {
                         processInput(downloadProcess);
                         process.waitFor();
                     }
-                    FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id, e.title);
+                    FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id + EXTENSION, e.title);
                 }
             }
         } catch (IOException | InterruptedException e) {
