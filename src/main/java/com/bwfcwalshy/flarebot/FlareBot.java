@@ -310,6 +310,7 @@ public class FlareBot {
                 System.exit(0);
             } catch (IOException e) {
                 LOGGER.error("Could not update!", e);
+                UpdateCommand.updating.set(false);
             }
         } else
             LOGGER.debug("Exiting.");
