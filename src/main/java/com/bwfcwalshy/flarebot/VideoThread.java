@@ -180,18 +180,20 @@ public class VideoThread extends Thread {
                     }
                 });
                 for (Playlist.PlaylistEntry e : playlist.entries) {
-                    if(!new File("cached" + File.separator + e.id + EXTENSION).exists()){
-                        ProcessBuilder entryDownload = new ProcessBuilder("youtube-dl", "-o",
-                                "cached" + File.separator + "%(id)s.%(ext)s",
-                                "--extract-audio", "--audio-format"
-                                , "mp3", YOUTUBE_URL + "/watch?v="+e.id);
-                        FlareBot.LOGGER.debug("Downloading");
-                        builder.redirectErrorStream(true);
-                        Process downloadProcess = builder.start();
-                        processInput(downloadProcess);
-                        process.waitFor();
+                    if(e != null){
+                        if (!new File("cached" + File.separator + e.id + EXTENSION).exists()) {
+                            ProcessBuilder entryDownload = new ProcessBuilder("youtube-dl", "-o",
+                                    "cached" + File.separator + "%(id)s.%(ext)s",
+                                    "--extract-audio", "--audio-format"
+                                    , "mp3", e.webpage_url);
+                            FlareBot.LOGGER.debug("Downloading");
+                            builder.redirectErrorStream(true);
+                            Process downloadProcess = builder.start();
+                            processInput(downloadProcess);
+                            process.waitFor();
+                        }
+                        FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id + EXTENSION, e.title);
                     }
-                    FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id + EXTENSION, e.title);
                 }
             }
         } catch (IOException | InterruptedException e) {
@@ -219,6 +221,7 @@ public class VideoThread extends Thread {
         public class PlaylistEntry {
             public String id;
             public String title;
+            public String webpage_url;
         }
 
         public String title;
