@@ -31,11 +31,11 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage(channel, "No such user!");
                     return;
                 }
-                if (!getPermissions(channel).hasGroup(args[1])) {
+                if (!getPermissions(channel).hasGroup(args[2])) {
                     MessageUtils.sendMessage(channel, "No such group!");
                     return;
                 }
-                Group group = getPermissions(channel).getGroup(args[1]);
+                Group group = getPermissions(channel).getGroup(args[2]);
                 if (getPermissions(channel).getUser(user).addGroup(group))
                     MessageUtils.sendMessage(channel, "Success");
                 else MessageUtils.sendMessage(channel, "User already had that group!");
@@ -50,11 +50,11 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage(channel, "No such user!");
                     return;
                 }
-                if (!getPermissions(channel).hasGroup(args[1])) {
+                if (!getPermissions(channel).hasGroup(args[2])) {
                     MessageUtils.sendMessage(channel, "No such group!");
                     return;
                 }
-                Group group2 = getPermissions(channel).getGroup(args[1]);
+                Group group2 = getPermissions(channel).getGroup(args[2]);
                 if (getPermissions(channel).getUser(user2).removeGroup(group2))
                     MessageUtils.sendMessage(channel, "Success");
                 else MessageUtils.sendMessage(channel, "User never had that group!");
