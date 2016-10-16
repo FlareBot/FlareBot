@@ -192,8 +192,8 @@ public class VideoThread extends Thread {
                             entryDownload.redirectErrorStream(true);
                             Process downloadProcess = entryDownload.start();
                             processInput(downloadProcess);
-                            process.waitFor();
-                            if(process.exitValue() != 0)
+                            downloadProcess.waitFor();
+                            if(downloadProcess.exitValue() != 0)
                                 continue;
                         }
                         FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id + EXTENSION, e.title);
