@@ -179,6 +179,7 @@ public class VideoThread extends Thread {
                         FlareBot.LOGGER.error("Edit own message!", e1);
                     }
                 });
+                int i = 0;
                 for (Playlist.PlaylistEntry e : playlist.entries) {
                     if(e != null){
                         if (!new File("cached" + File.separator + e.id + EXTENSION).exists()) {
@@ -196,7 +197,24 @@ public class VideoThread extends Thread {
                         }
                         FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id + EXTENSION, e.title);
                     }
+                    if(++i % 10 == 0){
+                        int finalI = i;
+                        RequestBuffer.request(() -> {
+                            try {
+                                message.edit(user + "Added **" + finalI + "**out of **" +  playlist.entries.size() + "** songs to the queue");
+                            } catch (MissingPermissionsException | DiscordException e1) {
+                                FlareBot.LOGGER.error("Could not edit own message!", e1);
+                            }
+                        });
+                    }
                 }
+                RequestBuffer.request(() -> {
+                    try {
+                        message.edit(user + "Added the playlist **" + playlist.title + "** to the queue");
+                    } catch (MissingPermissionsException | DiscordException e1) {
+                        FlareBot.LOGGER.error("Could not edit own message!", e1);
+                    }
+                });
             }
         } catch (IOException | InterruptedException e) {
             FlareBot.LOGGER.error(e.getMessage(), e);
