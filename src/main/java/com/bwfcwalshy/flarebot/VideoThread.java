@@ -51,6 +51,7 @@ public class VideoThread extends Thread {
     // Making sure these stay across all threads.
     private static final String SEARCH_URL = "https://www.youtube.com/results?search_query=";
     private static final String YOUTUBE_URL = "https://www.youtube.com";
+    private static final String WATCH_URL = "https://www.youtube.com/watch?v=";
     private static final String EXTENSION = ".mp3";
 
     @Override
@@ -155,7 +156,7 @@ public class VideoThread extends Thread {
                 });
             } else {
                 message = MessageUtils.sendMessage(channel, "Getting playlist from URL.");
-                ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-i", "-4", "--dump-single-json", searchTerm);
+                ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-i", "-4", "--dump-single-json", "--flat-playlist", searchTerm);
                 searchTerm = searchTerm.replaceFirst("https?://(www\\.)?youtube.com/playlist\\?list=", "");
                 Process process = builder.start();
                 Playlist playlist;
@@ -186,7 +187,7 @@ public class VideoThread extends Thread {
                             ProcessBuilder entryDownload = new ProcessBuilder("youtube-dl", "-o",
                                     "cached" + File.separator + "%(id)s.%(ext)s",
                                     "--extract-audio", "--audio-format"
-                                    , "mp3", e.webpage_url);
+                                    , "mp3", WATCH_URL + e.id);
                             FlareBot.LOGGER.debug("Downloading");
                             builder.redirectErrorStream(true);
                             Process downloadProcess = builder.start();
@@ -241,7 +242,6 @@ public class VideoThread extends Thread {
         public class PlaylistEntry {
             public String id;
             public String title;
-            public String webpage_url;
         }
 
         public String title;
