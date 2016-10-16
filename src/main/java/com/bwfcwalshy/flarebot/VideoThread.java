@@ -18,8 +18,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class VideoThread extends Thread {
+
+    public static String ANY_YT_URL = "(?:(?:https?://)?(?:www\\.)?(?:youtube\\.com)|(?:youtu\\.be))/(?:(?:watch\\?v=(.+)(?:&list=.+)?(?:&index=.+)?)|(?:playlist\\?list=(.+)))";
+    public static Pattern YT_PATTERN = Pattern.compile(ANY_YT_URL);
 
     // Keep this instance across all threads. Efficiency bitch!
     private static MusicManager manager;
@@ -75,6 +79,7 @@ public class VideoThread extends Thread {
                     videoId = searchTerm.replaceFirst("http(s)?://(www\\.)?youtube\\.com/watch\\?v=", "");
                     // Playlist
                     if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
+                    if (videoId.contains("&index")) videoId = videoId.substring(0, videoId.indexOf("&index"));
                     videoName = MessageUtils.escapeFile(doc.title().replace(" - YouTube", ""));
                     link = WATCH_URL + videoId;
                 } else {
