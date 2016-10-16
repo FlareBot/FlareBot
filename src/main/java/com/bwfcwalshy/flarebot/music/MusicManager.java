@@ -17,14 +17,18 @@ public class MusicManager {
     private Map<String, AudioPlayer> players;
 
     private FlareBot bot;
-    public MusicManager(FlareBot flareBot){
+
+    public MusicManager(FlareBot flareBot) {
         players = new ConcurrentHashMap<>();
         this.bot = flareBot;
     }
 
-    public boolean addSong(String guildId, String musicFile, String trackName){
-        AudioPlayer player = players.computeIfAbsent(guildId,
-                id -> AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(id)));
+    public boolean addSong(String guildId, String musicFile, String trackName) {
+        AudioPlayer player = players.computeIfAbsent(guildId, id -> {
+            AudioPlayer playa = AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(id));
+            playa.setVolume(20);
+            return playa;
+        });
         try {
             AudioInputStream input = AudioSystem.getAudioInputStream(new File("cached" + File.separator + musicFile));
             //FileProvider file = new FileProvider("cached" + File.separator + musicFile);
@@ -41,37 +45,37 @@ public class MusicManager {
         return true;
     }
 
-    public void pause(String guildId){
-        if(players.containsKey(guildId))
+    public void pause(String guildId) {
+        if (players.containsKey(guildId))
             players.get(guildId).setPaused(true);
     }
 
-    public void play(String guildId){
-        if(players.containsKey(guildId))
+    public void play(String guildId) {
+        if (players.containsKey(guildId))
             players.get(guildId).setPaused(false);
     }
 
-    public void skip(String guildId){
-        if(players.containsKey(guildId))
+    public void skip(String guildId) {
+        if (players.containsKey(guildId))
             players.get(guildId).skip();
     }
 
-    public void stop(String guildId){
-        if(players.containsKey(guildId)) {
+    public void stop(String guildId) {
+        if (players.containsKey(guildId)) {
             players.get(guildId).setPaused(true);
             players.get(guildId).getPlaylist().clear();
         }
     }
 
-    public void shuffle(String guildId){
-        if(players.containsKey(guildId)) {
+    public void shuffle(String guildId) {
+        if (players.containsKey(guildId)) {
             players.get(guildId).shuffle();
         }
     }
 
-    public void setVolume(String guildId, int i){
-        if(i >= 0 && i <= 100){
-            if(!players.containsKey(guildId)){
+    public void setVolume(String guildId, int i) {
+        if (i >= 0 && i <= 100) {
+            if (!players.containsKey(guildId)) {
                 return;
             }
             players.get(guildId).setVolume((float) i / 100);
