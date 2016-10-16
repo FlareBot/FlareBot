@@ -187,11 +187,11 @@ public class VideoThread extends Thread {
                             ProcessBuilder entryDownload = new ProcessBuilder("youtube-dl", "-o",
                                     "cached" + File.separator + "%(id)s.%(ext)s",
                                     "--extract-audio", "--audio-format"
-                                    , "mp3", WATCH_URL + e.id);
+                                    , "mp3",  e.id);
                             FlareBot.LOGGER.debug("Downloading");
                             builder.redirectErrorStream(true);
                             Process downloadProcess = builder.start();
-//                            processInput(downloadProcess);
+                            processInput(downloadProcess);
                             process.waitFor();
                             if(process.exitValue() != 0)
                                 continue;
