@@ -33,7 +33,6 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RateLimitException;
 
 import java.io.*;
-import java.lang.management.ManagementFactory;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
 public class FlareBot {
 
     private static FlareBot instance;
-    private static String[] args;
+//    private static String[] args;
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     private static String dBotsAuth;
     private HttpClient http = HttpClientBuilder.create().disableCookieManagement().build();
@@ -60,7 +59,7 @@ public class FlareBot {
     private File welcomeFile;
 
     public static void main(String[] args) {
-        FlareBot.args = args;
+//        FlareBot.args = args;
         Options options = new Options();
 
         Option token = new Option("t", true, "Bot log in token");
@@ -298,15 +297,15 @@ public class FlareBot {
                 Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
                 File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                List<String> args = new ArrayList<>();
-                args.add("java");
-                args.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
-                args.add("-jar");
-                args.add(current.getAbsolutePath());
-                Collections.addAll(args, FlareBot.args);
-                ProcessBuilder java = new ProcessBuilder(args);
-                java.inheritIO();
-                java.start();
+//                List<String> args = new ArrayList<>();
+//                args.add("java");
+//                args.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
+//                args.add("-jar");
+//                args.add(current.getAbsolutePath());
+//                Collections.addAll(args, FlareBot.args);
+//                ProcessBuilder java = new ProcessBuilder(args);
+//                java.inheritIO();
+//                java.start();
                 System.exit(0);
             } catch (IOException e) {
                 LOGGER.error("Could not update!", e);
