@@ -25,7 +25,7 @@ public class PlaylistCommand implements Command {
                 int i = 1;
                 int j = 0;
                 StringBuilder sb = new StringBuilder();
-                sb.append("**Current Playlist**\n```xl\n");
+                sb.append("**Current Playlist**\n```fix\n");
                 for (AudioPlayer.Track track : manager.getPlayers().get(channel.getGuild().getID()).getPlaylist()) {
                     if (new StringBuilder(sb).append(i).append(". ").append(track.getMetadata().get("name")).append("\n").length() >= 1997)
                         break;
