@@ -74,7 +74,7 @@ public class VideoThread extends Thread {
                     Document doc = Jsoup.connect(searchTerm).get();
                     videoId = searchTerm.replaceFirst("http(s)?://(www\\.)?youtube\\.com/watch\\?v=", "");
                     // Playlist
-                    if (videoId.contains("&list")) videoId.substring(0, videoId.indexOf("&list") + 5);
+                    if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list") + 5);
                     videoName = MessageUtils.escapeFile(doc.title().replace(" - YouTube", ""));
                     link = searchTerm;
                 } else {
@@ -202,7 +202,7 @@ public class VideoThread extends Thread {
                         int finalI = i;
                         RequestBuffer.request(() -> {
                             try {
-                                message.edit(user + "Added **" + finalI + "**out of **" +  playlist.entries.size() + "** songs to the queue");
+                                message.edit(user + "Added **" + finalI + "** out of **" +  playlist.entries.size() + "** songs to the queue");
                             } catch (MissingPermissionsException | DiscordException e1) {
                                 FlareBot.LOGGER.error("Could not edit own message!", e1);
                             }
@@ -211,7 +211,7 @@ public class VideoThread extends Thread {
                 }
                 RequestBuffer.request(() -> {
                     try {
-                        message.edit(user + "Added the playlist **" + playlist.title + "** to the queue");
+                        message.edit(user + " Added the playlist **" + playlist.title + "** to the queue");
                     } catch (MissingPermissionsException | DiscordException e1) {
                         FlareBot.LOGGER.error("Could not edit own message!", e1);
                     }
