@@ -74,9 +74,9 @@ public class VideoThread extends Thread {
                     Document doc = Jsoup.connect(searchTerm).get();
                     videoId = searchTerm.replaceFirst("http(s)?://(www\\.)?youtube\\.com/watch\\?v=", "");
                     // Playlist
-                    if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list") + 5);
+                    if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
                     videoName = MessageUtils.escapeFile(doc.title().replace(" - YouTube", ""));
-                    link = searchTerm;
+                    link = WATCH_URL + videoId;
                 } else {
                     message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
                     Document doc = Jsoup.connect(SEARCH_URL + URLEncoder.encode(searchTerm, "UTF-8")).get();
