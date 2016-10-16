@@ -189,8 +189,8 @@ public class VideoThread extends Thread {
                                     "--extract-audio", "--audio-format"
                                     , "mp3",  e.id);
                             FlareBot.LOGGER.debug("Downloading");
-                            builder.redirectErrorStream(true);
-                            Process downloadProcess = builder.start();
+                            entryDownload.redirectErrorStream(true);
+                            Process downloadProcess = entryDownload.start();
                             processInput(downloadProcess);
                             process.waitFor();
                             if(process.exitValue() != 0)
