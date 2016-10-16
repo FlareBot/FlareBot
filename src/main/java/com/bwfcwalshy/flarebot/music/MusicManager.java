@@ -26,7 +26,7 @@ public class MusicManager {
     public boolean addSong(String guildId, String musicFile, String trackName) {
         AudioPlayer player = players.computeIfAbsent(guildId, id -> {
             AudioPlayer playa = AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(id));
-            playa.setVolume(20);
+            playa.setVolume(0.2f);
             return playa;
         });
         try {
