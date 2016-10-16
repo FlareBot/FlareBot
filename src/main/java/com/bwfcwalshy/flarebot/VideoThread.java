@@ -191,7 +191,7 @@ public class VideoThread extends Thread {
                             FlareBot.LOGGER.debug("Downloading");
                             builder.redirectErrorStream(true);
                             Process downloadProcess = builder.start();
-                            processInput(downloadProcess);
+//                            processInput(downloadProcess);
                             process.waitFor();
                             if(process.exitValue() != 0)
                                 continue;
