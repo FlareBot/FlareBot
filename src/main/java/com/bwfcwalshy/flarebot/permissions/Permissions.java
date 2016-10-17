@@ -14,6 +14,8 @@ public class Permissions {
     public void save() throws IOException {
         try (Writer fw = new FileWriter(FlareBot.PERMS_FILE)) {
             FlareBot.GSON.toJson(this, fw);
+            fw.flush();
+            fw.close();
         }
     }
 
