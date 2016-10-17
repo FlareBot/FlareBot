@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class FlareBot {
 
     private static FlareBot instance;
-//    private static String[] args;
+    //    private static String[] args;
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     private static String dBotsAuth;
     private HttpClient http = HttpClientBuilder.create().disableCookieManagement().build();
@@ -153,6 +153,14 @@ public class FlareBot {
         if (PERMS_FILE.exists()) {
             try {
                 permissions = GSON.fromJson(new FileReader(PERMS_FILE), Permissions.class);
+            } catch (JsonIOException | JsonSyntaxException e) {
+                LOGGER.error("Could not parse permissions! Ignoring and making new.");
+                permissions = new Permissions();
+                try {
+                    permissions.save();
+                } catch (IOException e1) {
+                    LOGGER.error("Could not create PERMS_FILE!", e1);
+                }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -205,7 +213,7 @@ public class FlareBot {
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                if(!UpdateCommand.updating.get())
+                if (!UpdateCommand.updating.get())
                     client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
             }
         }.repeat(10, 32000);
@@ -503,5 +511,6 @@ public class FlareBot {
         return null;
     }
 
-    public static class Welcomes extends CopyOnWriteArrayList<Welcome> {}
+    public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
+    }
 }
