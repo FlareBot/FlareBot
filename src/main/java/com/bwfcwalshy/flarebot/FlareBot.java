@@ -153,6 +153,14 @@ public class FlareBot {
         if (PERMS_FILE.exists()) {
             try {
                 permissions = GSON.fromJson(new FileReader(PERMS_FILE), Permissions.class);
+                if(permissions == null){
+                    permissions = new Permissions();
+                    try {
+                        permissions.save();
+                    } catch (IOException e1) {
+                        LOGGER.error("Could not create PERMS_FILE!", e1);
+                    }
+                }
             } catch (JsonIOException | JsonSyntaxException e) {
                 LOGGER.error("Could not parse permissions! Ignoring and making new.");
                 permissions = new Permissions();
