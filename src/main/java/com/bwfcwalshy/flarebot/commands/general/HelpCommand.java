@@ -47,7 +47,8 @@ public class HelpCommand implements Command {
     private void sendCommands(IChannel channel){
         StringBuilder sb = new StringBuilder();
         sb.append("**FlareBot commands**\n```fix\n");
-        Arrays.stream(CommandType.getTypes()).filter(type -> type != CommandType.HIDDEN).forEach(type -> {
+        Arrays.stream(CommandType.getTypes()).filter(type -> type != CommandType.HIDDEN && type != CommandType.OWNER)
+                .forEach(type -> {
             sb.append(type.toString()).append("\n");
             for (Command commands : flareBot.getCommandsByType(type)) {
                 sb.append("  ").append(FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
@@ -66,7 +67,7 @@ public class HelpCommand implements Command {
 
     @Override
     public String[] getAliases(){
-        return new String[] {"help"};
+        return new String[] { "help" };
     }
 
     @Override

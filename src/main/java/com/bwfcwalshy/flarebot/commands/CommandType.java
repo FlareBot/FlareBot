@@ -5,7 +5,8 @@ public enum CommandType {
     GENERAL,
     ADMINISTRATIVE,
     MUSIC,
-    HIDDEN;
+    HIDDEN,
+    OWNER;
 
     public String toString(){
         return name().charAt(0) + name().substring(1).toLowerCase();

@@ -5,6 +5,7 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.sun.management.OperatingSystemMXBean;
+import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -36,6 +37,7 @@ public class InfoCommand implements Command {
                 + "\nUptime: " + flareBot.getUptime()
                 + "\nMemory Usage: " + getMb(runtime.totalMemory() - runtime.freeMemory())
                 + "\nFree Memory: " + getMb(runtime.freeMemory())
+                + "\nDiscord4J Version: " + Discord4J.VERSION
                 + "\nCPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f
                 + "%\n" + DIVIDER
                 + "\nSupport Server: http://discord.me/flarebot"

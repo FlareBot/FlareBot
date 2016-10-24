@@ -45,6 +45,9 @@ public class FlareBot {
 
     private static FlareBot instance;
     //    private static String[] args;
+    static {
+        new File("latest.log").delete();
+    }
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     private static String dBotsAuth;
     private HttpClient http = HttpClientBuilder.create().disableCookieManagement().build();
@@ -123,7 +126,7 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
-            client = new ClientBuilder().withMaxReconnectAttempts(30).withToken(tkn).login();
+            client = new ClientBuilder().withToken(tkn).login();
             client.getDispatcher().registerListener(new Events(this));
             Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
@@ -205,6 +208,7 @@ public class FlareBot {
         registerCommand(new WelcomeCommand(this));
         registerCommand(new PermissionsCommand());
         registerCommand(new UpdateCommand());
+        registerCommand(new LogsCommands());
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 

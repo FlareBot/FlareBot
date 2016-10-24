@@ -9,6 +9,7 @@ import java.util.Iterator;
  * <br>
  * Created by Arsen on 1.10.16..
  */
+@SuppressWarnings("deprecation")
 public enum Markers implements Marker {
     NO_ANNOUNCE;
 
