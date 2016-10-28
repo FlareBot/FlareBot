@@ -60,6 +60,10 @@ public class VideoThread extends Thread {
 
     @Override
     public void run() {
+        if(!YT_PATTERN.matcher(searchTerm).matches()){
+            MessageUtils.sendMessage(channel, "That is not a YouTube link!");
+            return;
+        }
         long a = System.currentTimeMillis();
         // TODO: Severely clean this up!!!
         // ^ EDIT BY Arsen: A space goes there..
@@ -68,7 +72,7 @@ public class VideoThread extends Thread {
             String videoName;
             String link;
             String videoId;
-            if (!searchTerm.matches(YT_PATTERN.pattern())) {
+            if (!searchTerm.matches("https?://(www\\.)?youtube.com/playlist\\?list=([0-9A-z+-]*)")) {
                 if (isUrl) {
                     message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                     if (isShortened) {
