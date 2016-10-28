@@ -60,10 +60,6 @@ public class VideoThread extends Thread {
 
     @Override
     public void run() {
-        if(!YT_PATTERN.matcher(searchTerm).matches()){
-            MessageUtils.sendMessage(channel, "That is not a YouTube link!");
-            return;
-        }
         long a = System.currentTimeMillis();
         // TODO: Severely clean this up!!!
         // ^ EDIT BY Arsen: A space goes there..
