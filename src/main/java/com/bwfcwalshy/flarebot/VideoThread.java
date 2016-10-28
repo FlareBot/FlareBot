@@ -162,7 +162,6 @@ public class VideoThread extends Thread {
             } else {
                 message = MessageUtils.sendMessage(channel, "Getting playlist from URL.");
                 ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-i", "-4", "--dump-single-json", "--flat-playlist", searchTerm);
-                searchTerm = searchTerm.replaceFirst("https?://(www\\.)?youtube.com/playlist\\?list=", "");
                 Process process = builder.start();
                 Playlist playlist;
                 try {
@@ -187,7 +186,10 @@ public class VideoThread extends Thread {
                             FlareBot.LOGGER.error("Edit own message!", e1);
                         }
                     });
+                    FlareBot.LOGGER.error("Could not parse playlist <" + searchTerm + '>');
+                    return;
                 }
+                searchTerm = searchTerm.replaceFirst("https?://(www\\.)?youtube.com/playlist\\?list=", "");
                 RequestBuffer.request(() -> {
                     try {
                         message.edit("Downloading **" + playlist.title + "**");
