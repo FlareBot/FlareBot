@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class VideoThread extends Thread {
 
-    public static String ANY_YT_URL = "(?:(?:https?://)?(?:www\\.)?(?:youtube\\.com)|(?:youtu\\.be))/(?:(?:watch\\?v=(.+)(?:&list=.+)?(?:&index=.+)?)|(?:playlist\\?list=(.+)))";
+    public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:www\\.)?(?:youtube\\.com))/(?:(?:watch\\?v=(.+)(?:&list=.+)?(?:&index=.+)?)|(?:playlist\\?list=(.+))))|(?:youtu\\.be/(.*)))";
     public static Pattern YT_PATTERN = Pattern.compile(ANY_YT_URL);
 
     // Keep this instance across all threads. Efficiency bitch!
@@ -68,7 +68,7 @@ public class VideoThread extends Thread {
             String videoName;
             String link;
             String videoId;
-            if (!searchTerm.matches("https?://(www\\.)?youtube.com/playlist\\?list=([0-9A-z+-]*)")) {
+            if (!searchTerm.matches(YT_PATTERN.pattern())) {
                 if (isUrl) {
                     message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                     if (isShortened) {
