@@ -178,6 +178,16 @@ public class VideoThread extends Thread {
                     FlareBot.LOGGER.error("Could not parse playlist!", e);
                     return;
                 }
+                process.waitFor();
+                if(process.exitValue() != 0){
+                    RequestBuffer.request(() -> {
+                        try {
+                            message.edit("Could not parse the playlist! Sorry about that :-(");
+                        } catch (MissingPermissionsException | DiscordException e1) {
+                            FlareBot.LOGGER.error("Edit own message!", e1);
+                        }
+                    });
+                }
                 RequestBuffer.request(() -> {
                     try {
                         message.edit("Downloading **" + playlist.title + "**");
