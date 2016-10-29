@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -77,7 +78,7 @@ public class VideoThread extends Thread {
                 String videoName;
                 String link;
                 String videoId;
-                if (!searchTerm.matches("https?://(www\\.)?youtube.com/playlist\\?list=([0-9A-z+-]*)")) {
+                if (!searchTerm.matches("https?://(www\\.)?youtube\\.com\\/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*")) {
                     if (isUrl) {
                         message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                         if (isShortened) {
@@ -155,9 +156,10 @@ public class VideoThread extends Thread {
                 }
                 addAll(p, MessageUtils.sendMessage(channel, "Loading in the playlist!"));
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (Exception e) {
             MessageUtils.sendException("Could not add/download songs!", e, channel);
-            FlareBot.LOGGER.error(e.getMessage(), e);
+            FlareBot.LOGGER.error("Error occured! searchTerm: " + searchTerm + '\n'
+                    + "isShortened: " + isShortened + "\nisUrl" + isUrl + "\nplaylist: " + Arrays.toString(playlist.toArray()), e);
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
@@ -226,7 +228,7 @@ public class VideoThread extends Thread {
         try {
             Process p = builder.start();
             Song song = FlareBot.GSON.fromJson(new InputStreamReader(p.getInputStream()), Song.class);
-            return song.duration < (MAX_DURATION * 60);
+            return song != null && song.duration < (MAX_DURATION * 60);
         } catch (JsonParseException | IOException e) {
             return false;
         }
