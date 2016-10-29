@@ -30,6 +30,7 @@ import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Status;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.Image;
 import sx.blah.discord.util.RateLimitException;
 
 import java.io.*;
@@ -217,6 +218,12 @@ public class FlareBot {
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
+
+        try {
+            getClient().changeAvatar(Image.forStream("png", getClass().getClassLoader().getResourceAsStream("avatar.png")));
+        } catch (DiscordException | RateLimitException e) {
+            LOGGER.error("Could not change avatar!", e);
+        }
 
         new FlarebotTask("PermissionSaver" + System.currentTimeMillis()) {
             @Override
