@@ -77,7 +77,7 @@ public class VideoThread extends Thread {
                 String videoName;
                 String link;
                 String videoId;
-                if (!searchTerm.matches("https?://(www\\.)?youtube\\.com\\/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*")) {
+                if (!searchTerm.matches("https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*")) {
                     if (isUrl) {
                         message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                         if (isShortened) {
@@ -90,7 +90,7 @@ public class VideoThread extends Thread {
                         if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
                         if (videoId.contains("&index")) videoId = videoId.substring(0, videoId.indexOf("&index"));
                         if (videoId.contains("&app")) videoId = videoId.substring(0, videoId.indexOf("&app"));
-                        videoName = MessageUtils.escapeFile(doc.title().substring(0, doc.title().length() - 10));
+                        videoName = doc.title().substring(0, doc.title().length() - 10);
                         link = WATCH_URL + videoId;
                     } else {
                         message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
@@ -159,7 +159,7 @@ public class VideoThread extends Thread {
         } catch (Exception e) {
             MessageUtils.sendException("Could not add/download songs!", e, channel);
             FlareBot.LOGGER.error("Error occured! searchTerm: " + searchTerm + '\n'
-                    + "isShortened: " + isShortened + "\nisUrl" + isUrl + "\nplaylist: " + playlist, e);
+                    + "isShortened: " + isShortened + "\nisUrl: " + isUrl + "\nplaylist: " + playlist + '\n', e);
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");

@@ -21,7 +21,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
         if (event.getMarker() != Markers.NO_ANNOUNCE && FlareBot.getInstance().getClient().isReady() && event.getLevel() == Level.ERROR) {
             String msg = MessageFormatter.format(event.getFormattedMessage(), event.getArgumentArray()).getMessage();
             if(msg.startsWith("Received 404 error, please notify the developer and include the URL (https://discordapp.com/api/channels/")){
-                return FilterReply.NEUTRAL;
+                return FilterReply.DENY;
             }
             if(event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy){
                 @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
