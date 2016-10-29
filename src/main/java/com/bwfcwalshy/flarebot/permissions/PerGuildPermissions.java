@@ -41,13 +41,11 @@ public class PerGuildPermissions {
     }
 
     public boolean removePermission(String group, String permission) {
-        AtomicBoolean had = new AtomicBoolean(false);
-        had.set(getGroup(group).permissions.contains(permission));
-        getGroup(group).getPermissions().remove(group);
+        boolean had = getGroup(group).getPermissions().remove(group);
         if (getGroup(group).getPermissions().size() == 0) {
             groups.remove(group);
         }
-        return had.get();
+        return had;
     }
 
     public User getUser(IUser user) {
