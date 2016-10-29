@@ -90,6 +90,7 @@ public class VideoThread extends Thread {
                         // Playlist
                         if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
                         if (videoId.contains("&index")) videoId = videoId.substring(0, videoId.indexOf("&index"));
+                        if (videoId.contains("&app")) videoId = videoId.substring(0, videoId.indexOf("&app"));
                         videoName = MessageUtils.escapeFile(doc.title().substring(0, doc.title().length() - 10));
                         link = WATCH_URL + videoId;
                     } else {
