@@ -22,6 +22,10 @@ Brand new Discord music bot made with Discord4J in Java
 | volume | Change the volume | flarebot.volume | - |
 | playlist | View the current playlist | - | - |
 | song | View the current song playing | - | - |
+| delete | Deletes a saved playlist | flarebot.playlist.delete | - |
+| load | Loads a saved playlist | flarebot.playlist.load | - |
+| save | Saves the current playlist | flarebot.playlist.save | - |
+| playlists | Shows the list of all playlists in this guild | - | - |
 
 # Support
 If you need any help with the bot or you think you have found a bug please join our official Discord server and report it there!  

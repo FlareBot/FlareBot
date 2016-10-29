@@ -23,7 +23,7 @@ public class MusicManager {
         this.bot = flareBot;
     }
 
-    public boolean addSong(String guildId, String musicFile, String trackName) {
+    public boolean addSong(String guildId, String musicFile, String trackName, String ext) {
         AudioPlayer player = players.computeIfAbsent(guildId, id -> {
             AudioPlayer playa = AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(id));
             playa.setVolume(0.2f);
@@ -33,8 +33,8 @@ public class MusicManager {
             AudioInputStream input = AudioSystem.getAudioInputStream(new File("cached" + File.separator + musicFile));
             //FileProvider file = new FileProvider("cached" + File.separator + musicFile);
             AudioPlayer.Track track = new AudioPlayer.Track(input);
-            // I need to remove 11 for the YouTube ID and 4 for the ".mp3" and finally the joiner "-" = 16
             track.getMetadata().put("name", trackName);
+            track.getMetadata().put("id", musicFile.substring(0, musicFile.length() - ext.length()));
             //track.getMetadata().put("duration", duration);
             player.queue(track);
         } catch (IOException | UnsupportedAudioFileException e) {

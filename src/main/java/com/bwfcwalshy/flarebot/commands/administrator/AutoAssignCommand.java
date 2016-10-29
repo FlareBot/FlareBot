@@ -18,10 +18,11 @@ public class AutoAssignCommand implements Command {
     }
 
     /*
-    * Note for Arsen:
-    * This code is messy as fuck, I will clean it up at a later date.
+     * Note for Arsen:
+     * This code is messy as fuck, I will clean it up at a later date.
      */
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.getGuild().getOwner().getID().equals(sender.getID()) || flareBot.getPermissions(channel).hasPermission(sender, "flarebot.commands.autoassign")) {
@@ -47,9 +48,9 @@ public class AutoAssignCommand implements Command {
                 } else {
                     MessageUtils.sendMessage(channel, sender.mention() + " Invalid argument!");
                 }
-            } else if (args.length > 2) {
+            } else if (args.length >= 2) {
                 String passedRole = "";
-                for(int i = 1; i < args.length; i++)
+                for (int i = 1; i < args.length; i++)
                     passedRole += args[i] + ' ';
                 passedRole = passedRole.trim();
                 if (args[0].equalsIgnoreCase("add")) {

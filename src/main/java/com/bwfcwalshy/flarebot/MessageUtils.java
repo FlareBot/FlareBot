@@ -48,4 +48,14 @@ public class MessageUtils {
         pw.close();
         return sendMessage(channel, s + ' ' + trace);
     }
+
+    public static void editMessage(IMessage message, String content){
+        RequestBuffer.request(() -> {
+            try {
+                message.edit(content);
+            } catch (MissingPermissionsException | DiscordException e1) {
+                FlareBot.LOGGER.error("Edit own message!", e1);
+            }
+        });
+    }
 }

@@ -7,3 +7,4 @@ roles.json
 target/
 welcomes.json
 latest.log
+database.db

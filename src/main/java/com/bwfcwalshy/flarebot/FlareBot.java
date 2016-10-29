@@ -209,6 +209,12 @@ public class FlareBot {
         registerCommand(new PermissionsCommand());
         registerCommand(new UpdateCommand());
         registerCommand(new LogsCommands());
+        registerCommand(new LoopCommand());
+        registerCommand(new LoadCommand());
+        registerCommand(new SaveCommand());
+        registerCommand(new DeleteCommand());
+        registerCommand(new PlaylistsCommand());
+
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 

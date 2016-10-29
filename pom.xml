@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.bwfcwalshy</groupId>
     <artifactId>flarebot</artifactId>
-    <version>1.0.21</version>
+    <version>1.0.22</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
@@ -48,6 +48,11 @@
             <groupId>com.github.ArsenArsen</groupId> <!-- <3 -->
             <artifactId>githubwebhooks4j</artifactId>
             <version>1.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.14.2.1</version>
         </dependency>
     </dependencies>
 
