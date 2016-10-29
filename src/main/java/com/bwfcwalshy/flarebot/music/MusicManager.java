@@ -60,6 +60,12 @@ public class MusicManager {
             players.get(guildId).skip();
     }
 
+    public void skip(String guildId, int songs){
+        if (players.containsKey(guildId))
+            for(int i = 0; i < songs; i++)
+                players.get(guildId).skip();
+    }
+
     public void stop(String guildId) {
         if (players.containsKey(guildId)) {
             players.get(guildId).setPaused(true);
