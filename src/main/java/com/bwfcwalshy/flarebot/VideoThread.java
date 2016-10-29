@@ -160,7 +160,7 @@ public class VideoThread extends Thread {
         } catch (Exception e) {
             MessageUtils.sendException("Could not add/download songs!", e, channel);
             FlareBot.LOGGER.error("Error occured! searchTerm: " + searchTerm + '\n'
-                    + "isShortened: " + isShortened + "\nisUrl" + isUrl + "\nplaylist: " + Arrays.toString(playlist.toArray()), e);
+                    + "isShortened: " + isShortened + "\nisUrl" + isUrl + "\nplaylist: " + playlist, e);
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
