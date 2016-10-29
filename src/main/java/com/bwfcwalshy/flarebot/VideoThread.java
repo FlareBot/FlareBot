@@ -33,6 +33,7 @@ public class VideoThread extends Thread {
     private IChannel channel;
     private boolean isUrl = false;
     private boolean isShortened = false;
+    private long MAX_DURATION = 30;
 
     public VideoThread(String term, IUser user, IChannel channel) {
         this.searchTerm = term;
@@ -124,6 +125,15 @@ public class VideoThread extends Thread {
                             FlareBot.LOGGER.error("Could not edit own message!", e);
                         }
                     });
+                    if(!checkDuration(link)){
+                        RequestBuffer.request(() -> {
+                            try {
+                                message.edit("That video is longer than " + MAX_DURATION + " minute(s)!");
+                            } catch (MissingPermissionsException | DiscordException e) {
+                                FlareBot.LOGGER.error("Could not edit own message!", e);
+                            }
+                        });
+                    }
                     ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
                             "cached" + File.separator + "%(id)s.%(ext)s",
                             "--extract-audio", "--audio-format"
@@ -201,6 +211,9 @@ public class VideoThread extends Thread {
                 for (Playlist.PlaylistEntry e : playlist.entries) {
                     if(e != null){
                         if (!new File("cached" + File.separator + e.id + EXTENSION).exists()) {
+                            if(!checkDuration(WATCH_URL + e.id)){
+                                continue;
+                            }
                             ProcessBuilder entryDownload = new ProcessBuilder("youtube-dl", "-o",
                                     "cached" + File.separator + "%(id)s.%(ext)s",
                                     "--extract-audio", "--audio-format"
@@ -242,6 +255,17 @@ public class VideoThread extends Thread {
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
     }
 
+    private boolean checkDuration(String link){
+        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", link);
+        try {
+            Process p = builder.start();
+            Song song = FlareBot.GSON.fromJson(new InputStreamReader(p.getInputStream()), Song.class);
+            return song.duration < (MAX_DURATION * 60);
+        } catch (JsonParseException | IOException e) {
+            return false;
+        }
+    }
+
     private void processInput(Process downloadProcess) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(downloadProcess.getInputStream()))) {
             while (downloadProcess.isAlive()) {
@@ -262,5 +286,9 @@ public class VideoThread extends Thread {
         }
 
         public String title;
+    }
+
+    private class Song {
+        public long duration;
     }
 }
