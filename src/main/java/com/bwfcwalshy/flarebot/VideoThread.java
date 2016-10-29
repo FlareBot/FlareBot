@@ -97,7 +97,12 @@ public class VideoThread extends Thread {
                         Document doc = Jsoup.connect(SEARCH_URL + URLEncoder.encode(searchTerm, "UTF-8")).get();
 
                         int i = 0;
-                        Element videoElement = doc.getElementsByClass("yt-lockup-title").get(i);
+                        List<Element> videoElements = doc.getElementsByClass("yt-lockup-title");
+                        if(videoElements.isEmpty()){
+                            MessageUtils.editMessage(message, "Could not find any results for **" + searchTerm + "**!");
+                            return;
+                        }
+                        Element videoElement = videoElements.get(i);
                         boolean hasAd = true;
                         while (hasAd) {
                             for (Element e : videoElement.children()) {
