@@ -197,6 +197,7 @@ public class VideoThread extends Thread {
         int i = 0;
         long time = System.currentTimeMillis();
         for (Playlist.PlaylistEntry e : playlist.entries) {
+            i++;
             if (e != null) {
                 if (!new File("cached" + File.separator + e.id + EXTENSION).exists()) {
                     if (!checkDuration(WATCH_URL + e.id)) {
