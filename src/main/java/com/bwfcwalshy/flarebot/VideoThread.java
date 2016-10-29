@@ -81,7 +81,7 @@ public class VideoThread extends Thread {
                     if (isUrl) {
                         message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                         if (isShortened) {
-                            searchTerm = WATCH_URL + searchTerm.replaceFirst("http(s)?://youtu\\.be", "");
+                            searchTerm = WATCH_URL + searchTerm.replaceFirst("http(s)?://youtu\\.be/", "");
                         }
 
                         Document doc = Jsoup.connect(searchTerm).get();
