@@ -1,6 +1,7 @@
 package com.bwfcwalshy.flarebot;
 
 import com.bwfcwalshy.flarebot.commands.Command;
+import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
@@ -18,6 +19,7 @@ import java.util.List;
 public class Events {
 
     private FlareBot flareBot;
+
     public Events(FlareBot bot) {
         this.flareBot = bot;
     }
@@ -71,6 +73,12 @@ public class Events {
                     FlareBot.LOGGER.info(
                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                    if (cmd.getType() == CommandType.MUSIC) {
+                        if (e.getMessage().getChannel().isPrivate()) {
+                            MessageUtils.sendMessage(e.getMessage().getChannel(), "**Music commands cannot be used in DM's!**");
+                            return;
+                        }
+                    }
                     if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
                         if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
                             MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
@@ -84,7 +92,7 @@ public class Events {
                         MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
                         FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
                                 + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                        e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
+                                e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
                     }
                     return;
                 } else {
@@ -93,6 +101,12 @@ public class Events {
                             FlareBot.LOGGER.info(
                                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                             e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                            if (cmd.getType() == CommandType.MUSIC) {
+                                if (e.getMessage().getChannel().isPrivate()) {
+                                    MessageUtils.sendMessage(e.getMessage().getChannel(), "**Music commands cannot be used in DM's!**");
+                                    return;
+                                }
+                            }
                             if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
                                 if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
                                     MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
