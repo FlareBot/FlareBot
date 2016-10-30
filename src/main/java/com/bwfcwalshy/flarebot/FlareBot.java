@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
 public class FlareBot {
 
     private static FlareBot instance;
+    public static String passwd;
+
     //    private static String[] args;
     static {
         new File("latest.log").delete();
@@ -62,7 +64,8 @@ public class FlareBot {
     private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
+        Class.forName("com.bwfcwalshy.flarebot.util.SQLController");
 //        FlareBot.args = args;
         Options options = new Options();
 
@@ -71,6 +74,12 @@ public class FlareBot {
         token.setLongOpt("token");
         token.setRequired(true);
         options.addOption(token);
+
+        Option sqlpassword = new Option("sql", true, "MySQL login password for user flare at localhost for database FlareBot");
+        sqlpassword.setArgName("sqlpassword");
+        sqlpassword.setLongOpt("sqlpassword");
+        sqlpassword.setRequired(true);
+        options.addOption(sqlpassword);
 
         Option secret = new Option("s", true, "Webhooks secret");
         secret.setArgName("secret");
@@ -89,13 +98,15 @@ public class FlareBot {
             CommandLineParser parser = new DefaultParser();
             CommandLine parsed = parser.parse(options, args);
             tkn = parsed.getOptionValue("t");
+            passwd = parsed.getOptionValue("sql");
             if (parsed.hasOption("s"))
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/bwfcwalshyPluginDev/FlareBot", true);
+            formatter.printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/ArsenArsen/FlareBot", true);
+            e.printStackTrace();
             return;
         }
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));

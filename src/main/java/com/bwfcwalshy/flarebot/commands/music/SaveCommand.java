@@ -29,11 +29,15 @@ public class SaveCommand implements Command {
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
-        if(!FlareBot.getInstance().getMusicManager().getPlayers().containsKey(channel.getID())){
+        if(name.length() > 20){
+            MessageUtils.sendMessage(channel, "Name must be up to 20 characters!");
+            return;
+        }
+        if(!FlareBot.getInstance().getMusicManager().getPlayers().containsKey(channel.getGuild().getID())){
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
         }
-        List<AudioPlayer.Track> playlist = FlareBot.getInstance().getMusicManager().getPlayers().get(channel.getID()).getPlaylist();
+        List<AudioPlayer.Track> playlist = FlareBot.getInstance().getMusicManager().getPlayers().get(channel.getGuild().getID()).getPlaylist();
         if(playlist.isEmpty()){
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
@@ -43,9 +47,9 @@ public class SaveCommand implements Command {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
                 connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  name VARCHAR(10),\n" +
-                        "  guild VARCHAR(10),\n" +
-                        "  list VARCHAR(80),\n" +
+                        "  name  VARCHAR(60),\n" +
+                        "  guild VARCHAR(20),\n" +
+                        "  list  TEXT,\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
                 PreparedStatement exists = connection.prepareStatement("SELECT * FROM playlist WHERE name = ? AND guild = ?");

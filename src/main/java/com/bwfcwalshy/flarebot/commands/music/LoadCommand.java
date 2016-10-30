@@ -33,9 +33,9 @@ public class LoadCommand implements Command {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
                 connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  name VARCHAR(10),\n" +
-                        "  guild VARCHAR(10),\n" +
-                        "  list VARCHAR(80),\n" +
+                        "  name  VARCHAR(60),\n" +
+                        "  guild VARCHAR(20),\n" +
+                        "  list  TEXT,\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
                 PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE name = ? AND guild = ?");
@@ -44,6 +44,7 @@ public class LoadCommand implements Command {
                 exists.execute();
                 ResultSet set = exists.getResultSet();
                 if (set.isBeforeFirst()) {
+                    set.next();
                     new VideoThread(Arrays.asList(set.getString("list").split(",")), sender, channel, finalName);
                 } else
                     MessageUtils.sendMessage(channel, "Could not find a playlist with that name!");

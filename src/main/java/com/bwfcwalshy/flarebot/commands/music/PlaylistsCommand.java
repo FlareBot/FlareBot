@@ -27,9 +27,9 @@ public class PlaylistsCommand implements Command {
         try {
             SQLController.runSqlTask(connection -> {
                 connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  name VARCHAR(10),\n" +
-                        "  guild VARCHAR(10),\n" +
-                        "  list VARCHAR(80),\n" +
+                        "  name  VARCHAR(60),\n" +
+                        "  guild VARCHAR(20),\n" +
+                        "  list  TEXT,\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
                 PreparedStatement get = connection.prepareStatement("SELECT name FROM playlist WHERE guild = ?");
@@ -38,7 +38,7 @@ public class PlaylistsCommand implements Command {
                 ResultSet set = get.getResultSet();
                 StringBuilder response = new StringBuilder();
                 response.append("This guild's playlists:\n```fix\n");
-                while(set.next() && response.length() < 1977){
+                while(set.next() && response.length() < (1976 - set.getString("name").length() - 1)){
                     response.append(set.getString("name")).append('\n');
                 }
                 MessageUtils.sendMessage(channel, response.append("\n```"));

@@ -12,13 +12,13 @@ public class RolesCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(channel.isPrivate()){
+        if (channel.isPrivate()) {
             MessageUtils.sendMessage(channel, "**DM's in Discord can not have roles!**");
             return;
         }
         StringBuilder sb = new StringBuilder();
         sb.append("**Server Roles**\n```\n");
-        for(IRole role : channel.getGuild().getRoles()){
+        for (IRole role : channel.getGuild().getRoles()) {
             sb.append(role.getName()).append(" (").append(role.getID()).append(")\n");
         }
         sb.append("```");
@@ -42,7 +42,7 @@ public class RolesCommand implements Command {
     }
 
     @Override
-    public String getPermission(){
+    public String getPermission() {
         return "flarebot.roles";
     }
 }

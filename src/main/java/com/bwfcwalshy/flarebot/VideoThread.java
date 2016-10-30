@@ -123,20 +123,12 @@ public class VideoThread extends Thread {
                     }
                     File video = new File("cached" + File.separator + videoId + EXTENSION);
                     if (!video.exists()) {
-                        MessageUtils.editMessage(message, "Downloading video!");
                         if (!checkDuration(link)) {
                             MessageUtils.editMessage(message, "That song is over **" + MAX_DURATION + " minute(s)!**");
                             return;
                         }
-                        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
-                                "cached" + File.separator + "%(id)s.%(ext)s",
-                                "--extract-audio", "--audio-format"
-                                , "mp3", link);
-                        FlareBot.LOGGER.debug("Downloading");
-                        builder.redirectErrorStream(true);
-                        Process process = builder.start();
-                        processInput(process);
-                        process.waitFor();
+                        MessageUtils.editMessage(message, "Downloading video!");
+                        Process process = download(link);
                         if (process.exitValue() != 0) {
                             MessageUtils.editMessage(message, "Could not download **" + videoName + "**!");
                             return;
@@ -168,6 +160,19 @@ public class VideoThread extends Thread {
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
+    }
+
+    private Process download(String link) throws IOException, InterruptedException {
+        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
+                "cached" + File.separator + "%(id)s.%(ext)s",
+                "--extract-audio", "--audio-format"
+                , EXTENSION.substring(1), link);
+        FlareBot.LOGGER.debug("Downloading");
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+        processInput(process);
+        process.waitFor();
+        return process;
     }
 
     private void loadPlaylist(String searchTerm) throws IOException, InterruptedException {
@@ -208,14 +213,7 @@ public class VideoThread extends Thread {
                     if (!checkDuration(WATCH_URL + e.id)) {
                         continue;
                     }
-                    ProcessBuilder entryDownload = new ProcessBuilder("youtube-dl", "-o",
-                            "cached" + File.separator + "%(id)s.%(ext)s",
-                            "--extract-audio", "--audio-format"
-                            , "mp3", WATCH_URL + e.id);
-                    entryDownload.redirectErrorStream(true);
-                    Process downloadProcess = entryDownload.start();
-                    processInput(downloadProcess);
-                    downloadProcess.waitFor();
+                    Process downloadProcess = download(WATCH_URL + e.id);
                     if (downloadProcess.exitValue() != 0)
                         continue;
                 }
