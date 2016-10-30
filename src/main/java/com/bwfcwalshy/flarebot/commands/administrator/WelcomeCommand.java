@@ -48,7 +48,7 @@ public class WelcomeCommand implements Command {
                 MessageUtils.sendMessage(channel, sender.mention() + " To set a new message do " + FlareBot.COMMAND_CHAR + "welcome message (message)\n" +
                         "Known variables are:\n" +
                         "``%user%`` for the username,\n" +
-                        "``%mention% to mention the user, and\n" +
+                        "``%mention%`` to mention the user, and\n" +
                         "``%guild%`` for the guild name.\n" +
                         (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```"));
