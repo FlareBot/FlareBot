@@ -43,10 +43,7 @@ public class InfoCommand implements Command {
                 Process pr = p.start();
                 pr.waitFor();
                 if(pr.exitValue() == 0){
-                    String res = IOUtils.toString(pr.getInputStream(), Charset.defaultCharset());
-                    if(res != null && res.length() > 7){
-                        git = res.substring(0, 7);
-                    }
+                    git = IOUtils.toString(pr.getInputStream(), Charset.defaultCharset());
                 }
             } catch (InterruptedException | IOException e1) {
                 LOGGER.error("Could not compare git revisions!", e1);
