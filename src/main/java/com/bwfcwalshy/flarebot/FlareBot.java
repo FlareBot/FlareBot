@@ -378,7 +378,7 @@ public class FlareBot {
             client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
         try {
             client.logout();
-        } catch (RateLimitException | DiscordException e) {
+        } catch (DiscordException e) {
             LOGGER.error(Markers.NO_ANNOUNCE, "Problem", e);
         }
     }
