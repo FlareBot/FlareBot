@@ -276,12 +276,14 @@ public class FlareBot {
         }.repeat(10, 600000);
         Scanner scanner = new Scanner(System.in);
 
-        if (scanner.next().equalsIgnoreCase("exit")) {
-            quit(false);
-        } else if (scanner.next().equalsIgnoreCase("update")) {
-            quit(true);
+        try {
+            if (scanner.next().equalsIgnoreCase("exit")) {
+                quit(false);
+            } else if (scanner.next().equalsIgnoreCase("update")) {
+                quit(true);
+            }
+        } catch(NoSuchElementException ignored){
         }
-
     }
 
     public void quit(boolean update) {
