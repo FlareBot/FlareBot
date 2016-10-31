@@ -47,8 +47,25 @@ public class Events {
                     RequestBuffer.request(() -> {
                         try {
                             e.getUser().addRole(role);
-                        } catch (MissingPermissionsException | DiscordException e1) {
+                        } catch (DiscordException e1) {
                             FlareBot.LOGGER.error("Could not auto-assign a role!", e1);
+                        } catch (MissingPermissionsException e1) {
+                            if(!e1.getErrorMessage().startsWith("Edited roles")){
+                                MessageUtils.sendPM(e.getGuild().getOwner(), "**Could not auto assign a role!**\n" + e1.getErrorMessage());
+                                return;
+                            }
+                            StringBuilder message = new StringBuilder();
+
+                            message.append("**Hello!\nI am here to tell you that I could not give the role ``");
+                            message.append(role.getName()).append("`` to one of your new users!\n");
+                            message.append("Please move one of the following roles above ``").append(role.getName())
+                                    .append("`` in your server's role tab!\n```");
+                            for(IRole i : FlareBot.getInstance().getClient().getOurUser().getRolesForGuild(role.getGuild())){
+                                message.append(i.getName()).append('\n');
+                            }
+                            message.append("\n```\nSo the role can be given.**");
+
+                            MessageUtils.sendPM(e.getGuild().getOwner(), message);
                         }
                     });
                 } else autoAssignRoles.remove(s);

@@ -26,10 +26,10 @@ public class MessageUtils {
         return future.get();
     }
 
-    public static void sendPM(IUser user, String message){
+    public static void sendPM(IUser user, CharSequence message){
         RequestBuffer.request(() -> {
             try {
-                user.getOrCreatePMChannel().sendMessage(message.substring(0, Math.min(message.length(), 1999)));
+                user.getOrCreatePMChannel().sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
             } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Uh oh!", e);
             }
