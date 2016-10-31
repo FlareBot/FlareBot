@@ -58,9 +58,9 @@ public class InfoCommand implements Command {
                 + "\nMemory Usage: " + getMb(runtime.totalMemory() - runtime.freeMemory())
                 + "\nFree Memory: " + getMb(runtime.freeMemory())
                 + "\nDiscord4J Version: " + Discord4J.VERSION
+                + (git != null? "Current git revision: " + git + '\n' : "")
                 + "\nCPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f
                 + "%\n" + DIVIDER
-                + (git != null? "Current git revision: " + git + '\n' : "")
                 + "\nSupport Server: http://discord.me/flarebot"
                 + "\nMade with love by bwfcwalshy#1284 and Arsen#3291\n"
                 + "```\n"
