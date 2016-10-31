@@ -73,6 +73,7 @@ public class SaveCommand implements Command {
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);
+            FlareBot.LOGGER.error("Database error!", e);
         }
     }
 

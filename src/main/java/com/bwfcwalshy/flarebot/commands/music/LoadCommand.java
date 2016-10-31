@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
+import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.VideoThread;
 import com.bwfcwalshy.flarebot.commands.Command;
@@ -51,6 +52,7 @@ public class LoadCommand implements Command {
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);
+            FlareBot.LOGGER.error("Database error!", e);
         }
     }
 
