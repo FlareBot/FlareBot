@@ -35,7 +35,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                     pw.close();
                 }
             }
-            MessageUtils.sendMessage(FlareBot.getInstance().getClient().getChannelByID("226786557862871040"), msg);
+            MessageUtils.sendMessage(FlareBot.getInstance().getUpdateChannel(), msg);
         }
         return FilterReply.NEUTRAL;
     }

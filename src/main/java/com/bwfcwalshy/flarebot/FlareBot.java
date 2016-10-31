@@ -29,9 +29,7 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Status;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.Image;
-import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.*;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -51,6 +49,7 @@ public class FlareBot {
     static {
         new File("latest.log").delete();
     }
+
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     private static String dBotsAuth;
     private HttpClient http = HttpClientBuilder.create().disableCookieManagement().build();
@@ -126,6 +125,7 @@ public class FlareBot {
     private long startTime;
     private static String secret = null;
 
+
     public Permissions getPermissions() {
         return permissions;
     }
@@ -168,7 +168,7 @@ public class FlareBot {
         if (PERMS_FILE.exists()) {
             try {
                 permissions = GSON.fromJson(new FileReader(PERMS_FILE), Permissions.class);
-                if(permissions == null){
+                if (permissions == null) {
                     permissions = new Permissions();
                     try {
                         permissions.save();
@@ -334,7 +334,16 @@ public class FlareBot {
                     }
                 }
                 if (p.exitValue() != 0) {
-                    LOGGER.error("Could not update!!!!\n" + out);
+                    LOGGER.error(Markers.NO_ANNOUNCE, "Could not update!!!!\n" + out);
+                    String finalOut = out;
+                    RequestBuffer.request(() -> {
+                        try {
+                            getUpdateChannel().sendFile("Could not build!", false, new ByteArrayInputStream(finalOut.getBytes()), "buildlog.txt");
+                        } catch (DiscordException | MissingPermissionsException e) {
+                            LOGGER.error("Could not send build failure report!", e);
+                            UpdateCommand.updating.set(false);
+                        }
+                    });
                     return;
                 }
                 File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")); // pfft this will go well..
@@ -548,5 +557,9 @@ public class FlareBot {
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
+    }
+
+    public IChannel getUpdateChannel() {
+        return getClient().getChannelByID("226786557862871040");
     }
 }
