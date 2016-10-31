@@ -5,13 +5,19 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.sun.management.OperatingSystemMXBean;
+import org.apache.commons.io.IOUtils;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.Charset;
+
+import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
 public class InfoCommand implements Command {
 
@@ -29,6 +35,23 @@ public class InfoCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+        String git = null;
+        if (new File("FlareBot" + File.separator).exists()) {
+            try {
+                ProcessBuilder p = new ProcessBuilder("git", "log", "--pretty=format:'%h'", "-n", "1");
+                p.directory(new File("FlareBot" + File.separator));
+                Process pr = p.start();
+                pr.waitFor();
+                if(pr.exitValue() == 0){
+                    String res = IOUtils.toString(pr.getInputStream(), Charset.defaultCharset());
+                    if(res != null && res.length() > 7){
+                        git = res.substring(0, 7);
+                    }
+                }
+            } catch (InterruptedException | IOException e1) {
+                LOGGER.error("Could not compare git revisions!", e1);
+            }
+        }
         String msg = "```FlareBot v" + FlareBot.getInstance().getVersion() + " Info"
                 + "\n" + DIVIDER
                 + "\nServers: " + client.getGuilds().size()
@@ -40,6 +63,7 @@ public class InfoCommand implements Command {
                 + "\nDiscord4J Version: " + Discord4J.VERSION
                 + "\nCPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f
                 + "%\n" + DIVIDER
+                + (git != null? "Current git revision: " + git + '\n' : "")
                 + "\nSupport Server: http://discord.me/flarebot"
                 + "\nMade with love by bwfcwalshy#1284 and Arsen#3291\n"
                 + "```\n"
