@@ -51,7 +51,7 @@ public class FlareBot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     private static String dBotsAuth;
-    private HttpClient http = HttpClientBuilder.create().disableCookieManagement().build();
+    public static final HttpClient HTPP_CLIENT = HttpClientBuilder.create().disableCookieManagement().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
     @SuppressWarnings("FieldCanBeLocal")
@@ -265,7 +265,7 @@ public class FlareBot {
                         req.setEntity(ent);
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
                         req.setHeader("Content-Type", "application/json");
-                        HttpResponse e = http.execute(req);
+                        HttpResponse e = HTPP_CLIENT.execute(req);
                     } catch (IOException e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
                     }

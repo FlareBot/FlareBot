@@ -1,5 +1,10 @@
 package com.bwfcwalshy.flarebot;
 
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -7,13 +12,11 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
-import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 
 public class MessageUtils {
 
-    public static IMessage sendMessage(IChannel channel, CharSequence message){
+    public static IMessage sendMessage(IChannel channel, CharSequence message) {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
@@ -27,7 +30,7 @@ public class MessageUtils {
         return future.get();
     }
 
-    public static void sendPM(IUser user, CharSequence message){
+    public static void sendPM(IUser user, CharSequence message) {
         RequestBuffer.request(() -> {
             try {
                 user.getOrCreatePMChannel().sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
@@ -37,7 +40,7 @@ public class MessageUtils {
         });
     }
 
-    public static String escapeFile(String s){
+    public static String escapeFile(String s) {
         return s.replaceAll("[/\\\\*:?\"<>|]", "");
     } // Jesus christ
 
@@ -47,13 +50,27 @@ public class MessageUtils {
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        if(trace.length() + s.length() > 2000){
-            return sendFile(channel, s, trace, "trace.txt");
-        }
-        return sendMessage(channel, s + ' ' + trace);
+        return sendMessage(channel, s + "\n**Stack trace**: " + hastebin(trace));
     }
 
-    public static void editMessage(IMessage message, String content){
+    public static String hastebin(String trace) {
+        try {
+            HttpPost req = new HttpPost("http://hastebin.com/documents");
+            StringEntity ent = new StringEntity(trace);
+            req.setEntity(ent);
+            HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);
+            if (response.getStatusLine().getStatusCode() != 200) {
+                FlareBot.LOGGER.error("HasteBin API did not respond with a correct code! Code was: {}", response.getStatusLine().getStatusCode());
+                return null;
+            }
+            return FlareBot.GSON.fromJson(new InputStreamReader(response.getEntity().getContent()), HastebinResponse.class).key;
+        } catch (JsonSyntaxException | JsonIOException | IOException e) {
+            FlareBot.LOGGER.error("Could not make POST request to hastebin!", e);
+            return null;
+        }
+    }
+
+    public static void editMessage(IMessage message, String content) {
         RequestBuffer.request(() -> {
             try {
                 message.edit(content);
@@ -75,5 +92,9 @@ public class MessageUtils {
                 return sendFile(channel, s, fileContent, filename);
             }
         }).get();
+    }
+
+    private static class HastebinResponse {
+        public String key;
     }
 }
