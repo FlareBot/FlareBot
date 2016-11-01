@@ -28,6 +28,7 @@ public class SkipCommand implements Command {
                     AudioPlayer pl = musicManager.getPlayers().get(channel.getGuild().getID());
                     if(pl != null && pl.getPlaylistSize() < num){
                         pl.getPlaylist().remove(num);
+                        return;
                     }
                 } catch (NumberFormatException e){
                     MessageUtils.sendMessage(channel, "Must be a number!");
