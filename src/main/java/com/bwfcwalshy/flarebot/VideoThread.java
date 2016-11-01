@@ -89,10 +89,6 @@ public class VideoThread extends Thread {
 
                         Document doc = Jsoup.connect(searchTerm).get();
                         videoId = searchTerm.replaceFirst("http(s)?://(www\\.)?youtube\\.com/watch\\?v=", "");
-                        // Playlist
-                        if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
-                        if (videoId.contains("&index")) videoId = videoId.substring(0, videoId.indexOf("&index"));
-                        if (videoId.contains("&app")) videoId = videoId.substring(0, videoId.indexOf("&app"));
                         videoName = doc.title().substring(0, doc.title().length() - 10);
                         link = WATCH_URL + videoId;
                     } else {
@@ -121,16 +117,15 @@ public class VideoThread extends Thread {
                         link = videoElement.select("a").first().attr("href");
                         Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
                         videoName = MessageUtils.escapeFile(doc2.title().substring(0, doc2.title().length() - 10));
-                        if (!searchTerm.matches(ANY_PLAYLIST)) {
-                            // I check the index of 2 chars so I need to add 2
-                            videoId = link.substring(link.indexOf("v=") + 2);
+                        // I check the index of 2 chars so I need to add 2
+                        videoId = link.substring(link.indexOf("v=") + 2);
 
-                            link = YOUTUBE_URL + link;
-                        } else {
-                            loadPlaylist(link, message);
-                            return;
-                        }
+                        link = YOUTUBE_URL + link;
                     }
+                    // Playlist
+                    if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
+                    if (videoId.contains("&index")) videoId = videoId.substring(0, videoId.indexOf("&index"));
+                    if (videoId.contains("&app")) videoId = videoId.substring(0, videoId.indexOf("&app"));
                     File video = new File("cached" + File.separator + videoId + EXTENSION);
                     if (!video.exists()) {
                         if (!checkDuration(link)) {
@@ -174,7 +169,7 @@ public class VideoThread extends Thread {
     }
 
     private Process download(String link) throws IOException, InterruptedException {
-        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-o",
+        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "--no-playlist", "-o",
                 "cached" + File.separator + "%(id)s.%(ext)s",
                 "--extract-audio", "--audio-format"
                 , EXTENSION.substring(1), link);
