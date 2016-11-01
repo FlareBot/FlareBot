@@ -24,6 +24,8 @@ public class SQLController {
         dataSource.setPortNumber(3306);
         dataSource.setServerName("127.0.0.1");
         dataSource.setUser("flare");
+        dataSource.setURL(dataSource.getURL() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
+        dataSource.setUrl(dataSource.getUrl() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
     }
 
     private static Connection getConnection() throws SQLException {
