@@ -47,7 +47,7 @@ public class MessageUtils {
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        if(trace.length() > (1999 - s.length())){
+        if(trace.length() + s.length() > 2000){
             return sendFile(channel, s, trace, "trace.txt");
         }
         return sendMessage(channel, s + ' ' + trace);
