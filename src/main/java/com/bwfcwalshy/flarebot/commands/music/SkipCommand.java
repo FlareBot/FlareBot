@@ -13,36 +13,36 @@ import sx.blah.discord.util.audio.AudioPlayer;
 public class SkipCommand implements Command {
 
     private MusicManager musicManager;
-    public SkipCommand(FlareBot bot){
+
+    public SkipCommand(FlareBot bot) {
         this.musicManager = bot.getMusicManager();
     }
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length == 1){
+        if (args.length == 1) {
             String arg = args[0];
-            if(arg.startsWith("#")){
+            if (arg.startsWith("#")) {
                 arg = arg.substring(1);
                 try {
                     int num = Integer.parseInt(arg) - 1;
                     AudioPlayer pl = musicManager.getPlayers().get(channel.getGuild().getID());
-                    if(pl != null && pl.getPlaylistSize() < num){
+                    if (pl != null && pl.getPlaylistSize() > num && num >= 0) {
                         pl.getPlaylist().remove(num);
-                        return;
                     }
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     MessageUtils.sendMessage(channel, "Must be a number!");
                 }
-            }
-            try {
-                int num = Integer.parseInt(arg);
-                musicManager.skip(channel.getGuild().getID(), num);
-            } catch (NumberFormatException e){
-                MessageUtils.sendMessage(channel, "Must be a number!");
-            }
-            return;
-        }
-        musicManager.skip(channel.getGuild().getID());
+            } else
+                try {
+                    int num = Integer.parseInt(arg);
+                    musicManager.skip(channel.getGuild().getID(), num);
+                } catch (NumberFormatException e) {
+                    MessageUtils.sendMessage(channel, "Must be a number!");
+                }
+        } else if (args.length == 0) {
+            musicManager.skip(channel.getGuild().getID());
+        } else MessageUtils.sendMessage(channel, "Incorrect usage! " + getDescription());
     }
 
     @Override
@@ -56,5 +56,7 @@ public class SkipCommand implements Command {
     }
 
     @Override
-    public CommandType getType() { return CommandType.MUSIC; }
+    public CommandType getType() {
+        return CommandType.MUSIC;
+    }
 }
