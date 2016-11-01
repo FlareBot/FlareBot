@@ -67,7 +67,7 @@ public class MessageUtils {
         ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
         return RequestBuffer.request(() -> {
             try {
-                return channel.sendFile(s, false, stream, fileContent);
+                return channel.sendFile(s, false, stream, filename);
             } catch (MissingPermissionsException e1) {
                 FlareBot.LOGGER.error("Could not send stack trace!", e1);
                 return null;

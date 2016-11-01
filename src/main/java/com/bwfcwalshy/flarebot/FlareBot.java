@@ -27,7 +27,6 @@ import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Status;
 import sx.blah.discord.util.*;
 
@@ -379,17 +378,6 @@ public class FlareBot {
             permissions.save();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        LOGGER.debug("Saved.");
-        if (!client.isReady())
-            return;
-        LOGGER.debug("Stopping bot.");
-        if (client.isReady() && client.getConnectedVoiceChannels() != null && !client.getConnectedVoiceChannels().isEmpty())
-            client.getConnectedVoiceChannels().forEach(IVoiceChannel::leave);
-        try {
-            client.logout();
-        } catch (DiscordException e) {
-            LOGGER.error(Markers.NO_ANNOUNCE, "Problem", e);
         }
     }
 
