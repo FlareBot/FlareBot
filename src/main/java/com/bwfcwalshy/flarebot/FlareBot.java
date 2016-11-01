@@ -267,7 +267,6 @@ public class FlareBot {
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
                         req.setHeader("Content-Type", "application/json");
                         HttpResponse e = http.execute(req);
-                        InputStream res = e.getEntity().getContent();
                     } catch (IOException e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
                     }

@@ -8,6 +8,7 @@ import com.bwfcwalshy.flarebot.music.MusicManager;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.util.audio.AudioPlayer;
 
 public class SkipCommand implements Command {
 
@@ -20,6 +21,18 @@ public class SkipCommand implements Command {
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if(args.length == 1){
             String arg = args[0];
+            if(arg.startsWith("#")){
+                arg = arg.substring(1);
+                try {
+                    int num = Integer.parseInt(arg);
+                    AudioPlayer pl = musicManager.getPlayers().get(channel.getGuild().getID());
+                    if(pl != null){
+                        pl.getPlaylist().remove(num);
+                    }
+                } catch (NumberFormatException e){
+                    MessageUtils.sendMessage(channel, "Must be a number!");
+                }
+            }
             try {
                 int num = Integer.parseInt(arg);
                 musicManager.skip(channel.getGuild().getID(), num);
@@ -38,7 +51,7 @@ public class SkipCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Skip the current song playing.";
+        return "Skip the current song playing, or if specified #NUMBER for the song under NUMBER or just NUMBER for next NUMBER songs.";
     }
 
     @Override

@@ -8,3 +8,5 @@ target/
 welcomes.json
 latest.log
 database.db
+FlareBot/
+/cleanCache
