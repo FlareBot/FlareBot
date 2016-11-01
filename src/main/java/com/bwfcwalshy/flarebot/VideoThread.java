@@ -80,6 +80,8 @@ public class VideoThread extends Thread {
                 if (!searchTerm.matches("https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*")) {
                     if (isUrl) {
                         message = MessageUtils.sendMessage(channel, "Getting video from URL.");
+                        if(message == null)
+                            return;
                         if (isShortened) {
                             searchTerm = WATCH_URL + searchTerm.replaceFirst("http(s)?://youtu\\.be/", "");
                         }
@@ -94,6 +96,8 @@ public class VideoThread extends Thread {
                         link = WATCH_URL + videoId;
                     } else {
                         message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
+                        if(message == null)
+                            return;
                         Document doc = Jsoup.connect(SEARCH_URL + URLEncoder.encode(searchTerm, "UTF-8")).get();
 
                         int i = 0;
@@ -156,7 +160,8 @@ public class VideoThread extends Thread {
         } catch (Exception e) {
             MessageUtils.sendException("Could not add/download songs!", e, channel);
             FlareBot.LOGGER.error("Error occured! searchTerm: " + searchTerm + '\n'
-                    + "isShortened: " + isShortened + "\nisUrl: " + isUrl + "\nplaylist: " + playlist + '\n', e);
+                    + "isShortened: " + isShortened + "\nisUrl: " + isUrl + "\nplaylist: " + playlist + "\nchannel: "
+                    + channel + "\nsender: " + user.getName() + '#' + user.getDiscriminator() + " ( " + user + " )", e);
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");

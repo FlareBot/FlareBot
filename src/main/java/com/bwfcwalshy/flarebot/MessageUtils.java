@@ -7,6 +7,7 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -19,7 +20,7 @@ public class MessageUtils {
             } catch (MissingPermissionsException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             } catch (DiscordException e) {
-                sendMessage(channel, message);
+                return sendMessage(channel, message);
             }
             return null;
         });
@@ -46,6 +47,20 @@ public class MessageUtils {
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
+        if(trace.length() > 2000){
+            ByteArrayInputStream stream = new ByteArrayInputStream(trace.getBytes());
+            return RequestBuffer.request(() -> {
+                try {
+                    return channel.sendFile(s, false, stream, "trace.txt");
+                } catch (MissingPermissionsException e1) {
+                    FlareBot.LOGGER.error("Could not send stack trace!", e1);
+                    return null;
+                } catch (DiscordException e1) {
+                    return sendException(s, e, channel);
+                }
+            }).get();
+
+        }
         return sendMessage(channel, s + ' ' + trace);
     }
 
