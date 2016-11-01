@@ -64,7 +64,6 @@ public class FlareBot {
     private File welcomeFile;
 
     public static void main(String[] args) throws ClassNotFoundException {
-        Class.forName("com.bwfcwalshy.flarebot.util.SQLController");
 //        FlareBot.args = args;
         Options options = new Options();
 
@@ -98,6 +97,7 @@ public class FlareBot {
             CommandLine parsed = parser.parse(options, args);
             tkn = parsed.getOptionValue("t");
             passwd = parsed.getOptionValue("sql");
+            Class.forName("com.bwfcwalshy.flarebot.util.SQLController");
             if (parsed.hasOption("s"))
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
@@ -281,7 +281,7 @@ public class FlareBot {
             } else if (scanner.next().equalsIgnoreCase("update")) {
                 quit(true);
             }
-        } catch(NoSuchElementException ignored){
+        } catch (NoSuchElementException ignored) {
         }
     }
 
