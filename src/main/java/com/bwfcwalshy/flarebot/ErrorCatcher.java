@@ -7,9 +7,6 @@ import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import org.slf4j.helpers.MessageFormatter;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 /**
  * Catch those dem errorz
  * <br>
@@ -20,22 +17,16 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
     public FilterReply decide(ILoggingEvent event) {
         if (event.getMarker() != Markers.NO_ANNOUNCE && FlareBot.getInstance().getClient().isReady() && event.getLevel() == Level.ERROR) {
             String msg = MessageFormatter.format(event.getFormattedMessage(), event.getArgumentArray()).getMessage();
-            if(msg.startsWith("Received 404 error, please notify the developer and include the URL (https://discordapp.com/api/channels/")){
+            if (msg.startsWith("Received 404 error, please notify the developer and include the URL (https://discordapp.com/api/channels/")) {
                 return FilterReply.DENY;
             }
-            if(event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy){
+            if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
                 @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
                 Throwable throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
-                if(throwable != null) {
-                    msg += ' ';
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    throwable.printStackTrace(pw);
-                    msg += sw.toString();
-                    pw.close();
-                }
+                if (throwable != null) {
+                    MessageUtils.sendException(msg, throwable, FlareBot.getInstance().getUpdateChannel());
+                } else MessageUtils.sendMessage(FlareBot.getInstance().getUpdateChannel(), msg);
             }
-            MessageUtils.sendMessage(FlareBot.getInstance().getUpdateChannel(), msg);
         }
         return FilterReply.NEUTRAL;
     }

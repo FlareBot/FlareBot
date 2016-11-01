@@ -41,25 +41,14 @@ public class MessageUtils {
         return s.replaceAll("[/\\\\*:?\"<>|]", "");
     } // Jesus christ
 
-    public static IMessage sendException(String s, Exception e, IChannel channel) {
+    public static IMessage sendException(String s, Throwable e, IChannel channel) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        if(trace.length() > 2000){
-            ByteArrayInputStream stream = new ByteArrayInputStream(trace.getBytes());
-            return RequestBuffer.request(() -> {
-                try {
-                    return channel.sendFile(s, false, stream, "trace.txt");
-                } catch (MissingPermissionsException e1) {
-                    FlareBot.LOGGER.error("Could not send stack trace!", e1);
-                    return null;
-                } catch (DiscordException e1) {
-                    return sendException(s, e, channel);
-                }
-            }).get();
-
+        if(trace.length() > (1999 - s.length())){
+            return sendFile(channel, s, trace, "trace.txt");
         }
         return sendMessage(channel, s + ' ' + trace);
     }
@@ -72,5 +61,19 @@ public class MessageUtils {
                 FlareBot.LOGGER.error("Edit own message!", e1);
             }
         });
+    }
+
+    public static IMessage sendFile(IChannel channel, String s, String fileContent, String filename) {
+        ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
+        return RequestBuffer.request(() -> {
+            try {
+                return channel.sendFile(s, false, stream, fileContent);
+            } catch (MissingPermissionsException e1) {
+                FlareBot.LOGGER.error("Could not send stack trace!", e1);
+                return null;
+            } catch (DiscordException e1) {
+                return sendFile(channel, s, fileContent, filename);
+            }
+        }).get();
     }
 }
