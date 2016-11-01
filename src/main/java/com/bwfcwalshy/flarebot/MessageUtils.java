@@ -63,7 +63,7 @@ public class MessageUtils {
                 FlareBot.LOGGER.error("HasteBin API did not respond with a correct code! Code was: {}", response.getStatusLine().getStatusCode());
                 return null;
             }
-            return FlareBot.GSON.fromJson(new InputStreamReader(response.getEntity().getContent()), HastebinResponse.class).key;
+            return "http://hastebin.com/" + FlareBot.GSON.fromJson(new InputStreamReader(response.getEntity().getContent()), HastebinResponse.class).key;
         } catch (JsonSyntaxException | JsonIOException | IOException e) {
             FlareBot.LOGGER.error("Could not make POST request to hastebin!", e);
             return null;
