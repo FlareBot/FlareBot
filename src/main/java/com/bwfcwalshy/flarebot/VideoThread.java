@@ -63,6 +63,7 @@ public class VideoThread extends Thread {
     private static final String WATCH_URL = "https://www.youtube.com/watch?v=";
     private static final String EXTENSION = ".mp3";
     public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:www\\.)?(?:youtube\\.com))/(?:(?:watch\\?v=(.+)(?:&list=.+)?(?:&index=.+)?)|(?:playlist\\?list=(.+))))|(?:youtu\\.be/(.*)))";
+    public static final String ANY_PLAYLIST = "https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*";
     public static Pattern YT_PATTERN = Pattern.compile(ANY_YT_URL);
     private static final long MAX_DURATION = 30;
 
@@ -77,7 +78,7 @@ public class VideoThread extends Thread {
                 String videoName;
                 String link;
                 String videoId;
-                if (!searchTerm.matches("https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*")) {
+                if (!searchTerm.matches(ANY_PLAYLIST)) {
                     if (isUrl) {
                         message = MessageUtils.sendMessage(channel, "Getting video from URL.");
                         if(message == null)
@@ -120,10 +121,15 @@ public class VideoThread extends Thread {
                         link = videoElement.select("a").first().attr("href");
                         Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
                         videoName = MessageUtils.escapeFile(doc2.title().substring(0, doc2.title().length() - 10));
-                        // I check the index of 2 chars so I need to add 2
-                        videoId = link.substring(link.indexOf("v=") + 2);
+                        if (!searchTerm.matches(ANY_PLAYLIST)) {
+                            // I check the index of 2 chars so I need to add 2
+                            videoId = link.substring(link.indexOf("v=") + 2);
 
-                        link = YOUTUBE_URL + link;
+                            link = YOUTUBE_URL + link;
+                        } else {
+                            loadPlaylist(link, message);
+                            return;
+                        }
                     }
                     File video = new File("cached" + File.separator + videoId + EXTENSION);
                     if (!video.exists()) {
@@ -182,6 +188,10 @@ public class VideoThread extends Thread {
 
     private void loadPlaylist(String searchTerm) throws IOException, InterruptedException {
         IMessage message = MessageUtils.sendMessage(channel, "Getting playlist from URL.");
+        loadPlaylist(searchTerm, message);
+    }
+
+    private void loadPlaylist(String searchTerm, IMessage message) throws IOException, InterruptedException {
         ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-i", "-4", "--dump-single-json", "--flat-playlist", searchTerm);
         Process process = builder.start();
         Playlist playlist;
