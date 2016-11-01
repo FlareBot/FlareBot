@@ -24,9 +24,9 @@ public class SkipCommand implements Command {
             if(arg.startsWith("#")){
                 arg = arg.substring(1);
                 try {
-                    int num = Integer.parseInt(arg);
+                    int num = Integer.parseInt(arg) - 1;
                     AudioPlayer pl = musicManager.getPlayers().get(channel.getGuild().getID());
-                    if(pl != null){
+                    if(pl != null && pl.getPlaylistSize() < num){
                         pl.getPlaylist().remove(num);
                     }
                 } catch (NumberFormatException e){
