@@ -63,9 +63,9 @@ public class VideoThread extends Thread {
     private static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=";
     private static final String WATCH_URL = "https://www.youtube.com/watch?v=";
     private static final String EXTENSION = ".mp3";
-    public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:www\\.)?(?:youtube\\.com))/(?:(?:watch\\?v=(.+)(?:&list=.+)?(?:&index=.+)?)|(?:playlist\\?list=(.+))))|(?:youtu\\.be/(.*)))";
-    public static final String ANY_PLAYLIST = "https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*";
+    public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:www\\.)?(?:youtube\\.com))/(?:watch\\?v=([^&?]+)(?:&[^&?]*=[^?&]+)?))|(?:youtu\\.be/(.*)))";
     public static Pattern YT_PATTERN = Pattern.compile(ANY_YT_URL);
+    public static final String ANY_PLAYLIST = "https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*";
     private static final long MAX_DURATION = 30;
 
     @Override
