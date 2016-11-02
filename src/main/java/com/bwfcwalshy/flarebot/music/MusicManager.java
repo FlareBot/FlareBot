@@ -23,7 +23,7 @@ public class MusicManager {
         this.bot = flareBot;
     }
 
-    public boolean addSong(String guildId, String musicFile, String trackName, String ext) {
+    public boolean addSong(String guildId, String musicFile, String trackName, String ext) throws IOException {
         AudioPlayer player = players.computeIfAbsent(guildId, id -> {
             AudioPlayer playa = AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(id));
             playa.setVolume(0.2f);
@@ -37,7 +37,7 @@ public class MusicManager {
             track.getMetadata().put("id", musicFile.substring(0, musicFile.length() - ext.length()));
             //track.getMetadata().put("duration", duration);
             player.queue(track);
-        } catch (IOException | UnsupportedAudioFileException e) {
+        } catch (UnsupportedAudioFileException e) {
             FlareBot.LOGGER.error("Could not add song", e);
             return false;
         }

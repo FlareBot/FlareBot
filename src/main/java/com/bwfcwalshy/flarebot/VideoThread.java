@@ -82,7 +82,7 @@ public class VideoThread extends Thread {
                 if (!searchTerm.matches(ANY_PLAYLIST)) {
                     if (isUrl) {
                         message = MessageUtils.sendMessage(channel, "Getting video from URL.");
-                        if(message == null)
+                        if (message == null)
                             return;
                         if (isShortened) {
                             searchTerm = WATCH_URL + searchTerm.replaceFirst("http(s)?://youtu\\.be/", "");
@@ -94,34 +94,30 @@ public class VideoThread extends Thread {
                         link = WATCH_URL + videoId;
                     } else {
                         message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
-                        if(message == null)
+                        if (message == null)
                             return;
                         Document doc = Jsoup.connect(SEARCH_URL + URLEncoder.encode(searchTerm, "UTF-8")).get();
 
                         int i = 0;
                         List<Element> videoElements = doc.getElementsByClass("yt-lockup-title");
-                        if(videoElements.isEmpty()){
+                        if (videoElements.isEmpty()) {
                             MessageUtils.editMessage(message, "Could not find any results for **" + searchTerm + "**!");
                             return;
                         }
                         Element videoElement = videoElements.get(i);
-                        boolean hasAd = true;
-                        while (hasAd) {
-                            for (Element e : videoElement.children()) {
-                                if (e.toString().contains("href=\"https://googleads")) {
-                                    videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                                    break;
-                                }
+                        for (Element e : videoElement.children()) {
+                            if (e.toString().contains("href=\"https://googleads")) {
+                                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
+                                break;
                             }
-                            hasAd = false;
                         }
                         link = videoElement.select("a").first().attr("href");
                         Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
                         videoName = doc2.title();
                         // I check the index of 2 chars so I need to add 2
                         videoId = link.substring(link.indexOf("v=") + 2);
-                            link = YOUTUBE_URL + link;
-                        if(link.contains("&list=")) {
+                        link = YOUTUBE_URL + link;
+                        if (link.contains("&list=")) {
                             loadPlaylist(link.replaceFirst("(?:(?:https?://)(?:www)?\\.youtube\\.com)/watch\\?v=.*&list=", PLAYLIST_URL), message);
                             return;
                         }
@@ -257,7 +253,7 @@ public class VideoThread extends Thread {
             while (downloadProcess.isAlive()) {
                 String line;
                 if ((line = reader.readLine()) != null) {
-                    if(line.contains("[download]"))
+                    if (line.contains("[download]"))
                         continue;
                     FlareBot.LOGGER.info("[YT-DL] " + line);
                 }
