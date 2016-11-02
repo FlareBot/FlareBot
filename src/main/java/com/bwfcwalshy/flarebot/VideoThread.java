@@ -115,7 +115,8 @@ public class VideoThread extends Thread {
                         }
                         link = videoElement.select("a").first().attr("href");
                         Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
-                        videoName = doc2.title();
+                        // - YouTube
+                        videoName = doc2.title().substring(0, doc2.title().length() - 10);
                         // I check the index of 2 chars so I need to add 2
                         videoId = link.substring(link.indexOf("v=") + 2);
                         link = YOUTUBE_URL + link;
