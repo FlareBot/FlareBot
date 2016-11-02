@@ -108,7 +108,9 @@ public class VideoThread extends Thread {
                         for (Element e : videoElement.children()) {
                             if (e.toString().contains("href=\"https://googleads")) {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                                break;
+                                if(!videoElement.select("a").first().attr("href").startsWith("https://www.youtube.com/user/")) {
+                                    break;
+                                }
                             }
                         }
                         link = videoElement.select("a").first().attr("href");
