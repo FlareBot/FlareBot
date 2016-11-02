@@ -60,6 +60,7 @@ public class VideoThread extends Thread {
     // Making sure these stay across all threads.
     private static final String SEARCH_URL = "https://www.youtube.com/results?search_query=";
     private static final String YOUTUBE_URL = "https://www.youtube.com";
+    private static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=";
     private static final String WATCH_URL = "https://www.youtube.com/watch?v=";
     private static final String EXTENSION = ".mp3";
     public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:www\\.)?(?:youtube\\.com))/(?:(?:watch\\?v=(.+)(?:&list=.+)?(?:&index=.+)?)|(?:playlist\\?list=(.+))))|(?:youtu\\.be/(.*)))";
@@ -116,11 +117,14 @@ public class VideoThread extends Thread {
                         }
                         link = videoElement.select("a").first().attr("href");
                         Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
-                        videoName = MessageUtils.escapeFile(doc2.title().substring(0, doc2.title().length() - 10));
+                        videoName = doc2.title();
                         // I check the index of 2 chars so I need to add 2
                         videoId = link.substring(link.indexOf("v=") + 2);
-
-                        link = YOUTUBE_URL + link;
+                            link = YOUTUBE_URL + link;
+                        if(link.contains("&list=")) {
+                            loadPlaylist(link.replaceFirst("(?:(?:https?://)(?:www)?\\.youtube\\.com)/watch\\?v=.*&list=", PLAYLIST_URL), message);
+                            return;
+                        }
                     }
                     // Playlist
                     if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
@@ -253,6 +257,8 @@ public class VideoThread extends Thread {
             while (downloadProcess.isAlive()) {
                 String line;
                 if ((line = reader.readLine()) != null) {
+                    if(line.contains("[download]"))
+                        continue;
                     FlareBot.LOGGER.info("[YT-DL] " + line);
                 }
             }
