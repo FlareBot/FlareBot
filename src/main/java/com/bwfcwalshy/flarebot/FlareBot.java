@@ -350,15 +350,6 @@ public class FlareBot {
                 Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
                 File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//                List<String> args = new ArrayList<>();
-//                args.add("java");
-//                args.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
-//                args.add("-jar");
-//                args.add(current.getAbsolutePath());
-//                Collections.addAll(args, FlareBot.args);
-//                ProcessBuilder java = new ProcessBuilder(args);
-//                java.inheritIO();
-//                java.start();
                 System.exit(0);
             } catch (IOException e) {
                 LOGGER.error("Could not update!", e);
@@ -517,9 +508,6 @@ public class FlareBot {
             }
         }
         try {
-//            try (Writer fw = new FileWriter(welcomeFile)) {
-//                GSON.toJson(obj, fw);
-//            }
             FileWriter fw = new FileWriter(welcomeFile);
             fw.write(GSON.toJson(welcomes));
             fw.flush();

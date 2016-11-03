@@ -9,11 +9,13 @@ import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.UserJoinEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IRole;
+import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 public class Events {
@@ -76,6 +78,10 @@ public class Events {
     @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
         if (e.getMessage().getContent().startsWith(String.valueOf(FlareBot.COMMAND_CHAR)) && !e.getMessage().getAuthor().isBot()) {
+            EnumSet<Permissions> perms = e.getMessage().getChannel().getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
+            if(!perms.contains(Permissions.SEND_MESSAGES) && !perms.contains(Permissions.ADMINISTRATOR)){
+                return;
+            }
             String message = e.getMessage().getContent();
             String command = message.substring(1);
             String[] args = new String[0];
