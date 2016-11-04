@@ -77,8 +77,10 @@ public class Events {
 
     @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
-        if (e.getMessage().getContent().startsWith(String.valueOf(FlareBot.COMMAND_CHAR)) && && e.getMessage().getAuthor() != null && !e.getMessage().getAuthor().isBot()) {
-            EnumSet<Permissions> perms = e.getMessage().getChannel().getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
+        if (e.getMessage().getContent().startsWith(String.valueOf(FlareBot.COMMAND_CHAR))
+                && e.getMessage().getAuthor() != null && !e.getMessage().getAuthor().isBot()) {
+            EnumSet<Permissions> perms = e.getMessage().getChannel()
+                    .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
             if(!perms.contains(Permissions.SEND_MESSAGES) && !perms.contains(Permissions.ADMINISTRATOR)){
                 return;
             }
