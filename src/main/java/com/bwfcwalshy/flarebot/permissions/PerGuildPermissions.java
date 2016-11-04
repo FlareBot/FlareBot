@@ -18,15 +18,17 @@ public class PerGuildPermissions {
 
     public PerGuildPermissions(String id) {
         this.id = id;
+        if (!hasGroup("Default")) {
+            addPermission("Default", "flarebot.skip");
+        }
     }
 
     public boolean hasPermission(IUser user, String permission) {
         // So we can go into servers and figure out any issues they have.
-        if(user.getID().equals("158310004187725824") || user.getID().equals("155954930191040513"))
+        if (isCreator(user))
             return true;
-        if (FlareBot.getInstance().getClient().getGuildByID(getGuildID()).getOwner().equals(user)) {
-                return true;
-        }
+        if (FlareBot.getInstance().getClient().getGuildByID(getGuildID()).getOwner().equals(user))
+            return true;
         AtomicBoolean has = new AtomicBoolean(false);
         getUser(user).getGroups().forEach((group) -> {
             if (getGroup(group).getPermissions().contains(permission) || getGroup(group).getPermissions().contains("*")) {
@@ -49,11 +51,11 @@ public class PerGuildPermissions {
     }
 
     public User getUser(IUser user) {
-        return users.computeIfAbsent(user.getID(), key -> new User(user));
+        return users.computeIfAbsent(user.getID(), key -> new User(user, this));
     }
 
     public Group getGroup(String group) {
-        return groups.computeIfAbsent(group, key -> new Group(group));
+        return groups.computeIfAbsent(group, key -> new Group(group, this));
     }
 
     public boolean deleteGroup(String group) {

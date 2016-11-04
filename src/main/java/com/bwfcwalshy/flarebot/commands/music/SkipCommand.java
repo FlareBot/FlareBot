@@ -20,6 +20,13 @@ public class SkipCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+        if(channel.getGuild().getConnectedVoiceChannel() == null){
+            MessageUtils.sendMessage(channel, "I am not streaming!");
+            return;
+        }
+        if(!sender.getConnectedVoiceChannels().contains(channel.getGuild().getConnectedVoiceChannel())){
+            MessageUtils.sendMessage(channel, "You must be in the channel in order to skip songs!");
+        }
         if (args.length == 1) {
             String arg = args[0];
             if (arg.startsWith("#")) {
@@ -58,5 +65,10 @@ public class SkipCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
+    }
+
+    @Override
+    public String getPermission() {
+        return "flarebot.skip";
     }
 }

@@ -7,10 +7,14 @@ import java.util.Set;
 
 public class User {
     private final HashSet<String> groups = new HashSet<>();
+    private PerGuildPermissions parent;
     protected String userID;
 
-    User(IUser user) {
+    User(IUser user, PerGuildPermissions parent) {
+        this.parent = parent;
         userID = user.getID();
+        if (parent.hasGroup("Default"))
+            groups.add("Default");
     }
 
     protected User() {
@@ -27,11 +31,15 @@ public class User {
     }
 
     public boolean addGroup(Group group) {
-        return groups.add(group.getName());
+        return parent.getGroups().values().contains(group) && groups.add(group.getName());
     }
 
     public boolean removeGroup(Group group) {
         return groups.remove(group.getName());
+    }
+
+    public PerGuildPermissions getParent() {
+        return parent;
     }
 
     @Override
