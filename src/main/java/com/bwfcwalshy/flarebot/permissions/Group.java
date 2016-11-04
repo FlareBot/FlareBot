@@ -7,19 +7,14 @@ import java.util.Set;
 public class Group {
     final HashSet<String> permissions = new HashSet<>();
     private String name;
-    private PerGuildPermissions parent;
 
     private Group() {
     }
 
-    Group(String name, PerGuildPermissions parent) {
+    Group(String name) {
         this.name = name;
-        this.parent = parent;
     }
 
-    public PerGuildPermissions getParent() {
-        return parent;
-    }
 
     public Set<String> getPermissions() {
         return permissions;

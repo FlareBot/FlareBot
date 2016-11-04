@@ -51,11 +51,11 @@ public class PerGuildPermissions {
     }
 
     public User getUser(IUser user) {
-        return users.computeIfAbsent(user.getID(), key -> new User(user, this));
+        return users.computeIfAbsent(user.getID(), key -> new User(user));
     }
 
     public Group getGroup(String group) {
-        return groups.computeIfAbsent(group, key -> new Group(group, this));
+        return groups.computeIfAbsent(group, key -> new Group(group));
     }
 
     public boolean deleteGroup(String group) {
