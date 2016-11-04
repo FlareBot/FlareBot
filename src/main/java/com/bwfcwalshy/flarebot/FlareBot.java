@@ -235,16 +235,17 @@ public class FlareBot {
             LOGGER.error("Could not change avatar!", e);
         }
 
-        new FlarebotTask("PermissionSaver" + System.currentTimeMillis()) {
+        new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 try {
                     getPermissions().save();
+                    saveWelcomes();
                 } catch (IOException e) {
                     LOGGER.error("Could not save permissions!", e);
                 }
             }
-        }.repeat(300000, 300000);
+        }.repeat(300000, 60000);
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
