@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot.commands.general;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
+import com.bwfcwalshy.flarebot.VideoThread;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.sun.management.OperatingSystemMXBean;
@@ -57,6 +58,8 @@ public class InfoCommand implements Command {
                 + "\nUptime: " + flareBot.getUptime()
                 + "\nMemory Usage: " + getMb(runtime.totalMemory() - runtime.freeMemory())
                 + "\nFree Memory: " + getMb(runtime.freeMemory())
+                + "\nVideo download and search threads: " + VideoThread.threads.get()
+                + "\nTotal threads: " + ManagementFactory.getThreadMXBean().getThreadCount()
                 + "\nDiscord4J Version: " + Discord4J.VERSION + '\n'
                 + (git != null? "Current git revision: " + git + '\n' : "")
                 + "CPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f

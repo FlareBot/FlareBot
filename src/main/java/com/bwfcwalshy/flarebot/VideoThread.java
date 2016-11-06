@@ -19,11 +19,13 @@ import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 public class VideoThread extends Thread {
 
     private static MusicManager manager;
+    public static final AtomicInteger threads = new AtomicInteger(0);
     private String searchTerm;
     private IUser user;
     private IChannel channel;
@@ -70,6 +72,9 @@ public class VideoThread extends Thread {
 
     @Override
     public void run() {
+        synchronized (threads) {
+            threads.incrementAndGet();
+        }
         long a = System.currentTimeMillis();
         // TODO: Severely clean this up!!!
         // ^ EDIT BY Arsen: A space goes there..
@@ -108,9 +113,8 @@ public class VideoThread extends Thread {
                         for (Element e : videoElement.children()) {
                             if (e.toString().contains("href=\"https://googleads")) {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                                if(!videoElement.select("a").first().attr("href").startsWith("/user/")) {
-                                    break;
-                                }
+                            } else if(videoElement.select("a").first().attr("href").startsWith("/user/")){
+                                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
                             }
                         }
                         link = videoElement.select("a").first().attr("href");
@@ -169,6 +173,9 @@ public class VideoThread extends Thread {
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
+        synchronized (threads) {
+            threads.decrementAndGet();
+        }
     }
 
     private Process download(String link) throws IOException, InterruptedException {
