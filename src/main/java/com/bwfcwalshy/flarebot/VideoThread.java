@@ -283,6 +283,6 @@ public class VideoThread extends Thread {
     }
 
     private class Song {
-        public long duration;
+        public Long duration;
     }
 }
