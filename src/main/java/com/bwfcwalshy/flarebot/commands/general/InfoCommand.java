@@ -58,10 +58,10 @@ public class InfoCommand implements Command {
                 + "\nUptime: " + flareBot.getUptime()
                 + "\nMemory Usage: " + getMb(runtime.totalMemory() - runtime.freeMemory())
                 + "\nFree Memory: " + getMb(runtime.freeMemory())
-                + "\nVideo download and search threads: " + VideoThread.threads.get()
+                + "\nVideo download and search threads: " + VideoThread.VIDEO_THREADS.activeCount()
                 + "\nTotal threads: " + Thread.getAllStackTraces().size()
                 + "\nDiscord4J Version: " + Discord4J.VERSION + '\n'
-                + (git != null? "Current git revision: " + git + '\n' : "")
+                + (git != null ? "Current git revision: " + git + '\n' : "")
                 + "CPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f
                 + "%\n" + DIVIDER
                 + "\nSupport Server: http://discord.me/flarebot"

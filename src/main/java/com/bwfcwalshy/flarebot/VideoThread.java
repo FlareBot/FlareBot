@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot;
 
 import com.bwfcwalshy.flarebot.music.MusicManager;
 import com.google.gson.JsonParseException;
+import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,15 +18,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 public class VideoThread extends Thread {
 
     private static MusicManager manager;
-    public static final AtomicInteger threads = new AtomicInteger(0);
+    public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
     private String searchTerm;
     private IUser user;
     private IChannel channel;
@@ -34,6 +35,7 @@ public class VideoThread extends Thread {
     private List<String> playlist = null;
 
     public VideoThread(String term, IUser user, IChannel channel) {
+        super(VIDEO_THREADS, "Video Thread " + VIDEO_THREADS.activeCount());
         this.searchTerm = term;
         this.user = user;
         this.channel = channel;
@@ -72,9 +74,6 @@ public class VideoThread extends Thread {
 
     @Override
     public void run() {
-        synchronized (threads) {
-            threads.incrementAndGet();
-        }
         long a = System.currentTimeMillis();
         // TODO: Severely clean this up!!!
         // ^ EDIT BY Arsen: A space goes there..
@@ -113,7 +112,7 @@ public class VideoThread extends Thread {
                         for (Element e : videoElement.children()) {
                             if (e.toString().contains("href=\"https://googleads")) {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                            } else if(videoElement.select("a").first().attr("href").startsWith("/user/")){
+                            } else if (videoElement.select("a").first().attr("href").startsWith("/user/")) {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
                             }
                         }
@@ -173,9 +172,6 @@ public class VideoThread extends Thread {
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
-        synchronized (threads) {
-            threads.decrementAndGet();
-        }
     }
 
     private Process download(String link) throws IOException, InterruptedException {
@@ -249,11 +245,20 @@ public class VideoThread extends Thread {
 
     private boolean checkDuration(String link) {
         ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", link);
+        String gson;
+        Process p = null;
         try {
-            Process p = builder.start();
+            p = builder.start();
             Song song = FlareBot.GSON.fromJson(new InputStreamReader(p.getInputStream()), Song.class);
             return song != null && song.duration < (MAX_DURATION * 60);
         } catch (JsonParseException | IOException e) {
+            try {
+                FlareBot.LOGGER.error("Could not parse playlist!"
+                        + (p != null ? ' ' +MessageUtils.hastebin(IOUtils.toString(p.getInputStream(), Charset.defaultCharset())) : ""), e);
+            } catch (IOException e1) {
+                FlareBot.LOGGER.error("Could not parse playlist!", e);
+                e1.printStackTrace();
+            }
             return false;
         }
     }
