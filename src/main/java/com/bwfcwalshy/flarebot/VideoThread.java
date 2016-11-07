@@ -250,6 +250,10 @@ public class VideoThread extends Thread {
         try {
             p = builder.start();
             Song song = FlareBot.GSON.fromJson(new InputStreamReader(p.getInputStream()), Song.class);
+            if(song == null || song.duration == null){
+                FlareBot.LOGGER.error("Could not parse playlist! "
+                        + MessageUtils.hastebin(IOUtils.toString(p.getInputStream(), Charset.defaultCharset())));
+            }
             return song != null && song.duration < (MAX_DURATION * 60);
         } catch (JsonParseException | IOException e) {
             try {
