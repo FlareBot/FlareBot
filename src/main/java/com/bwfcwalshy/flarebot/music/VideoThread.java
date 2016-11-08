@@ -133,6 +133,7 @@ public class VideoThread extends Thread {
                     if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
                     if (videoId.contains("&index")) videoId = videoId.substring(0, videoId.indexOf("&index"));
                     if (videoId.contains("&app")) videoId = videoId.substring(0, videoId.indexOf("&app"));
+                    if (videoId.contains("&t")) videoId = videoId.substring(0, videoId.indexOf("&t"));
                     File video = new File("cached" + File.separator + videoId + EXTENSION);
                     if (!video.exists()) {
                         if (!checkDuration(link)) {

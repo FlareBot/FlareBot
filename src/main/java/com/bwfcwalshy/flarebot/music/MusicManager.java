@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import sx.blah.discord.util.audio.AudioPlayer;
+import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -32,7 +33,10 @@ public class MusicManager {
         try {
             AudioInputStream input = AudioSystem.getAudioInputStream(new File("cached" + File.separator + musicFile));
             //FileProvider file = new FileProvider("cached" + File.separator + musicFile);
-            AudioPlayer.Track track = new AudioPlayer.Track(input);
+            File audio = new File("cached" + File.separator + musicFile);
+            AudioPlayer.Track track = new AudioPlayer.Track(new AudioInputStreamProvider(null){
+
+            });
             track.getMetadata().put("name", trackName);
             track.getMetadata().put("id", musicFile.substring(0, musicFile.length() - ext.length()));
             //track.getMetadata().put("duration", duration);
@@ -60,9 +64,9 @@ public class MusicManager {
             players.get(guildId).skip();
     }
 
-    public void skip(String guildId, int songs){
+    public void skip(String guildId, int songs) {
         if (players.containsKey(guildId))
-            for(int i = 0; i < songs; i++)
+            for (int i = 0; i < songs; i++)
                 players.get(guildId).skip();
     }
 
