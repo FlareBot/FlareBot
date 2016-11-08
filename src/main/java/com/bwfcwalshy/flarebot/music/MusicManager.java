@@ -34,9 +34,10 @@ public class MusicManager {
             AudioInputStream input = AudioSystem.getAudioInputStream(new File("cached" + File.separator + musicFile));
             //FileProvider file = new FileProvider("cached" + File.separator + musicFile);
             File audio = new File("cached" + File.separator + musicFile);
-            AudioPlayer.Track track = new AudioPlayer.Track(new AudioInputStreamProvider(null){
-
-            });
+            AudioPlayer.Track track = new AudioPlayer.Track(new AudioInputStreamProvider(input));
+//            AudioPlayer.Track track = new AudioPlayer.Track(new AudioInputStreamProvider(null){
+//
+//            });
             track.getMetadata().put("name", trackName);
             track.getMetadata().put("id", musicFile.substring(0, musicFile.length() - ext.length()));
             //track.getMetadata().put("duration", duration);
