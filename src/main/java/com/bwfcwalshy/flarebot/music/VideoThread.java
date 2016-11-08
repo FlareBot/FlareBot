@@ -1,6 +1,7 @@
-package com.bwfcwalshy.flarebot;
+package com.bwfcwalshy.flarebot.music;
 
-import com.bwfcwalshy.flarebot.music.MusicManager;
+import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.MessageUtils;
 import com.google.gson.JsonParseException;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -246,23 +247,19 @@ public class VideoThread extends Thread {
     private boolean checkDuration(String link) {
         ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", link);
         String gson;
-        Process p = null;
+        String out = null;
         try {
-            p = builder.start();
-            Song song = FlareBot.GSON.fromJson(new InputStreamReader(p.getInputStream()), Song.class);
+        Process p = builder.start();
+            out = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
+            Song song = FlareBot.GSON.fromJson(out, Song.class);
             if(song == null || song.duration == null){
-                FlareBot.LOGGER.error("Could not parse playlist! "
-                        + MessageUtils.hastebin(IOUtils.toString(p.getInputStream(), Charset.defaultCharset())));
+                FlareBot.LOGGER.error("Could not parse song duration! "
+                        + MessageUtils.hastebin(out));
             }
             return song != null && song.duration < (MAX_DURATION * 60);
         } catch (JsonParseException | IOException e) {
-            try {
-                FlareBot.LOGGER.error("Could not parse playlist!"
-                        + (p != null ? ' ' +MessageUtils.hastebin(IOUtils.toString(p.getInputStream(), Charset.defaultCharset())) : ""), e);
-            } catch (IOException e1) {
-                FlareBot.LOGGER.error("Could not parse playlist!", e);
-                e1.printStackTrace();
-            }
+                FlareBot.LOGGER.error("Could not parse song duration! "
+                    + (out != null ? ' ' +MessageUtils.hastebin(out) : ""), e);
             return false;
         }
     }

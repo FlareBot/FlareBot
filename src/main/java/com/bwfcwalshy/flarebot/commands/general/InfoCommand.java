@@ -2,7 +2,7 @@ package com.bwfcwalshy.flarebot.commands.general;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.VideoThread;
+import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.sun.management.OperatingSystemMXBean;
