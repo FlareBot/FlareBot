@@ -243,7 +243,7 @@ public class VideoThread extends Thread {
     }
 
     private boolean checkDuration(String link) {
-        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", link);
+        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", "--no-playlist", link);
         String gson;
         String out = null;
         try {
