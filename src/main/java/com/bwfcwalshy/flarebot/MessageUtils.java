@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot;
 
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -13,6 +14,7 @@ import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 public class MessageUtils {
 
@@ -60,7 +62,8 @@ public class MessageUtils {
             req.setEntity(ent);
             HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);
             if (response.getStatusLine().getStatusCode() != 200) {
-                FlareBot.LOGGER.error("HasteBin API did not respond with a correct code! Code was: {}", response.getStatusLine().getStatusCode());
+                FlareBot.LOGGER.error("HasteBin API did not respond with a correct code! Code was: {}! Response: {}", response.getStatusLine().getStatusCode(),
+                        IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
                 return null;
             }
             return "http://hastebin.com/" + FlareBot.GSON.fromJson(new InputStreamReader(response.getEntity().getContent()), HastebinResponse.class).key;

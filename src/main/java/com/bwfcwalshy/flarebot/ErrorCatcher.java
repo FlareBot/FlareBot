@@ -20,13 +20,13 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
             if (msg.startsWith("Received 404 error, please notify the developer and include the URL (https://discordapp.com/api/channels/")) {
                 return FilterReply.DENY;
             }
+            Throwable throwable = null;
             if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
-                @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-                Throwable throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
-                if (throwable != null) {
-                    MessageUtils.sendException(msg, throwable, FlareBot.getInstance().getUpdateChannel());
-                } else MessageUtils.sendMessage(FlareBot.getInstance().getUpdateChannel(), msg);
+                throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
             }
+            if (throwable != null) {
+                MessageUtils.sendException(msg, throwable, FlareBot.getInstance().getUpdateChannel());
+            } else MessageUtils.sendMessage(FlareBot.getInstance().getUpdateChannel(), msg);
         }
         return FilterReply.NEUTRAL;
     }
