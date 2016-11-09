@@ -96,11 +96,12 @@ public class PermissionsCommand implements Command {
                 MessageUtils.sendMessage(channel, perms);
                 break;
             case "save":
-                try {
-                    FlareBot.getInstance().getPermissions().save();
-                } catch (IOException e) {
-                    MessageUtils.sendException("Could not save permissions!", e, channel);
-                }
+                if (getPermissions(channel).isCreator(sender))
+                    try {
+                        FlareBot.getInstance().getPermissions().save();
+                    } catch (IOException e) {
+                        MessageUtils.sendException("Could not save permissions!", e, channel);
+                    }
                 break;
             default:
                 MessageUtils.sendMessage(channel, getDescription());
