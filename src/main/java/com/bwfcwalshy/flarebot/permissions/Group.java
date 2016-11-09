@@ -32,4 +32,11 @@ public class Group {
         Group otherGroup = (Group) other;
         return otherGroup.getName().equals(getName());
     }
+
+    @Override
+    public int hashCode() {
+        int result = permissions.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
+    }
 }

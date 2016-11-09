@@ -93,4 +93,12 @@ public class PerGuildPermissions {
     public boolean isCreator(IUser user) {
         return user.getID().equals("158310004187725824") || user.getID().equals("155954930191040513");
     }
+
+    @Override
+    public int hashCode() {
+        int result = groups.hashCode();
+        result = 31 * result + users.hashCode();
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        return result;
+    }
 }

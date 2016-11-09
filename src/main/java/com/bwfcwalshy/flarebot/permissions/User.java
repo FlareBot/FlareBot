@@ -43,4 +43,11 @@ public class User {
         User otherUser = (User) other;
         return otherUser.getUserID().equals(getUserID());
     }
+
+    @Override
+    public int hashCode() {
+        int result = groups.hashCode();
+        result = 31 * result + userID.hashCode();
+        return result;
+    }
 }
