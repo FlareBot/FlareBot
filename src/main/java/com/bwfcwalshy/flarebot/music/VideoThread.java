@@ -130,11 +130,7 @@ public class VideoThread extends Thread {
                         }
                     }
                     // Playlist
-                    if (videoId.contains("&list")) videoId = videoId.substring(0, videoId.indexOf("&list"));
-                    if (videoId.contains("&index")) videoId = videoId.substring(0, videoId.indexOf("&index"));
-                    if (videoId.contains("&app")) videoId = videoId.substring(0, videoId.indexOf("&app"));
-                    if (videoId.contains("&t")) videoId = videoId.substring(0, videoId.indexOf("&t"));
-                    if (videoId.contains("&nohtml5")) videoId = videoId.substring(0, videoId.indexOf("&nohtml5"));
+                    if (videoId.contains("&")) videoId = videoId.substring(0, videoId.indexOf("&"));
                     File video = new File("cached" + File.separator + videoId + EXTENSION);
                     if (!video.exists()) {
                         if (!checkDuration(link)) {
@@ -247,7 +243,7 @@ public class VideoThread extends Thread {
     }
 
     private boolean checkDuration(String link) {
-        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", link);
+        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", "--no-playlist", link);
         String gson;
         String out = null;
         try {
