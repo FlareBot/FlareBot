@@ -115,6 +115,10 @@ public class VideoThread extends Thread {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
                             } else if (videoElement.select("a").first().attr("href").startsWith("/user/")) {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
+                            } else if (videoElement.select("a").first().attr("href").startsWith("/channel/")) {
+                                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
+                            } else if (e.toString().contains("yt-badge-live")) {
+                                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
                             }
                         }
                         link = videoElement.select("a").first().attr("href");
@@ -247,16 +251,16 @@ public class VideoThread extends Thread {
         String gson;
         String out = null;
         try {
-        Process p = builder.start();
+            Process p = builder.start();
             out = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
             Song song = FlareBot.GSON.fromJson(out, Song.class);
-            if(song == null || song.duration == null){
+            if (song == null || song.duration == null) {
                 MessageUtils.sendFile(FlareBot.getInstance().getUpdateChannel(), "Could not check duration!", out,
                         VIDEO_THREADS.activeCount() + "duration.txt");
             }
             return song != null && song.duration < (MAX_DURATION * 60);
         } catch (JsonParseException | IOException e) {
-                FlareBot.LOGGER.error("Could not parse song duration! " + out, e);
+            FlareBot.LOGGER.error("Could not parse song duration! " + out, e);
             return false;
         }
     }
