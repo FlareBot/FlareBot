@@ -255,12 +255,12 @@ public class VideoThread extends Thread {
             out = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
             Song song = FlareBot.GSON.fromJson(out, Song.class);
             if (song == null || song.duration == null) {
-                MessageUtils.sendFile(FlareBot.getInstance().getUpdateChannel(), "Could not check duration!", out,
+                MessageUtils.sendFile(FlareBot.getInstance().getUpdateChannel(), "Could not check duration for " + link + "!", out,
                         VIDEO_THREADS.activeCount() + "duration.txt");
             }
             return song != null && song.duration < (MAX_DURATION * 60);
         } catch (JsonParseException | IOException e) {
-            FlareBot.LOGGER.error("Could not parse song duration! " + out, e);
+            FlareBot.LOGGER.error("Could not parse song duration" + link + "!\n" + out, e);
             return false;
         }
     }
