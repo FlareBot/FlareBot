@@ -9,13 +9,13 @@
     <version>1.0.23</version>
 
     <repositories>
-        <repository> <!-- This repo fixes issues with transitive dependencies -->
-            <id>jcenter</id>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
         <repository>
             <id>jitpack</id>
             <url>https://jitpack.io/</url>
+        </repository>
+        <repository> <!-- This repo fixes issues with transitive dependencies -->
+            <id>jcenter</id>
+            <url>http://jcenter.bintray.com</url>
         </repository>
         <repository>
             <id>sedmelluq</id>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.github.austinv11</groupId>
             <artifactId>Discord4j</artifactId>
-            <version>websocket-rewrite-2.6.1-g54b17af-85</version>
+            <version>websocket-rewrite-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -67,7 +67,7 @@
     </dependencies>
 
     <build>
-        <defaultGoal>clean package</defaultGoal>
+        <defaultGoal>clean package -U</defaultGoal>
         <finalName>FlareBot</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
