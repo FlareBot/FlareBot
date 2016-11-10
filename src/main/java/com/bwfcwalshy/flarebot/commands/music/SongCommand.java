@@ -18,7 +18,7 @@ public class SongCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(manager.getPlayers().containsKey(channel.getGuild().getID()) && !manager.getPlayers().get(channel.getGuild().getID()).getPlaylist().isEmpty()){
+        if(manager.getPlayers().containsKey(channel.getGuild().getID()) && manager.getPlayers().get(channel.getGuild().getID()).getCurrentTrack() != null){
             MessageUtils.sendMessage(channel, sender.mention() + " The song currently playing is: **"
                     + manager.getPlayers().get(channel.getGuild().getID()).getCurrentTrack().getMetadata().get("name") + "**");
             System.out.println();
