@@ -1,52 +1,43 @@
 package com.bwfcwalshy.flarebot.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
 import sx.blah.discord.util.audio.AudioPlayer;
-import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 public class MusicManager {
 
     // Guild ID | Queue
-    private Map<String, AudioPlayer> players;
+    private Map<String, AudioEvents> players;
+    private AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 
     private FlareBot bot;
 
     public MusicManager(FlareBot flareBot) {
+        playerManager.registerSourceManager(new LocalAudioSourceManager());
         players = new ConcurrentHashMap<>();
         this.bot = flareBot;
     }
 
-    public boolean addSong(String guildId, String musicFile, String trackName, String ext) throws IOException {
-        AudioPlayer player = players.computeIfAbsent(guildId, id -> {
-            AudioPlayer playa = AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(id));
-            playa.setVolume(0.2f);
+    public boolean addSong(String guildId, String musicFile, String trackName, String ext) throws IOException, ExecutionException, InterruptedException {
+        AudioEvents player = players.computeIfAbsent(guildId, id -> {
+            AudioEvents playa = new AudioEvents();
+            playa.setVolume(20);
             return playa;
         });
-        try {
-            AudioInputStream input = AudioSystem.getAudioInputStream(new File("cached" + File.separator + musicFile));
-            //FileProvider file = new FileProvider("cached" + File.separator + musicFile);
-            File audio = new File("cached" + File.separator + musicFile);
-            AudioPlayer.Track track = new AudioPlayer.Track(new AudioInputStreamProvider(input));
-//            AudioPlayer.Track track = new AudioPlayer.Track(new AudioInputStreamProvider(null){
-//
-//            });
-            track.getMetadata().put("name", trackName);
-            track.getMetadata().put("id", musicFile.substring(0, musicFile.length() - ext.length()));
-            //track.getMetadata().put("duration", duration);
-            player.queue(track);
-        } catch (UnsupportedAudioFileException e) {
-            FlareBot.LOGGER.error("Could not add song", e);
-            return false;
-        }
-        players.put(guildId, player);
+        File audio = new File("cached" + File.separator + musicFile);
+        AudioEvents.Track track = new AudioEvents.Track(player.getTrack(audio));
+        track.getMetadata().put("name", trackName);
+        track.getMetadata().put("id", musicFile.substring(0, musicFile.length() - ext.length()));
+        player.queue(track);
+        AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(guildId)).queue(player);
         return true;
     }
 
@@ -89,11 +80,22 @@ public class MusicManager {
             if (!players.containsKey(guildId)) {
                 return;
             }
-            players.get(guildId).setVolume((float) i / 100);
+            players.get(guildId).setVolume(i);
         }
     }
 
-    public Map<String, AudioPlayer> getPlayers() {
+    public int getVolume(String guildId) {
+        if (!players.containsKey(guildId)) {
+            return 20;
+        }
+        return (players.get(guildId).getVolume());
+    }
+
+    public Map<String, AudioEvents> getPlayers() {
         return players;
+    }
+
+    public AudioPlayerManager getPlayerManager() {
+        return playerManager;
     }
 }

@@ -3,6 +3,7 @@ package com.bwfcwalshy.flarebot.music;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.google.gson.JsonParseException;
+import com.sun.jna.ptr.PointerByReference;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,6 +23,8 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 public class VideoThread extends Thread {
@@ -67,11 +70,13 @@ public class VideoThread extends Thread {
     private static final String YOUTUBE_URL = "https://www.youtube.com";
     private static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=";
     private static final String WATCH_URL = "https://www.youtube.com/watch?v=";
-    private static final String EXTENSION = ".mp3";
+    private static final String EXTENSION = ".opus";
     public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:www\\.)?(?:youtube\\.com))/(?:(?:watch\\?v=([^?&\\n]+)(?:&(?:[^?&\\n]+=(?:[^?&\\n]+)+))?)|(?:playlist\\?list=([^&?]+))(?:&[^&]*=[^&]+)?))|(?:youtu\\.be/(.*)))";
     public static Pattern YT_PATTERN = Pattern.compile(ANY_YT_URL);
     public static final String ANY_PLAYLIST = "https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*";
     private static final long MAX_DURATION = 30;
+
+    private final ConcurrentHashMap<Integer, PointerByReference> encoders = new ConcurrentHashMap<>();
 
     @Override
     public void run() {
@@ -117,9 +122,9 @@ public class VideoThread extends Thread {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
                             } else if (videoElement.select("a").first().attr("href").startsWith("/channel/")) {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                            } else if (e.toString().contains("yt-badge-live")) {
+                            } else if (!e.select(".yt-badge-live").isEmpty()) {
                                 videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-                            }
+                            } else break;
                         }
                         link = videoElement.select("a").first().attr("href");
                         Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
@@ -135,8 +140,9 @@ public class VideoThread extends Thread {
                     }
                     // Playlist
                     if (videoId.contains("&")) videoId = videoId.substring(0, videoId.indexOf("&"));
-                    File video = new File("cached" + File.separator + videoId + EXTENSION);
-                    if (!video.exists()) {
+                    File video = new File("cached" + File.separator + videoId + ".mp3");
+                    File encoded = new File("cached" + File.separator + videoId + EXTENSION);
+                    if (!encoded.exists()) {
                         if (!checkDuration(link)) {
                             MessageUtils.editMessage(message, "That song is over **" + MAX_DURATION + " minute(s)!**");
                             return;
@@ -147,8 +153,16 @@ public class VideoThread extends Thread {
                             MessageUtils.editMessage(message, "Could not download **" + videoName + "**!");
                             return;
                         }
+                        MessageUtils.editMessage(message, "Encoding video!");
+                        Process encoder = encode(video, encoded);
+                        if (encoder.exitValue() != 0) {
+                            MessageUtils.editMessage(message, "Could not encode **" + videoName + "**!");
+                            video.delete();
+                            encoded.delete();
+                            return;
+                        } else video.delete();
                     }
-                    if (manager.addSong(channel.getGuild().getID(), video.getName(), videoName, EXTENSION)) {
+                    if (manager.addSong(channel.getGuild().getID(), video.getName().substring(0, video.getName().indexOf('.')) + EXTENSION, videoName, EXTENSION)) {
                         MessageUtils.editMessage(message, user + " added: **" + videoName + "** to the playlist!");
                     } else MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!");
                 } else {
@@ -181,21 +195,32 @@ public class VideoThread extends Thread {
         ProcessBuilder builder = new ProcessBuilder("youtube-dl", "--no-playlist", "-o",
                 "cached" + File.separator + "%(id)s.%(ext)s",
                 "--extract-audio", "--audio-format"
-                , EXTENSION.substring(1), link);
+                , "mp3", link);
         FlareBot.LOGGER.debug("Downloading");
         builder.redirectErrorStream(true);
         Process process = builder.start();
-        processInput(process);
+        processInput(process, "YT-DL");
         process.waitFor();
         return process;
     }
 
-    private void loadPlaylist(String searchTerm) throws IOException, InterruptedException {
+    private Process encode(File file, File target) throws InterruptedException, IOException {
+        ProcessBuilder builder = new ProcessBuilder("avconv", "-i", file.getAbsolutePath(), "-map", "0:a",
+                "-codec:a", "opus", "-b:a", "64k", target.getAbsolutePath());
+        FlareBot.LOGGER.debug("Downloading");
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+        processInput(process, "avconv");
+        process.waitFor();
+        return process;
+    }
+
+    private void loadPlaylist(String searchTerm) throws IOException, InterruptedException, ExecutionException {
         IMessage message = MessageUtils.sendMessage(channel, "Getting playlist from URL.");
         loadPlaylist(searchTerm, message);
     }
 
-    private void loadPlaylist(String searchTerm, IMessage message) throws IOException, InterruptedException {
+    private void loadPlaylist(String searchTerm, IMessage message) throws IOException, InterruptedException, ExecutionException {
         ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-i", "-4", "--dump-single-json", "--flat-playlist", searchTerm);
         Process process = builder.start();
         Playlist playlist;
@@ -222,19 +247,27 @@ public class VideoThread extends Thread {
         addAll(playlist, message);
     }
 
-    private void addAll(Playlist playlist, IMessage message) throws IOException, InterruptedException {
+    private void addAll(Playlist playlist, IMessage message) throws IOException, InterruptedException, ExecutionException {
         int i = 0;
         long time = System.currentTimeMillis();
         for (Playlist.PlaylistEntry e : playlist.entries) {
             i++;
             if (e != null) {
-                if (!new File("cached" + File.separator + e.id + EXTENSION).exists()) {
+                File video = new File("cached" + File.separator + e.id + ".mp3");
+                File encoded = new File("cached" + File.separator + e.id + EXTENSION);
+                if (!encoded.exists()) {
                     if (!checkDuration(WATCH_URL + e.id)) {
                         continue;
                     }
                     Process downloadProcess = download(WATCH_URL + e.id);
                     if (downloadProcess.exitValue() != 0)
                         continue;
+                    Process encoder = encode(video, encoded);
+                    if (encoder.exitValue() != 0) {
+                        encoded.delete();
+                        video.delete();
+                        continue;
+                    } else video.delete();
                 }
                 FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id + EXTENSION, e.title, EXTENSION);
             }
@@ -265,14 +298,14 @@ public class VideoThread extends Thread {
         }
     }
 
-    private void processInput(Process downloadProcess) throws IOException {
+    private void processInput(Process downloadProcess, String process) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(downloadProcess.getInputStream()))) {
             while (downloadProcess.isAlive()) {
                 String line;
                 if ((line = reader.readLine()) != null) {
                     if (line.contains("[download]"))
                         continue;
-                    FlareBot.LOGGER.info("[YT-DL] " + line);
+                    FlareBot.LOGGER.info("[" + process + "] " + line);
                 }
             }
         }

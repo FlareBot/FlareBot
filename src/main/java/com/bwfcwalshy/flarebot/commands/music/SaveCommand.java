@@ -4,15 +4,15 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.music.AudioEvents;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.audio.AudioPlayer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 /**
@@ -37,7 +37,7 @@ public class SaveCommand implements Command {
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
         }
-        List<AudioPlayer.Track> playlist = FlareBot.getInstance().getMusicManager().getPlayers().get(channel.getGuild().getID()).getPlaylist();
+        Queue<AudioEvents.Track> playlist = FlareBot.getInstance().getMusicManager().getPlayers().get(channel.getGuild().getID()).getPlaylist();
         if(playlist.isEmpty()){
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
@@ -67,7 +67,7 @@ public class SaveCommand implements Command {
                         ")");
                 statement.setString(1, finalName);
                 statement.setString(2, channel.getGuild().getID());
-                statement.setString(3, playlist.stream().map(track -> (String) track.getMetadata().get("id")).collect(Collectors.joining(",")));
+                statement.setString(3, playlist.stream().map(track -> track.getMetadata().get("id")).collect(Collectors.joining(",")));
                 statement.executeUpdate();
                 MessageUtils.sendMessage(channel, "Success!");
             });
