@@ -101,6 +101,11 @@ public class VideoThread extends Thread {
 
                         Document doc = Jsoup.connect(searchTerm).get();
                         videoId = searchTerm.replaceFirst("http(s)?://(www\\.)?youtube\\.com/watch\\?v=", "");
+                        if(doc.title().equals("YouTube")){
+                            MessageUtils.editMessage(message, "The YouTube video provided does not seem to be available." +
+                                    "\nSorrry about that :-(");
+                            return;
+                        }
                         videoName = doc.title().substring(0, doc.title().length() - 10);
                         link = WATCH_URL + videoId;
                     } else {
@@ -129,6 +134,11 @@ public class VideoThread extends Thread {
                         }
                         link = videoElement.select("a").first().attr("href");
                         Document doc2 = Jsoup.connect((link.startsWith("http") ? "" : YOUTUBE_URL) + link).get();
+                        if(doc.title().equals("YouTube")){
+                            MessageUtils.editMessage(message, "The YouTube video provided does not seem to be available." +
+                                    "\nSorrry about that :-(");
+                            return;
+                        }
                         // - YouTube
                         videoName = doc2.title().substring(0, doc2.title().length() - 10);
                         // I check the index of 2 chars so I need to add 2
@@ -144,7 +154,7 @@ public class VideoThread extends Thread {
                     File video = new File("cached" + File.separator + videoId + ".mp3");
                     File encoded = new File("cached" + File.separator + videoId + EXTENSION);
                     if (!encoded.exists()) {
-                        if (!checkDuration(link)) {
+                        if (!checkDuration(link, message)) {
                             MessageUtils.editMessage(message, "That song is over **" + MAX_DURATION + " minute(s)!**");
                             return;
                         }
@@ -176,6 +186,9 @@ public class VideoThread extends Thread {
                 for (String s : playlist) {
                     Playlist.PlaylistEntry e = p.new PlaylistEntry();
                     Document doc = Jsoup.connect(WATCH_URL + s).get();
+                    if(doc.title().equals("YouTube")){
+                        continue;
+                    }
                     e.id = s;
                     e.title = doc.title().substring(0, doc.title().length() - 10);
                     p.entries.add(e);
@@ -257,7 +270,7 @@ public class VideoThread extends Thread {
                 File video = new File("cached" + File.separator + e.id + ".mp3");
                 File encoded = new File("cached" + File.separator + e.id + EXTENSION);
                 if (!encoded.exists()) {
-                    if (!checkDuration(WATCH_URL + e.id)) {
+                    if (!checkDuration(WATCH_URL + e.id, message)) {
                         continue;
                     }
                     Process downloadProcess = download(WATCH_URL + e.id);
@@ -280,18 +293,18 @@ public class VideoThread extends Thread {
         MessageUtils.editMessage(message, user + " Added the playlist **" + playlist.title + "** to the queue");
     }
 
-    private boolean checkDuration(String link) {
+    private boolean checkDuration(String link, IMessage message) {
         ProcessBuilder builder = new ProcessBuilder("youtube-dl", "-J", "--no-playlist", link);
         String gson;
         String out = null;
         try {
             Process p = builder.start();
-            processInput(p, "YT-DL-Duration", true);
+            String err = processInput(p, "YT-DL-Duration", true);
             out = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
             Song song = FlareBot.GSON.fromJson(out, Song.class);
             if (song == null || song.duration == null) {
-                MessageUtils.sendFile(FlareBot.getInstance().getUpdateChannel(), "Could not check duration for " + link + "!", out,
-                        VIDEO_THREADS.activeCount() + "duration.txt");
+                MessageUtils.sendMessage(FlareBot.getInstance().getUpdateChannel(), "Could not check duration for " + link + "!\n"+err);
+                MessageUtils.editMessage(message, err);
             }
             return song != null && song.duration < (MAX_DURATION * 60);
         } catch (JsonParseException | IOException e) {
@@ -300,7 +313,8 @@ public class VideoThread extends Thread {
         }
     }
 
-    private void processInput(Process downloadProcess, String process, boolean err) throws IOException {
+    private String processInput(Process downloadProcess, String process, boolean err) throws IOException {
+        String out = "";
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(err ?
                 downloadProcess.getErrorStream() :
                 downloadProcess.getInputStream()))) {
@@ -310,9 +324,11 @@ public class VideoThread extends Thread {
                     if (line.contains("[download]"))
                         continue;
                     FlareBot.LOGGER.info("[" + process + "] " + line);
+                    out += line;
                 }
             }
         }
+        return out;
     }
 
     private class Playlist {
