@@ -31,34 +31,35 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if(endReason == AudioTrackEndReason.REPLACED)
+        if (endReason == AudioTrackEndReason.REPLACED)
             return;
         skip();
     }
 
     public void skip() {
-        if(getLooping()){
+        if (getLooping()) {
             tracks.add(getCurrentTrack().makeClone());
         }
         Track track = tracks.poll();
-        player.playTrack(track.getTrack());
+        if (track != null)
+            player.playTrack(track.getTrack());
         currentTrack = track;
     }
 
-    public boolean getLooping(){
+    public boolean getLooping() {
         return looping;
     }
 
-    public void setLooping(boolean loop){
+    public void setLooping(boolean loop) {
         looping = loop;
     }
 
-    public Track getCurrentTrack(){
+    public Track getCurrentTrack() {
         return currentTrack;
     }
 
-    public void queue(Track track){
-        if(tracks.isEmpty() && currentTrack == null) {
+    public void queue(Track track) {
+        if (tracks.isEmpty() && currentTrack == null) {
             currentTrack = track;
             player.playTrack(track.getTrack());
             setPaused(false);
@@ -85,7 +86,7 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
         player.setPaused(paused);
     }
 
-    public boolean getPaused(){
+    public boolean getPaused() {
         return player.isPaused();
     }
 
@@ -159,7 +160,7 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
             return result;
         }
 
-        public Track(AudioTrack track){
+        public Track(AudioTrack track) {
             this.track = track;
         }
 
@@ -171,7 +172,7 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
             return metadata;
         }
 
-        public Track makeClone(){
+        public Track makeClone() {
             Track track = new Track(this.track.makeClone());
             track.getMetadata().putAll(metadata);
             return track;
