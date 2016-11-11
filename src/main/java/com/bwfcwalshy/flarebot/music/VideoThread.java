@@ -39,11 +39,11 @@ public class VideoThread extends Thread {
     private List<String> playlist = null;
 
     public VideoThread(String term, IUser user, IChannel channel) {
-        super(VIDEO_THREADS, "Video Thread " + VIDEO_THREADS.activeCount());
         this.searchTerm = term;
         this.user = user;
         this.channel = channel;
         if (manager == null) manager = FlareBot.getInstance().getMusicManager();
+        setName("Video Thread " + VIDEO_THREADS.activeCount());
         start();
     }
 
@@ -54,6 +54,7 @@ public class VideoThread extends Thread {
         this.isUrl = url;
         this.isShortened = shortened;
         if (manager == null) manager = FlareBot.getInstance().getMusicManager();
+        setName("Video Thread " + VIDEO_THREADS.activeCount());
         start();
     }
 
@@ -199,7 +200,7 @@ public class VideoThread extends Thread {
         FlareBot.LOGGER.debug("Downloading");
         builder.redirectErrorStream(true);
         Process process = builder.start();
-        processInput(process, "YT-DL");
+        processInput(process, "YT-DL-Download", false);
         process.waitFor();
         return process;
     }
@@ -210,7 +211,7 @@ public class VideoThread extends Thread {
         FlareBot.LOGGER.debug("Downloading");
         builder.redirectErrorStream(true);
         Process process = builder.start();
-        processInput(process, "avconv");
+        processInput(process, "avconv", false);
         process.waitFor();
         return process;
     }
@@ -285,6 +286,7 @@ public class VideoThread extends Thread {
         String out = null;
         try {
             Process p = builder.start();
+            processInput(p, "YT-DL-Duration", true);
             out = IOUtils.toString(p.getInputStream(), Charset.defaultCharset());
             Song song = FlareBot.GSON.fromJson(out, Song.class);
             if (song == null || song.duration == null) {
@@ -298,8 +300,10 @@ public class VideoThread extends Thread {
         }
     }
 
-    private void processInput(Process downloadProcess, String process) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(downloadProcess.getInputStream()))) {
+    private void processInput(Process downloadProcess, String process, boolean err) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(err ?
+                downloadProcess.getErrorStream() :
+                downloadProcess.getInputStream()))) {
             while (downloadProcess.isAlive()) {
                 String line;
                 if ((line = reader.readLine()) != null) {
