@@ -167,10 +167,10 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
     }
 
     public void play() {
-        if(currentTrack == null){
+        if (currentTrack == null) {
             skip();
-        } else player.playTrack(currentTrack.getTrack());
-        setPaused(false);
+        } else
+            setPaused(false);
     }
 
     public static class Track {
