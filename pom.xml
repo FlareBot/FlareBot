@@ -27,12 +27,12 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.1.13</version>
+            <version>1.1.15</version>
         </dependency>
         <dependency>
-            <groupId>com.github.austinv11</groupId>
-            <artifactId>Discord4j</artifactId>
-            <version>websocket-rewrite-SNAPSHOT</version>
+            <groupId>sx.blah</groupId>
+            <artifactId>Discord4J</artifactId>
+            <version>2.7.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
