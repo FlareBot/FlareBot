@@ -123,7 +123,8 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
         List<Track> trackList = new ArrayList<>(tracks.size());
         player.setPaused(true);
         trackList.addAll(tracks);
-        trackList.add(currentTrack.makeClone());
+        if (currentTrack != null)
+            trackList.add(currentTrack.makeClone());
         Collections.shuffle(trackList);
         tracks.clear();
         tracks.addAll(trackList);
