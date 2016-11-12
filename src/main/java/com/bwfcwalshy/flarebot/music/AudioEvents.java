@@ -36,6 +36,31 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
         skip();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AudioEvents that = (AudioEvents) o;
+
+        if (looping != that.looping) return false;
+        if (volume != that.volume) return false;
+        if (!tracks.equals(that.tracks)) return false;
+        if (!player.equals(that.player)) return false;
+        return currentTrack != null ? currentTrack.equals(that.currentTrack) : that.currentTrack == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (looping ? 1 : 0);
+        result = 31 * result + tracks.hashCode();
+        result = 31 * result + player.hashCode();
+        result = 31 * result + (currentTrack != null ? currentTrack.hashCode() : 0);
+        result = 31 * result + volume;
+        return result;
+    }
+
     public void skip() {
         if (getLooping()) {
             tracks.add(getCurrentTrack().makeClone());
@@ -139,6 +164,13 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
 
     public int getPlaylistSize() {
         return getPlaylist().size();
+    }
+
+    public void play() {
+        if(currentTrack == null){
+            skip();
+        } else player.playTrack(currentTrack.getTrack());
+        setPaused(false);
     }
 
     public static class Track {

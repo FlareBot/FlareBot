@@ -48,7 +48,7 @@ public class MusicManager {
 
     public void play(String guildId) {
         if (players.containsKey(guildId))
-            players.get(guildId).setPaused(false);
+            players.get(guildId).play();
     }
 
     public void skip(String guildId) {
