@@ -151,7 +151,8 @@ public class VideoThread extends Thread {
                             MessageUtils.editMessage(message, user + " added: **" + videoName + "** to the playlist!");
                         } else MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!");
                     } catch (FriendlyException e){
-                        MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!\n YouTube said: " + e.getMessage());
+                        MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!\n YouTube said: " +
+                                e.getMessage().substring(0, e.getMessage().indexOf('\n')));
                     }
                 } else {
                     loadPlaylist(searchTerm);
