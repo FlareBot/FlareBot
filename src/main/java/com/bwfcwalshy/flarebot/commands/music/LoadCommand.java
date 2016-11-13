@@ -45,7 +45,7 @@ public class LoadCommand implements Command {
                 ResultSet set = exists.getResultSet();
                 if (set.isBeforeFirst()) {
                     set.next();
-                    VideoThread.getThread(finalName + "\u0010" + set.getString("list"), channel, sender).start();
+                    VideoThread.getThread(finalName + '\u200B' + set.getString("list"), channel, sender).start();
                 } else
                     MessageUtils.sendMessage(channel, "Could not find a playlist with that name!");
             });

@@ -12,6 +12,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -75,15 +76,15 @@ public class YouTubeExtractor implements Extractor {
         return input.matches(ANY_YT_URL);
     }
 
-    private class Playlist implements Iterable<Playlist.PlaylistEntry> {
-        public List<Playlist.PlaylistEntry> entries;
+    public static class Playlist implements Iterable<Playlist.PlaylistEntry> {
+        public List<Playlist.PlaylistEntry> entries = new ArrayList<>();
 
         @Override
         public Iterator<PlaylistEntry> iterator() {
             return entries.iterator();
         }
 
-        public class PlaylistEntry {
+        public static class PlaylistEntry {
             public String id;
             public String title;
         }
