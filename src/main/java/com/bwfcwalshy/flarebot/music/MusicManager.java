@@ -3,7 +3,8 @@ package com.bwfcwalshy.flarebot.music;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.audio.AudioPlayer;
 
 import java.io.File;
@@ -21,23 +22,22 @@ public class MusicManager {
     private FlareBot bot;
 
     public MusicManager(FlareBot flareBot) {
-        playerManager.registerSourceManager(new LocalAudioSourceManager());
+        playerManager.registerSourceManager(new YoutubeAudioSourceManager());
         players = new ConcurrentHashMap<>();
         this.bot = flareBot;
     }
 
-    public boolean addSong(String guildId, String musicFile, String trackName, String ext) throws IOException, ExecutionException, InterruptedException {
-        AudioEvents player = players.computeIfAbsent(guildId, id -> {
-            AudioEvents playa = new AudioEvents();
-            playa.setVolume(20);
-            return playa;
+    public boolean addSong(String url, String guildId, String title, String id, IMessage message) throws IOException, ExecutionException, InterruptedException {
+        AudioEvents player = players.computeIfAbsent(guildId, gid -> {
+            AudioEvents ply = new AudioEvents();
+            AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(gid)).queue(ply);
+            return ply;
         });
-        File audio = new File("cached" + File.separator + musicFile);
-        AudioEvents.Track track = new AudioEvents.Track(player.getTrack(audio));
-        track.getMetadata().put("name", trackName);
-        track.getMetadata().put("id", musicFile.substring(0, musicFile.length() - ext.length()));
+        File audio = new File("cached" + File.separator + title);
+        AudioEvents.Track track = new AudioEvents.Track(player.getTrack(url));
+        track.getMetadata().put("name", title);
+        track.getMetadata().put("id", id);
         player.queue(track);
-        AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(guildId)).queue(player);
         return true;
     }
 
@@ -66,6 +66,10 @@ public class MusicManager {
         if (players.containsKey(guildId)) {
             players.get(guildId).setPaused(true);
             players.get(guildId).getPlaylist().clear();
+            boolean looping = players.get(guildId).getLooping();
+            players.get(guildId).setLooping(false);
+            players.get(guildId).skip();
+            players.get(guildId).setLooping(looping);
         }
     }
 

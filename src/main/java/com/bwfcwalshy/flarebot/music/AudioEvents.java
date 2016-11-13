@@ -11,7 +11,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
 import sx.blah.discord.handle.audio.IAudioProvider;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -28,6 +27,10 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
     private AudioPlayer player = FlareBot.getInstance().getMusicManager().getPlayerManager().createPlayer();
     private Track currentTrack;
     private int volume;
+
+    {
+        player.addListener(this);
+    }
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
@@ -68,6 +71,7 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
         Track track = tracks.poll();
         if (track != null)
             player.playTrack(track.getTrack());
+        else player.playTrack(null);
         currentTrack = track;
     }
 
@@ -98,7 +102,7 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
 
     @Override
     public byte[] provide() {
-        AudioFrame frame = player.provideDirectly();
+        AudioFrame frame = player.provide();
         return frame != null ? frame.data : new byte[0];
     }
 
@@ -138,9 +142,10 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
         return player.getVolume();
     }
 
-    public AudioTrack getTrack(File audio) throws ExecutionException, InterruptedException {
+    public AudioTrack getTrack(String audio) throws FriendlyException, ExecutionException, InterruptedException {
         AudioTrack[] track = new AudioTrack[1];
-        FlareBot.getInstance().getMusicManager().getPlayerManager().loadItem(audio.getAbsolutePath(), new AudioLoadResultHandler() {
+        final FriendlyException[] e = {null};
+        FlareBot.getInstance().getMusicManager().getPlayerManager().loadItem(audio, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack loaded) {
                 track[0] = loaded;
@@ -158,8 +163,11 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
             @Override
             public void loadFailed(FriendlyException exception) {
                 FlareBot.LOGGER.error("Could not load track!", exception);
+                e[0] = exception;
             }
         }).get();
+        if(e[0] != null)
+            throw e[0];
         return track[0];
     }
 

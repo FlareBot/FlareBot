@@ -3,6 +3,7 @@ package com.bwfcwalshy.flarebot.music;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.google.gson.JsonParseException;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sun.jna.ptr.PointerByReference;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -16,7 +17,6 @@ import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
@@ -107,7 +107,6 @@ public class VideoThread extends Thread {
                             return;
                         }
                         videoName = doc.title().substring(0, doc.title().length() - 10);
-                        link = WATCH_URL + videoId;
                     } else {
                         message = MessageUtils.sendMessage(channel, "Searching YouTube for '" + searchTerm + "'");
                         if (message == null)
@@ -143,39 +142,17 @@ public class VideoThread extends Thread {
                         videoName = doc2.title().substring(0, doc2.title().length() - 10);
                         // I check the index of 2 chars so I need to add 2
                         videoId = link.substring(link.indexOf("v=") + 2);
-                        link = YOUTUBE_URL + link;
-                        if (link.contains("&list=")) {
-                            loadPlaylist(link.replaceFirst("(?:(?:https?://)(?:www)?\\.youtube\\.com)/watch\\?v=.*&list=", PLAYLIST_URL), message);
-                            return;
-                        }
                     }
                     // Playlist
                     if (videoId.contains("&")) videoId = videoId.substring(0, videoId.indexOf("&"));
-                    File video = new File("cached" + File.separator + videoId + ".mp3");
-                    File encoded = new File("cached" + File.separator + videoId + EXTENSION);
-                    if (!encoded.exists()) {
-                        if (!checkDuration(link, message)) {
-                            MessageUtils.editMessage(message, "That song is over **" + MAX_DURATION + " minute(s)!**");
-                            return;
-                        }
-                        MessageUtils.editMessage(message, "Downloading video!");
-                        Process process = download(link);
-                        if (process.exitValue() != 0) {
-                            MessageUtils.editMessage(message, "Could not download **" + videoName + "**!");
-                            return;
-                        }
-                        MessageUtils.editMessage(message, "Encoding video!");
-                        Process encoder = encode(video, encoded);
-                        if (encoder.exitValue() != 0) {
-                            MessageUtils.editMessage(message, "Could not encode **" + videoName + "**!");
-                            video.delete();
-                            encoded.delete();
-                            return;
-                        } else video.delete();
+                    link = WATCH_URL + videoId;
+                    try {
+                        if (manager.addSong(link, channel.getGuild().getID(), videoName, videoId, null)) {
+                            MessageUtils.editMessage(message, user + " added: **" + videoName + "** to the playlist!");
+                        } else MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!");
+                    } catch (FriendlyException e){
+                        MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!\n YouTube said: " + e.getMessage());
                     }
-                    if (manager.addSong(channel.getGuild().getID(), video.getName().substring(0, video.getName().indexOf('.')) + EXTENSION, videoName, EXTENSION)) {
-                        MessageUtils.editMessage(message, user + " added: **" + videoName + "** to the playlist!");
-                    } else MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!");
                 } else {
                     loadPlaylist(searchTerm);
                 }
@@ -203,30 +180,6 @@ public class VideoThread extends Thread {
         }
         long b = System.currentTimeMillis();
         FlareBot.LOGGER.debug("Process took " + (b - a) + " milliseconds");
-    }
-
-    private Process download(String link) throws IOException, InterruptedException {
-        ProcessBuilder builder = new ProcessBuilder("youtube-dl", "--no-playlist", "-o",
-                "cached" + File.separator + "%(id)s.%(ext)s",
-                "--extract-audio", "--audio-format"
-                , "mp3", link);
-        FlareBot.LOGGER.debug("Downloading");
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        processInput(process, "YT-DL-Download", false);
-        process.waitFor();
-        return process;
-    }
-
-    private Process encode(File file, File target) throws InterruptedException, IOException {
-        ProcessBuilder builder = new ProcessBuilder("avconv", "-i", file.getAbsolutePath(), "-map", "0:a",
-                "-codec:a", "opus", "-b:a", "64k", target.getAbsolutePath());
-        FlareBot.LOGGER.debug("Downloading");
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        processInput(process, "avconv", false);
-        process.waitFor();
-        return process;
     }
 
     private void loadPlaylist(String searchTerm) throws IOException, InterruptedException, ExecutionException {
@@ -267,23 +220,9 @@ public class VideoThread extends Thread {
         for (Playlist.PlaylistEntry e : playlist.entries) {
             i++;
             if (e != null) {
-                File video = new File("cached" + File.separator + e.id + ".mp3");
-                File encoded = new File("cached" + File.separator + e.id + EXTENSION);
-                if (!encoded.exists()) {
-                    if (!checkDuration(WATCH_URL + e.id, message)) {
-                        continue;
-                    }
-                    Process downloadProcess = download(WATCH_URL + e.id);
-                    if (downloadProcess.exitValue() != 0)
-                        continue;
-                    Process encoder = encode(video, encoded);
-                    if (encoder.exitValue() != 0) {
-                        encoded.delete();
-                        video.delete();
-                        continue;
-                    } else video.delete();
-                }
-                FlareBot.getInstance().getMusicManager().addSong(message.getChannel().getGuild().getID(), e.id + EXTENSION, e.title, EXTENSION);
+                try {
+                    manager.addSong(WATCH_URL + e.id, message.getChannel().getGuild().getID(), e.title, e.id, null);
+                } catch (FriendlyException ignored){}
             }
             if (System.currentTimeMillis() - time >= 1000) {
                 time = System.currentTimeMillis();
