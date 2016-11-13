@@ -2,13 +2,13 @@ package com.bwfcwalshy.flarebot.music.extractors;
 
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.music.Player;
-import com.sun.deploy.net.URLEncoder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
+import java.net.URLEncoder;
 import java.util.List;
 
 public class YouTubeSearchExtractor extends YouTubeExtractor {
