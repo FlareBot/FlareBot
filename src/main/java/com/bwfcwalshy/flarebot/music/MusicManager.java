@@ -1,43 +1,29 @@
 package com.bwfcwalshy.flarebot.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.music.extractors.Extractor;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import sx.blah.discord.util.audio.AudioPlayer;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MusicManager {
 
     // Guild ID | Queue
-    private Map<String, AudioEvents> players;
+    private Map<String, Player> players;
     private AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 
     private FlareBot bot;
+    private List<Class<? extends AudioSourceManager>> registered = new CopyOnWriteArrayList<>();
 
     public MusicManager(FlareBot flareBot) {
-        playerManager.registerSourceManager(new YoutubeAudioSourceManager());
         players = new ConcurrentHashMap<>();
         this.bot = flareBot;
-    }
-
-    public boolean addSong(String url, String guildId, String title, String id) throws IOException, ExecutionException, InterruptedException {
-        AudioEvents player = players.computeIfAbsent(guildId, gid -> {
-            AudioEvents ply = new AudioEvents();
-            AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(gid)).queue(ply);
-            return ply;
-        });
-        File audio = new File("cached" + File.separator + title);
-        AudioEvents.Track track = new AudioEvents.Track(player.getTrack(url));
-        track.getMetadata().put("name", title);
-        track.getMetadata().put("id", id);
-        player.queue(track);
-        return true;
     }
 
     public void pause(String guildId) {
@@ -94,11 +80,25 @@ public class MusicManager {
         return (players.get(guildId).getVolume());
     }
 
-    public Map<String, AudioEvents> getPlayers() {
+    public Map<String, Player> getPlayers() {
         return players;
     }
 
     public AudioPlayerManager getPlayerManager() {
         return playerManager;
+    }
+
+    public Player getPlayer(String id) {
+        return players.computeIfAbsent(id, gid -> {
+            Player ply = new Player();
+            AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(gid)).queue(ply);
+            return ply;
+        });
+    }
+
+    public Player getPlayer(String id, Extractor extractor) throws IllegalAccessException, InstantiationException {
+        if (!registered.contains(extractor.getSourceManagerClass()))
+            playerManager.registerSourceManager(extractor.getSourceManagerClass().newInstance());
+        return getPlayer(id);
     }
 }

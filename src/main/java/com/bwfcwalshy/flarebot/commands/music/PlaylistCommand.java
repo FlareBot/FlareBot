@@ -4,7 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.music.AudioEvents;
+import com.bwfcwalshy.flarebot.music.Player;
 import com.bwfcwalshy.flarebot.music.MusicManager;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -26,7 +26,7 @@ public class PlaylistCommand implements Command {
                 int j = 0;
                 StringBuilder sb = new StringBuilder();
                 sb.append("**Current Playlist**\n```fix\n");
-                for (AudioEvents.Track track : manager.getPlayers().get(channel.getGuild().getID()).getPlaylist()) {
+                for (Player.Track track : manager.getPlayers().get(channel.getGuild().getID()).getPlaylist()) {
                     if (new StringBuilder(sb).append(i).append(". ").append(track.getMetadata().get("name")).append("\n").length() >= 1997)
                         break;
                     sb.append(i).append(". ").append(track.getMetadata().get("name")).append("\n");

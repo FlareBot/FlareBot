@@ -4,7 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.music.AudioEvents;
+import com.bwfcwalshy.flarebot.music.Player;
 import com.bwfcwalshy.flarebot.music.MusicManager;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -33,10 +33,10 @@ public class SkipCommand implements Command {
                 arg = arg.substring(1);
                 try {
                     int num = Integer.parseInt(arg) - 1;
-                    AudioEvents pl = musicManager.getPlayers().get(channel.getGuild().getID());
+                    Player pl = musicManager.getPlayers().get(channel.getGuild().getID());
                     if (pl != null && pl.getPlaylistSize() > num && num >= 0) {
                         int i = 0;
-                        for(AudioEvents.Track t : pl.getPlaylist()){
+                        for(Player.Track t : pl.getPlaylist()){
                             if(++i == num){
                                 pl.getPlaylist().remove(t);
                                 break;

@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
  * <br>
  * Created by Arsen on 10.11.16..
  */
-public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
+public class Player extends AudioEventAdapter implements IAudioProvider {
 
     private boolean looping = false;
     private ConcurrentLinkedQueue<Track> tracks = new ConcurrentLinkedQueue<>();
@@ -44,7 +44,7 @@ public class AudioEvents extends AudioEventAdapter implements IAudioProvider {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AudioEvents that = (AudioEvents) o;
+        Player that = (Player) o;
 
         if (looping != that.looping) return false;
         if (volume != that.volume) return false;

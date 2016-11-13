@@ -4,7 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.music.AudioEvents;
+import com.bwfcwalshy.flarebot.music.Player;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -37,7 +37,7 @@ public class SaveCommand implements Command {
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
         }
-        Queue<AudioEvents.Track> playlist = FlareBot.getInstance().getMusicManager().getPlayers().get(channel.getGuild().getID()).getPlaylist();
+        Queue<Player.Track> playlist = FlareBot.getInstance().getMusicManager().getPlayers().get(channel.getGuild().getID()).getPlaylist();
         if(playlist.isEmpty()){
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;

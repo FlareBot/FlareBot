@@ -20,9 +20,7 @@ public class SearchCommand implements Command {
             MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "search <term>");
         } else if (args.length >= 1) {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
-                if (args[0].matches(VideoThread.ANY_YT_URL)) {
-                    new VideoThread(args[0], sender, channel, true, (args[0].startsWith("https://youtu.be/") || args[0].startsWith("http://youtu.be")));
-                } else MessageUtils.sendMessage(channel, "Not a YouTube link!");
+                VideoThread.getThread(args[0], channel, sender).start();
             } else {
                 // Due to YouTube limits the video length should never be long enough to need a StringBuilder.
                 // EDIT BY Arsen: StringBuilder is there too when you look at bytecode. I think. kek
@@ -33,7 +31,7 @@ public class SearchCommand implements Command {
                 // Remove that last space. Not a good way to do this but it works for now.
                 // EDIT BY Arsen: That's why trim() exists
                 term = term.trim();
-                new VideoThread(term, sender, channel);
+                VideoThread.getSearchThread(term, channel, sender).start();
             }
             RequestBuffer.request(() -> {
                 try {

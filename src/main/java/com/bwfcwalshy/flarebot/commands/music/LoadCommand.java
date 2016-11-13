@@ -2,9 +2,9 @@ package com.bwfcwalshy.flarebot.commands.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -13,7 +13,6 @@ import sx.blah.discord.handle.obj.IUser;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 /**
  * <br>
@@ -46,7 +45,7 @@ public class LoadCommand implements Command {
                 ResultSet set = exists.getResultSet();
                 if (set.isBeforeFirst()) {
                     set.next();
-                    new VideoThread(Arrays.asList(set.getString("list").split(",")), sender, channel, finalName);
+                    VideoThread.getThread(finalName + "\u0010" + set.getString("list"), channel, sender).start();
                 } else
                     MessageUtils.sendMessage(channel, "Could not find a playlist with that name!");
             });
