@@ -19,7 +19,7 @@ public class VolumeCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if(args.length == 0){
-            MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "volume " + "<volume>");
+            MessageUtils.sendMessage(channel, "Volume: **" + musicManager.getVolume(channel.getGuild().getID()) +"%**");
         }else{
             try{
                 int volume = Integer.parseInt(args[0]);

@@ -4,7 +4,6 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
-import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.audio.AudioPlayer;
 
 import java.io.File;
@@ -27,7 +26,7 @@ public class MusicManager {
         this.bot = flareBot;
     }
 
-    public boolean addSong(String url, String guildId, String title, String id, IMessage message) throws IOException, ExecutionException, InterruptedException {
+    public boolean addSong(String url, String guildId, String title, String id) throws IOException, ExecutionException, InterruptedException {
         AudioEvents player = players.computeIfAbsent(guildId, gid -> {
             AudioEvents ply = new AudioEvents();
             AudioPlayer.getAudioPlayerForGuild(bot.getClient().getGuildByID(gid)).queue(ply);
@@ -90,7 +89,7 @@ public class MusicManager {
 
     public int getVolume(String guildId) {
         if (!players.containsKey(guildId)) {
-            return 20;
+            return 100;
         }
         return (players.get(guildId).getVolume());
     }

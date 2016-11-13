@@ -147,7 +147,7 @@ public class VideoThread extends Thread {
                     if (videoId.contains("&")) videoId = videoId.substring(0, videoId.indexOf("&"));
                     link = WATCH_URL + videoId;
                     try {
-                        if (manager.addSong(link, channel.getGuild().getID(), videoName, videoId, null)) {
+                        if (manager.addSong(link, channel.getGuild().getID(), videoName, videoId)) {
                             MessageUtils.editMessage(message, user + " added: **" + videoName + "** to the playlist!");
                         } else MessageUtils.editMessage(message, "Failed to add **" + videoName + "**!");
                     } catch (FriendlyException e){
@@ -222,7 +222,7 @@ public class VideoThread extends Thread {
             i++;
             if (e != null) {
                 try {
-                    manager.addSong(WATCH_URL + e.id, message.getChannel().getGuild().getID(), e.title, e.id, null);
+                    manager.addSong(WATCH_URL + e.id, message.getChannel().getGuild().getID(), e.title, e.id);
                 } catch (FriendlyException ignored){}
             }
             if (System.currentTimeMillis() - time >= 1000) {
