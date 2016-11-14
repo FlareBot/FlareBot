@@ -38,10 +38,11 @@ public class SavedPlaylistExtractor implements Extractor {
         }
         for (YouTubeExtractor.Playlist.PlaylistEntry e : playlist) {
             if (e != null && e.id != null && e.title != null) {
-                Player.Track track = new Player.Track(player.getTrack(YouTubeExtractor.WATCH_URL + e.id));
-                track.getMetadata().put("name", e.title);
-                track.getMetadata().put("id", e.id);
+                Player.Track track;
                 try {
+                    track = new Player.Track(player.getTrack(YouTubeExtractor.WATCH_URL + e.id));
+                    track.getMetadata().put("name", e.title);
+                    track.getMetadata().put("id", e.id);
                     player.queue(track);
                 } catch (FriendlyException ignored) {
                 }

@@ -43,10 +43,10 @@ public class YouTubeExtractor implements Extractor {
             Playlist playlist = FlareBot.GSON.fromJson(new InputStreamReader(bld.start().getInputStream()), Playlist.class);
             for (Playlist.PlaylistEntry e : playlist) {
                 if (e != null && e.id != null && e.title != null) {
-                    Player.Track track = new Player.Track(player.getTrack(WATCH_URL + e.id));
-                    track.getMetadata().put("name", e.title);
-                    track.getMetadata().put("id", e.id);
                     try {
+                        Player.Track track = new Player.Track(player.getTrack(WATCH_URL + e.id));
+                        track.getMetadata().put("name", e.title);
+                        track.getMetadata().put("id", e.id);
                         player.queue(track);
                     } catch (FriendlyException ignored) {
                     }
@@ -54,12 +54,12 @@ public class YouTubeExtractor implements Extractor {
             }
             MessageUtils.editMessage(message, user + " added the playlist **" + title + "** to the playlist!");
         } else {
-            Player.Track track = new Player.Track(player.getTrack(input));
-            track.getMetadata().put("name", title);
-            if (input.contains("&")) input = input.substring(input.indexOf('&'));
-            input = input.substring(input.indexOf("?v=") + 3);
-            track.getMetadata().put("id", input);
             try {
+                Player.Track track = new Player.Track(player.getTrack(input));
+                track.getMetadata().put("name", title);
+                if (input.contains("&")) input = input.substring(input.indexOf('&'));
+                input = input.substring(input.indexOf("?v=") + 3);
+                track.getMetadata().put("id", input);
                 player.queue(track);
                 MessageUtils.editMessage(message, user + " added the video **" + title + "** to the playlist!");
             } catch (FriendlyException e) {

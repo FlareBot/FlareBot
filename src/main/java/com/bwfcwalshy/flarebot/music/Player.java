@@ -149,6 +149,7 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
 
             @Override
             public void noMatches() {
+                e[0] = new FriendlyException("No match found for " + audio, FriendlyException.Severity.SUSPICIOUS, null);
                 FlareBot.LOGGER.error("Could not find match for " + audio);
             }
 
@@ -159,7 +160,7 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
             }
         }).get();
         if(e[0] != null)
-            throw e[0];
+            throw new FriendlyException(e[0].getMessage(), e[0].severity, e[0]);
         return track[0];
     }
 
