@@ -24,7 +24,7 @@ public class SavedPlaylistExtractor implements Extractor {
             String url = YouTubeExtractor.WATCH_URL + s;
             Document doc;
             try {
-                doc = Jsoup.connect(YouTubeExtractor.WATCH_URL + s).get();
+                doc = Jsoup.connect(url).get();
             } catch (Exception e) {
                 continue;
             }

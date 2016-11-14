@@ -134,14 +134,6 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
         tracks.addAll(trackList);
     }
 
-    public void setVolume(int volume) {
-        player.setVolume(volume);
-    }
-
-    public int getVolume() {
-        return player.getVolume();
-    }
-
     public AudioTrack getTrack(String audio) throws FriendlyException, ExecutionException, InterruptedException {
         AudioTrack[] track = new AudioTrack[1];
         final FriendlyException[] e = {null};

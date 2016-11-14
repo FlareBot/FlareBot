@@ -1,37 +1,18 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.music.MusicManager;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 public class VolumeCommand implements Command {
 
-    private MusicManager musicManager;
-    public VolumeCommand(FlareBot bot){
-        this.musicManager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length == 0){
-            MessageUtils.sendMessage(channel, "Volume: **" + musicManager.getVolume(channel.getGuild().getID()) +"%**");
-        }else{
-            try{
-                int volume = Integer.parseInt(args[0]);
-                if(volume >= 0 && volume <= 100){
-                    musicManager.setVolume(channel.getGuild().getID(), volume);
-                }else{
-                    MessageUtils.sendMessage(channel, sender.mention() + " The volume must be between 0-100");
-                }
-            }catch(NumberFormatException e){
-                MessageUtils.sendMessage(channel, sender.mention() + " That is not a number!");
-            }
-        }
+        MessageUtils.sendMessage(channel, "Sorry, " + sender + ", but we removed that command. It was creating a CPU overhead.\n" +
+                "Do not worry, you can still change the volume. Here is how: https://youtu.be/pWv2AXlOlk4");
     }
 
     @Override
@@ -46,9 +27,4 @@ public class VolumeCommand implements Command {
 
     @Override
     public CommandType getType() { return CommandType.MUSIC; }
-
-    @Override
-    public String getPermission(){
-        return "flarebot.volume";
-    }
 }

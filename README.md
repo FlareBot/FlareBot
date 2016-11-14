@@ -19,7 +19,7 @@ Brand new Discord music bot made with Discord4J in Java
 | stop | Stops the music from playing | - | - |
 | skip | Skips the current song | - | - |
 | shuffle | Shuffle the songs up | - | - |
-| volume | Change the volume | flarebot.volume | - |
+| volume | Change the volume | - | - |
 | playlist | View the current playlist | - | - |
 | song | View the current song playing | - | - |
 | delete | Deletes a saved playlist | flarebot.playlist.delete | - |

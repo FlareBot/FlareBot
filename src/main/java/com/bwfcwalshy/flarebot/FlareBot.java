@@ -15,7 +15,6 @@ import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.google.gson.*;
 import org.apache.commons.cli.*;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -209,7 +208,7 @@ public class FlareBot {
         registerCommand(new StopCommand(this));
         registerCommand(new SkipCommand(this));
         registerCommand(new ShuffleCommand(this));
-        registerCommand(new VolumeCommand(this));
+        registerCommand(new VolumeCommand());
         registerCommand(new PlaylistCommand(this));
         registerCommand(new SongCommand(this));
         registerCommand(new InviteCommand());
@@ -266,7 +265,7 @@ public class FlareBot {
                         req.setEntity(ent);
                         req.setHeader("Authorization", FlareBot.dBotsAuth);
                         req.setHeader("Content-Type", "application/json");
-                        HttpResponse e = HTPP_CLIENT.execute(req);
+                        HTPP_CLIENT.execute(req);
                     } catch (IOException e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
                     }
@@ -488,7 +487,6 @@ public class FlareBot {
     public void loadWelcomes() {
         try {
             if (welcomeFile.exists()) {
-                BufferedReader br;
                 welcomes = GSON.fromJson(new FileReader(welcomeFile), Welcomes.class);
             } else {
                 welcomeFile.createNewFile();

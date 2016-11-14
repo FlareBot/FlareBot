@@ -23,7 +23,6 @@ public class PlaylistCommand implements Command {
         if (args.length == 0) {
             if (manager.getPlayers().containsKey(channel.getGuild().getID()) && !manager.getPlayers().get(channel.getGuild().getID()).getPlaylist().isEmpty()) {
                 int i = 1;
-                int j = 0;
                 StringBuilder sb = new StringBuilder();
                 sb.append("**Current Playlist**\n```fix\n");
                 for (Player.Track track : manager.getPlayers().get(channel.getGuild().getID()).getPlaylist()) {

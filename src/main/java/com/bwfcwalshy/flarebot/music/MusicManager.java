@@ -64,22 +64,6 @@ public class MusicManager {
         }
     }
 
-    public void setVolume(String guildId, int i) {
-        if (i >= 0 && i <= 100) {
-            if (!players.containsKey(guildId)) {
-                return;
-            }
-            players.get(guildId).setVolume(i);
-        }
-    }
-
-    public int getVolume(String guildId) {
-        if (!players.containsKey(guildId)) {
-            return 100;
-        }
-        return (players.get(guildId).getVolume());
-    }
-
     public Map<String, Player> getPlayers() {
         return players;
     }
@@ -97,8 +81,10 @@ public class MusicManager {
     }
 
     public Player getPlayer(String id, Extractor extractor) throws IllegalAccessException, InstantiationException {
-        if (!registered.contains(extractor.getSourceManagerClass()))
+        if (!registered.contains(extractor.getSourceManagerClass())) {
             playerManager.registerSourceManager(extractor.getSourceManagerClass().newInstance());
+            registered.add(extractor.getSourceManagerClass());
+        }
         return getPlayer(id);
     }
 }
