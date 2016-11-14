@@ -2,10 +2,7 @@ package com.bwfcwalshy.flarebot.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.extractors.Extractor;
-import com.bwfcwalshy.flarebot.music.extractors.SavedPlaylistExtractor;
-import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
-import com.bwfcwalshy.flarebot.music.extractors.YouTubeSearchExtractor;
+import com.bwfcwalshy.flarebot.music.extractors.*;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -16,7 +13,8 @@ import java.util.List;
 public class VideoThread extends Thread {
 
     private static MusicManager manager;
-    private static final List<Class<? extends Extractor>> extractors = Arrays.asList(YouTubeExtractor.class, SavedPlaylistExtractor.class);
+    private static final List<Class<? extends Extractor>> extractors = Arrays.asList(YouTubeExtractor.class,
+            SavedPlaylistExtractor.class, SoundCloudExtractor.class);
     public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
     private IUser user;
     private IChannel channel;

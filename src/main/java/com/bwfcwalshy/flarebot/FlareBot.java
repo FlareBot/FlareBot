@@ -49,6 +49,7 @@ public class FlareBot {
     }
 
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
+    public static final PrintStream STDERR = System.err;
     private static String dBotsAuth;
     public static final HttpClient HTPP_CLIENT = HttpClientBuilder.create().disableCookieManagement().build();
     private Permissions permissions;
@@ -62,6 +63,11 @@ public class FlareBot {
     private File welcomeFile;
 
     public static void main(String[] args) throws ClassNotFoundException {
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+            }
+        })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 //        FlareBot.args = args;
         Options options = new Options();
 
