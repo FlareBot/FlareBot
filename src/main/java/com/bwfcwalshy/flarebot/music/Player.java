@@ -133,6 +133,7 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
         Collections.shuffle(trackList);
         tracks.clear();
         tracks.addAll(trackList);
+        play();
     }
 
     public AudioTrack getTrack(String audio) throws FriendlyException, ExecutionException, InterruptedException {
@@ -172,6 +173,7 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
     public void play() {
         if (currentTrack == null) {
             skip();
+            setPaused(false);
         } else
             setPaused(false);
     }

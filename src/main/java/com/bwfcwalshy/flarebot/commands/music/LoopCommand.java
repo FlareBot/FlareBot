@@ -1,22 +1,23 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
+import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.music.Player;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.audio.AudioPlayer;
 
 public class LoopCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(channel.getGuild());
-        if(!player.isLooping()){
-            player.setLoop(true);
+        Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID());
+        if(!player.getLooping()){
+            player.setLooping(true);
             MessageUtils.sendMessage(channel, "Looping: **ON**");
         } else {
-            player.setLoop(false);
+            player.setLooping(false);
             MessageUtils.sendMessage(channel, "Looping: **OFF**");
         }
     }
