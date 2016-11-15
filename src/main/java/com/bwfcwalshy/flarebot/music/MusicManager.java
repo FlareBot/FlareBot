@@ -87,4 +87,8 @@ public class MusicManager {
         }
         return getPlayer(id);
     }
+
+    public boolean hasPlayer(String id) {
+        return players.containsKey(id);
+    }
 }

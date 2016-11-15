@@ -66,7 +66,8 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
 
     public void skip() {
         if (getLooping()) {
-            tracks.add(getCurrentTrack().makeClone());
+            if (getCurrentTrack() != null)
+                tracks.add(getCurrentTrack().makeClone());
         }
         Track track = tracks.poll();
         if (track != null)
@@ -159,7 +160,7 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
                 e[0] = exception;
             }
         }).get();
-        if(e[0] != null)
+        if (e[0] != null)
             throw new FriendlyException(e[0].getMessage(), e[0].severity, e[0]);
         return track[0];
     }
