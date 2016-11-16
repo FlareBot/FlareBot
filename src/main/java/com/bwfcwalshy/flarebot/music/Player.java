@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 public class Player extends AudioEventAdapter implements IAudioProvider {
 
     private boolean looping = false;
-    private ConcurrentLinkedQueue<Track> tracks = new ConcurrentLinkedQueue<>();
+    private Queue<Track> tracks = new ConcurrentLinkedQueue<>();
     private AudioPlayer player = FlareBot.getInstance().getMusicManager().getPlayerManager().createPlayer();
     private Track currentTrack;
     private int volume;
@@ -34,9 +34,8 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if (endReason == AudioTrackEndReason.REPLACED)
-            return;
-        skip();
+        if (endReason == AudioTrackEndReason.FINISHED)
+            skip();
     }
 
     @Override
@@ -126,10 +125,11 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
 
     public void shuffle() {
         List<Track> trackList = new ArrayList<>(tracks.size());
-        player.setPaused(true);
+        player.stopTrack();
         trackList.addAll(tracks);
         if (currentTrack != null)
             trackList.add(currentTrack.makeClone());
+        currentTrack = null;
         Collections.shuffle(trackList);
         tracks.clear();
         tracks.addAll(trackList);
@@ -173,9 +173,8 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
     public void play() {
         if (currentTrack == null) {
             skip();
-            setPaused(false);
-        } else
-            setPaused(false);
+        }
+        setPaused(false);
     }
 
     public static class Track {

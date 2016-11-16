@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot.music.extractors;
 
+import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.music.Player;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
@@ -48,6 +49,7 @@ public class SavedPlaylistExtractor implements Extractor {
                 }
             }
         }
+        MessageUtils.editMessage(message, user + " added the playlist **" + playlist.title + "** to the  playlist!");
     }
 
     @Override
