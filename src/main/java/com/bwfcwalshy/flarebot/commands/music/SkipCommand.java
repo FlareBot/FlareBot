@@ -79,7 +79,7 @@ public class SkipCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Skip the current song playing, or if specified #NUMBER for the song under NUMBER or just NUMBER for next NUMBER songs.";
+        return "Starts a skip voting, or if one is happening, marks a vote. _skip YES|NO to pass a vote.";
     }
 
     @Override
