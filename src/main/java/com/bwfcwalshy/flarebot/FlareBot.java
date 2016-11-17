@@ -309,6 +309,7 @@ public class FlareBot {
                     }
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
+                        UpdateCommand.updating.set(false);
                         return;
                     }
                 } else {
@@ -325,6 +326,7 @@ public class FlareBot {
                     }
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
+                        UpdateCommand.updating.set(false);
                         return;
                     }
                 }
@@ -342,12 +344,12 @@ public class FlareBot {
                 if (p.exitValue() != 0) {
                     LOGGER.error(Markers.NO_ANNOUNCE, "Could not update!!!!\n" + out);
                     String finalOut = out;
+                    UpdateCommand.updating.set(false);
                     RequestBuffer.request(() -> {
                         try {
                             getUpdateChannel().sendFile("Could not build!", false, new ByteArrayInputStream(finalOut.getBytes()), "buildlog.txt");
                         } catch (DiscordException | MissingPermissionsException e) {
                             LOGGER.error("Could not send build failure report!", e);
-                            UpdateCommand.updating.set(false);
                         }
                     });
                     return;
