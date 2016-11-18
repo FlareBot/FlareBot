@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class YouTubeExtractor implements Extractor {
@@ -24,6 +25,7 @@ public class YouTubeExtractor implements Extractor {
     public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:www\\.)?(?:youtube\\.com))/(?:(?:watch\\?v=([^?&\\n]+)(?:&(?:[^?&\\n]+=(?:[^?&\\n]+)+))?)|(?:playlist\\?list=([^&?]+))(?:&[^&]*=[^&]+)?))|(?:youtu\\.be/(.*)))";
     public static Pattern YT_PATTERN = Pattern.compile(ANY_YT_URL);
     public static final String ANY_PLAYLIST = "https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*";
+    private static final Pattern MIX_PATTERN = Pattern.compile("(?:https?://)(?:www\\.)youtube\\.com/watch\\?v=(.+)&list=RD(.+)");
 
     @Override
     public Class<? extends AudioSourceManager> getSourceManagerClass() {
@@ -38,17 +40,23 @@ public class YouTubeExtractor implements Extractor {
             return;
         }
         String title = doc.title().substring(0, doc.title().length() - 10);
-        if (input.matches(ANY_PLAYLIST)) {
-            ProcessBuilder bld = new ProcessBuilder("youtube-dl", "-i", "-4", "--dump-single-json", "--flat-playlist", input);
+        if (input.matches(ANY_PLAYLIST) || isMix(input)) {
+            ProcessBuilder bld = new ProcessBuilder("youtube-dl", "-i", "-4", "-J", "--flat-playlist", input);
             Playlist playlist = FlareBot.GSON.fromJson(new InputStreamReader(bld.start().getInputStream()), Playlist.class);
             for (Playlist.PlaylistEntry e : playlist) {
-                if (e != null && e.id != null && e.title != null) {
+                if (e != null && e.id != null) {
                     try {
+                        if(e.title == null) {
+                            String title2 = Jsoup.connect(WATCH_URL + e.id).get().title();
+                            if(title2.equals("YouTube"))
+                                continue;
+                            e.title = title2.substring(0, doc.title().length() - 10);
+                        }
                         Player.Track track = new Player.Track(player.getTrack(WATCH_URL + e.id));
                         track.getMetadata().put("name", e.title);
                         track.getMetadata().put("id", e.id);
                         player.queue(track);
-                    } catch (FriendlyException ignored) {
+                    } catch (Exception ignored) {
                     }
                 }
             }
@@ -73,7 +81,12 @@ public class YouTubeExtractor implements Extractor {
 
     @Override
     public boolean valid(String input) {
-        return input.matches(ANY_YT_URL);
+        return input.matches(ANY_YT_URL) || isMix(input);
+    }
+
+    public boolean isMix(String url) {
+        Matcher m = MIX_PATTERN.matcher(url);
+        return m.matches() && m.group(1).equals(m.group(2));
     }
 
     public static class Playlist implements Iterable<Playlist.PlaylistEntry> {
