@@ -15,7 +15,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
     @Override
     public FilterReply decide(ILoggingEvent event) {
         String msg = event.getFormattedMessage();
-        if (msg.startsWith("Received 404 error, please notify the developer and include the URL (https://discordapp.com/api/channels/")) {
+        if (msg.startsWith("Received 40")) {
             return FilterReply.DENY;
         }
         if (msg.startsWith("Attempt to send message on closed")) {

@@ -17,6 +17,7 @@ public class SkipCommand implements Command {
 
     private MusicManager musicManager;
     private Map<String, Map<String, Vote>> votes = new HashMap<>();
+    private Map<String, Boolean> tasks = new HashMap<>();
 
     public SkipCommand(FlareBot bot) {
         this.musicManager = bot.getMusicManager();
@@ -39,11 +40,20 @@ public class SkipCommand implements Command {
                 return;
             }
         }
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("force")) {
+                tasks.put(channel.getGuild().getID(), true);
+            }
+            musicManager.skip(channel.getGuild().getID());
+            return;
+        }
         Map<String, Vote> mvotes = this.votes.computeIfAbsent(channel.getGuild().getID(), s -> {
             new FlarebotTask("Vote " + s) {
 
                 @Override
                 public void run() {
+                    if(tasks.get(s))
+                        return;
                     String res = "";
                     boolean skip = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
@@ -64,12 +74,16 @@ public class SkipCommand implements Command {
             return;
         }
         if (args.length == 1)
-            try {
-                Vote vote = Vote.valueOf(args[0].toUpperCase());
-                mvotes.put(sender.getID(), vote);
-            } catch (IllegalArgumentException e) {
-                MessageUtils.sendMessage(channel, "Please use yes or no!");
+            if (args[0].equalsIgnoreCase("force")) {
+                tasks.put(channel.getGuild().getID(), true);
             }
+            musicManager.skip(channel.getGuild().getID());
+        try {
+            Vote vote = Vote.valueOf(args[0].toUpperCase());
+            mvotes.put(sender.getID(), vote);
+        } catch (IllegalArgumentException e) {
+            MessageUtils.sendMessage(channel, "Please use yes or no!");
+        }
     }
 
     @Override
@@ -79,7 +93,7 @@ public class SkipCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Starts a skip voting, or if one is happening, marks a vote. _skip YES|NO to pass a vote.";
+        return "Starts a skip voting, or if one is happening, marks a vote. _skip YES|NO to pass a vote. Everyone with flarebot.skip.force can use _skip force";
     }
 
     @Override
