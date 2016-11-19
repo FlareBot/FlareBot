@@ -23,6 +23,7 @@ public class SkipCommand implements Command {
         this.musicManager = bot.getMusicManager();
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.getGuild().getConnectedVoiceChannel() == null || !musicManager.hasPlayer(channel.getGuild().getID())
@@ -42,17 +43,22 @@ public class SkipCommand implements Command {
         }
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("force")) {
-                tasks.put(channel.getGuild().getID(), true);
+                if(getPermissions(channel).hasPermission(sender, "flarebot.skip.force")) {
+                    tasks.put(channel.getGuild().getID(), true);
+                    musicManager.skip(channel.getGuild().getID());
+                    return;
+                } else {
+                    MessageUtils.sendMessage(channel, "Insufficient permission to force skip!");
+                    return;
+                }
             }
-            musicManager.skip(channel.getGuild().getID());
-            return;
         }
         Map<String, Vote> mvotes = this.votes.computeIfAbsent(channel.getGuild().getID(), s -> {
             new FlarebotTask("Vote " + s) {
 
                 @Override
                 public void run() {
-                    if(tasks.get(s))
+                    if (tasks.get(s))
                         return;
                     String res = "";
                     boolean skip = votes.get(s).entrySet().stream()
@@ -73,11 +79,18 @@ public class SkipCommand implements Command {
             MessageUtils.sendMessage(channel, "You already voted!");
             return;
         }
-        if (args.length == 1)
+        if (args.length == 1) {
             if (args[0].equalsIgnoreCase("force")) {
-                tasks.put(channel.getGuild().getID(), true);
+                if(getPermissions(channel).hasPermission(sender, "flarebot.skip.force")) {
+                    tasks.put(channel.getGuild().getID(), true);
+                    musicManager.skip(channel.getGuild().getID());
+                    return;
+                } else {
+                    MessageUtils.sendMessage(channel, "Insufficient permission to force skip!");
+                    return;
+                }
             }
-            musicManager.skip(channel.getGuild().getID());
+        }
         try {
             Vote vote = Vote.valueOf(args[0].toUpperCase());
             mvotes.put(sender.getID(), vote);
