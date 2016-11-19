@@ -151,13 +151,14 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
 
             @Override
             public void noMatches() {
-                e[0] = new FriendlyException("No match found for " + audio, FriendlyException.Severity.SUSPICIOUS, null);
+                e[0] = new FriendlyException("No match found for " + audio, FriendlyException.Severity.COMMON, null);
                 FlareBot.LOGGER.error("Could not find match for " + audio);
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                FlareBot.LOGGER.error("Could not load track!", exception);
+                if (exception.severity != FriendlyException.Severity.COMMON)
+                    FlareBot.LOGGER.error("Could not load track!", exception);
                 e[0] = exception;
             }
         }).get();
