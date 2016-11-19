@@ -91,6 +91,8 @@ public class SkipCommand implements Command {
                 }
             }
         }
+        if(args.length == 0)
+            args = new String[]{""};
         try {
             Vote vote = Vote.valueOf(args[0].toUpperCase());
             mvotes.put(sender.getID(), vote);
