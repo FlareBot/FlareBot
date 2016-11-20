@@ -17,13 +17,12 @@ public class SkipCommand implements Command {
 
     private MusicManager musicManager;
     private Map<String, Map<String, Vote>> votes = new HashMap<>();
-    private Map<String, Boolean> tasks = new HashMap<>();
+    private Map<String, Boolean> skips = new HashMap<>();
 
     public SkipCommand(FlareBot bot) {
         this.musicManager = bot.getMusicManager();
     }
 
-    @SuppressWarnings("Duplicates")
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.getGuild().getConnectedVoiceChannel() == null || !musicManager.hasPlayer(channel.getGuild().getID())
@@ -38,28 +37,38 @@ public class SkipCommand implements Command {
             if (votes.containsKey(channel.getGuild().getID())) {
                 MessageUtils.sendMessage(channel, "Can't start a vote right now! " +
                         "Another one in progress! Please use _skip YES|NO to vote!");
+            } else getVotes(channel);
+        } else {
+            if(args[0].equalsIgnoreCase("force")){
+                musicManager.skip(channel.getGuild().getID());
+                skips.put(channel.getGuild().getID(), true);
                 return;
             }
-        }
-        if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("force")) {
-                if(getPermissions(channel).hasPermission(sender, "flarebot.skip.force")) {
-                    tasks.put(channel.getGuild().getID(), true);
-                    musicManager.skip(channel.getGuild().getID());
-                    return;
-                } else {
-                    MessageUtils.sendMessage(channel, "Insufficient permission to force skip!");
-                    return;
-                }
+            Map<String, Vote> mvotes = getVotes(channel);
+            if (mvotes.containsKey(sender.getID())) {
+                MessageUtils.sendMessage(channel, "You already voted!");
+                return;
+            }
+            try {
+                Vote vote = Vote.valueOf(args[0].toUpperCase());
+                mvotes.put(sender.getID(), vote);
+            } catch (IllegalArgumentException e) {
+                MessageUtils.sendMessage(channel, "Please use yes or no!");
             }
         }
-        Map<String, Vote> mvotes = this.votes.computeIfAbsent(channel.getGuild().getID(), s -> {
+    }
+
+    private Map<String, Vote> getVotes(IChannel channel) {
+        return this.votes.computeIfAbsent(channel.getGuild().getID(), s -> {
             new FlarebotTask("Vote " + s) {
 
                 @Override
                 public void run() {
-                    if (tasks.get(s))
+                    if(skips.getOrDefault(s, false)){
+                        skips.remove(s);
+                        votes.remove(s);
                         return;
+                    }
                     String res = "";
                     boolean skip = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
@@ -75,30 +84,6 @@ public class SkipCommand implements Command {
                     + "** has started!\nUse _skip YES|NO to vote!");
             return new HashMap<>();
         });
-        if (mvotes.containsKey(sender.getID())) {
-            MessageUtils.sendMessage(channel, "You already voted!");
-            return;
-        }
-        if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("force")) {
-                if(getPermissions(channel).hasPermission(sender, "flarebot.skip.force")) {
-                    tasks.put(channel.getGuild().getID(), true);
-                    musicManager.skip(channel.getGuild().getID());
-                    return;
-                } else {
-                    MessageUtils.sendMessage(channel, "Insufficient permission to force skip!");
-                    return;
-                }
-            }
-        }
-        if(args.length == 0)
-            args = new String[]{""};
-        try {
-            Vote vote = Vote.valueOf(args[0].toUpperCase());
-            mvotes.put(sender.getID(), vote);
-        } catch (IllegalArgumentException e) {
-            MessageUtils.sendMessage(channel, "Please use yes or no!");
-        }
     }
 
     @Override
@@ -108,7 +93,7 @@ public class SkipCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Starts a skip voting, or if one is happening, marks a vote. _skip YES|NO to pass a vote. Everyone with flarebot.skip.force can use _skip force";
+        return "Starts a skip voting, or if one is happening, marks a vote. _skip YES|NO to pass a vote.";
     }
 
     @Override
