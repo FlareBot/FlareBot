@@ -65,7 +65,7 @@ public class InfoCommand implements Command {
                 + "CPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f
                 + "%\n" + DIVIDER
                 + "\nSupport Server: http://discord.me/flarebot"
-                + "\nDonate to our host: https://www.twitchalerts.com/donate/captainbaconz"
+                + "\nDonate to our host: https://www.paypal.me/CaptainBaconz"
                 + "\nMade with love by bwfcwalshy#1284 and Arsen#3291\n"
                 + "```\n"
                 + "https://github.com/ArsenArsen/FlareBot";

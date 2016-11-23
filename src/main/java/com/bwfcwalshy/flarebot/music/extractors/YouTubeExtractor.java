@@ -46,9 +46,9 @@ public class YouTubeExtractor implements Extractor {
             for (Playlist.PlaylistEntry e : playlist) {
                 if (e != null && e.id != null) {
                     try {
-                        if(e.title == null) {
+                        if (e.title == null) {
                             String title2 = Jsoup.connect(WATCH_URL + e.id).get().title();
-                            if(title2.equals("YouTube"))
+                            if (title2.equals("YouTube"))
                                 continue;
                             e.title = title2.substring(0, doc.title().length() - 10);
                         }
@@ -103,9 +103,5 @@ public class YouTubeExtractor implements Extractor {
         }
 
         public String title;
-    }
-
-    private class Song {
-        public Long duration;
     }
 }
