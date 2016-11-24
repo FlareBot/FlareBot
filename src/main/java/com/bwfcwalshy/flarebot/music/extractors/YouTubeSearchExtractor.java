@@ -24,19 +24,17 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
             return;
         }
         Element videoElement = videoElements.get(i);
-        String link;
+        String link = null;
         for (Element e : videoElement.children()) {
-            if (e.toString().contains("href=\"https://googleads")) {
-                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-            } else if (videoElement.select("a").first().attr("href").startsWith("/user/")) {
-                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-            } else if (videoElement.select("a").first().attr("href").startsWith("/channel/")) {
-                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-            } else if (!e.select(".yt-badge-live").isEmpty()) {
-                videoElement = doc.getElementsByClass("yt-lockup-title").get(++i);
-            } else break;
+            if (super.valid(e.select("a").first().attr("abs:href"))) {
+                link = e.select("a").first().attr("abs:href");
+                break;
+            }
         }
-        link = "http://youtube.com" + videoElement.select("a").first().attr("href");
+        if (link == null) {
+            MessageUtils.editMessage(message, "Could not find any results for **" + input + "**!");
+            return;
+        }
         super.process(link, player, message, user);
     }
 }

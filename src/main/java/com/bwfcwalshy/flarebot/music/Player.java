@@ -34,7 +34,7 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if (endReason == AudioTrackEndReason.FINISHED)
+        if (endReason.mayStartNext)
             skip();
     }
 
