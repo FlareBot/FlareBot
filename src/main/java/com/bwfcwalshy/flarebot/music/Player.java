@@ -178,6 +178,13 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
         setPaused(false);
     }
 
+    public void stop() {
+        currentTrack = null;
+        player.stopTrack();
+        tracks.clear();
+        setPaused(true);
+    }
+
     public static class Track {
         private AudioTrack track;
         private Map<String, String> metadata = new ConcurrentHashMap<>();

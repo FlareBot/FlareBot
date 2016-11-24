@@ -49,12 +49,7 @@ public class MusicManager {
 
     public void stop(String guildId) {
         if (players.containsKey(guildId)) {
-            players.get(guildId).setPaused(true);
-            players.get(guildId).getPlaylist().clear();
-            boolean looping = players.get(guildId).getLooping();
-            players.get(guildId).setLooping(false);
-            players.get(guildId).skip();
-            players.get(guildId).setLooping(looping);
+            players.get(guildId).stop();
         }
     }
 

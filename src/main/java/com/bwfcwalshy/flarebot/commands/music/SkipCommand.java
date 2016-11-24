@@ -93,7 +93,7 @@ public class SkipCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Starts a skip voting, or if one is happening, marks a vote. _skip YES|NO to pass a vote.";
+        return "Starts a skip voting, or if one is happening, marks a vote. _skip YES|NO to pass a vote. To force skip use _skip force";
     }
 
     @Override
