@@ -22,10 +22,8 @@ public class MessageUtils {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
-            } catch (MissingPermissionsException e) {
+            } catch (DiscordException | MissingPermissionsException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
-            } catch (DiscordException e) {
-                return sendMessage(channel, message);
             }
             return null;
         });
@@ -35,16 +33,13 @@ public class MessageUtils {
     public static void sendPM(IUser user, CharSequence message) {
         RequestBuffer.request(() -> {
             try {
-                user.getOrCreatePMChannel().sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
+                return user.getOrCreatePMChannel().sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
             } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Uh oh!", e);
             }
-        });
+            return null;
+        }).get();
     }
-
-    public static String escapeFile(String s) {
-        return s.replaceAll("[/\\\\*:?\"<>|]", "");
-    } // Jesus christ
 
     public static IMessage sendException(String s, Throwable e, IChannel channel) {
         StringWriter sw = new StringWriter();
@@ -76,11 +71,12 @@ public class MessageUtils {
     public static void editMessage(IMessage message, String content) {
         RequestBuffer.request(() -> {
             try {
-                message.edit(content);
+                return message.edit(content);
             } catch (MissingPermissionsException | DiscordException e1) {
                 FlareBot.LOGGER.error("Edit own message!", e1);
             }
-        });
+            return message;
+        }).get();
     }
 
     public static IMessage sendFile(IChannel channel, String s, String fileContent, String filename) {

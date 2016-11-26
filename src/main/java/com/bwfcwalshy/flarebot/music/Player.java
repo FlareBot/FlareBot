@@ -39,6 +39,11 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
     }
 
     @Override
+    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
+        skip();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
