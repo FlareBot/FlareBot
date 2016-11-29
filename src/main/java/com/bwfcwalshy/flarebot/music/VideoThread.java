@@ -14,7 +14,7 @@ public class VideoThread extends Thread {
 
     private static MusicManager manager;
     private static final List<Class<? extends Extractor>> extractors = Arrays.asList(YouTubeExtractor.class,
-            SavedPlaylistExtractor.class, SoundCloudExtractor.class);
+            SavedPlaylistExtractor.class);
     public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
     private IUser user;
     private IChannel channel;

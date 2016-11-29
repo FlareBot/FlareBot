@@ -26,7 +26,6 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
     private Queue<Track> tracks = new ConcurrentLinkedQueue<>();
     private AudioPlayer player = FlareBot.getInstance().getMusicManager().getPlayerManager().createPlayer();
     private Track currentTrack;
-    private int volume;
 
     {
         player.addListener(this);
@@ -51,7 +50,6 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
         Player that = (Player) o;
 
         if (looping != that.looping) return false;
-        if (volume != that.volume) return false;
         if (!tracks.equals(that.tracks)) return false;
         if (!player.equals(that.player)) return false;
         return currentTrack != null ? currentTrack.equals(that.currentTrack) : that.currentTrack == null;
@@ -64,7 +62,6 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
         result = 31 * result + tracks.hashCode();
         result = 31 * result + player.hashCode();
         result = 31 * result + (currentTrack != null ? currentTrack.hashCode() : 0);
-        result = 31 * result + volume;
         return result;
     }
 

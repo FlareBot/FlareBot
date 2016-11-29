@@ -26,7 +26,9 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
         Element videoElement = videoElements.get(i);
         String link = null;
         for (Element e : videoElement.children()) {
-            if (super.valid(e.select("a").first().attr("abs:href"))) {
+            if (e.select("a") != null && e.select("a").first() != null
+                    && e.select("a").first().attr("abs:href") != null
+                    && super.valid(e.select("a").first().attr("abs:href"))) {
                 link = e.select("a").first().attr("abs:href");
                 break;
             }
