@@ -84,6 +84,12 @@ public class Events {
             if(!perms.contains(Permissions.SEND_MESSAGES) && !perms.contains(Permissions.ADMINISTRATOR)){
                 return;
             }
+            if(!perms.contains(Permissions.EMBED_LINKS)){
+                MessageUtils.sendMessage(e.getMessage().getChannel(), "Hey! I can't be used here." +
+                        "\nI do not have the `Embed Links` permission! Please go to your permissions adn give me Embed Links." +
+                        "\nThanks :D");
+                return;
+            }
             String message = e.getMessage().getContent();
             String command = message.substring(1);
             String[] args = new String[0];
@@ -92,7 +98,6 @@ public class Events {
 
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
-
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
                     FlareBot.LOGGER.info(
