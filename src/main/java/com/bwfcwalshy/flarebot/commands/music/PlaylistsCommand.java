@@ -1,6 +1,5 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
-import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
@@ -56,7 +55,7 @@ public class PlaylistsCommand implements Command {
                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
                 i = 1;
                 for (String s : songs) {
-                    builder.appendField("Page " + i++, s, false);
+                    builder.appendField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);
                 }
                 MessageUtils.sendMessage(builder.build(), channel);
             });
