@@ -1,10 +1,12 @@
 package com.bwfcwalshy.flarebot.music.extractors;
 
+import com.arsenarsen.lavaplayerbridge.player.Player;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.Player;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import sx.blah.discord.handle.obj.IMessage;
@@ -39,17 +41,18 @@ public class SavedPlaylistExtractor implements Extractor {
         }
         for (YouTubeExtractor.Playlist.PlaylistEntry e : playlist) {
             if (e != null && e.id != null && e.title != null) {
-                Player.Track track;
+                Track track;
                 try {
-                    track = new Player.Track(player.getTrack(YouTubeExtractor.WATCH_URL + e.id));
-                    track.getMetadata().put("name", e.title);
-                    track.getMetadata().put("id", e.id);
+                    track = new Track((AudioTrack) player.resolve(YouTubeExtractor.WATCH_URL + e.id));
+                    track.getMeta().put("name", e.title);
+                    track.getMeta().put("id", e.id);
                     player.queue(track);
                 } catch (FriendlyException ignored) {
                 }
             }
         }
-        MessageUtils.editMessage(message, user + " added the playlist **" + playlist.title + "** to the  playlist!");
+        MessageUtils.editMessage("", MessageUtils.getEmbed(user)
+                .withDesc(String.format("*Loaded %s songs!*", playlist.entries.size())).build(), message);
     }
 
     @Override

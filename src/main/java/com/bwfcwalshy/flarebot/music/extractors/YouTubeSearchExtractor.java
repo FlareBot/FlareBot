@@ -1,7 +1,7 @@
 package com.bwfcwalshy.flarebot.music.extractors;
 
+import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.Player;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,7 +20,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
         int i = 0;
         List<Element> videoElements = doc.getElementsByClass("yt-lockup-title");
         if (videoElements.isEmpty()) {
-            MessageUtils.editMessage(message, "Could not find any results for **" + input + "**!");
+            MessageUtils.editMessage(MessageUtils.getEmbed(user).withDesc("Could not find any results for **" + input + "**!").build(), message);
             return;
         }
         Element videoElement = videoElements.get(i);
@@ -34,7 +34,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
             }
         }
         if (link == null) {
-            MessageUtils.editMessage(message, "Could not find any results for **" + input + "**!");
+            MessageUtils.editMessage(MessageUtils.getEmbed(user).withDesc("Could not find any results for **" + input + "**!").build(), message);
             return;
         }
         super.process(link, player, message, user);

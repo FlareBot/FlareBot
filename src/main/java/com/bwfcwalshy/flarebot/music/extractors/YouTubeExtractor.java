@@ -1,11 +1,13 @@
 package com.bwfcwalshy.flarebot.music.extractors;
 
+import com.arsenarsen.lavaplayerbridge.player.Player;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.Player;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import sx.blah.discord.handle.obj.IMessage;
@@ -43,6 +45,7 @@ public class YouTubeExtractor implements Extractor {
         if (input.matches(ANY_PLAYLIST) || isMix(input)) {
             ProcessBuilder bld = new ProcessBuilder("youtube-dl", "-i", "-4", "-J", "--flat-playlist", input);
             Playlist playlist = FlareBot.GSON.fromJson(new InputStreamReader(bld.start().getInputStream()), Playlist.class);
+            int c = 0;
             for (Playlist.PlaylistEntry e : playlist) {
                 if (e != null && e.id != null) {
                     try {
@@ -51,30 +54,36 @@ public class YouTubeExtractor implements Extractor {
                             if (title2.equals("YouTube"))
                                 continue;
                             e.title = title2.substring(0, doc.title().length() - 10);
+                            c++; // I want to increment my knowledge in it
                         }
-                        Player.Track track = new Player.Track(player.getTrack(WATCH_URL + e.id));
-                        track.getMetadata().put("name", e.title);
-                        track.getMetadata().put("id", e.id);
+                        Track track = new Track((AudioTrack) player.resolve(WATCH_URL + e.id));
+                        track.getMeta().put("name", e.title);
+                        track.getMeta().put("id", e.id);
                         player.queue(track);
                     } catch (Exception ignored) {
                     }
                 }
             }
-            MessageUtils.editMessage(message, user + " added the playlist **" + title + "** to the playlist!");
+            MessageUtils.editMessage(MessageUtils.getEmbed(user)
+                    .withDesc("Added the playlist [**" + title + "**]("
+                            + WATCH_URL + input + ") to the playlist!")
+                    .appendField("Songs:", String.valueOf(c), false).build(), message);
         } else {
             try {
-                Player.Track track = new Player.Track(player.getTrack(input));
-                track.getMetadata().put("name", title);
+                Track track = new Track((AudioTrack) player.resolve(input));
+                track.getMeta().put("name", title);
                 if (input.contains("&")) input = input.substring(input.indexOf('&'));
                 input = input.substring(input.indexOf("?v=") + 3);
-                track.getMetadata().put("id", input);
+                track.getMeta().put("id", input);
                 player.queue(track);
-                MessageUtils.editMessage(message, user + " added the video **" + title + "** to the playlist!");
+                MessageUtils.editMessage(MessageUtils.getEmbed(user)
+                        .withDesc("Added the video [**" + title + "**]("
+                                + WATCH_URL + track.getTrack().getIdentifier() + ") to the playlist!").build(), message);
             } catch (FriendlyException e) {
-                MessageUtils.editMessage(message, "Could not get the song! YouTube said: " + (e.getMessage().contains("\n") ?
-                        e.getMessage().substring(e.getMessage().indexOf('\n')) :
-                        e.getMessage()));
-
+                MessageUtils.editMessage(MessageUtils.getEmbed(user)
+                        .withDesc("Could not get that song!").appendField("YouTube said: ", (e.getMessage().contains("\n") ?
+                                e.getMessage().substring(e.getMessage().indexOf('\n')) :
+                                e.getMessage()), true).build(), message);
             }
         }
     }

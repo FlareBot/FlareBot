@@ -7,57 +7,47 @@ import com.bwfcwalshy.flarebot.commands.CommandType;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.util.EmbedBuilder;
 
-import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class HelpCommand implements Command {
 
-    private FlareBot flareBot;
-    public HelpCommand(FlareBot bot){
-        this.flareBot = bot;
-    }
-
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length == 1){
+        if (args.length == 1) {
             CommandType type;
             try {
                 type = CommandType.valueOf(args[0].toUpperCase());
-            } catch (IllegalArgumentException ignored){
-                MessageUtils.sendMessage(channel, "No such category!");
+            } catch (IllegalArgumentException ignored) {
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!").build(), channel);
                 return;
             }
-            if(type != CommandType.HIDDEN){
-                StringBuilder sb = new StringBuilder();
-                sb.append("**FlareBot _").append(type.toString()).append("_ Commands**\n```fix\n");
-                for(Command commands : flareBot.getCommandsByType(type)){
-                    sb.append("  " + FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
-                }
-                sb.append("```");
-
-                MessageUtils.sendMessage(channel, sb);
-            }else{
-                sendCommands(channel);
+            if (type != CommandType.HIDDEN) {
+                EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
+                embedBuilder.withDesc("***FlareBot " + type + " commands!***");
+                MessageUtils.sendMessage(embedBuilder.appendField(type.toString(), type.getCommands()
+                        .stream()
+                        .map(command -> FlareBot.COMMAND_CHAR + command.getCommand() + " - " + command.getDescription() + '\n')
+                        .collect(Collectors.joining("")), false).build(), channel);
+            } else {
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!").build(), channel);
             }
-        }else{
-            sendCommands(channel);
+        } else {
+            sendCommands(channel, sender);
         }
     }
 
-    private void sendCommands(IChannel channel){
-        StringBuilder sb = new StringBuilder();
-        sb.append("**FlareBot commands**\n```fix\n");
-        Arrays.stream(CommandType.getTypes()).filter(type -> type != CommandType.HIDDEN && type != CommandType.OWNER)
-                .forEach(type -> {
-            sb.append(type.toString()).append("\n");
-            for (Command commands : flareBot.getCommandsByType(type)) {
-                sb.append("  ").append(FlareBot.COMMAND_CHAR).append(commands.getCommand()).append(" - ").append(commands.getDescription()).append("\n");
-            }
-            sb.append("\n");
-        });
-        sb.append("```");
-
-        MessageUtils.sendMessage(channel, sb.toString());
+    private void sendCommands(IChannel channel, IUser sender) {
+        EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
+        for (CommandType c : CommandType.getTypes()) {
+            String help = c.getCommands()
+                    .stream()
+                    .map(command -> FlareBot.COMMAND_CHAR + command.getCommand() + " - " + command.getDescription() + '\n')
+                    .collect(Collectors.joining(""));
+            embedBuilder.appendField(c.toString(), help, false);
+        }
+        MessageUtils.sendMessage(embedBuilder.build(), channel);
     }
 
     @Override
@@ -66,8 +56,8 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public String[] getAliases(){
-        return new String[] { "help" };
+    public String[] getAliases() {
+        return new String[]{"help"};
     }
 
     @Override
@@ -76,5 +66,7 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public CommandType getType() { return CommandType.GENERAL; }
+    public CommandType getType() {
+        return CommandType.GENERAL;
+    }
 }

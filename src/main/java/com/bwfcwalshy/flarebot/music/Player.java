@@ -1,27 +1,12 @@
 package com.bwfcwalshy.flarebot.music;
 
-import com.bwfcwalshy.flarebot.FlareBot;
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
-import sx.blah.discord.handle.audio.IAudioProvider;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-
 /**
  * <br>
  * Created by Arsen on 10.11.16..
  */
-public class Player extends AudioEventAdapter implements IAudioProvider {
-
+@Deprecated
+public class Player  {
+/*
     private boolean looping = false;
     private Queue<Track> tracks = new ConcurrentLinkedQueue<>();
     private AudioPlayer player = FlareBot.getInstance().getMusicManager().getPlayerManager().createPlayer();
@@ -223,5 +208,5 @@ public class Player extends AudioEventAdapter implements IAudioProvider {
             track.getMetadata().putAll(metadata);
             return track;
         }
-    }
+    }*/
 }

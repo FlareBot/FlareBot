@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
@@ -8,10 +9,13 @@ import com.bwfcwalshy.flarebot.util.SQLController;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.util.EmbedBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <br>
@@ -37,12 +41,24 @@ public class PlaylistsCommand implements Command {
                 get.setString(1, channel.getGuild().getID());
                 get.execute();
                 ResultSet set = get.getResultSet();
-                StringBuilder response = new StringBuilder();
-                response.append("This guild's playlists:\n```fix\n");
-                while(set.next() && response.length() < (1976 - set.getString("name").length() - 1)){
-                    response.append(set.getString("name")).append('\n');
+                StringBuilder sb = new StringBuilder();
+                List<String> songs = new ArrayList<>();
+                int i = 1;
+                while (set.next() && songs.size() < 25) {
+                    String toAppend = String.format("%s. %s\n", i++, set.getString("name"));
+                    if (sb.length() + toAppend.length() > 1024) {
+                        songs.add(sb.toString());
+                        sb = new StringBuilder();
+                    }
+                    sb.append(toAppend);
                 }
-                MessageUtils.sendMessage(channel, response.append("\n```"));
+                songs.add(sb.toString());
+                EmbedBuilder builder = MessageUtils.getEmbed(sender);
+                i = 1;
+                for (String s : songs) {
+                    builder.appendField("Page " + i++, s, false);
+                }
+                MessageUtils.sendMessage(builder.build(), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

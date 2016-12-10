@@ -1,10 +1,10 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
+import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.music.MusicManager;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class SkipCommand implements Command {
 
-    private MusicManager musicManager;
+    private PlayerManager musicManager;
     private Map<String, Map<String, Vote>> votes = new HashMap<>();
     private Map<String, Boolean> skips = new HashMap<>();
 
@@ -25,8 +25,8 @@ public class SkipCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if (channel.getGuild().getConnectedVoiceChannel() == null || !musicManager.hasPlayer(channel.getGuild().getID())
-                || musicManager.getPlayer(channel.getGuild().getID()).getCurrentTrack() == null) {
+        if (channel.getGuild().getConnectedVoiceChannel() == null
+                || musicManager.getPlayer(channel.getGuild().getID()).getPlayingTrack() == null) {
             MessageUtils.sendMessage(channel, "I am not streaming!");
             return;
         }
@@ -35,36 +35,45 @@ public class SkipCommand implements Command {
         }
         if (args.length != 1) {
             if (votes.containsKey(channel.getGuild().getID())) {
-                MessageUtils.sendMessage(channel, "Can't start a vote right now! " +
-                        "Another one in progress! Please use _skip YES|NO to vote!");
-            } else getVotes(channel);
+                String yes = String.valueOf(votes.get(channel.getGuild().getID()).values().stream().filter(vote -> vote == Vote.YES)
+                        .count());
+                String no = String.valueOf(votes.get(channel.getGuild().getID()).values().stream().filter(vote -> vote == Vote.NO)
+                        .count());
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withColor(229, 45, 39)
+                        .withDesc("Can't start a vote right now! " +
+                        "Another one in progress! Please use _skip YES|NO to vote!")
+                        .appendField("Votes for YES:", yes, true).appendField("Votes for NO:", no, true).build(), channel);
+            } else getVotes(channel, sender);
         } else {
-            if(args[0].equalsIgnoreCase("force")){
-                musicManager.skip(channel.getGuild().getID());
+            if (args[0].equalsIgnoreCase("force")) {
+                musicManager.getPlayer(channel.getGuild().getID()).skip();
                 skips.put(channel.getGuild().getID(), true);
                 return;
             }
-            Map<String, Vote> mvotes = getVotes(channel);
+            Map<String, Vote> mvotes = getVotes(channel, sender);
             if (mvotes.containsKey(sender.getID())) {
-                MessageUtils.sendMessage(channel, "You already voted!");
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withColor(229, 45, 39)
+                        .withDesc("***\u26A0 You already voted! \u26A0***")
+                        .appendField("Your vote: ", mvotes.get(sender.getID()).toString(), true).build(), channel);
                 return;
             }
             try {
                 Vote vote = Vote.valueOf(args[0].toUpperCase());
                 mvotes.put(sender.getID(), vote);
             } catch (IllegalArgumentException e) {
-                MessageUtils.sendMessage(channel, "Please use yes or no!");
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                        .withColor(229, 45, 39).withDesc("***\u26A0 Use YES|NO! \u26A0***").build(), channel);
             }
         }
     }
 
-    private Map<String, Vote> getVotes(IChannel channel) {
+    private Map<String, Vote> getVotes(IChannel channel, IUser sender) {
         return this.votes.computeIfAbsent(channel.getGuild().getID(), s -> {
             new FlarebotTask("Vote " + s) {
 
                 @Override
                 public void run() {
-                    if(skips.getOrDefault(s, false)){
+                    if (skips.getOrDefault(s, false)) {
                         skips.remove(s);
                         votes.remove(s);
                         return;
@@ -73,15 +82,17 @@ public class SkipCommand implements Command {
                     boolean skip = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
                             .count() > (votes.size() / 2.0f);
-                    MessageUtils.sendMessage(channel, "The votes are in!!!\nResult: " + (skip ? "Skip!" : "Keep!"));
+                    MessageUtils.sendMessage(MessageUtils.getEmbed()
+                                                .withDesc("The votes are in!")
+                                                .appendField("Results: ", (skip ? "Skip!" : "Keep!"), false).build(), channel);
                     if (skip)
-                        musicManager.skip(s);
+                        musicManager.getPlayer(s).skip();
                     votes.remove(s);
                 }
             }.delay(20000);
-            MessageUtils.sendMessage(channel, "The vote to skip **" +
-                    musicManager.getPlayer(channel.getGuild().getID()).getCurrentTrack().getMetadata().get("name")
-                    + "** has started!\nUse _skip YES|NO to vote!");
+            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("The vote to skip **" +
+                    musicManager.getPlayer(channel.getGuild().getID()).getPlayingTrack().getMeta().get("name")
+                    + "** has started!\nUse _skip YES|NO to vote!").build(), channel);
             return new HashMap<>();
         });
     }
@@ -108,6 +119,11 @@ public class SkipCommand implements Command {
 
     private enum Vote {
         YES,
-        NO
+        NO;
+
+        @Override
+        public String toString() {
+            return Character.toUpperCase(name().charAt(0)) + name().substring(1);
+        }
     }
 }

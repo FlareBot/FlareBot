@@ -1,19 +1,8 @@
 package com.bwfcwalshy.flarebot.music;
 
-import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.music.extractors.Extractor;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
-import sx.blah.discord.util.audio.AudioPlayer;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+@Deprecated
 public class MusicManager {
-
+/*
     // Guild ID | Queue
     private Map<String, Player> players;
     private AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
@@ -85,5 +74,5 @@ public class MusicManager {
 
     public boolean hasPlayer(String id) {
         return players.containsKey(id);
-    }
+    }*/
 }

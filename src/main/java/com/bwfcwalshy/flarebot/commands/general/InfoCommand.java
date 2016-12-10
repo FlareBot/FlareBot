@@ -2,9 +2,9 @@ package com.bwfcwalshy.flarebot.commands.general;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.sun.management.OperatingSystemMXBean;
 import org.apache.commons.io.IOUtils;
 import sx.blah.discord.Discord4J;
@@ -12,6 +12,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.util.EmbedBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +51,11 @@ public class InfoCommand implements Command {
                 LOGGER.error("Could not compare git revisions!", e1);
             }
         }
+        EmbedBuilder bld = MessageUtils.getEmbed(sender).withThumbnail(MessageUtils.getAvatar(channel.getClient().getOurUser()));
+        bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
+        bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
+        bld.appendField("Voice Connections: ", String.valueOf(client.getConnectedVoiceChannels().size()), true);
+        bld.appendField("Servers: ", String.valueOf(client.getChannels(true).size()), true);
         String msg = "```FlareBot v" + FlareBot.getInstance().getVersion() + " Info"
                 + "\n" + DIVIDER
                 + "\nServers: " + client.getGuilds().size()

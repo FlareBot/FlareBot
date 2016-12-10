@@ -1,10 +1,10 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.music.Player;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -33,11 +33,11 @@ public class SaveCommand implements Command {
             MessageUtils.sendMessage(channel, "Name must be up to 20 characters!");
             return;
         }
-        if(!FlareBot.getInstance().getMusicManager().getPlayers().containsKey(channel.getGuild().getID())){
+        if(!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())){
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
         }
-        Queue<Player.Track> playlist = FlareBot.getInstance().getMusicManager().getPlayers().get(channel.getGuild().getID()).getPlaylist();
+        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).getPlaylist();
         if(playlist.isEmpty()){
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
@@ -68,11 +68,11 @@ public class SaveCommand implements Command {
                 statement.setString(1, finalName);
                 statement.setString(2, channel.getGuild().getID());
                 statement.setString(3, playlist.stream()
-                        .filter(track -> track.getMetadata().containsKey("id"))
-                        .map(track -> track.getMetadata().get("id"))
+                        .filter(track -> track.getMeta().containsKey("id"))
+                        .map(track -> track.getMeta().get("id").toString())
                         .collect(Collectors.joining(",")));
                 statement.executeUpdate();
-                MessageUtils.sendMessage(channel, "Success!");
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Success!").build(), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

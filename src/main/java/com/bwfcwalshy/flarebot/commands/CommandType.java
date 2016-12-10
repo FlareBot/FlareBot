@@ -1,5 +1,9 @@
 package com.bwfcwalshy.flarebot.commands;
 
+import com.bwfcwalshy.flarebot.FlareBot;
+
+import java.util.List;
+
 public enum CommandType {
 
     GENERAL,
@@ -14,5 +18,9 @@ public enum CommandType {
 
     public static CommandType[] getTypes(){
         return new CommandType[] {GENERAL, ADMINISTRATIVE, MUSIC};
+    }
+
+    public List<Command> getCommands() {
+        return FlareBot.getInstance().getCommandsByType(this);
     }
 }

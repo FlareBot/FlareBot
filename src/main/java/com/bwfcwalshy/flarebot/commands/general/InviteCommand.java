@@ -6,13 +6,29 @@ import com.bwfcwalshy.flarebot.commands.CommandType;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.Permissions;
+import sx.blah.discord.util.BotInviteBuilder;
+
+import java.util.EnumSet;
 
 public class InviteCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        MessageUtils.sendPM(sender, "You can invite me to your server using the link below!" +
-                "\nhttps://discordapp.com/oauth2/authorize?client_id=225652110493089792&scope=bot&&permissions=271584256");
+        MessageUtils.sendPM(sender, "You can invite me to your server using the link below!\n"
+                + new BotInviteBuilder(message.getClient()).withPermissions(EnumSet.of(
+                Permissions.CHANGE_NICKNAME,
+                Permissions.VOICE_CONNECT,
+                Permissions.VOICE_SPEAK,
+                Permissions.SEND_MESSAGES,
+                Permissions.READ_MESSAGE_HISTORY,
+                Permissions.READ_MESSAGES,
+                Permissions.EMBED_LINKS,
+                Permissions.MANAGE_ROLES,
+                Permissions.MANAGE_PERMISSIONS,
+                Permissions.VOICE_USE_VAD,
+                Permissions.MANAGE_MESSAGES // Optional
+        )));
     }
 
     @Override
@@ -26,5 +42,7 @@ public class InviteCommand implements Command {
     }
 
     @Override
-    public CommandType getType() { return CommandType.GENERAL; }
+    public CommandType getType() {
+        return CommandType.GENERAL;
+    }
 }

@@ -39,8 +39,11 @@ public class DeleteCommand implements Command {
                 update.setString(1, finalName);
                 update.setString(2, channel.getGuild().getID());
                 if (update.executeUpdate() > 0) {
-                    MessageUtils.sendMessage(channel, "Success!");
-                } else MessageUtils.sendMessage(channel, "That name was never taken!");
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc(String.format("*Removed the playlist %s*", finalName))
+                            .build(), channel);
+                } else MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                        .withDesc(String.format("*The playlist %s never existed!", finalName))
+                        .build(), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

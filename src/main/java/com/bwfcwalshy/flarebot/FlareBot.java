@@ -2,13 +2,15 @@ package com.bwfcwalshy.flarebot;
 
 import com.arsenarsen.githubwebhooks4j.GithubWebhooks4J;
 import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
+import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
+import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
 import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
 import com.bwfcwalshy.flarebot.github.GithubListener;
-import com.bwfcwalshy.flarebot.music.MusicManager;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
@@ -62,12 +64,7 @@ public class FlareBot {
     private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
 
-    public static void main(String[] args) throws ClassNotFoundException {
-        System.setErr(new PrintStream(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-            }
-        })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
+    public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException {
 //        FlareBot.args = args;
         Options options = new Options();
 
@@ -125,7 +122,7 @@ public class FlareBot {
     // Guild ID | List role ID
     private Map<String, List<String>> autoAssignRoles;
     private File roleFile;
-    private MusicManager musicManager;
+    private PlayerManager musicManager;
     private long startTime;
     private static String secret = null;
 
@@ -138,7 +135,7 @@ public class FlareBot {
         return this.permissions.getPermissions(channel);
     }
 
-    public void init(String tkn) {
+    public void init(String tkn) throws UnknownBindingException {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
@@ -146,7 +143,7 @@ public class FlareBot {
             client.getDispatcher().registerListener(new Events(this));
             Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
-            musicManager = new MusicManager(this);
+            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(client));
 
             roleFile = new File("roles.json");
             loadRoles();
@@ -166,6 +163,11 @@ public class FlareBot {
         } catch (DiscordException e) {
             LOGGER.error("Could not log in!", e);
         }
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+            }
+        })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
     }
 
     private void loadPerms() {
@@ -204,7 +206,7 @@ public class FlareBot {
     }
 
     protected void run() {
-        registerCommand(new HelpCommand(this));
+        registerCommand(new HelpCommand());
         registerCommand(new SearchCommand());
         registerCommand(new JoinCommand());
         registerCommand(new LeaveCommand());
@@ -278,6 +280,7 @@ public class FlareBot {
                 }
             }
         }.repeat(10, 600000);
+
         Scanner scanner = new Scanner(System.in);
 
         try {
@@ -408,7 +411,7 @@ public class FlareBot {
         return (hours < 10 ? "0" + hours : hours) + "h " + (minutes < 10 ? "0" + minutes : minutes) + "m " + (seconds < 10 ? "0" + seconds : seconds) + "s";
     }
 
-    public MusicManager getMusicManager() {
+    public PlayerManager getMusicManager() {
         return this.musicManager;
     }
 

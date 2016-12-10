@@ -19,7 +19,10 @@ public class LeaveCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        client.getConnectedVoiceChannels().stream().filter((IVoiceChannel voiceChannel) -> voiceChannel.getGuild().equals(message.getGuild())).findFirst().ifPresent(IVoiceChannel::leave);
+        client.getConnectedVoiceChannels().stream()
+                .filter((IVoiceChannel voiceChannel) -> voiceChannel.getGuild().equals(message.getGuild()))
+                .findFirst().ifPresent(IVoiceChannel::leave);
+        FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).setPaused(true);
     }
 
     @Override

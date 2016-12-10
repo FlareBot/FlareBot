@@ -1,5 +1,8 @@
 package com.bwfcwalshy.flarebot.music;
 
+import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
+import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.music.extractors.*;
@@ -12,7 +15,7 @@ import java.util.List;
 
 public class VideoThread extends Thread {
 
-    private static MusicManager manager;
+    private static PlayerManager manager;
     private static final List<Class<? extends Extractor>> extractors = Arrays.asList(YouTubeExtractor.class,
             SavedPlaylistExtractor.class);
     public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
@@ -22,7 +25,11 @@ public class VideoThread extends Thread {
     private Extractor extractor;
 
     private VideoThread() {
-        if (manager == null) manager = FlareBot.getInstance().getMusicManager();
+        if (manager == null) try {
+            manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(FlareBot.getInstance().getClient()));
+        } catch (UnknownBindingException e) {
+            e.printStackTrace(System.out);
+        }
         setName("Video Thread " + VIDEO_THREADS.activeCount());
     }
 
@@ -42,7 +49,8 @@ public class VideoThread extends Thread {
                 MessageUtils.editMessage(message, "Could not find a way to process that..");
                 return;
             }
-            extractor.process(url, manager.getPlayer(channel.getGuild().getID(), extractor), message, user);
+            manager.getManager().registerSourceManager(extractor.getSourceManagerClass().newInstance());
+            extractor.process(url, manager.getPlayer(channel.getGuild().getID()), message, user);
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not init extractor for '{}'".replace("{}", url), e);
             MessageUtils.editMessage(message, "Something went wrong. This incident has been reported. Sorry :/");
