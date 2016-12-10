@@ -52,7 +52,7 @@ public class Events {
                         } catch (DiscordException e1) {
                             FlareBot.LOGGER.error("Could not auto-assign a role!", e1);
                         } catch (MissingPermissionsException e1) {
-                            if(!e1.getErrorMessage().startsWith("Edited roles")){
+                            if (!e1.getErrorMessage().startsWith("Edited roles")) {
                                 MessageUtils.sendPM(e.getGuild().getOwner(), "**Could not auto assign a role!**\n" + e1.getErrorMessage());
                                 return;
                             }
@@ -62,7 +62,7 @@ public class Events {
                             message.append(role.getName()).append("`` to one of your new users!\n");
                             message.append("Please move one of the following roles above ``").append(role.getName())
                                     .append("`` in your server's role tab!\n```");
-                            for(IRole i : FlareBot.getInstance().getClient().getOurUser().getRolesForGuild(role.getGuild())){
+                            for (IRole i : FlareBot.getInstance().getClient().getOurUser().getRolesForGuild(role.getGuild())) {
                                 message.append(i.getName()).append('\n');
                             }
                             message.append("\n```\nSo the role can be given.**");
@@ -81,14 +81,16 @@ public class Events {
                 && e.getMessage().getAuthor() != null && !e.getMessage().getAuthor().isBot()) {
             EnumSet<Permissions> perms = e.getMessage().getChannel()
                     .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
-            if(!perms.contains(Permissions.SEND_MESSAGES) && !perms.contains(Permissions.ADMINISTRATOR)){
-                return;
-            }
-            if(!perms.contains(Permissions.EMBED_LINKS)){
-                MessageUtils.sendMessage(e.getMessage().getChannel(), "Hey! I can't be used here." +
-                        "\nI do not have the `Embed Links` permission! Please go to your permissions adn give me Embed Links." +
-                        "\nThanks :D");
-                return;
+            if (!perms.contains(Permissions.ADMINISTRATOR)) {
+                if (!perms.contains(Permissions.SEND_MESSAGES)) {
+                    return;
+                }
+                if (!perms.contains(Permissions.EMBED_LINKS)) {
+                    MessageUtils.sendMessage(e.getMessage().getChannel(), "Hey! I can't be used here." +
+                            "\nI do not have the `Embed Links` permission! Please go to your permissions adn give me Embed Links." +
+                            "\nThanks :D");
+                    return;
+                }
             }
             String message = e.getMessage().getContent();
             String command = message.substring(1);
