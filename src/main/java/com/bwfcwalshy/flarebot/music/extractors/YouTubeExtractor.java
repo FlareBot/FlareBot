@@ -70,6 +70,8 @@ public class YouTubeExtractor implements Extractor {
                     .appendField("Songs:", String.valueOf(c), false).build(), message);
         } else {
             try {
+                if (input.contains("&"))
+                    input = input.substring(input.indexOf('&'));
                 Track track = new Track((AudioTrack) player.resolve(input));
                 track.getMeta().put("name", title);
                 if (input.contains("&")) input = input.substring(input.indexOf('&'));
