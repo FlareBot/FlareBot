@@ -23,17 +23,14 @@ import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
 public class InfoCommand implements Command {
 
-    private FlareBot flareBot;
     private IDiscordClient client;
     private Runtime runtime;
 
     public InfoCommand(FlareBot flareBot) {
-        this.flareBot = flareBot;
         this.client = flareBot.getClient();
         this.runtime = Runtime.getRuntime();
     }
 
-    private static final String DIVIDER = "+----------------------------------+";
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
@@ -44,7 +41,7 @@ public class InfoCommand implements Command {
                 p.directory(new File("FlareBot" + File.separator));
                 Process pr = p.start();
                 pr.waitFor();
-                if(pr.exitValue() == 0){
+                if (pr.exitValue() == 0) {
                     git = IOUtils.toString(pr.getInputStream(), Charset.defaultCharset());
                 }
             } catch (InterruptedException | IOException e1) {
@@ -55,28 +52,23 @@ public class InfoCommand implements Command {
         bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
         bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
         bld.appendField("Voice Connections: ", String.valueOf(client.getConnectedVoiceChannels().size()), true);
-        bld.appendField("Servers: ", String.valueOf(client.getChannels(true).size()), true);
-        String msg = "```FlareBot v" + FlareBot.getInstance().getVersion() + " Info"
-                + "\n" + DIVIDER
-                + "\nServers: " + client.getGuilds().size()
-                + "\nVoice Channels: " + client.getConnectedVoiceChannels().size()
-                + "\nText Channels: " + client.getChannels().size()
-                + "\nUptime: " + flareBot.getUptime()
-                + "\nMemory Usage: " + getMb(runtime.totalMemory() - runtime.freeMemory())
-                + "\nFree Memory: " + getMb(runtime.freeMemory())
-                + "\nVideo download and search threads: " + VideoThread.VIDEO_THREADS.activeCount()
-                + "\nTotal threads: " + Thread.getAllStackTraces().size()
-                + "\nDiscord4J Version: " + Discord4J.VERSION + '\n'
-                + (git != null ? "Current git revision: " + git + '\n' : "")
-                + "CPU Usage: " + ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f
-                + "%\n" + DIVIDER
-                + "\nSupport Server: http://discord.me/flarebot"
-                + "\nDonate to our host: https://www.paypal.me/CaptainBaconz"
-                + "\nMade with love by bwfcwalshy#1284 and Arsen#3291\n"
-                + "```\n"
-                + "https://github.com/ArsenArsen/FlareBot";
+        bld.appendField("Text Channels: ", String.valueOf(client.getChannels(true).size()), true);
+        bld.appendField("Uptime: ", FlareBot.getInstance().getUptime(), true);
+        bld.appendField("Memory Usage: ", getMb(runtime.totalMemory() - runtime.freeMemory()), true);
+        bld.appendField("Memory Free: ", getMb(runtime.freeMemory()), true);
+        bld.appendField("Video download and search threads: ", String.valueOf(VideoThread.VIDEO_THREADS.activeCount()), true);
+        bld.appendField("Total threads: ", String.valueOf(Thread.getAllStackTraces().size()), true);
+        bld.appendField("Discord4J Version: ", Discord4J.VERSION, true);
+        if (git != null)
+            bld.appendField("Git revision: ", git, true);
+        bld.appendField("CPU Usage: ",
+                ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%", true);
+        bld.appendField("Support Server: ", "[`link`](http://discord.me/flarebot)", true);
+        bld.appendField("Donate to our host: ", "[`link`](https://www.paypal.me/CaptainBaconz)", true);
+        bld.appendField("Made By: ", "bwfcwalshy#1284 and Arsen#3291", true);
+        bld.appendField("Source: ", "[`link`](https://github.com/ArsenArsen/FlareBot)", true);
 
-        MessageUtils.sendMessage(channel, msg);
+        MessageUtils.sendMessage(bld.build(), channel);
     }
 
     private String getMb(long bytes) {
