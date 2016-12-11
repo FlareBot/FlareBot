@@ -543,6 +543,22 @@ public class FlareBot {
         return null;
     }
 
+    public String getInvite() {
+        return new BotInviteBuilder(client).withPermissions(EnumSet.of(
+                sx.blah.discord.handle.obj.Permissions.CHANGE_NICKNAME,
+                sx.blah.discord.handle.obj.Permissions.VOICE_CONNECT,
+                sx.blah.discord.handle.obj.Permissions.VOICE_SPEAK,
+                sx.blah.discord.handle.obj.Permissions.SEND_MESSAGES,
+                sx.blah.discord.handle.obj.Permissions.READ_MESSAGE_HISTORY,
+                sx.blah.discord.handle.obj.Permissions.READ_MESSAGES,
+                sx.blah.discord.handle.obj.Permissions.EMBED_LINKS,
+                sx.blah.discord.handle.obj.Permissions.MANAGE_ROLES,
+                sx.blah.discord.handle.obj.Permissions.MANAGE_PERMISSIONS,
+                sx.blah.discord.handle.obj.Permissions.VOICE_USE_VAD,
+                sx.blah.discord.handle.obj.Permissions.MANAGE_MESSAGES // Optional
+        )).build();
+    }
+
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
     }
 

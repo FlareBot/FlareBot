@@ -63,10 +63,13 @@ public class InfoCommand implements Command {
             bld.appendField("Git revision: ", git, true);
         bld.appendField("CPU Usage: ",
                 ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%", true);
-        bld.appendField("Support Server: ", "[`link`](http://discord.me/flarebot)", true);
-        bld.appendField("Donate to our host: ", "[`link`](https://www.paypal.me/CaptainBaconz)", true);
+        bld.appendField("Support Server: ", "[`Discord`](http://discord.me/flarebot)", true);
+        bld.appendField("Donate to our host: ", "[`PayPal`](https://www.paypal.me/CaptainBaconz)", true);
+        bld.appendField("Donate to our host: ", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite()), true);
+        bld.appendField("\u200B", "\u200B", true);
+        bld.appendField("\u200B", "\u200B", true);
         bld.appendField("Made By: ", "bwfcwalshy#1284 and Arsen#3291", true);
-        bld.appendField("Source: ", "[`link`](https://github.com/ArsenArsen/FlareBot)", true);
+        bld.appendField("Source: ", "[`GitHub`](https://github.com/ArsenArsen/FlareBot)", true);
 
         MessageUtils.sendMessage(bld.build(), channel);
     }
