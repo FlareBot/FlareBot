@@ -25,16 +25,9 @@ public class InfoCommand implements Command {
 
     private IDiscordClient client;
     private Runtime runtime;
+    private static String git = null;
 
-    public InfoCommand(FlareBot flareBot) {
-        this.client = flareBot.getClient();
-        this.runtime = Runtime.getRuntime();
-    }
-
-
-    @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        String git = null;
+    static {
         if (new File("FlareBot" + File.separator).exists()) {
             try {
                 ProcessBuilder p = new ProcessBuilder("git", "log", "--pretty=format:'%h'", "-n", "1");
@@ -48,6 +41,16 @@ public class InfoCommand implements Command {
                 LOGGER.error("Could not compare git revisions!", e1);
             }
         }
+    }
+
+    public InfoCommand(FlareBot flareBot) {
+        this.client = flareBot.getClient();
+        this.runtime = Runtime.getRuntime();
+    }
+
+
+    @Override
+    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         EmbedBuilder bld = MessageUtils.getEmbed(sender).withThumbnail(MessageUtils.getAvatar(channel.getClient().getOurUser()));
         bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
         bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
@@ -91,5 +94,9 @@ public class InfoCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.GENERAL;
+    }
+
+    public static String gitGit(){
+        return git;
     }
 }

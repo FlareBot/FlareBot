@@ -18,7 +18,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
     public void process(String input, Player player, IMessage message, IUser user) throws Exception {
         Document doc = Jsoup.connect(SEARCH_URL + URLEncoder.encode(input, "UTF-8")).get();
         int i = 0;
-        List<Element> videoElements = doc.getElementsByClass("yt-lockup-title");
+        List<Element> videoElements = doc.getElementsByClass("yt-lockup-tile");
         if (videoElements.isEmpty()) {
             MessageUtils.editMessage(MessageUtils.getEmbed(user).withDesc("Could not find any results for **" + input + "**!").build(), message);
             return;
