@@ -71,7 +71,7 @@ public class YouTubeExtractor implements Extractor {
         } else {
             try {
                 if (input.contains("&"))
-                    input = input.substring(input.indexOf('&'));
+                    input = input.substring(0, input.indexOf('&'));
                 Track track = new Track((AudioTrack) player.resolve(input));
                 track.getMeta().put("name", title);
                 if (input.contains("&")) input = input.substring(input.indexOf('&'));
