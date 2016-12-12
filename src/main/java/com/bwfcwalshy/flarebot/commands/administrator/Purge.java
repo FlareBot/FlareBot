@@ -17,16 +17,16 @@ import java.util.stream.Collectors;
 public class Purge implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length == 1 && args[0].matches("\\d+")){
+        if (args.length == 1 && args[0].matches("\\d+")) {
             int count = Math.min(Integer.parseInt(args[0]), 100);
-            if(count < 2){
+            if (count < 2) {
                 MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages!").build(), channel);
             }
             RequestBuffer.request(() -> {
                 channel.getMessages().setCacheCapacity(count);
-                boolean loaded  = channel.getMessages().load(count);
-                if(loaded){
+                boolean loaded = channel.getMessages().load(count);
+                if (loaded) {
                     try {
                         List<IMessage> list = channel.getMessages().stream().limit(99)
                                 .collect(Collectors.toList());
@@ -41,12 +41,15 @@ public class Purge implements Command {
                                 .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
                     } catch (MissingPermissionsException e) {
                         MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                                .withDesc("I do not have the `Manage Messages` permission!\n"+e.getMessage()).build(),
+                                        .withDesc("I do not have the `Manage Messages` permission!\n" + e.getMessage()).build(),
                                 channel);
                     }
                 } else MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Could not load in messages!").build(), channel);
             });
+        } else {
+            MessageUtils.sendMessage(MessageUtils
+                    .getEmbed(sender).withDesc("Bad arguments!\n" + getDescription()).build(), channel);
         }
     }
 
