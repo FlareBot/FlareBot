@@ -41,13 +41,18 @@ public class SkipCommand implements Command {
                         .count());
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withColor(229, 45, 39)
                         .withDesc("Can't start a vote right now! " +
-                        "Another one in progress! Please use _skip YES|NO to vote!")
+                                "Another one in progress! Please use _skip YES|NO to vote!")
                         .appendField("Votes for YES:", yes, true).appendField("Votes for NO:", no, true).build(), channel);
             } else getVotes(channel, sender);
         } else {
             if (args[0].equalsIgnoreCase("force")) {
-                musicManager.getPlayer(channel.getGuild().getID()).skip();
-                skips.put(channel.getGuild().getID(), true);
+                if (getPermissions(channel).hasPermission(sender, "flarebot.skip.force")) {
+                    musicManager.getPlayer(channel.getGuild().getID()).skip();
+                    skips.put(channel.getGuild().getID(), true);
+                } else {
+                    MessageUtils.sendMessage(channel,
+                            "You are missing the permission ``flarebot.skip.force`` which is required for use of this command!");
+                }
                 return;
             }
             Map<String, Vote> mvotes = getVotes(channel, sender);
@@ -83,8 +88,8 @@ public class SkipCommand implements Command {
                             .filter(e -> e.getValue() == Vote.YES)
                             .count() > (votes.size() / 2.0f);
                     MessageUtils.sendMessage(MessageUtils.getEmbed()
-                                                .withDesc("The votes are in!")
-                                                .appendField("Results: ", (skip ? "Skip!" : "Keep!"), false).build(), channel);
+                            .withDesc("The votes are in!")
+                            .appendField("Results: ", (skip ? "Skip!" : "Keep!"), false).build(), channel);
                     if (skip)
                         musicManager.getPlayer(s).skip();
                     votes.remove(s);
