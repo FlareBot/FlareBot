@@ -11,6 +11,7 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,30 +19,54 @@ public class Purge implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (args.length == 1 && args[0].matches("\\d+")) {
-            int count = Math.min(Integer.parseInt(args[0]), 100);
+            int count = Integer.parseInt(args[0]);
             if (count < 2) {
                 MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages!").build(), channel);
+                return;
             }
             RequestBuffer.request(() -> {
                 channel.getMessages().setCacheCapacity(count);
-                boolean loaded = channel.getMessages().load(count);
+                boolean loaded = true;
+                while (channel.getMessages().size() < count)
+                    loaded &= channel.getMessages().load(Math.min(count, 100));
                 if (loaded) {
                     try {
-                        List<IMessage> list = channel.getMessages().stream().limit(99)
-                                .collect(Collectors.toList());
-                        channel.getMessages().bulkDelete(list);
+                        List<IMessage> list = channel.getMessages().stream().collect(Collectors.toList());
+                        List<IMessage> toDelete = new ArrayList<>();
+                        for (IMessage msg : list) {
+                            if (toDelete.size() > 99) {
+                                RequestBuffer.request(() -> {
+                                    try {
+                                        channel.getMessages().bulkDelete(toDelete);
+                                    } catch (DiscordException e) {
+                                        FlareBot.LOGGER.error("Could not bulk delete!", e);
+                                        MessageUtils.sendMessage(MessageUtils
+                                                .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
+                                    } catch (MissingPermissionsException e) {
+                                        MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                                                        .withDesc("I do not have the `Manage Messages` permission!").build(),
+                                                channel);
+                                    }
+                                });
+                                toDelete.clear();
+                            }
+                            toDelete.add(msg);
+                        }
+                        channel.getMessages().bulkDelete(toDelete);
                         channel.getMessages().setCacheCapacity(0);
                         MessageUtils.sendMessage(MessageUtils
                                 .getEmbed(sender).withDesc(":+1: Deleted!")
                                 .appendField("Message Count: ", String.valueOf(list.size()), true).build(), channel);
                     } catch (DiscordException e) {
                         FlareBot.LOGGER.error("Could not bulk delete!", e);
+                        channel.getMessages().setCacheCapacity(0);
                         MessageUtils.sendMessage(MessageUtils
                                 .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
                     } catch (MissingPermissionsException e) {
+                        channel.getMessages().setCacheCapacity(0);
                         MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                                        .withDesc("I do not have the `Manage Messages` permission!\n" + e.getMessage()).build(),
+                                        .withDesc("I do not have the `Manage Messages` permission!").build(),
                                 channel);
                     }
                 } else MessageUtils.sendMessage(MessageUtils
