@@ -32,47 +32,23 @@ public class Purge implements Command {
             RequestBuffer.request(() -> {
                 channel.getMessages().setCacheCapacity(count);
                 boolean loaded = true;
-                while (channel.getMessages().size() < count)
-                    loaded &= channel.getMessages().load(Math.min(count, 100));
+                while (loaded && channel.getMessages().size() < count)
+                    loaded = channel.getMessages().load(Math.min(count, 100));
                 if (loaded) {
-                    try {
-                        List<IMessage> list = channel.getMessages().stream().collect(Collectors.toList());
-                        List<IMessage> toDelete = new ArrayList<>();
-                        for (IMessage msg : list) {
-                            if (toDelete.size() > 99) {
-                                RequestBuffer.request(() -> {
-                                    try {
-                                        channel.getMessages().bulkDelete(toDelete);
-                                    } catch (DiscordException e) {
-                                        FlareBot.LOGGER.error("Could not bulk delete!", e);
-                                        MessageUtils.sendMessage(MessageUtils
-                                                .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
-                                    } catch (MissingPermissionsException e) {
-                                        MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                                                        .withDesc("I do not have the `Manage Messages` permission!").build(),
-                                                channel);
-                                    }
-                                });
-                                toDelete.clear();
-                            }
-                            toDelete.add(msg);
+                    List<IMessage> list = channel.getMessages().stream().collect(Collectors.toList());
+                    List<IMessage> toDelete = new ArrayList<>();
+                    for (IMessage msg : list) {
+                        if (toDelete.size() > 99) {
+                            bulk(toDelete, channel, sender);
+                            toDelete.clear();
                         }
-                        channel.getMessages().bulkDelete(toDelete);
-                        channel.getMessages().setCacheCapacity(0);
-                        MessageUtils.sendMessage(MessageUtils
-                                .getEmbed(sender).withDesc(":+1: Deleted!")
-                                .appendField("Message Count: ", String.valueOf(list.size()), true).build(), channel);
-                    } catch (DiscordException e) {
-                        FlareBot.LOGGER.error("Could not bulk delete!", e);
-                        channel.getMessages().setCacheCapacity(0);
-                        MessageUtils.sendMessage(MessageUtils
-                                .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
-                    } catch (MissingPermissionsException e) {
-                        channel.getMessages().setCacheCapacity(0);
-                        MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                                        .withDesc("I do not have the `Manage Messages` permission!").build(),
-                                channel);
+                        toDelete.add(msg);
                     }
+                    bulk(toDelete, channel, sender);
+                    channel.getMessages().setCacheCapacity(0);
+                    MessageUtils.sendMessage(MessageUtils
+                            .getEmbed(sender).withDesc(":+1: Deleted!")
+                            .appendField("Message Count: ", String.valueOf(list.size()), true).build(), channel);
                 } else MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Could not load in messages!").build(), channel);
             });
@@ -80,6 +56,22 @@ public class Purge implements Command {
             MessageUtils.sendMessage(MessageUtils
                     .getEmbed(sender).withDesc("Bad arguments!\n" + getDescription()).build(), channel);
         }
+    }
+
+    private void bulk(List<IMessage> toDelete, IChannel channel, IUser sender) {
+        RequestBuffer.request(() -> {
+            try {
+                channel.getMessages().bulkDelete(toDelete);
+            } catch (DiscordException e) {
+                FlareBot.LOGGER.error("Could not bulk delete!", e);
+                MessageUtils.sendMessage(MessageUtils
+                        .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
+            } catch (MissingPermissionsException e) {
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                                .withDesc("I do not have the `Manage Messages` permission!").build(),
+                        channel);
+            }
+        });
     }
 
     @Override
