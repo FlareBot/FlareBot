@@ -24,7 +24,7 @@ public class YouTubeExtractor implements Extractor {
     public static final String YOUTUBE_URL = "https://www.youtube.com";
     public static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=";
     public static final String WATCH_URL = "https://www.youtube.com/watch?v=";
-    public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:(?:www\\.)|(?:m\\.))?(?:youtube\\.com))/(?:(?:watch\\?v=([^?&\\n]+)(?:&(?:[^?&\\n]+=(?:[^?&\\n]+)+))?)|(?:playlist\\?list=([^&?]+))(?:&[^&]*=[^&]+)?))|(?:youtu\\.be/(.*)))";
+    public static String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:(?:www\\.)|(?:m\\.))?(?:youtube\\.com))/(?:(?:watch\\?v=([^?&\\n]+)(?:&(?:[^?&\\n]+=(?:[^?&\\n]+)))*)|(?:playlist\\?list=([^&?]+))(?:&[^&]*=[^&]+)?))|(?:youtu\\.be/(.*)))";
     public static Pattern YT_PATTERN = Pattern.compile(ANY_YT_URL);
     public static final String ANY_PLAYLIST = "https?://(www\\.)?youtube\\.com/playlist\\?list=([0-9A-z+-]*)(&.*=.*)*";
     private static final Pattern MIX_PATTERN = Pattern.compile("(?:https?://)(?:(?:www\\.)|(?:m\\.))?youtube\\.com/watch\\?v=(.+)&list=RD(.+)");
