@@ -7,14 +7,10 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +18,7 @@ public class YouTubeExtractor implements Extractor {
     public static final String YOUTUBE_URL = "https://www.youtube.com";
     public static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=";
     public static final String WATCH_URL = "https://www.youtube.com/watch?v=";
+    public static final String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:(?:www\\.)|(?:m\\.))?(?:youtube\\.com))/(?:(?:watch\\?v=([^?&\\n]+)(?:&(?:[^?&\\n]+=(?:[^?&\\n]+)))*)|(?:playlist\\?list=([^&?]+))(?:&[^&]*=[^&]+)?))|(?:youtu\\.be/(.*)))";
 
     @Override
     public Class<? extends AudioSourceManager> getSourceManagerClass() {
@@ -55,12 +52,6 @@ public class YouTubeExtractor implements Extractor {
 
     @Override
     public boolean valid(String input) {
-        try {
-            URL url = new URL(input);
-            Document doc = Jsoup.connect(input).get();
-            return doc.title().endsWith("YouTube") && !doc.title().equals("YouTube");
-        } catch (IOException e) {
-            return false;
-        }
+        return input.matches(ANY_YT_URL);
     }
 }

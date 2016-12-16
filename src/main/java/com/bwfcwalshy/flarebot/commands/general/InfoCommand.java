@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
-import java.util.Objects;
 
 import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
@@ -58,7 +57,7 @@ public class InfoCommand implements Command {
         bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
         bld.appendField("Voice Connections: ", String.valueOf(client.getGuilds().stream().map(IDiscordObject::getID)
                 .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
-                .filter(Objects::nonNull).map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
+                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
                 .filter(p -> p.getPlayingTrack() != null)
                 .filter(p -> !p.getPaused()).count()), true);
         bld.appendField("Text Channels: ", String.valueOf(client.getChannels(false).size()), true);

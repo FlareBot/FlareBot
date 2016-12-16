@@ -47,6 +47,7 @@ public class FlareBot {
 
     private static FlareBot instance;
     public static String passwd;
+    private static String youtubeApi;
 
     //    private static String[] args;
     static {
@@ -95,6 +96,12 @@ public class FlareBot {
         dBots.setRequired(false);
         options.addOption(dBots);
 
+        Option youtubeApi = new Option("yt", true, "YouTube search API token");
+        youtubeApi.setArgName("yt-api-token");
+        youtubeApi.setLongOpt("yt-api-token");
+        youtubeApi.setRequired(true);
+        options.addOption(youtubeApi);
+
         String tkn;
         try {
             CommandLineParser parser = new DefaultParser();
@@ -106,6 +113,7 @@ public class FlareBot {
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
+            FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/ArsenArsen/FlareBot", true);
@@ -569,5 +577,9 @@ public class FlareBot {
 
     public IChannel getUpdateChannel() {
         return getClient().getChannelByID("226786557862871040");
+    }
+
+    public static String getYoutubeKey(){
+        return youtubeApi;
     }
 }

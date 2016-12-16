@@ -20,13 +20,18 @@ import java.util.stream.Collectors;
 
 public class Eval implements Command {
     private ScriptEngineManager manager = new ScriptEngineManager();
-    private ScriptEngine engine = manager.getEngineByName("nashorn");
     private static final ThreadGroup EVALS = new ThreadGroup("Eval Thread Pool");
     private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r, EVALS.getName()));
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (getPermissions(channel).isCreator(sender)) {
+            ScriptEngine engine = manager.getEngineByName("nashorn");
+            engine.put("channel", channel);
+            engine.put("guild", channel.getGuild());
+            engine.put("message", message);
+            engine.put("client", sender.getClient());
+            engine.put("sender", sender);
             String code = Arrays.stream(args).collect(Collectors.joining(" "));
             POOL.submit(() -> {
                 try {
