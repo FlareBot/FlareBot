@@ -48,7 +48,7 @@ public class Purge implements Command {
                     channel.getMessages().setCacheCapacity(0);
                     MessageUtils.sendMessage(MessageUtils
                             .getEmbed(sender).withDesc(":+1: Deleted!")
-                            .appendField("Message Count: ", String.valueOf(list.size()), true).build(), channel);
+                            .appendField("Message Count: ", String.valueOf(count), true).build(), channel);
                 } else MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Could not load in messages!").build(), channel);
             });

@@ -32,7 +32,7 @@ public class PlaylistCommand implements Command {
             Iterator<Track> it = manager.getPlayer(channel.getGuild().getID()).getPlaylist().iterator();
             while (it.hasNext() && songs.size() < 25) {
                 Track next = it.next();
-                String toAppend = String.format("%s. %s\n", i++, next.getMeta().get("name"));
+                String toAppend = String.format("%s. %s\n", i++, next.getTrack().getInfo().title);
                 if (sb.length() + toAppend.length() > 1024) {
                     songs.add(sb.toString());
                     sb = new StringBuilder();

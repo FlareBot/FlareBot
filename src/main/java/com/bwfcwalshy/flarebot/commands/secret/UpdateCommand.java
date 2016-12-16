@@ -1,4 +1,4 @@
-package com.bwfcwalshy.flarebot.commands.administrator;
+package com.bwfcwalshy.flarebot.commands.secret;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;

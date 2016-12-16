@@ -14,25 +14,31 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class Eval implements Command {
     private ScriptEngineManager manager = new ScriptEngineManager();
     private ScriptEngine engine = manager.getEngineByName("nashorn");
+    private static final ThreadGroup EVALS = new ThreadGroup("Eval Thread Pool");
+    private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r, EVALS.getName()));
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (getPermissions(channel).isCreator(sender)) {
             String code = Arrays.stream(args).collect(Collectors.joining(" "));
-            try {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .appendField("Code:", "```js\n" + code + "```", false)
-                        .appendField("Result: ", "```js\n" + engine.eval(code) + "```", false).build(), channel);
-            } catch (ScriptException e) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .appendField("Code:", "```js\n" + code + "```", false)
-                        .appendField("Result: ", "```js\n" + e.getMessage() + "```", false).build(), channel);
-            }
+            POOL.submit(() -> {
+                try {
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                            .appendField("Code:", "```js\n" + code + "```", false)
+                            .appendField("Result: ", "```js\n" + engine.eval(code) + "```", false).build(), channel);
+                } catch (ScriptException e) {
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                            .appendField("Code:", "```js\n" + code + "```", false)
+                            .appendField("Result: ", "```js\n" + e.getMessage() + "```", false).build(), channel);
+                }
+            });
         } else {
             RequestBuffer.request(() -> {
                 try {

@@ -68,8 +68,7 @@ public class SaveCommand implements Command {
                 statement.setString(1, finalName);
                 statement.setString(2, channel.getGuild().getID());
                 statement.setString(3, playlist.stream()
-                        .filter(track -> track.getMeta().containsKey("id"))
-                        .map(track -> track.getMeta().get("id").toString())
+                        .map(track -> track.getTrack().getIdentifier())
                         .collect(Collectors.joining(",")));
                 statement.executeUpdate();
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Success!").build(), channel);

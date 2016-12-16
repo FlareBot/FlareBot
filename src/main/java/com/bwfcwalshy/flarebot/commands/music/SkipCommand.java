@@ -96,7 +96,7 @@ public class SkipCommand implements Command {
                 }
             }.delay(20000);
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("The vote to skip **" +
-                    musicManager.getPlayer(channel.getGuild().getID()).getPlayingTrack().getMeta().get("name")
+                    musicManager.getPlayer(channel.getGuild().getID()).getPlayingTrack().getTrack().getInfo().title
                     + "** has started!\nUse _skip YES|NO to vote!").build(), channel);
             return new HashMap<>();
         });
