@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IDiscordObject;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.EmbedBuilder;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
@@ -54,8 +56,12 @@ public class InfoCommand implements Command {
         EmbedBuilder bld = MessageUtils.getEmbed(sender).withThumbnail(MessageUtils.getAvatar(channel.getClient().getOurUser()));
         bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
         bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
-        bld.appendField("Voice Connections: ", String.valueOf(client.getConnectedVoiceChannels().size()), true);
-        bld.appendField("Text Channels: ", String.valueOf(client.getChannels(true).size()), true);
+        bld.appendField("Voice Connections: ", String.valueOf(client.getGuilds().stream().map(IDiscordObject::getID)
+                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
+                .filter(Objects::nonNull).map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
+                .filter(p -> p.getPlayingTrack() != null)
+                .filter(p -> !p.getPaused()).count()), true);
+        bld.appendField("Text Channels: ", String.valueOf(client.getChannels(false).size()), true);
         bld.appendField("Uptime: ", FlareBot.getInstance().getUptime(), true);
         bld.appendField("Memory Usage: ", getMb(runtime.totalMemory() - runtime.freeMemory()), true);
         bld.appendField("Memory Free: ", getMb(runtime.freeMemory()), true);
@@ -96,7 +102,7 @@ public class InfoCommand implements Command {
         return CommandType.GENERAL;
     }
 
-    public static String gitGit(){
+    public static String gitGit() {
         return git;
     }
 }
