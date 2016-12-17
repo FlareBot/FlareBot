@@ -27,7 +27,15 @@ public class YouTubeExtractor implements Extractor {
 
     @Override
     public void process(String input, Player player, IMessage message, IUser user) throws Exception {
-        AudioItem item = player.resolve(input);
+        AudioItem item;
+        try {
+            item = player.resolve(input);
+        } catch (RuntimeException e) {
+            MessageUtils.editMessage(MessageUtils.getEmbed(user)
+                    .withDesc("Could not get that video/playlist!")
+                    .appendField("YouTube said: ", e.getMessage(), true).build(), message);
+            return;
+        }
         List<AudioTrack> tracks = new ArrayList<>();
         String name;
         if (item instanceof AudioPlaylist) {
@@ -39,7 +47,7 @@ public class YouTubeExtractor implements Extractor {
             tracks.add(track);
             name = track.getInfo().title;
         }
-        if(name != null) {
+        if (name != null) {
             for (AudioTrack t : tracks) {
                 player.queue(t);
             }
