@@ -32,6 +32,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
                 } else {
                     link = WATCH_URL + id.getString("videoId");
                 }
+                break;
             }
         }
         if(link == null){

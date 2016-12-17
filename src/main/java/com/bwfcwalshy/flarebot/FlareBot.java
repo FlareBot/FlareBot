@@ -11,6 +11,7 @@ import com.bwfcwalshy.flarebot.commands.administrator.*;
 import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
 import com.bwfcwalshy.flarebot.commands.secret.Eval;
+import com.bwfcwalshy.flarebot.commands.secret.LogsCommands;
 import com.bwfcwalshy.flarebot.commands.secret.QuitCommand;
 import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.github.GithubListener;
