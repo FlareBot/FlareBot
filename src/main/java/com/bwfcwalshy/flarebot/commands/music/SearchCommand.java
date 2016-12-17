@@ -53,11 +53,12 @@ public class SearchCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Search for a song on YouTube.";
+        return "Search for a song on YouTube. Usage: `_search URL` or `_search WORDS`";
     }
 
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }
+
 }

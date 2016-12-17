@@ -12,19 +12,32 @@ import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Purge implements Command {
+    private Map<String, Long> cooldowns = new HashMap<>();
+    private static final long cooldown = 60000;
+
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(channel.isPrivate()){
+        if (channel.isPrivate()) {
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Cannot purge in DMs!").build(), channel);
             return;
         }
         if (args.length == 1 && args[0].matches("\\d+")) {
+            long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getID(), n -> 0L);
+            if (System.currentTimeMillis() - calmitdood < cooldown) {
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                        .withDesc(String.format("You are on a cooldown! %s seconds left!",
+                                (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build(), channel);
+                return;
+            }
+            cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
             int count = Integer.parseInt(args[0]);
-            if (count < 2) {
+            if (count < 2 || count > 200) {
                 MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages!").build(), channel);
                 return;

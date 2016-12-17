@@ -44,7 +44,8 @@ public class YouTubeExtractor implements Extractor {
                 player.queue(t);
             }
             EmbedBuilder builder = MessageUtils.getEmbed(user);
-            builder.withDesc(String.format("%s added the playlist [`%s`](%s)", user, name, input));
+            builder.withDesc(String.format("%s added the %s [`%s`](%s)", tracks.size() == 1 ? "song" : "playlist",
+                    user, name, input));
             builder.appendField("Song count:", String.valueOf(tracks.size()), true);
             MessageUtils.editMessage("", builder.build(), message);
         }

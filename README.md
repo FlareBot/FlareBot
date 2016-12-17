@@ -14,9 +14,9 @@ Brand new Discord music bot made with Discord4J in Java
 | welcome | Add welcome messages to the server. | flarebot.welcome | - |
 | permissions | Handle server permissions. | flarebot.permissions | perms, perm |
 | search | Search for a song by name or link | - | - |
-| play | Play the music | - | resume |
+| play | Resumes the music | - | resume |
 | pause | Pause the playing music | - | - |
-| stop | Stops the music from playing | - | - |
+| stop | Stops the music from playing | flarebot.stop | - |
 | skip | Skips the current song | - | - |
 | shuffle | Shuffle the songs up | - | - |
 | volume | Change the volume | - | - |
@@ -27,7 +27,7 @@ Brand new Discord music bot made with Discord4J in Java
 | save | Saves the current playlist | flarebot.playlist.save | - |
 | playlists | Shows the list of all playlists in this guild | - | - |
 | loop | Sets the current playlist into loop more or out of it | flarebot.loop | - |
-| Purge | Removes last X messages from a channel. Usage: `purge X` | flarebot.purge | - |
+| purge | Removes last X messages from a channel. Usage: `purge X` | flarebot.purge | - |
 
 # Support
 If you need any help with the bot or you think you have found a bug please join our official Discord server and report it there!  

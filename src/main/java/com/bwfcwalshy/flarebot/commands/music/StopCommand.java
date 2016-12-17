@@ -32,4 +32,9 @@ public class StopCommand implements Command {
 
     @Override
     public CommandType getType() { return CommandType.MUSIC; }
+
+    @Override
+    public String getPermission() {
+        return "flarebot.stop";
+    }
 }

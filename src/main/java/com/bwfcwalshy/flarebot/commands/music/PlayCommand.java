@@ -27,7 +27,7 @@ public class PlayCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Play your songs.";
+        return "Resumes your song and playlist.";
     }
 
     @Override

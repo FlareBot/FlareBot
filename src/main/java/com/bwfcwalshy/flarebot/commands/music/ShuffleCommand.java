@@ -34,4 +34,9 @@ public class ShuffleCommand implements Command {
     public CommandType getType() {
         return CommandType.MUSIC;
     }
+
+    @Override
+    public String getPermission() {
+        return "flarebot.shuffle";
+    }
 }
