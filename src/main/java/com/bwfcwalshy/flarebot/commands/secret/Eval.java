@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot.commands.secret;
 
+import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -14,6 +15,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -22,11 +24,32 @@ public class Eval implements Command {
     private ScriptEngineManager manager = new ScriptEngineManager();
     private static final ThreadGroup EVALS = new ThreadGroup("Eval Thread Pool");
     private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r, EVALS.getName()));
+    private static final List<String> IMPORTS = Arrays.asList("com.bwfcwalshy.flarebot.*",
+            "com.bwfcwalshy.flarebot.*",
+            "com.bwfcwalshy.flarebot.music.*",
+            "com.bwfcwalshy.flarebot.util.*",
+            "com.bwfcwalshy.flarebot.sheduler.*",
+            "com.bwfcwalshy.flarebot.permissions.*",
+            "com.bwfcwalshy.flarebot.commands.*",
+            "com.bwfcwalshy.flarebot.music.extractors.*",
+            "sx.blah.discord.*",
+            "sx.blah.discord.handle.*",
+            "sx.blah.discord.handle.obj.*",
+            "sx.blah.discord.util.*",
+            "java.util.streams.*",
+            "java.util.*",
+            "java.text.*",
+            "java.math.*",
+            "java.time.*",
+            "java.io.*",
+            "java.nio.*",
+            "java.nio.files.*");
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (getPermissions(channel).isCreator(sender)) {
-            ScriptEngine engine = manager.getEngineByName("nashorn");
+            String imports = IMPORTS.stream().map(s -> "import " + s + ';').collect(Collectors.joining("\n"));
+            ScriptEngine engine = manager.getEngineByName("groovy");
             engine.put("channel", channel);
             engine.put("guild", channel.getGuild());
             engine.put("message", message);
@@ -37,11 +60,14 @@ public class Eval implements Command {
                 try {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                             .appendField("Code:", "```js\n" + code + "```", false)
-                            .appendField("Result: ", "```js\n" + engine.eval(code) + "```", false).build(), channel);
+                            .appendField("Result: ", "```js\n" + engine.eval(imports + code) + "```",
+                                    false).build(), channel);
                 } catch (ScriptException e) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                             .appendField("Code:", "```js\n" + code + "```", false)
                             .appendField("Result: ", "```js\n" + e.getMessage() + "```", false).build(), channel);
+                } catch (Exception e){
+                    FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }
             });
         } else {
