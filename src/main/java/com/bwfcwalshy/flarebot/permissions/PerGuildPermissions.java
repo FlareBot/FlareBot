@@ -1,7 +1,8 @@
 package com.bwfcwalshy.flarebot.permissions;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.handle.obj.Permissions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,8 @@ public class PerGuildPermissions {
         if (isCreator(user))
             return true;
         if (FlareBot.getInstance().getClient().getGuildByID(getGuildID()).getOwner().equals(user))
+            return true;
+        if (user.getPermissionsForGuild(user.getClient().getGuildByID(getGuildID())).contains(Permissions.ADMINISTRATOR))
             return true;
         AtomicBoolean has = new AtomicBoolean(false);
         getUser(user).getGroups().forEach((group) -> {
