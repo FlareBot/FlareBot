@@ -250,11 +250,11 @@ public class FlareBot {
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        try {
+        /*try {
             getClient().changeAvatar(Image.forStream("png", getClass().getClassLoader().getResourceAsStream("avatar.png")));
         } catch (DiscordException | RateLimitException e) {
             LOGGER.error("Could not change avatar!", e);
-        }
+        }*/
 
         new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
             @Override
