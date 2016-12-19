@@ -61,7 +61,8 @@ public class MessageUtils {
 
     public static String hastebin(String trace) {
         try {
-            HttpPost req = new HttpPost("http://hastebin.com/documents");
+            HttpPost req = new HttpPost("https://hastebin.com/documents");
+            req.addHeader("Content-Type", "text/plain");
             StringEntity ent = new StringEntity(trace);
             req.setEntity(ent);
             HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);
@@ -70,7 +71,7 @@ public class MessageUtils {
                         IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
                 return null;
             }
-            return "http://hastebin.com/" + FlareBot.GSON.fromJson(new InputStreamReader(response.getEntity().getContent()), HastebinResponse.class).key;
+            return "https://hastebin.com/" + FlareBot.GSON.fromJson(new InputStreamReader(response.getEntity().getContent()), HastebinResponse.class).key;
         } catch (JsonSyntaxException | JsonIOException | IOException e) {
             FlareBot.LOGGER.error("Could not make POST request to hastebin!", e);
             return null;
