@@ -580,6 +580,9 @@ public class FlareBot {
         return getClient().getChannelByID("226786557862871040");
     }
 
+    public IChannel getGuildLogChannel() {
+        return getClient().getChannelByID("260401007685664768");
+    }
     public static String getYoutubeKey(){
         return youtubeApi;
     }

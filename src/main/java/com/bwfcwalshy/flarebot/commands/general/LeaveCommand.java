@@ -13,7 +13,7 @@ public class LeaveCommand implements Command {
 
     private IDiscordClient client;
 
-    public LeaveCommand(){
+    public LeaveCommand() {
         client = FlareBot.getInstance().getClient();
     }
 
@@ -21,8 +21,10 @@ public class LeaveCommand implements Command {
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         client.getConnectedVoiceChannels().stream()
                 .filter((IVoiceChannel voiceChannel) -> voiceChannel.getGuild().equals(message.getGuild()))
-                .findFirst().ifPresent(IVoiceChannel::leave);
-        FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).setPaused(true);
+                .findFirst().ifPresent(c -> {
+            c.leave();
+            FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).setPaused(true);
+        });
     }
 
     @Override
@@ -36,5 +38,7 @@ public class LeaveCommand implements Command {
     }
 
     @Override
-    public CommandType getType() { return CommandType.GENERAL; }
+    public CommandType getType() {
+        return CommandType.GENERAL;
+    }
 }

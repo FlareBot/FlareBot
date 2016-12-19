@@ -4,16 +4,18 @@ import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.handle.impl.events.UserJoinEvent;
+import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
+import java.awt.*;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -76,9 +78,37 @@ public class Events {
     }
 
     @EventSubscriber
+    public void onGuildCreate(GuildCreateEvent e) {
+        if (e.getClient().isReady())
+            MessageUtils.sendMessage(new EmbedBuilder()
+                    .withColor(new Color(96, 230, 144))
+                    .withThumbnail(e.getGuild().getIconURL())
+                    .withFooterIcon(e.getGuild().getIconURL())
+                    .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME))
+                    .withAuthorName(e.getGuild().getName())
+                    .withAuthorIcon(e.getGuild().getIconURL())
+                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:")
+                    .build(), FlareBot.getInstance().getGuildLogChannel());
+    }
+
+    @EventSubscriber
+    public void onGuildDelete(GuildLeaveEvent e) {
+        MessageUtils.sendMessage(new EmbedBuilder()
+                .withColor(new Color(244, 23, 23))
+                .withThumbnail(e.getGuild().getIconURL())
+                .withFooterIcon(e.getGuild().getIconURL())
+                .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME))
+                .withAuthorName(e.getGuild().getName())
+                .withAuthorIcon(e.getGuild().getIconURL())
+                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:")
+                .build(), FlareBot.getInstance().getGuildLogChannel());
+    }
+
+    @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
-        if (e.getMessage().getContent().startsWith(String.valueOf(FlareBot.COMMAND_CHAR))
-                && e.getMessage().getAuthor() != null && !e.getMessage().getAuthor().isBot()) {
+        if (e.getMessage().getContent() != null
+                && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.COMMAND_CHAR))
+                && !e.getMessage().getAuthor().isBot()) {
             EnumSet<Permissions> perms = e.getMessage().getChannel()
                     .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
             if (!perms.contains(Permissions.ADMINISTRATOR)) {

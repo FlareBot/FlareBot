@@ -5,19 +5,26 @@ import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.extractors.*;
+import com.bwfcwalshy.flarebot.music.extractors.Extractor;
+import com.bwfcwalshy.flarebot.music.extractors.SavedPlaylistExtractor;
+import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
+import com.bwfcwalshy.flarebot.music.extractors.YouTubeSearchExtractor;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VideoThread extends Thread {
 
     private static PlayerManager manager;
     private static final List<Class<? extends Extractor>> extractors = Arrays.asList(YouTubeExtractor.class,
             SavedPlaylistExtractor.class);
+    private static final Set<Class<? extends AudioSourceManager>> managers = new HashSet<>();
     public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
     private IUser user;
     private IChannel channel;
@@ -49,7 +56,8 @@ public class VideoThread extends Thread {
                 MessageUtils.editMessage(message, "Could not find a way to process that..");
                 return;
             }
-            manager.getManager().registerSourceManager(extractor.getSourceManagerClass().newInstance());
+            if (managers.add(extractor.getSourceManagerClass()))
+                manager.getManager().registerSourceManager(extractor.getSourceManagerClass().newInstance());
             extractor.process(url, manager.getPlayer(channel.getGuild().getID()), message, user);
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not init extractor for '{}'".replace("{}", url), e);

@@ -56,11 +56,11 @@ public class InfoCommand implements Command {
         bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
         bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
         bld.appendField("Voice Connections: ", String.valueOf(client.getConnectedVoiceChannels().size()), true);
-        bld.appendField("Channels playing music: ", String.valueOf(String.valueOf(client.getGuilds().stream().map(IDiscordObject::getID)
+        bld.appendField("Channels playing music: ", String.valueOf(client.getGuilds().stream().map(IDiscordObject::getID)
                 .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
                 .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
                 .filter(p -> p.getPlayingTrack() != null)
-                .filter(p -> !p.getPaused()).count())), true);
+                .filter(p -> !p.getPaused()).count()), true);
         bld.appendField("Text Channels: ", String.valueOf(client.getChannels(false).size()), true);
         bld.appendField("Uptime: ", FlareBot.getInstance().getUptime(), true);
         bld.appendField("Memory Usage: ", getMb(runtime.totalMemory() - runtime.freeMemory()), true);
