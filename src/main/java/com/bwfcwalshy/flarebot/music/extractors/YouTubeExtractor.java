@@ -44,6 +44,11 @@ public class YouTubeExtractor implements Extractor {
             name = audioPlaylist.getName();
         } else {
             AudioTrack track = (AudioTrack) item;
+            if (track.getInfo().length == 0 || track.getInfo().isStream) {
+                EmbedBuilder builder = MessageUtils.getEmbed(user).withDesc("Cannot queue a livestream!");
+                MessageUtils.editMessage("", builder.build(), message);
+                return;
+            }
             tracks.add(track);
             name = track.getInfo().title;
         }
@@ -54,7 +59,7 @@ public class YouTubeExtractor implements Extractor {
             EmbedBuilder builder = MessageUtils.getEmbed(user);
             builder.withDesc(String.format("%s added the %s [`%s`](%s)", user, tracks.size() == 1 ? "song" : "playlist",
                     name, input));
-            if(tracks.size() > 1)
+            if (tracks.size() > 1)
                 builder.appendField("Song count:", String.valueOf(tracks.size()), true);
             MessageUtils.editMessage("", builder.build(), message);
         }

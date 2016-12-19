@@ -25,6 +25,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.Discord4J;
@@ -33,7 +34,10 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.Status;
-import sx.blah.discord.util.*;
+import sx.blah.discord.util.BotInviteBuilder;
+import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RequestBuffer;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -58,7 +62,8 @@ public class FlareBot {
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     public static final PrintStream STDERR = System.err;
     private static String dBotsAuth;
-    public static final HttpClient HTPP_CLIENT = HttpClientBuilder.create().disableCookieManagement().build();
+    public static final HttpClient HTPP_CLIENT = HttpClientBuilder.create()
+            .setRedirectStrategy(new LaxRedirectStrategy()).disableCookieManagement().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
     @SuppressWarnings("FieldCanBeLocal")
