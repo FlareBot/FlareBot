@@ -57,7 +57,7 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Deletes a playlist";
+        return "Deletes a playlist. Usage `_delete NAME`";
     }
 
     @Override
