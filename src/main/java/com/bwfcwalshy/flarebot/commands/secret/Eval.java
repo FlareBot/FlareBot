@@ -25,7 +25,6 @@ public class Eval implements Command {
     private static final ThreadGroup EVALS = new ThreadGroup("Eval Thread Pool");
     private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r, EVALS.getName()));
     private static final List<String> IMPORTS = Arrays.asList("com.bwfcwalshy.flarebot.*",
-            "com.bwfcwalshy.flarebot.*",
             "com.bwfcwalshy.flarebot.music.*",
             "com.bwfcwalshy.flarebot.util.*",
             "com.bwfcwalshy.flarebot.sheduler.*",
@@ -58,14 +57,17 @@ public class Eval implements Command {
             String code = Arrays.stream(args).collect(Collectors.joining(" "));
             POOL.submit(() -> {
                 try {
+                    String eResult = String.valueOf(engine.eval(code));
+                    if(("```groovy\n" + eResult + "\n```").length() > 1048){
+                        eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
+                    } else eResult = "```groovy\n" + eResult + "\n```";
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                            .appendField("Code:", "```js\n" + code + "```", false)
-                            .appendField("Result: ", "```js\n" + engine.eval(imports + code) + "```",
-                                    false).build(), channel);
+                            .appendField("Code:", "```groovy\n" + code + "```", false)
+                            .appendField("Result: ", eResult, false).build(), channel);
                 } catch (ScriptException e) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                            .appendField("Code:", "```js\n" + code + "```", false)
-                            .appendField("Result: ", "```js\n" + e.getMessage() + "```", false).build(), channel);
+                            .appendField("Code:", "```groovy\n" + code + "```", false)
+                            .appendField("Result: ", "```groovy\n" + e.getMessage() + "```", false).build(), channel);
                 } catch (Exception e){
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }

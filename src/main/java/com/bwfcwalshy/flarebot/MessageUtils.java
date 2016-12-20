@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot;
 
+import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Images;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -16,6 +17,8 @@ import sx.blah.discord.util.*;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageUtils {
 
@@ -26,6 +29,18 @@ public class MessageUtils {
         "0e291f67c9274a1abdddeb3fd919cbaa",
         "1cbd08c76f8af6dddce02c5138971129"
     };
+
+    private static final Map<String, Color> cache = new ConcurrentHashMap<>();
+
+    static {
+        new FlarebotTask("Cache Clean"){
+
+            @Override
+            public void run() {
+                cache.clear();
+            }
+        }.repeat(60000,60000);
+    }
 
     public static IMessage sendMessage(IChannel channel, CharSequence message) {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
@@ -117,7 +132,7 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed(IUser user) {
         return getEmbed().withFooterIcon(getAvatar(user))
-                .withColor(Images.averageColor(Images.imageFor(getAvatar(user))))
+                .withColor(cache.computeIfAbsent(getAvatar(user), avt -> Images.averageColor(Images.imageFor(avt))))
                 .withFooterText("Requested by @" + getTag(user));
     }
 
