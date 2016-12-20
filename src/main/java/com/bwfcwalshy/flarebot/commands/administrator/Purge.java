@@ -35,13 +35,13 @@ public class Purge implements Command {
                                 (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build(), channel);
                 return;
             }
-            cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
             int count = Integer.parseInt(args[0]);
             if (count < 2 || count > 200) {
                 MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages!").build(), channel);
                 return;
             }
+            cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
             RequestBuffer.request(() -> {
                 channel.getMessages().setCacheCapacity(count);
                 boolean loaded = true;
