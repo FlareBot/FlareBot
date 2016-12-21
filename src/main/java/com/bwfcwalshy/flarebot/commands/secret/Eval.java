@@ -57,7 +57,7 @@ public class Eval implements Command {
             String code = Arrays.stream(args).collect(Collectors.joining(" "));
             POOL.submit(() -> {
                 try {
-                    String eResult = String.valueOf(engine.eval(code));
+                    String eResult = String.valueOf(engine.eval(imports + code));
                     if(("```groovy\n" + eResult + "\n```").length() > 1048){
                         eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
                     } else eResult = "```groovy\n" + eResult + "\n```";
