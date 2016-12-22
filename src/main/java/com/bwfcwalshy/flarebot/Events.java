@@ -84,7 +84,7 @@ public class Events {
                     .withColor(new Color(96, 230, 144))
                     .withThumbnail(e.getGuild().getIconURL())
                     .withFooterIcon(e.getGuild().getIconURL())
-                    .withFooterText(e.getGuild().getCreationDate().withSecond(0)
+                    .withFooterText(OffsetDateTime.now()
                             .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
                     .withAuthorName(e.getGuild().getName())
                     .withAuthorIcon(e.getGuild().getIconURL())
