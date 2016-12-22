@@ -20,6 +20,10 @@ import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.google.gson.*;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import org.apache.commons.cli.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -161,6 +165,19 @@ public class FlareBot {
             Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(client));
+            musicManager.registerHook(player -> player.addEventListener(new AudioEventAdapter() {
+                @Override
+                public void onTrackEnd(AudioPlayer aPlayer, AudioTrack track, AudioTrackEndReason endReason) {
+                    if(player.getPlayingTrack() == null && player.getPlaylist().isEmpty()){
+                        client.getConnectedVoiceChannels().stream()
+                                .filter(c -> c.getGuild().getID().equals(player.getGuildId()))
+                                .findFirst().ifPresent(c -> {
+                                    player.setPaused(true);
+                                    c.leave();
+                                });
+                    }
+                }
+            }));
 
             roleFile = new File("roles.json");
             loadRoles();
@@ -588,7 +605,8 @@ public class FlareBot {
     public IChannel getGuildLogChannel() {
         return getClient().getChannelByID("260401007685664768");
     }
-    public static String getYoutubeKey(){
+
+    public static String getYoutubeKey() {
         return youtubeApi;
     }
 }

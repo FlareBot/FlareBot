@@ -1,7 +1,5 @@
 package com.bwfcwalshy.flarebot.commands.general;
 
-import com.arsenarsen.lavaplayerbridge.player.Player;
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -17,9 +15,6 @@ public class JoinCommand implements Command {
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if(!sender.getConnectedVoiceChannels().isEmpty()){
             IVoiceChannel voiceChannel = sender.getConnectedVoiceChannels().get(0);
-            if(!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())){
-                Player player = FlareBot.getInstance().getMusicManager().getPlayer(voiceChannel.getGuild().getID());
-            } else FlareBot.getInstance().getMusicManager().getPlayer(voiceChannel.getGuild().getID()).setPaused(false);
             try {
                 voiceChannel.join();
             } catch (MissingPermissionsException e) {

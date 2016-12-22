@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
 public class Eval implements Command {
     private ScriptEngineManager manager = new ScriptEngineManager();
     private static final ThreadGroup EVALS = new ThreadGroup("Eval Thread Pool");
-    private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r, EVALS.getName()));
+    private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r,
+            EVALS.getName() + EVALS.activeCount()));
     private static final List<String> IMPORTS = Arrays.asList("com.bwfcwalshy.flarebot.*",
             "com.bwfcwalshy.flarebot.music.*",
             "com.bwfcwalshy.flarebot.util.*",

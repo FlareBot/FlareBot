@@ -84,7 +84,7 @@ public class Events {
                     .withColor(new Color(96, 230, 144))
                     .withThumbnail(e.getGuild().getIconURL())
                     .withFooterIcon(e.getGuild().getIconURL())
-                    .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME))
+                    .withFooterText(e.getGuild().getCreationDate().format(DateTimeFormatter.RFC_1123_DATE_TIME))
                     .withAuthorName(e.getGuild().getName())
                     .withAuthorIcon(e.getGuild().getIconURL())
                     .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:")
@@ -102,6 +102,14 @@ public class Events {
                 .withAuthorIcon(e.getGuild().getIconURL())
                 .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:")
                 .build(), FlareBot.getInstance().getGuildLogChannel());
+    }
+
+    @EventSubscriber
+    public void onVoice(UserVoiceChannelLeaveEvent e){
+        if(e.getChannel().getConnectedUsers().size() < 2){
+            FlareBot.getInstance().getMusicManager().getPlayer(e.getChannel().getGuild().getID()).setPaused(true);
+            e.getChannel().leave();
+        }
     }
 
     @EventSubscriber

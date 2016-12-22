@@ -9,10 +9,7 @@ import com.sun.management.OperatingSystemMXBean;
 import org.apache.commons.io.IOUtils;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IDiscordObject;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.io.File;
@@ -56,7 +53,9 @@ public class InfoCommand implements Command {
         bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
         bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
         bld.appendField("Voice Connections: ", String.valueOf(client.getConnectedVoiceChannels().size()), true);
-        bld.appendField("Channels playing music: ", String.valueOf(client.getGuilds().stream().map(IDiscordObject::getID)
+        bld.appendField("Channels playing music: ", String.valueOf(client.getConnectedVoiceChannels().stream()
+                .map(IVoiceChannel::getGuild)
+                .map(IDiscordObject::getID)
                 .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
                 .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
                 .filter(p -> p.getPlayingTrack() != null)
