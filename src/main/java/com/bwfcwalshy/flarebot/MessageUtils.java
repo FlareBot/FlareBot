@@ -12,7 +12,6 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.*;
 
-import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
 
@@ -104,7 +103,6 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .withColor(new Color((int)(0x1000000 * Math.random())))
                 .withAuthorIcon(getAvatar(FlareBot.getInstance().getClient().getOurUser()))
                 .withAuthorUrl("https://github.com/ArsenArsen/FlareBot")
                 .withAuthorName(getTag(FlareBot.getInstance().getClient().getOurUser()));
@@ -126,7 +124,7 @@ public class MessageUtils {
     public static String getDefaultAvatar(IUser user) {
         int discrim = Integer.parseInt(user.getDiscriminator());
         discrim %= defaults.length;
-        return "https://discordapp.com/assets/" + defaults[discrim] + ".webp";
+        return "https://discordapp.com/assets/" + defaults[discrim] + ".png";
     }
 
     public static IMessage sendMessage(EmbedObject embedObject, IChannel channel) {
