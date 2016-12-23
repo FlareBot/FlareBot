@@ -11,6 +11,8 @@ import java.net.URLConnection;
 
 public class Images {
     public static Color averageColor(BufferedImage bi) {
+        if(bi == null)
+            return null;
         int red = 0, green = 0, blue = 0;
         for (int x = 0; x < bi.getWidth(); x++) {
             for (int y = 0; y < bi.getHeight(); y++) {
@@ -25,6 +27,8 @@ public class Images {
     }
 
     public static BufferedImage imageFor(String url) {
+        if(url == null)
+            return null;
         try {
             URL urll = new URL(url);
             URLConnection connection = urll.openConnection();
