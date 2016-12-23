@@ -12,7 +12,7 @@ import java.net.URLConnection;
 public class Images {
     public static Color averageColor(BufferedImage bi) {
         if(bi == null)
-            return null;
+            return Color.DARK_GRAY;
         int red = 0, green = 0, blue = 0;
         for (int x = 0; x < bi.getWidth(); x++) {
             for (int y = 0; y < bi.getHeight(); y++) {
