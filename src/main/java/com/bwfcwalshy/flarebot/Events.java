@@ -106,8 +106,9 @@ public class Events {
     }
 
     @EventSubscriber
-    public void onVoice(UserVoiceChannelLeaveEvent e){
-        if(e.getChannel().getConnectedUsers().size() < 2){
+    public void onVoice(UserVoiceChannelLeaveEvent e) {
+        if (e.getChannel().getConnectedUsers().contains(FlareBot.getInstance().getClient().getOurUser())
+                && e.getChannel().getConnectedUsers().size() < 2) {
             FlareBot.getInstance().getMusicManager().getPlayer(e.getChannel().getGuild().getID()).setPaused(true);
             e.getChannel().leave();
         }

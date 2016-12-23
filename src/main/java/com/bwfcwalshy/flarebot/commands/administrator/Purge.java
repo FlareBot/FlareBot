@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Purge implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();
@@ -48,7 +47,7 @@ public class Purge implements Command {
                 while (loaded && channel.getMessages().size() < count)
                     loaded = channel.getMessages().load(Math.min(count, 100));
                 if (loaded) {
-                    List<IMessage> list = channel.getMessages().stream().collect(Collectors.toList());
+                    List<IMessage> list = new ArrayList<>(channel.getMessages());
                     List<IMessage> toDelete = new ArrayList<>();
                     for (IMessage msg : list) {
                         if (toDelete.size() > 99) {
