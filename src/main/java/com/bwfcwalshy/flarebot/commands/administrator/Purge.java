@@ -4,6 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -58,9 +59,20 @@ public class Purge implements Command {
                     }
                     bulk(toDelete, channel, sender);
                     channel.getMessages().setCacheCapacity(0);
-                    MessageUtils.sendMessage(MessageUtils
+                    IMessage msg = MessageUtils.sendMessage(MessageUtils
                             .getEmbed(sender).withDesc(":+1: Deleted!")
                             .appendField("Message Count: ", String.valueOf(count), true).build(), channel);
+                    new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
+                        @Override
+                        public void run() {
+                            RequestBuffer.request(() -> {
+                                try {
+                                    msg.delete();
+                                } catch (MissingPermissionsException | DiscordException ignored) {
+                                }
+                            });
+                        }
+                    }.delay(10000);
                 } else MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Could not load in messages!").build(), channel);
             });
