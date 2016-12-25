@@ -127,7 +127,7 @@ public class Events {
                 }
                 if (!perms.contains(Permissions.EMBED_LINKS)) {
                     MessageUtils.sendMessage(e.getMessage().getChannel(), "Hey! I can't be used here." +
-                            "\nI do not have the `Embed Links` permission! Please go to your permissions adn give me Embed Links." +
+                            "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
                             "\nThanks :D");
                     return;
                 }

@@ -35,10 +35,10 @@ public class Purge implements Command {
                                 (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build(), channel);
                 return;
             }
-            int count = Integer.parseInt(args[0]);
+            int count = Integer.parseInt(args[0]) + 1;
             if (count < 2 || count > 200) {
                 MessageUtils.sendMessage(MessageUtils
-                        .getEmbed(sender).withDesc("Can't purge less than 2 messages!").build(), channel);
+                        .getEmbed(sender).withDesc("Can't purge less than 2 messages or more than 200!").build(), channel);
                 return;
             }
             cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
@@ -61,7 +61,7 @@ public class Purge implements Command {
                     channel.getMessages().setCacheCapacity(0);
                     IMessage msg = MessageUtils.sendMessage(MessageUtils
                             .getEmbed(sender).withDesc(":+1: Deleted!")
-                            .appendField("Message Count: ", String.valueOf(count), true).build(), channel);
+                            .appendField("Message Count: ", String.valueOf(count - 1), true).build(), channel);
                     new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
                         @Override
                         public void run() {
