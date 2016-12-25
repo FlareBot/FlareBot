@@ -48,6 +48,18 @@ public class MessageUtils {
         }).get();
     }
 
+    public static void sendPM(IUser user, EmbedObject message) {
+        RequestBuffer.request(() -> {
+            try {
+                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(message)
+                        .withChannel(user.getOrCreatePMChannel()).withContent("\u200B").send();
+            } catch (MissingPermissionsException | DiscordException e) {
+                FlareBot.LOGGER.error("Uh oh!", e);
+            }
+            return null;
+        }).get();
+    }
+
     public static IMessage sendException(String s, Throwable e, IChannel channel) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);

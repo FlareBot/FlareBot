@@ -45,7 +45,7 @@ public class PlaylistCommand implements Command {
             for (String s : songs) {
                 builder.appendField("Page " + i++, s, false);
             }
-            MessageUtils.sendMessage(builder.build(), channel);
+            MessageUtils.sendPM(sender, builder.build());
         } else {
             MessageUtils.sendMessage(channel, "No songs in the playlist!");
         }
