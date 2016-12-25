@@ -88,7 +88,7 @@ public class Events {
                             .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
                     .withAuthorName(e.getGuild().getName())
                     .withAuthorIcon(e.getGuild().getIconURL())
-                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:")
+                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
                     .build(), FlareBot.getInstance().getGuildLogChannel());
     }
 
@@ -101,7 +101,7 @@ public class Events {
                 .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
                 .withAuthorName(e.getGuild().getName())
                 .withAuthorIcon(e.getGuild().getIconURL())
-                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:")
+                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
                 .build(), FlareBot.getInstance().getGuildLogChannel());
     }
 
