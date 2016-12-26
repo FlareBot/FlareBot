@@ -5,6 +5,7 @@ import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
@@ -23,7 +24,6 @@ import com.google.gson.*;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import org.apache.commons.cli.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -164,14 +164,29 @@ public class FlareBot {
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(client));
             musicManager.registerHook(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
-                public void onTrackEnd(AudioPlayer aPlayer, AudioTrack track, AudioTrackEndReason endReason) {
-                    if(player.getPlayingTrack() == null && player.getPlaylist().isEmpty()){
-                        client.getConnectedVoiceChannels().stream()
-                                .filter(c -> c.getGuild().getID().equals(player.getGuildId()))
-                                .findFirst().ifPresent(c -> {
-                                    player.setPaused(true);
-                                    c.leave();
-                                });
+                public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
+                    if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
+                        IChannel c =
+                                client.getChannelByID(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
+                        if (c != null) {
+                            EnumSet<sx.blah.discord.handle.obj.Permissions> perms = c.getModifiedPermissions(client.getOurUser());
+                            if (!perms.contains(sx.blah.discord.handle.obj.Permissions.ADMINISTRATOR)) {
+                                if (!perms.contains(sx.blah.discord.handle.obj.Permissions.SEND_MESSAGES)) {
+                                    MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
+                                    return;
+                                }
+                                if (!perms.contains(sx.blah.discord.handle.obj.Permissions.EMBED_LINKS)) {
+                                    MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
+                                    return;
+                                }
+                            }
+                            Track track = player.getPlayingTrack();
+                            MessageUtils.sendMessage(MessageUtils.getEmbed()
+                                    .appendField("Now Playing: ", SongCommand.getLink(track), false)
+                                    .build(), c);
+                        } else {
+                            MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
+                        }
                     }
                 }
             }));
@@ -265,6 +280,7 @@ public class FlareBot {
         registerCommand(new PlaylistsCommand());
         registerCommand(new Purge());
         registerCommand(new Eval());
+        registerCommand(new MusicAnnounceCommand());
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");

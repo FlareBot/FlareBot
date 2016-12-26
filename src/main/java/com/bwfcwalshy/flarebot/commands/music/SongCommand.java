@@ -34,7 +34,7 @@ public class SongCommand implements Command {
         }
     }
 
-    private String getLink(Track track) {
+    public static String getLink(Track track) {
         String name = String.valueOf(track.getTrack().getInfo().title);
         String link = YouTubeExtractor.WATCH_URL + track.getTrack().getIdentifier();
         return String.format("[`%s`](%s)", name, link);
