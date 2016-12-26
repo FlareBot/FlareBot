@@ -38,10 +38,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.Status;
-import sx.blah.discord.util.BotInviteBuilder;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RequestBuffer;
+import sx.blah.discord.util.*;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -272,11 +269,11 @@ public class FlareBot {
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        /*try {
+        try {
             getClient().changeAvatar(Image.forStream("png", getClass().getClassLoader().getResourceAsStream("avatar.png")));
         } catch (DiscordException | RateLimitException e) {
             LOGGER.error("Could not change avatar!", e);
-        }*/
+        }
 
         new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
             @Override

@@ -12,6 +12,7 @@ import sx.blah.discord.handle.obj.IUser;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SkipCommand implements Command {
 
@@ -74,6 +75,20 @@ public class SkipCommand implements Command {
 
     private Map<String, Vote> getVotes(IChannel channel, IUser sender) {
         return this.votes.computeIfAbsent(channel.getGuild().getID(), s -> {
+            AtomicBoolean bool = new AtomicBoolean(false);
+            sender.getConnectedVoiceChannels().stream().filter(c -> c.getGuild().equals(channel.getGuild()))
+                    .findFirst().ifPresent(c -> {
+                if (c.getConnectedUsers().size() == 2
+                        && c.getConnectedUsers().contains(FlareBot.getInstance().getClient().getOurUser())) {
+                    bool.set(true);
+                    musicManager.getPlayer(s).skip();
+                }
+            });
+            if (bool.get()) {
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                        .withDescription("You were the only person in the channel.\nSkipping!").build(), channel);
+                return null;
+            }
             new FlarebotTask("Vote " + s) {
 
                 @Override

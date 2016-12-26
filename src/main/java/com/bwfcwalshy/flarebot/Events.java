@@ -19,10 +19,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Events {
 
     private FlareBot flareBot;
+    private AtomicBoolean bool = new AtomicBoolean(false);
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -79,7 +81,7 @@ public class Events {
 
     @EventSubscriber
     public void onGuildCreate(GuildCreateEvent e) {
-        if (e.getClient().isReady())
+        if (bool.get())
             MessageUtils.sendMessage(new EmbedBuilder()
                     .withColor(new Color(96, 230, 144))
                     .withThumbnail(e.getGuild().getIconURL())
@@ -119,6 +121,7 @@ public class Events {
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.COMMAND_CHAR))
                 && !e.getMessage().getAuthor().isBot()) {
+            bool.set(true);
             EnumSet<Permissions> perms = e.getMessage().getChannel()
                     .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
             if (!perms.contains(Permissions.ADMINISTRATOR)) {
