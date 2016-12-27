@@ -24,6 +24,10 @@ import com.google.gson.*;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sun.management.OperatingSystemMXBean;
+import java.lang.management.ManagementFactory;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import org.apache.commons.cli.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -36,7 +40,9 @@ import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IDiscordObject;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Status;
 import sx.blah.discord.util.*;
 
@@ -69,8 +75,12 @@ public class FlareBot {
     private GithubWebhooks4J gitHubWebhooks;
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
+    private static String webSecret;
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    public static final String OFFICIAL_GUILD = "226785954537406464";
+    public static final String FLAREBOT_API = "http://flarebot.stream/api/";
 
     private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
@@ -109,6 +119,12 @@ public class FlareBot {
         youtubeApi.setRequired(true);
         options.addOption(youtubeApi);
 
+        Option websiteSecret = new Option("websecret", true, "The website secret");
+        websiteSecret.setArgName("web-secret");
+        websiteSecret.setLongOpt("web-secret");
+        websiteSecret.setRequired(false);
+        options.addOption(websiteSecret);
+
         String tkn;
         try {
             CommandLineParser parser = new DefaultParser();
@@ -120,6 +136,8 @@ public class FlareBot {
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
+            if(parsed.hasOption("web-secret"))
+                FlareBot.webSecret = parsed.getOptionValue("web-secret");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
@@ -143,7 +161,6 @@ public class FlareBot {
     private PlayerManager musicManager;
     private long startTime;
     private static String secret = null;
-
 
     public Permissions getPermissions() {
         return permissions;
@@ -329,6 +346,57 @@ public class FlareBot {
                 }
             }
         }.repeat(10, 600000);
+
+        if(webSecret != null && !webSecret.isEmpty()) {
+            Runtime runtime = Runtime.getRuntime();
+            new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
+                @Override
+                public void run() {
+                    JsonObject object = new JsonObject();
+                    object.addProperty("secret", webSecret);
+                    JsonObject data = new JsonObject();
+                    data.addProperty("guilds", client.getGuilds().size());
+                    data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getTotalMemberCount());
+                    data.addProperty("text_channels", client.getChannels(false).size());
+                    data.addProperty("voice_channels", client.getConnectedVoiceChannels().size());
+                    data.addProperty("active_voice_channels", client.getConnectedVoiceChannels().stream()
+                            .map(IVoiceChannel::getGuild)
+                            .map(IDiscordObject::getID)
+                            .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
+                            .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
+                            .filter(p -> p.getPlayingTrack() != null)
+                            .filter(p -> !p.getPaused()).count());
+                    data.addProperty("num_queued_songs", client.getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getID()).getPlaylist().size()).sum());
+                    data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
+                    data.addProperty("cpu", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%");
+                    data.addProperty("uptime", getUptime());
+                    object.add("data", data);
+
+                    try {
+                        HttpURLConnection con = (HttpURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
+                        con.setDoInput(true);
+                        con.setDoOutput(true);
+                        con.setRequestMethod("POST");
+
+                        OutputStream out = con.getOutputStream();
+                        out.write(object.toString().getBytes());
+                        out.close();
+
+                        if(con.getResponseCode() >= 200 && con.getResponseCode() < 300){
+                            // Updated!
+                            LOGGER.debug("Updated site data!");
+                        }else{
+                            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                            LOGGER.error("Error updating site! " + br.readLine());
+                        }
+                        con.disconnect();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.repeat(10, 30000);
+        }
+
 
         Scanner scanner = new Scanner(System.in);
 
