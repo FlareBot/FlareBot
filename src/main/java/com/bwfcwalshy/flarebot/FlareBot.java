@@ -80,8 +80,7 @@ public class FlareBot {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
-    //public static final String FLAREBOT_API = "http://flarebot.com/api/";
-    public static final String FLAREBOT_API = "http://192.168.0.14/flarebot/api/";
+    public static final String FLAREBOT_API = "http://flarebot.stream/api/";
 
     private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
