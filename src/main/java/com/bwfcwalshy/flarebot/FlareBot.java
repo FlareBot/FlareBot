@@ -25,9 +25,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
-import java.lang.management.ManagementFactory;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import org.apache.commons.cli.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -39,14 +36,13 @@ import org.slf4j.LoggerFactory;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IDiscordObject;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IVoiceChannel;
-import sx.blah.discord.handle.obj.Status;
+import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -136,7 +132,7 @@ public class FlareBot {
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
-            if(parsed.hasOption("web-secret"))
+            if (parsed.hasOption("web-secret"))
                 FlareBot.webSecret = parsed.getOptionValue("web-secret");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
@@ -347,7 +343,7 @@ public class FlareBot {
             }
         }.repeat(10, 600000);
 
-        if(webSecret != null && !webSecret.isEmpty()) {
+        if (webSecret != null && !webSecret.isEmpty()) {
             Runtime runtime = Runtime.getRuntime();
             new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
                 @Override
@@ -382,16 +378,16 @@ public class FlareBot {
                         out.write(object.toString().getBytes());
                         out.close();
 
-                        if(con.getResponseCode() >= 200 && con.getResponseCode() < 300){
+                        if (con.getResponseCode() >= 200 && con.getResponseCode() < 300) {
                             // Updated!
                             LOGGER.debug("Updated site data!");
-                        }else{
+                        } else {
                             BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
                             LOGGER.error("Error updating site! " + br.readLine());
                         }
                         con.disconnect();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Error updating site!", e);
                     }
                 }
             }.repeat(10, 30000);
