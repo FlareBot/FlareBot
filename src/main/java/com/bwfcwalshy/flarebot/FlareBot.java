@@ -26,6 +26,8 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
 import org.apache.commons.cli.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -41,9 +43,8 @@ import sx.blah.discord.util.*;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -132,7 +133,7 @@ public class FlareBot {
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
-            if (parsed.hasOption("web-secret"))
+            if(parsed.hasOption("web-secret"))
                 FlareBot.webSecret = parsed.getOptionValue("web-secret");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
@@ -343,7 +344,7 @@ public class FlareBot {
             }
         }.repeat(10, 600000);
 
-        if (webSecret != null && !webSecret.isEmpty()) {
+        if(webSecret != null && !webSecret.isEmpty()) {
             Runtime runtime = Runtime.getRuntime();
             new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
                 @Override
@@ -369,25 +370,18 @@ public class FlareBot {
                     object.add("data", data);
 
                     try {
-                        HttpURLConnection con = (HttpURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
-                        con.setDoInput(true);
-                        con.setDoOutput(true);
-                        con.setRequestMethod("POST");
-
-                        OutputStream out = con.getOutputStream();
-                        out.write(object.toString().getBytes());
-                        out.close();
-
-                        if (con.getResponseCode() >= 200 && con.getResponseCode() < 300) {
-                            // Updated!
-                            LOGGER.debug("Updated site data!");
-                        } else {
-                            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                            LOGGER.error("Error updating site! " + br.readLine());
+                        HttpPost req = new HttpPost(FLAREBOT_API + "update.php");
+                        req.addHeader("Content-Type", "application/json");
+                        req.addHeader("User-Agent", "Mozilla/5.0");
+                        StringEntity ent = new StringEntity(object.toString());
+                        req.setEntity(ent);
+                        HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);
+                        if (response.getStatusLine().getStatusCode() != 200) {
+                            FlareBot.LOGGER.error("FlareBot Site API did not respond with a correct code! Code was: {}! Response: {}", response.getStatusLine().getStatusCode(),
+                                    IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
                         }
-                        con.disconnect();
                     } catch (IOException e) {
-                        LOGGER.error("Error updating site!", e);
+                        FlareBot.LOGGER.error("Could not make POST request to hastebin!", e);
                     }
                 }
             }.repeat(10, 30000);
