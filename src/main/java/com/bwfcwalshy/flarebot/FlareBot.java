@@ -25,6 +25,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -370,20 +372,26 @@ public class FlareBot {
                     object.add("data", data);
 
                     try {
-                        HttpPost req = new HttpPost(FLAREBOT_API + "update.php");
-                        req.addHeader("Content-Type", "application/json");
-                        req.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
-                        StringEntity ent = new StringEntity(object.toString());
-                        req.setEntity(ent);
-                        HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);
-                        if (response.getStatusLine().getStatusCode() < 200 && response.getStatusLine().getStatusCode() >= 300) {
-                            FlareBot.LOGGER.error("FlareBot Site API did not respond with a correct code! Code was: {}! Response: {}", response.getStatusLine().getStatusCode(),
-                                    IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
-                        } else {
-                            FlareBot.LOGGER.debug("Updated website!");
+                        HttpURLConnection con = (HttpURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
+                        con.setDoInput(true);
+                        con.setDoOutput(true);
+                        con.setRequestMethod("POST");
+                        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+                        con.setRequestProperty("Content-Type", "application/json");
+
+                        OutputStream out = con.getOutputStream();
+                        out.write(object.toString().getBytes());
+                        out.close();
+
+                        if(con.getResponseCode() >= 200 && con.getResponseCode() < 300){
+                            LOGGER.info("Updated site data!");
+                        }else{
+                            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                            LOGGER.error("Error updating site! " + br.readLine());
                         }
+                        con.disconnect();
                     } catch (IOException e) {
-                        FlareBot.LOGGER.error("Could not make POST request to hastebin!", e);
+                        FlareBot.LOGGER.error("Could not make POST request!", e);
                     }
                 }
             }.repeat(10, 30000);
