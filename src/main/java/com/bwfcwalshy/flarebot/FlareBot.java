@@ -372,13 +372,15 @@ public class FlareBot {
                     try {
                         HttpPost req = new HttpPost(FLAREBOT_API + "update.php");
                         req.addHeader("Content-Type", "application/json");
-                        req.addHeader("User-Agent", "Mozilla/5.0");
+                        req.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
                         StringEntity ent = new StringEntity(object.toString());
                         req.setEntity(ent);
                         HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);
-                        if (response.getStatusLine().getStatusCode() != 200) {
+                        if (response.getStatusLine().getStatusCode() < 200 && response.getStatusLine().getStatusCode() >= 300) {
                             FlareBot.LOGGER.error("FlareBot Site API did not respond with a correct code! Code was: {}! Response: {}", response.getStatusLine().getStatusCode(),
                                     IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
+                        } else {
+                            FlareBot.LOGGER.debug("Updated website!");
                         }
                     } catch (IOException e) {
                         FlareBot.LOGGER.error("Could not make POST request to hastebin!", e);
