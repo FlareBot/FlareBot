@@ -21,6 +21,7 @@ public class PerGuildPermissions {
         this.id = id;
         if (!hasGroup("Default")) {
             addPermission("Default", "flarebot.skip");
+            addPermission("Default", "flarebot.leave");
         }
     }
 
