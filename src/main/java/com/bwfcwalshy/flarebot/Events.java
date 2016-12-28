@@ -108,7 +108,7 @@ public class Events {
                 .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
                 .withAuthorName(e.getGuild().getName())
                 .withAuthorIcon(e.getGuild().getIconURL())
-                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"));
+                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
                 .build(), FlareBot.getInstance().getGuildLogChannel());
     }
 
@@ -156,7 +156,7 @@ public class Events {
                     FlareBot.LOGGER.info(
                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
-                    if (cmd.getType().usableInDMs()) {
+                    if (!cmd.getType().usableInDMs()) {
                         if (e.getMessage().getChannel().isPrivate()) {
                             MessageUtils.sendMessage(e.getMessage().getChannel(), String.format("**%s commands cannot be used in DM's!**", cmd.getType().formattedName()));
                             return;
