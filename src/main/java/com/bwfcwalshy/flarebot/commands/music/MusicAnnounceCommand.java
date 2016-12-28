@@ -53,4 +53,9 @@ public class MusicAnnounceCommand implements Command {
     public CommandType getType() {
         return CommandType.MUSIC;
     }
+
+    @Override
+    public String getPermission() {
+        return "flarebot.songannounce";
+    }
 }

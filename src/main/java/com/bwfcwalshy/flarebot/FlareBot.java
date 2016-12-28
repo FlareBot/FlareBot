@@ -8,6 +8,7 @@ import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.commands.Prefixes;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
 import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
@@ -25,11 +26,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import org.apache.commons.cli.*;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -45,8 +42,9 @@ import sx.blah.discord.util.*;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -135,7 +133,7 @@ public class FlareBot {
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
-            if(parsed.hasOption("web-secret"))
+            if (parsed.hasOption("web-secret"))
                 FlareBot.webSecret = parsed.getOptionValue("web-secret");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
@@ -160,6 +158,11 @@ public class FlareBot {
     private PlayerManager musicManager;
     private long startTime;
     private static String secret = null;
+    private static Prefixes prefixes;
+
+    public static Prefixes getPrefixes() {
+        return prefixes;
+    }
 
     public Permissions getPermissions() {
         return permissions;
@@ -174,6 +177,7 @@ public class FlareBot {
 
         try {
             client = new ClientBuilder().withToken(tkn).login();
+            prefixes = new Prefixes();
             client.getDispatcher().registerListener(new Events(this));
             Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
@@ -297,6 +301,7 @@ public class FlareBot {
         registerCommand(new Purge());
         registerCommand(new Eval());
         registerCommand(new MusicAnnounceCommand());
+        registerCommand(new SetPrefixCommand());
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
@@ -346,53 +351,11 @@ public class FlareBot {
             }
         }.repeat(10, 600000);
 
-        if(webSecret != null && !webSecret.isEmpty()) {
-            Runtime runtime = Runtime.getRuntime();
+        if (webSecret != null && !webSecret.isEmpty()) {
             new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
                 @Override
                 public void run() {
-                    JsonObject object = new JsonObject();
-                    object.addProperty("secret", webSecret);
-                    JsonObject data = new JsonObject();
-                    data.addProperty("guilds", client.getGuilds().size());
-                    data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getTotalMemberCount());
-                    data.addProperty("text_channels", client.getChannels(false).size());
-                    data.addProperty("voice_channels", client.getConnectedVoiceChannels().size());
-                    data.addProperty("active_voice_channels", client.getConnectedVoiceChannels().stream()
-                            .map(IVoiceChannel::getGuild)
-                            .map(IDiscordObject::getID)
-                            .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
-                            .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
-                            .filter(p -> p.getPlayingTrack() != null)
-                            .filter(p -> !p.getPaused()).count());
-                    data.addProperty("num_queued_songs", client.getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getID()).getPlaylist().size()).sum());
-                    data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
-                    data.addProperty("cpu", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%");
-                    data.addProperty("uptime", getUptime());
-                    object.add("data", data);
-
-                    try {
-                        HttpURLConnection con = (HttpURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
-                        con.setDoInput(true);
-                        con.setDoOutput(true);
-                        con.setRequestMethod("POST");
-                        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-                        con.setRequestProperty("Content-Type", "application/json");
-
-                        OutputStream out = con.getOutputStream();
-                        out.write(object.toString().getBytes());
-                        out.close();
-
-                        if(con.getResponseCode() >= 200 && con.getResponseCode() < 300){
-                            LOGGER.info("Updated site data!");
-                        }else{
-                            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                            LOGGER.error("Error updating site! " + br.readLine());
-                        }
-                        con.disconnect();
-                    } catch (IOException e) {
-                        FlareBot.LOGGER.error("Could not make POST request!", e);
-                    }
+                    sendData();
                 }
             }.repeat(10, 30000);
         }
@@ -407,6 +370,53 @@ public class FlareBot {
                 quit(true);
             }
         } catch (NoSuchElementException ignored) {
+        }
+    }
+
+    private Runtime runtime = Runtime.getRuntime();
+
+    private void sendData() {
+        JsonObject object = new JsonObject();
+        object.addProperty("secret", webSecret);
+        JsonObject data = new JsonObject();
+        data.addProperty("guilds", client.getGuilds().size());
+        data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getTotalMemberCount());
+        data.addProperty("text_channels", client.getChannels(false).size());
+        data.addProperty("voice_channels", client.getConnectedVoiceChannels().size());
+        data.addProperty("active_voice_channels", client.getConnectedVoiceChannels().stream()
+                .map(IVoiceChannel::getGuild)
+                .map(IDiscordObject::getID)
+                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
+                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
+                .filter(p -> p.getPlayingTrack() != null)
+                .filter(p -> !p.getPaused()).count());
+        data.addProperty("num_queued_songs", client.getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getID()).getPlaylist().size()).sum());
+        data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
+        data.addProperty("cpu", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%");
+        data.addProperty("uptime", getUptime());
+        object.add("data", data);
+
+        try {
+            HttpURLConnection con = (HttpURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
+            con.setDoInput(true);
+            con.setDoOutput(true);
+            con.setRequestMethod("POST");
+            con.setRequestProperty("User-Agent", "Mozilla/5.0");
+            con.setRequestProperty("Content-Type", "application/json");
+
+            OutputStream out = con.getOutputStream();
+            out.write(object.toString().getBytes());
+            out.close();
+
+            if (con.getResponseCode() >= 200 && con.getResponseCode() < 300) {
+                LOGGER.info("Updated site data!");
+            } else {
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                LOGGER.error("Error updating site! " + br.readLine());
+            }
+            con.disconnect();
+        } catch (IOException e) {
+            FlareBot.LOGGER.error("Could not make POST request!", e);
         }
     }
 
@@ -493,6 +503,7 @@ public class FlareBot {
         LOGGER.debug("Saving data.");
         saveRoles();
         saveWelcomes();
+        sendData();
         try {
             permissions.save();
         } catch (IOException e) {

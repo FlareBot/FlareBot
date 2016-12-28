@@ -7,10 +7,20 @@ import java.util.List;
 public enum CommandType {
 
     GENERAL,
-    ADMINISTRATIVE,
-    MUSIC,
+    ADMINISTRATIVE(false),
+    MUSIC(false),
     HIDDEN,
     OWNER;
+
+    private boolean dms;
+
+    CommandType(){
+        this(true);
+    }
+
+    CommandType(boolean dms) {
+        this.dms = dms;
+    }
 
     public String toString(){
         return name().charAt(0) + name().substring(1).toLowerCase();
@@ -22,5 +32,13 @@ public enum CommandType {
 
     public List<Command> getCommands() {
         return FlareBot.getInstance().getCommandsByType(this);
+    }
+
+    public boolean usableInDMs() {
+        return dms;
+    }
+
+    public String formattedName() {
+        return Character.toUpperCase(name().charAt(0)) + name().substring(1).toLowerCase();
     }
 }

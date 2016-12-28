@@ -28,7 +28,7 @@ public class HelpCommand implements Command {
                 embedBuilder.withDesc("***FlareBot " + type + " commands!***");
                 MessageUtils.sendMessage(embedBuilder.appendField(type.toString(), type.getCommands()
                         .stream()
-                        .map(command -> FlareBot.COMMAND_CHAR + command.getCommand() + " - " + command.getDescription() + '\n')
+                        .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
                         .collect(Collectors.joining("")), false).build(), channel);
             } else {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!").build(), channel);
@@ -38,12 +38,19 @@ public class HelpCommand implements Command {
         }
     }
 
+    private char get(IChannel channel) {
+        if (channel.getGuild() != null) {
+            return FlareBot.getPrefixes().get(channel.getGuild().getID());
+        }
+        return FlareBot.getPrefixes().get(null);
+    }
+
     private void sendCommands(IChannel channel, IUser sender) {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             String help = c.getCommands()
                     .stream()
-                    .map(command -> FlareBot.COMMAND_CHAR + command.getCommand() + " - " + command.getDescription() + '\n')
+                    .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
                     .collect(Collectors.joining(""));
             embedBuilder.appendField(c.toString(), help, false);
         }

@@ -19,12 +19,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Events {
 
     private FlareBot flareBot;
     private AtomicBoolean bool = new AtomicBoolean(false);
+
+    public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -119,7 +124,7 @@ public class Events {
     @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
         if (e.getMessage().getContent() != null
-                && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.COMMAND_CHAR))
+                && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
                 && !e.getMessage().getAuthor().isBot()) {
             bool.set(true);
             EnumSet<Permissions> perms = e.getMessage().getChannel()
@@ -145,12 +150,15 @@ public class Events {
             }
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
+                    if(!e.getMessage().getChannel().isPrivate())
+                        COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
+                                g -> new AtomicInteger()).incrementAndGet();
                     FlareBot.LOGGER.info(
                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
-                    if (cmd.getType() == CommandType.MUSIC) {
+                    if (cmd.getType().usableInDMs()) {
                         if (e.getMessage().getChannel().isPrivate()) {
-                            MessageUtils.sendMessage(e.getMessage().getChannel(), "**Music commands cannot be used in DM's!**");
+                            MessageUtils.sendMessage(e.getMessage().getChannel(), String.format("**%s commands cannot be used in DM's!**", cmd.getType().formattedName()));
                             return;
                         }
                     }
@@ -203,5 +211,9 @@ public class Events {
                 }
             }
         }
+    }
+
+    private String getGuildId(MessageReceivedEvent e) {
+        return e.getMessage().getChannel().getGuild() != null ? e.getMessage().getChannel().getGuild().getID() : null;
     }
 }
