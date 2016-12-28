@@ -26,6 +26,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
+import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.cli.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -42,7 +43,6 @@ import sx.blah.discord.util.*;
 
 import java.io.*;
 import java.lang.management.ManagementFactory;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -77,7 +77,7 @@ public class FlareBot {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
-    public static final String FLAREBOT_API = "http://flarebot.stream/api/";
+    public static final String FLAREBOT_API = "https://flarebot.stream/api/";
 
     private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
@@ -398,7 +398,7 @@ public class FlareBot {
         object.add("data", data);
 
         try {
-            HttpURLConnection con = (HttpURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
+            HttpsURLConnection con = (HttpsURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setRequestMethod("POST");
