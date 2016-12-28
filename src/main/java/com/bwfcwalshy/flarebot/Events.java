@@ -108,7 +108,7 @@ public class Events {
                 .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
                 .withAuthorName(e.getGuild().getName())
                 .withAuthorIcon(e.getGuild().getIconURL())
-                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
+                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non existant, they had to much L"));
                 .build(), FlareBot.getInstance().getGuildLogChannel());
     }
 
