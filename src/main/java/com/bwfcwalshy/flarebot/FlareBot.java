@@ -133,7 +133,7 @@ public class FlareBot {
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
-            if (parsed.hasOption("web-secret"))
+            if(parsed.hasOption("web-secret"))
                 FlareBot.webSecret = parsed.getOptionValue("web-secret");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
@@ -351,7 +351,8 @@ public class FlareBot {
             }
         }.repeat(10, 600000);
 
-        if (webSecret != null && !webSecret.isEmpty()) {
+        if(webSecret != null && !webSecret.isEmpty()) {
+            Runtime runtime = Runtime.getRuntime();
             new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
                 @Override
                 public void run() {
@@ -380,7 +381,7 @@ public class FlareBot {
         object.addProperty("secret", webSecret);
         JsonObject data = new JsonObject();
         data.addProperty("guilds", client.getGuilds().size());
-        data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getTotalMemberCount());
+        data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getUsers().size());
         data.addProperty("text_channels", client.getChannels(false).size());
         data.addProperty("voice_channels", client.getConnectedVoiceChannels().size());
         data.addProperty("active_voice_channels", client.getConnectedVoiceChannels().stream()
