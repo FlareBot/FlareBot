@@ -57,6 +57,8 @@ public class SkipCommand implements Command {
                 return;
             }
             Map<String, Vote> mvotes = getVotes(channel, sender);
+            if(mvotes == null)
+                return;
             if (mvotes.containsKey(sender.getID())) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withColor(229, 45, 39)
                         .withDesc("***\u26A0 You already voted! \u26A0***")
