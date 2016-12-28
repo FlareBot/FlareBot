@@ -73,6 +73,9 @@ public class InfoCommand implements Command {
                 ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%", true);
         bld.appendField("Support Server: ", "[`Discord`](http://discord.me/flarebot)", true);
         bld.appendField("Donate to our host: ", "[`PayPal`](https://www.paypal.me/CaptainBaconz)", true);
+        bld.appendField("Our Patreon: ", "[`Patreon`](https://www.patreon.com/flarebot)", true);
+        bld.appendField("Website: ", "[`FlareBot`](http://flarebot.stream/)", true);
+        bld.appendField("Twitter: ", "[`Twitter`](https://twitter.com/DiscordFlareBot)", true);
         bld.appendField("Invite: ", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite()), true);
         bld.appendField("\u200B", "\u200B", false);
 //        bld.appendField("\u200B", "\u200B", true);
