@@ -355,7 +355,7 @@ public class FlareBot {
                     object.addProperty("secret", webSecret);
                     JsonObject data = new JsonObject();
                     data.addProperty("guilds", client.getGuilds().size());
-                    data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getTotalMemberCount());
+                    data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getUsers().size());
                     data.addProperty("text_channels", client.getChannels(false).size());
                     data.addProperty("voice_channels", client.getConnectedVoiceChannels().size());
                     data.addProperty("active_voice_channels", client.getConnectedVoiceChannels().stream()
