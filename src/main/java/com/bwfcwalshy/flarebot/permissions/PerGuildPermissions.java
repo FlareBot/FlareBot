@@ -47,7 +47,7 @@ public class PerGuildPermissions {
     }
 
     public boolean removePermission(String group, String permission) {
-        boolean had = getGroup(group).getPermissions().remove(group);
+        boolean had = getGroup(group).getPermissions().remove(permission);
         if (getGroup(group).getPermissions().size() == 0) {
             groups.remove(group);
         }
