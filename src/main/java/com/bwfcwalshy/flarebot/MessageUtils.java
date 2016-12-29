@@ -73,6 +73,7 @@ public class MessageUtils {
         try {
             HttpPost req = new HttpPost("https://hastebin.com/documents");
             req.addHeader("Content-Type", "text/plain");
+            req.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
             StringEntity ent = new StringEntity(trace);
             req.setEntity(ent);
             HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);

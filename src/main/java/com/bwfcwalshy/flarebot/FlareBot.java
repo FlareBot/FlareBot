@@ -26,8 +26,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
-import java.net.HttpURLConnection;
-import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.cli.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -42,6 +40,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
@@ -430,7 +429,7 @@ public class FlareBot {
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setRequestMethod("POST");
-            con.setRequestProperty("User-Agent", "Mozilla/5.0");
+            con.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
             con.setRequestProperty("Content-Type", "application/json");
 
             OutputStream out = con.getOutputStream();
