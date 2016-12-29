@@ -375,6 +375,7 @@ public class FlareBot {
     }
 
     private Runtime runtime = Runtime.getRuntime();
+    private JsonParser parser = new JsonParser();
 
     private void sendData() {
         JsonObject object = new JsonObject();
@@ -436,11 +437,14 @@ public class FlareBot {
             out.write(object.toString().getBytes());
             out.close();
 
-            if (con.getResponseCode() >= 200 && con.getResponseCode() < 300) {
-                LOGGER.info("Posted to the API successfully!");
+            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            JsonObject obj = parser.parse(br.readLine()).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+
+            if (code % 100 == 0) {
+                LOGGER.info(code + " - " + obj.get("message").getAsString());
             } else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                LOGGER.error("Error updating site! " + br.readLine());
+                LOGGER.error("Error updating site! " + obj.get("error").getAsString());
             }
             con.disconnect();
         } catch (IOException e) {
