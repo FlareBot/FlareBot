@@ -9,8 +9,7 @@ public enum CommandType {
     GENERAL,
     ADMINISTRATIVE(false),
     MUSIC(false),
-    HIDDEN,
-    OWNER;
+    HIDDEN;
 
     private boolean dms;
 

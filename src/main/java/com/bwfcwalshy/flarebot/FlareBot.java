@@ -26,6 +26,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
+import java.net.HttpURLConnection;
 import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.cli.*;
 import org.apache.http.client.HttpClient;
@@ -64,7 +65,6 @@ public class FlareBot {
     }
 
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
-    public static final PrintStream STDERR = System.err;
     private static String dBotsAuth;
     public static final HttpClient HTPP_CLIENT = HttpClientBuilder.create()
             .setRedirectStrategy(new LaxRedirectStrategy()).disableCookieManagement().build();
@@ -83,7 +83,6 @@ public class FlareBot {
     private File welcomeFile;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException {
-//        FlareBot.args = args;
         Options options = new Options();
 
         Option token = new Option("t", true, "Bot log in token");
@@ -312,6 +311,8 @@ public class FlareBot {
             LOGGER.error("Could not change avatar!", e);
         }
 
+        sendCommands();
+
         new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -352,7 +353,6 @@ public class FlareBot {
         }.repeat(10, 600000);
 
         if(webSecret != null && !webSecret.isEmpty()) {
-            Runtime runtime = Runtime.getRuntime();
             new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
                 @Override
                 public void run() {
@@ -379,6 +379,7 @@ public class FlareBot {
     private void sendData() {
         JsonObject object = new JsonObject();
         object.addProperty("secret", webSecret);
+        object.addProperty("action", "postData");
         JsonObject data = new JsonObject();
         data.addProperty("guilds", client.getGuilds().size());
         data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getUsers().size());
@@ -397,6 +398,34 @@ public class FlareBot {
         data.addProperty("uptime", getUptime());
         object.add("data", data);
 
+        postToApi(object);
+    }
+
+    private void sendCommands(){
+        JsonObject obj = new JsonObject();
+        obj.addProperty("secret", webSecret);
+        obj.addProperty("action", "updateCommands");
+        JsonArray array = new JsonArray();
+        for(Command cmd : commands){
+            JsonObject cmdObj = new JsonObject();
+            cmdObj.addProperty("command", cmd.getCommand());
+            cmdObj.addProperty("description", cmd.getDescription());
+            cmdObj.addProperty("permission", cmd.getPermission() == null ? "" : cmd.getPermission());
+            cmdObj.addProperty("type", cmd.getType().toString());
+            JsonArray aliases = new JsonArray();
+            for(String s : cmd.getAliases())
+                aliases.add(s);
+            cmdObj.add("aliases", aliases);
+            array.add(cmdObj);
+        }
+        obj.add("commands", array);
+
+        System.out.println(obj.toString());
+
+        postToApi(obj);
+    }
+
+    private void postToApi(JsonObject object){
         try {
             HttpsURLConnection con = (HttpsURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
             con.setDoInput(true);
@@ -410,7 +439,7 @@ public class FlareBot {
             out.close();
 
             if (con.getResponseCode() >= 200 && con.getResponseCode() < 300) {
-                LOGGER.info("Updated site data!");
+                LOGGER.info("Posted to the API successfully!");
             } else {
                 BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
                 LOGGER.error("Error updating site! " + br.readLine());
