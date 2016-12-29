@@ -420,8 +420,6 @@ public class FlareBot {
         }
         obj.add("commands", array);
 
-        System.out.println(obj.toString());
-
         postToApi(obj);
     }
 
