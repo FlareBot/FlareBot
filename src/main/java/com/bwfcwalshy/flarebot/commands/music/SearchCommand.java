@@ -2,15 +2,12 @@ package com.bwfcwalshy.flarebot.commands.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.music.VideoThread;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RequestBuffer;
 
 public class SearchCommand implements Command {
 
@@ -33,17 +30,7 @@ public class SearchCommand implements Command {
                 term = term.trim();
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
-            RequestBuffer.request(() -> {
-                try {
-                    message.delete();
-                } catch (MissingPermissionsException e) {
-                    // Ignore
-                } catch (DiscordException e) {
-                    FlareBot.LOGGER.error("Could not erase message!", e);
-                }
-            });
         }
-
     }
 
     @Override

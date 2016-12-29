@@ -150,9 +150,6 @@ public class Events {
             }
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
-                    if(!e.getMessage().getChannel().isPrivate())
-                        COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
-                                g -> new AtomicInteger()).incrementAndGet();
                     FlareBot.LOGGER.info(
                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
@@ -170,6 +167,10 @@ public class Events {
                         }
                     }
                     try {
+                        delete(e);
+                        if(!e.getMessage().getChannel().isPrivate())
+                            COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
+                                    g -> new AtomicInteger()).incrementAndGet();
                         cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
                     } catch (Exception ex) {
                         MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
@@ -198,6 +199,10 @@ public class Events {
                                 }
                             }
                             try {
+                                delete(e);
+                                if(!e.getMessage().getChannel().isPrivate())
+                                    COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
+                                            g -> new AtomicInteger()).incrementAndGet();
                                 cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
                             } catch (Exception ex) {
                                 FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
@@ -211,6 +216,15 @@ public class Events {
                 }
             }
         }
+    }
+
+    private void delete(MessageReceivedEvent e) {
+        RequestBuffer.request(() -> {
+            try {
+                e.getMessage().delete();
+            } catch (DiscordException | MissingPermissionsException ignored) {
+            }
+        });
     }
 
     private String getGuildId(MessageReceivedEvent e) {
