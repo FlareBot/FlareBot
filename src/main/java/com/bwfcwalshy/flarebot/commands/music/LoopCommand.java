@@ -13,7 +13,7 @@ public class LoopCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID());
-        if(!player.getLooping()){
+        if (!player.getLooping()) {
             player.setLooping(true);
             MessageUtils.sendMessage(channel, "Looping: **ON**");
         } else {

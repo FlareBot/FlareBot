@@ -2,6 +2,8 @@ package com.bwfcwalshy.flarebot.commands;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.util.SQLController;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,6 +29,16 @@ public class Prefixes {
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Could not load prefixes!");
         }
+
+        JsonArray array = new JsonArray();
+        for (String guildId : prefixes.keySet()) {
+            JsonObject object = new JsonObject();
+            object.addProperty("guildId", guildId);
+            object.addProperty("prefix", prefixes.get(guildId));
+            array.add(object);
+        }
+
+        FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
     }
 
     public char get(String guildid) {
@@ -65,5 +77,16 @@ public class Prefixes {
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Could not edit the prefixes in the database!", e);
         }
+        update(guildid, character);
+    }
+
+    public void update(String guildId, char prefix) {
+        JsonArray array = new JsonArray();
+        JsonObject guildObj = new JsonObject();
+        guildObj.addProperty("guildId", guildId);
+        guildObj.addProperty("prefix", prefix);
+        array.add(guildObj);
+
+        FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
     }
 }

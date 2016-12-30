@@ -131,7 +131,7 @@ public class FlareBot {
                 FlareBot.secret = parsed.getOptionValue("s");
             if (parsed.hasOption("db"))
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
-            if(parsed.hasOption("web-secret"))
+            if (parsed.hasOption("web-secret"))
                 FlareBot.webSecret = parsed.getOptionValue("web-secret");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
@@ -350,7 +350,7 @@ public class FlareBot {
             }
         }.repeat(10, 600000);
 
-        if(webSecret != null && !webSecret.isEmpty()) {
+        if (webSecret != null && !webSecret.isEmpty()) {
             new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
                 @Override
                 public void run() {
@@ -376,9 +376,6 @@ public class FlareBot {
     private JsonParser parser = new JsonParser();
 
     private void sendData() {
-        JsonObject object = new JsonObject();
-        object.addProperty("secret", webSecret);
-        object.addProperty("action", "postData");
         JsonObject data = new JsonObject();
         data.addProperty("guilds", client.getGuilds().size());
         data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getUsers().size());
@@ -395,34 +392,34 @@ public class FlareBot {
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("cpu", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%");
         data.addProperty("uptime", getUptime());
-        object.add("data", data);
 
-        postToApi(object);
+        postToApi("postData", "data", data);
     }
 
-    private void sendCommands(){
-        JsonObject obj = new JsonObject();
-        obj.addProperty("secret", webSecret);
-        obj.addProperty("action", "updateCommands");
+    private void sendCommands() {
         JsonArray array = new JsonArray();
-        for(Command cmd : commands){
+        for (Command cmd : commands) {
             JsonObject cmdObj = new JsonObject();
             cmdObj.addProperty("command", cmd.getCommand());
             cmdObj.addProperty("description", cmd.getDescription());
             cmdObj.addProperty("permission", cmd.getPermission() == null ? "" : cmd.getPermission());
             cmdObj.addProperty("type", cmd.getType().toString());
             JsonArray aliases = new JsonArray();
-            for(String s : cmd.getAliases())
+            for (String s : cmd.getAliases())
                 aliases.add(s);
             cmdObj.add("aliases", aliases);
             array.add(cmdObj);
         }
-        obj.add("commands", array);
 
-        postToApi(obj);
+        postToApi("updateCommands", "aliases", array);
     }
 
-    private void postToApi(JsonObject object){
+    public void postToApi(String action, String property, JsonElement data) {
+        JsonObject object = new JsonObject();
+        object.addProperty("secret", webSecret);
+        object.addProperty("action", action);
+        object.add(property, data);
+
         try {
             HttpsURLConnection con = (HttpsURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
             con.setDoInput(true);

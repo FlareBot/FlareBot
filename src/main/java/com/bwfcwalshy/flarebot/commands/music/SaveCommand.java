@@ -22,23 +22,23 @@ import java.util.stream.Collectors;
 public class SaveCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length == 0){
+        if (args.length == 0) {
             MessageUtils.sendMessage(channel, "Usage: _save [NAME]");
             return;
         }
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
-        if(name.length() > 20){
+        if (name.length() > 20) {
             MessageUtils.sendMessage(channel, "Name must be up to 20 characters!");
             return;
         }
-        if(!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())){
+        if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())) {
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
         }
         Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).getPlaylist();
-        if(playlist.isEmpty()){
+        if (playlist.isEmpty()) {
             MessageUtils.sendMessage(channel, "Your playlist is empty!");
             return;
         }

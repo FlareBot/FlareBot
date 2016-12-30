@@ -11,7 +11,8 @@ import sx.blah.discord.handle.obj.IUser;
 public class ShuffleCommand implements Command {
 
     private PlayerManager musicManager;
-    public ShuffleCommand(FlareBot bot){
+
+    public ShuffleCommand(FlareBot bot) {
         this.musicManager = bot.getMusicManager();
     }
 

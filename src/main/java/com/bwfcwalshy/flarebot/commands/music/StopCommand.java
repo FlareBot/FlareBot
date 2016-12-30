@@ -11,7 +11,8 @@ import sx.blah.discord.handle.obj.IUser;
 public class StopCommand implements Command {
 
     private PlayerManager musicManager;
-    public StopCommand(FlareBot bot){
+
+    public StopCommand(FlareBot bot) {
         this.musicManager = bot.getMusicManager();
     }
 
@@ -31,7 +32,9 @@ public class StopCommand implements Command {
     }
 
     @Override
-    public CommandType getType() { return CommandType.MUSIC; }
+    public CommandType getType() {
+        return CommandType.MUSIC;
+    }
 
     @Override
     public String getPermission() {

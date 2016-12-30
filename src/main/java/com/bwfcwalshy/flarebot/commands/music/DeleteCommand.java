@@ -18,7 +18,7 @@ import java.sql.SQLException;
 public class DeleteCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length == 0){
+        if (args.length == 0) {
             MessageUtils.sendMessage(channel, "Usage: _delete [NAME]");
             return;
         }

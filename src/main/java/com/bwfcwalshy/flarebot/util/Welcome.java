@@ -6,13 +6,13 @@ public class Welcome {
     private String channelId;
     private String welcomeMessage;
 
-    public Welcome(String guildId, String channelId){
+    public Welcome(String guildId, String channelId) {
         this.guildId = guildId;
         this.channelId = channelId;
         this.welcomeMessage = "Welcome %user% to %guild%";
     }
 
-    public Welcome setMessage(String msg){
+    public Welcome setMessage(String msg) {
         this.welcomeMessage = msg;
         return this;
     }
@@ -22,15 +22,15 @@ public class Welcome {
         return this;
     }
 
-    public String getGuildId(){
+    public String getGuildId() {
         return this.guildId;
     }
 
-    public String getChannelId(){
+    public String getChannelId() {
         return this.channelId;
     }
 
-    public String getMessage(){
+    public String getMessage() {
         return this.welcomeMessage;
     }
 }

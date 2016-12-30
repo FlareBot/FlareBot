@@ -24,7 +24,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
         for (Object res : results) {
             if (res instanceof JSONObject) {
                 JSONObject result = (JSONObject) res;
-                if(!result.getJSONObject("snippet").getString("liveBroadcastContent").contains("none"))
+                if (!result.getJSONObject("snippet").getString("liveBroadcastContent").contains("none"))
                     continue;
                 JSONObject id = result.getJSONObject("id");
                 if (id.getString("kind").equals("youtube#playlist")) {
@@ -35,7 +35,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
                 break;
             }
         }
-        if(link == null){
+        if (link == null) {
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                     .withDesc(String.format("Could not find any results for `%s`", input)).build(), message);
             return;

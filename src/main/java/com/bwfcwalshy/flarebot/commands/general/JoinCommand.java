@@ -14,11 +14,11 @@ public class JoinCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(!sender.getConnectedVoiceChannels().isEmpty()){
+        if (!sender.getConnectedVoiceChannels().isEmpty()) {
             IVoiceChannel voiceChannel = sender.getConnectedVoiceChannels().get(0);
             try {
                 voiceChannel.join();
-                if(FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())){
+                if (FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())) {
                     FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).setPaused(false);
                 }
             } catch (MissingPermissionsException e) {
@@ -38,5 +38,7 @@ public class JoinCommand implements Command {
     }
 
     @Override
-    public CommandType getType() { return CommandType.GENERAL; }
+    public CommandType getType() {
+        return CommandType.GENERAL;
+    }
 }

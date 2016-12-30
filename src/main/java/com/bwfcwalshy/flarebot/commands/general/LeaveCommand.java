@@ -41,7 +41,7 @@ public class LeaveCommand implements Command {
     public CommandType getType() {
         return CommandType.GENERAL;
     }
-    
+
     @Override
     public String getPermission() {
         return "flarebot.leave";

@@ -13,7 +13,7 @@ public enum CommandType {
 
     private boolean dms;
 
-    CommandType(){
+    CommandType() {
         this(true);
     }
 
@@ -21,12 +21,12 @@ public enum CommandType {
         this.dms = dms;
     }
 
-    public String toString(){
+    public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();
     }
 
-    public static CommandType[] getTypes(){
-        return new CommandType[] {GENERAL, ADMINISTRATIVE, MUSIC};
+    public static CommandType[] getTypes() {
+        return new CommandType[]{GENERAL, ADMINISTRATIVE, MUSIC};
     }
 
     public List<Command> getCommands() {

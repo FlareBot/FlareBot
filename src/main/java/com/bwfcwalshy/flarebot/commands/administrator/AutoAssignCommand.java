@@ -27,7 +27,7 @@ public class AutoAssignCommand implements Command {
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.getGuild().getOwner().getID().equals(sender.getID()) || flareBot.getPermissions(channel).hasPermission(sender, "flarebot.commands.autoassign")) {
             if (args.length == 0) {
-                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "autoassign <add/remove/list> (role)");
+                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign <add/remove/list> (role)");
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("list")) {
                     if (flareBot.getAutoAssignRoles().containsKey(channel.getGuild().getID())) {
@@ -44,7 +44,7 @@ public class AutoAssignCommand implements Command {
                         MessageUtils.sendMessage(channel, "This server has no roles being assigned.");
                     }
                 } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "autoassign " + args[0] + " <role>");
+                    MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign " + args[0] + " <role>");
                 } else {
                     MessageUtils.sendMessage(channel, sender.mention() + " Invalid argument!");
                 }
@@ -93,7 +93,7 @@ public class AutoAssignCommand implements Command {
                     MessageUtils.sendMessage(channel, sender.mention() + " Invalid argument!");
                 }
             } else {
-                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "autoassign <add/remove/list> (role)");
+                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign <add/remove/list> (role)");
             }
         }
     }

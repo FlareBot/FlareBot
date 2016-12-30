@@ -20,7 +20,7 @@ public class WelcomeCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (args.length == 0) {
-            MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "welcome <enable/disable/set/message>");
+            MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>");
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("enable")) {
                 if (flareBot.getWelcomeForGuild(channel.getGuild()) == null) {
@@ -45,7 +45,7 @@ public class WelcomeCommand implements Command {
                     MessageUtils.sendMessage(channel, "Welcomes are not enabled!");
                 }
             } else if (args[0].equalsIgnoreCase("message")) {
-                MessageUtils.sendMessage(channel, sender.mention() + " To set a new message do " + FlareBot.COMMAND_CHAR + "welcome message (message)\n" +
+                MessageUtils.sendMessage(channel, sender.mention() + " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome message (message)\n" +
                         "Known variables are:\n" +
                         "``%user%`` for the username,\n" +
                         "``%mention%`` to mention the user, and\n" +
@@ -53,7 +53,7 @@ public class WelcomeCommand implements Command {
                         (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```"));
             } else {
-                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "welcome <enable/disable/set/message>");
+                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>");
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("message")) {
@@ -69,10 +69,10 @@ public class WelcomeCommand implements Command {
                     MessageUtils.sendMessage(channel, "Welcomes are not enabled!");
                 }
             } else {
-                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "welcome <enable/disable/set/message>");
+                MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>");
             }
         } else {
-            MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.COMMAND_CHAR + "welcome <enable/disable/set/message>");
+            MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>");
         }
     }
 

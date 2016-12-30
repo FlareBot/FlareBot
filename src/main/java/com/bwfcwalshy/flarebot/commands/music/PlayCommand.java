@@ -11,7 +11,8 @@ import sx.blah.discord.handle.obj.IUser;
 public class PlayCommand implements Command {
 
     private PlayerManager musicManager;
-    public PlayCommand(FlareBot bot){
+
+    public PlayCommand(FlareBot bot) {
         this.musicManager = bot.getMusicManager();
     }
 
@@ -31,10 +32,12 @@ public class PlayCommand implements Command {
     }
 
     @Override
-    public String[] getAliases(){
+    public String[] getAliases() {
         return new String[]{"resume"};
     }
 
     @Override
-    public CommandType getType() { return CommandType.MUSIC; }
+    public CommandType getType() {
+        return CommandType.MUSIC;
+    }
 }

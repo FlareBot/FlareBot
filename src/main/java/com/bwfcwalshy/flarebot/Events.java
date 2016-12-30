@@ -168,7 +168,7 @@ public class Events {
                     }
                     try {
                         delete(e);
-                        if(!e.getMessage().getChannel().isPrivate())
+                        if (!e.getMessage().getChannel().isPrivate())
                             COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
                                     g -> new AtomicInteger()).incrementAndGet();
                         cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
@@ -200,7 +200,7 @@ public class Events {
                             }
                             try {
                                 delete(e);
-                                if(!e.getMessage().getChannel().isPrivate())
+                                if (!e.getMessage().getChannel().isPrivate())
                                     COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
                                             g -> new AtomicInteger()).incrementAndGet();
                                 cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);

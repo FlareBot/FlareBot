@@ -1,7 +1,7 @@
 package com.bwfcwalshy.flarebot.permissions;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Permissions;
 
 import java.util.HashMap;

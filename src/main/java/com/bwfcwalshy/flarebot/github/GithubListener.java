@@ -13,7 +13,7 @@ public class GithubListener implements EventListener<PushEvent> {
 
     @Override
     public void handle(PushEvent e) {
-        if(!FlareBot.getInstance().getClient().isReady())
+        if (!FlareBot.getInstance().getClient().isReady())
             return;
         StringBuilder sb = new StringBuilder();
         sb.append("New commit by **")
@@ -22,7 +22,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 .append("`")
                 .append(e.getRef().substring(e.getRef().lastIndexOf('/') + 1))
                 .append("`\n");
-        for(Commit commit : e.getCommits()){
+        for (Commit commit : e.getCommits()) {
             sb.append(":arrow_up: ").append("`")
                     .append(commit.getId().substring(0, 7)).append("`").append(" :pencil: ").append("`")
                     .append(commit.getMessage()).append("`")

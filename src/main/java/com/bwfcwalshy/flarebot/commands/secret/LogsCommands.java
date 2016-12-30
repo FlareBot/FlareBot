@@ -16,7 +16,7 @@ import java.io.IOException;
 public class LogsCommands implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(getPermissions(channel).isCreator(sender)){
+        if (getPermissions(channel).isCreator(sender)) {
             RequestBuffer.request(() -> {
                 try {
                     channel.sendFile("Latest log:", new File("latest.log"));

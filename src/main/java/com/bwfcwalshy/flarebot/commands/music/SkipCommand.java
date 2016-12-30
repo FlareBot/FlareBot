@@ -57,7 +57,7 @@ public class SkipCommand implements Command {
                 return;
             }
             Map<String, Vote> mvotes = getVotes(channel, sender);
-            if(mvotes == null)
+            if (mvotes == null)
                 return;
             if (mvotes.containsKey(sender.getID())) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withColor(229, 45, 39)

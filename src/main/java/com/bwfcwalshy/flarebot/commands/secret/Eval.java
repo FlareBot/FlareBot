@@ -59,7 +59,7 @@ public class Eval implements Command {
             POOL.submit(() -> {
                 try {
                     String eResult = String.valueOf(engine.eval(imports + code));
-                    if(("```groovy\n" + eResult + "\n```").length() > 1048){
+                    if (("```groovy\n" + eResult + "\n```").length() > 1048) {
                         eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
                     } else eResult = "```groovy\n" + eResult + "\n```";
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
@@ -69,7 +69,7 @@ public class Eval implements Command {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                             .appendField("Code:", "```groovy\n" + code + "```", false)
                             .appendField("Result: ", "```groovy\n" + e.getMessage() + "```", false).build(), channel);
-                } catch (Exception e){
+                } catch (Exception e) {
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }
             });
