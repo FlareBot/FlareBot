@@ -45,4 +45,9 @@ public class SetPrefixCommand implements Command {
     public String getPermission() {
         return "flarebot.prefix";
     }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"setprefix"};
+    }
 }
