@@ -22,7 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateCommand implements Command {
 
-    public static volatile AtomicBoolean updating = new AtomicBoolean(false);
+    public static AtomicBoolean updating = new AtomicBoolean(false);
+    private static AtomicBoolean queued = new AtomicBoolean(false);
 
     private FlareBot flareBot = FlareBot.getInstance();
 
@@ -39,14 +40,17 @@ public class UpdateCommand implements Command {
                     if (flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     } else {
-                        new FlarebotTask("Queued-Update") {
-                            @Override
-                            public void run() {
-                                if (flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
-                                    update(true, channel);
+                        if (!queued.get()) {
+                            new FlarebotTask("Queued-Update") {
+                                @Override
+                                public void run() {
+                                    if (flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
+                                        update(true, channel);
+                                    }
                                 }
-                            }
-                        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(1));
+                            }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(1));
+                        } else
+                            MessageUtils.sendMessage(channel, "There is already an update queued!");
                     }
                 } else {
                     Period p;

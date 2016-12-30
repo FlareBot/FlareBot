@@ -101,6 +101,7 @@ public class Events {
 
     @EventSubscriber
     public void onGuildDelete(GuildLeaveEvent e) {
+        COMMAND_COUNTER.remove(e.getGuild().getID());
         MessageUtils.sendMessage(new EmbedBuilder()
                 .withColor(new Color(244, 23, 23))
                 .withThumbnail(e.getGuild().getIconURL())
@@ -114,7 +115,7 @@ public class Events {
 
     @EventSubscriber
     public void onVoice(UserVoiceChannelLeaveEvent e) {
-        if (e.getChannel().getConnectedUsers().contains(FlareBot.getInstance().getClient().getOurUser())
+        if (e.getChannel().getConnectedUsers().contains(e.getClient().getOurUser())
                 && e.getChannel().getConnectedUsers().size() < 2) {
             FlareBot.getInstance().getMusicManager().getPlayer(e.getChannel().getGuild().getID()).setPaused(true);
             e.getChannel().leave();
