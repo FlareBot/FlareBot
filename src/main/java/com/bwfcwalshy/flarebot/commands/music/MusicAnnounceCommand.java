@@ -34,7 +34,7 @@ public class MusicAnnounceCommand implements Command {
                 }
             });
         } catch (SQLException e) {
-            FlareBot.LOGGER.error("Could not load song announces!!");
+            FlareBot.LOGGER.error("Could not load song announces!!", e);
         }
     }
 

@@ -55,7 +55,11 @@ public class UpdateCommand implements Command {
                 } else {
                     Period p;
                     try {
-                        PeriodFormatter formatter = new PeriodFormatterBuilder().appendDays().appendSuffix("d").appendHours().appendSuffix("h").appendSeconds().appendSuffix("s")
+                        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                                .appendDays().appendSuffix("d")
+                                .appendHours().appendSuffix("h")
+                                .appendMinutes().appendSuffix("m")
+                                .appendSeconds().appendSuffix("s")
                                 .toFormatter();
                         p = formatter.parsePeriod(args[0]);
 
@@ -83,7 +87,7 @@ public class UpdateCommand implements Command {
      */
     private void update(boolean force, IChannel channel) {
         try {
-            URL url = new URL("https://raw.githubusercontent.com/bwfcwalshyPluginDev/FlareBot/master/pom.xml");
+            URL url = new URL("https://raw.githubusercontent.com/ArsenArsen/FlareBot/master/pom.xml");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while (true) {

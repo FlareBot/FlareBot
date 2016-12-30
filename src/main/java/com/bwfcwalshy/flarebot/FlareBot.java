@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot;
 
+import ch.qos.logback.classic.Level;
 import com.arsenarsen.githubwebhooks4j.GithubWebhooks4J;
 import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
@@ -50,6 +51,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class FlareBot {
@@ -120,6 +123,11 @@ public class FlareBot {
         websiteSecret.setRequired(false);
         options.addOption(websiteSecret);
 
+        Option debug = new Option("d", false, "Enables debug mode");
+        debug.setLongOpt("debug");
+        debug.setRequired(false);
+        options.addOption(debug);
+
         String tkn;
         try {
             CommandLineParser parser = new DefaultParser();
@@ -133,6 +141,10 @@ public class FlareBot {
                 FlareBot.dBotsAuth = parsed.getOptionValue("db");
             if (parsed.hasOption("web-secret"))
                 FlareBot.webSecret = parsed.getOptionValue("web-secret");
+            if (parsed.hasOption("debug")) {
+                ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+                        .setLevel(Level.DEBUG);
+            }
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
@@ -142,7 +154,7 @@ public class FlareBot {
         }
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         Thread.currentThread().setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
-        new FlareBot().init(tkn);
+        (instance = new FlareBot()).init(tkn);
     }
 
     public static final char COMMAND_CHAR = '_';
@@ -208,22 +220,16 @@ public class FlareBot {
                     }
                 }
             }));
-
             roleFile = new File("roles.json");
             loadRoles();
-
             loadPerms();
-
             welcomeFile = new File("welcomes.json");
             loadWelcomes();
-
             try {
                 gitHubWebhooks = new WebhooksBuilder().withSecret(secret).addListener(new GithubListener()).forRequest("/payload").onPort(8080).build();
             } catch (IOException e) {
                 LOGGER.error("Could not set up webhooks!", e);
             }
-
-            instance = this;
         } catch (DiscordException e) {
             LOGGER.error("Could not log in!", e);
         }
@@ -414,37 +420,49 @@ public class FlareBot {
         postToApi("updateCommands", "aliases", array);
     }
 
+    private static volatile int api = 0;
+    public static final ExecutorService API_THREAD_POOL =
+            Executors.newCachedThreadPool(r -> new Thread(() -> {
+                try {
+                    r.run();
+                } catch (Exception e) {
+                    LOGGER.error("Error in " + Thread.currentThread(), e);
+                }
+            }, "API Thread " + api++));
+
     public void postToApi(String action, String property, JsonElement data) {
-        JsonObject object = new JsonObject();
-        object.addProperty("secret", webSecret);
-        object.addProperty("action", action);
-        object.add(property, data);
+        API_THREAD_POOL.submit(() -> {
+            JsonObject object = new JsonObject();
+            object.addProperty("secret", webSecret);
+            object.addProperty("action", action);
+            object.add(property, data);
 
-        try {
-            HttpsURLConnection con = (HttpsURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
-            con.setDoInput(true);
-            con.setDoOutput(true);
-            con.setRequestMethod("POST");
-            con.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
-            con.setRequestProperty("Content-Type", "application/json");
+            try {
+                HttpsURLConnection con = (HttpsURLConnection) new URL(FLAREBOT_API + "update.php").openConnection();
+                con.setDoInput(true);
+                con.setDoOutput(true);
+                con.setRequestMethod("POST");
+                con.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+                con.setRequestProperty("Content-Type", "application/json");
 
-            OutputStream out = con.getOutputStream();
-            out.write(object.toString().getBytes());
-            out.close();
+                OutputStream out = con.getOutputStream();
+                out.write(object.toString().getBytes());
+                out.close();
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            JsonObject obj = parser.parse(br.readLine()).getAsJsonObject();
-            int code = obj.get("code").getAsInt();
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                JsonObject obj = parser.parse(br.readLine()).getAsJsonObject();
+                int code = obj.get("code").getAsInt();
 
-            if (code % 100 == 0) {
-                LOGGER.info(code + " - " + obj.get("message").getAsString());
-            } else {
-                LOGGER.error("Error updating site! " + obj.get("error").getAsString());
+                if (code % 100 == 0) {
+                    LOGGER.info(code + " - " + obj.get("message").getAsString());
+                } else {
+                    LOGGER.error("Error updating site! " + obj.get("error").getAsString());
+                }
+                con.disconnect();
+            } catch (IOException e) {
+                FlareBot.LOGGER.error("Could not make POST request!", e);
             }
-            con.disconnect();
-        } catch (IOException e) {
-            FlareBot.LOGGER.error("Could not make POST request!", e);
-        }
+        });
     }
 
     public void quit(boolean update) {
