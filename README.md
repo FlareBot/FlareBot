@@ -5,27 +5,26 @@ Brand new Discord music bot made with Discord4J in Java
 | Command | Description | Permission | Aliases |
 | ------- | ----------- | ------------------- | ------- |
 | commands | See a list of all commands. | - | help |
-| join | Tell FlareBot to join your voice channel. | - | - |
-| leave | Tell FlareBot to leave your voice channel. | - | - |
-| info | Displays info about the bot. | - | stats |
+| join | Tell FlareBot to join your voice channel. | - | flarebot.join |
+| leave | Tell FlareBot to leave your voice channel. | - | flarebot.leave |
+| info | Displays info about the bot. | flarebot.info | stats |
 | invite | Get FlareBot's invite link. | - | - |
 | autoassign | Autoassign roles when a new user joins. | flarebot.autoassign | autorole |
 | roles | Get all the roles and their ID on the server. | flarebot.roles | - |
 | welcome | Add welcome messages to the server. | flarebot.welcome | - |
 | permissions | Handle server permissions. | flarebot.permissions | perms, perm |
-| search | Search for a song by name or link | - | - |
-| play | Resumes the music | - | resume |
-| pause | Pause the playing music | - | - |
+| search | Search for a song by name or link | flarebot.search | - |
+| play | Resumes the music | flarebot.play | resume |
+| pause | Pause the playing music | flarebot.pause | - |
 | stop | Stops the music from playing | flarebot.stop | - |
-| skip | Skips the current song | - | - |
-| shuffle | Shuffle the songs up | - | - |
-| volume | Change the volume | - | - |
-| playlist | View the current playlist | - | - |
-| song | View the current song playing | - | - |
+| skip | Skips the current song | flarebot.skip | - |
+| shuffle | Shuffle the songs up | flarebot.shuffle | - |
+| playlist | View the current playlist | flarebot.playlist | - |
+| song | View the current song playing | flarebot.song | - |
 | delete | Deletes a saved playlist | flarebot.playlist.delete | - |
 | load | Loads a saved playlist | flarebot.playlist.load | - |
 | save | Saves the current playlist | flarebot.playlist.save | - |
-| playlists | Shows the list of all playlists in this guild | - | - |
+| playlists | Shows the list of all playlists in this guild | flarebot.playlists | - |
 | loop | Sets the current playlist into loop more or out of it | flarebot.loop | - |
 | purge | Removes last X messages from a channel. Usage: `purge X` | flarebot.purge | - |
 | announce | Announces a track start in a text channel. Usage: `_announce HERE|OFF` | flarebot.songannounce | - |

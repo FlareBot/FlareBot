@@ -76,4 +76,9 @@ public class HelpCommand implements Command {
     public CommandType getType() {
         return CommandType.GENERAL;
     }
+
+    @Override
+    public String getPermission() {
+        return null;
+    }
 }

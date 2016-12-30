@@ -17,7 +17,7 @@ public interface Command {
     CommandType getType();
 
     default String getPermission() {
-        return null;
+        return "flarebot." + getCommand();
     }
 
     default String[] getAliases() {
