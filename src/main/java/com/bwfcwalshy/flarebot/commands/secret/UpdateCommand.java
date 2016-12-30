@@ -40,7 +40,7 @@ public class UpdateCommand implements Command {
                     if (flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     } else {
-                        if (!queued.get()) {
+                        if (!queued.getAndSet(true)) {
                             new FlarebotTask("Queued-Update") {
                                 @Override
                                 public void run() {
@@ -53,27 +53,30 @@ public class UpdateCommand implements Command {
                             MessageUtils.sendMessage(channel, "There is already an update queued!");
                     }
                 } else {
-                    Period p;
-                    try {
-                        PeriodFormatter formatter = new PeriodFormatterBuilder()
-                                .appendDays().appendSuffix("d")
-                                .appendHours().appendSuffix("h")
-                                .appendMinutes().appendSuffix("m")
-                                .appendSeconds().appendSuffix("s")
-                                .toFormatter();
-                        p = formatter.parsePeriod(args[0]);
+                    if (!queued.getAndSet(true)) {
+                        Period p;
+                        try {
+                            PeriodFormatter formatter = new PeriodFormatterBuilder()
+                                    .appendDays().appendSuffix("d")
+                                    .appendHours().appendSuffix("h")
+                                    .appendMinutes().appendSuffix("m")
+                                    .appendSeconds().appendSuffix("s")
+                                    .toFormatter();
+                            p = formatter.parsePeriod(args[0]);
 
-                        new FlarebotTask("Scheduled-Update") {
-                            @Override
-                            public void run() {
-                                update(true, channel);
-                            }
-                        }.delay(p.toStandardSeconds().getSeconds() * 1000);
-                    } catch (IllegalArgumentException e) {
-                        MessageUtils.sendMessage(channel, "That is an invalid time option!");
-                        return;
-                    }
-                    MessageUtils.sendMessage(channel, "I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.");
+                            new FlarebotTask("Scheduled-Update") {
+                                @Override
+                                public void run() {
+                                    update(true, channel);
+                                }
+                            }.delay(p.toStandardSeconds().getSeconds() * 1000);
+                        } catch (IllegalArgumentException e) {
+                            MessageUtils.sendMessage(channel, "That is an invalid time option!");
+                            return;
+                        }
+                        MessageUtils.sendMessage(channel, "I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.");
+                    } else
+                        MessageUtils.sendMessage(channel, "There is already an update queued!");
                 }
             }
         }
