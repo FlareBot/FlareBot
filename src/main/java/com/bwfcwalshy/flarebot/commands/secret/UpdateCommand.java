@@ -35,6 +35,7 @@ public class UpdateCommand implements Command {
                 if(args[0].equalsIgnoreCase("force")){
                     update(true, channel);
                 }else if(args[0].equalsIgnoreCase("no-active-channels")){
+                    MessageUtils.sendMessage(channel, "I will now update to the latest version when no channels are playing music!");
                     if(flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     }else{
@@ -48,10 +49,11 @@ public class UpdateCommand implements Command {
                         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(1));
                     }
                 }else{
+                    Period p;
                     try {
                         PeriodFormatter formatter = new PeriodFormatterBuilder().appendDays().appendSuffix("d").appendHours().appendSuffix("h").appendSeconds().appendSuffix("s")
                                 .toFormatter();
-                        Period p = formatter.parsePeriod(args[0]);
+                        p = formatter.parsePeriod(args[0]);
 
                         new FlarebotTask("Scheduled-Update") {
                             @Override
@@ -61,12 +63,19 @@ public class UpdateCommand implements Command {
                         }.delay(p.toStandardSeconds().getSeconds()*1000);
                     }catch(IllegalArgumentException e){
                         MessageUtils.sendMessage(channel, "That is an invalid time option!");
+                        return;
                     }
+                    MessageUtils.sendMessage(channel, "I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.");
                 }
             }
         }
     }
 
+    /**
+     * Update to the newest version of FlareBot!
+     * @param force If the version number has not changed this will need to be true in order to update it.
+     * @param channel Channel the command was sent in.
+     */
     private void update(boolean force, IChannel channel){
         try {
             URL url = new URL("https://raw.githubusercontent.com/bwfcwalshyPluginDev/FlareBot/master/pom.xml");
