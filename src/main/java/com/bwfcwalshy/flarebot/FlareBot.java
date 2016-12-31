@@ -417,7 +417,7 @@ public class FlareBot {
             array.add(cmdObj);
         }
 
-        postToApi("updateCommands", "aliases", array);
+        postToApi("updateCommands", "commands", array);
     }
 
     private static volatile int api = 0;
