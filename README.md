@@ -2,33 +2,7 @@
 Brand new Discord music bot made with Discord4J in Java
 
 # Commands
-| Command | Description | Permission | Aliases |
-| ------- | ----------- | ------------------- | ------- |
-| commands | See a list of all commands. | - | help |
-| join | Tell FlareBot to join your voice channel. | - | flarebot.join |
-| leave | Tell FlareBot to leave your voice channel. | - | flarebot.leave |
-| info | Displays info about the bot. | flarebot.info | stats |
-| invite | Get FlareBot's invite link. | - | - |
-| autoassign | Autoassign roles when a new user joins. | flarebot.autoassign | autorole |
-| roles | Get all the roles and their ID on the server. | flarebot.roles | - |
-| welcome | Add welcome messages to the server. | flarebot.welcome | - |
-| permissions | Handle server permissions. | flarebot.permissions | perms, perm |
-| search | Search for a song by name or link | flarebot.search | - |
-| play | Resumes the music | flarebot.play | resume |
-| pause | Pause the playing music | flarebot.pause | - |
-| stop | Stops the music from playing | flarebot.stop | - |
-| skip | Skips the current song | flarebot.skip | - |
-| shuffle | Shuffle the songs up | flarebot.shuffle | - |
-| playlist | View the current playlist | flarebot.playlist | - |
-| song | View the current song playing | flarebot.song | - |
-| delete | Deletes a saved playlist | flarebot.playlist.delete | - |
-| load | Loads a saved playlist | flarebot.playlist.load | - |
-| save | Saves the current playlist | flarebot.playlist.save | - |
-| playlists | Shows the list of all playlists in this guild | flarebot.playlists | - |
-| loop | Sets the current playlist into loop more or out of it | flarebot.loop | - |
-| purge | Removes last X messages from a channel. Usage: `purge X` | flarebot.purge | - |
-| announce | Announces a track start in a text channel. Usage: `_announce HERE|OFF` | flarebot.songannounce | - |
-| prefix | Sets a per guild prefix | flarebot.prefix | - |
+Commands are moved [here](https://flarebot.stream/#commands)!
 
 # Support
 If you need any help with the bot or you think you have found a bug please join our official Discord server and report it there!  
@@ -38,6 +12,6 @@ If you need any help with the bot or you think you have found a bug please join 
 If you want to help FlareBot's hosting and development please use [this link](https://www.paypal.me/CaptainBaconz). Thank you!
 
 ## Credits
-Initially started by bwfcwalshyPluginDev(@bwfcwalshy#1284) and ArsenArsen(@Arsen#3291)
-FlareBot is hosted by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
-FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
+* Initially started by bwfcwalshyPluginDev(@bwfcwalshy#1284) and ArsenArsen(@Arsen#3291)
+* FlareBot is hosted by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
+* FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
