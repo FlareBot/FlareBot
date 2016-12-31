@@ -13,10 +13,7 @@ import com.bwfcwalshy.flarebot.commands.Prefixes;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
 import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
-import com.bwfcwalshy.flarebot.commands.secret.Eval;
-import com.bwfcwalshy.flarebot.commands.secret.LogsCommands;
-import com.bwfcwalshy.flarebot.commands.secret.QuitCommand;
-import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
+import com.bwfcwalshy.flarebot.commands.secret.*;
 import com.bwfcwalshy.flarebot.github.GithubListener;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
@@ -305,15 +302,10 @@ public class FlareBot {
         registerCommand(new Eval());
         registerCommand(new MusicAnnounceCommand());
         registerCommand(new SetPrefixCommand());
+        registerCommand(new AvatarCommand());
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
-
-        try {
-            getClient().changeAvatar(Image.forStream("png", getClass().getClassLoader().getResourceAsStream("avatar.png")));
-        } catch (DiscordException | RateLimitException e) {
-            LOGGER.error("Could not change avatar!", e);
-        }
 
         sendCommands();
 

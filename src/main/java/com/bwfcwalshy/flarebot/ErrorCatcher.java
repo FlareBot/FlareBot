@@ -27,7 +27,10 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
         if (msg.startsWith("Attempt to send message on closed")) {
             return FilterReply.DENY;
         }
-        if (event.getMarker() != Markers.NO_ANNOUNCE && FlareBot.getInstance().getClient() != null && event.getLevel() == Level.ERROR) {
+        if (event.getMarker() != Markers.NO_ANNOUNCE
+                && FlareBot.getInstance().getClient() != null
+                && FlareBot.getInstance().getClient().isReady()
+                && event.getLevel() == Level.ERROR) {
             EXECUTOR.submit(() -> {
                 Throwable throwable = null;
                 if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
