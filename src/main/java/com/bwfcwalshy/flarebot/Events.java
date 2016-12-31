@@ -21,6 +21,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +30,9 @@ public class Events {
 
     private FlareBot flareBot;
     private AtomicBoolean bool = new AtomicBoolean(false);
+    private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
+    private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
+            new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
 
     public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
 
@@ -156,9 +161,6 @@ public class Events {
                             return;
                         }
                     }
-                    FlareBot.LOGGER.info(
-                            "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                    e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                     if (!cmd.getType().usableInDMs()) {
                         if (e.getMessage().getChannel().isPrivate()) {
                             MessageUtils.sendMessage(e.getMessage().getChannel(), String.format("**%s commands cannot be used in DM's!**", cmd.getType().formattedName()));
@@ -176,8 +178,14 @@ public class Events {
                         if (!e.getMessage().getChannel().isPrivate())
                             COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
                                     g -> new AtomicInteger()).incrementAndGet();
-                        cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
-                        delete(e);
+                        String[] finalArgs = args;
+                        CACHED_POOL.submit(() ->{
+                            cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
+                            FlareBot.LOGGER.info(
+                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                            e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                            delete(e);
+                        });
                     } catch (Exception ex) {
                         MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
                         FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
@@ -213,8 +221,14 @@ public class Events {
                                 if (!e.getMessage().getChannel().isPrivate())
                                     COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
                                             g -> new AtomicInteger()).incrementAndGet();
-                                cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), args);
-                                delete(e);
+                                String[] finalArgs = args;
+                                CACHED_POOL.submit(() ->{
+                                    cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
+                                    FlareBot.LOGGER.info(
+                                            "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                                    e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                                    delete(e);
+                                });
                             } catch (Exception ex) {
                                 FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
                                         + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
