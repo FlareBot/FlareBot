@@ -22,6 +22,12 @@ public class PerGuildPermissions {
         if (!hasGroup("Default")) {
             addPermission("Default", "flarebot.skip");
             addPermission("Default", "flarebot.leave");
+            addPermission("Default", "flarebot.play");
+            addPermission("Default", "flarebot.pause");
+            addPermission("Default", "flarebot.info");
+            addPermission("Default", "flarebot.join");
+            addPermission("Default", "flarebot.skip");
+            addPermission("Default", "flarebot.search");
         }
     }
 
