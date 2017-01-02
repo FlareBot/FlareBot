@@ -323,7 +323,7 @@ public class FlareBot {
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                if (!UpdateCommand.updating.get())
+                if (!UpdateCommand.UPDATING.get())
                     client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
             }
         }.repeat(10, 32000);
@@ -379,13 +379,7 @@ public class FlareBot {
         data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getUsers().size());
         data.addProperty("text_channels", client.getChannels(false).size());
         data.addProperty("voice_channels", client.getConnectedVoiceChannels().size());
-        data.addProperty("active_voice_channels", client.getConnectedVoiceChannels().stream()
-                .map(IVoiceChannel::getGuild)
-                .map(IDiscordObject::getID)
-                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
-                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
-                .filter(p -> p.getPlayingTrack() != null)
-                .filter(p -> !p.getPaused()).count());
+        data.addProperty("active_voice_channels", getActiveVoiceChannels());
         data.addProperty("num_queued_songs", client.getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getID()).getPlaylist().size()).sum());
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("cpu", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%");
@@ -476,7 +470,7 @@ public class FlareBot {
                     }
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
-                        UpdateCommand.updating.set(false);
+                        UpdateCommand.UPDATING.set(false);
                         return;
                     }
                 } else {
@@ -493,7 +487,7 @@ public class FlareBot {
                     }
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
-                        UpdateCommand.updating.set(false);
+                        UpdateCommand.UPDATING.set(false);
                         return;
                     }
                 }
@@ -511,7 +505,7 @@ public class FlareBot {
                 if (p.exitValue() != 0) {
                     LOGGER.error(Markers.NO_ANNOUNCE, "Could not update!!!!\n" + out);
                     String finalOut = out;
-                    UpdateCommand.updating.set(false);
+                    UpdateCommand.UPDATING.set(false);
                     RequestBuffer.request(() -> {
                         try {
                             getUpdateChannel().sendFile("Could not build!", false, new ByteArrayInputStream(finalOut.getBytes()), "buildlog.txt");
@@ -528,7 +522,7 @@ public class FlareBot {
                 System.exit(0);
             } catch (IOException e) {
                 LOGGER.error("Could not update!", e);
-                UpdateCommand.updating.set(false);
+                UpdateCommand.UPDATING.set(false);
             }
         } else
             LOGGER.debug("Exiting.");
@@ -737,5 +731,15 @@ public class FlareBot {
 
     public static String getYoutubeKey() {
         return youtubeApi;
+    }
+
+    public long getActiveVoiceChannels(){
+        return client.getConnectedVoiceChannels().stream()
+                .map(IVoiceChannel::getGuild)
+                .map(IDiscordObject::getID)
+                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
+                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
+                .filter(p -> p.getPlayingTrack() != null)
+                .filter(p -> !p.getPaused()).count();
     }
 }

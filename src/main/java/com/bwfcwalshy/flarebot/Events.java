@@ -122,7 +122,8 @@ public class Events {
     @EventSubscriber
     public void onVoice(UserVoiceChannelLeaveEvent e) {
         if(e.getUser().equals(e.getClient().getOurUser())){
-            if(e.getClient().getConnectedVoiceChannels().isEmpty() && UpdateCommand.NOVOICE_UPDATING.get()){
+            if(flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()){
+                MessageUtils.sendMessage(flareBot.getClient().getChannelByID("229704246004547585"), "I am now updating, there are no voice channels active!");
                 UpdateCommand.update(true, null);
             }
             return;
