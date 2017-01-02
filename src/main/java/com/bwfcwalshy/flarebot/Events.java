@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot;
 
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
@@ -120,6 +121,12 @@ public class Events {
 
     @EventSubscriber
     public void onVoice(UserVoiceChannelLeaveEvent e) {
+        if(e.getUser().equals(e.getClient().getOurUser())){
+            if(e.getClient().getConnectedVoiceChannels().isEmpty() && UpdateCommand.NOVOICE_UPDATING.get()){
+                UpdateCommand.update(true, null);
+            }
+            return;
+        }
         if (e.getChannel().getConnectedUsers().contains(e.getClient().getOurUser())
                 && e.getChannel().getConnectedUsers().size() < 2) {
             FlareBot.getInstance().getMusicManager().getPlayer(e.getChannel().getGuild().getID()).setPaused(true);
@@ -161,6 +168,10 @@ public class Events {
                             return;
                         }
                     }
+                    if(UpdateCommand.UPDATING.get()){
+                        MessageUtils.sendMessage(e.getMessage().getChannel(), "**Currently updating!**");
+                        return;
+                    }
                     if (!cmd.getType().usableInDMs()) {
                         if (e.getMessage().getChannel().isPrivate()) {
                             MessageUtils.sendMessage(e.getMessage().getChannel(), String.format("**%s commands cannot be used in DM's!**", cmd.getType().formattedName()));
@@ -199,6 +210,10 @@ public class Events {
                                 if (!cmd.getPermissions(e.getMessage().getChannel()).isCreator(e.getMessage().getAuthor())) {
                                     return;
                                 }
+                            }
+                            if(UpdateCommand.UPDATING.get()){
+                                MessageUtils.sendMessage(e.getMessage().getChannel(), "**Currently updating!**");
+                                return;
                             }
                             FlareBot.LOGGER.info(
                                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
