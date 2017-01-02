@@ -41,35 +41,36 @@ public class Prefixes {
         FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
     }
 
-    public char get(String guildid) {
-        if (guildid == null)
+    public char get(String guildId) {
+        if (guildId == null)
             return FlareBot.COMMAND_CHAR;
-        return prefixes.getOrDefault(guildid, FlareBot.COMMAND_CHAR);
+        return prefixes.getOrDefault(guildId, FlareBot.COMMAND_CHAR);
     }
 
-    public void set(String guildid, char character) {
+    public void set(String guildId, char character) {
         if (character == FlareBot.COMMAND_CHAR) {
-            prefixes.remove(guildid);
+            prefixes.remove(guildId);
             try {
                 SQLController.runSqlTask(conn -> {
                     PreparedStatement statement = conn.prepareStatement("DELETE FROM prefixes WHERE guildid = ?");
-                    statement.setString(1, guildid);
+                    statement.setString(1, guildId);
                     statement.execute();
                 });
             } catch (SQLException e) {
                 FlareBot.LOGGER.error("Could not edit the prefixes in the database!", e);
             }
+            update(guildId, character);
             return;
         }
-        prefixes.put(guildid, character);
+        prefixes.put(guildId, character);
         try {
             SQLController.runSqlTask(conn -> {
                 PreparedStatement statement = conn.prepareStatement("UPDATE prefixes SET prefix = ? WHERE guildid = ?");
                 statement.setString(1, String.valueOf(character));
-                statement.setString(2, guildid);
+                statement.setString(2, guildId);
                 if (statement.executeUpdate() == 0) {
                     statement = conn.prepareStatement("INSERT INTO prefixes (guildid, prefix) VALUES (?, ?)");
-                    statement.setString(1, guildid);
+                    statement.setString(1, guildId);
                     statement.setString(2, String.valueOf(character));
                     statement.executeUpdate();
                 }
@@ -77,7 +78,7 @@ public class Prefixes {
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Could not edit the prefixes in the database!", e);
         }
-        update(guildid, character);
+        update(guildId, character);
     }
 
     public void update(String guildId, char prefix) {
