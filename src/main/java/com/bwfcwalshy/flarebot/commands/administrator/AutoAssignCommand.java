@@ -20,6 +20,8 @@ public class AutoAssignCommand implements Command {
     /*
      * Note for Arsen:
      * This code is messy as fuck, I will clean it up at a later date.
+     *
+     * Edit by Arsen: Doesn't seem like you will.
      */
 
     @SuppressWarnings("ConstantConditions")
@@ -34,7 +36,7 @@ public class AutoAssignCommand implements Command {
                         StringBuilder sb = new StringBuilder();
                         sb.append("**Currently Auto Assigned Roles**\n```\n");
                         // This is there just in case they remove it.
-                        //noinspection ConstantConditions
+                        // noinspection ConstantConditions
                         flareBot.getAutoAssignRoles().get(channel.getGuild().getID()).stream()
                                 .filter(role -> getRole(channel.getGuild(), role) != null)
                                 .forEach(role -> sb.append(getRole(channel.getGuild(), role).getName()).append("\n"));

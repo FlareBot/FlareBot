@@ -25,7 +25,7 @@ public class PlaylistCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length != 1){
+        if (args.length != 1) {
             if (!manager.getPlayer(channel.getGuild().getID()).getPlaylist().isEmpty()) {
                 List<String> songs = new ArrayList<>();
                 int i = 1;
@@ -50,10 +50,12 @@ public class PlaylistCommand implements Command {
             } else {
                 MessageUtils.sendMessage(channel, "No songs in the playlist!");
             }
-        }else{
-            if(args[0].equalsIgnoreCase("clear")) {
+        } else {
+            if (args[0].equalsIgnoreCase("clear")) {
                 manager.getPlayer(channel.getGuild().getID()).getPlaylist().clear();
                 MessageUtils.sendMessage(channel, "Cleared the current playlist!");
+            } else {
+                MessageUtils.sendMessage(channel, "Incorrect usage! " + getDescription());
             }
         }
     }
@@ -65,7 +67,8 @@ public class PlaylistCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "View the songs currently on your playlist. NOTE: If too many it shows only the amount that can fit";
+        return "View the songs currently on your playlist. " +
+                "NOTE: If too many it shows only the amount that can fit. You can use `playlist clear` to remove all songs.";
     }
 
     @Override

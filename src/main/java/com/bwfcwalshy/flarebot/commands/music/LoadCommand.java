@@ -62,7 +62,7 @@ public class LoadCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Loads a playlist. Usage `_load NAME`";
+        return "Loads a playlist. Usage `load NAME`";
     }
 
     @Override

@@ -92,7 +92,7 @@ public class MusicAnnounceCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Announces a track start in a text channel. Usage: `_announce HERE|OFF`";
+        return "Announces a track start in a text channel. Usage: `announce HERE|OFF`";
     }
 
     @Override

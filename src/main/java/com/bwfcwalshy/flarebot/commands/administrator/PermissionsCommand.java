@@ -121,7 +121,7 @@ public class PermissionsCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "permissions givegroup | revokegroup <user> <group> for user management or list | addpermission | removepermission <group> <permission> for group management. permissions save to save.";
+        return "permissions givegroup | revokegroup <user> <group> for user management or list | addpermission | removepermission <group> <permission> for group management.";
     }
 
     @Override
