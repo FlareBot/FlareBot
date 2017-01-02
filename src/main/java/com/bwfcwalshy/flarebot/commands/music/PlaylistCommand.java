@@ -25,29 +25,36 @@ public class PlaylistCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if (!manager.getPlayer(channel.getGuild().getID()).getPlaylist().isEmpty()) {
-            List<String> songs = new ArrayList<>();
-            int i = 1;
-            StringBuilder sb = new StringBuilder();
-            Iterator<Track> it = manager.getPlayer(channel.getGuild().getID()).getPlaylist().iterator();
-            while (it.hasNext() && songs.size() < 25) {
-                Track next = it.next();
-                String toAppend = String.format("%s. %s\n", i++, next.getTrack().getInfo().title);
-                if (sb.length() + toAppend.length() > 1024) {
-                    songs.add(sb.toString());
-                    sb = new StringBuilder();
+        if(args.length != 1){
+            if (!manager.getPlayer(channel.getGuild().getID()).getPlaylist().isEmpty()) {
+                List<String> songs = new ArrayList<>();
+                int i = 1;
+                StringBuilder sb = new StringBuilder();
+                Iterator<Track> it = manager.getPlayer(channel.getGuild().getID()).getPlaylist().iterator();
+                while (it.hasNext() && songs.size() < 25) {
+                    Track next = it.next();
+                    String toAppend = String.format("%s. %s\n", i++, next.getTrack().getInfo().title);
+                    if (sb.length() + toAppend.length() > 1024) {
+                        songs.add(sb.toString());
+                        sb = new StringBuilder();
+                    }
+                    sb.append(toAppend);
                 }
-                sb.append(toAppend);
+                songs.add(sb.toString());
+                EmbedBuilder builder = MessageUtils.getEmbed(sender);
+                i = 1;
+                for (String s : songs) {
+                    builder.appendField("Page " + i++, s, false);
+                }
+                MessageUtils.sendPM(sender, builder.build());
+            } else {
+                MessageUtils.sendMessage(channel, "No songs in the playlist!");
             }
-            songs.add(sb.toString());
-            EmbedBuilder builder = MessageUtils.getEmbed(sender);
-            i = 1;
-            for (String s : songs) {
-                builder.appendField("Page " + i++, s, false);
+        }else{
+            if(args[0].equalsIgnoreCase("clear")) {
+                manager.getPlayer(channel.getGuild().getID()).getPlaylist().clear();
+                MessageUtils.sendMessage(channel, "Cleared the current playlist!");
             }
-            MessageUtils.sendPM(sender, builder.build());
-        } else {
-            MessageUtils.sendMessage(channel, "No songs in the playlist!");
         }
     }
 
