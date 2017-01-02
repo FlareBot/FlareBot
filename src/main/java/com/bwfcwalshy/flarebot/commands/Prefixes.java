@@ -31,19 +31,6 @@ public class Prefixes {
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Could not load prefixes!");
         }
-
-        JsonArray array = new JsonArray();
-        for (IGuild guild : FlareBot.getInstance().getClient().getGuilds()){
-            JsonObject object = new JsonObject();
-            object.addProperty("guildId", guild.getID());
-            if(prefixes.containsKey(guild.getID()))
-                object.addProperty("prefix", prefixes.get(guild.getID()));
-            else
-                object.addProperty("prefix", FlareBot.COMMAND_CHAR);
-            array.add(object);
-        }
-
-        FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
     }
 
     public char get(String guildId) {
@@ -94,5 +81,9 @@ public class Prefixes {
         array.add(guildObj);
 
         FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
+    }
+
+    public Map<String, Character> getPrefixes(){
+        return this.prefixes;
     }
 }

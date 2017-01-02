@@ -308,6 +308,7 @@ public class FlareBot {
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
         sendCommands();
+        sendPrefixes();
 
         new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
             @Override
@@ -404,6 +405,21 @@ public class FlareBot {
         }
 
         postToApi("updateCommands", "commands", array);
+    }
+
+    private void sendPrefixes() {
+        JsonArray array = new JsonArray();
+        for (IGuild guild : FlareBot.getInstance().getClient().getGuilds()){
+            JsonObject object = new JsonObject();
+            object.addProperty("guildId", guild.getID());
+            if(prefixes.getPrefixes().containsKey(guild.getID()))
+                object.addProperty("prefix", prefixes.getPrefixes().get(guild.getID()));
+            else
+                object.addProperty("prefix", FlareBot.COMMAND_CHAR);
+            array.add(object);
+        }
+
+        postToApi("updatePrefixes", "prefixes", array);
     }
 
     private static volatile int api = 0;
