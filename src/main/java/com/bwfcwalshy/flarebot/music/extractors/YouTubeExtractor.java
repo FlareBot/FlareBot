@@ -1,6 +1,7 @@
 package com.bwfcwalshy.flarebot.music.extractors;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
@@ -54,7 +55,9 @@ public class YouTubeExtractor implements Extractor {
         }
         if (name != null) {
             for (AudioTrack t : tracks) {
-                player.queue(t);
+                Track track = new Track(t);
+                track.getMeta().put("requester", user.getID());
+                player.queue(track);
             }
             EmbedBuilder builder = MessageUtils.getEmbed(user);
             builder.withDesc(String.format("%s added the %s [`%s`](%s)", user, tracks.size() == 1 ? "song" : "playlist",

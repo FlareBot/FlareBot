@@ -192,10 +192,11 @@ public class Events {
                                     g -> new AtomicInteger()).incrementAndGet();
                         String[] finalArgs = args;
                         CACHED_POOL.submit(() ->{
-                            cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
                             FlareBot.LOGGER.info(
                                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                             e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                            cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
+                                    delete(e);
                         });
                     } catch (Exception ex) {
                         MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
@@ -238,10 +239,11 @@ public class Events {
                                             g -> new AtomicInteger()).incrementAndGet();
                                 String[] finalArgs = args;
                                 CACHED_POOL.submit(() ->{
-                                    cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
                                     FlareBot.LOGGER.info(
                                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                                    cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
+                                    delete(e);
                                 });
                             } catch (Exception ex) {
                                 FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "

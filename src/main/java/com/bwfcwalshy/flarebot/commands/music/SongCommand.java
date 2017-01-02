@@ -27,6 +27,7 @@ public class SongCommand implements Command {
                     .appendField("Current song: ", getLink(track), false)
                     .appendField("Amount Played: ",
                             (int) (100f / track.getTrack().getDuration() * track.getTrack().getPosition()) + "%", true)
+                    .appendField("Requested by:", String.format("<@!%s>", track.getMeta().get("requester")), false)
                     .build(), channel);
         } else {
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender)

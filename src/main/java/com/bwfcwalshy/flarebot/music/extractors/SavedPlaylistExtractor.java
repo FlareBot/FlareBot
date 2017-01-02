@@ -1,6 +1,7 @@
 package com.bwfcwalshy.flarebot.music.extractors;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
@@ -34,7 +35,9 @@ public class SavedPlaylistExtractor implements Extractor {
                 continue;
             }
             try {
-                player.queue((AudioTrack) player.resolve(url));
+                Track track = new Track((AudioTrack) player.resolve(url));
+                track.getMeta().put("requester", user.getID());
+                player.queue(track);
                 i++;
             } catch (FriendlyException ignored) {
             }
