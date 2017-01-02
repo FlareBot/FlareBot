@@ -4,6 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import sx.blah.discord.handle.obj.IGuild;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Prefixes {
+
     private Map<String, Character> prefixes = new ConcurrentHashMap<>();
 
     public Prefixes() {
@@ -31,10 +33,13 @@ public class Prefixes {
         }
 
         JsonArray array = new JsonArray();
-        for (String guildId : prefixes.keySet()) {
+        for (IGuild guild : FlareBot.getInstance().getClient().getGuilds()){
             JsonObject object = new JsonObject();
-            object.addProperty("guildId", guildId);
-            object.addProperty("prefix", prefixes.get(guildId));
+            object.addProperty("guildId", guild.getID());
+            if(prefixes.containsKey(guild.getID()))
+                object.addProperty("prefix", prefixes.get(guild.getID()));
+            else
+                object.addProperty("prefix", FlareBot.COMMAND_CHAR);
             array.add(object);
         }
 
