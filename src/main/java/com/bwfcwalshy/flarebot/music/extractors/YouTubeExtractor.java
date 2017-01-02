@@ -31,6 +31,12 @@ public class YouTubeExtractor implements Extractor {
         AudioItem item;
         try {
             item = player.resolve(input);
+            if(item == null){
+                MessageUtils.editMessage(MessageUtils.getEmbed(user)
+                    .withDesc("Could not get that video/playlist!")
+                    .appendField("YouTube said: ", e.getMessage(), true).build(), message);
+                return;
+            }
         } catch (RuntimeException e) {
             MessageUtils.editMessage(MessageUtils.getEmbed(user)
                     .withDesc("Could not get that video/playlist!")
