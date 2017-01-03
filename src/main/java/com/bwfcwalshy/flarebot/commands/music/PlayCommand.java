@@ -23,7 +23,7 @@ public class PlayCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "resume";
+        return "play";
     }
 
     @Override
@@ -33,7 +33,7 @@ public class PlayCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"play"};
+        return new String[]{"resume"};
     }
 
     @Override
