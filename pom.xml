@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.github.ArsenArsen</groupId> <!-- <3 -->
             <artifactId>githubwebhooks4j</artifactId>
-            <version>1.1.3</version>
+            <version>1.1.6-1</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

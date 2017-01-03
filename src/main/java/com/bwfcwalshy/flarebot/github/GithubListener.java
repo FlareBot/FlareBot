@@ -5,30 +5,23 @@ import com.arsenarsen.githubwebhooks4j.events.PushEvent;
 import com.arsenarsen.githubwebhooks4j.objects.Commit;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.util.EmbedBuilder;
 
 public class GithubListener implements EventListener<PushEvent> {
-
-    private IChannel githubChannel;
 
     @Override
     public void handle(PushEvent e) {
         if (!FlareBot.getInstance().getClient().isReady())
             return;
-        StringBuilder sb = new StringBuilder();
-        sb.append("New commit by **")
-                .append(e.getPusher().getName())
-                .append("** in branch ")
-                .append("`")
-                .append(e.getRef().substring(e.getRef().lastIndexOf('/') + 1))
-                .append("`\n");
+        EmbedBuilder eb = MessageUtils.getEmbed();
+        eb.withAuthorIcon(e.getSender().getAvatarUrl());
+        eb.withAuthorName(e.getSender().getLogin());
+        eb.withAuthorUrl(e.getSender().getProfile());
         for (Commit commit : e.getCommits()) {
-            sb.append(":arrow_up: ").append("`")
-                    .append(commit.getId().substring(0, 7)).append("`").append(" :pencil: ").append("`")
-                    .append(commit.getMessage()).append("`")
-                    .append('\n').append('<').append(commit.getUrl()).append('>').append('\n');
-
+            eb.appendField(commit.getAuthor().getUsername()
+                    + " - " + commit.getId().substring(0, 7),
+                    String.format("[```fix\n%s\n```](%s)", commit.getMessage(), commit.getUrl()), true);
         }
-        MessageUtils.sendMessage(FlareBot.getInstance().getClient().getChannelByID("229236239201468417"), sb.toString());
+        MessageUtils.sendMessage(eb.build(), FlareBot.getInstance().getClient().getChannelByID("229236239201468417"));
     }
 }
