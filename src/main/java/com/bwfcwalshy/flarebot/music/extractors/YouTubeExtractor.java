@@ -33,8 +33,8 @@ public class YouTubeExtractor implements Extractor {
             item = player.resolve(input);
             if(item == null){
                 MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                    .withDesc("Could not get that video/playlist!")
-                    .appendField("YouTube said: ", e.getMessage(), true).build(), message);
+                    .withDesc("Could not get that video/playlist! Make sure the URL is correct!")
+                    .build(), message);
                 return;
             }
         } catch (RuntimeException e) {
