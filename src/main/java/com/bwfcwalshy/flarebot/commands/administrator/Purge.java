@@ -43,7 +43,8 @@ public class Purge implements Command {
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages or more than 200!").build(), channel);
                 return;
             }
-            cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
+            if(!FlareBot.getInstance().getPermissions(channel).hasPermission(sender, "flarebot.purge.bypass"))
+                cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
             RequestBuffer.request(() -> {
                 channel.getMessages().setCacheCapacity(count);
                 boolean loaded = true;
