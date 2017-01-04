@@ -12,6 +12,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.*;
 
+import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
 
@@ -145,6 +146,18 @@ public class MessageUtils {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(embedObject)
                         .withChannel(channel).withContent("\u200B").send();
+            } catch (DiscordException | MissingPermissionsException e) {
+                FlareBot.LOGGER.error("Something went wrong!", e);
+            }
+            return null;
+        });
+        return future.get();
+    }
+
+    public static IMessage sendErrorMessage(EmbedBuilder builder, IChannel channel){
+        RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
+            try {
+                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(builder.withColor(Color.red).build()).withChannel(channel).withContent("\u200B").send();
             } catch (DiscordException | MissingPermissionsException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }

@@ -3,10 +3,12 @@ package com.bwfcwalshy.flarebot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
+import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.util.DiscordException;
@@ -179,13 +181,8 @@ public class Events {
                             return;
                         }
                     }
-                    if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
-                        if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
-                            MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
-                                    + cmd.getPermission() + "`` which is required for use of this command!");
-                            return;
-                        }
-                    }
+                    if(handleMissingPermission(cmd, e))
+                        return;
                     try {
                         if (!e.getMessage().getChannel().isPrivate())
                             COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
@@ -196,7 +193,7 @@ public class Events {
                                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                             e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                             cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
-                                    delete(e);
+                            delete(e.getMessage());
                         });
                     } catch (Exception ex) {
                         MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
@@ -226,13 +223,8 @@ public class Events {
                                     return;
                                 }
                             }
-                            if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
-                                if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
-                                    MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
-                                            + cmd.getPermission() + "`` which is required for use of this command!");
-                                    return;
-                                }
-                            }
+                            if(handleMissingPermission(cmd, e))
+                                return;
                             try {
                                 if (!e.getMessage().getChannel().isPrivate())
                                     COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
@@ -243,7 +235,7 @@ public class Events {
                                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                                     cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
-                                    delete(e);
+                                    delete(e.getMessage());
                                 });
                             } catch (Exception ex) {
                                 FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
@@ -259,10 +251,29 @@ public class Events {
         }
     }
 
-    private void delete(MessageReceivedEvent e) {
+    private boolean handleMissingPermission(Command cmd, MessageReceivedEvent e){
+        if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
+            if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
+                IMessage msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getMessage().getAuthor())
+                        .withDesc("You are missing the permission ``"
+                        + cmd.getPermission() + "`` which is required for use of this command!"), e.getMessage().getChannel());
+                delete(e.getMessage());
+                new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
+                    @Override
+                    public void run() {
+                        delete(msg);
+                    }
+                }.delay(5000);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void delete(IMessage message) {
         RequestBuffer.request(() -> {
             try {
-                e.getMessage().delete();
+                message.delete();
             } catch (DiscordException | MissingPermissionsException ignored) {
             }
         });
