@@ -25,7 +25,7 @@ public class AvatarCommand implements Command {
                     return;
                 }
             } else {
-                MessageUtils.sendMessage(channel, "You must either attach an image or link one!");
+                MessageUtils.sendMessage("You must either attach an image or link one!", channel);
                 return;
             }
         } else {
@@ -38,7 +38,7 @@ public class AvatarCommand implements Command {
                 return;
             }
         }
-        MessageUtils.sendMessage(channel, "Done, I think ;)");
+        MessageUtils.sendMessage("Done, I think ;)", channel);
     }
 
     @Override

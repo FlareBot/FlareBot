@@ -28,11 +28,11 @@ public class SkipCommand implements Command {
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.getGuild().getConnectedVoiceChannel() == null
                 || musicManager.getPlayer(channel.getGuild().getID()).getPlayingTrack() == null) {
-            MessageUtils.sendMessage(channel, "I am not streaming!");
+            MessageUtils.sendMessage("I am not streaming!", channel);
             return;
         }
         if (!sender.getConnectedVoiceChannels().contains(channel.getGuild().getConnectedVoiceChannel())) {
-            MessageUtils.sendMessage(channel, "You must be in the channel in order to skip songs!");
+            MessageUtils.sendMessage("You must be in the channel in order to skip songs!", channel);
         }
         if (args.length != 1) {
             if (votes.containsKey(channel.getGuild().getID())) {
@@ -51,8 +51,8 @@ public class SkipCommand implements Command {
                     musicManager.getPlayer(channel.getGuild().getID()).skip();
                     skips.put(channel.getGuild().getID(), true);
                 } else {
-                    MessageUtils.sendMessage(channel,
-                            "You are missing the permission ``flarebot.skip.force`` which is required for use of this command!");
+                    MessageUtils.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this command!", channel
+                    );
                 }
                 return;
             }

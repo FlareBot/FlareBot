@@ -23,23 +23,23 @@ public class SaveCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (args.length == 0) {
-            MessageUtils.sendMessage(channel, "Usage: _save [NAME]");
+            MessageUtils.sendMessage("Usage: _save [NAME]", channel);
             return;
         }
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
         if (name.length() > 20) {
-            MessageUtils.sendMessage(channel, "Name must be up to 20 characters!");
+            MessageUtils.sendMessage("Name must be up to 20 characters!", channel);
             return;
         }
         if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())) {
-            MessageUtils.sendMessage(channel, "Your playlist is empty!");
+            MessageUtils.sendMessage("Your playlist is empty!", channel);
             return;
         }
         Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).getPlaylist();
         if (playlist.isEmpty()) {
-            MessageUtils.sendMessage(channel, "Your playlist is empty!");
+            MessageUtils.sendMessage("Your playlist is empty!", channel);
             return;
         }
         channel.setTypingStatus(true);
@@ -57,7 +57,7 @@ public class SaveCommand implements Command {
                 exists.setString(2, channel.getGuild().getID());
                 exists.execute();
                 if (exists.getResultSet().isBeforeFirst()) {
-                    MessageUtils.sendMessage(channel, "That name is already taken!");
+                    MessageUtils.sendMessage("That name is already taken!", channel);
                     return;
                 }
                 PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (name, guild, list) VALUES (" +

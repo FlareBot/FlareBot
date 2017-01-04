@@ -3,6 +3,8 @@ package com.bwfcwalshy.flarebot;
 import ch.qos.logback.classic.Level;
 import com.arsenarsen.githubwebhooks4j.GithubWebhooks4J;
 import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
+import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
+import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
@@ -32,11 +34,15 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Spark;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.util.*;
+import sx.blah.discord.util.BotInviteBuilder;
+import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RequestBuffer;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -223,7 +229,18 @@ public class FlareBot {
             welcomeFile = new File("welcomes.json");
             loadWelcomes();
             try {
-                gitHubWebhooks = new WebhooksBuilder().withSecret(secret).addListener(new GithubListener()).forRequest("/payload").onPort(8080).build();
+                gitHubWebhooks = new WebhooksBuilder()
+                        .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
+                            Map<String, String> headers = new HashMap<>();
+                            request1.headers().forEach(s -> headers.put(s, request1.headers(s)));
+                            Response res = webhooks.callHooks(new HTTPRequest("POST",
+                                    new ByteArrayInputStream(request1.bodyAsBytes()),
+                                    headers));
+                            response.status(res.getCode());
+                            return res.getResponse();
+                        }))
+                        .withSecret(secret)
+                        .addListener(new GithubListener()).forRequest("/payload").onPort(8080).build();
             } catch (IOException e) {
                 LOGGER.error("Could not set up webhooks!", e);
             }
@@ -409,10 +426,10 @@ public class FlareBot {
 
     private void sendPrefixes() {
         JsonArray array = new JsonArray();
-        for (IGuild guild : FlareBot.getInstance().getClient().getGuilds()){
+        for (IGuild guild : FlareBot.getInstance().getClient().getGuilds()) {
             JsonObject object = new JsonObject();
             object.addProperty("guildId", guild.getID());
-            if(prefixes.getPrefixes().containsKey(guild.getID()))
+            if (prefixes.getPrefixes().containsKey(guild.getID()))
                 object.addProperty("prefix", prefixes.getPrefixes().get(guild.getID()));
             else
                 object.addProperty("prefix", FlareBot.COMMAND_CHAR);
@@ -749,7 +766,7 @@ public class FlareBot {
         return youtubeApi;
     }
 
-    public long getActiveVoiceChannels(){
+    public long getActiveVoiceChannels() {
         return client.getConnectedVoiceChannels().stream()
                 .map(IVoiceChannel::getGuild)
                 .map(IDiscordObject::getID)

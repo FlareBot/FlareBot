@@ -42,7 +42,7 @@ public class VideoThread extends Thread {
 
     @Override
     public void run() {
-        IMessage message = MessageUtils.sendMessage(channel, "Processing..");
+        IMessage message = MessageUtils.sendMessage("Processing..", channel);
         try {
             if (extractor == null)
                 for (Class<? extends Extractor> clazz : extractors) {

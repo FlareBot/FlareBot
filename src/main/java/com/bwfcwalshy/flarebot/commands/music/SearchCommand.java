@@ -14,7 +14,7 @@ public class SearchCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (args.length == 0) {
-            MessageUtils.sendMessage(channel, sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "search <term>");
+            MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "search <term>", channel);
         } else if (args.length >= 1) {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();

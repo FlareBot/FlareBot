@@ -22,7 +22,7 @@ public class LoadCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (args.length == 0) {
-            MessageUtils.sendMessage(channel, "Usage: _load [NAME]");
+            MessageUtils.sendMessage("Usage: _load [NAME]", channel);
             return;
         }
         String name = "";

@@ -36,14 +36,14 @@ public class UpdateCommand implements Command {
                 if (args[0].equalsIgnoreCase("force")) {
                     update(true, channel);
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
-                    MessageUtils.sendMessage(channel, "I will now update to the latest version when no channels are playing music!");
+                    MessageUtils.sendMessage("I will now update to the latest version when no channels are playing music!", channel);
                     if (flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     } else {
                         if (!queued.getAndSet(true)) {
                             NOVOICE_UPDATING.set(true);
                         } else
-                            MessageUtils.sendMessage(channel, "There is already an update queued!");
+                            MessageUtils.sendMessage("There is already an update queued!", channel);
                     }
                 } else {
                     if (!queued.getAndSet(true)) {
@@ -64,12 +64,12 @@ public class UpdateCommand implements Command {
                                 }
                             }.delay(p.toStandardSeconds().getSeconds() * 1000);
                         } catch (IllegalArgumentException e) {
-                            MessageUtils.sendMessage(channel, "That is an invalid time option!");
+                            MessageUtils.sendMessage("That is an invalid time option!", channel);
                             return;
                         }
-                        MessageUtils.sendMessage(channel, "I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.");
+                        MessageUtils.sendMessage("I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.", channel);
                     } else
-                        MessageUtils.sendMessage(channel, "There is already an update queued!");
+                        MessageUtils.sendMessage("There is already an update queued!", channel);
                 }
             }
         }
@@ -94,12 +94,12 @@ public class UpdateCommand implements Command {
                     if (force || isHigher(latestVersion, currentVersion)) {
                         FlareBot.getInstance().getClient().changeStatus(Status.game("Updating.."));
                         if (channel != null)
-                            MessageUtils.sendMessage(channel, "Updating to version `" + latestVersion + "` from `" + currentVersion + "`");
+                            MessageUtils.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`", channel);
                         UPDATING.set(true);
                         FlareBot.getInstance().quit(true);
                     } else {
                         if (channel != null)
-                            MessageUtils.sendMessage(channel, "I am currently up to date! Current version: `" + currentVersion + "`");
+                            MessageUtils.sendMessage("I am currently up to date! Current version: `" + currentVersion + "`", channel);
                     }
                     break;
                 }

@@ -25,7 +25,7 @@ public class MessageUtils {
             "1cbd08c76f8af6dddce02c5138971129"
     };
 
-    public static IMessage sendMessage(IChannel channel, CharSequence message) {
+    public static IMessage sendMessage(CharSequence message, IChannel channel) {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
@@ -66,7 +66,7 @@ public class MessageUtils {
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        return sendMessage(channel, s + "\n**Stack trace**: " + hastebin(trace));
+        return sendMessage(s + "\n**Stack trace**: " + hastebin(trace), channel);
     }
 
     public static String hastebin(String trace) {

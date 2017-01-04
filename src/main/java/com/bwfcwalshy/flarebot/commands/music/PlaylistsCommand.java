@@ -24,7 +24,7 @@ public class PlaylistsCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (args.length != 0) {
-            MessageUtils.sendMessage(channel, "Usage: _playlists");
+            MessageUtils.sendMessage("Usage: _playlists", channel);
             return;
         }
         channel.setTypingStatus(true);

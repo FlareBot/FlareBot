@@ -22,7 +22,7 @@ public class JoinCommand implements Command {
                     FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).setPaused(false);
                 }
             } catch (MissingPermissionsException e) {
-                MessageUtils.sendMessage(channel, sender.mention() + " I cannot join that voice channel!");
+                MessageUtils.sendMessage(sender.mention() + " I cannot join that voice channel!", channel);
             }
         }
     }

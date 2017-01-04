@@ -15,10 +15,10 @@ public class LoopCommand implements Command {
         Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID());
         if (!player.getLooping()) {
             player.setLooping(true);
-            MessageUtils.sendMessage(channel, "Looping: **ON**");
+            MessageUtils.sendMessage("Looping: **ON**", channel);
         } else {
             player.setLooping(false);
-            MessageUtils.sendMessage(channel, "Looping: **OFF**");
+            MessageUtils.sendMessage("Looping: **OFF**", channel);
         }
     }
 

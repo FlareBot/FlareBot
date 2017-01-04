@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.github.ArsenArsen</groupId> <!-- <3 -->
             <artifactId>githubwebhooks4j</artifactId>
-            <version>1.1.6-1</version>
+            <version>1.1.7</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -82,6 +82,11 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>2.5.4</version>
         </dependency>
     </dependencies>
 

@@ -53,7 +53,7 @@ public class Events {
             IChannel channel = flareBot.getClient().getChannelByID(welcome.getChannelId());
             if (channel != null) {
                 String msg = welcome.getMessage().replace("%user%", e.getUser().getName()).replace("%guild%", e.getGuild().getName()).replace("%mention%", e.getUser().mention());
-                MessageUtils.sendMessage(channel, msg);
+                MessageUtils.sendMessage(msg, channel);
             } else flareBot.getWelcomes().remove(welcome);
         }
         if (flareBot.getAutoAssignRoles().containsKey(e.getGuild().getID())) {
@@ -123,7 +123,7 @@ public class Events {
     public void onVoice(UserVoiceChannelLeaveEvent e) {
         if(e.getUser().equals(e.getClient().getOurUser())){
             if(flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()){
-                MessageUtils.sendMessage(flareBot.getClient().getChannelByID("229704246004547585"), "I am now updating, there are no voice channels active!");
+                MessageUtils.sendMessage("I am now updating, there are no voice channels active!", flareBot.getClient().getChannelByID("229704246004547585"));
                 UpdateCommand.update(true, null);
             }
             return;
@@ -148,9 +148,9 @@ public class Events {
                     return;
                 }
                 if (!perms.contains(Permissions.EMBED_LINKS)) {
-                    MessageUtils.sendMessage(e.getMessage().getChannel(), "Hey! I can't be used here." +
+                    MessageUtils.sendMessage("Hey! I can't be used here." +
                             "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
-                            "\nThanks :D");
+                            "\nThanks :D", e.getMessage().getChannel());
                     return;
                 }
             }
@@ -170,19 +170,19 @@ public class Events {
                         }
                     }
                     if(UpdateCommand.UPDATING.get()){
-                        MessageUtils.sendMessage(e.getMessage().getChannel(), "**Currently updating!**");
+                        MessageUtils.sendMessage("**Currently updating!**", e.getMessage().getChannel());
                         return;
                     }
                     if (!cmd.getType().usableInDMs()) {
                         if (e.getMessage().getChannel().isPrivate()) {
-                            MessageUtils.sendMessage(e.getMessage().getChannel(), String.format("**%s commands cannot be used in DM's!**", cmd.getType().formattedName()));
+                            MessageUtils.sendMessage(String.format("**%s commands cannot be used in DM's!**", cmd.getType().formattedName()), e.getMessage().getChannel());
                             return;
                         }
                     }
                     if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
                         if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
-                            MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
-                                    + cmd.getPermission() + "`` which is required for use of this command!");
+                            MessageUtils.sendMessage("You are missing the permission ``"
+                                    + cmd.getPermission() + "`` which is required for use of this command!", e.getMessage().getChannel());
                             return;
                         }
                     }
@@ -214,7 +214,7 @@ public class Events {
                                 }
                             }
                             if(UpdateCommand.UPDATING.get()){
-                                MessageUtils.sendMessage(e.getMessage().getChannel(), "**Currently updating!**");
+                                MessageUtils.sendMessage("**Currently updating!**", e.getMessage().getChannel());
                                 return;
                             }
                             FlareBot.LOGGER.info(
@@ -222,14 +222,14 @@ public class Events {
                                             e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                             if (cmd.getType() == CommandType.MUSIC) {
                                 if (e.getMessage().getChannel().isPrivate()) {
-                                    MessageUtils.sendMessage(e.getMessage().getChannel(), "**Music commands cannot be used in DM's!**");
+                                    MessageUtils.sendMessage("**Music commands cannot be used in DM's!**", e.getMessage().getChannel());
                                     return;
                                 }
                             }
                             if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
                                 if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
-                                    MessageUtils.sendMessage(e.getMessage().getChannel(), "You are missing the permission ``"
-                                            + cmd.getPermission() + "`` which is required for use of this command!");
+                                    MessageUtils.sendMessage("You are missing the permission ``"
+                                            + cmd.getPermission() + "`` which is required for use of this command!", e.getMessage().getChannel());
                                     return;
                                 }
                             }

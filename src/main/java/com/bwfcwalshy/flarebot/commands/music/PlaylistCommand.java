@@ -49,14 +49,14 @@ public class PlaylistCommand implements Command {
                 }
                 MessageUtils.sendPM(sender, builder.build());
             } else {
-                MessageUtils.sendMessage(channel, "No songs in the playlist!");
+                MessageUtils.sendMessage("No songs in the playlist!", channel);
             }
         } else {
             if (args[0].equalsIgnoreCase("clear")) {
                 manager.getPlayer(channel.getGuild().getID()).getPlaylist().clear();
-                MessageUtils.sendMessage(channel, "Cleared the current playlist!");
+                MessageUtils.sendMessage("Cleared the current playlist!", channel);
             } else {
-                MessageUtils.sendMessage(channel, "Incorrect usage! " + getDescription());
+                MessageUtils.sendMessage("Incorrect usage! " + getDescription(), channel);
             }
         }
     }

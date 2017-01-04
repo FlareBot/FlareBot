@@ -13,7 +13,7 @@ public class RolesCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.isPrivate()) {
-            MessageUtils.sendMessage(channel, "**DM's in Discord can not have roles!**");
+            MessageUtils.sendMessage("**DM's in Discord can not have roles!**", channel);
             return;
         }
         StringBuilder sb = new StringBuilder();
@@ -23,7 +23,7 @@ public class RolesCommand implements Command {
         }
         sb.append("```");
 
-        MessageUtils.sendMessage(channel, sb.toString());
+        MessageUtils.sendMessage(sb.toString(), channel);
     }
 
     @Override
