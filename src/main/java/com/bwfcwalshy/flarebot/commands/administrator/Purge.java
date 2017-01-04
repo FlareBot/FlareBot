@@ -28,12 +28,14 @@ public class Purge implements Command {
             return;
         }
         if (args.length == 1 && args[0].matches("\\d+")) {
-            long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getID(), n -> 0L);
-            if (System.currentTimeMillis() - calmitdood < cooldown) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc(String.format("You are on a cooldown! %s seconds left!",
-                                (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build(), channel);
-                return;
+            if(!FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
+                long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getID(), n -> 0L);
+                if (System.currentTimeMillis() - calmitdood < cooldown) {
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                            .withDesc(String.format("You are on a cooldown! %s seconds left!",
+                                    (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build(), channel);
+                    return;
+                }
             }
             int count = Integer.parseInt(args[0]) + 1;
             if (count < 2 || count > 200) {
@@ -41,7 +43,8 @@ public class Purge implements Command {
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages or more than 200!").build(), channel);
                 return;
             }
-            cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
+            if(!FlareBot.getInstance().getPermissions(channel).isCreator(sender))
+                cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
             RequestBuffer.request(() -> {
                 channel.getMessages().setCacheCapacity(count);
                 boolean loaded = true;
