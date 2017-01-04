@@ -52,6 +52,9 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -375,6 +378,12 @@ public class FlareBot {
             }.repeat(10, 30000);
         }
 
+        new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                quit(true);
+            }
+        }.delay(LocalDateTime.now().until(LocalDate.now().plusDays(LocalDateTime.now().getHour() > 13 ? 1 : 0).atTime(13, 0, 0), ChronoUnit.MILLIS));
 
         Scanner scanner = new Scanner(System.in);
 

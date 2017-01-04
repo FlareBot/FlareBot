@@ -38,19 +38,20 @@ public class Purge implements Command {
                 }
             }
             int count = Integer.parseInt(args[0]) + 1;
-            if (count < 2 || count > 200) {
+            if (count-1 < 2 || count-1 > 200) {
                 MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages or more than 200!").build(), channel);
                 return;
             }
-            if(!FlareBot.getInstance().getPermissions(channel).isCreator(sender))
-                cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
             RequestBuffer.request(() -> {
                 channel.getMessages().setCacheCapacity(count);
                 boolean loaded = true;
                 while (loaded && channel.getMessages().size() < count)
                     loaded = channel.getMessages().load(Math.min(count, 100));
                 if (loaded) {
+                    if(!FlareBot.getInstance().getPermissions(channel).isCreator(sender))
+                        cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
+
                     List<IMessage> list = new ArrayList<>(channel.getMessages());
                     List<IMessage> toDelete = new ArrayList<>();
                     for (IMessage msg : list) {
