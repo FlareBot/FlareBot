@@ -8,6 +8,10 @@
     <artifactId>flarebot</artifactId>
     <version>2.3.0</version>
 
+    <properties>
+        <jetty.version>9.3.6.v20151106</jetty.version>
+    </properties>
+
     <repositories>
         <repository>
             <id>jitpack</id>
@@ -56,7 +60,7 @@
         <dependency>
             <groupId>com.github.ArsenArsen</groupId> <!-- <3 -->
             <artifactId>githubwebhooks4j</artifactId>
-            <version>1.1.6-1</version>
+            <version>1.1.7</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
@@ -66,7 +70,7 @@
         <dependency>
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
             <artifactId>discord4j-impl</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.6-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>
@@ -82,6 +86,40 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.8</version>
+        </dependency>
+
+        <!-- SPARK CANCER STARTS HERE -->
+
+        <dependency>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>2.5.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-client</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-servlet</artifactId>
+            <version>${jetty.version}</version>
         </dependency>
     </dependencies>
 

@@ -3,6 +3,8 @@ package com.bwfcwalshy.flarebot;
 import ch.qos.logback.classic.Level;
 import com.arsenarsen.githubwebhooks4j.GithubWebhooks4J;
 import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
+import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
+import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
@@ -19,6 +21,7 @@ import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
+import com.bwfcwalshy.flarebot.web.ApiFactory;
 import com.google.gson.*;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -32,6 +35,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Spark;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -47,6 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -223,7 +228,20 @@ public class FlareBot {
             welcomeFile = new File("welcomes.json");
             loadWelcomes();
             try {
-                gitHubWebhooks = new WebhooksBuilder().withSecret(secret).addListener(new GithubListener()).forRequest("/payload").onPort(8080).build();
+                Spark.port(8080);
+                gitHubWebhooks = new WebhooksBuilder()
+                        .withSecret(secret)
+                        .addListener(new GithubListener())
+                        .forRequest("/payload")
+                        .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
+                            Map<String, String> headers = new ConcurrentHashMap<>();
+                            request1.headers().forEach(key -> headers.put(key, request1.headers(key)));
+                            Response res = webhooks.callHooks(new HTTPRequest("POST",
+                                    new ByteArrayInputStream(request1.bodyAsBytes()), headers));
+                            response.status(res.getCode());
+                            return res.getResponse();
+                        }))
+                        .onPort(8080).build();
             } catch (IOException e) {
                 LOGGER.error("Could not set up webhooks!", e);
             }
@@ -303,6 +321,7 @@ public class FlareBot {
         registerCommand(new MusicAnnounceCommand());
         registerCommand(new SetPrefixCommand());
         registerCommand(new AvatarCommand());
+        ApiFactory.bind();
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
