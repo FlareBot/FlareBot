@@ -17,19 +17,13 @@ public class AutoAssignCommand implements Command {
         this.flareBot = bot;
     }
 
-    /*
-     * Note for Arsen:
-     * This code is messy as fuck, I will clean it up at a later date.
-     *
-     * Edit by Arsen: Doesn't seem like you will.
-     */
-
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.getGuild().getOwner().getID().equals(sender.getID()) || flareBot.getPermissions(channel).hasPermission(sender, "flarebot.commands.autoassign")) {
             if (args.length == 0) {
-                MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign <add/remove/list> (role)", channel);
+                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                        .withDesc(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign <add/remove/list> (role)"), channel);
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("list")) {
                     if (flareBot.getAutoAssignRoles().containsKey(channel.getGuild().getID())) {
@@ -43,12 +37,13 @@ public class AutoAssignCommand implements Command {
                         sb.append("```");
                         MessageUtils.sendMessage(sb.toString(), channel);
                     } else {
-                        MessageUtils.sendMessage("This server has no roles being assigned.", channel);
+                        MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("This server has no roles being assigned."), channel);
                     }
                 } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign " + args[0] + " <role>", channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                            .withDesc(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign " + args[0] + " <role>"), channel);
                 } else {
-                    MessageUtils.sendMessage(sender.mention() + " Invalid argument!", channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc(sender.mention() + " Invalid argument!"), channel);
                 }
             } else if (args.length >= 2) {
                 String passedRole = "";
@@ -57,7 +52,7 @@ public class AutoAssignCommand implements Command {
                 passedRole = passedRole.trim();
                 if (args[0].equalsIgnoreCase("add")) {
                     if (!validRole(channel.getGuild(), passedRole)) {
-                        MessageUtils.sendMessage(sender.mention() + " That is not a valid role!", channel);
+                        MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc(sender.mention() + " That is not a valid role!"), channel);
                         return;
                     }
                     IRole role = getRole(channel.getGuild(), passedRole);
@@ -69,13 +64,13 @@ public class AutoAssignCommand implements Command {
                     if (!roles.contains(role.getID())) {
                         roles.add(role.getID());
                         flareBot.getAutoAssignRoles().put(channel.getGuild().getID(), roles);
-                        MessageUtils.sendMessage("Added " + role.getName() + " to your auto assigned roles!", channel);
+                        MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Added " + role.getName() + " to your auto assigned roles!").build(), channel);
                     } else {
-                        MessageUtils.sendMessage(role.getName() + " is already being assigned!", channel);
+                        MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc(role.getName() + " is already being assigned!"), channel);
                     }
                 } else if (args[0].equalsIgnoreCase("remove")) {
                     if (!validRole(channel.getGuild(), passedRole)) {
-                        MessageUtils.sendMessage(sender.mention() + " That is not a valid role!", channel);
+                        MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc(sender.mention() + " That is not a valid role!"), channel);
                         return;
                     }
                     IRole role = getRole(channel.getGuild(), passedRole);
@@ -84,18 +79,19 @@ public class AutoAssignCommand implements Command {
                         roles = flareBot.getAutoAssignRoles().get(channel.getGuild().getID());
                         if (roles.contains(role.getID())) {
                             roles.remove(role.getID());
-                            MessageUtils.sendMessage("Removed " + role.getName() + " from your auto assigned roles", channel);
+                            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Removed " + role.getName() + " from your auto assigned roles").build(), channel);
                         } else {
-                            MessageUtils.sendMessage("That role is not being auto assigned!", channel);
+                            MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("That role is not being auto assigned!"), channel);
                         }
                     } else {
-                        MessageUtils.sendMessage("This server has no roles being assigned.", channel);
+                        MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("This server has no roles being assigned."), channel);
                     }
                 } else {
-                    MessageUtils.sendMessage(sender.mention() + " Invalid argument!", channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc(sender.mention() + " Invalid argument!"), channel);
                 }
             } else {
-                MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign <add/remove/list> (role)", channel);
+                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                        .withDesc(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign <add/remove/list> (role)"), channel);
             }
         }
     }
