@@ -376,6 +376,10 @@ public class FlareBot {
             }.repeat(10, 30000);
         }
 
+        LOGGER.debug("Time now: " + LocalDate.now().toString());
+        LOGGER.debug("Current hours: " + LocalDateTime.now().getHour());
+        LOGGER.debug("Days added: " + (LocalDateTime.now().getHour() > 13 ? 1 : 0));
+
         /*new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
             @Override
             public void run() {
