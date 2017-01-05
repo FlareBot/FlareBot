@@ -91,6 +91,7 @@ public class FlareBot {
     private File welcomeFile;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException {
+        Spark.port(8080);
         Options options = new Options();
 
         Option token = new Option("t", true, "Bot log in token");
