@@ -378,12 +378,12 @@ public class FlareBot {
             }.repeat(10, 30000);
         }
 
-        new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
+        /*new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 quit(true);
             }
-        }.delay(LocalDateTime.now().until(LocalDate.now().plusDays(LocalDateTime.now().getHour() > 13 ? 1 : 0).atTime(13, 0, 0), ChronoUnit.MILLIS));
+        }.delay(LocalDateTime.now().until(LocalDate.now().plusDays(LocalDateTime.now().getHour() > 13 ? 1 : 0).atTime(13, 0, 0), ChronoUnit.MILLIS));*/
 
         Scanner scanner = new Scanner(System.in);
 
