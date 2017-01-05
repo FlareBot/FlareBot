@@ -376,8 +376,7 @@ public class FlareBot {
             }.repeat(10, 30000);
         }
 
-        new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
-            @Override
+       *new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {            @Override
             public void run() {
                 quit(true);
             }
