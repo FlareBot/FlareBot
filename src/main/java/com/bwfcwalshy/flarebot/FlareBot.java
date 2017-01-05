@@ -3,6 +3,8 @@ package com.bwfcwalshy.flarebot;
 import ch.qos.logback.classic.Level;
 import com.arsenarsen.githubwebhooks4j.GithubWebhooks4J;
 import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
+import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
+import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
@@ -32,6 +34,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Spark;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
@@ -88,7 +91,7 @@ public class FlareBot {
     private File welcomeFile;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException {
-//        Spark.port(8080);
+        Spark.port(8080);
         Options options = new Options();
 
         Option token = new Option("t", true, "Bot log in token");
@@ -231,15 +234,15 @@ public class FlareBot {
             loadWelcomes();
             try {
                 gitHubWebhooks = new WebhooksBuilder()
-//                        .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
-//                            Map<String, String> headers = new HashMap<>();
-//                            request1.headers().forEach(s -> headers.put(s, request1.headers(s)));
-//                            Response res = webhooks.callHooks(new HTTPRequest("POST",
-//                                    new ByteArrayInputStream(request1.bodyAsBytes()),
-//                                    headers));
-//                            response.status(res.getCode());
-//                            return res.getResponse();
-//                        }))
+                        .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
+                            Map<String, String> headers = new HashMap<>();
+                            request1.headers().forEach(s -> headers.put(s, request1.headers(s)));
+                            Response res = webhooks.callHooks(new HTTPRequest("POST",
+                                    new ByteArrayInputStream(request1.bodyAsBytes()),
+                                    headers));
+                            response.status(res.getCode());
+                            return res.getResponse();
+                        }))
                         .withSecret(secret)
                         .addListener(new GithubListener()).forRequest("/payload").onPort(8080).build();
             } catch (IOException e) {
