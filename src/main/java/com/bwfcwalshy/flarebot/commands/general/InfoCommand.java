@@ -64,7 +64,7 @@ public class InfoCommand implements Command {
         bld.appendField("Uptime: ", FlareBot.getInstance().getUptime(), true);
         bld.appendField("Memory Usage: ", getMb(runtime.totalMemory() - runtime.freeMemory()), true);
         bld.appendField("Memory Free: ", getMb(runtime.freeMemory()), true);
-        bld.appendField("Video download and search threads: ", String.valueOf(VideoThread.VIDEO_THREADS.activeCount()), true);
+        bld.appendField("Video threads: ", String.valueOf(VideoThread.VIDEO_THREADS.activeCount()), true);
         bld.appendField("Total threads: ", String.valueOf(Thread.getAllStackTraces().size()), true);
         bld.appendField("Discord4J Version: ", Discord4J.VERSION, true);
         if (git != null)

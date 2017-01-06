@@ -123,8 +123,8 @@ public class Events {
 
     @EventSubscriber
     public void onVoice(UserVoiceChannelLeaveEvent e) {
-        if(e.getUser().equals(e.getClient().getOurUser())){
-            if(flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()){
+        if (e.getUser().equals(e.getClient().getOurUser())) {
+            if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
                 MessageUtils.sendMessage("I am now updating, there are no voice channels active!", flareBot.getClient().getChannelByID("229704246004547585"));
                 UpdateCommand.update(true, null);
             }
@@ -166,12 +166,12 @@ public class Events {
             }
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
-                    if(cmd.getType() == CommandType.HIDDEN){
+                    if (cmd.getType() == CommandType.HIDDEN) {
                         if (!cmd.getPermissions(e.getMessage().getChannel()).isCreator(e.getMessage().getAuthor())) {
                             return;
                         }
                     }
-                    if(UpdateCommand.UPDATING.get()){
+                    if (UpdateCommand.UPDATING.get()) {
                         MessageUtils.sendMessage("**Currently updating!**", e.getMessage().getChannel());
                         return;
                     }
@@ -181,19 +181,19 @@ public class Events {
                             return;
                         }
                     }
-                    if(handleMissingPermission(cmd, e))
+                    if (handleMissingPermission(cmd, e))
                         return;
                     try {
                         if (!e.getMessage().getChannel().isPrivate())
                             COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
                                     g -> new AtomicInteger()).incrementAndGet();
                         String[] finalArgs = args;
-                        CACHED_POOL.submit(() ->{
+                        CACHED_POOL.submit(() -> {
                             FlareBot.LOGGER.info(
                                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                             e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
                             cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
-                                    delete(e.getMessage());
+                            delete(e.getMessage());
                         });
                     } catch (Exception ex) {
                         MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
@@ -205,12 +205,12 @@ public class Events {
                 } else {
                     for (String alias : cmd.getAliases()) {
                         if (alias.equalsIgnoreCase(command)) {
-                            if(cmd.getType() == CommandType.HIDDEN){
+                            if (cmd.getType() == CommandType.HIDDEN) {
                                 if (!cmd.getPermissions(e.getMessage().getChannel()).isCreator(e.getMessage().getAuthor())) {
                                     return;
                                 }
                             }
-                            if(UpdateCommand.UPDATING.get()){
+                            if (UpdateCommand.UPDATING.get()) {
                                 MessageUtils.sendMessage("**Currently updating!**", e.getMessage().getChannel());
                                 return;
                             }
@@ -223,14 +223,14 @@ public class Events {
                                     return;
                                 }
                             }
-                            if(handleMissingPermission(cmd, e))
+                            if (handleMissingPermission(cmd, e))
                                 return;
                             try {
                                 if (!e.getMessage().getChannel().isPrivate())
                                     COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
                                             g -> new AtomicInteger()).incrementAndGet();
                                 String[] finalArgs = args;
-                                CACHED_POOL.submit(() ->{
+                                CACHED_POOL.submit(() -> {
                                     FlareBot.LOGGER.info(
                                             "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
                                                     e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
@@ -251,12 +251,12 @@ public class Events {
         }
     }
 
-    private boolean handleMissingPermission(Command cmd, MessageReceivedEvent e){
+    private boolean handleMissingPermission(Command cmd, MessageReceivedEvent e) {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
                 IMessage msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getMessage().getAuthor())
                         .withDesc("You are missing the permission ``"
-                        + cmd.getPermission() + "`` which is required for use of this command!"), e.getMessage().getChannel());
+                                + cmd.getPermission() + "`` which is required for use of this command!"), e.getMessage().getChannel());
                 delete(e.getMessage());
                 new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
                     @Override
