@@ -183,24 +183,24 @@ public class Events {
                     }
                     if (handleMissingPermission(cmd, e))
                         return;
-                    try {
-                        if (!e.getMessage().getChannel().isPrivate())
-                            COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
-                                    g -> new AtomicInteger()).incrementAndGet();
-                        String[] finalArgs = args;
-                        CACHED_POOL.submit(() -> {
-                            FlareBot.LOGGER.info(
-                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                            e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                    if (!e.getMessage().getChannel().isPrivate())
+                        COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
+                                g -> new AtomicInteger()).incrementAndGet();
+                    String[] finalArgs = args;
+                    CACHED_POOL.submit(() -> {
+                        FlareBot.LOGGER.info(
+                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                        e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                        try {
                             cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
-                            delete(e.getMessage());
-                        });
-                    } catch (Exception ex) {
-                        MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
-                        FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
-                    }
+                        } catch (Exception ex) {
+                            MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
+                            FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
+                                    + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                    e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
+                        }
+                        delete(e.getMessage());
+                    });
                     return;
                 } else {
                     for (String alias : cmd.getAliases()) {
@@ -225,24 +225,24 @@ public class Events {
                             }
                             if (handleMissingPermission(cmd, e))
                                 return;
-                            try {
-                                if (!e.getMessage().getChannel().isPrivate())
-                                    COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
-                                            g -> new AtomicInteger()).incrementAndGet();
-                                String[] finalArgs = args;
-                                CACHED_POOL.submit(() -> {
-                                    FlareBot.LOGGER.info(
-                                            "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                                    e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                            if (!e.getMessage().getChannel().isPrivate())
+                                COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
+                                        g -> new AtomicInteger()).incrementAndGet();
+                            String[] finalArgs = args;
+                            CACHED_POOL.submit(() -> {
+                                FlareBot.LOGGER.info(
+                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                                e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                                try {
                                     cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
-                                    delete(e.getMessage());
-                                });
-                            } catch (Exception ex) {
-                                FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                        + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                        e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
-                                MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
-                            }
+                                } catch (Exception ex) {
+                                    FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
+                                            + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
+                                            e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
+                                    MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
+                                }
+                                delete(e.getMessage());
+                            });
                             return;
                         }
                     }
