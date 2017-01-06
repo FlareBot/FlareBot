@@ -11,6 +11,7 @@ import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.commands.Prefixes;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
 import com.bwfcwalshy.flarebot.commands.general.*;
@@ -78,6 +79,7 @@ public class FlareBot {
             .setRedirectStrategy(new LaxRedirectStrategy()).disableCookieManagement().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
+    private FlareBotManager manager;
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
@@ -256,6 +258,9 @@ public class FlareBot {
             public void write(int b) throws IOException {
             }
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
+
+        manager = new FlareBotManager();
+        manager.loadRandomSongs();
     }
 
     private void loadPerms() {
@@ -324,6 +329,7 @@ public class FlareBot {
         registerCommand(new MusicAnnounceCommand());
         registerCommand(new SetPrefixCommand());
         registerCommand(new AvatarCommand());
+        registerCommand(new RandomCommand());
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
@@ -784,5 +790,9 @@ public class FlareBot {
                 .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
                 .filter(p -> p.getPlayingTrack() != null)
                 .filter(p -> !p.getPaused()).count();
+    }
+
+    public FlareBotManager getManager(){
+        return this.manager;
     }
 }

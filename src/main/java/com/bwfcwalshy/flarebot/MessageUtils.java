@@ -26,6 +26,8 @@ public class MessageUtils {
             "1cbd08c76f8af6dddce02c5138971129"
     };
 
+    public static final String DEBUG_CHANNEL = "226786557862871040";
+
     public static IMessage sendMessage(CharSequence message, IChannel channel) {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
