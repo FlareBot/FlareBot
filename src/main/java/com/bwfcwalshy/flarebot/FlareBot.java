@@ -785,6 +785,7 @@ public class FlareBot {
     public long getActiveVoiceChannels() {
         return client.getConnectedVoiceChannels().stream()
                 .map(IVoiceChannel::getGuild)
+                .filter(Objects::nonNull)
                 .map(IDiscordObject::getID)
                 .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
                 .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
