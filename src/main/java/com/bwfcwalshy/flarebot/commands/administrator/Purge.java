@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Purge implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();
@@ -28,7 +29,7 @@ public class Purge implements Command {
             return;
         }
         if (args.length == 1 && args[0].matches("\\d+")) {
-            if(!FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
+            if (!FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
                 long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getID(), n -> 0L);
                 if (System.currentTimeMillis() - calmitdood < cooldown) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
@@ -38,7 +39,7 @@ public class Purge implements Command {
                 }
             }
             int count = Integer.parseInt(args[0]) + 1;
-            if (count-1 < 2 || count-1 > 200) {
+            if (count - 1 < 2 || count - 1 > 200) {
                 MessageUtils.sendMessage(MessageUtils
                         .getEmbed(sender).withDesc("Can't purge less than 2 messages or more than 200!").build(), channel);
                 return;
@@ -49,7 +50,7 @@ public class Purge implements Command {
                 while (loaded && channel.getMessages().size() < count)
                     loaded = channel.getMessages().load(Math.min(count, 100));
                 if (loaded) {
-                    if(!FlareBot.getInstance().getPermissions(channel).isCreator(sender))
+                    if (!FlareBot.getInstance().getPermissions(channel).isCreator(sender))
                         cooldowns.put(channel.getGuild().getID(), System.currentTimeMillis());
 
                     List<IMessage> list = new ArrayList<>(channel.getMessages());
@@ -61,7 +62,38 @@ public class Purge implements Command {
                         }
                         toDelete.add(msg);
                     }
-                    bulk(toDelete, channel, sender);
+                    if (toDelete.size() == 1) {
+                        AtomicBoolean bool = new AtomicBoolean(true);
+                        toDelete.forEach(iMessage -> bool.set(RequestBuffer.request(() -> {
+                            try {
+                                iMessage.delete();
+                                return true;
+                            } catch (MissingPermissionsException | DiscordException e) {
+                                FlareBot.LOGGER.error("Could not bulk delete!", e);
+                                return false;
+                            }
+                        }).get()));
+                        if (bool.get()) {
+                            IMessage msg = MessageUtils.sendMessage(MessageUtils
+                                    .getEmbed(sender).withDesc(":+1: Deleted!")
+                                    .appendField("Message Count: ", String.valueOf(count - 1), true).build(), channel);
+                            new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
+                                @Override
+                                public void run() {
+                                    RequestBuffer.request(() -> {
+                                        try {
+                                            msg.delete();
+                                        } catch (MissingPermissionsException | DiscordException ignored) {
+                                        }
+                                    });
+                                }
+                            }.delay(10000);
+                        } else {
+                            MessageUtils.sendMessage(MessageUtils
+                                    .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
+                        }
+                    } else
+                        bulk(toDelete, channel, sender);
                     channel.getMessages().setCacheCapacity(0);
                     IMessage msg = MessageUtils.sendMessage(MessageUtils
                             .getEmbed(sender).withDesc(":+1: Deleted!")
@@ -96,7 +128,7 @@ public class Purge implements Command {
                         .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
             } catch (MissingPermissionsException e) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                                .withDesc("I do not have the `Manage Messages` permission!").build(), channel);
+                        .withDesc("I do not have the `Manage Messages` permission!").build(), channel);
             }
         });
     }
