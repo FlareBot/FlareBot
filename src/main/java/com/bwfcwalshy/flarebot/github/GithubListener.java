@@ -20,7 +20,11 @@ public class GithubListener implements EventListener<PushEvent> {
         for (Commit commit : e.getCommits()) {
             eb.appendField(commit.getAuthor().getUsername()
                     + " - " + commit.getId().substring(0, 7),
-                    String.format("[```fix\n%s\n```](%s)", commit.getMessage(), commit.getUrl()), true);
+                    String.format("`%s` - [`%s`](%s) %s",
+                            commit.getAuthor(),
+                            commit.getId().substring(0, 7),
+                            commit.getUrl(),
+                            commit.getMessage()), true);
         }
         MessageUtils.sendMessage(eb.build(), FlareBot.getInstance().getClient().getChannelByID("229236239201468417"));
     }

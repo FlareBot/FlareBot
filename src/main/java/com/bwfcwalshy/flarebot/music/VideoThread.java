@@ -10,6 +10,7 @@ import com.bwfcwalshy.flarebot.music.extractors.SavedPlaylistExtractor;
 import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
 import com.bwfcwalshy.flarebot.music.extractors.YouTubeSearchExtractor;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -30,6 +31,11 @@ public class VideoThread extends Thread {
     private IChannel channel;
     private String url;
     private Extractor extractor;
+
+    static {
+        if (managers.add(YoutubeAudioSourceManager.class))
+            manager.getManager().registerSourceManager(new YoutubeAudioSourceManager()); // walshy made me
+    }
 
     private VideoThread() {
         if (manager == null) try {
