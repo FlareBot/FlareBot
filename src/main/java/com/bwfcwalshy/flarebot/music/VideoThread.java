@@ -32,11 +32,6 @@ public class VideoThread extends Thread {
     private String url;
     private Extractor extractor;
 
-    static {
-        if (managers.add(YoutubeAudioSourceManager.class))
-            manager.getManager().registerSourceManager(new YoutubeAudioSourceManager()); // walshy made me
-    }
-
     private VideoThread() {
         if (manager == null) try {
             manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(FlareBot.getInstance().getClient()));
@@ -44,6 +39,9 @@ public class VideoThread extends Thread {
             e.printStackTrace(System.out);
         }
         setName("Video Thread " + VIDEO_THREADS.activeCount());
+
+        if (managers.add(YoutubeAudioSourceManager.class))
+            manager.getManager().registerSourceManager(new YoutubeAudioSourceManager()); // walshy made me
     }
 
     @Override
