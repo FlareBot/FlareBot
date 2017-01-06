@@ -12,15 +12,12 @@ import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class RandomCommand implements Command {
 
     private FlareBotManager manager = FlareBotManager.getInstance();
-
-    private Set<String> loadedSongs = new HashSet<>();
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
