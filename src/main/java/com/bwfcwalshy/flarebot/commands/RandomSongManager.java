@@ -45,10 +45,7 @@ public class RandomSongManager {
             return null;
         }
 
-        System.out.println("a");
-
         for(int i = 0; i < amount; i++){
-            System.out.println("b");
             songs.add(loadedSongs.get(rand.nextInt(loadedSongs.size())));
         }
         return songs;
