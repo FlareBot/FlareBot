@@ -9,18 +9,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class FlareBotManager {
+public class RandomSongManager {
 
-    private static FlareBotManager instance;
+    private static RandomSongManager instance;
 
     private List<String> loadedSongs = new ArrayList<>();
     private Random rand = new Random();
 
-    public FlareBotManager(){
+    public RandomSongManager(){
         instance = this;
     }
 
-    public static FlareBotManager getInstance() {
+    public static RandomSongManager getInstance() {
         return instance;
     }
 

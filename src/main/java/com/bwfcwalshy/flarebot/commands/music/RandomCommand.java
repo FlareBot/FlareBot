@@ -5,7 +5,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.commands.FlareBotManager;
+import com.bwfcwalshy.flarebot.commands.RandomSongManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import sx.blah.discord.handle.obj.IChannel;
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 public class RandomCommand implements Command {
 
-    private FlareBotManager manager = FlareBotManager.getInstance();
+    private RandomSongManager manager = RandomSongManager.getInstance();
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {

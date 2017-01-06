@@ -14,7 +14,7 @@ public class ApiFactory {
                     response.status(404);
                     return "Unknown provider: " + request.params("provider");
                 }
-                return provider.provide(request, response);
+                return provider.process(request, response);
             } catch (Throwable e) {
                 response.status(500);
                 return "<pre>" + ExceptionUtils.getStackTrace(e) + "<pre>";
