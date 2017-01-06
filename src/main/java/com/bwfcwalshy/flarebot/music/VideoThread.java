@@ -5,12 +5,8 @@ import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.extractors.Extractor;
-import com.bwfcwalshy.flarebot.music.extractors.SavedPlaylistExtractor;
-import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
-import com.bwfcwalshy.flarebot.music.extractors.YouTubeSearchExtractor;
+import com.bwfcwalshy.flarebot.music.extractors.*;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -24,7 +20,7 @@ public class VideoThread extends Thread {
 
     private static PlayerManager manager;
     private static final List<Class<? extends Extractor>> extractors = Arrays.asList(YouTubeExtractor.class,
-            SavedPlaylistExtractor.class);
+            SavedPlaylistExtractor.class, RandomExtractor.class);
     private static final Set<Class<? extends AudioSourceManager>> managers = new HashSet<>();
     public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
     private IUser user;
@@ -39,9 +35,6 @@ public class VideoThread extends Thread {
             e.printStackTrace(System.out);
         }
         setName("Video Thread " + VIDEO_THREADS.activeCount());
-
-        if (managers.add(YoutubeAudioSourceManager.class))
-            manager.getManager().registerSourceManager(new YoutubeAudioSourceManager()); // walshy made me
     }
 
     @Override
