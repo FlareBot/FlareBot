@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import sx.blah.discord.handle.obj.IChannel;
@@ -18,7 +19,11 @@ public class PlayCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        musicManager.getPlayer(channel.getGuild().getID()).play();
+        if(args.length > 0){
+            MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("To search for a song by term or URL do "
+                    + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "search <tern/URL>"), channel);
+        }else
+            musicManager.getPlayer(channel.getGuild().getID()).play();
     }
 
     @Override
