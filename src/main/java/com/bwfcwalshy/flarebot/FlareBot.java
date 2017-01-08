@@ -352,7 +352,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
-                    client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
+                    client.changeStatus(Status.stream(COMMAND_CHAR + "commands", "https://www.twitch.tv/discordflarebot"));
             }
         }.repeat(10, 32000);
         new FlarebotTask("PostData" + System.currentTimeMillis()) {
@@ -376,14 +376,12 @@ public class FlareBot {
             }
         }.repeat(10, 600000);
 
-        if (webSecret != null && !webSecret.isEmpty()) {
-            new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
-                @Override
-                public void run() {
+        new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
                     sendData();
                 }
-            }.repeat(10, 30000);
-        }
+        }.repeat(10, 30000);
 
         new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
             @Override
@@ -466,6 +464,7 @@ public class FlareBot {
             }, "API Thread " + api++));
 
     public void postToApi(String action, String property, JsonElement data) {
+        if(webSecret == null || !webSecret.isEmpty()) return;
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
