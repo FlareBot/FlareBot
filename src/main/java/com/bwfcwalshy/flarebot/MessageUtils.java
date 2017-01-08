@@ -69,7 +69,7 @@ public class MessageUtils {
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        return sendMessage(s + "\n**Stack trace**: " + hastebin(trace), channel);
+        return sendErrorMessage(getEmbed().withDesc(s + "\n**Stack trace**: " + hastebin(trace)), channel);
     }
 
     public static String hastebin(String trace) {
