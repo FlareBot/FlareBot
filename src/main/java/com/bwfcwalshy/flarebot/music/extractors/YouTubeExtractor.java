@@ -31,10 +31,10 @@ public class YouTubeExtractor implements Extractor {
         AudioItem item;
         try {
             item = player.resolve(input);
-            if(item == null){
+            if (item == null) {
                 MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                    .withDesc("Could not get that video/playlist! Make sure the URL is correct!")
-                    .build(), message);
+                        .withDesc("Could not get that video/playlist! Make sure the URL is correct!")
+                        .build(), message);
                 return;
             }
         } catch (RuntimeException e) {

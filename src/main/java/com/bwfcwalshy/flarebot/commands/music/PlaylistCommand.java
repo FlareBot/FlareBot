@@ -56,7 +56,7 @@ public class PlaylistCommand implements Command {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("No songs in the playlist!"), channel);
             }
         } else {
-            if(args.length == 1) {
+            if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
                     manager.getPlayer(channel.getGuild().getID()).getPlaylist().clear();
                     MessageUtils.sendMessage("Cleared the current playlist!", channel);
@@ -66,7 +66,7 @@ public class PlaylistCommand implements Command {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("Incorrect usage! " + getDescription()), channel);
                 }
             } else if (args.length == 2) {
-                if(args[0].equalsIgnoreCase("remove")) {
+                if (args[0].equalsIgnoreCase("remove")) {
                     int number;
                     try {
                         number = Integer.parseInt(args[1]);
@@ -77,13 +77,13 @@ public class PlaylistCommand implements Command {
 
                     Queue<Track> queue = manager.getPlayer(channel.getGuild().getID()).getPlaylist();
 
-                    if(number < 1 || number > queue.size()){
+                    if (number < 1 || number > queue.size()) {
                         MessageUtils.sendErrorMessage("There is no song with that index. Make sure your number is at least 1 and either " + queue.size() + " or below!", channel);
                         return;
                     }
 
                     List<Track> playlist = new ArrayList<>(queue);
-                    playlist.remove(number-1);
+                    playlist.remove(number - 1);
                     queue.clear();
                     queue.addAll(playlist);
 

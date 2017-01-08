@@ -156,7 +156,7 @@ public class MessageUtils {
         return future.get();
     }
 
-    public static IMessage sendErrorMessage(EmbedBuilder builder, IChannel channel){
+    public static IMessage sendErrorMessage(EmbedBuilder builder, IChannel channel) {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(builder.withColor(Color.red).build()).withChannel(channel).withContent("\u200B").send();
@@ -168,7 +168,7 @@ public class MessageUtils {
         return future.get();
     }
 
-    public static IMessage sendErrorMessage(String message, IChannel channel){
+    public static IMessage sendErrorMessage(String message, IChannel channel) {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(MessageUtils.getEmbed()

@@ -67,7 +67,7 @@ public class Songs {
 
         public ResponsePlayer(Player p) {
             guildId = p.getGuildId();
-            if(p.getPlayingTrack() != null)
+            if (p.getPlayingTrack() != null)
                 current = new Songs(p.getPlayingTrack());
             this.playlist = p.getPlaylist().stream().map(Songs::new)
                     .collect(Collectors.toList());

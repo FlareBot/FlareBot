@@ -385,7 +385,7 @@ public class FlareBot {
             }.repeat(10, 30000);
         }
 
-       new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
+        new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 quit(true);
@@ -797,7 +797,7 @@ public class FlareBot {
                 .filter(p -> !p.getPaused()).count();
     }
 
-    public FlareBotManager getManager(){
+    public FlareBotManager getManager() {
         return this.manager;
     }
 }
