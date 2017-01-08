@@ -11,7 +11,7 @@ import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.commands.RandomSongManager;
+import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.commands.Prefixes;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
 import com.bwfcwalshy.flarebot.commands.general.*;
@@ -79,7 +79,7 @@ public class FlareBot {
             .setRedirectStrategy(new LaxRedirectStrategy()).disableCookieManagement().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
-    private RandomSongManager manager;
+    private FlareBotManager manager;
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
@@ -259,7 +259,7 @@ public class FlareBot {
             }
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 
-        manager = new RandomSongManager();
+        manager = new FlareBotManager();
         manager.loadRandomSongs();
     }
 
@@ -767,6 +767,10 @@ public class FlareBot {
         )).build();
     }
 
+    public static char getPrefix(String id) {
+        return getPrefixes().get(id);
+    }
+
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
     }
 
@@ -793,7 +797,7 @@ public class FlareBot {
                 .filter(p -> !p.getPaused()).count();
     }
 
-    public RandomSongManager getManager(){
+    public FlareBotManager getManager(){
         return this.manager;
     }
 }

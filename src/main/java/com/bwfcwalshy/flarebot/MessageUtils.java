@@ -168,6 +168,19 @@ public class MessageUtils {
         return future.get();
     }
 
+    public static IMessage sendErrorMessage(String message, IChannel channel){
+        RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
+            try {
+                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(MessageUtils.getEmbed()
+                        .withColor(Color.red).withDesc(message).build()).withChannel(channel).withContent("\u200B").send();
+            } catch (DiscordException | MissingPermissionsException e) {
+                FlareBot.LOGGER.error("Something went wrong!", e);
+            }
+            return null;
+        });
+        return future.get();
+    }
+
     public static void editMessage(EmbedObject embed, IMessage message) {
         editMessage(message.getContent(), embed, message);
     }

@@ -1,11 +1,9 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
-import com.arsenarsen.lavaplayerbridge.player.Player;
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.commands.RandomSongManager;
+import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.music.VideoThread;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class RandomCommand implements Command {
 
-    private RandomSongManager manager = RandomSongManager.getInstance();
+    private FlareBotManager manager = FlareBotManager.getInstance();
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
@@ -38,7 +36,6 @@ public class RandomCommand implements Command {
 
     private void loadSongs(int amount, IChannel channel, IUser sender) {
         Set<String> songs = manager.getRandomSongs(amount, channel);
-        Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID());
         VideoThread.getThread(songs.stream()
                 .collect(Collectors.joining(",")), channel, sender).start();
     }
