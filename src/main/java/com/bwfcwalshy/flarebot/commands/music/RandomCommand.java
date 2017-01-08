@@ -26,15 +26,17 @@ public class RandomCommand implements Command {
             int amount;
             try {
                 amount = Integer.parseInt(args[0]);
-            } catch(NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Invalid amount!"), channel);
                 return;
             }
+            if (amount <= 0)
+                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Invalid amount!"), channel);
             loadSongs(amount, channel, sender);
         }
     }
 
-    private void loadSongs(int amount, IChannel channel, IUser sender){
+    private void loadSongs(int amount, IChannel channel, IUser sender) {
         Set<String> songs = manager.getRandomSongs(amount, channel);
         Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID());
         VideoThread.getThread(songs.stream()
