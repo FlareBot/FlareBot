@@ -38,7 +38,8 @@ public class PermissionsCommand implements Command {
                 Group group = getPermissions(channel).getGroup(args[2]);
                 if (getPermissions(channel).getUser(user).addGroup(group))
                     MessageUtils.sendMessage("Success", channel);
-                else MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("User already had that group!"), channel);
+                else
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("User already had that group!"), channel);
                 break;
             case "revokegroup":
                 if (args.length < 3) {
@@ -57,7 +58,8 @@ public class PermissionsCommand implements Command {
                 Group group2 = getPermissions(channel).getGroup(args[2]);
                 if (getPermissions(channel).getUser(user2).removeGroup(group2))
                     MessageUtils.sendMessage("Success", channel);
-                else MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("User never had that group!"), channel);
+                else
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("User never had that group!"), channel);
                 break;
             case "addpermission":
                 if (args.length < 3) {
@@ -67,7 +69,8 @@ public class PermissionsCommand implements Command {
                 Group group3 = getPermissions(channel).getGroup(args[1]);
                 if (getPermissions(channel).addPermission(group3.getName(), args[2]))
                     MessageUtils.sendMessage("Success", channel);
-                else MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Group already had that permission"), channel);
+                else
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Group already had that permission"), channel);
                 break;
             case "removepermission":
                 if (args.length < 3) {
@@ -77,7 +80,8 @@ public class PermissionsCommand implements Command {
                 Group group4 = getPermissions(channel).getGroup(args[1]);
                 if (getPermissions(channel).removePermission(group4.getName(), args[2]))
                     MessageUtils.sendMessage("Success", channel);
-                else MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Group never had that permission"), channel);
+                else
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Group never had that permission"), channel);
                 break;
             case "list":
                 if (args.length < 2) {

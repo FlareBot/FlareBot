@@ -11,8 +11,8 @@ import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.commands.Prefixes;
-import com.bwfcwalshy.flarebot.commands.RandomSongManager;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
 import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
@@ -79,7 +79,7 @@ public class FlareBot {
             .setRedirectStrategy(new LaxRedirectStrategy()).disableCookieManagement().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
-    private RandomSongManager manager;
+    private FlareBotManager manager;
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
@@ -259,7 +259,7 @@ public class FlareBot {
             }
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 
-        manager = new RandomSongManager();
+        manager = new FlareBotManager();
         manager.loadRandomSongs();
     }
 
@@ -352,7 +352,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
-                    client.changeStatus(Status.game(COMMAND_CHAR + "commands"));
+                    client.changeStatus(Status.stream(COMMAND_CHAR + "commands", "https://www.twitch.tv/discordflarebot"));
             }
         }.repeat(10, 32000);
         new FlarebotTask("PostData" + System.currentTimeMillis()) {
@@ -376,14 +376,12 @@ public class FlareBot {
             }
         }.repeat(10, 600000);
 
-        if (webSecret != null && !webSecret.isEmpty()) {
-            new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
-                @Override
-                public void run() {
+        new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
                     sendData();
                 }
-            }.repeat(10, 30000);
-        }
+        }.repeat(10, 30000);
 
         setupUpdate();
 
@@ -472,6 +470,7 @@ public class FlareBot {
             }, "API Thread " + api++));
 
     public void postToApi(String action, String property, JsonElement data) {
+        if(webSecret == null || !webSecret.isEmpty()) return;
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
@@ -774,6 +773,10 @@ public class FlareBot {
         )).build();
     }
 
+    public static char getPrefix(String id) {
+        return getPrefixes().get(id);
+    }
+
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
     }
 
@@ -800,7 +803,7 @@ public class FlareBot {
                 .filter(p -> !p.getPaused()).count();
     }
 
-    public RandomSongManager getManager(){
+    public FlareBotManager getManager() {
         return this.manager;
     }
 }

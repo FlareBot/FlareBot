@@ -23,8 +23,8 @@ public class RandomExtractor implements Extractor {
         int i = 0;
         for (String s : input.split(",")) {
             try {
-                AudioItem probablyATrack =  player.resolve(s);
-                if(probablyATrack == null)
+                AudioItem probablyATrack = player.resolve(s);
+                if (probablyATrack == null)
                     continue;
                 Track track = new Track((AudioTrack) probablyATrack);
                 track.getMeta().put("requester", user.getID());
@@ -34,7 +34,7 @@ public class RandomExtractor implements Extractor {
             }
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed()
-                        .withDesc("Added " + i + " random songs to the playlist!").build(), message);
+                .withDesc("Added " + i + " random songs to the playlist!").build(), message);
     }
 
     @Override

@@ -83,7 +83,7 @@ public class Prefixes {
         FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
     }
 
-    public Map<String, Character> getPrefixes(){
+    public Map<String, Character> getPrefixes() {
         return this.prefixes;
     }
 }
