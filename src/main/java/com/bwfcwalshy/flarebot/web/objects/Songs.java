@@ -22,7 +22,7 @@ public class Songs {
     public Songs(Track track) {
         title = track.getTrack().getInfo().title;
         identifier = track.getTrack().getIdentifier();
-        requester = track.getMeta().getOrDefault("requester", "dick").toString();
+        requester = track.getMeta().getOrDefault("requester", "Unknown").toString();
         length = track.getTrack().getDuration();
         progress = track.getTrack().getPosition();
         IUser user = FlareBot.getInstance().getClient().getUserByID(requester);

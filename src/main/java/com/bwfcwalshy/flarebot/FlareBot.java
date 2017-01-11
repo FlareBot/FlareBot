@@ -6,6 +6,7 @@ import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
 import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
 import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import com.arsenarsen.lavaplayerbridge.hooks.HookManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
@@ -18,6 +19,7 @@ import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
 import com.bwfcwalshy.flarebot.commands.secret.*;
 import com.bwfcwalshy.flarebot.github.GithubListener;
+import com.bwfcwalshy.flarebot.music.QueueListener;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
@@ -83,7 +85,8 @@ public class FlareBot {
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
-    //private HookManager hooks = new HookManager();
+    private HookManager hooks = new HookManager();
+    private static boolean apiEnabled = true;
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -162,6 +165,9 @@ public class FlareBot {
             e.printStackTrace();
             return;
         }
+
+        if(webSecret == null || webSecret.isEmpty()) apiEnabled = false;
+
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         Thread.currentThread().setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         (instance = new FlareBot()).init(tkn);
@@ -261,6 +267,8 @@ public class FlareBot {
 
         manager = new FlareBotManager();
         manager.loadRandomSongs();
+
+        hooks.register(new QueueListener());
     }
 
     private void loadPerms() {
@@ -471,7 +479,7 @@ public class FlareBot {
             }, "API Thread " + api++));
 
     public void postToApi(String action, String property, JsonElement data) {
-        if(webSecret == null || !webSecret.isEmpty()) return;
+        if(!apiEnabled) return;
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
