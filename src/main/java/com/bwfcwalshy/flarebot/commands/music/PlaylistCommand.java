@@ -6,7 +6,6 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import sun.plugin2.os.windows.FLASHWINFO;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
