@@ -28,6 +28,8 @@ public class PerGuildPermissions {
             addPermission("Default", "flarebot.join");
             addPermission("Default", "flarebot.skip");
             addPermission("Default", "flarebot.search");
+            addPermission("Default", "flarebot.playlist.save");
+            addPermission("Default", "flarebot.playlist.load");
         }
     }
 
