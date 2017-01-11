@@ -80,7 +80,7 @@ public class InfoCommand implements Command {
         bld.appendField("\u200B", "\u200B", false);
 //        bld.appendField("\u200B", "\u200B", true);
         bld.appendField("Made By: ", "bwfcwalshy#1284 and Arsen#3291", true);
-        bld.appendField("Source: ", "[`GitHub`](https://github.com/ArsenArsen/FlareBot)", true);
+        bld.appendField("Source: ", "[`GitHub`](https://github.com/FlareBot/FlareBot)", true);
 
         MessageUtils.sendMessage(bld.build(), channel);
     }

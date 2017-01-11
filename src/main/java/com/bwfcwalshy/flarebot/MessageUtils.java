@@ -120,7 +120,7 @@ public class MessageUtils {
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
                 .withAuthorIcon(getAvatar(FlareBot.getInstance().getClient().getOurUser()))
-                .withAuthorUrl("https://github.com/ArsenArsen/FlareBot")
+                .withAuthorUrl("https://github.com/FlareBot/FlareBot")
                 .withAuthorName(getTag(FlareBot.getInstance().getClient().getOurUser()));
     }
 

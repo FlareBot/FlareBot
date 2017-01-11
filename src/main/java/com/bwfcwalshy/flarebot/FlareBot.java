@@ -157,7 +157,7 @@ public class FlareBot {
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/ArsenArsen/FlareBot", true);
+            formatter.printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/FlareBot/FlareBot", true);
             e.printStackTrace();
             return;
         }
@@ -511,7 +511,7 @@ public class FlareBot {
             try {
                 File git = new File("FlareBot" + File.separator);
                 if (!git.exists() || !git.isDirectory()) {
-                    ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/ArsenArsen/FlareBot.git", git.getAbsolutePath());
+                    ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git.getAbsolutePath());
                     clone.redirectErrorStream(true);
                     Process p = clone.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
