@@ -41,14 +41,14 @@ public class PlaylistsCommand implements Command {
                                 statement.setString(1, channel.getGuild().getID());
                                 statement.setString(2, finalPlaylist);
                                 statement.execute();
-                                if (statement.getResultSet().getFetchSize() > 0) {
+                                if (statement.getResultSet().next()) {
                                     if (args[1].equalsIgnoreCase("global") || args[1].equalsIgnoreCase("local")) {
                                         PreparedStatement statement1 = conn.prepareStatement("UPDATE playlist SET scope = ? WHERE guild = ? AND name = ?");
                                         statement1.setString(1, args[1].toLowerCase());
                                         statement1.setString(2, channel.getGuild().getID());
                                         statement1.setString(3, finalPlaylist);
                                         statement1.execute();
-                                        MessageUtils.sendMessage(MessageUtils.getEmbed().withDesc("Changed the scope of '" + finalPlaylist + "' to " + args[1]).build(), channel);
+                                        MessageUtils.sendMessage(MessageUtils.getEmbed().withDesc("Changed the scope of '" + finalPlaylist + "' to " + args[1].toLowerCase()).build(), channel);
                                     } else {
                                         MessageUtils.sendErrorMessage("Invalid scope! Scopes are local and global!", channel);
                                     }
@@ -57,7 +57,7 @@ public class PlaylistsCommand implements Command {
                                 }
                             });
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            FlareBot.LOGGER.error("Error changing scope!", e);
                         }
                     }
                 }
@@ -72,24 +72,37 @@ public class PlaylistsCommand implements Command {
                             "  list  TEXT,\n" +
                             "  PRIMARY KEY(name, guild)\n" +
                             ")");
-                    PreparedStatement get = connection.prepareStatement("SELECT name FROM playlist WHERE guild = ?");
+                    PreparedStatement get = connection.prepareStatement("SELECT name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
                     get.setString(1, channel.getGuild().getID());
                     get.execute();
                     ResultSet set = get.getResultSet();
                     StringBuilder sb = new StringBuilder();
+                    StringBuilder globalSb = new StringBuilder();
                     List<String> songs = new ArrayList<>();
                     int i = 1;
-                    while (set.next() && songs.size() < 25) {
-                        String toAppend = String.format("%s. %s\n", i++, set.getString("name"));
-                        if (sb.length() + toAppend.length() > 1024) {
-                            songs.add(sb.toString());
-                            sb = new StringBuilder();
+                    boolean loopingGlobal = true;
+                    while(set.next() && songs.size() < 25){
+                        String toAppend;
+                        if(set.getString("scope").equalsIgnoreCase("global")) {
+                            toAppend = String.format("%s. %s\n", i++, set.getString("name"));
+                            globalSb.append(toAppend);
+                        }else{
+                            if(loopingGlobal) {
+                                loopingGlobal = false;
+                                i = 1;
+                            }
+                            toAppend = String.format("%s. %s\n", i++, set.getString("name"));
+                            if (sb.length() + toAppend.length() > 1024) {
+                                songs.add(sb.toString());
+                                sb = new StringBuilder();
+                            }
+                            sb.append(toAppend);
                         }
-                        sb.append(toAppend);
                     }
                     songs.add(sb.toString());
                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
                     i = 1;
+                    builder.appendField("Global Playlists", globalSb.toString(), false);
                     for (String s : songs) {
                         builder.appendField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);
                     }
@@ -97,7 +110,6 @@ public class PlaylistsCommand implements Command {
                 });
             } catch (SQLException e) {
                 MessageUtils.sendException("**Database error!**", e, channel);
-                FlareBot.LOGGER.error("Database error!", e);
             }
         }
     }
