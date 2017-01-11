@@ -37,7 +37,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
         }
         if (link == null) {
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
-                    .withDesc(String.format("Could not find any results for `%s`", input)).build(), message);
+                    .withDesc(String.format("Could not find any results for `%s`", input)), message);
             return;
         }
         super.process(link, player, message, user);

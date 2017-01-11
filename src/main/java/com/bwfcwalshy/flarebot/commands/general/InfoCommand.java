@@ -82,7 +82,7 @@ public class InfoCommand implements Command {
         bld.appendField("Made By: ", "bwfcwalshy#1284 and Arsen#3291", true);
         bld.appendField("Source: ", "[`GitHub`](https://github.com/FlareBot/FlareBot)", true);
 
-        MessageUtils.sendMessage(bld.build(), channel);
+        MessageUtils.sendMessage(bld, channel);
     }
 
     private String getMb(long bytes) {

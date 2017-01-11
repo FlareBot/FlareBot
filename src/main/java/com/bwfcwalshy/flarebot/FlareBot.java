@@ -83,6 +83,7 @@ public class FlareBot {
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
+    //private HookManager hooks = new HookManager();
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -221,8 +222,7 @@ public class FlareBot {
                             }
                             Track track = player.getPlayingTrack();
                             MessageUtils.sendMessage(MessageUtils.getEmbed()
-                                    .appendField("Now Playing: ", SongCommand.getLink(track), false)
-                                    .build(), c);
+                                    .appendField("Now Playing: ", SongCommand.getLink(track), false), c);
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
@@ -330,6 +330,7 @@ public class FlareBot {
         registerCommand(new SetPrefixCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new RandomCommand());
+        registerCommand(new UserInfoCommand());
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");

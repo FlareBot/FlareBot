@@ -48,7 +48,7 @@ public class PlaylistsCommand implements Command {
                                         statement1.setString(2, channel.getGuild().getID());
                                         statement1.setString(3, finalPlaylist);
                                         statement1.execute();
-                                        MessageUtils.sendMessage(MessageUtils.getEmbed().withDesc("Changed the scope of '" + finalPlaylist + "' to " + args[1].toLowerCase()).build(), channel);
+                                        MessageUtils.sendMessage(MessageUtils.getEmbed().withDesc("Changed the scope of '" + finalPlaylist + "' to " + args[1].toLowerCase()), channel);
                                     } else {
                                         MessageUtils.sendErrorMessage("Invalid scope! Scopes are local and global!", channel);
                                     }
@@ -106,7 +106,7 @@ public class PlaylistsCommand implements Command {
                     for (String s : songs) {
                         builder.appendField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);
                     }
-                    MessageUtils.sendMessage(builder.build(), channel);
+                    MessageUtils.sendMessage(builder, channel);
                 });
             } catch (SQLException e) {
                 MessageUtils.sendException("**Database error!**", e, channel);

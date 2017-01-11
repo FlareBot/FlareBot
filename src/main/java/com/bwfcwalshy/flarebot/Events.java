@@ -6,7 +6,12 @@ import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.*;
+import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
+import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
@@ -104,7 +109,7 @@ public class Events {
                     .withAuthorName(e.getGuild().getName())
                     .withAuthorIcon(e.getGuild().getIconURL())
                     .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
-                    .build(), FlareBot.getInstance().getGuildLogChannel());
+                    , FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
@@ -118,7 +123,7 @@ public class Events {
                 .withAuthorName(e.getGuild().getName())
                 .withAuthorIcon(e.getGuild().getIconURL())
                 .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
-                .build(), FlareBot.getInstance().getGuildLogChannel());
+                , FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
@@ -130,11 +135,11 @@ public class Events {
             }
             return;
         }
-        if (e.getChannel().getConnectedUsers().contains(e.getClient().getOurUser())
+        /*if (e.getChannel().getConnectedUsers().contains(e.getClient().getOurUser())
                 && e.getChannel().getConnectedUsers().size() < 2) {
             FlareBot.getInstance().getMusicManager().getPlayer(e.getChannel().getGuild().getID()).setPaused(true);
             e.getChannel().leave();
-        }
+        }*/
     }
 
     @EventSubscriber

@@ -33,14 +33,13 @@ public class YouTubeExtractor implements Extractor {
             item = player.resolve(input);
             if (item == null) {
                 MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                        .withDesc("Could not get that video/playlist! Make sure the URL is correct!")
-                        .build(), message);
+                        .withDesc("Could not get that video/playlist! Make sure the URL is correct!"), message);
                 return;
             }
         } catch (RuntimeException e) {
             MessageUtils.editMessage(MessageUtils.getEmbed(user)
                     .withDesc("Could not get that video/playlist!")
-                    .appendField("YouTube said: ", e.getMessage(), true).build(), message);
+                    .appendField("YouTube said: ", e.getMessage(), true), message);
             return;
         }
         List<AudioTrack> tracks = new ArrayList<>();
@@ -53,7 +52,7 @@ public class YouTubeExtractor implements Extractor {
             AudioTrack track = (AudioTrack) item;
             if (track.getInfo().length == 0 || track.getInfo().isStream) {
                 EmbedBuilder builder = MessageUtils.getEmbed(user).withDesc("Cannot queue a livestream!");
-                MessageUtils.editMessage("", builder.build(), message);
+                MessageUtils.editMessage("", builder, message);
                 return;
             }
             tracks.add(track);
@@ -70,7 +69,7 @@ public class YouTubeExtractor implements Extractor {
                     name, input));
             if (tracks.size() > 1)
                 builder.appendField("Song count:", String.valueOf(tracks.size()), true);
-            MessageUtils.editMessage("", builder.build(), message);
+            MessageUtils.editMessage("", builder, message);
         }
     }
 

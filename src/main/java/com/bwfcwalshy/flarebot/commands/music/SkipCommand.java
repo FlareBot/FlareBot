@@ -43,7 +43,7 @@ public class SkipCommand implements Command {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withColor(229, 45, 39)
                         .withDesc("Can't start a vote right now! " +
                                 "Another one in progress! Please use _skip YES|NO to vote!")
-                        .appendField("Votes for YES:", yes, true).appendField("Votes for NO:", no, true).build(), channel);
+                        .appendField("Votes for YES:", yes, true).appendField("Votes for NO:", no, true), channel);
             } else getVotes(channel, sender);
         } else {
             if (args[0].equalsIgnoreCase("force")) {
@@ -62,7 +62,7 @@ public class SkipCommand implements Command {
             if (mvotes.containsKey(sender.getID())) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withColor(229, 45, 39)
                         .withDesc("***\u26A0 You already voted! \u26A0***")
-                        .appendField("Your vote: ", mvotes.get(sender.getID()).toString(), true).build(), channel);
+                        .appendField("Your vote: ", mvotes.get(sender.getID()).toString(), true), channel);
                 return;
             }
             try {
@@ -70,7 +70,7 @@ public class SkipCommand implements Command {
                 mvotes.put(sender.getID(), vote);
             } catch (IllegalArgumentException e) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withColor(229, 45, 39).withDesc("***\u26A0 Use YES|NO! \u26A0***").build(), channel);
+                        .withColor(229, 45, 39).withDesc("***\u26A0 Use YES|NO! \u26A0***"), channel);
             }
         }
     }
@@ -88,7 +88,7 @@ public class SkipCommand implements Command {
             });
             if (bool.get()) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDescription("You were the only person in the channel.\nSkipping!").build(), channel);
+                        .withDescription("You were the only person in the channel.\nSkipping!"), channel);
                 return null;
             }
             new FlarebotTask("Vote " + s) {
@@ -106,7 +106,7 @@ public class SkipCommand implements Command {
                             .count() > (votes.size() / 2.0f);
                     MessageUtils.sendMessage(MessageUtils.getEmbed()
                             .withDesc("The votes are in!")
-                            .appendField("Results: ", (skip ? "Skip!" : "Keep!"), false).build(), channel);
+                            .appendField("Results: ", (skip ? "Skip!" : "Keep!"), false), channel);
                     if (skip)
                         musicManager.getPlayer(s).skip();
                     votes.remove(s);
@@ -114,7 +114,7 @@ public class SkipCommand implements Command {
             }.delay(20000);
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getID()).getPlayingTrack().getTrack().getInfo().title
-                    + "** has started!\nUse _skip YES|NO to vote!").build(), channel);
+                    + "** has started!\nUse _skip YES|NO to vote!"), channel);
             return new HashMap<>();
         });
     }

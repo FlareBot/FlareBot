@@ -50,7 +50,7 @@ public class PlaylistCommand implements Command {
                 for (String s : songs) {
                     builder.appendField("Page " + i++, s, false);
                 }
-                MessageUtils.sendPM(sender, builder.build());
+                MessageUtils.sendPM(sender, builder);
             } else {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("No songs in the playlist!"), channel);
             }
@@ -86,7 +86,7 @@ public class PlaylistCommand implements Command {
                     queue.clear();
                     queue.addAll(playlist);
 
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Removed number " + number + " from the playlist!").build(), channel);
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Removed number " + number + " from the playlist!"), channel);
                 }
             }
         }

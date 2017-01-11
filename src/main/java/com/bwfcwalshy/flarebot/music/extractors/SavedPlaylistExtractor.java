@@ -43,7 +43,7 @@ public class SavedPlaylistExtractor implements Extractor {
             }
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed(user)
-                .withDesc(String.format("*Loaded %s songs!*", i)).build(), message);
+                .withDesc(String.format("*Loaded %s songs!*", i)), message);
     }
 
     @Override

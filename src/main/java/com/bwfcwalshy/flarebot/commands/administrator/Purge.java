@@ -25,7 +25,7 @@ public class Purge implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
         if (channel.isPrivate()) {
-            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Cannot purge in DMs!").build(), channel);
+            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Cannot purge in DMs!"), channel);
             return;
         }
         if (args.length == 1 && args[0].matches("\\d+")) {
@@ -34,14 +34,14 @@ public class Purge implements Command {
                 if (System.currentTimeMillis() - calmitdood < cooldown) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                             .withDesc(String.format("You are on a cooldown! %s seconds left!",
-                                    (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build(), channel);
+                                    (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)), channel);
                     return;
                 }
             }
             int count = Integer.parseInt(args[0]) + 1;
             if (count - 1 < 2 || count - 1 > 200) {
                 MessageUtils.sendMessage(MessageUtils
-                        .getEmbed(sender).withDesc("Can't purge less than 2 messages or more than 200!").build(), channel);
+                        .getEmbed(sender).withDesc("Can't purge less than 2 messages or more than 200!"), channel);
                 return;
             }
             RequestBuffer.request(() -> {
@@ -76,7 +76,7 @@ public class Purge implements Command {
                         if (bool.get()) {
                             IMessage msg = MessageUtils.sendMessage(MessageUtils
                                     .getEmbed(sender).withDesc(":+1: Deleted!")
-                                    .appendField("Message Count: ", String.valueOf(count - 1), true).build(), channel);
+                                    .appendField("Message Count: ", String.valueOf(count - 1), true), channel);
                             new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
                                 @Override
                                 public void run() {
@@ -90,14 +90,14 @@ public class Purge implements Command {
                             }.delay(10000);
                         } else {
                             MessageUtils.sendMessage(MessageUtils
-                                    .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
+                                    .getEmbed(sender).withDesc("Could not bulk delete! Error occured!"), channel);
                         }
                     } else
                         bulk(toDelete, channel, sender);
                     channel.getMessages().setCacheCapacity(0);
                     IMessage msg = MessageUtils.sendMessage(MessageUtils
                             .getEmbed(sender).withDesc(":+1: Deleted!")
-                            .appendField("Message Count: ", String.valueOf(count - 1), true).build(), channel);
+                            .appendField("Message Count: ", String.valueOf(count - 1), true), channel);
                     new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
                         @Override
                         public void run() {
@@ -110,11 +110,11 @@ public class Purge implements Command {
                         }
                     }.delay(10000);
                 } else MessageUtils.sendMessage(MessageUtils
-                        .getEmbed(sender).withDesc("Could not load in messages!").build(), channel);
+                        .getEmbed(sender).withDesc("Could not load in messages!"), channel);
             });
         } else {
             MessageUtils.sendMessage(MessageUtils
-                    .getEmbed(sender).withDesc("Bad arguments!\n" + getDescription()).build(), channel);
+                    .getEmbed(sender).withDesc("Bad arguments!\n" + getDescription()), channel);
         }
     }
 
@@ -125,10 +125,10 @@ public class Purge implements Command {
             } catch (DiscordException e) {
                 FlareBot.LOGGER.error("Could not bulk delete!", e);
                 MessageUtils.sendMessage(MessageUtils
-                        .getEmbed(sender).withDesc("Could not bulk delete! Error occured!").build(), channel);
+                        .getEmbed(sender).withDesc("Could not bulk delete! Error occured!"), channel);
             } catch (MissingPermissionsException e) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc("I do not have the `Manage Messages` permission!").build(), channel);
+                        .withDesc("I do not have the `Manage Messages` permission!"), channel);
             }
         });
     }
