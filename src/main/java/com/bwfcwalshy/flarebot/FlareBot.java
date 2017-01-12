@@ -470,7 +470,7 @@ public class FlareBot {
             }, "API Thread " + api++));
 
     public void postToApi(String action, String property, JsonElement data) {
-        if(webSecret == null || !webSecret.isEmpty()) return;
+        if(webSecret == null || webSecret.isEmpty()) return;
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
