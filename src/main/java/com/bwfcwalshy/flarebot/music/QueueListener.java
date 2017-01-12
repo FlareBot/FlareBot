@@ -7,25 +7,14 @@ import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class QueueListener implements QueueHook {
 
     @Override
     public void execute(Player player, Item item) {
-        List<Track> tracks = new ArrayList<>();
-        if(item instanceof Track){
-            tracks.add(new Track((AudioTrack) item));
-            sendQueueData(tracks);
-        }else if(item instanceof AudioPlaylist){
-            ((AudioPlaylist) item).getTracks().forEach(track -> tracks.add(new Track(track)));
-        }else{
-            FlareBot.LOGGER.error("Unsupported item! " + item);
-        }
+        // Recode that thing. It can only ever be Track or Playlist lol
     }
 
     private void sendQueueData(List<Track> tracks){

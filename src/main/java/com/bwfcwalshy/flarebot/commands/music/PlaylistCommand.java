@@ -6,6 +6,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -34,9 +35,10 @@ public class PlaylistCommand implements Command {
                 int i = 1;
                 StringBuilder sb = new StringBuilder();
                 Iterator<Track> it = manager.getPlayer(channel.getGuild().getID()).getPlaylist().iterator();
-                while (it.hasNext() && songs.size() < 25) {
+                while (it.hasNext() && songs.size() < 24) {
                     Track next = it.next();
-                    String toAppend = String.format("%s. `%s` | Requested by <@!%s>\n", i++,
+                    String toAppend = String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i++,
+                            YouTubeExtractor.WATCH_URL + next.getTrack().getIdentifier(),
                             next.getTrack().getInfo().title, next.getMeta().get("requester"));
                     if (sb.length() + toAppend.length() > 1024) {
                         songs.add(sb.toString());

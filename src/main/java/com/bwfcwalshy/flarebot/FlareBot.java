@@ -6,12 +6,8 @@ import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
 import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
 import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
-import com.arsenarsen.lavaplayerbridge.hooks.HookManager;
-import com.arsenarsen.lavaplayerbridge.hooks.QueueHook;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
-import com.arsenarsen.lavaplayerbridge.player.Item;
-import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -210,7 +206,7 @@ public class FlareBot {
             Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(client));
-            musicManager.registerHook(player -> player.addEventListener(new AudioEventAdapter() {
+            musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
                     if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
@@ -270,9 +266,7 @@ public class FlareBot {
         manager = new FlareBotManager();
         manager.loadRandomSongs();
 
-        musicManager.registerHook(player -> {
-            player.getQueueHookManager().register(new QueueListener());
-        });
+        musicManager.getPlayerCreateHooks().register(player -> player.getQueueHookManager().register(new QueueListener()));
     }
 
     private void loadPerms() {
