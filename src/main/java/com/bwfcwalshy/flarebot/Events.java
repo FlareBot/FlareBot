@@ -45,7 +45,7 @@ public class Events {
 
     @EventSubscriber
     public void onReady(ReadyEvent e) {
-        flareBot.run();
+
     }
 
     @EventSubscriber
@@ -139,10 +139,12 @@ public class Events {
 
     @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
+        if (!bool.get())
+            flareBot.run();
+        bool.set(true);
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
                 && !e.getMessage().getAuthor().isBot()) {
-            bool.set(true);
             EnumSet<Permissions> perms = e.getMessage().getChannel()
                     .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
             if (!perms.contains(Permissions.ADMINISTRATOR)) {
