@@ -92,7 +92,7 @@ public class UpdateCommand implements Command {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "").replaceAll("\t", "");
                     String currentVersion = FlareBot.getInstance().getVersion();
                     if (force || isHigher(latestVersion, currentVersion)) {
-                        FlareBot.getInstance().getClient().changeStatus(Status.game("Updating.."));
+                        FlareBot.getInstance().getClient().changeStatus(Status.stream("Updating..", "https://www.twitch.tv/discordflarebot"));
                         if (channel != null)
                             MessageUtils.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`", channel);
                         UPDATING.set(true);

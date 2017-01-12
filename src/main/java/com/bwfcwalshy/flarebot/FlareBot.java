@@ -7,8 +7,11 @@ import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
 import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.hooks.HookManager;
+import com.arsenarsen.lavaplayerbridge.hooks.QueueHook;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
+import com.arsenarsen.lavaplayerbridge.player.Item;
+import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -85,7 +88,6 @@ public class FlareBot {
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
-    private HookManager hooks = new HookManager();
     private static boolean apiEnabled = true;
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -268,7 +270,9 @@ public class FlareBot {
         manager = new FlareBotManager();
         manager.loadRandomSongs();
 
-        hooks.register(new QueueListener());
+        musicManager.registerHook(player -> {
+            player.getQueueHookManager().register(new QueueListener());
+        });
     }
 
     private void loadPerms() {
