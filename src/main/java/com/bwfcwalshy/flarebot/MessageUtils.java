@@ -188,7 +188,8 @@ public class MessageUtils {
     public static void editMessage(String s, EmbedObject embed, IMessage message) {
         RequestBuffer.request(() -> {
             try {
-                message.edit(s, embed);
+                if(message != null)
+                    message.edit(s, embed);
             } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Could not edit own message + embed!", e);
             }
