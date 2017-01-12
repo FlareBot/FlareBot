@@ -1,6 +1,5 @@
 package com.bwfcwalshy.flarebot.commands.general;
 
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -18,9 +17,6 @@ public class JoinCommand implements Command {
             IVoiceChannel voiceChannel = sender.getConnectedVoiceChannels().get(0);
             try {
                 voiceChannel.join();
-                if (FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())) {
-                    FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).setPaused(false);
-                }
             } catch (MissingPermissionsException e) {
                 MessageUtils.sendMessage(sender.mention() + " I cannot join that voice channel!", channel);
             }

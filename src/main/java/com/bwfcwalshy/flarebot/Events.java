@@ -6,7 +6,14 @@ import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.*;
+import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
+import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.VoiceDisconnectedEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
@@ -45,7 +52,7 @@ public class Events {
 
     @EventSubscriber
     public void onReady(ReadyEvent e) {
-
+        flareBot.run();
     }
 
     @EventSubscriber
@@ -94,7 +101,7 @@ public class Events {
 
     @EventSubscriber
     public void onGuildCreate(GuildCreateEvent e) {
-        if (bool.get())
+        if (e.getClient().isReady())
             MessageUtils.sendMessage(new EmbedBuilder()
                     .withColor(new Color(96, 230, 144))
                     .withThumbnail(e.getGuild().getIconURL())
@@ -130,17 +137,27 @@ public class Events {
             }
             return;
         }
-        if (e.getChannel().getConnectedUsers().contains(e.getClient().getOurUser())
-                && e.getChannel().getConnectedUsers().size() < 2) {
-            FlareBot.getInstance().getMusicManager().getPlayer(e.getChannel().getGuild().getID()).setPaused(true);
-            e.getChannel().leave();
+        if (e.getVoiceChannel().getConnectedUsers().contains(e.getClient().getOurUser())
+                && e.getVoiceChannel().getConnectedUsers().size() < 2) {
+            e.getVoiceChannel().leave();
         }
     }
 
     @EventSubscriber
+    public void onChannelJoin(UserVoiceChannelJoinEvent event) {
+        if (event.getUser().equals(event.getClient().getOurUser())) {
+            if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getID())) {
+                FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getID()).setPaused(false);
+            }
+        }
+    }
+
+    public void onChannelLeave(VoiceDisconnectedEvent event) {
+        FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getID()).setPaused(true);
+    }
+
+    @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
-        if (!bool.get())
-            flareBot.run();
         bool.set(true);
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))

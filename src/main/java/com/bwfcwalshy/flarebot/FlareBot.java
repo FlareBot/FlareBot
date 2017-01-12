@@ -195,7 +195,10 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
-            client = new ClientBuilder().withToken(tkn).login();
+            client = new ClientBuilder()
+                    .setMaxReconnectAttempts(Integer.MAX_VALUE)
+                    .withShards(2)
+                    .withToken(tkn).login();
             prefixes = new Prefixes();
             client.getDispatcher().registerListener(new Events(this));
             Discord4J.disableChannelWarnings();
@@ -352,7 +355,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
-                    client.changeStatus(Status.stream(COMMAND_CHAR + "commands", "https://www.twitch.tv/discordflarebot"));
+                    setStatus("_commands");
             }
         }.repeat(10, 32000);
         new FlarebotTask("PostData" + System.currentTimeMillis()) {
@@ -379,8 +382,8 @@ public class FlareBot {
         new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                    sendData();
-                }
+                sendData();
+            }
         }.repeat(10, 30000);
 
         setupUpdate();
@@ -470,7 +473,7 @@ public class FlareBot {
             }, "API Thread " + api++));
 
     public void postToApi(String action, String property, JsonElement data) {
-        if(webSecret == null || webSecret.isEmpty()) return;
+        if (webSecret == null || webSecret.isEmpty()) return;
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
@@ -775,6 +778,13 @@ public class FlareBot {
 
     public static char getPrefix(String id) {
         return getPrefixes().get(id);
+    }
+
+    public void setStatus(String status) {
+            client.changeStatus(Status.stream(status, "https://www.twitch.tv/discordflarebot"));
+        for (int i = 0; i < client.getShardCount(); )
+            client.getShards().get(i)
+                    .changeStatus(Status.stream(status + " | Shard: " + ++i, "https://www.twitch.tv/discordflarebot"));
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
