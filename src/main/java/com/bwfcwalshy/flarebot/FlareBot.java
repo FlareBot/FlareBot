@@ -782,9 +782,9 @@ public class FlareBot {
     }
 
     public void setStatus(String status) {
-        int i = 1;
         for (IShard s : client.getShards())
-            s.changeStatus(Status.stream(status + " | Shard: " + i++, "https://www.twitch.tv/discordflarebot"));
+            s.changeStatus(Status.stream(status + " | Shard: " +
+                    client.getShards().indexOf(s), "https://www.twitch.tv/discordflarebot"));
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
