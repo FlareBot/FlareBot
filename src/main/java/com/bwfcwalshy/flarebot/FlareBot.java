@@ -782,7 +782,7 @@ public class FlareBot {
     }
 
     public void setStatus(String status) {
-        int i = 0;
+        int i = 1;
         for (IShard s : client.getShards())
             s.changeStatus(Status.stream(status + " | Shard: " + i++, "https://www.twitch.tv/discordflarebot"));
     }
