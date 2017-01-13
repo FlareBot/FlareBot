@@ -39,6 +39,7 @@ import spark.Spark;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.api.IShard;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.BotInviteBuilder;
 import sx.blah.discord.util.DiscordException;
@@ -781,10 +782,9 @@ public class FlareBot {
     }
 
     public void setStatus(String status) {
-            client.changeStatus(Status.stream(status, "https://www.twitch.tv/discordflarebot"));
-        for (int i = 0; i < client.getShardCount(); )
-            client.getShards().get(i)
-                    .changeStatus(Status.stream(status + " | Shard: " + ++i, "https://www.twitch.tv/discordflarebot"));
+        int i = 0;
+        for (IShard s : client.getShards())
+            s.changeStatus(Status.stream(status + " | Shard: " + i++, "https://www.twitch.tv/discordflarebot"));
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
