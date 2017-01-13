@@ -15,6 +15,7 @@ import sx.blah.discord.util.*;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.lang.Throwable;
 
 public class MessageUtils {
 
@@ -32,7 +33,7 @@ public class MessageUtils {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
-            } catch (DiscordException | MissingPermissionsException e) {
+            } catch (Throwable e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -148,7 +149,7 @@ public class MessageUtils {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(embedObject)
                         .withChannel(channel).withContent("\u200B").send();
-            } catch (DiscordException | MissingPermissionsException e) {
+            } catch (Throwable e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -160,7 +161,7 @@ public class MessageUtils {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(builder.withColor(Color.red).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (DiscordException | MissingPermissionsException e) {
+            } catch (Throwable e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -173,7 +174,7 @@ public class MessageUtils {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(MessageUtils.getEmbed()
                         .withColor(Color.red).withDesc(message).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (DiscordException | MissingPermissionsException e) {
+            } catch (Throwable e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
