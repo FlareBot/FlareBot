@@ -28,6 +28,7 @@ public class RandomExtractor implements Extractor {
                     continue;
                 Track track = new Track((AudioTrack) probablyATrack);
                 track.getMeta().put("requester", user.getID());
+                track.getMeta().put("guildId", player.getGuildId());
                 player.queue(track);
                 i++;
             } catch (FriendlyException ignored) {

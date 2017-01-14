@@ -8,7 +8,6 @@ import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ public class QueueListener implements QueueHook {
     public void execute(Player player, Item item) {
         List<Track> tracks = new ArrayList<>();
         if(item instanceof Playlist) {
-            ((AudioPlaylist) item).getTracks().forEach(track -> tracks.add(new Track(track)));
+            ((Playlist) item).getPlaylist().forEach(tracks::add);
         }else if(item instanceof Track){
             tracks.add((Track) item);
         }else{
@@ -33,14 +32,8 @@ public class QueueListener implements QueueHook {
     private void sendQueueData(List<Track> tracks){
         JsonArray array = new JsonArray();
         for(Track t : tracks){
-            JsonObject o = new JsonObject();
-            o.addProperty("title", t.getTrack().getInfo().title);
-            o.addProperty("length", t.getTrack().getDuration());
-            o.addProperty("id", t.getTrack().getIdentifier());
-            o.addProperty("requester", t.getMeta().getOrDefault("requester", "Unknown").toString());
-            array.add(o);
+            array.add(t.getTrack().getIdentifier());
         }
-        FlareBot.LOGGER.debug(array.toString());
 
         FlareBot.getInstance().postToApi("updatePlaylists", "playlist", array);
     }

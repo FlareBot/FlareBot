@@ -102,7 +102,7 @@ public class PlaylistsCommand implements Command {
                     songs.add(sb.toString());
                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
                     i = 1;
-                    builder.appendField("Global Playlists", globalSb.toString(), false);
+                    builder.appendField("Global Playlists", (globalSb.toString().isEmpty() ? "No global playlists!" : globalSb.toString()), false);
                     for (String s : songs) {
                         builder.appendField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);
                     }

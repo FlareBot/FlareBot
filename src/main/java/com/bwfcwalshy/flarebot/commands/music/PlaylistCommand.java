@@ -27,8 +27,6 @@ public class PlaylistCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        System.out.println(args.length);
-        System.out.println(args.length < 1 && args.length > 2);
         if (args.length < 1 || args.length > 2) {
             if (!manager.getPlayer(channel.getGuild().getID()).getPlaylist().isEmpty()) {
                 List<String> songs = new ArrayList<>();

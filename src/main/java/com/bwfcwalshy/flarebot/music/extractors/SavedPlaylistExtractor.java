@@ -37,6 +37,7 @@ public class SavedPlaylistExtractor implements Extractor {
             try {
                 Track track = new Track((AudioTrack) player.resolve(url));
                 track.getMeta().put("requester", user.getID());
+                track.getMeta().put("guildId", player.getGuildId());
                 player.queue(track);
                 i++;
             } catch (FriendlyException ignored) {
