@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.bwfcwalshy</groupId>
     <artifactId>flarebot</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1</version>
 
     <properties>
         <jetty.version>9.3.6.v20151106</jetty.version>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.github.austinv11</groupId>
             <artifactId>Discord4j</artifactId>
-            <version>dc728ff</version>
+            <version>368ec1c</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
