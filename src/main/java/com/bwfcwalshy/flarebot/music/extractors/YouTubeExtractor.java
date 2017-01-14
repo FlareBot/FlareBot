@@ -66,7 +66,7 @@ public class YouTubeExtractor implements Extractor {
                 track.getMeta().put("guildId", player.getGuildId());
                 return track;
             }).collect(Collectors.toList());
-            if(tracks.size() > 1) { // Double `if` https://giphy.com/gifs/ng1xAzwIkDgfm
+            if (tracks.size() > 1) { // Double `if` https://giphy.com/gifs/ng1xAzwIkDgfm
                 Playlist p = new Playlist(tracks);
                 player.queue(p);
             } else {

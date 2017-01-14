@@ -23,8 +23,8 @@ import java.util.List;
 public class PlaylistsCommand implements Command {
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length >= 1){
-            if(args[0].equalsIgnoreCase("mark")) {
+        if (args.length >= 1) {
+            if (args[0].equalsIgnoreCase("mark")) {
                 if (FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1) {
                         MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) + "playlists mark (global/local) (playlist)", channel);
@@ -32,7 +32,7 @@ public class PlaylistsCommand implements Command {
                         MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) + "playlists mark (global/local) (playlist)", channel);
                     } else if (args.length >= 3) {
                         String playlist = "";
-                        for(int i = 2; i < args.length; i++) playlist += args[i] + ' ';
+                        for (int i = 2; i < args.length; i++) playlist += args[i] + ' ';
                         playlist = playlist.trim();
                         try {
                             String finalPlaylist = playlist;
@@ -62,7 +62,7 @@ public class PlaylistsCommand implements Command {
                     }
                 }
             }
-        }else{
+        } else {
             channel.setTypingStatus(true);
             try {
                 SQLController.runSqlTask(connection -> {
@@ -81,13 +81,13 @@ public class PlaylistsCommand implements Command {
                     List<String> songs = new ArrayList<>();
                     int i = 1;
                     boolean loopingGlobal = true;
-                    while(set.next() && songs.size() < 25){
+                    while (set.next() && songs.size() < 25) {
                         String toAppend;
-                        if(set.getString("scope").equalsIgnoreCase("global")) {
+                        if (set.getString("scope").equalsIgnoreCase("global")) {
                             toAppend = String.format("%s. %s\n", i++, set.getString("name"));
                             globalSb.append(toAppend);
-                        }else{
-                            if(loopingGlobal) {
+                        } else {
+                            if (loopingGlobal) {
                                 loopingGlobal = false;
                                 i = 1;
                             }

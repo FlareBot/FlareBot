@@ -101,14 +101,14 @@ public class Events {
     public void onGuildCreate(GuildCreateEvent e) {
         if (bool.get())
             MessageUtils.sendMessage(new EmbedBuilder()
-                    .withColor(new Color(96, 230, 144))
-                    .withThumbnail(e.getGuild().getIconURL())
-                    .withFooterIcon(e.getGuild().getIconURL())
-                    .withFooterText(OffsetDateTime.now()
-                            .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                    .withAuthorName(e.getGuild().getName())
-                    .withAuthorIcon(e.getGuild().getIconURL())
-                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
+                            .withColor(new Color(96, 230, 144))
+                            .withThumbnail(e.getGuild().getIconURL())
+                            .withFooterIcon(e.getGuild().getIconURL())
+                            .withFooterText(OffsetDateTime.now()
+                                    .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+                            .withAuthorName(e.getGuild().getName())
+                            .withAuthorIcon(e.getGuild().getIconURL())
+                            .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
                     , FlareBot.getInstance().getGuildLogChannel());
     }
 
@@ -116,13 +116,13 @@ public class Events {
     public void onGuildDelete(GuildLeaveEvent e) {
         COMMAND_COUNTER.remove(e.getGuild().getID());
         MessageUtils.sendMessage(new EmbedBuilder()
-                .withColor(new Color(244, 23, 23))
-                .withThumbnail(e.getGuild().getIconURL())
-                .withFooterIcon(e.getGuild().getIconURL())
-                .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                .withAuthorName(e.getGuild().getName())
-                .withAuthorIcon(e.getGuild().getIconURL())
-                .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
+                        .withColor(new Color(244, 23, 23))
+                        .withThumbnail(e.getGuild().getIconURL())
+                        .withFooterIcon(e.getGuild().getIconURL())
+                        .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+                        .withAuthorName(e.getGuild().getName())
+                        .withAuthorIcon(e.getGuild().getIconURL())
+                        .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
                 , FlareBot.getInstance().getGuildLogChannel());
     }
 

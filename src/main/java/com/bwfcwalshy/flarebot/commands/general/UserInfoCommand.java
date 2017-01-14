@@ -14,15 +14,15 @@ public class UserInfoCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if(args.length != 1){
+        if (args.length != 1) {
             MessageUtils.sendErrorMessage("Incorrect usage! Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) + "userinfo (user)", channel);
-        }else{
-            if(args[0].matches("\\d+") || args[0].matches("<@\\d+>")){
+        } else {
+            if (args[0].matches("\\d+") || args[0].matches("<@\\d+>")) {
                 String id = args[0];
-                if(args[0].matches("<@\\d+>"))
+                if (args[0].matches("<@\\d+>"))
                     id = id.replace("<@", "").replace(">", "");
                 IUser user = channel.getGuild().getUserByID(id);
-                if(user == null){
+                if (user == null) {
                     MessageUtils.sendErrorMessage("That user does not exist!", channel);
                     return;
                 }
@@ -58,5 +58,7 @@ public class UserInfoCommand implements Command {
     }
 
     @Override
-    public String getPermission() { return null; }
+    public String getPermission() {
+        return null;
+    }
 }

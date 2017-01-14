@@ -164,7 +164,7 @@ public class FlareBot {
             return;
         }
 
-        if(webSecret == null || webSecret.isEmpty()) apiEnabled = false;
+        if (webSecret == null || webSecret.isEmpty()) apiEnabled = false;
 
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         Thread.currentThread().setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
@@ -386,8 +386,8 @@ public class FlareBot {
         new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                    sendData();
-                }
+                sendData();
+            }
         }.repeat(10, 30000);
 
         setupUpdate();
@@ -477,7 +477,7 @@ public class FlareBot {
             }, "API Thread " + api++));
 
     public void postToApi(String action, String property, JsonElement data) {
-        if(!apiEnabled) return;
+        if (!apiEnabled) return;
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
