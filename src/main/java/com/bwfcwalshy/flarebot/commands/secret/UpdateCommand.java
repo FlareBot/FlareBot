@@ -82,7 +82,7 @@ public class UpdateCommand implements Command {
      */
     public static void update(boolean force, IChannel channel) {
         try {
-            URL url = new URL("https://raw.githubusercontent.com/ArsenArsen/FlareBot/master/pom.xml");
+            URL url = new URL("https://raw.githubusercontent.com/FlareBot/FlareBot/master/pom.xml");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while (true) {
