@@ -356,7 +356,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
-                    setStatus("_commands");
+                    setStatus("_help | _invite");
             }
         }.repeat(10, 32000);
         new FlarebotTask("PostData" + System.currentTimeMillis()) {
