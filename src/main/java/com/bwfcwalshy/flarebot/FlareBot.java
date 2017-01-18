@@ -19,6 +19,7 @@ import com.bwfcwalshy.flarebot.commands.music.*;
 import com.bwfcwalshy.flarebot.commands.secret.*;
 import com.bwfcwalshy.flarebot.github.GithubListener;
 import com.bwfcwalshy.flarebot.music.QueueListener;
+import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
@@ -58,6 +59,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -69,7 +71,6 @@ public class FlareBot {
     public static String passwd;
     private static String youtubeApi;
 
-    //    private static String[] args;
     static {
         new File("latest.log").delete();
     }
@@ -93,6 +94,7 @@ public class FlareBot {
 
     private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
+    private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException {
         Spark.port(8080);
@@ -507,7 +509,7 @@ public class FlareBot {
                 }
                 con.disconnect();
             } catch (IOException e) {
-                FlareBot.LOGGER.error("Could not make POST request!", e);
+                FlareBot.LOGGER.error("Could not make POST request!\n\nDetails:\nAction: " + action + "\nProperty: " + property + "\nData: " + data.toString(), e);
             }
         });
     }
@@ -812,5 +814,14 @@ public class FlareBot {
 
     public FlareBotManager getManager() {
         return this.manager;
+    }
+
+    public Map<String, PlayerCache> getPlayerCache(){
+        return this.playerCache;
+    }
+
+    public PlayerCache getPlayerCache(String userId){
+        this.playerCache.computeIfAbsent(userId, k -> new PlayerCache(userId, null, null, null));
+        return this.playerCache.get(userId);
     }
 }

@@ -3,25 +3,27 @@ package com.bwfcwalshy.flarebot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
+import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
+import org.codehaus.groovy.runtime.metaclass.ConcurrentReaderHashMap;
 import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.api.internal.json.event.PresenceUpdateEventResponse;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.Permissions;
+import sx.blah.discord.handle.impl.events.user.PresenceUpdateEvent;
+import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -31,18 +33,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Events {
 
     private FlareBot flareBot;
-    private AtomicBoolean bool = new AtomicBoolean(false);
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
 
     public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
+
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -99,16 +100,15 @@ public class Events {
 
     @EventSubscriber
     public void onGuildCreate(GuildCreateEvent e) {
-        if (bool.get())
-            MessageUtils.sendMessage(new EmbedBuilder()
-                            .withColor(new Color(96, 230, 144))
-                            .withThumbnail(e.getGuild().getIconURL())
-                            .withFooterIcon(e.getGuild().getIconURL())
-                            .withFooterText(OffsetDateTime.now()
-                                    .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                            .withAuthorName(e.getGuild().getName())
-                            .withAuthorIcon(e.getGuild().getIconURL())
-                            .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
+        MessageUtils.sendMessage(new EmbedBuilder()
+                        .withColor(new Color(96, 230, 144))
+                        .withThumbnail(e.getGuild().getIconURL())
+                        .withFooterIcon(e.getGuild().getIconURL())
+                        .withFooterText(OffsetDateTime.now()
+                                .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+                        .withAuthorName(e.getGuild().getName())
+                        .withAuthorIcon(e.getGuild().getIconURL())
+                        .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
                     , FlareBot.getInstance().getGuildLogChannel());
     }
 
@@ -135,19 +135,23 @@ public class Events {
             }
             return;
         }
-        /*if (e.getChannel().getConnectedUsers().contains(e.getClient().getOurUser())
-                && e.getChannel().getConnectedUsers().size() < 2) {
-            FlareBot.getInstance().getMusicManager().getPlayer(e.getChannel().getGuild().getID()).setPaused(true);
-            e.getChannel().leave();
-        }*/
+        if (e.getVoiceChannel().getConnectedUsers().contains(e.getClient().getOurUser())
+                && e.getVoiceChannel().getConnectedUsers().size() < 2) {
+            FlareBot.getInstance().getMusicManager().getPlayer(e.getVoiceChannel().getGuild().getID()).setPaused(true);
+            e.getVoiceChannel().leave();
+        }
     }
 
     @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
+        PlayerCache cache = flareBot.getPlayerCache(e.getAuthor().getID());
+        cache.setLastMessage(e.getMessage().getTimestamp());
+        cache.setLastSeen(LocalDateTime.now());
+        cache.setLastSpokeGuild(e.getGuild().getID());
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
                 && !e.getMessage().getAuthor().isBot()) {
-            bool.set(true);
+
             EnumSet<Permissions> perms = e.getMessage().getChannel()
                     .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
             if (!perms.contains(Permissions.ADMINISTRATOR)) {
@@ -253,6 +257,13 @@ public class Events {
                     }
                 }
             }
+        }
+    }
+
+    @EventSubscriber
+    public void onPreserenceChange(PresenceUpdateEvent e) {
+        if(e.getNewPresence() != Presences.OFFLINE){
+            flareBot.getPlayerCache(e.getUser().getID()).setLastSeen(LocalDateTime.now());
         }
     }
 
