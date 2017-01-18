@@ -257,6 +257,14 @@ public class Events {
                     }
                 }
             }
+        }else{
+            if(e.getMessage().getContent() != null && FlareBot.getPrefixes().get(getGuildId(e)) != FlareBot.COMMAND_CHAR
+                    && e.getMessage().getContent().startsWith("_")
+                    && !e.getMessage().getAuthor().isBot()){
+                if(e.getMessage().getContent().startsWith("_prefix")){
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(e.getAuthor()).withDesc("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(e)) + "`"), e.getChannel());
+                }
+            }
         }
     }
 
