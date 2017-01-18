@@ -37,6 +37,7 @@ public class Songs {
     public static LinkedList<ResponsePlayer> get() {
         LinkedList<ResponsePlayer> list = new LinkedList<>();
         FlareBot.getInstance().getMusicManager().getPlayers().stream()
+                .filter(player -> !player.getPlaylist().isEmpty())
                 .map(ResponsePlayer::new)
                 .forEach(list::add);
         return list;

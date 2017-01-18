@@ -22,6 +22,7 @@ import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
+import com.bwfcwalshy.flarebot.web.ApiFactory;
 import com.google.gson.*;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -334,6 +335,8 @@ public class FlareBot {
         registerCommand(new SetPrefixCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new RandomCommand());
+
+        ApiFactory.bind();
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
