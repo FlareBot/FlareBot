@@ -33,7 +33,7 @@ public class MessageUtils {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
-            } catch (Throwable e) {
+            } catch (DiscordException | MissingPermissionsException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
