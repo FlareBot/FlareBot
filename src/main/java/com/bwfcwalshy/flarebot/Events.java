@@ -152,6 +152,7 @@ public class Events {
         }
     }
 
+    @EventSubscriber
     public void onChannelLeave(VoiceDisconnectedEvent event) {
         FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getID()).setPaused(true);
     }
