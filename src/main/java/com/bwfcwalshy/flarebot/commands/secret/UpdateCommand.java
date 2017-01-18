@@ -11,7 +11,6 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Status;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -83,7 +82,7 @@ public class UpdateCommand implements Command {
      */
     public static void update(boolean force, IChannel channel) {
         try {
-            URL url = new URL("https://raw.githubusercontent.com/ArsenArsen/FlareBot/master/pom.xml");
+            URL url = new URL("https://raw.githubusercontent.com/FlareBot/FlareBot/master/pom.xml");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
             String line;
             while (true) {
@@ -92,7 +91,7 @@ public class UpdateCommand implements Command {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "").replaceAll("\t", "");
                     String currentVersion = FlareBot.getInstance().getVersion();
                     if (force || isHigher(latestVersion, currentVersion)) {
-                        FlareBot.getInstance().getClient().changeStatus(Status.stream("Updating..", "https://www.twitch.tv/discordflarebot"));
+                        FlareBot.getInstance().setStatus("Updating..");
                         if (channel != null)
                             MessageUtils.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`", channel);
                         UPDATING.set(true);

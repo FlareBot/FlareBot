@@ -21,7 +21,7 @@ public class GithubListener implements EventListener<PushEvent> {
         for (Commit commit : e.getCommits()) {
             sb.append(String.format("`%s` in `%s` - [`%s`](%s) %s\n",
                     commit.getAuthor().getName(),
-                    e.getRef(),
+                    e.getRef().substring(e.getRef().lastIndexOf('/') + 1),
                     commit.getId().substring(0, 7),
                     commit.getUrl(),
                     commit.getMessage()));

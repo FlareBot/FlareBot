@@ -30,6 +30,7 @@ public class PerGuildPermissions {
             addPermission("Default", "flarebot.search");
             addPermission("Default", "flarebot.playlist.save");
             addPermission("Default", "flarebot.playlist.load");
+            addPermission("Default", "flarebot.help");
         }
     }
 
@@ -42,11 +43,12 @@ public class PerGuildPermissions {
         if (user.getPermissionsForGuild(user.getClient().getGuildByID(getGuildID())).contains(Permissions.ADMINISTRATOR))
             return true;
         AtomicBoolean has = new AtomicBoolean(false);
-        getUser(user).getGroups().forEach((group) -> {
-            if (getGroup(group).getPermissions().contains(permission) || getGroup(group).getPermissions().contains("*")) {
+        PermissionNode node = new PermissionNode(permission);
+        getUser(user).getGroups().forEach((group) ->
+                getGroups().computeIfAbsent(group, Group::new).getPermissions().forEach(s -> {
+            if(new PermissionNode(s).test(node))
                 has.set(true);
-            }
-        });
+        }));
         return has.get();
     }
 

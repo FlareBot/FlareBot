@@ -27,9 +27,11 @@ public class PlaylistsCommand implements Command {
             if (args[0].equalsIgnoreCase("mark")) {
                 if (FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1) {
-                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) + "playlists mark (global/local) (playlist)", channel);
+                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) +
+                                "playlists mark (global/local) (playlist)", channel);
                     } else if (args.length == 2) {
-                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) + "playlists mark (global/local) (playlist)", channel);
+                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) +
+                                "playlists mark (global/local) (playlist)", channel);
                     } else if (args.length >= 3) {
                         String playlist = "";
                         for (int i = 2; i < args.length; i++) playlist += args[i] + ' ';
@@ -37,20 +39,23 @@ public class PlaylistsCommand implements Command {
                         try {
                             String finalPlaylist = playlist;
                             SQLController.runSqlTask(conn -> {
-                                PreparedStatement statement = conn.prepareStatement("SELECT * FROM playlist WHERE guild = ? AND name = ?");
+                                PreparedStatement statement = conn.prepareStatement("SELECT * FROM playlist WHERE " +
+                                        "guild = ? AND name = ?");
                                 statement.setString(1, channel.getGuild().getID());
                                 statement.setString(2, finalPlaylist);
                                 statement.execute();
                                 if (statement.getResultSet().next()) {
                                     if (args[1].equalsIgnoreCase("global") || args[1].equalsIgnoreCase("local")) {
-                                        PreparedStatement statement1 = conn.prepareStatement("UPDATE playlist SET scope = ? WHERE guild = ? AND name = ?");
+                                        PreparedStatement statement1 = conn.prepareStatement("UPDATE playlist SET " +
+                                                "scope = ? WHERE guild = ? AND name = ?");
                                         statement1.setString(1, args[1].toLowerCase());
                                         statement1.setString(2, channel.getGuild().getID());
                                         statement1.setString(3, finalPlaylist);
                                         statement1.execute();
                                         MessageUtils.sendMessage(MessageUtils.getEmbed().withDesc("Changed the scope of '" + finalPlaylist + "' to " + args[1].toLowerCase()), channel);
                                     } else {
-                                        MessageUtils.sendErrorMessage("Invalid scope! Scopes are local and global!", channel);
+                                        MessageUtils.sendErrorMessage("Invalid scope! Scopes are local and global!",
+                                                channel);
                                     }
                                 } else {
                                     MessageUtils.sendErrorMessage("That playlist could not be found!", channel);
@@ -72,7 +77,8 @@ public class PlaylistsCommand implements Command {
                             "  list  TEXT,\n" +
                             "  PRIMARY KEY(name, guild)\n" +
                             ")");
-                    PreparedStatement get = connection.prepareStatement("SELECT name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
+                    PreparedStatement get = connection.prepareStatement("SELECT name, scope FROM playlist WHERE guild" +
+                            " = ? OR scope = 'global' ORDER BY scope ASC");
                     get.setString(1, channel.getGuild().getID());
                     get.execute();
                     ResultSet set = get.getResultSet();

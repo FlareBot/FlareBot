@@ -59,12 +59,12 @@ public class HelpCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "commands";
+        return "help";
     }
 
     @Override
     public String[] getAliases() {
-        return new String[]{"help"};
+        return new String[]{"commands"};
     }
 
     @Override
@@ -75,10 +75,5 @@ public class HelpCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.GENERAL;
-    }
-
-    @Override
-    public String getPermission() {
-        return null;
     }
 }
