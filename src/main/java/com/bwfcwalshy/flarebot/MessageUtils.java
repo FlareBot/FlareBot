@@ -149,7 +149,7 @@ public class MessageUtils {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(embedObject)
                         .withChannel(channel).withContent("\u200B").send();
-            } catch (Throwable e) {
+            } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -161,7 +161,7 @@ public class MessageUtils {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(builder.withColor(Color.red).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (Throwable e) {
+            } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -174,7 +174,7 @@ public class MessageUtils {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(MessageUtils.getEmbed()
                         .withColor(Color.red).withDesc(message).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (Throwable e) {
+            } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
