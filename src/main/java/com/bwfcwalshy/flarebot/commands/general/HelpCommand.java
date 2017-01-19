@@ -20,7 +20,7 @@ public class HelpCommand implements Command {
             try {
                 type = CommandType.valueOf(args[0].toUpperCase());
             } catch (IllegalArgumentException ignored) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!").build(), channel);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!"), channel);
                 return;
             }
             if (type != CommandType.HIDDEN) {
@@ -29,9 +29,9 @@ public class HelpCommand implements Command {
                 MessageUtils.sendMessage(embedBuilder.appendField(type.toString(), type.getCommands()
                         .stream()
                         .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
-                        .collect(Collectors.joining("")), false).build(), channel);
+                        .collect(Collectors.joining("")), false), channel);
             } else {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!").build(), channel);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!"), channel);
             }
         } else {
             sendCommands(channel, sender);
@@ -54,7 +54,7 @@ public class HelpCommand implements Command {
                     .collect(Collectors.joining(""));
             embedBuilder.appendField(c.toString(), help, false);
         }
-        MessageUtils.sendMessage(embedBuilder.build(), channel);
+        MessageUtils.sendMessage(embedBuilder, channel);
     }
 
     @Override

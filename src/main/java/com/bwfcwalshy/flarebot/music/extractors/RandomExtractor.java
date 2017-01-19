@@ -28,13 +28,14 @@ public class RandomExtractor implements Extractor {
                     continue;
                 Track track = new Track((AudioTrack) probablyATrack);
                 track.getMeta().put("requester", user.getID());
+                track.getMeta().put("guildId", player.getGuildId());
                 player.queue(track);
                 i++;
             } catch (FriendlyException ignored) {
             }
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed()
-                .withDesc("Added " + i + " random songs to the playlist!").build(), message);
+                .withDesc("Added " + i + " random songs to the playlist!"), message);
     }
 
     @Override

@@ -71,7 +71,7 @@ public class SaveCommand implements Command {
                         .map(track -> track.getTrack().getIdentifier())
                         .collect(Collectors.joining(",")));
                 statement.executeUpdate();
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Success!").build(), channel);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Success!"), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

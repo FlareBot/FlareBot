@@ -47,7 +47,7 @@ public class LoadCommand implements Command {
                     set.next();
                     VideoThread.getThread(finalName + '\u200B' + set.getString("list"), channel, sender).start();
                 } else
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("*That playlist does not exist!*").build(), channel);
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("*That playlist does not exist!*"), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

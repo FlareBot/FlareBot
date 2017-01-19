@@ -18,6 +18,8 @@ import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
 import com.bwfcwalshy.flarebot.commands.secret.*;
 import com.bwfcwalshy.flarebot.github.GithubListener;
+import com.bwfcwalshy.flarebot.music.QueueListener;
+import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
@@ -59,6 +61,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,7 +73,6 @@ public class FlareBot {
     public static String passwd;
     private static String youtubeApi;
 
-    //    private static String[] args;
     static {
         new File("latest.log").delete();
     }
@@ -85,6 +87,7 @@ public class FlareBot {
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
+    private static boolean apiEnabled = true;
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -93,6 +96,7 @@ public class FlareBot {
 
     private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
+    private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException {
         Spark.port(8080);
@@ -163,6 +167,9 @@ public class FlareBot {
             e.printStackTrace();
             return;
         }
+
+        if (webSecret == null || webSecret.isEmpty()) apiEnabled = false;
+
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         Thread.currentThread().setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         (instance = new FlareBot()).init(tkn);
@@ -206,7 +213,7 @@ public class FlareBot {
             Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(client));
-            musicManager.registerHook(player -> player.addEventListener(new AudioEventAdapter() {
+            musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
                     if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
@@ -226,8 +233,7 @@ public class FlareBot {
                             }
                             Track track = player.getPlayingTrack();
                             MessageUtils.sendMessage(MessageUtils.getEmbed()
-                                    .appendField("Now Playing: ", SongCommand.getLink(track), false)
-                                    .build(), c);
+                                    .appendField("Now Playing: ", SongCommand.getLink(track), false), c);
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
@@ -266,6 +272,8 @@ public class FlareBot {
 
         manager = new FlareBotManager();
         manager.loadRandomSongs();
+
+        musicManager.getPlayerCreateHooks().register(player -> player.getQueueHookManager().register(new QueueListener()));
     }
 
     private void loadPerms() {
@@ -335,6 +343,7 @@ public class FlareBot {
         registerCommand(new SetPrefixCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new RandomCommand());
+        registerCommand(new UserInfoCommand());
 
         ApiFactory.bind();
 
@@ -477,7 +486,7 @@ public class FlareBot {
             }, "API Thread " + api++));
 
     public void postToApi(String action, String property, JsonElement data) {
-        if (webSecret == null || webSecret.isEmpty()) return;
+        if (!apiEnabled) return;
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
@@ -507,7 +516,7 @@ public class FlareBot {
                 }
                 con.disconnect();
             } catch (IOException e) {
-                FlareBot.LOGGER.error("Could not make POST request!", e);
+                FlareBot.LOGGER.error("Could not make POST request!\n\nDetails:\nAction: " + action + "\nProperty: " + property + "\nData: " + data.toString(), e);
             }
         });
     }
@@ -818,5 +827,14 @@ public class FlareBot {
 
     public FlareBotManager getManager() {
         return this.manager;
+    }
+
+    public Map<String, PlayerCache> getPlayerCache(){
+        return this.playerCache;
+    }
+
+    public PlayerCache getPlayerCache(String userId){
+        this.playerCache.computeIfAbsent(userId, k -> new PlayerCache(userId, null, null, null));
+        return this.playerCache.get(userId);
     }
 }

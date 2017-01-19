@@ -6,6 +6,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -26,17 +27,16 @@ public class PlaylistCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        System.out.println(args.length);
-        System.out.println(args.length < 1 && args.length > 2);
         if (args.length < 1 || args.length > 2) {
             if (!manager.getPlayer(channel.getGuild().getID()).getPlaylist().isEmpty()) {
                 List<String> songs = new ArrayList<>();
                 int i = 1;
                 StringBuilder sb = new StringBuilder();
                 Iterator<Track> it = manager.getPlayer(channel.getGuild().getID()).getPlaylist().iterator();
-                while (it.hasNext() && songs.size() < 25) {
+                while (it.hasNext() && songs.size() < 24) {
                     Track next = it.next();
-                    String toAppend = String.format("%s. `%s` | Requested by <@!%s>\n", i++,
+                    String toAppend = String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i++,
+                            YouTubeExtractor.WATCH_URL + next.getTrack().getIdentifier(),
                             next.getTrack().getInfo().title, next.getMeta().get("requester"));
                     if (sb.length() + toAppend.length() > 1024) {
                         songs.add(sb.toString());
@@ -50,7 +50,7 @@ public class PlaylistCommand implements Command {
                 for (String s : songs) {
                     builder.appendField("Page " + i++, s, false);
                 }
-                MessageUtils.sendPM(sender, builder.build());
+                MessageUtils.sendPM(sender, builder);
             } else {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("No songs in the playlist!"), channel);
             }
@@ -86,7 +86,7 @@ public class PlaylistCommand implements Command {
                     queue.clear();
                     queue.addAll(playlist);
 
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Removed number " + number + " from the playlist!").build(), channel);
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Removed number " + number + " from the playlist!"), channel);
                 }
             }
         }

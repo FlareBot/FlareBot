@@ -27,6 +27,6 @@ public class GithubListener implements EventListener<PushEvent> {
                     commit.getMessage()));
         }
         eb.withDesc(sb.toString());
-        MessageUtils.sendMessage(eb.build(), FlareBot.getInstance().getClient().getChannelByID("229236239201468417"));
+        MessageUtils.sendMessage(eb, FlareBot.getInstance().getClient().getChannelByID("229236239201468417"));
     }
 }

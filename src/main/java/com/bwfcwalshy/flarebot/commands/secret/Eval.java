@@ -64,11 +64,11 @@ public class Eval implements Command {
                     } else eResult = "```groovy\n" + eResult + "\n```";
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                             .appendField("Code:", "```groovy\n" + code + "```", false)
-                            .appendField("Result: ", eResult, false).build(), channel);
+                            .appendField("Result: ", eResult, false), channel);
                 } catch (ScriptException e) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                             .appendField("Code:", "```groovy\n" + code + "```", false)
-                            .appendField("Result: ", "```groovy\n" + e.getMessage() + "```", false).build(), channel);
+                            .appendField("Result: ", "```groovy\n" + e.getMessage() + "```", false), channel);
                 } catch (Exception e) {
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }

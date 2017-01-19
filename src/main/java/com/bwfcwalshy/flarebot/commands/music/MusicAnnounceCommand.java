@@ -48,7 +48,7 @@ public class MusicAnnounceCommand implements Command {
             if (args[0].equalsIgnoreCase("here")) {
                 announcements.put(channel.getGuild().getID(), channel.getID());
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc("Set music announcements to appear in " + channel).build(), channel);
+                        .withDesc("Set music announcements to appear in " + channel), channel);
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("UPDATE announces SET channelid = ? WHERE guildid = ?");
@@ -67,8 +67,7 @@ public class MusicAnnounceCommand implements Command {
             } else {
                 announcements.remove(channel.getGuild().getID());
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc(String.format("Disabled announcements for `%s`", channel.getGuild().getName()))
-                        .build(), channel);
+                        .withDesc(String.format("Disabled announcements for `%s`", channel.getGuild().getName())), channel);
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("DELETE FROM announces WHERE guildid = ?");
@@ -81,7 +80,7 @@ public class MusicAnnounceCommand implements Command {
         } else {
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                     .withDesc("Bad syntax! Must have either `HERE` or `OFF` as your first, and only, argument." +
-                            "\nCase insensitive.").build(), channel);
+                            "\nCase insensitive."), channel);
         }
     }
 

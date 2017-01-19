@@ -52,10 +52,10 @@ public class MessageUtils {
         }).get();
     }
 
-    public static void sendPM(IUser user, EmbedObject message) {
+    public static void sendPM(IUser user, EmbedBuilder message) {
         RequestBuffer.request(() -> {
             try {
-                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(message)
+                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(message.build())
                         .withChannel(user.getOrCreatePMChannel()).withContent("\u200B").send();
             } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Uh oh!", e);
@@ -144,10 +144,10 @@ public class MessageUtils {
         return "https://discordapp.com/assets/" + defaults[discrim] + ".png";
     }
 
-    public static IMessage sendMessage(EmbedObject embedObject, IChannel channel) {
+    public static IMessage sendMessage(EmbedBuilder embedObject, IChannel channel) {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
-                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(embedObject)
+                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(embedObject.build())
                         .withChannel(channel).withContent("\u200B").send();
             } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
@@ -182,11 +182,11 @@ public class MessageUtils {
         return future.get();
     }
 
-    public static void editMessage(EmbedObject embed, IMessage message) {
+    public static void editMessage(EmbedBuilder embed, IMessage message) {
         editMessage(message.getContent(), embed, message);
     }
 
-    public static void editMessage(String s, EmbedObject embed, IMessage message) {
+    public static void editMessage(String s, EmbedBuilder embed, IMessage message) {
         RequestBuffer.request(() -> {
             try {
                 if(message != null)
