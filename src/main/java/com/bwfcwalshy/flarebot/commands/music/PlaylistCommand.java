@@ -36,8 +36,9 @@ public class PlaylistCommand implements Command {
                 while (it.hasNext() && songs.size() < 24) {
                     Track next = it.next();
                     String toAppend = String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i++,
+                            next.getTrack().getInfo().title,
                             YouTubeExtractor.WATCH_URL + next.getTrack().getIdentifier(),
-                            next.getTrack().getInfo().title, next.getMeta().get("requester"));
+                            next.getMeta().get("requester"));
                     if (sb.length() + toAppend.length() > 1024) {
                         songs.add(sb.toString());
                         sb = new StringBuilder();
