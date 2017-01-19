@@ -162,7 +162,8 @@ public class Events {
         PlayerCache cache = flareBot.getPlayerCache(e.getAuthor().getID());
         cache.setLastMessage(e.getMessage().getTimestamp());
         cache.setLastSeen(LocalDateTime.now());
-        cache.setLastSpokeGuild(e.getGuild().getID());
+        if(!e.getChannel().isPrivate())
+            cache.setLastSpokeGuild(e.getGuild().getID());
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
                 && !e.getMessage().getAuthor().isBot()) {
