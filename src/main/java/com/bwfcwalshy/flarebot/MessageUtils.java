@@ -15,6 +15,7 @@ import sx.blah.discord.util.*;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.lang.Throwable;
 
 public class MessageUtils {
 
@@ -148,7 +149,7 @@ public class MessageUtils {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(embedObject.build())
                         .withChannel(channel).withContent("\u200B").send();
-            } catch (DiscordException | MissingPermissionsException e) {
+            } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -160,7 +161,7 @@ public class MessageUtils {
         RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(builder.withColor(Color.red).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (DiscordException | MissingPermissionsException e) {
+            } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -173,7 +174,7 @@ public class MessageUtils {
             try {
                 return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(MessageUtils.getEmbed()
                         .withColor(Color.red).withDesc(message).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (DiscordException | MissingPermissionsException e) {
+            } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Something went wrong!", e);
             }
             return null;
@@ -188,7 +189,8 @@ public class MessageUtils {
     public static void editMessage(String s, EmbedBuilder embed, IMessage message) {
         RequestBuffer.request(() -> {
             try {
-                message.edit(s, embed.build());
+                if(message != null)
+                    message.edit(s, embed);
             } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Could not edit own message + embed!", e);
             }

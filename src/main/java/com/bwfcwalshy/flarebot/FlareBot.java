@@ -24,6 +24,7 @@ import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
+import com.bwfcwalshy.flarebot.web.ApiFactory;
 import com.google.gson.*;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -41,6 +42,7 @@ import spark.Spark;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.api.IShard;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.BotInviteBuilder;
 import sx.blah.discord.util.DiscordException;
@@ -202,7 +204,10 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
-            client = new ClientBuilder().withToken(tkn).login();
+            client = new ClientBuilder()
+                    .setMaxReconnectAttempts(Integer.MAX_VALUE)
+                    .withShards(2)
+                    .withToken(tkn).login();
             prefixes = new Prefixes();
             client.getDispatcher().registerListener(new Events(this));
             Discord4J.disableChannelWarnings();
@@ -340,6 +345,8 @@ public class FlareBot {
         registerCommand(new RandomCommand());
         registerCommand(new UserInfoCommand());
 
+        ApiFactory.bind();
+
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
@@ -361,7 +368,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
-                    client.changeStatus(Status.stream(COMMAND_CHAR + "commands", "https://www.twitch.tv/discordflarebot"));
+                    setStatus("_help | _invite");
             }
         }.repeat(10, 32000);
         new FlarebotTask("PostData" + System.currentTimeMillis()) {
@@ -784,6 +791,12 @@ public class FlareBot {
 
     public static char getPrefix(String id) {
         return getPrefixes().get(id);
+    }
+
+    public void setStatus(String status) {
+        for (IShard s : client.getShards())
+            s.changeStatus(Status.stream(status + " | Shard: " +
+                    (client.getShards().indexOf(s) + 1) + "/" + client.getShards().size(), "https://www.twitch.tv/discordflarebot"));
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {

@@ -100,16 +100,17 @@ public class Events {
 
     @EventSubscriber
     public void onGuildCreate(GuildCreateEvent e) {
-        MessageUtils.sendMessage(new EmbedBuilder()
-                        .withColor(new Color(96, 230, 144))
-                        .withThumbnail(e.getGuild().getIconURL())
-                        .withFooterIcon(e.getGuild().getIconURL())
-                        .withFooterText(OffsetDateTime.now()
-                                .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                        .withAuthorName(e.getGuild().getName())
-                        .withAuthorIcon(e.getGuild().getIconURL())
-                        .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
-                    , FlareBot.getInstance().getGuildLogChannel());
+        if (e.getClient().isReady())
+            MessageUtils.sendMessage(new EmbedBuilder()
+                    .withColor(new Color(96, 230, 144))
+                    .withThumbnail(e.getGuild().getIconURL())
+                    .withFooterIcon(e.getGuild().getIconURL())
+                    .withFooterText(OffsetDateTime.now()
+                            .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+                    .withAuthorName(e.getGuild().getName())
+                    .withAuthorIcon(e.getGuild().getIconURL())
+                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
+                    .build(), FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
@@ -143,6 +144,20 @@ public class Events {
     }
 
     @EventSubscriber
+    public void onChannelJoin(UserVoiceChannelJoinEvent event) {
+        if (event.getUser().equals(event.getClient().getOurUser())) {
+            if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getID())) {
+                FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getID()).setPaused(false);
+            }
+        }
+    }
+
+    @EventSubscriber
+    public void onChannelLeave(VoiceDisconnectedEvent event) {
+        FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getID()).setPaused(true);
+    }
+
+    @EventSubscriber
     public void onMessage(MessageReceivedEvent e) {
         PlayerCache cache = flareBot.getPlayerCache(e.getAuthor().getID());
         cache.setLastMessage(e.getMessage().getTimestamp());
@@ -151,7 +166,6 @@ public class Events {
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
                 && !e.getMessage().getAuthor().isBot()) {
-
             EnumSet<Permissions> perms = e.getMessage().getChannel()
                     .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
             if (!perms.contains(Permissions.ADMINISTRATOR)) {

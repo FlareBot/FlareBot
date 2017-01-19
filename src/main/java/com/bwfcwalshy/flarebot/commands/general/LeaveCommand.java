@@ -23,7 +23,6 @@ public class LeaveCommand implements Command {
                 .filter((IVoiceChannel voiceChannel) -> voiceChannel.getGuild().equals(message.getGuild()))
                 .findFirst().ifPresent(c -> {
             c.leave();
-            FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).setPaused(true);
         });
     }
 
