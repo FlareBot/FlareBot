@@ -27,7 +27,7 @@ public enum DataSetters {
             new Require("guildid", gid -> FlareBot.getInstance().getClient().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),
-    MONTLYPLAYLIST((request, response) -> {
+    MONTHLYPLAYLIST((request, response) -> {
         MonthlyPlaylist playlist = FlareBot.GSON.fromJson(request.body(), MonthlyPlaylist.class);
         SQLController.runSqlTask(connection -> {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (name, guild, list) VALUES (" +
