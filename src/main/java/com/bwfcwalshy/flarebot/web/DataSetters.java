@@ -1,6 +1,7 @@
 package com.bwfcwalshy.flarebot.web;
 
 import com.bwfcwalshy.flarebot.FlareBot;
+import com.google.gson.JsonObject;
 import spark.Request;
 import spark.Response;
 
@@ -28,13 +29,15 @@ public enum DataSetters {
         this.requires = requires;
     }
 
+    @SuppressWarnings("Duplicates")
     public String process(Request request, Response response) {
         for (Require require : requires) {
             if (!require.verify(request)) {
                 response.status(400);
-                return String.format("Require for <code>%s</code> failed!", require.getName());
+                JsonObject error = new JsonObject();
+                error.addProperty("error", String.format("Require for '%s' failed!", require.getName()));
+                return error.toString();
             }
-
         }
         return FlareBot.GSON.toJson(consumer.apply(request, response));
     }
