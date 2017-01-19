@@ -30,6 +30,13 @@ public enum DataSetters {
     MONTHLYPLAYLIST((request, response) -> {
         MonthlyPlaylist playlist = FlareBot.GSON.fromJson(request.body(), MonthlyPlaylist.class);
         SQLController.runSqlTask(connection -> {
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
+                    "  name  VARCHAR(60),\n" +
+                    "  guild VARCHAR(20),\n" +
+                    "  list  TEXT,\n" +
+                    "  scope  VARCHAR(7) DEFAULT 'local',\n" +
+                    "  PRIMARY KEY(name, guild)\n" +
+                    ")");
             connection.createStatement().executeUpdate("DELETE FROM playlist WHERE guild = '691337'");
             PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (name, guild, list, scope) VALUES (" +
                     "   ?," +

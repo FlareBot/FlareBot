@@ -36,6 +36,7 @@ public class LoadCommand implements Command {
                         "  name  VARCHAR(60),\n" +
                         "  guild VARCHAR(20),\n" +
                         "  list  TEXT,\n" +
+                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
                 PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE name = ? AND guild = ?");
