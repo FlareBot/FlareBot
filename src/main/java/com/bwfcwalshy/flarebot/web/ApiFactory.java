@@ -19,7 +19,7 @@ public class ApiFactory {
                     return error.toString();
                 }
                 return provider.process(request, response);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
                 error.addProperty("error", ExceptionUtils.getStackTrace(e));
@@ -39,7 +39,7 @@ public class ApiFactory {
                     return error.toString();
                 }
                 return setters.process(request, response);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
                 error.addProperty("error", ExceptionUtils.getStackTrace(e));

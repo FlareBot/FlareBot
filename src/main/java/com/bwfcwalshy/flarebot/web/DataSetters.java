@@ -1,11 +1,18 @@
 package com.bwfcwalshy.flarebot.web;
 
 import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.util.SQLController;
+import com.bwfcwalshy.flarebot.web.objects.MonthlyPlaylist;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import spark.Request;
 import spark.Response;
+import spark.Route;
 
-import java.util.function.BiFunction;
+import java.sql.PreparedStatement;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public enum DataSetters {
     ADDPERMISSION((request, response) -> FlareBot.getInstance()
@@ -19,18 +26,35 @@ public enum DataSetters {
             .removePermission(request.queryParams("group"), request.queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getClient().getGuildByID(gid) != null),
             new Require("group"),
-            new Require("permission"));
+            new Require("permission")),
+    MONTLYPLAYLIST((request, response) -> {
+        MonthlyPlaylist playlist = FlareBot.GSON.fromJson(request.body(), MonthlyPlaylist.class);
+        SQLController.runSqlTask(connection -> {
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (name, guild, list) VALUES (" +
+                    "   ?," +
+                    "   ?," +
+                    "   ?" +
+                    ")");
+            statement.setString(1, playlist.name);
+            statement.setString(2, "226785954537406464");
+            statement.setString(3, Arrays.stream(playlist.songs).collect(Collectors.joining(",")));
+            statement.executeUpdate();
+        });
+        return true;
+    },
+            new BodyRequire(e -> e.isJsonPrimitive() && ((JsonPrimitive) e).isString(), "name"),
+            new BodyRequire(JsonElement::isJsonArray, "playlist"));
 
-    private BiFunction<Request, Response, Object> consumer;
+    private Route consumer;
     private Require[] requires;
 
-    DataSetters(BiFunction<Request, Response, Object> o, Require... requires) {
+    DataSetters(Route o, Require... requires) {
         consumer = o;
         this.requires = requires;
     }
 
     @SuppressWarnings("Duplicates")
-    public String process(Request request, Response response) {
+    public String process(Request request, Response response) throws Exception {
         for (Require require : requires) {
             if (!require.verify(request)) {
                 response.status(400);
@@ -39,6 +63,6 @@ public enum DataSetters {
                 return error.toString();
             }
         }
-        return FlareBot.GSON.toJson(consumer.apply(request, response));
+        return FlareBot.GSON.toJson(consumer.handle(request, response));
     }
 }
