@@ -6,7 +6,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import sx.blah.discord.api.internal.json.objects.EmbedObject;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -15,7 +14,6 @@ import sx.blah.discord.util.*;
 import java.awt.*;
 import java.io.*;
 import java.nio.charset.Charset;
-import java.lang.Throwable;
 
 public class MessageUtils {
 
@@ -190,7 +188,7 @@ public class MessageUtils {
         RequestBuffer.request(() -> {
             try {
                 if(message != null)
-                    message.edit(s, embed);
+                    message.edit(s, embed.build());
             } catch (MissingPermissionsException | DiscordException e) {
                 FlareBot.LOGGER.error("Could not edit own message + embed!", e);
             }

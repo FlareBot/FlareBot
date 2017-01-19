@@ -6,14 +6,14 @@ import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
-import org.codehaus.groovy.runtime.metaclass.ConcurrentReaderHashMap;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.api.internal.json.event.PresenceUpdateEventResponse;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.VoiceDisconnectedEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.user.PresenceUpdateEvent;
 import sx.blah.discord.handle.obj.*;
@@ -109,8 +109,8 @@ public class Events {
                             .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
                     .withAuthorName(e.getGuild().getName())
                     .withAuthorIcon(e.getGuild().getIconURL())
-                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
-                    .build(), FlareBot.getInstance().getGuildLogChannel());
+                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName()),
+                    FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
