@@ -1,9 +1,11 @@
 package com.bwfcwalshy.flarebot.web;
 
+import com.bwfcwalshy.flarebot.FlareBot;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import spark.Spark;
 
+@SuppressWarnings("Duplicates")
 public class ApiFactory {
     public static void bind() {
         Spark.get("/data/:provider", (request, response) -> {
@@ -19,10 +21,11 @@ public class ApiFactory {
                     return error.toString();
                 }
                 return provider.process(request, response);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
                 error.addProperty("error", ExceptionUtils.getStackTrace(e));
+                FlareBot.LOGGER.error("Error on API!", e);
                 return error.toString();
             }
         });
@@ -39,10 +42,11 @@ public class ApiFactory {
                     return error.toString();
                 }
                 return setters.process(request, response);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
                 error.addProperty("error", ExceptionUtils.getStackTrace(e));
+                FlareBot.LOGGER.error("Error on API!", e);
                 return error.toString();
             }
         });

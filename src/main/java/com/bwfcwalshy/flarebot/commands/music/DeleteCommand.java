@@ -33,6 +33,7 @@ public class DeleteCommand implements Command {
                         "  name VARCHAR(10),\n" +
                         "  guild VARCHAR(10),\n" +
                         "  list VARCHAR(80),\n" +
+                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
                 PreparedStatement update = connection.prepareStatement("DELETE FROM playlist WHERE name = ? AND guild = ?");

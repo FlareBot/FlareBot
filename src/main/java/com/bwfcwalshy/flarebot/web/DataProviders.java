@@ -5,8 +5,7 @@ import com.bwfcwalshy.flarebot.web.objects.Songs;
 import com.google.gson.JsonObject;
 import spark.Request;
 import spark.Response;
-
-import java.util.function.BiFunction;
+import spark.Route;
 
 public enum DataProviders {
     SONGS((req, res) -> Songs.get()),
@@ -15,16 +14,16 @@ public enum DataProviders {
                     .getClient().getChannelByID(request.queryParams("guildid"))),
             new Require("guildid", gid -> FlareBot.getInstance().getClient().getGuildByID(gid) != null));
 
-    private BiFunction<Request, Response, Object> consumer;
+    private Route consumer;
     private Require[] requires;
 
-    DataProviders(BiFunction<Request, Response, Object> o, Require... requires) {
+    DataProviders(Route o, Require... requires) {
         consumer = o;
         this.requires = requires;
     }
 
     @SuppressWarnings("Duplicates")
-    public String process(Request request, Response response) {
+    public String process(Request request, Response response) throws Exception {
         for (Require require : requires) {
             if (!require.verify(request)) {
                 response.status(400);
@@ -33,6 +32,6 @@ public enum DataProviders {
                 return error.toString();
             }
         }
-        return FlareBot.GSON.toJson(consumer.apply(request, response));
+        return FlareBot.GSON.toJson(consumer.handle(request, response));
     }
 }
