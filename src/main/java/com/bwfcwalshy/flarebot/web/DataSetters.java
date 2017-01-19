@@ -37,7 +37,7 @@ public enum DataSetters {
                     ")");
             statement.setString(1, playlist.name);
             statement.setString(2, "226785954537406464");
-            statement.setString(3, Arrays.stream(playlist.songs).collect(Collectors.joining(",")));
+            statement.setString(3, Arrays.stream(playlist.playlist).collect(Collectors.joining(",")));
             statement.executeUpdate();
         });
         return true;
