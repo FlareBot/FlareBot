@@ -39,7 +39,7 @@ public class LoadCommand implements Command {
                         "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
-                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE name = ? AND guild = ?");
+                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE name = ? AND guild = ? OR scope = 'global'");
                 exists.setString(1, finalName);
                 exists.setString(2, channel.getGuild().getID());
                 exists.execute();
