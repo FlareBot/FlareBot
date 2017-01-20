@@ -22,7 +22,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
     public FilterReply decide(ILoggingEvent event) {
         String msg = event.getFormattedMessage();
         if(msg == null)
-            return FilterReply.NEUTRAL;
+            msg = "null";
         if (msg.startsWith("Received 40")) {
             return FilterReply.DENY;
         }
@@ -33,14 +33,15 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 && FlareBot.getInstance().getClient() != null
                 && FlareBot.getInstance().getClient().isReady()
                 && event.getLevel() == Level.ERROR) {
+            String finalMsg = msg;
             EXECUTOR.submit(() -> {
                 Throwable throwable = null;
                 if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
                     throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
                 }
                 if (throwable != null) {
-                    MessageUtils.sendException(msg, throwable, FlareBot.getInstance().getUpdateChannel());
-                } else MessageUtils.sendMessage(msg, FlareBot.getInstance().getUpdateChannel());
+                    MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getUpdateChannel());
+                } else MessageUtils.sendMessage(finalMsg, FlareBot.getInstance().getUpdateChannel());
             });
         }
         return FilterReply.NEUTRAL;
