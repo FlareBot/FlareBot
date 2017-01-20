@@ -17,7 +17,7 @@ public class ApiFactory {
                 } catch (Exception e) {
                     response.status(404);
                     JsonObject error = new JsonObject();
-                    error.addProperty("error", "Unknown provider: " + request.params("provider"));
+                    error.addProperty("error", "Unknown provider: '" + request.params("provider") + "'");
                     return error.toString();
                 }
                 return provider.process(request, response);
@@ -38,7 +38,7 @@ public class ApiFactory {
                 } catch (Exception e) {
                     response.status(404);
                     JsonObject error = new JsonObject();
-                    error.addProperty("error", "Unknown setter: " + request.params("setter"));
+                    error.addProperty("error", "Unknown setter: '" + request.params("setter")+ "'");
                     return error.toString();
                 }
                 return setters.process(request, response);
