@@ -18,14 +18,10 @@ import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeave
 import sx.blah.discord.handle.impl.events.user.PresenceUpdateEvent;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
-import java.awt.*;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -100,31 +96,31 @@ public class Events {
 
     @EventSubscriber
     public void onGuildCreate(GuildCreateEvent e) {
-        if (e.getClient().isReady())
-            MessageUtils.sendMessage(new EmbedBuilder()
-                    .withColor(new Color(96, 230, 144))
-                    .withThumbnail(e.getGuild().getIconURL())
-                    .withFooterIcon(e.getGuild().getIconURL())
-                    .withFooterText(OffsetDateTime.now()
-                            .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                    .withAuthorName(e.getGuild().getName())
-                    .withAuthorIcon(e.getGuild().getIconURL())
-                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName()),
-                    FlareBot.getInstance().getGuildLogChannel());
+//        if (e.getClient().isReady())
+//            MessageUtils.sendMessage(new EmbedBuilder()
+//                    .withColor(new Color(96, 230, 144))
+//                    .withThumbnail(e.getGuild().getIconURL())
+//                    .withFooterIcon(e.getGuild().getIconURL())
+//                    .withFooterText(OffsetDateTime.now()
+//                            .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+//                    .withAuthorName(e.getGuild().getName())
+//                    .withAuthorIcon(e.getGuild().getIconURL())
+//                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName()),
+//                    FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
     public void onGuildDelete(GuildLeaveEvent e) {
         COMMAND_COUNTER.remove(e.getGuild().getID());
-        MessageUtils.sendMessage(new EmbedBuilder()
-                        .withColor(new Color(244, 23, 23))
-                        .withThumbnail(e.getGuild().getIconURL())
-                        .withFooterIcon(e.getGuild().getIconURL())
-                        .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                        .withAuthorName(e.getGuild().getName())
-                        .withAuthorIcon(e.getGuild().getIconURL())
-                        .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
-                , FlareBot.getInstance().getGuildLogChannel());
+//        MessageUtils.sendMessage(new EmbedBuilder()
+//                        .withColor(new Color(244, 23, 23))
+//                        .withThumbnail(e.getGuild().getIconURL())
+//                        .withFooterIcon(e.getGuild().getIconURL())
+//                        .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+//                        .withAuthorName(e.getGuild().getName())
+//                        .withAuthorIcon(e.getGuild().getIconURL())
+//                        .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
+//                , FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
