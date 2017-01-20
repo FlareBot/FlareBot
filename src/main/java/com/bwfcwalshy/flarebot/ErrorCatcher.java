@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
  */
 public class ErrorCatcher extends Filter<ILoggingEvent> {
 
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(3);
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
     @Override
     public FilterReply decide(ILoggingEvent event) {
