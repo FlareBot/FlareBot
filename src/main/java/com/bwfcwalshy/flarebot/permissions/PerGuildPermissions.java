@@ -4,9 +4,9 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Permissions;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class PerGuildPermissions {
@@ -42,14 +42,13 @@ public class PerGuildPermissions {
             return true;
         if (user.getPermissionsForGuild(user.getClient().getGuildByID(getGuildID())).contains(Permissions.ADMINISTRATOR))
             return true;
-        AtomicBoolean has = new AtomicBoolean(false);
         PermissionNode node = new PermissionNode(permission);
-        getUser(user).getGroups().forEach((group) ->
-                getGroups().computeIfAbsent(group, Group::new).getPermissions().forEach(s -> {
-                    if (new PermissionNode(s).test(node))
-                        has.set(true);
-                }));
-        return has.get();
+        return getUser(user).getGroups().stream()
+                .map(this::getGroup)
+                .map(Group::getPermissions)
+                .flatMap(Collection::stream)
+                .map(PermissionNode::new)
+                .anyMatch(e -> e.test(node));
     }
 
     public boolean addPermission(String group, String permission) {

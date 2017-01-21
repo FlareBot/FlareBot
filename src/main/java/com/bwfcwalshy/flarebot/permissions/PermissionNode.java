@@ -22,11 +22,11 @@ public class PermissionNode implements Predicate<PermissionNode> {
         if(getNode().equals("*"))
             return true;
         // It splits by a `*` that's on a start of a string or has . around them
-        String textNode = Arrays.stream(getNode().split("(?:^\\*(\\.))|(?:(?<=\\.)\\*(?=\\.))"))
+        String textNode = Arrays.stream(getNode().split("(?:^\\*(\\.))|(?:(?<=\\.)\\*(?=\\.))|(?:(?<=\\.)\\*$)"))
                 // Then it escapes all of that so its not regexps
                 .map(Pattern::quote)
                 // And then it joins them with a match all regexp
-                .collect(Collectors.joining(".+"));
+                .collect(Collectors.joining(".+")) + (getNode().endsWith("*") ? ".+" : "");
         // And then it lets Java REGEXP compare them. Ty @I-Al-Istannen for making me do this comment
         return node.getNode().matches(textNode);
     }
