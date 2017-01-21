@@ -5,12 +5,14 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.permissions.Group;
+import com.bwfcwalshy.flarebot.permissions.User;
 import com.bwfcwalshy.flarebot.util.Parser;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
 
@@ -60,6 +62,18 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendMessage("Success", channel);
                 else
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("User never had that group!"), channel);
+                break;
+            case "groups":
+                IUser iUser = Parser.mention(args[1]);
+                if (iUser == null) {
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("No such user!"), channel);
+                    return;
+                }
+                User toList = getPermissions(channel).getUser(iUser);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                        .appendField("User", iUser.mention(), true)
+                        .withDesc("Groups: " + toList.getGroups().stream()
+                                .collect(Collectors.joining(", ", "`", "`"))), channel);
                 break;
             case "addpermission":
                 if (args.length < 3) {
@@ -125,7 +139,10 @@ public class PermissionsCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "permissions givegroup | revokegroup <user> <group> for user management or list | addpermission | removepermission <group> <permission> for group management.";
+        return "`permissions givegroup` | `revokegroup` `<user> <group>` for user management.\n" +
+                "Or `permissions list` | `addpermission` | `removepermission` `<group> <permission>` for group management.\n" +
+                "`permissions groups <user>` lists groups of a user.\n" +
+                "Better tutorial is found on the support server.";
     }
 
     @Override

@@ -33,13 +33,12 @@ public class UserInfoCommand implements Command {
         }
         PlayerCache cache = flareBot.getPlayerCache(id);
         try {
-            String finalId = id;
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender).appendField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
                     + "\nID: " + user.getID() + "\n" +
                     "Avatar: " + (user.getAvatar() != null ? "[`link`](" + user.getAvatarURL() + ')' : "None") + "\n" +
                     "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
                     .appendField("General Info",
-                            "Servers: " + FlareBot.getInstance().getClient().getGuilds().stream().filter(guild -> guild.getUserByID(finalId) != null).count() + " shared\n" +
+                            "Servers: " + FlareBot.getInstance().getClient().getGuilds().stream().filter(guild -> guild.getUserByID(id) != null).count() + " shared\n" +
                                     "Roles: " + user.getRolesForGuild(channel.getGuild()).stream()
                                     .map(IRole::getName).collect(Collectors.joining(", ")), true)
                     .appendField("Time Data", "Created: " + formatTime(user.getCreationDate()) + "\n" +
