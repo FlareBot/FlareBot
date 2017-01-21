@@ -1,6 +1,9 @@
 package com.bwfcwalshy.flarebot.permissions;
 
+import java.util.Arrays;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class PermissionNode implements Predicate<PermissionNode> {
 
@@ -16,7 +19,9 @@ public class PermissionNode implements Predicate<PermissionNode> {
 
     @Override
     public boolean test(PermissionNode node) {
-        String textNode = getNode().replace(".", "\\.").replace("*", ".*");
+        String textNode = Arrays.stream(getNode().split("(?:^\\*(\\.))|(?:(?<=\\.)\\*(?=\\.))"))
+                .map(Pattern::quote)
+                .collect(Collectors.joining(".+"));
         return node.getNode().matches(textNode);
     }
 }
