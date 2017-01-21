@@ -46,9 +46,9 @@ public class PerGuildPermissions {
         PermissionNode node = new PermissionNode(permission);
         getUser(user).getGroups().forEach((group) ->
                 getGroups().computeIfAbsent(group, Group::new).getPermissions().forEach(s -> {
-            if(new PermissionNode(s).test(node))
-                has.set(true);
-        }));
+                    if (new PermissionNode(s).test(node))
+                        has.set(true);
+                }));
         return has.get();
     }
 

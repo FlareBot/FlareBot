@@ -158,7 +158,7 @@ public class Events {
         PlayerCache cache = flareBot.getPlayerCache(e.getAuthor().getID());
         cache.setLastMessage(e.getMessage().getTimestamp());
         cache.setLastSeen(LocalDateTime.now());
-        if(!e.getChannel().isPrivate())
+        if (!e.getChannel().isPrivate())
             cache.setLastSpokeGuild(e.getGuild().getID());
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
@@ -268,11 +268,11 @@ public class Events {
                     }
                 }
             }
-        }else{
-            if(e.getMessage().getContent() != null && FlareBot.getPrefixes().get(getGuildId(e)) != FlareBot.COMMAND_CHAR
+        } else {
+            if (e.getMessage().getContent() != null && FlareBot.getPrefixes().get(getGuildId(e)) != FlareBot.COMMAND_CHAR
                     && e.getMessage().getContent().startsWith("_")
-                    && !e.getMessage().getAuthor().isBot()){
-                if(e.getMessage().getContent().startsWith("_prefix")){
+                    && !e.getMessage().getAuthor().isBot()) {
+                if (e.getMessage().getContent().startsWith("_prefix")) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(e.getAuthor()).withDesc("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(e)) + "`"), e.getChannel());
                 }
             }
@@ -281,7 +281,7 @@ public class Events {
 
     @EventSubscriber
     public void onPreserenceChange(PresenceUpdateEvent e) {
-        if(e.getNewPresence() != Presences.OFFLINE){
+        if (e.getNewPresence() != Presences.OFFLINE) {
             flareBot.getPlayerCache(e.getUser().getID()).setLastSeen(LocalDateTime.now());
         }
     }

@@ -21,7 +21,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
     @Override
     public FilterReply decide(ILoggingEvent event) {
         String msg = event.getFormattedMessage();
-        if(msg == null)
+        if (msg == null)
             msg = "null";
         if (msg.startsWith("Received 40")) {
             return FilterReply.DENY;

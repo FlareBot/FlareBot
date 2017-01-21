@@ -15,7 +15,7 @@ public class PermissionNode implements Predicate<PermissionNode> {
     }
 
     @Override
-    public boolean test(PermissionNode node){
+    public boolean test(PermissionNode node) {
         String textNode = getNode().replace(".", "\\.").replace("*", ".*");
         return node.getNode().matches(textNode);
     }

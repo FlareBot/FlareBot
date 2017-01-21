@@ -829,11 +829,11 @@ public class FlareBot {
         return this.manager;
     }
 
-    public Map<String, PlayerCache> getPlayerCache(){
+    public Map<String, PlayerCache> getPlayerCache() {
         return this.playerCache;
     }
 
-    public PlayerCache getPlayerCache(String userId){
+    public PlayerCache getPlayerCache(String userId) {
         this.playerCache.computeIfAbsent(userId, k -> new PlayerCache(userId, null, null, null));
         return this.playerCache.get(userId);
     }
