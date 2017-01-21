@@ -67,11 +67,6 @@ public class UserInfoCommand implements Command {
         return CommandType.GENERAL;
     }
 
-    @Override
-    public String getPermission() {
-        return null;
-    }
-
     private String formatTime(LocalDateTime time) {
         return time.getDayOfMonth() + getDayOfMonthSuffix(time.getDayOfMonth()) + " " + time.format(timeFormat) + " UTC";
     }
