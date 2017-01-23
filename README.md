@@ -13,5 +13,4 @@ If you want to help FlareBot's hosting and development please use [this link](ht
 
 ## Credits
 * Initially started by bwfcwalshyPluginDev(@bwfcwalshy#1284) and ArsenArsen(@Arsen#3291)
-* FlareBot is hosted by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
 * FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
