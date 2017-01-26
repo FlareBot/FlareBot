@@ -124,7 +124,7 @@
     </dependencies>
 
     <build>
-        <defaultGoal>clean package -U</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
         <finalName>FlareBot</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
