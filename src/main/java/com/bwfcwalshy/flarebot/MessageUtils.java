@@ -2,6 +2,8 @@ package com.bwfcwalshy.flarebot;
 
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -73,20 +75,15 @@ public class MessageUtils {
 
     public static String hastebin(String trace) {
         try {
-            HttpPost req = new HttpPost("https://hastebin.com/documents");
-            req.addHeader("Content-Type", "text/plain");
-            req.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
-            StringEntity ent = new StringEntity(trace);
-            req.setEntity(ent);
-            HttpResponse response = FlareBot.HTPP_CLIENT.execute(req);
-            if (response.getStatusLine().getStatusCode() != 200) {
-                FlareBot.LOGGER.error("HasteBin API did not respond with a correct code! Code was: {}! Response: {}", response.getStatusLine().getStatusCode(),
-                        IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset()));
-                return null;
-            }
-            return "https://hastebin.com/" + FlareBot.GSON.fromJson(new InputStreamReader(response.getEntity().getContent()), HastebinResponse.class).key;
-        } catch (JsonSyntaxException | JsonIOException | IOException e) {
-            FlareBot.LOGGER.error("Could not make POST request to hastebin!", e);
+            return "https://hastebin.com/" + Unirest.post("https://hastebin.com/documents")
+                    .header("User-Agent", "Mozilla/5.0 FlareBot")
+                    .header("Content-Type", "text/plain")
+                    .body(trace)
+                    .asJson()
+                    .getBody()
+                    .getObject().getString("key");
+        } catch (UnirestException e) {
+            FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
             return null;
         }
     }
