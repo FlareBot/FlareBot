@@ -6,26 +6,22 @@ import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
-import org.codehaus.groovy.runtime.metaclass.ConcurrentReaderHashMap;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.api.internal.json.event.PresenceUpdateEventResponse;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.VoiceDisconnectedEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.user.PresenceUpdateEvent;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.EmbedBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
 
-import java.awt.*;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -100,31 +96,31 @@ public class Events {
 
     @EventSubscriber
     public void onGuildCreate(GuildCreateEvent e) {
-        if (e.getClient().isReady())
-            MessageUtils.sendMessage(new EmbedBuilder()
-                    .withColor(new Color(96, 230, 144))
-                    .withThumbnail(e.getGuild().getIconURL())
-                    .withFooterIcon(e.getGuild().getIconURL())
-                    .withFooterText(OffsetDateTime.now()
-                            .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                    .withAuthorName(e.getGuild().getName())
-                    .withAuthorIcon(e.getGuild().getIconURL())
-                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName())
-                    .build(), FlareBot.getInstance().getGuildLogChannel());
+//        if (e.getClient().isReady())
+//            MessageUtils.sendMessage(new EmbedBuilder()
+//                    .withColor(new Color(96, 230, 144))
+//                    .withThumbnail(e.getGuild().getIconURL())
+//                    .withFooterIcon(e.getGuild().getIconURL())
+//                    .withFooterText(OffsetDateTime.now()
+//                            .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+//                    .withAuthorName(e.getGuild().getName())
+//                    .withAuthorIcon(e.getGuild().getIconURL())
+//                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName()),
+//                    FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
     public void onGuildDelete(GuildLeaveEvent e) {
         COMMAND_COUNTER.remove(e.getGuild().getID());
-        MessageUtils.sendMessage(new EmbedBuilder()
-                        .withColor(new Color(244, 23, 23))
-                        .withThumbnail(e.getGuild().getIconURL())
-                        .withFooterIcon(e.getGuild().getIconURL())
-                        .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-                        .withAuthorName(e.getGuild().getName())
-                        .withAuthorIcon(e.getGuild().getIconURL())
-                        .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
-                , FlareBot.getInstance().getGuildLogChannel());
+//        MessageUtils.sendMessage(new EmbedBuilder()
+//                        .withColor(new Color(244, 23, 23))
+//                        .withThumbnail(e.getGuild().getIconURL())
+//                        .withFooterIcon(e.getGuild().getIconURL())
+//                        .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
+//                        .withAuthorName(e.getGuild().getName())
+//                        .withAuthorIcon(e.getGuild().getIconURL())
+//                        .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
+//                , FlareBot.getInstance().getGuildLogChannel());
     }
 
     @EventSubscriber
@@ -162,7 +158,8 @@ public class Events {
         PlayerCache cache = flareBot.getPlayerCache(e.getAuthor().getID());
         cache.setLastMessage(e.getMessage().getTimestamp());
         cache.setLastSeen(LocalDateTime.now());
-        cache.setLastSpokeGuild(e.getGuild().getID());
+        if (!e.getChannel().isPrivate())
+            cache.setLastSpokeGuild(e.getGuild().getID());
         if (e.getMessage().getContent() != null
                 && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
                 && !e.getMessage().getAuthor().isBot()) {
@@ -271,11 +268,11 @@ public class Events {
                     }
                 }
             }
-        }else{
-            if(e.getMessage().getContent() != null && FlareBot.getPrefixes().get(getGuildId(e)) != FlareBot.COMMAND_CHAR
+        } else {
+            if (e.getMessage().getContent() != null && FlareBot.getPrefixes().get(getGuildId(e)) != FlareBot.COMMAND_CHAR
                     && e.getMessage().getContent().startsWith("_")
-                    && !e.getMessage().getAuthor().isBot()){
-                if(e.getMessage().getContent().startsWith("_prefix")){
+                    && !e.getMessage().getAuthor().isBot()) {
+                if (e.getMessage().getContent().startsWith("_prefix")) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(e.getAuthor()).withDesc("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(e)) + "`"), e.getChannel());
                 }
             }
@@ -284,7 +281,7 @@ public class Events {
 
     @EventSubscriber
     public void onPreserenceChange(PresenceUpdateEvent e) {
-        if(e.getNewPresence() != Presences.OFFLINE){
+        if (e.getNewPresence().getStatus() != StatusType.OFFLINE) {
             flareBot.getPlayerCache(e.getUser().getID()).setLastSeen(LocalDateTime.now());
         }
     }

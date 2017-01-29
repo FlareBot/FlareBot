@@ -49,43 +49,31 @@ public class InfoCommand implements Command {
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        EmbedBuilder bld = MessageUtils.getEmbed(sender).withThumbnail(MessageUtils.getAvatar(channel.getClient().getOurUser()));
-        bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
-        bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);
-        bld.appendField("Voice Connections: ", String.valueOf(client.getConnectedVoiceChannels().size()), true);
-        bld.appendField("Channels playing music: ", String.valueOf(client.getConnectedVoiceChannels().stream()
-                .map(IVoiceChannel::getGuild)
-                .map(IDiscordObject::getID)
-                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
-                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
-                .filter(p -> p.getPlayingTrack() != null)
-                .filter(p -> !p.getPaused()).count()), true);
-        bld.appendField("Text Channels: ", String.valueOf(client.getChannels(false).size()), true);
-        bld.appendField("Uptime: ", FlareBot.getInstance().getUptime(), true);
-        bld.appendField("Memory Usage: ", getMb(runtime.totalMemory() - runtime.freeMemory()), true);
-        bld.appendField("Memory Free: ", getMb(runtime.freeMemory()), true);
-        bld.appendField("Video threads: ", String.valueOf(VideoThread.VIDEO_THREADS.activeCount()), true);
-        bld.appendField("Total threads: ", String.valueOf(Thread.getAllStackTraces().size()), true);
-        bld.appendField("Discord4J Version: ", Discord4J.VERSION, true);
-        if (git != null)
-            bld.appendField("Git revision: ", git, true);
-        bld.appendField("CPU Usage: ",
-                ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%", true);
-        bld.appendField("Support Server: ", "[`Discord`](http://discord.me/flarebot)", true);
-        bld.appendField("Donate to our host: ", "[`PayPal`](https://www.paypal.me/CaptainBaconz)", true);
-        bld.appendField("Our Patreon: ", "[`Patreon`](https://www.patreon.com/flarebot)", true);
-        bld.appendField("Website: ", "[`FlareBot`](http://flarebot.stream/)", true);
-        bld.appendField("Twitter: ", "[`Twitter`](https://twitter.com/DiscordFlareBot)", true);
-        bld.appendField("Invite: ", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite()), true);
-        bld.appendField("\u200B", "\u200B", false);
-//        bld.appendField("\u200B", "\u200B", true);
-        bld.appendField("Made By: ", "bwfcwalshy#1284 and Arsen#3291", true);
-        bld.appendField("Source: ", "[`GitHub`](https://github.com/FlareBot/FlareBot)", true);
+        if(args.length == 0) {
+            EmbedBuilder bld = MessageUtils.getEmbed(sender).withThumbnail(MessageUtils.getAvatar(channel.getClient().getOurUser()));
+            bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
+            for (Content content : Content.values) {
+                bld.appendField(content.getName(), content.getReturn(), content.isAlign());
+            }
+            MessageUtils.sendMessage(bld, channel);
+        }else{
+            String search = "";
+            for(int i = 0; i < args.length; i++){
+                search += args[i] + " ";
+            }
+            search = search.trim();
 
-        MessageUtils.sendMessage(bld, channel);
+            for(Content content : Content.values){
+                if(search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ").equalsIgnoreCase(content.getName())){
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).appendField(content.getName(), content.getReturn(), false), channel);
+                    return;
+                }
+            }
+            MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
+        }
     }
 
-    private String getMb(long bytes) {
+    private static String getMb(long bytes) {
         return (bytes / 1024 / 1024) + "MB";
     }
 
@@ -104,7 +92,59 @@ public class InfoCommand implements Command {
         return CommandType.GENERAL;
     }
 
-    public static String gitGit() {
-        return git;
+    public enum Content {
+        SERVERS("Servers", String.valueOf(FlareBot.getInstance().getClient().getGuilds().size())),
+        VOICE_CONNECTIONS("Voice Connections", String.valueOf(FlareBot.getInstance().getClient().getGuilds().size())),
+        ACTIVE_CHANNELS("Channels Playing Music", String.valueOf(FlareBot.getInstance().getClient().getConnectedVoiceChannels().stream()
+                .map(IVoiceChannel::getGuild)
+                .map(IDiscordObject::getID)
+                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid)).count())),
+        TEXT_CHANNELS("Text Channels", String.valueOf(FlareBot.getInstance().getClient().getChannels(false).size())),
+        UPTIME("Uptime", FlareBot.getInstance().getUptime()),
+        MEM_USAGE("Memory Usage", getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
+        MEM_FREE("Memory Free", getMb(Runtime.getRuntime().freeMemory())),
+        VIDEO_THREADS("Video Threads", String.valueOf(VideoThread.VIDEO_THREADS.activeCount())),
+        TOTAL_THREADS("Total Threads", String.valueOf(Thread.getAllStackTraces().size())),
+        VERSION("Version", FlareBot.getInstance().getVersion()),
+        D4J_VERSION("Discord4J version", Discord4J.VERSION),
+        GIT("Git Revision", (git != null ? git : "Unknown")),
+        CPU_USAGE("CPU Usage", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%"),
+        SUPPORT_SERVER("Support Server", "[`Discord`](http://discord.me/flarebot)"),
+        DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/FlareBot/)"),
+        PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),
+        WEBSITE("Website", "[`FlareBot`](http://flarebot.stream/)"),
+        TWITTER("Twitter", "[`Twitter`](https://twitter.com/DiscordFlareBot)"),
+        INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite())),
+        EMPTY("\u200B", "\u200B", false),
+        MADE_BY("Made By", "bwfcwalshy#1284 and Arsen#3291"),
+        SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)");
+
+        private String name;
+        private String returns;
+        private boolean align = true;
+
+        public static Content[] values = values();
+        Content(String name, String returns) {
+            this.name = name;
+            this.returns = returns;
+        }
+
+        Content(String name, String returns, boolean align) {
+            this.name = name;
+            this.returns = returns;
+            this.align = align;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getReturn() {
+            return returns;
+        }
+
+        public boolean isAlign() {
+            return this.align;
+        }
     }
 }
