@@ -18,7 +18,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
 
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
     private String[] blacklist = {
-            "Recieved",
+            "Received",
             "Dispatching event",
             "New guild has been created/joined!",
             "User \"",
