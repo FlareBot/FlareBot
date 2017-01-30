@@ -22,11 +22,6 @@
             <url>http://jcenter.bintray.com</url>
         </repository>
         <repository>
-            <id>sedmelluq</id>
-            <name>sedmelluq</name>
-            <url>http://maven.sedmelluq.com/</url>
-        </repository>
-        <repository>
             <id>repo.arsenarsen.com</id>
             <url>https://repo.arsenarsen.com/content/repositories/snapshots/</url>
         </repository>
@@ -35,8 +30,7 @@
         <dependency>
             <groupId>com.github.austinv11</groupId>
             <artifactId>Discord4j</artifactId>
-            <version>dev-SNAPSHOT:face
-            </version>
+            <version>dev-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -72,6 +66,11 @@
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
             <artifactId>discord4j-impl</artifactId>
             <version>1.9-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.1.45</version>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>
