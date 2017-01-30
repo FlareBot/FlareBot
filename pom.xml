@@ -35,7 +35,8 @@
         <dependency>
             <groupId>com.github.austinv11</groupId>
             <artifactId>Discord4j</artifactId>
-            <version>6662583</version>
+            <version>dev-SNAPSHOT:face
+            </version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

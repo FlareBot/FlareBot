@@ -17,17 +17,27 @@ import java.util.concurrent.Executors;
 public class ErrorCatcher extends Filter<ILoggingEvent> {
 
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    private String[] blacklist = {
+            "Recieved",
+            "Dispatching event",
+            "New guild has been created/joined!",
+            "User \"",
+            "DiscordClientImpl Keep Alive",
+            "Registered IListener",
+            "Message from: ",
+            "Unregistered IListener",
+            "Sending heartbeat on shard "
+    };
 
     @Override
     public FilterReply decide(ILoggingEvent event) {
         String msg = event.getFormattedMessage();
         if (msg == null)
             msg = "null";
-        if (msg.startsWith("Received 40")) {
-            return FilterReply.DENY;
-        }
-        if (msg.startsWith("Attempt to send message on closed")) {
-            return FilterReply.DENY;
+        for(String prefix : blacklist){
+            if (msg.startsWith(prefix)) {
+                return FilterReply.DENY;
+            }
         }
         if (event.getMarker() != Markers.NO_ANNOUNCE
                 && FlareBot.getInstance().getClient() != null

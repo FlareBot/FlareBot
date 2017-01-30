@@ -138,11 +138,6 @@ public class FlareBot {
         websiteSecret.setRequired(false);
         options.addOption(websiteSecret);
 
-        Option debug = new Option("d", false, "Enables debug mode");
-        debug.setLongOpt("debug");
-        debug.setRequired(false);
-        options.addOption(debug);
-
         String tkn;
         try {
             CommandLineParser parser = new DefaultParser();
