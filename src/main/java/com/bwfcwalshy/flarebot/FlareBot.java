@@ -316,7 +316,7 @@ public class FlareBot {
         registerCommand(new SearchCommand());
         registerCommand(new JoinCommand());
         registerCommand(new LeaveCommand());
-        registerCommand(new InfoCommand(this));
+        registerCommand(new InfoCommand());
         registerCommand(new PlayCommand(this));
         registerCommand(new PauseCommand(this));
         registerCommand(new StopCommand(this));

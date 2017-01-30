@@ -8,7 +8,6 @@ import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.sun.management.OperatingSystemMXBean;
 import org.apache.commons.io.IOUtils;
 import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.EmbedBuilder;
 
@@ -21,8 +20,6 @@ import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
 public class InfoCommand implements Command {
 
-    private IDiscordClient client;
-    private Runtime runtime;
     private static String git = null;
 
     static {
@@ -40,12 +37,6 @@ public class InfoCommand implements Command {
             }
         }
     }
-
-    public InfoCommand(FlareBot flareBot) {
-        this.client = flareBot.getClient();
-        this.runtime = Runtime.getRuntime();
-    }
-
 
     @Override
     public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
@@ -71,6 +62,7 @@ public class InfoCommand implements Command {
             }
             MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
         }
+
     }
 
     private static String getMb(long bytes) {
