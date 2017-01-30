@@ -281,7 +281,7 @@ public class Events {
 
     @EventSubscriber
     public void onPreserenceChange(PresenceUpdateEvent e) {
-        if (e.getNewPresence() != Presences.OFFLINE) {
+        if (e.getNewPresence().getStatus() != StatusType.OFFLINE) {
             flareBot.getPlayerCache(e.getUser().getID()).setLastSeen(LocalDateTime.now());
         }
     }
