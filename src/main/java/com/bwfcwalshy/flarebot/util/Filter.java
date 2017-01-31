@@ -17,7 +17,9 @@ public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
             "DiscordClientImpl Keep Alive",
             "Registered IListener",
             "Message from: ",
-            "Unregistered IListener"
+            "Unregistered IListener",
+            "Dispatching event of type PresenceUpdateEvent",
+            "Dispatching event of type MessageReceivedEvent"
     };
 
     @Override
@@ -25,7 +27,7 @@ public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
         String msg = event.getFormattedMessage();
         if (msg == null)
             msg = "null";
-        for(String prefix : blacklist){
+        for (String prefix : blacklist) {
             if (msg.startsWith(prefix)) {
                 return FilterReply.DENY;
             }
