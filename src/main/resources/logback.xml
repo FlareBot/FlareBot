@@ -10,7 +10,7 @@
         <filter class="com.bwfcwalshy.flarebot.util.ErrorCatcher"/>
         <filter class="com.bwfcwalshy.flarebot.util.Filter"/>
         <encoder>
-            <pattern>[%d{yyyy.MM.dd HH:mm} %t %-5level] %msg%n</pattern>
+            <pattern>[%d{yyyy.MM.dd HH:mm:ss} %t %-5level] %msg%n</pattern>
         </encoder>
     </appender>
     <root level="TRACE">
