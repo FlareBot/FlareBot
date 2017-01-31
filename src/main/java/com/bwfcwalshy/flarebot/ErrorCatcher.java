@@ -21,7 +21,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
             "Received",
             "Dispatching event",
             "New guild has been created/joined!",
-            "User \"",
+            "User ",
             "DiscordClientImpl Keep Alive",
             "Registered IListener",
             "Message from: ",
