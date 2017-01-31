@@ -45,7 +45,7 @@ public class Events {
         this.flareBot = bot;
     }
 
-//    @EventSubscriber
+    @EventSubscriber
     public void onReady(ReadyEvent e) {
         flareBot.run();
     }
