@@ -6,7 +6,6 @@ import ch.qos.logback.core.spi.FilterReply;
 public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
     private String[] blacklist = {
             "Dispatching event",
-            "Received: {\"t\":\"GUILD_CREATE\"",
             "Received: {\"t\":\"MESSAGE_RECIEVE\"",
             "Received: {\"t\":\"PRESENCE_UPDATE\"",
             "Received: {\"t\":\"GUILD_MEMBERS_CHUNK\"",
