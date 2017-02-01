@@ -20,7 +20,6 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
-import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -204,14 +203,14 @@ public class Events extends ListenerAdapter {
                                 "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                         try {
-                            cmd.onCommand(event.getAuthor(), event.getChannel(), event, finalArgs, );
+                            cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
                         } catch (Exception ex) {
                             MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
                             FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
                                     + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                     event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                         }
-                        delete(event);
+                        delete(event.getMessage());
                     });
                     return;
                 } else {
@@ -229,16 +228,9 @@ public class Events extends ListenerAdapter {
                             FlareBot.LOGGER.info(
                                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
-                            if (cmd.getType() == CommandType.MUSIC) {
-                                if (event.getChannel().isPrivate()) {
-                                    MessageUtils.sendMessage("**Music commands cannot be used in DM's!**", event.getChannel());
-                                    return;
-                                }
-                            }
-                            if (handleMissingPermission(cmd, e))
+                            if (handleMissingPermission(cmd, event))
                                 return;
-                            if (!event.getChannel().isPrivate())
-                                COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getID(),
+                                COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
                                         g -> new AtomicInteger()).incrementAndGet();
                             String[] finalArgs = args;
                             CACHED_POOL.submit(() -> {
@@ -246,14 +238,14 @@ public class Events extends ListenerAdapter {
                                         "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                                 event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                                 try {
-                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event, finalArgs, );
+                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
                                 } catch (Exception ex) {
                                     FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
                                             + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                                     MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
                                 }
-                                delete(event);
+                                delete(event.getMessage());
                             });
                             return;
                         }
@@ -280,11 +272,11 @@ public class Events extends ListenerAdapter {
 
     private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
-            if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getAuthor(), cmd.getPermission())) {
+            if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
-                        .withDesc("You are missing the permission ``"
-                                + cmd.getPermission() + "`` which is required for use of this command!"), event.getChannel());
-                delete(event);
+                        .setDescription("You are missing the permission ``"
+                                + cmd.getPermission() + "`` which is required for use of this command!"), e.getChannel());
+                delete(e.getMessage());
                 new FlarebotTask("Delete message " + msg.getChannel().toString()) {
                     @Override
                     public void run() {
