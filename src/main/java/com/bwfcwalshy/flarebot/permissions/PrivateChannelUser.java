@@ -1,11 +1,8 @@
 package com.bwfcwalshy.flarebot.permissions;
 
-import sx.blah.discord.handle.obj.IUser;
-
-
 public class PrivateChannelUser extends User {
-    public PrivateChannelUser(IUser u) {
-        super.userID = u.getID();
+    public PrivateChannelUser(net.dv8tion.jda.core.entities.User u) {
+        super.userID = u.getId();
     }
 
     @Override

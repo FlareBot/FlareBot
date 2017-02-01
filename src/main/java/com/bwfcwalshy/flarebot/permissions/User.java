@@ -1,6 +1,7 @@
 package com.bwfcwalshy.flarebot.permissions;
 
-import sx.blah.discord.handle.obj.IUser;
+
+import net.dv8tion.jda.core.entities.Member;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,12 +10,12 @@ public class User {
     private final HashSet<String> groups = new HashSet<>();
     protected String userID;
 
-    User(IUser user) {
-        userID = user.getID();
+    User(net.dv8tion.jda.core.entities.User user) {
+        userID = user.getId();
         groups.add("Default");
     }
 
-    protected User() {
+    protected User(Member user) {
     }
 
     public String getUserID() {

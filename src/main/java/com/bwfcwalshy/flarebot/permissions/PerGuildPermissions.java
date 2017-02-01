@@ -1,8 +1,7 @@
 package com.bwfcwalshy.flarebot.permissions;
 
-import com.bwfcwalshy.flarebot.FlareBot;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,13 +33,13 @@ public class PerGuildPermissions {
         }
     }
 
-    public boolean hasPermission(IUser user, String permission) {
+    public boolean hasPermission(Member user, String permission) {
         // So we can go into servers and figure out any issues they have.
         if (isCreator(user))
             return true;
-        if (FlareBot.getInstance().getClient().getGuildByID(getGuildID()).getOwner().equals(user))
+        if (user.isOwner())
             return true;
-        if (user.getPermissionsForGuild(user.getClient().getGuildByID(getGuildID())).contains(Permissions.ADMINISTRATOR))
+        if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
         PermissionNode node = new PermissionNode(permission);
         return getUser(user).getGroups().stream()
@@ -63,8 +62,8 @@ public class PerGuildPermissions {
         return had;
     }
 
-    public User getUser(IUser user) {
-        return users.computeIfAbsent(user.getID(), key -> new User(user));
+    public User getUser(Member user) {
+        return users.computeIfAbsent(user.getUser().getId(), key -> new User(user));
     }
 
     public Group getGroup(String group) {
@@ -103,8 +102,8 @@ public class PerGuildPermissions {
         return otherGuild.getGuildID().equals(getGuildID());
     }
 
-    public boolean isCreator(IUser user) {
-        return user.getID().equals("158310004187725824") || user.getID().equals("155954930191040513");
+    public boolean isCreator(Member user) {
+        return user.getUser().getId().equals("158310004187725824") || user.getUser().getId().equals("155954930191040513");
     }
 
     @Override

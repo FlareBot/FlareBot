@@ -4,24 +4,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.spi.FilterReply;
 
 public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
-    private String[] blacklist = {
-            "Received: {\"t\":\"MESSAGE_RECIEVE\"",
-            "Received: {\"t\":\"PRESENCE_UPDATE\"",
-            "Received: {\"t\":\"GUILD_MEMBERS_CHUNK\"",
-            "Received: {\"t\":\"TYPING_START\"",
-            "Received: {\"t\":\"MESSAGE_CREATE\"",
-            "Received: {\"t\":\"MESSAGE_DELETE\"",
-            "Sending: {\"t\":null,\"s\":null,\"op\":2,\"d\":{\"token\":\"Bot ",
-            "New guild has been created/joined!",
-            "User ",
-            "DiscordClientImpl Keep Alive",
-            "Registered IListener",
-            "Message from: ",
-            "Unregistered IListener",
-            "Dispatching event of type PresenceUpdateEvent",
-            "Dispatching event of type MessageReceivedEvent",
-            "Dispatching event of type UserUpdateEvent",
-            "Dispatching event of type TypingEvent"
+    private static final String[] blacklist = {
+            "nulldm;kadsdndnakdndnlasdnadnasdnsdnsdnadadnasddn"
+            // Nothing yet :D
     };
 
     @Override

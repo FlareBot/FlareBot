@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot.permissions;
 
+import net.dv8tion.jda.core.entities.Channel;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IUser;
 
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PrivateChannelPermission extends PerGuildPermissions {
-    public PrivateChannelPermission(IChannel guild) {
+    public PrivateChannelPermission(Channel guild) {
         super.id = guild.getID();
     }
 

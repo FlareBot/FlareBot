@@ -31,17 +31,18 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.cli.*;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
-import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.api.IShard;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.BotInviteBuilder;
 import sx.blah.discord.util.DiscordException;
@@ -76,7 +77,8 @@ public class FlareBot {
         new File("latest.log").delete();
     }
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
+    private static final Map<String, Logger> LOGGERS = new ConcurrentHashMap<>();
+    public static final Logger LOGGER = getLog(FlareBot.class);
     private static String dBotsAuth;
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
@@ -96,6 +98,38 @@ public class FlareBot {
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException {
+
+        SimpleLog.LEVEL = SimpleLog.Level.OFF;
+        SimpleLog.addListener(new SimpleLog.LogListener() {
+            @Override
+            public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
+                switch (logLevel){
+                    case ALL:
+                    case INFO:
+                        getLog(log.name).info(String.valueOf(message));
+                        break;
+                    case FATAL:
+                        getLog(log.name).error(String.valueOf(message));
+                        break;
+                    case WARNING:
+                        getLog(log.name).warn(String.valueOf(message));
+                        break;
+                    case DEBUG:
+                        getLog(log.name).debug(String.valueOf(message));
+                        break;
+                    case TRACE:
+                        getLog(log.name).trace(String.valueOf(message));
+                        break;
+                    case OFF:
+                        break;
+                }
+            }
+
+            @Override
+            public void onError(SimpleLog log, Throwable err) {
+
+            }
+        });
         Spark.port(8080);
         Options options = new Options();
 
@@ -188,37 +222,41 @@ public class FlareBot {
         return permissions;
     }
 
-    public PerGuildPermissions getPermissions(IChannel channel) {
+    public PerGuildPermissions getPermissions(Channel channel) {
         return this.permissions.getPermissions(channel);
     }
 
-    public void init(String tkn) throws UnknownBindingException {
+    public void init(String tkn) {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
-
+            for(int i = 0; i < clients.length; i++){
+                while (true) {
+                    try {
+                        clients[i] = new JDABuilder(AccountType.BOT)
+                                .addListener(new Events(this))
+                                .useSharding(i, clients.length)
+                                .setBulkDeleteSplittingEnabled(true)
+                                .setToken(tkn)
+                                .buildAsync();
+                        break;
+                    } catch (RateLimitedException e) {
+                        Thread.sleep(e.getRetryAfter());
+                    }
+                }
+            }
             prefixes = new Prefixes();
-            client.getDispatcher().registerListener(new Events(this));
-            Discord4J.disableChannelWarnings();
             commands = new ArrayList<>();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(client));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
                     if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
-                        IChannel c =
-                                client.getChannelByID(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
+                        TextChannel c =
+                                getChannelByID(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
                         if (c != null) {
-                            EnumSet<sx.blah.discord.handle.obj.Permissions> perms = c.getModifiedPermissions(client.getOurUser());
-                            if (!perms.contains(sx.blah.discord.handle.obj.Permissions.ADMINISTRATOR)) {
-                                if (!perms.contains(sx.blah.discord.handle.obj.Permissions.SEND_MESSAGES)) {
+                            if (!c.canTalk()) {
                                     MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
-                                    return;
-                                }
-                                if (!perms.contains(sx.blah.discord.handle.obj.Permissions.EMBED_LINKS)) {
-                                    MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
-                                    return;
-                                }
                             }
                             Track track = player.getPlayingTrack();
                             MessageUtils.sendMessage(MessageUtils.getEmbed()
@@ -250,7 +288,7 @@ public class FlareBot {
             } catch (IOException e) {
                 LOGGER.error("Could not set up webhooks!", e);
             }
-        } catch (DiscordException e) {
+        } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
         }
         System.setErr(new PrintStream(new OutputStream() {
@@ -759,19 +797,7 @@ public class FlareBot {
     }
 
     public String getInvite() {
-        return new BotInviteBuilder(client).withPermissions(EnumSet.of(
-                sx.blah.discord.handle.obj.Permissions.CHANGE_NICKNAME,
-                sx.blah.discord.handle.obj.Permissions.VOICE_CONNECT,
-                sx.blah.discord.handle.obj.Permissions.VOICE_SPEAK,
-                sx.blah.discord.handle.obj.Permissions.SEND_MESSAGES,
-                sx.blah.discord.handle.obj.Permissions.READ_MESSAGE_HISTORY,
-                sx.blah.discord.handle.obj.Permissions.READ_MESSAGES,
-                sx.blah.discord.handle.obj.Permissions.EMBED_LINKS,
-                sx.blah.discord.handle.obj.Permissions.MANAGE_ROLES,
-                sx.blah.discord.handle.obj.Permissions.MANAGE_PERMISSIONS,
-                sx.blah.discord.handle.obj.Permissions.VOICE_USE_VAD,
-                sx.blah.discord.handle.obj.Permissions.MANAGE_MESSAGES // Optional
-        )).build();
+        return "";
     }
 
     public static char getPrefix(String id) {
@@ -779,20 +805,24 @@ public class FlareBot {
     }
 
     public void setStatus(String status) {
-        for (IShard s : client.getShards())
-            s.changeStatus(Status.stream(status + " | Shard: " +
-                    (client.getShards().indexOf(s) + 1) + "/" + client.getShards().size(), "https://www.twitch.tv/discordflarebot"));
+        for (JDA jda : clients)
+            jda.getPresence().setGame(Game.of(status + " | Shard: " + (jda.getShardInfo().getShardId() + 1) + "/" +
+                    clients.length, "https://www.twitch.tv/discordflarebot"));
+    }
+
+    public JDA[] getClients() {
+        return clients;
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
     }
 
-    public IChannel getUpdateChannel() {
-        return getClient().getChannelByID("226786557862871040");
+    public TextChannel getUpdateChannel() {
+        return getChannelByID("226786557862871040");
     }
 
-    public IChannel getGuildLogChannel() {
-        return getClient().getChannelByID("260401007685664768");
+    public TextChannel getGuildLogChannel() {
+        return getChannelByID("260401007685664768");
     }
 
     public static String getYoutubeKey() {
@@ -800,10 +830,10 @@ public class FlareBot {
     }
 
     public long getActiveVoiceChannels() {
-        return client.getConnectedVoiceChannels().stream()
-                .map(IVoiceChannel::getGuild)
+        return Arrays.stream(clients).flatMap(j -> j.getVoiceChannels().stream())
+                .map(VoiceChannel::getGuild)
                 .filter(Objects::nonNull)
-                .map(IDiscordObject::getID)
+                .map(ISnowflake::getId)
                 .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
                 .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
                 .filter(p -> p.getPlayingTrack() != null)
@@ -821,5 +851,18 @@ public class FlareBot {
     public PlayerCache getPlayerCache(String userId) {
         this.playerCache.computeIfAbsent(userId, k -> new PlayerCache(userId, null, null, null));
         return this.playerCache.get(userId);
+    }
+
+    private static Logger getLog(String name) {
+        return LOGGERS.computeIfAbsent(name, LoggerFactory::getLogger);
+    }
+
+    public static Logger getLog(Class<?> clazz) {
+        return getLog(clazz.getName());
+    }
+
+    private TextChannel getChannelByID(String id) {
+        // TODO
+        return null;
     }
 }

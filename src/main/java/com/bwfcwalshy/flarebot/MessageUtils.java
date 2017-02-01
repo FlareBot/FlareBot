@@ -1,76 +1,43 @@
 package com.bwfcwalshy.flarebot;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.*;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class MessageUtils {
-
-    private static String[] defaults = {
-            "6debd47ed13483642cf09e832ed0bc1b",
-            "322c936a8c8be1b803cd94861bdfa868",
-            "dd4dbc0016779df1378e7812eabaa04d",
-            "0e291f67c9274a1abdddeb3fd919cbaa",
-            "1cbd08c76f8af6dddce02c5138971129"
-    };
-
     public static final String DEBUG_CHANNEL = "226786557862871040";
 
-    public static IMessage sendMessage(CharSequence message, IChannel channel) {
-        RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
-            try {
-                return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
-            } catch (DiscordException | MissingPermissionsException e) {
-                FlareBot.LOGGER.error("Something went wrong!", e);
-            }
-            return null;
-        });
-        return future.get();
+    public static Message sendMessage(CharSequence message, TextChannel channel) {
+        return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
     }
 
-    public static void sendPM(IUser user, CharSequence message) {
-        RequestBuffer.request(() -> {
-            try {
-                return user.getOrCreatePMChannel().sendMessage(message.toString().substring(0, Math.min(message.length(), 1999)));
-            } catch (MissingPermissionsException | DiscordException e) {
-                FlareBot.LOGGER.error("Uh oh!", e);
-            }
-            return null;
-        }).get();
+    public static Message sendPM(User user, CharSequence message) {
+        return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
+                .length(), 1999))).complete();
     }
 
-    public static void sendPM(IUser user, EmbedBuilder message) {
-        RequestBuffer.request(() -> {
-            try {
-                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(message.build())
-                        .withChannel(user.getOrCreatePMChannel()).withContent("\u200B").send();
-            } catch (MissingPermissionsException | DiscordException e) {
-                FlareBot.LOGGER.error("Uh oh!", e);
-            }
-            return null;
-        }).get();
+    public static Message sendPM(User user, EmbedBuilder message) {
+        return user.openPrivateChannel().complete().sendMessage(new MessageBuilder().setEmbed(message.build())
+                .append("\u200B")
+                .build()).complete();
     }
 
-    public static IMessage sendException(String s, Throwable e, IChannel channel) {
+    public static Message sendException(String s, Throwable e, TextChannel channel) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        return sendErrorMessage(getEmbed().withDesc(s + "\n**Stack trace**: " + hastebin(trace)), channel);
+        return sendErrorMessage(getEmbed().setDescription(s + "\n**Stack trace**: " + hastebin(trace)), channel);
     }
 
     public static String hastebin(String trace) {
@@ -88,112 +55,56 @@ public class MessageUtils {
         }
     }
 
-    public static void editMessage(IMessage message, String content) {
-        RequestBuffer.request(() -> {
-            try {
-                return message.edit(content);
-            } catch (MissingPermissionsException | DiscordException e1) {
-                FlareBot.LOGGER.error("Could not edit own message!", e1);
-            }
-            return message;
-        }).get();
+    public static void editMessage(Message message, String content) {
+        message.editMessage(content).queue();
     }
 
-    public static IMessage sendFile(IChannel channel, String s, String fileContent, String filename) {
+    public static Message sendFile(TextChannel channel, String s, String fileContent, String filename) {
         ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
-        return RequestBuffer.request(() -> {
-            try {
-                return channel.sendFile(s, false, stream, filename);
-            } catch (MissingPermissionsException e1) {
-                FlareBot.LOGGER.error("Could not send stack trace!", e1);
-                return null;
-            } catch (DiscordException e1) {
-                return sendFile(channel, s, fileContent, filename);
-            }
-        }).get();
+        return channel.sendFile(stream, filename, new MessageBuilder().append(s).build()).complete();
     }
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .withAuthorIcon(getAvatar(FlareBot.getInstance().getClient().getOurUser()))
-                .withAuthorUrl("https://github.com/FlareBot/FlareBot")
-                .withAuthorName(getTag(FlareBot.getInstance().getClient().getOurUser()));
+                .setAuthor("FlareBot", FlareBot.getClients()[0].getSelfUser().getEffectiveAvatarUrl(),
+                        "https://github.com/FlareBot/FlareBot");
     }
 
-    public static String getTag(IUser user) {
+    public static String getTag(User user) {
         return user.getName() + '#' + user.getDiscriminator();
     }
 
-    public static EmbedBuilder getEmbed(IUser user) {
-        return getEmbed().withFooterIcon(getAvatar(user))
-                .withFooterText("Requested by @" + getTag(user));
+    public static EmbedBuilder getEmbed(User user) {
+        return getEmbed().setFooter("Requested by @" + getTag(user), user.getEffectiveAvatarUrl());
     }
 
-    public static String getAvatar(IUser user) {
-        return user.getAvatar() != null ? user.getAvatarURL() : getDefaultAvatar(user);
+    public static String getAvatar(User user) {
+        return user.getEffectiveAvatarUrl();
     }
 
-    public static String getDefaultAvatar(IUser user) {
-        int discrim = Integer.parseInt(user.getDiscriminator());
-        discrim %= defaults.length;
-        return "https://discordapp.com/assets/" + defaults[discrim] + ".png";
+    public static String getDefaultAvatar(User user) {
+        return user.getDefaultAvatarUrl();
     }
 
-    public static IMessage sendMessage(EmbedBuilder embedObject, IChannel channel) {
-        RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
-            try {
-                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(embedObject.build())
-                        .withChannel(channel).withContent("\u200B").send();
-            } catch (MissingPermissionsException | DiscordException e) {
-                FlareBot.LOGGER.error("Something went wrong!", e);
-            }
-            return null;
-        });
-        return future.get();
+    public static Message sendMessage(EmbedBuilder embedObject, TextChannel channel) {
+        return channel.sendMessage(embedObject.build()).complete();
     }
 
-    public static IMessage sendErrorMessage(EmbedBuilder builder, IChannel channel) {
-        RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
-            try {
-                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(builder.withColor(Color.red).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (MissingPermissionsException | DiscordException e) {
-                FlareBot.LOGGER.error("Something went wrong!", e);
-            }
-            return null;
-        });
-        return future.get();
+    public static Message sendErrorMessage(EmbedBuilder builder, TextChannel channel) {
+        return channel.sendMessage(builder.setColor(Color.red).build()).complete();
     }
 
-    public static IMessage sendErrorMessage(String message, IChannel channel) {
-        RequestBuffer.RequestFuture<IMessage> future = RequestBuffer.request(() -> {
-            try {
-                return new MessageBuilder(FlareBot.getInstance().getClient()).withEmbed(MessageUtils.getEmbed()
-                        .withColor(Color.red).withDesc(message).build()).withChannel(channel).withContent("\u200B").send();
-            } catch (MissingPermissionsException | DiscordException e) {
-                FlareBot.LOGGER.error("Something went wrong!", e);
-            }
-            return null;
-        });
-        return future.get();
+    public static Message sendErrorMessage(String message, TextChannel channel) {
+        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.red).setDescription(message).build())
+                .complete();
     }
 
-    public static void editMessage(EmbedBuilder embed, IMessage message) {
-        editMessage(message.getContent(), embed, message);
+    public static void editMessage(EmbedBuilder embed, Message message) {
+        editMessage(message.getRawContent(), embed, message);
     }
 
-    public static void editMessage(String s, EmbedBuilder embed, IMessage message) {
-        RequestBuffer.request(() -> {
-            try {
-                if (message != null)
-                    message.edit(s, embed.build());
-            } catch (MissingPermissionsException | DiscordException e) {
-                FlareBot.LOGGER.error("Could not edit own message + embed!", e);
-            }
-        });
-
-    }
-
-    private static class HastebinResponse {
-        public String key;
+    public static void editMessage(String s, EmbedBuilder embed, Message message) {
+        if (message != null)
+            message.editMessage(new MessageBuilder().append(s).setEmbed(embed.build()).build()).queue();
     }
 }
