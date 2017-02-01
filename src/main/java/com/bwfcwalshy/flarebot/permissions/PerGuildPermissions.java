@@ -35,7 +35,7 @@ public class PerGuildPermissions {
 
     public boolean hasPermission(Member user, String permission) {
         // So we can go into servers and figure out any issues they have.
-        if (isCreator(user))
+        if (isCreator(user.getUser()))
             return true;
         if (user.isOwner())
             return true;
