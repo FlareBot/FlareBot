@@ -19,7 +19,9 @@ public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
             "Message from: ",
             "Unregistered IListener",
             "Dispatching event of type PresenceUpdateEvent",
-            "Dispatching event of type MessageReceivedEvent"
+            "Dispatching event of type MessageReceivedEvent",
+            "Dispatching event of type UserUpdateEvent",
+            "Dispatching event of type TypingEvent"
     };
 
     @Override

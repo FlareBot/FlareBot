@@ -26,16 +26,15 @@ import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.bwfcwalshy.flarebot.web.ApiFactory;
 import com.google.gson.*;
+import com.mashape.unirest.http.Unirest;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
 import org.apache.commons.cli.*;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
@@ -79,8 +78,6 @@ public class FlareBot {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(FlareBot.class);
     private static String dBotsAuth;
-    public static final HttpClient HTPP_CLIENT = HttpClientBuilder.create()
-            .setRedirectStrategy(new LaxRedirectStrategy()).disableCookieManagement().build();
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
     private FlareBotManager manager;
@@ -173,7 +170,7 @@ public class FlareBot {
     public static final char COMMAND_CHAR = '_';
 
     private String version = null;
-    private IDiscordClient client;
+    private JDA[] clients = new JDA[2];
     private List<Command> commands;
     // Guild ID | List role ID
     private Map<String, List<String>> autoAssignRoles;
@@ -199,10 +196,7 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         try {
-            client = new ClientBuilder()
-                    .setMaxReconnectAttempts(Integer.MAX_VALUE)
-                    .withShards(2)
-                    .withToken(tkn).login();
+
             prefixes = new Prefixes();
             client.getDispatcher().registerListener(new Events(this));
             Discord4J.disableChannelWarnings();
@@ -371,16 +365,12 @@ public class FlareBot {
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
                     try {
-                        HttpPost req =
-                                new HttpPost("https://bots.discord.pw/api/bots/" + getClient().getOurUser().getID() + "/stats");
-                        StringEntity ent = new StringEntity("{\n" +
-                                "\t\"server_count\": " + getClient().getGuilds().size() + "\n" +
-                                "}");
-                        req.setEntity(ent);
-                        req.setHeader("Authorization", FlareBot.dBotsAuth);
-                        req.setHeader("Content-Type", "application/json");
-                        HTPP_CLIENT.execute(req);
-                    } catch (IOException e1) {
+                        Unirest.post("https://bots.discord.pw/api/bots/" + getClient().getOurUser().getID() + "/stats")
+                                .header("Authorization", FlareBot.dBotsAuth)
+                                .header("Content-Type", "application/json")
+                                .body(new JSONObject().put("server_count", getServerCount()))
+                                .asString();
+                    } catch (Exception e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
                     }
                 }
