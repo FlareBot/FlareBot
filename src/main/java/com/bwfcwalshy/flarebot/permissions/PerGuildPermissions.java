@@ -102,8 +102,8 @@ public class PerGuildPermissions {
         return otherGuild.getGuildID().equals(getGuildID());
     }
 
-    public boolean isCreator(Member user) {
-        return user.getUser().getId().equals("158310004187725824") || user.getUser().getId().equals("155954930191040513");
+    public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
+        return user.getId().equals("158310004187725824") || user.getId().equals("155954930191040513");
     }
 
     @Override

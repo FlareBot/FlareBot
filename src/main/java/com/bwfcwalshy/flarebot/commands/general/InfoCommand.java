@@ -6,6 +6,10 @@ import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.sun.management.OperatingSystemMXBean;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.io.IOUtils;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.IDiscordClient;
@@ -48,7 +52,7 @@ public class InfoCommand implements Command {
 
 
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         EmbedBuilder bld = MessageUtils.getEmbed(sender).withThumbnail(MessageUtils.getAvatar(channel.getClient().getOurUser()));
         bld.withDesc("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
         bld.appendField("Servers: ", String.valueOf(client.getGuilds().size()), true);

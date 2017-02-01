@@ -217,7 +217,7 @@ public class FlareBot {
         return permissions;
     }
 
-    public PerGuildPermissions getPermissions(Channel channel) {
+    public PerGuildPermissions getPermissions(MessageChannel channel) {
         return this.permissions.getPermissions(channel);
     }
 
@@ -843,7 +843,7 @@ public class FlareBot {
 
     // getXByID
 
-    private TextChannel getChannelByID(String id) {
+    public TextChannel getChannelByID(String id) {
         return getGuilds().stream()
                 .map(g -> g.getTextChannelById(id))
                 .filter(Objects::nonNull)

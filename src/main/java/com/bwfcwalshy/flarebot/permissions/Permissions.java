@@ -1,8 +1,7 @@
 package com.bwfcwalshy.flarebot.permissions;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,9 +19,9 @@ public class Permissions {
         }
     }
 
-    public PerGuildPermissions getPermissions(Channel channel) {
-        if (channel instanceof PrivateChannel)
+    public PerGuildPermissions getPermissions(MessageChannel channel) {
+        if (channel.getType() != ChannelType.TEXT)
             return new PrivateChannelPermission(channel);
-        return perms.computeIfAbsent(channel.getGuild().getId(), PerGuildPermissions::new);
+        return perms.computeIfAbsent(((TextChannel) channel).getGuild().getId(), PerGuildPermissions::new);
     }
 }

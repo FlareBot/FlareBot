@@ -7,6 +7,9 @@ import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.permissions.Group;
 import com.bwfcwalshy.flarebot.permissions.User;
 import com.bwfcwalshy.flarebot.util.Parser;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
@@ -17,7 +20,7 @@ import java.util.stream.Collectors;
 public class PermissionsCommand implements Command {
 
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(net.dv8tion.jda.core.entities.User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             MessageUtils.sendMessage(getDescription(), channel);
             return;

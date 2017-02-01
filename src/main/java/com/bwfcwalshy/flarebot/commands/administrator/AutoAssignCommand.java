@@ -4,6 +4,10 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import sx.blah.discord.handle.obj.*;
 
 import java.util.ArrayList;
@@ -19,11 +23,11 @@ public class AutoAssignCommand implements Command {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if (channel.getGuild().getOwner().getID().equals(sender.getID()) || flareBot.getPermissions(channel).hasPermission(sender, "flarebot.commands.autoassign")) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+        if (channel.getGuild().getOwner().getUser().getId().equals(sender.getId()) || flareBot.getPermissions(channel).hasPermission(member, "flarebot.commands.autoassign")) {
             if (args.length == 0) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                        .withDesc(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "autoassign <add/remove/list> (role)"), channel);
+                        .setDescription(sender.getAsMention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "autoassign <add/remove/list> (role)"), channel);
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("list")) {
                     if (flareBot.getAutoAssignRoles().containsKey(channel.getGuild().getID())) {

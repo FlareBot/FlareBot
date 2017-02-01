@@ -2,13 +2,11 @@ package com.bwfcwalshy.flarebot.commands;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.*;
 
 public interface Command {
 
-    void onCommand(IUser sender, IChannel channel, IMessage message, String[] args);
+    void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member);
 
     String getCommand();
 
@@ -24,7 +22,7 @@ public interface Command {
         return new String[]{};
     }
 
-    default PerGuildPermissions getPermissions(IChannel chan) {
+    default PerGuildPermissions getPermissions(MessageChannel chan) {
         return FlareBot.getInstance().getPermissions(chan);
     }
 }

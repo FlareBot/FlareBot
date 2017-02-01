@@ -5,7 +5,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
@@ -16,7 +16,7 @@ import java.io.StringWriter;
 public class MessageUtils {
     public static final String DEBUG_CHANNEL = "226786557862871040";
 
-    public static Message sendMessage(CharSequence message, TextChannel channel) {
+    public static Message sendMessage(CharSequence message, MessageChannel channel) {
         return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
     }
 
@@ -31,7 +31,7 @@ public class MessageUtils {
                 .build()).complete();
     }
 
-    public static Message sendException(String s, Throwable e, TextChannel channel) {
+    public static Message sendException(String s, Throwable e, MessageChannel channel) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
@@ -59,14 +59,14 @@ public class MessageUtils {
         message.editMessage(content).queue();
     }
 
-    public static Message sendFile(TextChannel channel, String s, String fileContent, String filename) {
+    public static Message sendFile(MessageChannel channel, String s, String fileContent, String filename) {
         ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
         return channel.sendFile(stream, filename, new MessageBuilder().append(s).build()).complete();
     }
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot", FlareBot.getClients()[0].getSelfUser().getEffectiveAvatarUrl(),
+                .setAuthor("FlareBot", FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl(),
                         "https://github.com/FlareBot/FlareBot");
     }
 
@@ -86,15 +86,15 @@ public class MessageUtils {
         return user.getDefaultAvatarUrl();
     }
 
-    public static Message sendMessage(EmbedBuilder embedObject, TextChannel channel) {
+    public static Message sendMessage(EmbedBuilder embedObject, MessageChannel channel) {
         return channel.sendMessage(embedObject.build()).complete();
     }
 
-    public static Message sendErrorMessage(EmbedBuilder builder, TextChannel channel) {
+    public static Message sendErrorMessage(EmbedBuilder builder, MessageChannel channel) {
         return channel.sendMessage(builder.setColor(Color.red).build()).complete();
     }
 
-    public static Message sendErrorMessage(String message, TextChannel channel) {
+    public static Message sendErrorMessage(String message, MessageChannel channel) {
         return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.red).setDescription(message).build())
                 .complete();
     }
