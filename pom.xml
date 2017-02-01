@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
             <artifactId>jda-impl</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <version>1.10-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>

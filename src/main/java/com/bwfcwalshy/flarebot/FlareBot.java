@@ -9,6 +9,7 @@ import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import com.arsenarsen.lavaplayerbridge.utils.JDAMultiShard;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.FlareBotManager;
@@ -42,12 +43,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.util.BotInviteBuilder;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RequestBuffer;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -247,7 +242,7 @@ public class FlareBot {
             }
             prefixes = new Prefixes();
             commands = new ArrayList<>();
-            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(client));
+            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
@@ -260,7 +255,7 @@ public class FlareBot {
                             }
                             Track track = player.getPlayingTrack();
                             MessageUtils.sendMessage(MessageUtils.getEmbed()
-                                    .appendField("Now Playing: ", SongCommand.getLink(track), false), c);
+                                    .addField("Now Playing: ", SongCommand.getLink(track), false), c);
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
@@ -403,10 +398,10 @@ public class FlareBot {
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
                     try {
-                        Unirest.post("https://bots.discord.pw/api/bots/" + getClient().getOurUser().getID() + "/stats")
+                        Unirest.post("https://bots.discord.pw/api/bots/" + clients[0].getSelfUser().getId() + "/stats")
                                 .header("Authorization", FlareBot.dBotsAuth)
                                 .header("Content-Type", "application/json")
-                                .body(new JSONObject().put("server_count", getServerCount()))
+                                .body(new JSONObject().put("server_count", getGuilds().size()))
                                 .asString();
                     } catch (Exception e1) {
                         FlareBot.LOGGER.error("Could not POST data to DBots", e1);
@@ -452,12 +447,12 @@ public class FlareBot {
 
     private void sendData() {
         JsonObject data = new JsonObject();
-        data.addProperty("guilds", client.getGuilds().size());
-        data.addProperty("official_guild_users", client.getGuildByID(OFFICIAL_GUILD).getUsers().size());
-        data.addProperty("text_channels", client.getChannels(false).size());
-        data.addProperty("voice_channels", client.getConnectedVoiceChannels().size());
+        data.addProperty("guilds", getGuilds().size());
+        data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
+        data.addProperty("text_channels", getChannels().size());
+        data.addProperty("voice_channels", getConnectedVoiceChannels().size());
         data.addProperty("active_voice_channels", getActiveVoiceChannels());
-        data.addProperty("num_queued_songs", client.getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getID()).getPlaylist().size()).sum());
+        data.addProperty("num_queued_songs", getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getId()).getPlaylist().size()).sum());
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("cpu", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%");
         data.addProperty("uptime", getUptime());
@@ -485,11 +480,11 @@ public class FlareBot {
 
     private void sendPrefixes() {
         JsonArray array = new JsonArray();
-        for (IGuild guild : FlareBot.getInstance().getClient().getGuilds()) {
+        for (Guild guild : getGuilds()) {
             JsonObject object = new JsonObject();
-            object.addProperty("guildId", guild.getID());
-            if (prefixes.getPrefixes().containsKey(guild.getID()))
-                object.addProperty("prefix", prefixes.getPrefixes().get(guild.getID()));
+            object.addProperty("guildId", guild.getId());
+            if (prefixes.getPrefixes().containsKey(guild.getId()))
+                object.addProperty("prefix", prefixes.getPrefixes().get(guild.getId()));
             else
                 object.addProperty("prefix", FlareBot.COMMAND_CHAR);
             array.add(object);
@@ -596,16 +591,8 @@ public class FlareBot {
                     }
                 }
                 if (p.exitValue() != 0) {
-                    LOGGER.error(Markers.NO_ANNOUNCE, "Could not update!!!!\n" + out);
-                    String finalOut = out;
                     UpdateCommand.UPDATING.set(false);
-                    RequestBuffer.request(() -> {
-                        try {
-                            getUpdateChannel().sendFile("Could not build!", false, new ByteArrayInputStream(finalOut.getBytes()), "buildlog.txt");
-                        } catch (DiscordException | MissingPermissionsException e) {
-                            LOGGER.error("Could not send build failure report!", e);
-                        }
-                    });
+                    LOGGER.error("Could not update! Log:** {} **", MessageUtils.hastebin(out));
                     return;
                 }
                 File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")); // pfft this will go well..
@@ -638,10 +625,6 @@ public class FlareBot {
 
     private void registerCommand(Command command) {
         this.commands.add(command);
-    }
-
-    public IDiscordClient getClient() {
-        return this.client;
     }
 
     public List<Command> getCommands() {
@@ -788,16 +771,17 @@ public class FlareBot {
         return welcomes;
     }
 
-    public Welcome getWelcomeForGuild(IGuild guild) {
+    public Welcome getWelcomeForGuild(Guild guild) {
         for (Welcome welcome : welcomes) {
-            if (welcome.getGuildId().equals(guild.getID()))
+            if (welcome.getGuildId().equals(guild.getId()))
                 return welcome;
         }
         return null;
     }
 
     public String getInvite() {
-        return "";
+        return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=372337664",
+                clients[0].getSelfUser().getId());
     }
 
     public static char getPrefix(String id) {
@@ -808,10 +792,6 @@ public class FlareBot {
         for (JDA jda : clients)
             jda.getPresence().setGame(Game.of(status + " | Shard: " + (jda.getShardInfo().getShardId() + 1) + "/" +
                     clients.length, "https://www.twitch.tv/discordflarebot"));
-    }
-
-    public JDA[] getClients() {
-        return clients;
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
@@ -861,8 +841,36 @@ public class FlareBot {
         return getLog(clazz.getName());
     }
 
+    // getXByID
+
     private TextChannel getChannelByID(String id) {
-        // TODO
-        return null;
+        return getGuilds().stream()
+                .map(g -> g.getTextChannelById(id))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
+    }
+
+    private Guild getGuildByID(String id) {
+        return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
+    }
+
+    // getXs
+
+    public List<Guild> getGuilds() {
+        return Arrays.stream(clients).flatMap(j -> j.getGuilds().stream()).collect(Collectors.toList());
+    }
+
+    public JDA[] getClients() {
+        return clients;
+    }
+
+    public List<Channel> getChannels() {
+        return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
+    }
+
+    public List<VoiceChannel> getConnectedVoiceChannels(){
+        return Arrays.stream(getClients()).flatMap(c -> c.getVoiceChannels().stream())
+                .filter(c -> c.getGuild().getAudioManager().isConnected())
+                .collect(Collectors.toList());
     }
 }
