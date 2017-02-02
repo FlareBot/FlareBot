@@ -25,4 +25,8 @@ public interface Command {
     default PerGuildPermissions getPermissions(MessageChannel chan) {
         return FlareBot.getInstance().getPermissions(chan);
     }
+
+    default boolean deleteMessage(){
+        return true;
+    }
 }

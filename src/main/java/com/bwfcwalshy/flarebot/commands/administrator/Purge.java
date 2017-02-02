@@ -99,4 +99,9 @@ public class Purge implements Command {
     public String[] getAliases() {
         return new String[]{"clean"};
     }
+
+    @Override
+    public boolean deleteMessage() {
+        return false;
+    }
 }

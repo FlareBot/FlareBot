@@ -213,7 +213,8 @@ public class Events extends ListenerAdapter {
                                     + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                     event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                         }
-                        delete(event.getMessage());
+                        if (cmd.deleteMessage())
+                            delete(event.getMessage());
                     });
                     return;
                 } else {
@@ -248,7 +249,8 @@ public class Events extends ListenerAdapter {
                                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                                     MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
                                 }
-                                delete(event.getMessage());
+                                if (cmd.deleteMessage())
+                                    delete(event.getMessage());
                             });
                             return;
                         }
@@ -293,7 +295,9 @@ public class Events extends ListenerAdapter {
     }
 
     private void delete(Message message) {
-        message.deleteMessage().queue();
+        if (message.getTextChannel().getGuild().getSelfMember()
+                .getPermissions(message.getTextChannel()).contains(Permission.MESSAGE_MANAGE))
+            message.deleteMessage().queue();
     }
 
     private String getGuildId(GenericGuildMessageEvent e) {
