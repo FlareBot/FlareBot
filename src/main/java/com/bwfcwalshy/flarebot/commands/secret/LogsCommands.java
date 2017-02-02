@@ -1,18 +1,13 @@
 package com.bwfcwalshy.flarebot.commands.secret;
 
-import com.bwfcwalshy.flarebot.MessageUtils;
+import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RequestBuffer;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,13 +16,11 @@ public class LogsCommands implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
-            RequestBuffer.request(() -> {
-                try {
-                    channel.sendFile("Latest log:", new File("latest.log"));
-                } catch (IOException | MissingPermissionsException | DiscordException e) {
-                    MessageUtils.sendException("**Could not upload the log file!**", e, channel);
-                }
-            });
+            try {
+                channel.sendFile(new File("latest.log"), new MessageBuilder().build()).queue();
+            } catch (IOException e) {
+                FlareBot.LOGGER.error("Could not send logs", e);
+            }
         }
     }
 

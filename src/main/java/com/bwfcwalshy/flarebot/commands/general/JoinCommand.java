@@ -1,29 +1,22 @@
 package com.bwfcwalshy.flarebot.commands.general;
 
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.IVoiceChannel;
-import sx.blah.discord.util.MissingPermissionsException;
 
 public class JoinCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (!sender.getConnectedVoiceChannels().isEmpty()) {
-            IVoiceChannel voiceChannel = sender.getConnectedVoiceChannels().get(0);
-            try {
-                voiceChannel.join();
-            } catch (MissingPermissionsException e) {
-                MessageUtils.sendMessage(sender.mention() + " I cannot join that voice channel!", channel);
+        if(member.getVoiceState().inVoiceChannel()){
+            if(channel.getGuild().getAudioManager().isAttemptingToConnect()){
+                channel.sendMessage("Currently connecting to a voice channel! Try again soon!");
+                return;
             }
+            channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
         }
     }
 

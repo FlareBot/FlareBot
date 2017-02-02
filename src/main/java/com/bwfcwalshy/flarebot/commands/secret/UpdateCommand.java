@@ -12,9 +12,6 @@ import net.dv8tion.jda.core.entities.User;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +37,7 @@ public class UpdateCommand implements Command {
                     update(true, channel);
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
                     MessageUtils.sendMessage("I will now update to the latest version when no channels are playing music!", channel);
-                    if (flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
+                    if (flareBot.getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     } else {
                         if (!queued.getAndSet(true)) {
@@ -84,7 +81,7 @@ public class UpdateCommand implements Command {
      * @param force   If the version number has not changed this will need to be true in order to update it.
      * @param channel Channel the command was sent in.
      */
-    public static void update(boolean force, IChannel channel) {
+    public static void update(boolean force, TextChannel channel) {
         try {
             URL url = new URL("https://raw.githubusercontent.com/FlareBot/FlareBot/master/pom.xml");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));

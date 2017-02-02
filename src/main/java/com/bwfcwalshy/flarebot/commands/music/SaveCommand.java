@@ -10,9 +10,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -37,16 +34,16 @@ public class SaveCommand implements Command {
             MessageUtils.sendMessage("Name must be up to 20 characters!", channel);
             return;
         }
-        if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())) {
+        if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
             MessageUtils.sendMessage("Your playlist is empty!", channel);
             return;
         }
-        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).getPlaylist();
+        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist();
         if (playlist.isEmpty()) {
             MessageUtils.sendMessage("Your playlist is empty!", channel);
             return;
         }
-        channel.setTypingStatus(true);
+        channel.sendTyping().queue();
         try {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
@@ -59,7 +56,7 @@ public class SaveCommand implements Command {
                         ")");
                 PreparedStatement exists = connection.prepareStatement("SELECT * FROM playlist WHERE name = ? AND guild = ?");
                 exists.setString(1, finalName);
-                exists.setString(2, channel.getGuild().getID());
+                exists.setString(2, channel.getGuild().getId());
                 exists.execute();
                 if (exists.getResultSet().isBeforeFirst()) {
                     MessageUtils.sendMessage("That name is already taken!", channel);
@@ -71,12 +68,12 @@ public class SaveCommand implements Command {
                         "   ?" +
                         ")");
                 statement.setString(1, finalName);
-                statement.setString(2, channel.getGuild().getID());
+                statement.setString(2, channel.getGuild().getId());
                 statement.setString(3, playlist.stream()
                         .map(track -> track.getTrack().getIdentifier())
                         .collect(Collectors.joining(",")));
                 statement.executeUpdate();
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Success!"), channel);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("Success!"), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

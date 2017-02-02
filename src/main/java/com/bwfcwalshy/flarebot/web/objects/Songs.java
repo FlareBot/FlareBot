@@ -3,7 +3,7 @@ package com.bwfcwalshy.flarebot.web.objects;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.User;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,12 +25,11 @@ public class Songs {
         requester = track.getMeta().getOrDefault("requester", "Unknown").toString();
         length = track.getTrack().getDuration();
         progress = track.getTrack().getPosition();
-        IUser user = FlareBot.getInstance().getClient().getUserByID(requester);
+        User user = FlareBot.getInstance().getUserByID(requester);
         if (user != null) {
             discrim = user.getDiscriminator();
             name = user.getName();
-            if (user.getAvatar() != null)
-                avatar = user.getAvatarURL();
+            avatar = user.getEffectiveAvatarUrl();
         }
     }
 

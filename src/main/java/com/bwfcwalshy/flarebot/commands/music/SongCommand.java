@@ -11,9 +11,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class SongCommand implements Command {
 
@@ -25,16 +22,16 @@ public class SongCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (manager.getPlayer(channel.getGuild().getID()).getPlayingTrack() != null) {
-            Track track = manager.getPlayer(channel.getGuild().getID()).getPlayingTrack();
+        if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
+            Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                    .appendField("Current song: ", getLink(track), false)
-                    .appendField("Amount Played: ",
+                    .addField("Current song: ", getLink(track), false)
+                    .addField("Amount Played: ",
                             (int) (100f / track.getTrack().getDuration() * track.getTrack().getPosition()) + "%", true)
-                    .appendField("Requested by:", String.format("<@!%s>", track.getMeta().get("requester")), false), channel);
+                    .addField("Requested by:", String.format("<@!%s>", track.getMeta().get("requester")), false), channel);
         } else {
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                    .appendField("Current song: ", "**No song playing right now!**", false), channel);
+                    .addField("Current song: ", "**No song playing right now!**", false), channel);
         }
     }
 

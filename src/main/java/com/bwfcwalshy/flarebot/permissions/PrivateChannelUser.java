@@ -1,8 +1,10 @@
 package com.bwfcwalshy.flarebot.permissions;
 
+import net.dv8tion.jda.core.entities.Member;
+
 public class PrivateChannelUser extends User {
-    public PrivateChannelUser(net.dv8tion.jda.core.entities.User u) {
-        super.userID = u.getId();
+    public PrivateChannelUser(Member u) {
+        super(u);
     }
 
     @Override

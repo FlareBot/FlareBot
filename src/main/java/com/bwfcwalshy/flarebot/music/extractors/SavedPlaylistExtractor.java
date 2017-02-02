@@ -7,10 +7,10 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class SavedPlaylistExtractor implements Extractor {
     @Override
@@ -19,7 +19,7 @@ public class SavedPlaylistExtractor implements Extractor {
     }
 
     @Override
-    public void process(String input, Player player, IMessage message, IUser user) throws Exception {
+    public void process(String input, Player player, Message message, User user) throws Exception {
         String name = input.substring(0, input.indexOf('\u200B'));
         input = input.substring(input.indexOf('\u200B') + 1);
         int i = 0;
@@ -36,7 +36,7 @@ public class SavedPlaylistExtractor implements Extractor {
             }
             try {
                 Track track = new Track((AudioTrack) player.resolve(url));
-                track.getMeta().put("requester", user.getID());
+                track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
                 player.queue(track);
                 i++;
@@ -44,7 +44,7 @@ public class SavedPlaylistExtractor implements Extractor {
             }
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed(user)
-                .withDesc(String.format("*Loaded %s songs!*", i)), message);
+                .setDescription(String.format("*Loaded %s songs!*", i)), message);
     }
 
     @Override

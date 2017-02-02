@@ -9,9 +9,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class PlayCommand implements Command {
 
@@ -24,10 +21,10 @@ public class PlayCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length > 0) {
-            MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("To search for a song by term or URL do "
-                    + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "search <tern/URL>"), channel);
+            MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("To search for a song by term or URL do "
+                    + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "search <tern/URL>"), channel);
         } else
-            musicManager.getPlayer(channel.getGuild().getID()).play();
+            musicManager.getPlayer(channel.getGuild().getId()).play();
     }
 
     @Override

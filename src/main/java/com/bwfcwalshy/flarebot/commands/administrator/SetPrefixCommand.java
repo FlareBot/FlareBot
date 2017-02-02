@@ -8,25 +8,22 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class SetPrefixCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reset")) {
-                FlareBot.getPrefixes().set(channel.getGuild().getID(), '_');
+                FlareBot.getPrefixes().set(channel.getGuild().getId(), '_');
             } else if (args[0].length() == 1) {
-                FlareBot.getPrefixes().set(channel.getGuild().getID(), args[0].charAt(0));
+                FlareBot.getPrefixes().set(channel.getGuild().getId(), args[0].charAt(0));
             } else {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc("Cannot set the prefix to be more that one character long!"), channel);
+                        .setDescription("Cannot set the prefix to be more that one character long!"), channel);
                 return;
             }
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                    .withDesc(String.format("Set the prefix to `%s`", args[0])), channel);
+                    .setDescription(String.format("Set the prefix to `%s`", args[0])), channel);
         }
     }
 

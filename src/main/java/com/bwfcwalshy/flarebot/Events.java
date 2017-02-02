@@ -20,6 +20,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -43,6 +44,7 @@ public class Events extends ListenerAdapter {
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
 
     public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
+    private AtomicInteger i = new AtomicInteger(0);
 
 
     public Events(FlareBot bot) {
@@ -51,7 +53,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        flareBot.run();
+        FlareBot.getInstance().latch.countDown();
     }
 
     @Override
@@ -76,7 +78,8 @@ public class Events extends ListenerAdapter {
                     roles.add(role);
                 } else autoAssignRoles.remove(s);
             }
-            event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {}, (e1) -> {
+            event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
+            }, (e1) -> {
                 if (!e1.getMessage().startsWith("Edited roles")) {
                     MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
                             "**Could not auto assign a role!**\n" + e1.getMessage());
@@ -100,12 +103,12 @@ public class Events extends ListenerAdapter {
     public void onGuildJoin(GuildJoinEvent event) {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED)
             MessageUtils.sendMessage(new EmbedBuilder()
-                    .setColor(new Color(96, 230, 144))
-                    .setThumbnail(event.getGuild().getIconUrl())
-                    .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
-                    .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
-                    .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
-                            "Guild Owner: " + event.getGuild().getOwner().getUser().getName()),
+                            .setColor(new Color(96, 230, 144))
+                            .setThumbnail(event.getGuild().getIconUrl())
+                            .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
+                            .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
+                            .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
+                                    "Guild Owner: " + event.getGuild().getOwner().getUser().getName()),
                     FlareBot.getInstance().getGuildLogChannel());
     }
 
@@ -156,14 +159,14 @@ public class Events extends ListenerAdapter {
     }
 
     @Override
-    public void onGenericGuildMessage(GenericGuildMessageEvent event) {
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         PlayerCache cache = flareBot.getPlayerCache(event.getAuthor().getId());
         cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
         if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
                 && !event.getAuthor().isBot()) {
-            List<Permission> perms = event.getChannel().getPermissionOverride(event.getChannel().getGuild().getSelfMember()).getAllowed();
+            List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
             if (!perms.contains(Permission.ADMINISTRATOR)) {
                 if (!perms.contains(Permission.MESSAGE_WRITE)) {
                     return;
@@ -230,8 +233,8 @@ public class Events extends ListenerAdapter {
                                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                             if (handleMissingPermission(cmd, event))
                                 return;
-                                COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
-                                        g -> new AtomicInteger()).incrementAndGet();
+                            COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
+                                    g -> new AtomicInteger()).incrementAndGet();
                             String[] finalArgs = args;
                             CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
@@ -265,7 +268,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
-        if(event.getPreviousOnlineStatus() == OnlineStatus.OFFLINE){
+        if (event.getPreviousOnlineStatus() == OnlineStatus.OFFLINE) {
             flareBot.getPlayerCache(event.getUser().getId()).setLastSeen(LocalDateTime.now());
         }
     }

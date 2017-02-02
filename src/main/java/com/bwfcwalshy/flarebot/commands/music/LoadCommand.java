@@ -10,9 +10,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,7 +29,7 @@ public class LoadCommand implements Command {
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
-        channel.setTypingStatus(true);
+        channel.sendTyping().queue();
         try {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
@@ -45,14 +42,14 @@ public class LoadCommand implements Command {
                         ")");
                 PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE name = ? AND guild = ? OR scope = 'global'");
                 exists.setString(1, finalName);
-                exists.setString(2, channel.getGuild().getID());
+                exists.setString(2, channel.getGuild().getId());
                 exists.execute();
                 ResultSet set = exists.getResultSet();
                 if (set.isBeforeFirst()) {
                     set.next();
                     VideoThread.getThread(finalName + '\u200B' + set.getString("list"), channel, sender).start();
                 } else
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("*That playlist does not exist!*"), channel);
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("*That playlist does not exist!*"), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

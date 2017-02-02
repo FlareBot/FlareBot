@@ -9,9 +9,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,16 +26,16 @@ public class RandomCommand implements Command {
             try {
                 amount = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Invalid amount!"), channel);
+                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("Invalid amount!"), channel);
                 return;
             }
             if (amount <= 0)
-                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).withDesc("Invalid amount!"), channel);
+                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("Invalid amount!"), channel);
             loadSongs(amount, channel, sender);
         }
     }
 
-    private void loadSongs(int amount, IChannel channel, IUser sender) {
+    private void loadSongs(int amount, TextChannel channel, User sender) {
         Set<String> songs = manager.getRandomSongs(amount, channel);
         VideoThread.getThread(songs.stream()
                 .collect(Collectors.joining(",")), channel, sender).start();

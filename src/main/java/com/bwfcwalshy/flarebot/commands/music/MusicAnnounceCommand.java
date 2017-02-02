@@ -9,9 +9,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,18 +47,18 @@ public class MusicAnnounceCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && ARGS_PATTERN.matcher(args[0]).matches()) {
             if (args[0].equalsIgnoreCase("here")) {
-                announcements.put(channel.getGuild().getID(), channel.getID());
+                announcements.put(channel.getGuild().getId(), channel.getId());
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc("Set music announcements to appear in " + channel), channel);
+                        .setDescription("Set music announcements to appear in " + channel), channel);
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("UPDATE announces SET channelid = ? WHERE guildid = ?");
-                        statement.setString(1, channel.getID());
-                        statement.setString(2, channel.getGuild().getID());
+                        statement.setString(1, channel.getId());
+                        statement.setString(2, channel.getGuild().getId());
                         if (statement.executeUpdate() == 0) {
                             statement = conn.prepareStatement("INSERT INTO announces (guildid, channelid) VALUES (?, ?)");
-                            statement.setString(1, channel.getGuild().getID());
-                            statement.setString(2, channel.getID());
+                            statement.setString(1, channel.getGuild().getId());
+                            statement.setString(2, channel.getId());
                             statement.executeUpdate();
                         }
                     });
@@ -69,13 +66,13 @@ public class MusicAnnounceCommand implements Command {
                     FlareBot.LOGGER.error("Could not edit the announces in the database!", e);
                 }
             } else {
-                announcements.remove(channel.getGuild().getID());
+                announcements.remove(channel.getGuild().getId());
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc(String.format("Disabled announcements for `%s`", channel.getGuild().getName())), channel);
+                        .setDescription(String.format("Disabled announcements for `%s`", channel.getGuild().getName())), channel);
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("DELETE FROM announces WHERE guildid = ?");
-                        statement.setString(1, channel.getGuild().getID());
+                        statement.setString(1, channel.getGuild().getId());
                     });
                 } catch (SQLException e) {
                     FlareBot.LOGGER.error("Could not edit the announces in the database!", e);
@@ -83,7 +80,7 @@ public class MusicAnnounceCommand implements Command {
             }
         } else {
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                    .withDesc("Bad syntax! Must have either `HERE` or `OFF` as your first, and only, argument." +
+                    .setDescription("Bad syntax! Must have either `HERE` or `OFF` as your first, and only, argument." +
                             "\nCase insensitive."), channel);
         }
     }

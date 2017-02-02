@@ -66,8 +66,9 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot", FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl(),
-                        "https://github.com/FlareBot/FlareBot");
+                .setAuthor("FlareBot",
+                        "https://github.com/FlareBot/FlareBot",
+                        FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl());
     }
 
     public static String getTag(User user) {

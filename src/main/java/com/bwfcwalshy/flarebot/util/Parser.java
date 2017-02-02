@@ -1,7 +1,9 @@
 package com.bwfcwalshy.flarebot.util;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * <br>
@@ -9,8 +11,13 @@ import sx.blah.discord.handle.obj.IUser;
  */
 public class Parser {
 
-    public static IUser mention(String mention) {
+    public static User mention(String mention) {
         mention = mention.replace("<@", "").replace("!", "").replace(">", "");
-        return FlareBot.getInstance().getClient().getUserByID(mention);
+        return FlareBot.getInstance().getUserByID(mention);
+    }
+
+    public static Member mention(String arg, Guild guild) {
+        User u = mention(arg);
+        return u != null ? guild.getMember(u) : null;
     }
 }

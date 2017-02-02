@@ -9,16 +9,13 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class SearchCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "search <term>", channel);
+            MessageUtils.sendMessage(sender.getAsMention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "search <term>", channel);
         } else if (args.length >= 1) {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();

@@ -10,12 +10,9 @@ public class User {
     private final HashSet<String> groups = new HashSet<>();
     protected String userID;
 
-    User(net.dv8tion.jda.core.entities.User user) {
-        userID = user.getId();
+    User(Member user) {
+        userID = user.getUser().getId();
         groups.add("Default");
-    }
-
-    protected User(Member user) {
     }
 
     public String getUserID() {

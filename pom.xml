@@ -28,6 +28,11 @@
     </repositories>
     <dependencies>
         <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>jda-nas</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
             <version>3.0.BETA2_123</version>

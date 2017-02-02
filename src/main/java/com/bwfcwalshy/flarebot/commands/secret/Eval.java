@@ -8,12 +8,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RequestBuffer;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -57,7 +51,7 @@ public class Eval implements Command {
             engine.put("channel", channel);
             engine.put("guild", channel.getGuild());
             engine.put("message", message);
-            engine.put("client", sender.getClient());
+            engine.put("jda", sender.getJDA());
             engine.put("sender", sender);
             String code = Arrays.stream(args).collect(Collectors.joining(" "));
             POOL.submit(() -> {
@@ -67,24 +61,18 @@ public class Eval implements Command {
                         eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
                     } else eResult = "```groovy\n" + eResult + "\n```";
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                            .appendField("Code:", "```groovy\n" + code + "```", false)
-                            .appendField("Result: ", eResult, false), channel);
+                            .addField("Code:", "```groovy\n" + code + "```", false)
+                            .addField("Result: ", eResult, false), channel);
                 } catch (ScriptException e) {
                     MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                            .appendField("Code:", "```groovy\n" + code + "```", false)
-                            .appendField("Result: ", "```groovy\n" + e.getMessage() + "```", false), channel);
+                            .addField("Code:", "```groovy\n" + code + "```", false)
+                            .addField("Result: ", "```groovy\n" + e.getMessage() + "```", false), channel);
                 } catch (Exception e) {
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }
             });
         } else {
-            RequestBuffer.request(() -> {
-                try {
-                    message.addReaction("\u274C");
-                } catch (MissingPermissionsException | DiscordException ignored) {
-                    ignored.getMessage();
-                }
-            });
+            message.addReaction("\u274C").queue();
         }
     }
 

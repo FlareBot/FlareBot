@@ -1,15 +1,13 @@
 package com.bwfcwalshy.flarebot.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
-import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
-import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.music.extractors.*;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,23 +21,20 @@ public class VideoThread extends Thread {
             SavedPlaylistExtractor.class, RandomExtractor.class);
     private static final Set<Class<? extends AudioSourceManager>> managers = new HashSet<>();
     public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
-    private IUser user;
-    private IChannel channel;
+    private User user;
+    private TextChannel channel;
     private String url;
     private Extractor extractor;
 
     private VideoThread() {
-        if (manager == null) try {
-            manager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(FlareBot.getInstance().getClient()));
-        } catch (UnknownBindingException e) {
-            e.printStackTrace(System.out);
-        }
+        if(manager == null)
+            manager = FlareBot.getInstance().getMusicManager();
         setName("Video Thread " + VIDEO_THREADS.activeCount());
     }
 
     @Override
     public void run() {
-        IMessage message = MessageUtils.sendMessage("Processing..", channel);
+        Message message = MessageUtils.sendMessage("Processing..", channel);
         try {
             if (extractor == null)
                 for (Class<? extends Extractor> clazz : extractors) {
@@ -55,7 +50,7 @@ public class VideoThread extends Thread {
             }
             if (managers.add(extractor.getSourceManagerClass()))
                 manager.getManager().registerSourceManager(extractor.getSourceManagerClass().newInstance());
-            extractor.process(url, manager.getPlayer(channel.getGuild().getID()), message, user);
+            extractor.process(url, manager.getPlayer(channel.getGuild().getId()), message, user);
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not init extractor for '{}'".replace("{}", url), e);
             MessageUtils.editMessage(message, "Something went wrong. This incident has been reported. Sorry :/");
@@ -69,7 +64,7 @@ public class VideoThread extends Thread {
         super.start();
     }
 
-    public static VideoThread getThread(String url, IChannel channel, IUser user) {
+    public static VideoThread getThread(String url, TextChannel channel, User user) {
         VideoThread thread = new VideoThread();
         thread.url = url;
         thread.channel = channel;
@@ -77,7 +72,7 @@ public class VideoThread extends Thread {
         return thread;
     }
 
-    public static VideoThread getSearchThread(String term, IChannel channel, IUser user) {
+    public static VideoThread getSearchThread(String term, TextChannel channel, User user) {
         VideoThread thread = new VideoThread();
         thread.url = term;
         thread.channel = channel;

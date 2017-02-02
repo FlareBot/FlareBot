@@ -8,9 +8,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -29,7 +26,7 @@ public class DeleteCommand implements Command {
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
-        channel.setTypingStatus(true);
+        channel.sendTyping().queue();
         try {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
@@ -42,11 +39,11 @@ public class DeleteCommand implements Command {
                         ")");
                 PreparedStatement update = connection.prepareStatement("DELETE FROM playlist WHERE name = ? AND guild = ?");
                 update.setString(1, finalName);
-                update.setString(2, channel.getGuild().getID());
+                update.setString(2, channel.getGuild().getId());
                 if (update.executeUpdate() > 0) {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc(String.format("*Removed the playlist %s*", finalName)), channel);
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription(String.format("*Removed the playlist %s*", finalName)), channel);
                 } else MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc(String.format("*The playlist %s never existed!", finalName)), channel);
+                        .setDescription(String.format("*The playlist %s never existed!", finalName)), channel);
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

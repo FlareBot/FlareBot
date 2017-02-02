@@ -9,9 +9,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 public class WelcomeCommand implements Command {
 
@@ -24,11 +21,12 @@ public class WelcomeCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>", channel);
+            MessageUtils.sendMessage(sender.getAsMention() + " Usage: " +
+                    FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>", channel);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("enable")) {
                 if (flareBot.getWelcomeForGuild(channel.getGuild()) == null) {
-                    flareBot.getWelcomes().add(new Welcome(channel.getGuild().getID(), channel.getID()));
+                    flareBot.getWelcomes().add(new Welcome(channel.getGuild().getId(), channel.getId()));
                     MessageUtils.sendMessage("Welcomes **enabled**!", channel);
                 } else {
                     MessageUtils.sendMessage("Welcomes already **enabled**!", channel);
@@ -43,13 +41,14 @@ public class WelcomeCommand implements Command {
             } else if (args[0].equalsIgnoreCase("set")) {
                 if (flareBot.getWelcomeForGuild(channel.getGuild()) != null) {
                     Welcome welcome = flareBot.getWelcomeForGuild(channel.getGuild());
-                    welcome.setChannelId(channel.getID());
+                    welcome.setChannelId(channel.getId());
                     MessageUtils.sendMessage("Welcomes set to appear in this channel!", channel);
                 } else {
                     MessageUtils.sendMessage("Welcomes are not enabled!", channel);
                 }
             } else if (args[0].equalsIgnoreCase("message")) {
-                MessageUtils.sendMessage(sender.mention() + " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome message (message)\n" +
+                MessageUtils.sendMessage(sender.getAsMention() +
+                        " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome message (message)\n" +
                         "Known variables are:\n" +
                         "``%user%`` for the username,\n" +
                         "``%mention%`` to mention the user, and\n" +
@@ -57,7 +56,8 @@ public class WelcomeCommand implements Command {
                         (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```"), channel);
             } else {
-                MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>", channel);
+                MessageUtils.sendMessage(sender.getAsMention()
+                        + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>", channel);
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("message")) {
@@ -73,10 +73,12 @@ public class WelcomeCommand implements Command {
                     MessageUtils.sendMessage("Welcomes are not enabled!", channel);
                 }
             } else {
-                MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>", channel);
+                MessageUtils.sendMessage(sender.getAsMention() + " Usage: " +
+                        FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>", channel);
             }
         } else {
-            MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "welcome <enable/disable/set/message>", channel);
+            MessageUtils.sendMessage(sender.getAsMention() + " Usage: " +
+                    FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>", channel);
         }
     }
 

@@ -8,8 +8,8 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
 
 public class RandomExtractor implements Extractor {
     @Override
@@ -19,7 +19,7 @@ public class RandomExtractor implements Extractor {
 
     @SuppressWarnings("Duplicates") // I dont give a damn
     @Override
-    public void process(String input, Player player, IMessage message, IUser user) throws Exception {
+    public void process(String input, Player player, Message message, User user) throws Exception {
         int i = 0;
         for (String s : input.split(",")) {
             try {
@@ -27,7 +27,7 @@ public class RandomExtractor implements Extractor {
                 if (probablyATrack == null)
                     continue;
                 Track track = new Track((AudioTrack) probablyATrack);
-                track.getMeta().put("requester", user.getID());
+                track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
                 player.queue(track);
                 i++;
@@ -35,7 +35,7 @@ public class RandomExtractor implements Extractor {
             }
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed()
-                .withDesc("Added " + i + " random songs to the playlist!"), message);
+                .setDescription("Added " + i + " random songs to the playlist!"), message);
     }
 
     @Override

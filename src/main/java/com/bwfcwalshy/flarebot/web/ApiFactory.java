@@ -1,8 +1,8 @@
 package com.bwfcwalshy.flarebot.web;
 
 import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.util.ExceptionUtils;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import spark.Spark;
 
 @SuppressWarnings("Duplicates")

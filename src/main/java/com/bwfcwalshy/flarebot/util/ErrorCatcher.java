@@ -26,8 +26,8 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
         if (msg == null)
             msg = "null";
         if (event.getMarker() != Markers.NO_ANNOUNCE
-                && FlareBot.getInstance().getClient() != null
-                && FlareBot.getInstance().getClient().isReady()
+                && FlareBot.getInstance() != null
+                && FlareBot.getInstance().isReady()
                 && event.getLevel() == Level.ERROR) {
             String finalMsg = msg;
             EXECUTOR.submit(() -> {

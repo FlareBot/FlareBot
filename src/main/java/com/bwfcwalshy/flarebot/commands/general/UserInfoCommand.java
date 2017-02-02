@@ -5,15 +5,7 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
+import net.dv8tion.jda.core.entities.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,31 +20,27 @@ public class UserInfoCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         String id;
         if (args.length != 1)
-            id = sender.getID();
+            id = sender.getId();
         else id = args[0].replaceAll("[^0-9]", "");
-        IUser user = FlareBot.getInstance().getClient().getUserByID(id);
+        User user = FlareBot.getInstance().getUserByID(id);
         if (user == null) {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
             return;
         }
         PlayerCache cache = flareBot.getPlayerCache(id);
-        try {
-            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).appendField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
-                    + "\nID: " + user.getID() + "\n" +
-                    "Avatar: " + (user.getAvatar() != null ? "[`link`](" + user.getAvatarURL() + ')' : "None") + "\n" +
+            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
+                    + "\nID: " + user.getId() + "\n" +
+                    "Avatar: " + (user.getEffectiveAvatarUrl() != null ? "[`link`](" + user.getEffectiveAvatarUrl() + ')' : "None") + "\n" +
                     "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
-                    .appendField("General Info",
-                            "Servers: " + FlareBot.getInstance().getClient().getGuilds().stream().filter(guild -> guild.getUserByID(id) != null).count() + " shared\n" +
-                                    "Roles: " + user.getRolesForGuild(channel.getGuild()).stream()
-                                    .map(IRole::getName).collect(Collectors.joining(", ")), true)
-                    .appendField("Time Data", "Created: " + formatTime(user.getCreationDate()) + "\n" +
-                            "Joined: " + formatTime(channel.getGuild().getJoinTimeForUser(user)) + "\n" +
+                    .addField("General Info",
+                            "Servers: " + FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(id) != null).count() + " shared\n" +
+                                    "Roles: " + channel.getGuild().getMember(user).getRoles().stream()
+                                    .map(Role::getName).collect(Collectors.joining(", ")), true)
+                    .addField("Time Data", "Created: " + formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
+                            "Joined: " + formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
                             "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : formatTime(cache.getLastSeen())) + "\n" +
                             "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : formatTime(cache.getLastMessage())), false)
-                    .withThumbnail(MessageUtils.getAvatar(user)), channel);
-        } catch (DiscordException e) {
-            FlareBot.LOGGER.error("Error in UserInfoCommand!", e); // do a printStackTrace one more time and ill kill you
-        }
+                    .setThumbnail(MessageUtils.getAvatar(user)), channel);
     }
 
     @Override

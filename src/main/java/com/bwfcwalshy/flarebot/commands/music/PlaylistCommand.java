@@ -7,14 +7,11 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,11 +29,11 @@ public class PlaylistCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length < 1 || args.length > 2) {
-            if (!manager.getPlayer(channel.getGuild().getID()).getPlaylist().isEmpty()) {
+            if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()) {
                 List<String> songs = new ArrayList<>();
                 int i = 1;
                 StringBuilder sb = new StringBuilder();
-                Iterator<Track> it = manager.getPlayer(channel.getGuild().getID()).getPlaylist().iterator();
+                Iterator<Track> it = manager.getPlayer(channel.getGuild().getId()).getPlaylist().iterator();
                 while (it.hasNext() && songs.size() < 24) {
                     Track next = it.next();
                     String toAppend = String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i++,
@@ -53,21 +50,21 @@ public class PlaylistCommand implements Command {
                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
                 i = 1;
                 for (String s : songs) {
-                    builder.appendField("Page " + i++, s, false);
+                    builder.addField("Page " + i++, s, false);
                 }
                 MessageUtils.sendPM(sender, builder);
             } else {
-                MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("No songs in the playlist!"), channel);
+                MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);
             }
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
-                    manager.getPlayer(channel.getGuild().getID()).getPlaylist().clear();
+                    manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
                     MessageUtils.sendMessage("Cleared the current playlist!", channel);
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) + "playlist remove (number)"), channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "playlist remove (number)"), channel);
                 } else {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("Incorrect usage! " + getDescription()), channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Incorrect usage! " + getDescription()), channel);
                 }
             } else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("remove")) {
@@ -79,7 +76,7 @@ public class PlaylistCommand implements Command {
                         return;
                     }
 
-                    Queue<Track> queue = manager.getPlayer(channel.getGuild().getID()).getPlaylist();
+                    Queue<Track> queue = manager.getPlayer(channel.getGuild().getId()).getPlaylist();
 
                     if (number < 1 || number > queue.size()) {
                         MessageUtils.sendErrorMessage("There is no song with that index. Make sure your number is at least 1 and either " + queue.size() + " or below!", channel);
@@ -91,7 +88,7 @@ public class PlaylistCommand implements Command {
                     queue.clear();
                     queue.addAll(playlist);
 
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Removed number " + number + " from the playlist!"), channel);
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("Removed number " + number + " from the playlist!"), channel);
                 }
             }
         }

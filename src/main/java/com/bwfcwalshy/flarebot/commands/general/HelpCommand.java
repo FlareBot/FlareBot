@@ -4,14 +4,11 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.stream.Collectors;
 
@@ -24,39 +21,39 @@ public class HelpCommand implements Command {
             try {
                 type = CommandType.valueOf(args[0].toUpperCase());
             } catch (IllegalArgumentException ignored) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!"), channel);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!"), channel);
                 return;
             }
             if (type != CommandType.HIDDEN) {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                embedBuilder.withDesc("***FlareBot " + type + " commands!***");
-                MessageUtils.sendMessage(embedBuilder.appendField(type.toString(), type.getCommands()
+                embedBuilder.setDescription("***FlareBot " + type + " commands!***");
+                MessageUtils.sendMessage(embedBuilder.addField(type.toString(), type.getCommands()
                         .stream()
                         .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
                         .collect(Collectors.joining("")), false), channel);
             } else {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("No such category!"), channel);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!"), channel);
             }
         } else {
             sendCommands(channel, sender);
         }
     }
 
-    private char get(IChannel channel) {
+    private char get(TextChannel channel) {
         if (channel.getGuild() != null) {
-            return FlareBot.getPrefixes().get(channel.getGuild().getID());
+            return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
         return FlareBot.getPrefixes().get(null);
     }
 
-    private void sendCommands(IChannel channel, IUser sender) {
+    private void sendCommands(TextChannel channel, User sender) {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             String help = c.getCommands()
                     .stream()
                     .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
                     .collect(Collectors.joining(""));
-            embedBuilder.appendField(c.toString(), help, false);
+            embedBuilder.addField(c.toString(), help, false);
         }
         MessageUtils.sendMessage(embedBuilder, channel);
     }

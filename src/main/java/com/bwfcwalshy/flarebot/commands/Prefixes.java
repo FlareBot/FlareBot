@@ -4,7 +4,6 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import sx.blah.discord.handle.obj.IGuild;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
