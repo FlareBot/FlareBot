@@ -28,7 +28,7 @@ public class Prefixes {
                 }
             });
         } catch (SQLException e) {
-            FlareBot.LOGGER.error("Could not load prefixes!");
+            FlareBot.LOGGER.error("Could not load prefixes!", e);
         }
     }
 

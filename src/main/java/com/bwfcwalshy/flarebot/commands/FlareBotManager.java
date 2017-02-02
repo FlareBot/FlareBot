@@ -34,7 +34,7 @@ public class FlareBotManager {
                 }
             });
         } catch (SQLException e) {
-            FlareBot.LOGGER.error("Could not load songs!");
+            FlareBot.LOGGER.error("Could not load songs!", e);
         }
     }
 

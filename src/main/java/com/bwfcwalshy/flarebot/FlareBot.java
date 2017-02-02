@@ -38,6 +38,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.cli.*;
 import org.json.JSONObject;
@@ -92,7 +93,7 @@ public class FlareBot {
     CountDownLatch latch;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException {
-
+        RestAction.DEFAULT_FAILURE = t -> LOGGER.error("RestAction failed!", t);
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
         SimpleLog.addListener(new SimpleLog.LogListener() {
             @Override
