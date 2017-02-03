@@ -53,7 +53,7 @@ public class WelcomeCommand implements Command {
                         "``%user%`` for the username,\n" +
                         "``%mention%`` to mention the user, and\n" +
                         "``%guild%`` for the guild name.\n" +
-                        (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md"
+                        (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md\n"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```"), channel);
             } else {
                 MessageUtils.sendMessage(sender.getAsMention()
