@@ -33,8 +33,9 @@ public class SkipCommand implements Command {
             MessageUtils.sendMessage("I am not streaming!", channel);
             return;
         }
-        if (channel.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(member)) {
+        if (!channel.getGuild().getSelfMember().getVoiceState().getChannel().equals(member.getVoiceState().getChannel())) {
             MessageUtils.sendMessage("You must be in the channel in order to skip songs!", channel);
+            return;
         }
         if (args.length != 1) {
             if (votes.containsKey(channel.getGuild().getId())) {
@@ -80,10 +81,10 @@ public class SkipCommand implements Command {
     private Map<String, Vote> getVotes(TextChannel channel, Member sender) {
         return this.votes.computeIfAbsent(channel.getGuild().getId(), s -> {
             AtomicBoolean bool = new AtomicBoolean(false);
-            channel.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(sender))
+            channel.getGuild().getVoiceChannels().stream().filter(c -> c.equals(sender.getVoiceState().getChannel()))
                     .findFirst().ifPresent(c -> {
                 if (c.getMembers().size() == 2
-                        && c.getMembers().contains(channel.getGuild().getMember(c.getJDA().getSelfUser()))) {
+                        && c.equals(channel.getGuild().getSelfMember().getVoiceState().getChannel())) {
                     bool.set(true);
                     musicManager.getPlayer(s).skip();
                 }
