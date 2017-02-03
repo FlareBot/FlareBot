@@ -24,6 +24,9 @@ public class SetPrefixCommand implements Command {
             }
             MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                     .setDescription(String.format("Set the prefix to `%s`", args[0])), channel);
+        } else {
+            MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                    .setDescription(String.format("Current guild prefix is `%s`!", FlareBot.getPrefix(channel.getGuild().getId()))), channel);
         }
     }
 
