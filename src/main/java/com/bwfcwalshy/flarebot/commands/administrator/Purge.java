@@ -48,10 +48,13 @@ public class Purge implements Command {
                             break;
                         toRetrieve -= Math.min(toRetrieve, 100);
                     }
+                    int i = 0;
                     List<Message> toDelete = new ArrayList<>();
                     for (Message m : history.getCachedHistory()) {
-                        if (m.getCreationTime().plusWeeks(2).isAfter(OffsetDateTime.now()))
+                        if (m.getCreationTime().plusWeeks(2).isAfter(OffsetDateTime.now())) {
+                            i++;
                             toDelete.add(m);
+                        }
                         if (toDelete.size() == 100) {
                             channel.deleteMessages(toDelete).complete();
                             toDelete.clear();
@@ -62,6 +65,8 @@ public class Purge implements Command {
                             channel.deleteMessages(toDelete).complete();
                         else toDelete.forEach(mssage -> mssage.deleteMessage().complete());
                     }
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription(String.format("Deleted `%s` messages!", i)).build()).queue();
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Failed to bulk delete or load messages! Error: `%s`", e)).build()).queue();
