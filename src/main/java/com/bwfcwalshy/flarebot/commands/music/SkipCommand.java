@@ -54,8 +54,15 @@ public class SkipCommand implements Command {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
                     skips.put(channel.getGuild().getId(), true);
                 } else {
-                    MessageUtils.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this command!", channel
-                    );
+                    MessageUtils.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this command!", channel);
+                }
+                return;
+            } else if (args[0].equalsIgnoreCase("cancel")) {
+
+                if (getPermissions(channel).hasPermission(member, "flarebot.skip.cancel")) {
+                    skips.put(channel.getGuild().getId(), true);
+                } else {
+                    MessageUtils.sendMessage("You are missing the permission ``flarebot.skip.cancel`` which is required for use of this command!", channel);
                 }
                 return;
             }
@@ -71,6 +78,11 @@ public class SkipCommand implements Command {
             try {
                 Vote vote = Vote.valueOf(args[0].toUpperCase());
                 mvotes.put(sender.getId(), vote);
+                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription(String.format("***Voted for %s***", vote))
+                        .addField("Current votes for " + vote, String.valueOf(votes.get(channel.getGuild().getId())
+                                .values().stream().filter(v -> v == vote)
+                                .count()), true), channel);
             } catch (IllegalArgumentException e) {
                 MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
                         .setColor(new Color(229, 45, 39)).setDescription("***\u26A0 Use YES|NO! \u26A0***"), channel);
@@ -129,7 +141,8 @@ public class SkipCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Starts a skip voting, or if one is happening, marks a vote. `skip YES|NO` to pass a vote. To force skip use `skip force`";
+        return "Starts a skip voting, or if one is happening, marks a vote. `skip YES|NO` to pass a vote. To force skip use `skip force`." +
+                " You can also use `skip cancel` to cancel the current vote as an admin.";
     }
 
     @Override
