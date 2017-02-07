@@ -78,25 +78,31 @@ public class Events extends ListenerAdapter {
                     roles.add(role);
                 } else autoAssignRoles.remove(s);
             }
-            event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
-            }, (e1) -> {
-                if (!e1.getMessage().startsWith("Edited roles")) {
-                    MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
-                            "**Could not auto assign a role!**\n" + e1.getMessage());
-                    return;
-                }
-                StringBuilder message = new StringBuilder();
-
-                message.append("**Hello!\nI am here to tell you that I could not give the role(s) ```\n");
-                message.append(roles.stream().map(Role::getName).collect(Collectors.joining("\n")))
-                        .append("\n``` to one of your new users!\n");
-                message.append("Please move one of the following roles so they are higher up than any of the above: \n```")
-                        .append(event.getGuild().getSelfMember().getRoles().stream()
-                                .map(Role::getName)
-                                .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
-                MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
-            });
+            try {
+                event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
+                }, e1 -> handle(e1, event, roles));
+            } catch (Exception e1) {
+                handle(e1, event, roles);
+            }
         }
+    }
+
+    private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
+        if (!e1.getMessage().startsWith("Edited roles")) {
+            MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+                    "**Could not auto assign a role!**\n" + e1.getMessage());
+            return;
+        }
+        StringBuilder message = new StringBuilder();
+
+        message.append("**Hello!\nI am here to tell you that I could not give the role(s) ```\n");
+        message.append(roles.stream().map(Role::getName).collect(Collectors.joining("\n")))
+                .append("\n``` to one of your new users!\n");
+        message.append("Please move one of the following roles so they are higher up than any of the above: \n```")
+                .append(event.getGuild().getSelfMember().getRoles().stream()
+                        .map(Role::getName)
+                        .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
+        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
     }
 
     @Override
@@ -296,7 +302,7 @@ public class Events extends ListenerAdapter {
     private void delete(Message message) {
         if (message.getTextChannel().getGuild().getSelfMember()
                 .getPermissions(message.getTextChannel()).contains(Permission.MESSAGE_MANAGE))
-            message.deleteMessage().queue();
+            message.delete().queue();
     }
 
     private String getGuildId(GenericGuildMessageEvent e) {
