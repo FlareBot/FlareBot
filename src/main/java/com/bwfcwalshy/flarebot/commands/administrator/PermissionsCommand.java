@@ -64,6 +64,12 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("User never had that group!"), channel);
                 break;
             case "groups":
+                if(args.length == 1){
+                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("Groups: " + getPermissions(channel).getGroups().keySet().stream()
+                                    .collect(Collectors.joining(", ", "`", "`"))), channel);
+                    return;
+                }
                 Member iUser = Parser.mention(args[1], channel.getGuild());
                 if (iUser == null) {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such user!"), channel);
