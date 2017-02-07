@@ -4,12 +4,8 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import net.dv8tion.jda.core.MessageHistory;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -43,14 +39,14 @@ public class Purge implements Command {
                 try {
                     MessageHistory history = new MessageHistory(channel);
                     int toRetrieve = count;
-                    while (history.getCachedHistory().size() < count) {
+                    while (history.getRetrievedHistory().size() < count) {
                         if (history.retrievePast(Math.min(toRetrieve, 100)).complete().isEmpty())
                             break;
                         toRetrieve -= Math.min(toRetrieve, 100);
                     }
                     int i = 0;
                     List<Message> toDelete = new ArrayList<>();
-                    for (Message m : history.getCachedHistory()) {
+                    for (Message m : history.getRetrievedHistory()) {
                         if (m.getCreationTime().plusWeeks(2).isAfter(OffsetDateTime.now())) {
                             i++;
                             toDelete.add(m);
@@ -63,7 +59,7 @@ public class Purge implements Command {
                     if (!toDelete.isEmpty()) {
                         if (toDelete.size() != 1)
                             channel.deleteMessages(toDelete).complete();
-                        else toDelete.forEach(mssage -> mssage.deleteMessage().complete());
+                        else toDelete.forEach(mssage -> mssage.delete().complete());
                     }
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Deleted `%s` messages!", i)).build()).queue();
