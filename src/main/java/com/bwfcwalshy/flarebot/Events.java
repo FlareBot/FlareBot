@@ -117,7 +117,6 @@ public class Events extends ListenerAdapter {
         COMMAND_COUNTER.remove(event.getGuild().getId());
         MessageUtils.sendMessage(new EmbedBuilder()
                         .setColor(new Color(244, 23, 23))
-                        .setColor(new Color(96, 230, 144))
                         .setThumbnail(event.getGuild().getIconUrl())
                         .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
                         .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
