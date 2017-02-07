@@ -14,6 +14,7 @@ import spark.utils.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.function.Supplier;
 
 import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
@@ -84,22 +85,22 @@ public class InfoCommand implements Command {
     }
 
     public enum Content {
-        SERVERS("Servers", String.valueOf(FlareBot.getInstance().getGuilds().size())),
-        VOICE_CONNECTIONS("Voice Connections", String.valueOf(FlareBot.getInstance().getGuilds().size())),
-        ACTIVE_CHANNELS("Channels Playing Music", String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().stream()
+        SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
+        VOICE_CONNECTIONS("Voice Connections", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
+        ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().stream()
                 .map(VoiceChannel::getGuild)
                 .map(ISnowflake::getId)
                 .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid)).count())),
-        TEXT_CHANNELS("Text Channels", String.valueOf(FlareBot.getInstance().getChannels().size())),
-        UPTIME("Uptime", FlareBot.getInstance().getUptime()),
-        MEM_USAGE("Memory Usage", getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
-        MEM_FREE("Memory Free", getMb(Runtime.getRuntime().freeMemory())),
-        VIDEO_THREADS("Video Threads", String.valueOf(VideoThread.VIDEO_THREADS.activeCount())),
-        TOTAL_THREADS("Total Threads", String.valueOf(Thread.getAllStackTraces().size())),
+        TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),
+        UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
+        MEM_USAGE("Memory Usage",() ->  getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
+        MEM_FREE("Memory Free", () -> getMb(Runtime.getRuntime().freeMemory())),
+        VIDEO_THREADS("Video Threads", () -> String.valueOf(VideoThread.VIDEO_THREADS.activeCount())),
+        TOTAL_THREADS("Total Threads", () -> String.valueOf(Thread.getAllStackTraces().size())),
         VERSION("Version", FlareBot.getInstance().getVersion()),
-        D4J_VERSION("JDA version", JDAInfo.VERSION),
+        JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
-        CPU_USAGE("CPU Usage", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%"),
+        CPU_USAGE("CPU Usage", () -> ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%"),
         SUPPORT_SERVER("Support Server", "[`Discord`](http://discord.me/flarebot)"),
         DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/FlareBot/)"),
         PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),
@@ -111,16 +112,26 @@ public class InfoCommand implements Command {
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)");
 
         private String name;
-        private String returns;
+        private Supplier<String> returns;
         private boolean align = true;
 
         public static Content[] values = values();
         Content(String name, String returns) {
             this.name = name;
-            this.returns = returns;
+            this.returns = () -> returns;
         }
 
         Content(String name, String returns, boolean align) {
+            this.name = name;
+            this.returns = () -> returns;
+            this.align = align;
+        }
+        Content(String name, Supplier<String> returns) {
+            this.name = name;
+            this.returns = returns;
+        }
+
+        Content(String name, Supplier<String> returns, boolean align) {
             this.name = name;
             this.returns = returns;
             this.align = align;
@@ -131,7 +142,7 @@ public class InfoCommand implements Command {
         }
 
         public String getReturn() {
-            return returns;
+            return returns.get();
         }
 
         public boolean isAlign() {
