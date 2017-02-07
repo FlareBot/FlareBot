@@ -50,8 +50,8 @@ public class InfoCommand implements Command {
             MessageUtils.sendMessage(bld, channel);
         }else{
             String search = "";
-            for(int i = 0; i < args.length; i++){
-                search += args[i] + " ";
+            for (String arg : args) {
+                search += arg + " ";
             }
             search = search.trim();
 
@@ -87,10 +87,7 @@ public class InfoCommand implements Command {
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
         VOICE_CONNECTIONS("Voice Connections", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
-        ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().stream()
-                .map(VoiceChannel::getGuild)
-                .map(ISnowflake::getId)
-                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid)).count())),
+        ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
         TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),
         UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
         MEM_USAGE("Memory Usage",() ->  getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
