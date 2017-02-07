@@ -13,6 +13,11 @@ public class JoinCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if(member.getVoiceState().inVoiceChannel()){
+            if(!channel.getGuild().getSelfMember()
+                    .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT)){
+                channel.sendMessage("I do not have permissions to join that channel!").queue();
+                return;
+            }
             if(channel.getGuild().getAudioManager().isAttemptingToConnect()){
                 channel.sendMessage("Currently connecting to a voice channel! Try again soon!");
                 return;
