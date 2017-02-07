@@ -14,7 +14,6 @@ import spark.utils.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.nio.charset.Charset;
 
 import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
@@ -63,7 +62,6 @@ public class InfoCommand implements Command {
             }
             MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
         }
-
     }
 
     private static String getMb(long bytes) {
