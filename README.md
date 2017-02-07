@@ -1,5 +1,5 @@
 # FlareBot [![Discord](https://discordapp.com/api/guilds/226785954537406464/widget.png)](https://discord.gg/TTAUGvZ)
-Brand new Discord music bot made with Discord4J in Java
+Growing Discord music bot made with JDA (Orginally D4J) in Java
 
 # Commands
 Commands are moved [here](https://flarebot.stream/#commands)!
