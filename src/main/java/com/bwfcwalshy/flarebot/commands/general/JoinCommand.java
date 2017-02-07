@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot.commands.general;
 
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -16,7 +17,12 @@ public class JoinCommand implements Command {
                 channel.sendMessage("Currently connecting to a voice channel! Try again soon!");
                 return;
             }
-            channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            if(channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
+                    channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK))
+                channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            else
+                channel.sendMessage("I do not have permission to " + (!channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) ?
+                        "connect" : "speak") + " in your voice channel!");
         }
     }
 
