@@ -879,8 +879,9 @@ public class FlareBot {
     }
 
     public List<VoiceChannel> getConnectedVoiceChannels() {
-        return Arrays.stream(getClients()).flatMap(c -> c.getVoiceChannels().stream())
-                .filter(c -> c.getGuild().getAudioManager().isConnected())
+        return Arrays.stream(getClients()).flatMap(c -> c.getGuilds().stream())
+                .filter(c -> c.getAudioManager().isConnected())
+                .map(c -> c.getAudioManager().getConnectedChannel())
                 .collect(Collectors.toList());
     }
 
