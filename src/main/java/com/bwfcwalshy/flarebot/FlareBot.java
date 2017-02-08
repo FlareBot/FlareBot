@@ -820,9 +820,8 @@ public class FlareBot {
     }
 
     public long getActiveVoiceChannels() {
-        return Arrays.stream(clients).flatMap(j -> j.getVoiceChannels().stream())
+        return getConnectedVoiceChannels().stream()
                 .map(VoiceChannel::getGuild)
-                .filter(Objects::nonNull)
                 .map(ISnowflake::getId)
                 .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
                 .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
@@ -880,8 +879,8 @@ public class FlareBot {
 
     public List<VoiceChannel> getConnectedVoiceChannels() {
         return Arrays.stream(getClients()).flatMap(c -> c.getGuilds().stream())
-                .filter(c -> c.getAudioManager().isConnected())
                 .map(c -> c.getAudioManager().getConnectedChannel())
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
