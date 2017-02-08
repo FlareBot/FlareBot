@@ -28,6 +28,7 @@ import com.bwfcwalshy.flarebot.util.Welcome;
 import com.bwfcwalshy.flarebot.web.ApiFactory;
 import com.google.gson.*;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -92,7 +93,7 @@ public class FlareBot {
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     CountDownLatch latch;
 
-    public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException {
+    public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException {
         RestAction.DEFAULT_FAILURE = t -> LOGGER.error("RestAction failed!", t);
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
         SimpleLog.addListener(new SimpleLog.LogListener() {
@@ -199,7 +200,8 @@ public class FlareBot {
     public static final char COMMAND_CHAR = '_';
 
     private String version = null;
-    private JDA[] clients = new JDA[2];
+    private JDA[] clients;
+
     private List<Command> commands = new CopyOnWriteArrayList<>();
     // Guild ID | List role ID
     private Map<String, List<String>> autoAssignRoles;
@@ -221,18 +223,23 @@ public class FlareBot {
         return this.permissions.getPermissions(channel);
     }
 
-    public void init(String tkn) throws InterruptedException {
+    public void init(String tkn) throws InterruptedException, UnirestException {
+        clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
+                .header("Authorization", "Bot " + tkn)
+                .asJson()
+                .getBody()
+                .getObject()
+                .getInt("shards")];
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         latch = new CountDownLatch(clients.length);
         Events events = new Events(this);
         try {
-            for (int i = 0; i < clients.length; i++) {
+            if (clients.length == 1) {
                 while (true) {
                     try {
-                        clients[i] = new JDABuilder(AccountType.BOT)
+                        clients[1] = new JDABuilder(AccountType.BOT)
                                 .addListener(events)
-                                .useSharding(i, clients.length)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
@@ -241,7 +248,22 @@ public class FlareBot {
                         Thread.sleep(e.getRetryAfter());
                     }
                 }
-            }
+            } else
+                for (int i = 0; i < clients.length; i++) {
+                    while (true) {
+                        try {
+                            clients[i] = new JDABuilder(AccountType.BOT)
+                                    .addListener(events)
+                                    .useSharding(i, clients.length)
+                                    .setToken(tkn)
+                                    .setAudioSendFactory(new NativeAudioSendFactory())
+                                    .buildAsync();
+                            break;
+                        } catch (RateLimitedException e) {
+                            Thread.sleep(e.getRetryAfter());
+                        }
+                    }
+                }
             prefixes = new Prefixes();
             commands = new ArrayList<>();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
@@ -300,7 +322,7 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks().register(player -> player.getQueueHookManager().register(new QueueListener()));
 
         latch.await();
-        run();
+        //run();
     }
 
     private void loadPerms() {
