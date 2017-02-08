@@ -322,7 +322,7 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks().register(player -> player.getQueueHookManager().register(new QueueListener()));
 
         latch.await();
-        //run();
+        run();
     }
 
     private void loadPerms() {
