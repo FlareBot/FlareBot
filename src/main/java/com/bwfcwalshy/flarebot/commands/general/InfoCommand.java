@@ -47,7 +47,7 @@ public class InfoCommand implements Command {
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
-            MessageUtils.sendMessage(bld, channel);
+            channel.sendMessage(bld.build()).queue();
         }else{
             String search = "";
             for (String arg : args) {
@@ -57,7 +57,8 @@ public class InfoCommand implements Command {
 
             for(Content content : Content.values){
                 if(search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ").equalsIgnoreCase(content.getName())){
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).addField(content.getName(), content.getReturn(), false), channel);
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .addField(content.getName(), content.getReturn(), false).build()).queue();
                     return;
                 }
             }

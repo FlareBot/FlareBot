@@ -14,7 +14,7 @@ public class JoinCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if(member.getVoiceState().inVoiceChannel()){
             if(channel.getGuild().getAudioManager().isAttemptingToConnect()){
-                channel.sendMessage("Currently connecting to a voice channel! Try again soon!");
+                channel.sendMessage("Currently connecting to a voice channel! Try again soon!").queue();
                 return;
             }
             if(channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
@@ -22,7 +22,7 @@ public class JoinCommand implements Command {
                 channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
             else
                 channel.sendMessage("I do not have permission to " + (!channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) ?
-                        "connect" : "speak") + " in your voice channel!");
+                        "connect" : "speak") + " in your voice channel!").queue();
         }
     }
 

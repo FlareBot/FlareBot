@@ -60,7 +60,7 @@ public class PlaylistCommand implements Command {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
-                    MessageUtils.sendMessage("Cleared the current playlist!", channel);
+                    channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "playlist remove (number)"), channel);
                 } else {
@@ -88,7 +88,8 @@ public class PlaylistCommand implements Command {
                     queue.clear();
                     queue.addAll(playlist);
 
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("Removed number " + number + " from the playlist!"), channel);
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("Removed number " + number + " from the playlist!").build()).queue();
                 }
             }
         }

@@ -2,7 +2,6 @@ package com.bwfcwalshy.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
@@ -16,10 +15,10 @@ public class LoopCommand implements Command {
         Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId());
         if (!player.getLooping()) {
             player.setLooping(true);
-            MessageUtils.sendMessage("Looping: **ON**", channel);
+            channel.sendMessage("Looping: **ON**").queue();
         } else {
             player.setLooping(false);
-            MessageUtils.sendMessage("Looping: **OFF**", channel);
+            channel.sendMessage("Looping: **OFF**").queue();
         }
     }
 

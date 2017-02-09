@@ -1,6 +1,5 @@
 package com.bwfcwalshy.flarebot.commands.administrator;
 
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.*;
@@ -16,7 +15,7 @@ public class RolesCommand implements Command {
         }
         sb.append("```");
 
-        MessageUtils.sendMessage(sb.toString(), channel);
+        channel.sendMessage(sb.toString()).queue();
     }
 
     @Override

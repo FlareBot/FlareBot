@@ -48,8 +48,8 @@ public class MusicAnnounceCommand implements Command {
         if (args.length == 1 && ARGS_PATTERN.matcher(args[0]).matches()) {
             if (args[0].equalsIgnoreCase("here")) {
                 announcements.put(channel.getGuild().getId(), channel.getId());
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("Set music announcements to appear in " + channel), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription("Set music announcements to appear in " + channel).build()).queue();
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("UPDATE announces SET channelid = ? WHERE guildid = ?");
@@ -67,8 +67,8 @@ public class MusicAnnounceCommand implements Command {
                 }
             } else {
                 announcements.remove(channel.getGuild().getId());
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(String.format("Disabled announcements for `%s`", channel.getGuild().getName())), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription(String.format("Disabled announcements for `%s`", channel.getGuild().getName())).build()).queue();
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("DELETE FROM announces WHERE guildid = ?");
@@ -79,9 +79,9 @@ public class MusicAnnounceCommand implements Command {
                 }
             }
         } else {
-            MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+            channel.sendMessage(MessageUtils.getEmbed(sender)
                     .setDescription("Bad syntax! Must have either `HERE` or `OFF` as your first, and only, argument." +
-                            "\nCase insensitive."), channel);
+                            "\nCase insensitive.").build()).queue();
         }
     }
 

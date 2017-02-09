@@ -21,18 +21,18 @@ public class HelpCommand implements Command {
             try {
                 type = CommandType.valueOf(args[0].toUpperCase());
             } catch (IllegalArgumentException ignored) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!"), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
             if (type != CommandType.HIDDEN) {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
-                MessageUtils.sendMessage(embedBuilder.addField(type.toString(), type.getCommands()
+                channel.sendMessage(embedBuilder.addField(type.toString(), type.getCommands()
                         .stream()
                         .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
-                        .collect(Collectors.joining("")), false), channel);
+                        .collect(Collectors.joining("")), false).build()).queue();
             } else {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!"), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
             }
         } else {
             sendCommands(channel, sender);
@@ -55,7 +55,7 @@ public class HelpCommand implements Command {
                     .collect(Collectors.joining(""));
             embedBuilder.addField(c.toString(), help, false);
         }
-        MessageUtils.sendMessage(embedBuilder, channel);
+        channel.sendMessage(embedBuilder.build()).queue();
     }
 
     @Override

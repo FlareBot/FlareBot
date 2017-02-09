@@ -24,23 +24,23 @@ public class SaveCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage("Usage: _save [NAME]", channel);
+            channel.sendMessage("Usage: _save [NAME]").queue();
             return;
         }
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
         if (name.length() > 20) {
-            MessageUtils.sendMessage("Name must be up to 20 characters!", channel);
+            channel.sendMessage("Name must be up to 20 characters!").queue();
             return;
         }
         if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
-            MessageUtils.sendMessage("Your playlist is empty!", channel);
+            channel.sendMessage("Your playlist is empty!").queue();
             return;
         }
         Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist();
         if (playlist.isEmpty()) {
-            MessageUtils.sendMessage("Your playlist is empty!", channel);
+            channel.sendMessage("Your playlist is empty!").queue();
             return;
         }
         channel.sendTyping().queue();
@@ -59,7 +59,7 @@ public class SaveCommand implements Command {
                 exists.setString(2, channel.getGuild().getId());
                 exists.execute();
                 if (exists.getResultSet().isBeforeFirst()) {
-                    MessageUtils.sendMessage("That name is already taken!", channel);
+                    channel.sendMessage("That name is already taken!").queue();
                     return;
                 }
                 PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (name, guild, list) VALUES (" +
@@ -73,7 +73,7 @@ public class SaveCommand implements Command {
                         .map(track -> track.getTrack().getIdentifier())
                         .collect(Collectors.joining(",")));
                 statement.executeUpdate();
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("Success!"), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Success!").build()).queue();
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

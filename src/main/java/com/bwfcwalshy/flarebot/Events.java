@@ -66,7 +66,7 @@ public class Events extends ListenerAdapter {
                         .replace("%user%", event.getMember().getUser().getName())
                         .replace("%guild%", event.getGuild().getName())
                         .replace("%mention%", event.getMember().getUser().getAsMention());
-                MessageUtils.sendMessage(msg, channel);
+                channel.sendMessage(msg).queue();
             } else flareBot.getWelcomes().remove(welcome);
         }
         if (flareBot.getAutoAssignRoles().containsKey(event.getGuild().getId())) {
@@ -88,7 +88,7 @@ public class Events extends ListenerAdapter {
     }
 
     private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
-        if (!e1.getMessage().startsWith("Edited roles")) {
+        if (!e1.getMessage().startsWith("Can't modify a role with higher")) {
             MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
                     "**Could not auto assign a role!**\n" + e1.getMessage());
             return;
@@ -108,20 +108,19 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED)
-            MessageUtils.sendMessage(new EmbedBuilder()
+            FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
                             .setColor(new Color(96, 230, 144))
                             .setThumbnail(event.getGuild().getIconUrl())
                             .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
                             .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                             .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
-                                    "Guild Owner: " + event.getGuild().getOwner().getUser().getName()),
-                    FlareBot.getInstance().getGuildLogChannel());
+                                    "Guild Owner: " + event.getGuild().getOwner().getUser().getName()).build()).queue();
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         COMMAND_COUNTER.remove(event.getGuild().getId());
-        MessageUtils.sendMessage(new EmbedBuilder()
+        FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
                         .setColor(new Color(244, 23, 23))
                         .setThumbnail(event.getGuild().getIconUrl())
                         .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
@@ -129,8 +128,7 @@ public class Events extends ListenerAdapter {
                         .setDescription("Guild Deleted: `" + event.getGuild().getName() + "` L :broken_heart:\n" +
                                 "Guild Owner: " + (event.getGuild().getOwner() != null ?
                                 event.getGuild().getOwner().getUser().getName()
-                                : "Non-existent, they had to much L")),
-                FlareBot.getInstance().getGuildLogChannel());
+                                : "Non-existent, they had to much L")).build()).queue();
     }
 
     @Override
@@ -151,7 +149,8 @@ public class Events extends ListenerAdapter {
         } else {
             if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
                 if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
-                    MessageUtils.sendMessage("I am now updating, there are no voice channels active!", flareBot.getChannelByID("229704246004547585"));
+                    FlareBot.getInstance().getUpdateChannel()
+                            .sendMessage("I am now updating, there are no voice channels active!").queue();
                     UpdateCommand.update(true, null);
                 }
                 return;
@@ -177,9 +176,9 @@ public class Events extends ListenerAdapter {
                     return;
                 }
                 if (!perms.contains(Permission.MESSAGE_EMBED_LINKS)) {
-                    MessageUtils.sendMessage("Hey! I can't be used here." +
+                    event.getChannel().sendMessage("Hey! I can't be used here." +
                             "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
-                            "\nThanks :D", event.getChannel());
+                            "\nThanks :D").queue();
                     return;
                 }
             }
@@ -199,7 +198,7 @@ public class Events extends ListenerAdapter {
                         }
                     }
                     if (UpdateCommand.UPDATING.get()) {
-                        MessageUtils.sendMessage("**Currently updating!**", event.getChannel());
+                        event.getChannel().sendMessage("**Currently updating!**").queue();
                         return;
                     }
                     if (handleMissingPermission(cmd, event))
@@ -231,7 +230,7 @@ public class Events extends ListenerAdapter {
                                 }
                             }
                             if (UpdateCommand.UPDATING.get()) {
-                                MessageUtils.sendMessage("**Currently updating!**", event.getChannel());
+                                event.getChannel().sendMessage("**Currently updating!**").queue();
                                 return;
                             }
                             FlareBot.LOGGER.info(
@@ -266,8 +265,8 @@ public class Events extends ListenerAdapter {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
                     && !event.getAuthor().isBot()) {
                 if (event.getMessage().getRawContent().startsWith("_prefix")) {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(event.getAuthor())
-                            .setDescription("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(event)) + "`"), event.getChannel());
+                    event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
+                            .setDescription("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(event)) + "`").build()).queue();
                 }
             }
         }

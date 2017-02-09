@@ -6,8 +6,8 @@ import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AutoAssignCommand implements Command {
 
@@ -35,7 +35,7 @@ public class AutoAssignCommand implements Command {
                                 .filter(role -> getRole(channel.getGuild(), role) != null)
                                 .forEach(role -> sb.append(getRole(channel.getGuild(), role).getName()).append("\n"));
                         sb.append("```");
-                        MessageUtils.sendMessage(sb.toString(), channel);
+                        channel.sendMessage(sb.toString()).queue();
                     } else {
                         MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("This server has no roles being assigned."), channel);
                     }
@@ -56,15 +56,13 @@ public class AutoAssignCommand implements Command {
                         return;
                     }
                     Role role = getRole(channel.getGuild(), passedRole);
-                    List<String> roles;
-                    if (flareBot.getAutoAssignRoles().containsKey(channel.getGuild().getId()))
-                        roles = flareBot.getAutoAssignRoles().get(channel.getGuild().getId());
-                    else
-                        roles = new ArrayList<>();
+                    CopyOnWriteArrayList<String> roles = flareBot.getAutoAssignRoles()
+                            .computeIfAbsent(channel.getGuild().getId(), c -> new CopyOnWriteArrayList<>());
                     if (!roles.contains(role.getId())) {
                         roles.add(role.getId());
                         flareBot.getAutoAssignRoles().put(channel.getGuild().getId(), roles);
-                        MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("Added " + role.getName() + " to your auto assigned roles!"), channel);
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                        .setDescription("Added " + role.getName() + " to your auto assigned roles!").build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(role.getName() + " is already being assigned!"), channel);
                     }
@@ -79,7 +77,8 @@ public class AutoAssignCommand implements Command {
                         roles = flareBot.getAutoAssignRoles().get(channel.getGuild().getId());
                         if (roles.contains(role.getId())) {
                             roles.remove(role.getId());
-                            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("Removed " + role.getName() + " from your auto assigned roles"), channel);
+                            channel.sendMessage(MessageUtils.getEmbed(sender)
+                                    .setDescription("Removed " + role.getName() + " from your auto assigned roles").build()).queue();
                         } else {
                             MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("That role is not being auto assigned!"), channel);
                         }

@@ -23,7 +23,7 @@ public class LoadCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage("Usage: _load [NAME]", channel);
+            channel.sendMessage("Usage: _load [NAME]").queue();
             return;
         }
         String name = "";
@@ -49,7 +49,8 @@ public class LoadCommand implements Command {
                     set.next();
                     VideoThread.getThread(finalName + '\u200B' + set.getString("list"), channel, sender).start();
                 } else
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription("*That playlist does not exist!*"), channel);
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("*That playlist does not exist!*").build()).queue();
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

@@ -1,6 +1,5 @@
 package com.bwfcwalshy.flarebot.commands.secret;
 
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.*;
@@ -23,7 +22,7 @@ public class AvatarCommand implements Command {
                 }
                 channel.sendMessage("Success!").queue();
             } else {
-                MessageUtils.sendMessage("You must either attach an image or link to one!", channel);
+                channel.sendMessage("You must either attach an image or link to one!").queue();
             }
         } else {
             try {

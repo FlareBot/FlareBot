@@ -37,7 +37,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 }
                 if (throwable != null) {
                     MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getUpdateChannel());
-                } else MessageUtils.sendMessage(finalMsg, FlareBot.getInstance().getUpdateChannel());
+                } else FlareBot.getInstance().getUpdateChannel().sendMessage(finalMsg).queue();
             });
         }
         return FilterReply.NEUTRAL;

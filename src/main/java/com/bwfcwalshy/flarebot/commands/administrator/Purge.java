@@ -23,16 +23,16 @@ public class Purge implements Command {
             if (!FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
                 long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - calmitdood < cooldown) {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("You are on a cooldown! %s seconds left!",
-                                    (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)), channel);
+                                    (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build()).queue();
                     return;
                 }
             }
             int count = Integer.parseInt(args[0]) + 1;
             if (count < 2) {
-                MessageUtils.sendMessage(MessageUtils
-                        .getEmbed(sender).setDescription("Can't purge less than 2 messages!"), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription("Can't purge less than 2 messages!").build()).queue();
             }
             List<Permission> perms = channel.getGuild().getSelfMember().getPermissions(channel);
             if (perms.contains(Permission.MESSAGE_HISTORY) && perms.contains(Permission.MESSAGE_MANAGE)) {
@@ -71,8 +71,8 @@ public class Purge implements Command {
                 channel.sendMessage("Insufficient permissions! I need `Manage Messages` and `Read Message History`").queue();
             }
         } else {
-            MessageUtils.sendMessage(MessageUtils
-                    .getEmbed(sender).setDescription("Bad arguments!\n" + getDescription()), channel);
+            channel.sendMessage(MessageUtils.getEmbed(sender)
+                    .setDescription("Bad arguments!\n" + getDescription()).build()).queue();
         }
     }
 

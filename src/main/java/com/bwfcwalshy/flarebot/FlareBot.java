@@ -204,7 +204,7 @@ public class FlareBot {
 
     private List<Command> commands = new CopyOnWriteArrayList<>();
     // Guild ID | List role ID
-    private Map<String, List<String>> autoAssignRoles;
+    private Map<String, CopyOnWriteArrayList<String>> autoAssignRoles;
     private File roleFile;
     private PlayerManager musicManager;
     private long startTime;
@@ -278,8 +278,8 @@ public class FlareBot {
                                 MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                             }
                             Track track = player.getPlayingTrack();
-                            MessageUtils.sendMessage(MessageUtils.getEmbed()
-                                    .addField("Now Playing: ", SongCommand.getLink(track), false), c);
+                            c.sendMessage(MessageUtils.getEmbed()
+                                    .addField("Now Playing: ", SongCommand.getLink(track), false).build()).queue();
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
@@ -692,7 +692,7 @@ public class FlareBot {
         return version;
     }
 
-    public Map<String, List<String>> getAutoAssignRoles() {
+    public Map<String, CopyOnWriteArrayList<String>> getAutoAssignRoles() {
         return this.autoAssignRoles;
     }
 
@@ -708,7 +708,7 @@ public class FlareBot {
                 JsonArray guilds = parsed.getAsJsonArray("guilds");
                 for (JsonElement o : guilds) {
                     JsonObject guild = o.getAsJsonObject();
-                    List<String> roles = autoAssignRoles.computeIfAbsent(guild.get("guildId").getAsString(), key -> new ArrayList<>());
+                    List<String> roles = autoAssignRoles.computeIfAbsent(guild.get("guildId").getAsString(), key -> new CopyOnWriteArrayList<>());
                     for (JsonElement e : guild.get("roles").getAsJsonArray()) {
                         if (!roles.contains(e.getAsString()))
                             roles.add(e.getAsString());

@@ -28,7 +28,7 @@ public class UserInfoCommand implements Command {
             return;
         }
         PlayerCache cache = flareBot.getPlayerCache(id);
-            MessageUtils.sendMessage(MessageUtils.getEmbed(sender).addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
+        channel.sendMessage(MessageUtils.getEmbed(sender).addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
                     + "\nID: " + user.getId() + "\n" +
                     "Avatar: " + (user.getEffectiveAvatarUrl() != null ? "[`link`](" + user.getEffectiveAvatarUrl() + ')' : "None") + "\n" +
                     "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
@@ -40,7 +40,7 @@ public class UserInfoCommand implements Command {
                             "Joined: " + formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
                             "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : formatTime(cache.getLastSeen())) + "\n" +
                             "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : formatTime(cache.getLastMessage())), false)
-                    .setThumbnail(MessageUtils.getAvatar(user)), channel);
+                    .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
     }
 
     @Override

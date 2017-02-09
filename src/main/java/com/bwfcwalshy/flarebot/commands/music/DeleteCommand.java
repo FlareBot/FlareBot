@@ -20,7 +20,7 @@ public class DeleteCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage("Usage: _delete [NAME]", channel);
+            channel.sendMessage("Usage: _delete [NAME]").queue();
             return;
         }
         String name = "";
@@ -41,9 +41,10 @@ public class DeleteCommand implements Command {
                 update.setString(1, finalName);
                 update.setString(2, channel.getGuild().getId());
                 if (update.executeUpdate() > 0) {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setDescription(String.format("*Removed the playlist %s*", finalName)), channel);
-                } else MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(String.format("*The playlist %s never existed!", finalName)), channel);
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription(String.format("*Removed the playlist %s*", finalName)).build()).queue();
+                } else channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription(String.format("*The playlist %s never existed!", finalName)).build()).queue();
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

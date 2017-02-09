@@ -30,11 +30,11 @@ public class SkipCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
-            MessageUtils.sendMessage("I am not streaming!", channel);
+            channel.sendMessage("I am not streaming!").queue();
             return;
         }
         if (!channel.getGuild().getSelfMember().getVoiceState().getChannel().equals(member.getVoiceState().getChannel())) {
-            MessageUtils.sendMessage("You must be in the channel in order to skip songs!", channel);
+            channel.sendMessage("You must be in the channel in order to skip songs!").queue();
             return;
         }
         if (args.length != 1) {
@@ -43,10 +43,10 @@ public class SkipCommand implements Command {
                         .count());
                 String no = String.valueOf(votes.get(channel.getGuild().getId()).values().stream().filter(vote -> vote == Vote.NO)
                         .count());
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
+                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("Can't start a vote right now! " +
                                 "Another one in progress! Please use _skip YES|NO to vote!")
-                        .addField("Votes for YES:", yes, true).addField("Votes for NO:", no, true), channel);
+                        .addField("Votes for YES:", yes, true).addField("Votes for NO:", no, true).build()).queue();
             } else getVotes(channel, member);
         } else {
             if (args[0].equalsIgnoreCase("force")) {
@@ -54,7 +54,7 @@ public class SkipCommand implements Command {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
                     skips.put(channel.getGuild().getId(), true);
                 } else {
-                    MessageUtils.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this command!", channel);
+                    channel.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this command!").queue();
                 }
                 return;
             } else if (args[0].equalsIgnoreCase("cancel")) {
@@ -62,7 +62,7 @@ public class SkipCommand implements Command {
                 if (getPermissions(channel).hasPermission(member, "flarebot.skip.cancel")) {
                     skips.put(channel.getGuild().getId(), true);
                 } else {
-                    MessageUtils.sendMessage("You are missing the permission ``flarebot.skip.cancel`` which is required for use of this command!", channel);
+                    channel.sendMessage("You are missing the permission ``flarebot.skip.cancel`` which is required for use of this command!").queue();
                 }
                 return;
             }
@@ -70,22 +70,22 @@ public class SkipCommand implements Command {
             if (mvotes == null)
                 return;
             if (mvotes.containsKey(sender.getId())) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
+                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("***\u26A0 You already voted! \u26A0***")
-                        .addField("Your vote: ", mvotes.get(sender.getId()).toString(), true), channel);
+                        .addField("Your vote: ", mvotes.get(sender.getId()).toString(), true).build()).queue();
                 return;
             }
             try {
                 Vote vote = Vote.valueOf(args[0].toUpperCase());
                 mvotes.put(sender.getId(), vote);
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription(String.format("***Voted for %s***", vote))
                         .addField("Current votes for " + vote, String.valueOf(votes.get(channel.getGuild().getId())
                                 .values().stream().filter(v -> v == vote)
-                                .count()), true), channel);
+                                .count()), true).build()).queue();
             } catch (IllegalArgumentException e) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .setColor(new Color(229, 45, 39)).setDescription("***\u26A0 Use YES|NO! \u26A0***"), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setColor(new Color(229, 45, 39)).setDescription("***\u26A0 Use YES|NO! \u26A0***").build()).queue();
             }
         }
     }
@@ -102,8 +102,8 @@ public class SkipCommand implements Command {
                 }
             });
             if (bool.get()) {
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender.getUser())
-                        .setDescription("You were the only person in the channel.\nSkipping!"), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender.getUser())
+                        .setDescription("You were the only person in the channel.\nSkipping!").build()).queue();
                 return null;
             }
             new FlarebotTask("Vote " + s) {
@@ -119,17 +119,17 @@ public class SkipCommand implements Command {
                     boolean skip = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
                             .count() > (votes.size() / 2.0f);
-                    MessageUtils.sendMessage(MessageUtils.getEmbed()
+                    channel.sendMessage(MessageUtils.getEmbed()
                             .setDescription("The votes are in!")
-                            .addField("Results: ", (skip ? "Skip!" : "Keep!"), false), channel);
+                            .addField("Results: ", (skip ? "Skip!" : "Keep!"), false).build()).queue();
                     if (skip)
                         musicManager.getPlayer(s).skip();
                     votes.remove(s);
                 }
             }.delay(20000);
-            MessageUtils.sendMessage(MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
+            channel.sendMessage(MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
-                    + "** has started!\nUse _skip YES|NO to vote!"), channel);
+                    + "** has started!\nUse _skip YES|NO to vote!").build()).queue();
             return new HashMap<>();
         });
     }

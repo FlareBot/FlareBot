@@ -60,13 +60,13 @@ public class Eval implements Command {
                     if (("```groovy\n" + eResult + "\n```").length() > 1048) {
                         eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
                     } else eResult = "```groovy\n" + eResult + "\n```";
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
                             .addField("Code:", "```groovy\n" + code + "```", false)
-                            .addField("Result: ", eResult, false), channel);
+                            .addField("Result: ", eResult, false).build()).queue();
                 } catch (ScriptException e) {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
                             .addField("Code:", "```groovy\n" + code + "```", false)
-                            .addField("Result: ", "```groovy\n" + e.getMessage() + "```", false), channel);
+                            .addField("Result: ", "```groovy\n" + e.getMessage() + "```", false).build()).queue();
                 } catch (Exception e) {
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }

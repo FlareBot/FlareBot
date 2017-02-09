@@ -24,14 +24,14 @@ public class SongCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
-            MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
+            channel.sendMessage(MessageUtils.getEmbed(sender)
                     .addField("Current song: ", getLink(track), false)
                     .addField("Amount Played: ",
                             (int) (100f / track.getTrack().getDuration() * track.getTrack().getPosition()) + "%", true)
-                    .addField("Requested by:", String.format("<@!%s>", track.getMeta().get("requester")), false), channel);
+                    .addField("Requested by:", String.format("<@!%s>", track.getMeta().get("requester")), false).build()).queue();
         } else {
-            MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                    .addField("Current song: ", "**No song playing right now!**", false), channel);
+            channel.sendMessage(MessageUtils.getEmbed(sender)
+                    .addField("Current song: ", "**No song playing right now!**", false).build()).queue();
         }
     }
 

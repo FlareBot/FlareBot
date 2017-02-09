@@ -16,10 +16,6 @@ import java.io.StringWriter;
 public class MessageUtils {
     public static final String DEBUG_CHANNEL = "226786557862871040";
 
-    public static Message sendMessage(CharSequence message, MessageChannel channel) {
-        return channel.sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
-    }
-
     public static Message sendPM(User user, CharSequence message) {
         return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
                 .length(), 1999))).complete();
@@ -85,10 +81,6 @@ public class MessageUtils {
 
     public static String getDefaultAvatar(User user) {
         return user.getDefaultAvatarUrl();
-    }
-
-    public static Message sendMessage(EmbedBuilder embedObject, MessageChannel channel) {
-        return channel.sendMessage(embedObject.build()).complete();
     }
 
     public static Message sendErrorMessage(EmbedBuilder builder, MessageChannel channel) {
