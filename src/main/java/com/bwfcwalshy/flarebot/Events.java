@@ -58,6 +58,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
+        cache.setLastSeen(LocalDateTime.now());
         if (flareBot.getWelcomeForGuild(event.getGuild()) != null) {
             Welcome welcome = flareBot.getWelcomeForGuild(event.getGuild());
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
