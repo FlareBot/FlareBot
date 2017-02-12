@@ -238,7 +238,7 @@ public class FlareBot {
             if (clients.length == 1) {
                 while (true) {
                     try {
-                        clients[1] = new JDABuilder(AccountType.BOT)
+                        clients[0] = new JDABuilder(AccountType.BOT)
                                 .addListener(events)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
@@ -309,6 +309,9 @@ public class FlareBot {
             }
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
+            Thread.sleep(500);
+            System.exit(1);
+            return;
         }
         System.setErr(new PrintStream(new OutputStream() {
             @Override
