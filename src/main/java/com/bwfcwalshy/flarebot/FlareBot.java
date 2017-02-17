@@ -819,6 +819,10 @@ public class FlareBot {
     }
 
     public void setStatus(String status) {
+        if(clients.length == 1){
+            clients[0].getPresence().setGame(Game.of(status, "https://www.twitch.tv/discordflarebot"));
+            return;
+        }
         for (JDA jda : clients)
             jda.getPresence().setGame(Game.of(status + " | Shard: " + (jda.getShardInfo().getShardId() + 1) + "/" +
                     clients.length, "https://www.twitch.tv/discordflarebot"));

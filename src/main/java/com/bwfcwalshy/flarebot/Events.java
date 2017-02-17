@@ -26,6 +26,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -109,28 +110,31 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        if (event.getJDA().getStatus() == JDA.Status.CONNECTED)
+        if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
+                event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now()))
             FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
-                            .setColor(new Color(96, 230, 144))
-                            .setThumbnail(event.getGuild().getIconUrl())
-                            .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
-                            .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
-                            .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
-                                    "Guild Owner: " + event.getGuild().getOwner().getUser().getName()).build()).queue();
+                    .setColor(new Color(96, 230, 144))
+                    .setThumbnail(event.getGuild().getIconUrl())
+                    .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
+                    .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
+                    .setTimestamp(event.getGuild().getSelfMember().getJoinDate())
+                    .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
+                            "Guild Owner: " + event.getGuild().getOwner().getUser().getName()).build()).queue();
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         COMMAND_COUNTER.remove(event.getGuild().getId());
         FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
-                        .setColor(new Color(244, 23, 23))
-                        .setThumbnail(event.getGuild().getIconUrl())
-                        .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
-                        .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
-                        .setDescription("Guild Deleted: `" + event.getGuild().getName() + "` L :broken_heart:\n" +
-                                "Guild Owner: " + (event.getGuild().getOwner() != null ?
-                                event.getGuild().getOwner().getUser().getName()
-                                : "Non-existent, they had to much L")).build()).queue();
+                .setColor(new Color(244, 23, 23))
+                .setThumbnail(event.getGuild().getIconUrl())
+                .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
+                .setTimestamp(OffsetDateTime.now())
+                .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
+                .setDescription("Guild Deleted: `" + event.getGuild().getName() + "` L :broken_heart:\n" +
+                        "Guild Owner: " + (event.getGuild().getOwner() != null ?
+                        event.getGuild().getOwner().getUser().getName()
+                        : "Non-existent, they had to much L")).build()).queue();
     }
 
     @Override
