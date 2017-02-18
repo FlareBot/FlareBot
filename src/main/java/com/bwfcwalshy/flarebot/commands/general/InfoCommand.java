@@ -47,7 +47,7 @@ public class InfoCommand implements Command {
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
-            channel.sendMessage(bld.build()).queue();
+            sender.getPrivateChannel().sendMessage(bld.build()).queue();
         }else{
             String search = "";
             for (String arg : args) {
