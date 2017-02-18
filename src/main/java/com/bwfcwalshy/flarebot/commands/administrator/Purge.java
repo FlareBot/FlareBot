@@ -4,6 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 
@@ -62,7 +63,14 @@ public class Purge implements Command {
                         else toDelete.forEach(mssage -> mssage.delete().complete());
                     }
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("Deleted `%s` messages!", i)).build()).queue();
+                            .setDescription(String.format("Deleted `%s` messages!", i)).build()).queue(s -> {
+                        new FlarebotTask("Delete Message " + s) {
+                            @Override
+                            public void run() {
+                                s.delete().queue();
+                            }
+                        }.delay(30_000);
+                    });
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Failed to bulk delete or load messages! Error: `%s`", e)).build()).queue();
