@@ -87,7 +87,7 @@ public class InfoCommand implements Command {
 
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
-        TOTAL_USERS("Total Users", () -> ._eval Arrays.stream(FlareBot.getInstance().getClients()).flatMap({c -> c.getUsers().stream()}).map({ u -> u.getId()})
+        TOTAL_USERS("Total Users", () -> Arrays.stream(FlareBot.getInstance().getClients()).flatMap({c -> c.getUsers().stream()}).map({ u -> u.getId()})
                     .collect(java.util.stream.Collectors.toSet()).size()),
         VOICE_CONNECTIONS("Voice Connections", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
         ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
