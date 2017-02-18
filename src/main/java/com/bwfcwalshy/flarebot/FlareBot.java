@@ -580,11 +580,9 @@ public class FlareBot {
                     Process p = clone.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                     String out = "";
-                    while (p.isAlive()) {
-                        String line;
-                        if ((line = reader.readLine()) != null) {
-                            out += line + '\n';
-                        }
+                    String line;
+                    if ((line = reader.readLine()) != null) {
+                        out += line + '\n';
                     }
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
@@ -597,11 +595,9 @@ public class FlareBot {
                     Process p = builder.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                     String out = "";
-                    while (p.isAlive()) {
-                        String line;
-                        if ((line = reader.readLine()) != null) {
-                            out += line + '\n';
-                        }
+                    String line;
+                    if ((line = reader.readLine()) != null) {
+                        out += line + '\n';
                     }
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
@@ -614,11 +610,9 @@ public class FlareBot {
                 Process p = maven.start();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String out = "";
-                while (p.isAlive()) {
-                    String line;
-                    if ((line = reader.readLine()) != null) {
-                        out += line + '\n';
-                    }
+                String line;
+                if ((line = reader.readLine()) != null) {
+                    out += line + '\n';
                 }
                 if (p.exitValue() != 0) {
                     UpdateCommand.UPDATING.set(false);
@@ -819,7 +813,7 @@ public class FlareBot {
     }
 
     public void setStatus(String status) {
-        if(clients.length == 1){
+        if (clients.length == 1) {
             clients[0].getPresence().setGame(Game.of(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
