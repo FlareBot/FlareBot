@@ -119,7 +119,8 @@ public class Events extends ListenerAdapter {
                     .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                     .setTimestamp(event.getGuild().getSelfMember().getJoinDate())
                     .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
-                            "Guild Owner: " + event.getGuild().getOwner().getUser().getName()).build()).queue();
+                            "Guild Owner: " + event.getGuild().getOwner().getUser().getName() + "\nGuild Members: " +
+                            event.getGuild().getMembers().size()).build()).queue();
     }
 
     @Override
