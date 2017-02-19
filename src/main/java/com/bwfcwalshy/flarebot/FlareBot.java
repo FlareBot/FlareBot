@@ -599,6 +599,7 @@ public class FlareBot {
                     if ((line = reader.readLine()) != null) {
                         out += line + '\n';
                     }
+                    p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
                         UpdateCommand.UPDATING.set(false);
@@ -614,6 +615,7 @@ public class FlareBot {
                 if ((line = reader.readLine()) != null) {
                     out += line + '\n';
                 }
+                p.waitFor();
                 if (p.exitValue() != 0) {
                     UpdateCommand.UPDATING.set(false);
                     LOGGER.error("Could not update! Log:** {} **", MessageUtils.hastebin(out));
@@ -624,7 +626,7 @@ public class FlareBot {
                 File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 System.exit(0);
-            } catch (IOException e) {
+            } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
                 setupUpdate();
                 UpdateCommand.UPDATING.set(false);
