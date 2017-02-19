@@ -14,8 +14,10 @@ import spark.utils.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
 public class InfoCommand implements Command {
@@ -87,7 +89,8 @@ public class InfoCommand implements Command {
 
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
-        TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients()).flatMap(c -> c.getUsers().stream()).map(u -> u.getId())
+        TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients())
+                .flatMap(c -> c.getUsers().stream()).map(ISnowflake::getId)
                     .collect(Collectors.toSet()).size())),
         VOICE_CONNECTIONS("Voice Connections", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
         ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
