@@ -29,7 +29,10 @@ public class QueueListener implements QueueHook {
     private void sendQueueData(List<Track> tracks) {
         JsonArray array = new JsonArray();
         for (Track t : tracks) {
-            array.add(t.getTrack().getIdentifier());
+            JsonObject object = new JsonObject();
+            object.addProperty("title", t.getTrack().getInfo().title);
+            object.addProperty("id", t.getTrack().getIdentifier());
+            array.add(object);
         }
 
         FlareBot.getInstance().postToApi("updatePlaylists", "playlist", array);
