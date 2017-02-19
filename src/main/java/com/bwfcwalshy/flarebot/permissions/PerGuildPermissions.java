@@ -1,12 +1,11 @@
 package com.bwfcwalshy.flarebot.permissions;
 
-import com.bwfcwalshy.flarebot.FlareBot;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.Permissions;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class PerGuildPermissions {
@@ -34,22 +33,21 @@ public class PerGuildPermissions {
         }
     }
 
-    public boolean hasPermission(IUser user, String permission) {
+    public boolean hasPermission(Member user, String permission) {
         // So we can go into servers and figure out any issues they have.
-        if (isCreator(user))
+        if (isCreator(user.getUser()))
             return true;
-        if (FlareBot.getInstance().getClient().getGuildByID(getGuildID()).getOwner().equals(user))
+        if (user.isOwner())
             return true;
-        if (user.getPermissionsForGuild(user.getClient().getGuildByID(getGuildID())).contains(Permissions.ADMINISTRATOR))
+        if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
-        AtomicBoolean has = new AtomicBoolean(false);
         PermissionNode node = new PermissionNode(permission);
-        getUser(user).getGroups().forEach((group) ->
-                getGroups().computeIfAbsent(group, Group::new).getPermissions().forEach(s -> {
-            if(new PermissionNode(s).test(node))
-                has.set(true);
-        }));
-        return has.get();
+        return getUser(user).getGroups().stream()
+                .map(this::getGroup)
+                .map(Group::getPermissions)
+                .flatMap(Collection::stream)
+                .map(PermissionNode::new)
+                .anyMatch(e -> e.test(node));
     }
 
     public boolean addPermission(String group, String permission) {
@@ -64,8 +62,8 @@ public class PerGuildPermissions {
         return had;
     }
 
-    public User getUser(IUser user) {
-        return users.computeIfAbsent(user.getID(), key -> new User(user));
+    public User getUser(Member user) {
+        return users.computeIfAbsent(user.getUser().getId(), key -> new User(user));
     }
 
     public Group getGroup(String group) {
@@ -104,8 +102,8 @@ public class PerGuildPermissions {
         return otherGuild.getGuildID().equals(getGuildID());
     }
 
-    public boolean isCreator(IUser user) {
-        return user.getID().equals("158310004187725824") || user.getID().equals("155954930191040513");
+    public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
+        return user.getId().equals("158310004187725824") || user.getId().equals("155954930191040513");
     }
 
     @Override

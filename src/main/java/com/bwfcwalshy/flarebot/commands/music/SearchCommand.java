@@ -1,20 +1,21 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.music.VideoThread;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 public class SearchCommand implements Command {
 
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage(sender.mention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getID()) + "search <term>", channel);
+            channel.sendMessage(sender.getAsMention() + " Usage: " +
+                    FlareBot.getPrefixes().get(channel.getGuild().getId()) + "search <term>").queue();
         } else if (args.length >= 1) {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();

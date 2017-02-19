@@ -2,23 +2,23 @@ package com.bwfcwalshy.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 public class LoopCommand implements Command {
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID());
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+        Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId());
         if (!player.getLooping()) {
             player.setLooping(true);
-            MessageUtils.sendMessage("Looping: **ON**", channel);
+            channel.sendMessage("Looping: **ON**").queue();
         } else {
             player.setLooping(false);
-            MessageUtils.sendMessage("Looping: **OFF**", channel);
+            channel.sendMessage("Looping: **OFF**").queue();
         }
     }
 

@@ -1,9 +1,11 @@
 package com.bwfcwalshy.flarebot.web;
 
+import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.util.ExceptionUtils;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import spark.Spark;
 
+@SuppressWarnings("Duplicates")
 public class ApiFactory {
     public static void bind() {
         Spark.get("/data/:provider", (request, response) -> {
@@ -15,14 +17,15 @@ public class ApiFactory {
                 } catch (Exception e) {
                     response.status(404);
                     JsonObject error = new JsonObject();
-                    error.addProperty("error", "Unknown provider: " + request.params("provider"));
+                    error.addProperty("error", "Unknown provider: '" + request.params("provider") + "'");
                     return error.toString();
                 }
                 return provider.process(request, response);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
                 error.addProperty("error", ExceptionUtils.getStackTrace(e));
+                FlareBot.LOGGER.error("Error on API!", e);
                 return error.toString();
             }
         });
@@ -35,14 +38,15 @@ public class ApiFactory {
                 } catch (Exception e) {
                     response.status(404);
                     JsonObject error = new JsonObject();
-                    error.addProperty("error", "Unknown setter: " + request.params("setter"));
+                    error.addProperty("error", "Unknown setter: '" + request.params("setter") + "'");
                     return error.toString();
                 }
                 return setters.process(request, response);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
                 error.addProperty("error", ExceptionUtils.getStackTrace(e));
+                FlareBot.LOGGER.error("Error on API!", e);
                 return error.toString();
             }
         });

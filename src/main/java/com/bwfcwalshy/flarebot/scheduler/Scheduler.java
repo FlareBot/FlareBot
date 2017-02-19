@@ -1,5 +1,7 @@
 package com.bwfcwalshy.flarebot.scheduler;
 
+import com.bwfcwalshy.flarebot.FlareBot;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,7 +24,13 @@ public class Scheduler {
             return false;
         }
         tasks.put(taskName,
-                timer.scheduleAtFixedRate(task, delay, interval, TimeUnit.MILLISECONDS));
+                timer.scheduleAtFixedRate(() -> {
+                    try {
+                        task.run();
+                    } catch (Exception e){
+                        FlareBot.LOGGER.error("Error in " + taskName + " task scheduler!", e);
+                    }
+                }, delay, interval, TimeUnit.MILLISECONDS));
         return true;
     }
 

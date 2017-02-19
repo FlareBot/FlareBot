@@ -9,9 +9,9 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.EmbedBuilder;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +29,19 @@ public class YouTubeExtractor implements Extractor {
     }
 
     @Override
-    public void process(String input, Player player, IMessage message, IUser user) throws Exception {
+    public void process(String input, Player player, Message message, User user) throws Exception {
         AudioItem item;
         try {
             item = player.resolve(input);
             if (item == null) {
                 MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                        .withDesc("Could not get that video/playlist! Make sure the URL is correct!"), message);
+                        .setDescription("Could not get that video/playlist! Make sure the URL is correct!"), message);
                 return;
             }
         } catch (RuntimeException e) {
             MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                    .withDesc("Could not get that video/playlist!")
-                    .appendField("YouTube said: ", e.getMessage(), true), message);
+                    .setDescription("Could not get that video/playlist!")
+                    .addField("YouTube said: ", e.getMessage(), true), message);
             return;
         }
         List<AudioTrack> audioTracks = new ArrayList<>();
@@ -53,7 +53,7 @@ public class YouTubeExtractor implements Extractor {
         } else {
             AudioTrack track = (AudioTrack) item;
             if (track.getInfo().length == 0 || track.getInfo().isStream) {
-                EmbedBuilder builder = MessageUtils.getEmbed(user).withDesc("Cannot queue a livestream!");
+                EmbedBuilder builder = MessageUtils.getEmbed(user).setDescription("Cannot queue a livestream!");
                 MessageUtils.editMessage("", builder, message);
                 return;
             }
@@ -62,7 +62,7 @@ public class YouTubeExtractor implements Extractor {
         }
         if (name != null) {
             List<Track> tracks = audioTracks.stream().map(Track::new).map(track -> {
-                track.getMeta().put("requester", user.getID());
+                track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
                 return track;
             }).collect(Collectors.toList());
@@ -73,10 +73,10 @@ public class YouTubeExtractor implements Extractor {
                 player.queue(tracks.get(0));
             }
             EmbedBuilder builder = MessageUtils.getEmbed(user);
-            builder.withDesc(String.format("%s added the %s [`%s`](%s)", user, audioTracks.size() == 1 ? "song" : "playlist",
+            builder.setDescription(String.format("%s added the %s [`%s`](%s)", user.getAsMention(), audioTracks.size() == 1 ? "song" : "playlist",
                     name, input));
             if (audioTracks.size() > 1)
-                builder.appendField("Song count:", String.valueOf(audioTracks.size()), true);
+                builder.addField("Song count:", String.valueOf(audioTracks.size()), true);
             MessageUtils.editMessage("", builder, message);
         }
     }

@@ -1,44 +1,39 @@
 package com.bwfcwalshy.flarebot.commands.secret;
 
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.Image;
-import sx.blah.discord.util.RateLimitException;
+import net.dv8tion.jda.core.entities.*;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class AvatarCommand implements Command {
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             if (!message.getAttachments().isEmpty()) {
-                IMessage.Attachment attachment = message.getAttachments().get(0);
+                Message.Attachment attachment = message.getAttachments().get(0);
                 try {
-                    sender.getClient().changeAvatar(Image.forUrl(
-                            attachment.getFilename().substring(attachment.getFilename().lastIndexOf('.') + 1),
-                            attachment.getUrl()));
-                } catch (DiscordException | RateLimitException e) {
-                    MessageUtils.sendException("Could not update avatar!", e, channel);
-                    return;
+                    sender.getJDA().getSelfUser().getManager().setAvatar(Icon.from(
+                            new URL(attachment.getUrl()).openStream()
+                    )).complete();
+                } catch (IOException e) {
+                    channel.sendMessage("Failed to update avatar!! " + e).queue();
                 }
+                channel.sendMessage("Success!").queue();
             } else {
-                MessageUtils.sendMessage("You must either attach an image or link one!", channel);
-                return;
+                channel.sendMessage("You must either attach an image or link to one!").queue();
             }
         } else {
             try {
-                sender.getClient().changeAvatar(Image.forUrl(
-                        args[0].substring(args[0].lastIndexOf('.') + 1),
-                        args[0]));
-            } catch (DiscordException | RateLimitException e) {
-                MessageUtils.sendException("Could not update avatar!", e, channel);
-                return;
+                sender.getJDA().getSelfUser().getManager().setAvatar(Icon.from(
+                        new URL(args[0]).openStream()
+                )).complete();
+            } catch (IOException e) {
+                channel.sendMessage("Failed to update avatar!! " + e).queue();
             }
+            channel.sendMessage("Success!").queue();
         }
-        MessageUtils.sendMessage("Done, I think ;)", channel);
     }
 
     @Override

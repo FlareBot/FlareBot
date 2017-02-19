@@ -2,34 +2,36 @@ package com.bwfcwalshy.flarebot.web;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.web.objects.Songs;
+import com.google.gson.JsonObject;
 import spark.Request;
 import spark.Response;
-
-import java.util.function.BiFunction;
+import spark.Route;
 
 public enum DataProviders {
     SONGS((req, res) -> Songs.get()),
     GETPERMISSIONS((request, response) -> FlareBot.getInstance()
             .getPermissions(FlareBot.getInstance()
-                    .getClient().getChannelByID(request.queryParams("guildid"))),
-            new Require("guildid", gid -> FlareBot.getInstance().getClient().getGuildByID(gid) != null));
+                    .getChannelByID(request.queryParams("guildid"))),
+            new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null));
 
-    private BiFunction<Request, Response, Object> consumer;
+    private Route consumer;
     private Require[] requires;
 
-    DataProviders(BiFunction<Request, Response, Object> o, Require... requires) {
+    DataProviders(Route o, Require... requires) {
         consumer = o;
         this.requires = requires;
     }
 
-    public String process(Request request, Response response) {
+    @SuppressWarnings("Duplicates")
+    public String process(Request request, Response response) throws Exception {
         for (Require require : requires) {
             if (!require.verify(request)) {
                 response.status(400);
-                return String.format("Require for <code>%s</code> failed!", require.getName());
+                JsonObject error = new JsonObject();
+                error.addProperty("error", String.format("Require for '%s' failed!", require.getName()));
+                return error.toString();
             }
-
         }
-        return FlareBot.GSON.toJson(consumer.apply(request, response));
+        return FlareBot.GSON.toJson(consumer.handle(request, response));
     }
 }

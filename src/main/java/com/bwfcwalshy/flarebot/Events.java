@@ -6,32 +6,38 @@ import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
-import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
-import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent;
-import sx.blah.discord.handle.impl.events.guild.voice.VoiceDisconnectedEvent;
-import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
-import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
-import sx.blah.discord.handle.impl.events.user.PresenceUpdateEvent;
-import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RequestBuffer;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+import java.awt.*;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
-public class Events {
+public class Events extends ListenerAdapter {
 
     private FlareBot flareBot;
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
@@ -39,144 +45,151 @@ public class Events {
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
 
     public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
+    private AtomicInteger i = new AtomicInteger(0);
 
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
     }
 
-    @EventSubscriber
-    public void onReady(ReadyEvent e) {
-        flareBot.run();
+    @Override
+    public void onReady(ReadyEvent event) {
+        FlareBot.getInstance().latch.countDown();
     }
 
-    @EventSubscriber
-    public void onJoin(UserJoinEvent e) {
-        if (flareBot.getWelcomeForGuild(e.getGuild()) != null) {
-            Welcome welcome = flareBot.getWelcomeForGuild(e.getGuild());
-            IChannel channel = flareBot.getClient().getChannelByID(welcome.getChannelId());
+    @Override
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
+        cache.setLastSeen(LocalDateTime.now());
+        if (flareBot.getWelcomeForGuild(event.getGuild()) != null) {
+            Welcome welcome = flareBot.getWelcomeForGuild(event.getGuild());
+            TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
             if (channel != null) {
-                String msg = welcome.getMessage().replace("%user%", e.getUser().getName()).replace("%guild%", e.getGuild().getName()).replace("%mention%", e.getUser().mention());
-                MessageUtils.sendMessage(msg, channel);
+                String msg = welcome.getMessage()
+                        .replace("%user%", event.getMember().getUser().getName())
+                        .replace("%guild%", event.getGuild().getName())
+                        .replace("%mention%", event.getMember().getUser().getAsMention());
+                channel.sendMessage(msg).queue();
             } else flareBot.getWelcomes().remove(welcome);
         }
-        if (flareBot.getAutoAssignRoles().containsKey(e.getGuild().getID())) {
-            List<String> autoAssignRoles = flareBot.getAutoAssignRoles().get(e.getGuild().getID());
+        if (flareBot.getAutoAssignRoles().containsKey(event.getGuild().getId())) {
+            List<String> autoAssignRoles = flareBot.getAutoAssignRoles().get(event.getGuild().getId());
+            List<Role> roles = new ArrayList<>();
             for (String s : autoAssignRoles) {
-                IRole role = e.getGuild().getRoleByID(s);
+                Role role = event.getGuild().getRoleById(s);
                 if (role != null) {
-                    RequestBuffer.request(() -> {
-                        try {
-                            e.getUser().addRole(role);
-                        } catch (DiscordException e1) {
-                            FlareBot.LOGGER.error("Could not auto-assign a role!", e1);
-                        } catch (MissingPermissionsException e1) {
-                            if (!e1.getErrorMessage().startsWith("Edited roles")) {
-                                MessageUtils.sendPM(e.getGuild().getOwner(), "**Could not auto assign a role!**\n" + e1.getErrorMessage());
-                                return;
-                            }
-                            StringBuilder message = new StringBuilder();
-
-                            message.append("**Hello!\nI am here to tell you that I could not give the role ``");
-                            message.append(role.getName()).append("`` to one of your new users!\n");
-                            message.append("Please move one of the following roles above ``").append(role.getName())
-                                    .append("`` in your server's role tab!\n```");
-                            for (IRole i : FlareBot.getInstance().getClient().getOurUser().getRolesForGuild(role.getGuild())) {
-                                message.append(i.getName()).append('\n');
-                            }
-                            message.append("\n```\nSo the role can be given.**");
-
-                            MessageUtils.sendPM(e.getGuild().getOwner(), message);
-                        }
-                    });
+                    roles.add(role);
                 } else autoAssignRoles.remove(s);
             }
+            try {
+                event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
+                }, e1 -> handle(e1, event, roles));
+            } catch (Exception e1) {
+                handle(e1, event, roles);
+            }
         }
     }
 
-    @EventSubscriber
-    public void onGuildCreate(GuildCreateEvent e) {
-//        if (e.getClient().isReady())
-//            MessageUtils.sendMessage(new EmbedBuilder()
-//                    .withColor(new Color(96, 230, 144))
-//                    .withThumbnail(e.getGuild().getIconURL())
-//                    .withFooterIcon(e.getGuild().getIconURL())
-//                    .withFooterText(OffsetDateTime.now()
-//                            .format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-//                    .withAuthorName(e.getGuild().getName())
-//                    .withAuthorIcon(e.getGuild().getIconURL())
-//                    .withDesc("Guild Created: `" + e.getGuild().getName() + "` :smile: :heart:\nGuild Owner: " + e.getGuild().getOwner().getName()),
-//                    FlareBot.getInstance().getGuildLogChannel());
-    }
-
-    @EventSubscriber
-    public void onGuildDelete(GuildLeaveEvent e) {
-        COMMAND_COUNTER.remove(e.getGuild().getID());
-//        MessageUtils.sendMessage(new EmbedBuilder()
-//                        .withColor(new Color(244, 23, 23))
-//                        .withThumbnail(e.getGuild().getIconURL())
-//                        .withFooterIcon(e.getGuild().getIconURL())
-//                        .withFooterText(OffsetDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME) + " | " + e.getGuild().getID())
-//                        .withAuthorName(e.getGuild().getName())
-//                        .withAuthorIcon(e.getGuild().getIconURL())
-//                        .withDesc("Guild Deleted: `" + e.getGuild().getName() + "` L :broken_heart:\nGuild Owner: " + (e.getGuild().getOwner() != null ? e.getGuild().getOwner().getName() : "Non-existent, they had to much L"))
-//                , FlareBot.getInstance().getGuildLogChannel());
-    }
-
-    @EventSubscriber
-    public void onVoice(UserVoiceChannelLeaveEvent e) {
-        if (e.getUser().equals(e.getClient().getOurUser())) {
-            if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
-                MessageUtils.sendMessage("I am now updating, there are no voice channels active!", flareBot.getClient().getChannelByID("229704246004547585"));
-                UpdateCommand.update(true, null);
-            }
+    private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
+        if (!e1.getMessage().startsWith("Can't modify a role with higher")) {
+            MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+                    "**Could not auto assign a role!**\n" + e1.getMessage());
             return;
         }
-        if (e.getVoiceChannel().getConnectedUsers().contains(e.getClient().getOurUser())
-                && e.getVoiceChannel().getConnectedUsers().size() < 2) {
-            FlareBot.getInstance().getMusicManager().getPlayer(e.getVoiceChannel().getGuild().getID()).setPaused(true);
-            e.getVoiceChannel().leave();
-        }
+        StringBuilder message = new StringBuilder();
+
+        message.append("**Hello!\nI am here to tell you that I could not give the role(s) ```\n");
+        message.append(roles.stream().map(Role::getName).collect(Collectors.joining("\n")))
+                .append("\n``` to one of your new users!\n");
+        message.append("Please move one of the following roles so they are higher up than any of the above: \n```")
+                .append(event.getGuild().getSelfMember().getRoles().stream()
+                        .map(Role::getName)
+                        .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
+        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
     }
 
-    @EventSubscriber
-    public void onChannelJoin(UserVoiceChannelJoinEvent event) {
-        if (event.getUser().equals(event.getClient().getOurUser())) {
-            if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getID())) {
-                FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getID()).setPaused(false);
+    @Override
+    public void onGuildJoin(GuildJoinEvent event) {
+        if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
+                event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now()))
+            FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
+                    .setColor(new Color(96, 230, 144))
+                    .setThumbnail(event.getGuild().getIconUrl())
+                    .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
+                    .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
+                    .setTimestamp(event.getGuild().getSelfMember().getJoinDate())
+                    .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
+                            "Guild Owner: " + event.getGuild().getOwner().getUser().getName() + "\nGuild Members: " +
+                            event.getGuild().getMembers().size()).build()).queue();
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        COMMAND_COUNTER.remove(event.getGuild().getId());
+        FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
+                .setColor(new Color(244, 23, 23))
+                .setThumbnail(event.getGuild().getIconUrl())
+                .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
+                .setTimestamp(OffsetDateTime.now())
+                .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
+                .setDescription("Guild Deleted: `" + event.getGuild().getName() + "` L :broken_heart:\n" +
+                        "Guild Owner: " + (event.getGuild().getOwner() != null ?
+                        event.getGuild().getOwner().getUser().getName()
+                        : "Non-existent, they had to much L")).build()).queue();
+    }
+
+    @Override
+    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+            if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
+                FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
             }
         }
     }
 
-    @EventSubscriber
-    public void onChannelLeave(VoiceDisconnectedEvent event) {
-        FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getID()).setPaused(true);
+    @Override
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+            if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
+                FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
+            }
+        } else {
+            if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+                if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
+                    FlareBot.getInstance().getUpdateChannel()
+                            .sendMessage("I am now updating, there are no voice channels active!").queue();
+                    UpdateCommand.update(true, null);
+                }
+                return;
+            }
+            if (event.getChannelLeft().getMembers().contains(event.getGuild().getMember(event.getJDA().getSelfUser()))
+                    && event.getChannelLeft().getMembers().size() < 2) {
+                event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
+            }
+        }
     }
 
-    @EventSubscriber
-    public void onMessage(MessageReceivedEvent e) {
-        PlayerCache cache = flareBot.getPlayerCache(e.getAuthor().getID());
-        cache.setLastMessage(e.getMessage().getTimestamp());
+    @Override
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        PlayerCache cache = flareBot.getPlayerCache(event.getAuthor().getId());
+        cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
         cache.setLastSeen(LocalDateTime.now());
-        if (!e.getChannel().isPrivate())
-            cache.setLastSpokeGuild(e.getGuild().getID());
-        if (e.getMessage().getContent() != null
-                && e.getMessage().getContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(e))))
-                && !e.getMessage().getAuthor().isBot()) {
-            EnumSet<Permissions> perms = e.getMessage().getChannel()
-                    .getModifiedPermissions(FlareBot.getInstance().getClient().getOurUser());
-            if (!perms.contains(Permissions.ADMINISTRATOR)) {
-                if (!perms.contains(Permissions.SEND_MESSAGES)) {
+        cache.setLastSpokeGuild(event.getGuild().getId());
+        if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
+                && !event.getAuthor().isBot()) {
+            List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
+            if (!perms.contains(Permission.ADMINISTRATOR)) {
+                if (!perms.contains(Permission.MESSAGE_WRITE)) {
                     return;
                 }
-                if (!perms.contains(Permissions.EMBED_LINKS)) {
-                    MessageUtils.sendMessage("Hey! I can't be used here." +
+                if (!perms.contains(Permission.MESSAGE_EMBED_LINKS)) {
+                    event.getChannel().sendMessage("Hey! I can't be used here." +
                             "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
-                            "\nThanks :D", e.getMessage().getChannel());
+                            "\nThanks :D").queue();
                     return;
                 }
             }
-            String message = e.getMessage().getContent();
+            String message = event.getMessage().getRawContent();
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
@@ -187,81 +200,68 @@ public class Events {
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
                     if (cmd.getType() == CommandType.HIDDEN) {
-                        if (!cmd.getPermissions(e.getMessage().getChannel()).isCreator(e.getMessage().getAuthor())) {
+                        if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
                             return;
                         }
                     }
                     if (UpdateCommand.UPDATING.get()) {
-                        MessageUtils.sendMessage("**Currently updating!**", e.getMessage().getChannel());
+                        event.getChannel().sendMessage("**Currently updating!**").queue();
                         return;
                     }
-                    if (!cmd.getType().usableInDMs()) {
-                        if (e.getMessage().getChannel().isPrivate()) {
-                            MessageUtils.sendMessage(String.format("**%s commands cannot be used in DM's!**", cmd.getType().formattedName()), e.getMessage().getChannel());
-                            return;
-                        }
-                    }
-                    if (handleMissingPermission(cmd, e))
+                    if (handleMissingPermission(cmd, event))
                         return;
-                    if (!e.getMessage().getChannel().isPrivate())
-                        COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
-                                g -> new AtomicInteger()).incrementAndGet();
+                    COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger()).incrementAndGet();
                     String[] finalArgs = args;
                     CACHED_POOL.submit(() -> {
                         FlareBot.LOGGER.info(
-                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                        e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                        event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                         try {
-                            cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
+                            cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
                         } catch (Exception ex) {
-                            MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
+                            MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
                             FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                    + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                    e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
+                                    + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                    event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                         }
-                        delete(e.getMessage());
+                        if (cmd.deleteMessage())
+                            delete(event.getMessage());
                     });
                     return;
                 } else {
                     for (String alias : cmd.getAliases()) {
                         if (alias.equalsIgnoreCase(command)) {
                             if (cmd.getType() == CommandType.HIDDEN) {
-                                if (!cmd.getPermissions(e.getMessage().getChannel()).isCreator(e.getMessage().getAuthor())) {
+                                if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
                                     return;
                                 }
                             }
                             if (UpdateCommand.UPDATING.get()) {
-                                MessageUtils.sendMessage("**Currently updating!**", e.getMessage().getChannel());
+                                event.getChannel().sendMessage("**Currently updating!**").queue();
                                 return;
                             }
                             FlareBot.LOGGER.info(
-                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                            e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
-                            if (cmd.getType() == CommandType.MUSIC) {
-                                if (e.getMessage().getChannel().isPrivate()) {
-                                    MessageUtils.sendMessage("**Music commands cannot be used in DM's!**", e.getMessage().getChannel());
-                                    return;
-                                }
-                            }
-                            if (handleMissingPermission(cmd, e))
+                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
+                                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
+                            if (handleMissingPermission(cmd, event))
                                 return;
-                            if (!e.getMessage().getChannel().isPrivate())
-                                COMMAND_COUNTER.computeIfAbsent(e.getMessage().getChannel().getGuild().getID(),
-                                        g -> new AtomicInteger()).incrementAndGet();
+                            COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
+                                    g -> new AtomicInteger()).incrementAndGet();
                             String[] finalArgs = args;
                             CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
-                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                                e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator());
+                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                                event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                                 try {
-                                    cmd.onCommand(e.getMessage().getAuthor(), e.getMessage().getChannel(), e.getMessage(), finalArgs);
+                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
                                 } catch (Exception ex) {
                                     FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                            + Arrays.toString(finalArgs) + " in " + e.getMessage().getChannel() + "! Sender: " +
-                                            e.getMessage().getAuthor().getName() + '#' + e.getMessage().getAuthor().getDiscriminator(), ex);
-                                    MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, e.getMessage().getChannel());
+                                            + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
+                                    MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
                                 }
-                                delete(e.getMessage());
+                                if (cmd.deleteMessage())
+                                    delete(event.getMessage());
                             });
                             return;
                         }
@@ -269,31 +269,31 @@ public class Events {
                 }
             }
         } else {
-            if (e.getMessage().getContent() != null && FlareBot.getPrefixes().get(getGuildId(e)) != FlareBot.COMMAND_CHAR
-                    && e.getMessage().getContent().startsWith("_")
-                    && !e.getMessage().getAuthor().isBot()) {
-                if (e.getMessage().getContent().startsWith("_prefix")) {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(e.getAuthor()).withDesc("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(e)) + "`"), e.getChannel());
+            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
+                    && !event.getAuthor().isBot()) {
+                if (event.getMessage().getRawContent().startsWith("_prefix")) {
+                    event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
+                            .setDescription("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(event)) + "`").build()).queue();
                 }
             }
         }
     }
 
-    @EventSubscriber
-    public void onPreserenceChange(PresenceUpdateEvent e) {
-        if (e.getNewPresence().getStatus() != StatusType.OFFLINE) {
-            flareBot.getPlayerCache(e.getUser().getID()).setLastSeen(LocalDateTime.now());
+    @Override
+    public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
+        if (event.getPreviousOnlineStatus() == OnlineStatus.OFFLINE) {
+            flareBot.getPlayerCache(event.getUser().getId()).setLastSeen(LocalDateTime.now());
         }
     }
 
-    private boolean handleMissingPermission(Command cmd, MessageReceivedEvent e) {
+    private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
-            if (!cmd.getPermissions(e.getMessage().getChannel()).hasPermission(e.getMessage().getAuthor(), cmd.getPermission())) {
-                IMessage msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getMessage().getAuthor())
-                        .withDesc("You are missing the permission ``"
-                                + cmd.getPermission() + "`` which is required for use of this command!"), e.getMessage().getChannel());
+            if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
+                Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
+                        .setDescription("You are missing the permission ``"
+                                + cmd.getPermission() + "`` which is required for use of this command!"), e.getChannel());
                 delete(e.getMessage());
-                new FlarebotTask("Delete message " + msg.getChannel().toString() + msg.getID()) {
+                new FlarebotTask("Delete message " + msg.getChannel().toString()) {
                     @Override
                     public void run() {
                         delete(msg);
@@ -305,16 +305,13 @@ public class Events {
         return false;
     }
 
-    private void delete(IMessage message) {
-        RequestBuffer.request(() -> {
-            try {
-                message.delete();
-            } catch (DiscordException | MissingPermissionsException ignored) {
-            }
-        });
+    private void delete(Message message) {
+        if (message.getTextChannel().getGuild().getSelfMember()
+                .getPermissions(message.getTextChannel()).contains(Permission.MESSAGE_MANAGE))
+            message.delete().queue();
     }
 
-    private String getGuildId(MessageReceivedEvent e) {
-        return e.getMessage().getChannel().getGuild() != null ? e.getMessage().getChannel().getGuild().getID() : null;
+    private String getGuildId(GenericGuildMessageEvent e) {
+        return e.getChannel().getGuild() != null ? e.getChannel().getGuild().getId() : null;
     }
 }

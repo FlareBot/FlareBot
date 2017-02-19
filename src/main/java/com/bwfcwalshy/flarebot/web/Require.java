@@ -6,8 +6,7 @@ import java.util.function.Predicate;
 
 public class Require {
     private String name;
-    private Predicate<String> test;
-
+    protected Predicate<String> test;
 
     public Require(String name, Predicate<String> test) {
         this.name = name;

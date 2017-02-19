@@ -5,14 +5,11 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
-import org.apache.commons.lang3.StringUtils;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
+import net.dv8tion.jda.core.entities.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 public class UserInfoCommand implements Command {
 
@@ -20,35 +17,30 @@ public class UserInfoCommand implements Command {
     private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
 
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if (args.length != 1) {
-            MessageUtils.sendErrorMessage("Incorrect usage! Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) + "userinfo (user)", channel);
-        } else {
-            if (args[0].matches("\\d+") || args[0].matches("<@\\d+>")) {
-                String id = args[0];
-                if (args[0].matches("<@\\d+>") || args[0].matches("<@!\\d+>"))
-                    id = id.replace("<@", "").replace(">", "");
-                IUser user = FlareBot.getInstance().getClient().getUserByID(id);
-                if (user == null) {
-                    MessageUtils.sendErrorMessage("We cannot find that user!", channel);
-                    return;
-                }
-
-                String finalId = id;
-                PlayerCache cache = flareBot.getPlayerCache(finalId);
-                try {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).appendField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
-                            + "\nID: " + user.getID() + "\nAvatar: " + user.getAvatarURL(), true)
-                            .appendField("General Info", "Servers: " + FlareBot.getInstance().getClient().getGuilds().stream().filter(guild -> guild.getUserByID(finalId) != null).count()
-                                    + " shared\nRoles: " + StringUtils.join(user.getRolesForGuild(channel.getGuild()), ", ").trim(), true)
-                            .appendField("Time Data", "Created: " + formatTime(user.getCreationDate()) + "\nJoined: " + formatTime(channel.getGuild().getJoinTimeForUser(user))
-                                    + "\nLast Seen: " + (cache.getLastSeen() == null ? "Unknown" : formatTime(cache.getLastSeen())) + "\nLast Spoke: "
-                                    + (cache.getLastMessage() == null ? "Unknown" : formatTime(cache.getLastMessage())), false).withThumbnail(user.getAvatarURL()), channel);
-                } catch (DiscordException e) {
-                    e.printStackTrace();
-                }
-            }
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+        String id;
+        if (args.length != 1)
+            id = sender.getId();
+        else id = args[0].replaceAll("[^0-9]", "");
+        User user = FlareBot.getInstance().getUserByID(id);
+        if (user == null) {
+            MessageUtils.sendErrorMessage("We cannot find that user!", channel);
+            return;
         }
+        PlayerCache cache = flareBot.getPlayerCache(id);
+        channel.sendMessage(MessageUtils.getEmbed(sender).addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
+                    + "\nID: " + user.getId() + "\n" +
+                    "Avatar: " + (user.getEffectiveAvatarUrl() != null ? "[`link`](" + user.getEffectiveAvatarUrl() + ')' : "None") + "\n" +
+                    "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
+                    .addField("General Info",
+                            "Servers: " + FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(id) != null).count() + " shared\n" +
+                                    "Roles: " + channel.getGuild().getMember(user).getRoles().stream()
+                                    .map(Role::getName).collect(Collectors.joining(", ")), true)
+                    .addField("Time Data", "Created: " + formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
+                            "Joined: " + formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
+                            "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : formatTime(cache.getLastSeen())) + "\n" +
+                            "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : formatTime(cache.getLastMessage())), false)
+                    .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
     }
 
     @Override
@@ -66,12 +58,7 @@ public class UserInfoCommand implements Command {
         return CommandType.GENERAL;
     }
 
-    @Override
-    public String getPermission() {
-        return null;
-    }
-
-    private String formatTime(LocalDateTime time){
+    private String formatTime(LocalDateTime time) {
         return time.getDayOfMonth() + getDayOfMonthSuffix(time.getDayOfMonth()) + " " + time.format(timeFormat) + " UTC";
     }
 
@@ -81,10 +68,14 @@ public class UserInfoCommand implements Command {
             return "th";
         }
         switch (n % 10) {
-            case 1:  return "st";
-            case 2:  return "nd";
-            case 3:  return "rd";
-            default: return "th";
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
         }
     }
 }

@@ -4,9 +4,10 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.util.SQLController;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -17,15 +18,15 @@ import java.sql.SQLException;
  */
 public class DeleteCommand implements Command {
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage("Usage: _delete [NAME]", channel);
+            channel.sendMessage("Usage: _delete [NAME]").queue();
             return;
         }
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
-        channel.setTypingStatus(true);
+        channel.sendTyping().queue();
         try {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
@@ -33,15 +34,17 @@ public class DeleteCommand implements Command {
                         "  name VARCHAR(10),\n" +
                         "  guild VARCHAR(10),\n" +
                         "  list VARCHAR(80),\n" +
+                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
                 PreparedStatement update = connection.prepareStatement("DELETE FROM playlist WHERE name = ? AND guild = ?");
                 update.setString(1, finalName);
-                update.setString(2, channel.getGuild().getID());
+                update.setString(2, channel.getGuild().getId());
                 if (update.executeUpdate() > 0) {
-                    MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc(String.format("*Removed the playlist %s*", finalName)), channel);
-                } else MessageUtils.sendMessage(MessageUtils.getEmbed(sender)
-                        .withDesc(String.format("*The playlist %s never existed!", finalName)), channel);
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription(String.format("*Removed the playlist %s*", finalName)).build()).queue();
+                } else channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription(String.format("*The playlist %s never existed!", finalName)).build()).queue();
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

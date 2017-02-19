@@ -6,9 +6,10 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.util.SQLController;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -21,28 +22,28 @@ import java.util.stream.Collectors;
  */
 public class SaveCommand implements Command {
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendMessage("Usage: _save [NAME]", channel);
+            channel.sendMessage("Usage: _save [NAME]").queue();
             return;
         }
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
         if (name.length() > 20) {
-            MessageUtils.sendMessage("Name must be up to 20 characters!", channel);
+            channel.sendMessage("Name must be up to 20 characters!").queue();
             return;
         }
-        if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getID())) {
-            MessageUtils.sendMessage("Your playlist is empty!", channel);
+        if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
+            channel.sendMessage("Your playlist is empty!").queue();
             return;
         }
-        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getID()).getPlaylist();
+        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist();
         if (playlist.isEmpty()) {
-            MessageUtils.sendMessage("Your playlist is empty!", channel);
+            channel.sendMessage("Your playlist is empty!").queue();
             return;
         }
-        channel.setTypingStatus(true);
+        channel.sendTyping().queue();
         try {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
@@ -50,14 +51,15 @@ public class SaveCommand implements Command {
                         "  name  VARCHAR(60),\n" +
                         "  guild VARCHAR(20),\n" +
                         "  list  TEXT,\n" +
+                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                         "  PRIMARY KEY(name, guild)\n" +
                         ")");
                 PreparedStatement exists = connection.prepareStatement("SELECT * FROM playlist WHERE name = ? AND guild = ?");
                 exists.setString(1, finalName);
-                exists.setString(2, channel.getGuild().getID());
+                exists.setString(2, channel.getGuild().getId());
                 exists.execute();
                 if (exists.getResultSet().isBeforeFirst()) {
-                    MessageUtils.sendMessage("That name is already taken!", channel);
+                    channel.sendMessage("That name is already taken!").queue();
                     return;
                 }
                 PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (name, guild, list) VALUES (" +
@@ -66,12 +68,12 @@ public class SaveCommand implements Command {
                         "   ?" +
                         ")");
                 statement.setString(1, finalName);
-                statement.setString(2, channel.getGuild().getID());
+                statement.setString(2, channel.getGuild().getId());
                 statement.setString(3, playlist.stream()
                         .map(track -> track.getTrack().getIdentifier())
                         .collect(Collectors.joining(",")));
                 statement.executeUpdate();
-                MessageUtils.sendMessage(MessageUtils.getEmbed(sender).withDesc("Success!"), channel);
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Success!").build()).queue();
             });
         } catch (SQLException e) {
             MessageUtils.sendException("**Database error!**", e, channel);

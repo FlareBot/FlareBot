@@ -22,20 +22,20 @@
             <url>http://jcenter.bintray.com</url>
         </repository>
         <repository>
-            <id>sedmelluq</id>
-            <name>sedmelluq</name>
-            <url>http://maven.sedmelluq.com/</url>
-        </repository>
-        <repository>
             <id>repo.arsenarsen.com</id>
             <url>https://repo.arsenarsen.com/content/repositories/snapshots/</url>
         </repository>
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>com.github.austinv11</groupId>
-            <artifactId>Discord4j</artifactId>
-            <version>dev-SNAPSHOT</version>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>jda-nas</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>3.0.BETA2_126</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -69,8 +69,13 @@
         </dependency>
         <dependency>
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
-            <artifactId>discord4j-impl</artifactId>
-            <version>1.9-SNAPSHOT</version>
+            <artifactId>jda-impl</artifactId>
+            <version>1.11-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.2.9</version>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>
@@ -87,44 +92,15 @@
             <artifactId>joda-time</artifactId>
             <version>2.8</version>
         </dependency>
-
-        <!-- SPARK CANCER STARTS HERE -->
-
         <dependency>
             <groupId>com.sparkjava</groupId>
             <artifactId>spark-core</artifactId>
             <version>2.5.4</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-client</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-server</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-servlet</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
-        <defaultGoal>clean package -U</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
         <finalName>FlareBot</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>

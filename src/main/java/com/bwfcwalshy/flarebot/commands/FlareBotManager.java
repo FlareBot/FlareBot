@@ -3,7 +3,7 @@ package com.bwfcwalshy.flarebot.commands;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.util.SQLController;
-import sx.blah.discord.handle.obj.IChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,14 +34,15 @@ public class FlareBotManager {
                 }
             });
         } catch (SQLException e) {
-            FlareBot.LOGGER.error("Could not load songs!");
+            FlareBot.LOGGER.error("Could not load songs!", e);
         }
     }
 
-    public Set<String> getRandomSongs(int amount, IChannel channel) {
+    public Set<String> getRandomSongs(int amount, TextChannel channel) {
         Set<String> songs = new HashSet<>();
         if (amount < 10 || amount > 100) {
-            MessageUtils.sendErrorMessage(MessageUtils.getEmbed().withDesc("Invalid amount. Make sure it is 10 or more and 100 or less!"), channel);
+            MessageUtils.sendErrorMessage(MessageUtils.getEmbed()
+                    .setDescription("Invalid amount. Make sure it is 10 or more and 100 or less!"), channel);
             return null;
         }
 

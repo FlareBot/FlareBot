@@ -5,18 +5,16 @@ import com.arsenarsen.githubwebhooks4j.events.PushEvent;
 import com.arsenarsen.githubwebhooks4j.objects.Commit;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import sx.blah.discord.util.EmbedBuilder;
+import net.dv8tion.jda.core.EmbedBuilder;
 
 public class GithubListener implements EventListener<PushEvent> {
 
     @Override
     public void handle(PushEvent e) {
-        if (!FlareBot.getInstance().getClient().isReady())
+        if (!FlareBot.getInstance().isReady())
             return;
         EmbedBuilder eb = MessageUtils.getEmbed();
-        eb.withAuthorIcon(e.getSender().getAvatarUrl());
-        eb.withAuthorName(e.getSender().getLogin());
-        eb.withAuthorUrl(e.getSender().getProfile());
+        eb.setAuthor(e.getSender().getLogin(), e.getSender().getProfile(), e.getSender().getAvatarUrl());
         StringBuilder sb = new StringBuilder();
         for (Commit commit : e.getCommits()) {
             sb.append(String.format("`%s` in `%s` - [`%s`](%s) %s\n",
@@ -26,7 +24,7 @@ public class GithubListener implements EventListener<PushEvent> {
                     commit.getUrl(),
                     commit.getMessage()));
         }
-        eb.withDesc(sb.toString());
-        MessageUtils.sendMessage(eb, FlareBot.getInstance().getClient().getChannelByID("229236239201468417"));
+        eb.setDescription(sb.toString());
+        FlareBot.getInstance().getChannelByID("229236239201468417").sendMessage(eb.build()).queue();
     }
 }

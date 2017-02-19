@@ -9,7 +9,7 @@ public class PlayerCache {
     private String lastSpokeGuild;
     private LocalDateTime lastSeen;
 
-    public PlayerCache(String userId, LocalDateTime lastMessage, String lastSpokeGuild, LocalDateTime lastSeen){
+    public PlayerCache(String userId, LocalDateTime lastMessage, String lastSpokeGuild, LocalDateTime lastSeen) {
         this.userId = userId;
         this.lastMessage = lastMessage;
         this.lastSpokeGuild = lastSpokeGuild;

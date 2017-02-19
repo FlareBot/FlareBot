@@ -1,7 +1,7 @@
 package com.bwfcwalshy.flarebot.permissions;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import sx.blah.discord.handle.obj.IChannel;
+import net.dv8tion.jda.core.entities.*;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,9 +19,9 @@ public class Permissions {
         }
     }
 
-    public PerGuildPermissions getPermissions(IChannel channel) {
-        if (channel.isPrivate())
+    public PerGuildPermissions getPermissions(MessageChannel channel) {
+        if (channel.getType() != ChannelType.TEXT)
             return new PrivateChannelPermission(channel);
-        return perms.computeIfAbsent(channel.getGuild().getID(), PerGuildPermissions::new);
+        return perms.computeIfAbsent(((TextChannel) channel).getGuild().getId(), PerGuildPermissions::new);
     }
 }

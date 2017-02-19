@@ -5,10 +5,11 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.util.SQLController;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.EmbedBuilder;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,15 +23,15 @@ import java.util.List;
  */
 public class PlaylistsCommand implements Command {
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("mark")) {
                 if (FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1) {
-                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) +
+                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) +
                                 "playlists mark (global/local) (playlist)", channel);
                     } else if (args.length == 2) {
-                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getID()) +
+                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) +
                                 "playlists mark (global/local) (playlist)", channel);
                     } else if (args.length >= 3) {
                         String playlist = "";
@@ -41,7 +42,7 @@ public class PlaylistsCommand implements Command {
                             SQLController.runSqlTask(conn -> {
                                 PreparedStatement statement = conn.prepareStatement("SELECT * FROM playlist WHERE " +
                                         "guild = ? AND name = ?");
-                                statement.setString(1, channel.getGuild().getID());
+                                statement.setString(1, channel.getGuild().getId());
                                 statement.setString(2, finalPlaylist);
                                 statement.execute();
                                 if (statement.getResultSet().next()) {
@@ -49,10 +50,12 @@ public class PlaylistsCommand implements Command {
                                         PreparedStatement statement1 = conn.prepareStatement("UPDATE playlist SET " +
                                                 "scope = ? WHERE guild = ? AND name = ?");
                                         statement1.setString(1, args[1].toLowerCase());
-                                        statement1.setString(2, channel.getGuild().getID());
+                                        statement1.setString(2, channel.getGuild().getId());
                                         statement1.setString(3, finalPlaylist);
                                         statement1.execute();
-                                        MessageUtils.sendMessage(MessageUtils.getEmbed().withDesc("Changed the scope of '" + finalPlaylist + "' to " + args[1].toLowerCase()), channel);
+                                        channel.sendMessage(MessageUtils.getEmbed()
+                                                .setDescription("Changed the scope of '" + finalPlaylist + "' to "
+                                                        + args[1].toLowerCase()).build()).queue();
                                     } else {
                                         MessageUtils.sendErrorMessage("Invalid scope! Scopes are local and global!",
                                                 channel);
@@ -68,18 +71,19 @@ public class PlaylistsCommand implements Command {
                 }
             }
         } else {
-            channel.setTypingStatus(true);
+            channel.sendTyping().queue();
             try {
                 SQLController.runSqlTask(connection -> {
                     connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
                             "  name  VARCHAR(60),\n" +
                             "  guild VARCHAR(20),\n" +
                             "  list  TEXT,\n" +
+                            "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                             "  PRIMARY KEY(name, guild)\n" +
                             ")");
                     PreparedStatement get = connection.prepareStatement("SELECT name, scope FROM playlist WHERE guild" +
                             " = ? OR scope = 'global' ORDER BY scope ASC");
-                    get.setString(1, channel.getGuild().getID());
+                    get.setString(1, channel.getGuild().getId());
                     get.execute();
                     ResultSet set = get.getResultSet();
                     StringBuilder sb = new StringBuilder();
@@ -108,11 +112,11 @@ public class PlaylistsCommand implements Command {
                     songs.add(sb.toString());
                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
                     i = 1;
-                    builder.appendField("Global Playlists", (globalSb.toString().isEmpty() ? "No global playlists!" : globalSb.toString()), false);
+                    builder.addField("Global Playlists", (globalSb.toString().isEmpty() ? "No global playlists!" : globalSb.toString()), false);
                     for (String s : songs) {
-                        builder.appendField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);
+                        builder.addField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);
                     }
-                    MessageUtils.sendMessage(builder, channel);
+                    channel.sendMessage(builder.build()).queue();
                 });
             } catch (SQLException e) {
                 MessageUtils.sendException("**Database error!**", e, channel);

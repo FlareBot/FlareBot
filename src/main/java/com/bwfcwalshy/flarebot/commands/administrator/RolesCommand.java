@@ -1,29 +1,21 @@
 package com.bwfcwalshy.flarebot.commands.administrator;
 
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.core.entities.*;
 
 public class RolesCommand implements Command {
 
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
-        if (channel.isPrivate()) {
-            MessageUtils.sendMessage("**DM's in Discord can not have roles!**", channel);
-            return;
-        }
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         StringBuilder sb = new StringBuilder();
         sb.append("**Server Roles**\n```\n");
-        for (IRole role : channel.getGuild().getRoles()) {
-            sb.append(role.getName()).append(" (").append(role.getID()).append(")\n");
+        for (Role role : channel.getGuild().getRoles()) {
+            sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
         }
         sb.append("```");
 
-        MessageUtils.sendMessage(sb.toString(), channel);
+        channel.sendMessage(sb.toString()).queue();
     }
 
     @Override

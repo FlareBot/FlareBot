@@ -1,16 +1,16 @@
 package com.bwfcwalshy.flarebot.commands.secret;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IUser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class UpdateCommand implements Command {
     private FlareBot flareBot = FlareBot.getInstance();
 
     @Override
-    public void onCommand(IUser sender, IChannel channel, IMessage message, String[] args) {
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
             if (args.length == 0) {
                 update(false, channel);
@@ -35,14 +35,14 @@ public class UpdateCommand implements Command {
                 if (args[0].equalsIgnoreCase("force")) {
                     update(true, channel);
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
-                    MessageUtils.sendMessage("I will now update to the latest version when no channels are playing music!", channel);
-                    if (flareBot.getClient().getConnectedVoiceChannels().size() == 0) {
+                    channel.sendMessage("I will now update to the latest version when no channels are playing music!").queue();
+                    if (flareBot.getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     } else {
                         if (!queued.getAndSet(true)) {
                             NOVOICE_UPDATING.set(true);
                         } else
-                            MessageUtils.sendMessage("There is already an update queued!", channel);
+                            channel.sendMessage("There is already an update queued!").queue();
                     }
                 } else {
                     if (!queued.getAndSet(true)) {
@@ -63,12 +63,12 @@ public class UpdateCommand implements Command {
                                 }
                             }.delay(p.toStandardSeconds().getSeconds() * 1000);
                         } catch (IllegalArgumentException e) {
-                            MessageUtils.sendMessage("That is an invalid time option!", channel);
+                            channel.sendMessage("That is an invalid time option!").queue();
                             return;
                         }
-                        MessageUtils.sendMessage("I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.", channel);
+                        channel.sendMessage("I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.").queue();
                     } else
-                        MessageUtils.sendMessage("There is already an update queued!", channel);
+                        channel.sendMessage("There is already an update queued!").queue();
                 }
             }
         }
@@ -80,7 +80,7 @@ public class UpdateCommand implements Command {
      * @param force   If the version number has not changed this will need to be true in order to update it.
      * @param channel Channel the command was sent in.
      */
-    public static void update(boolean force, IChannel channel) {
+    public static void update(boolean force, TextChannel channel) {
         try {
             URL url = new URL("https://raw.githubusercontent.com/FlareBot/FlareBot/master/pom.xml");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -93,12 +93,12 @@ public class UpdateCommand implements Command {
                     if (force || isHigher(latestVersion, currentVersion)) {
                         FlareBot.getInstance().setStatus("Updating..");
                         if (channel != null)
-                            MessageUtils.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`", channel);
+                            channel.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`").queue();
                         UPDATING.set(true);
                         FlareBot.getInstance().quit(true);
                     } else {
                         if (channel != null)
-                            MessageUtils.sendMessage("I am currently up to date! Current version: `" + currentVersion + "`", channel);
+                            channel.sendMessage("I am currently up to date! Current version: `" + currentVersion + "`").queue();
                     }
                     break;
                 }
