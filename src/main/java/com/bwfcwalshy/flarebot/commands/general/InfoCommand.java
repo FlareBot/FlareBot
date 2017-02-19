@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.function.Supplier;
-
+import java.util.stream.Collectors;
 import static com.bwfcwalshy.flarebot.FlareBot.LOGGER;
 
 public class InfoCommand implements Command {
@@ -47,7 +47,7 @@ public class InfoCommand implements Command {
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
-            channel.sendMessage(bld.build()).queue();
+            sender.getPrivateChannel().sendMessage(bld.build()).queue();
         }else{
             String search = "";
             for (String arg : args) {
@@ -87,6 +87,8 @@ public class InfoCommand implements Command {
 
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
+        TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients()).flatMap(c -> c.getUsers().stream()).map(u -> u.getId())
+                    .collect(Collectors.toSet()).size())),
         VOICE_CONNECTIONS("Voice Connections", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
         ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
         TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),
