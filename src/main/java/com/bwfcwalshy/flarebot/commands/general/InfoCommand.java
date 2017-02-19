@@ -43,22 +43,22 @@ public class InfoCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 0) {
+        if (args.length == 0) {
             EmbedBuilder bld = MessageUtils.getEmbed(sender).setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
             bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
             sender.openPrivateChannel().complete().sendMessage(bld.build()).queue();
-        }else{
+        } else {
             String search = "";
             for (String arg : args) {
                 search += arg + " ";
             }
             search = search.trim();
 
-            for(Content content : Content.values){
-                if(search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ").equalsIgnoreCase(content.getName())){
+            for (Content content : Content.values) {
+                if (search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ").equalsIgnoreCase(content.getName())) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .addField(content.getName(), content.getReturn(), false).build()).queue();
                     return;
@@ -91,12 +91,12 @@ public class InfoCommand implements Command {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
         TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients())
                 .flatMap(c -> c.getUsers().stream()).map(ISnowflake::getId)
-                    .collect(Collectors.toSet()).size())),
+                .collect(Collectors.toSet()).size())),
         VOICE_CONNECTIONS("Voice Connections", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
         ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
         TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),
         UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
-        MEM_USAGE("Memory Usage",() ->  getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
+        MEM_USAGE("Memory Usage", () -> getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
         MEM_FREE("Memory Free", () -> getMb(Runtime.getRuntime().freeMemory())),
         VIDEO_THREADS("Video Threads", () -> String.valueOf(VideoThread.VIDEO_THREADS.activeCount())),
         TOTAL_THREADS("Total Threads", () -> String.valueOf(Thread.getAllStackTraces().size())),
@@ -119,6 +119,7 @@ public class InfoCommand implements Command {
         private boolean align = true;
 
         public static Content[] values = values();
+
         Content(String name, String returns) {
             this.name = name;
             this.returns = () -> returns;
@@ -129,6 +130,7 @@ public class InfoCommand implements Command {
             this.returns = () -> returns;
             this.align = align;
         }
+
         Content(String name, Supplier<String> returns) {
             this.name = name;
             this.returns = returns;
