@@ -24,7 +24,7 @@ public class SaveCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage("Usage: _save [NAME]").queue();
+            channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "save [NAME]").queue();
             return;
         }
         String name = "";
@@ -88,7 +88,7 @@ public class SaveCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Save the current playlist! Usage: `_save NAME`";
+        return "Save the current playlist! Usage: `save NAME`";
     }
 
     @Override

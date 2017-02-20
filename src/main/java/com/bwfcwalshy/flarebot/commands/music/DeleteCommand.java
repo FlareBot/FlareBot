@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
+import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -20,7 +21,7 @@ public class DeleteCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage("Usage: _delete [NAME]").queue();
+            channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "delete [NAME]").queue();
             return;
         }
         String name = "";

@@ -23,7 +23,7 @@ public class LoadCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage("Usage: _load [NAME]").queue();
+            channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "load [NAME]").queue();
             return;
         }
         String name = "";
