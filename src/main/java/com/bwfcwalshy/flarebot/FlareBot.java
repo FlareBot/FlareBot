@@ -645,7 +645,7 @@ public class FlareBot {
         try {
             permissions.save();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Perms save failed on stop!", e);
         }
     }
 
@@ -714,13 +714,13 @@ public class FlareBot {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to load roles!", e);
             }
         } else {
             try {
                 roleFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to load roles!", e);
             }
         }
     }
@@ -730,7 +730,7 @@ public class FlareBot {
             try {
                 roleFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to save roles!", e);
             }
         }
 
@@ -753,7 +753,7 @@ public class FlareBot {
             fw.flush();
             fw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to save roles!", e);
         }
     }
 
