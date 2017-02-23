@@ -69,7 +69,7 @@ public class Events extends ListenerAdapter {
                         .replace("%user%", event.getMember().getUser().getName())
                         .replace("%guild%", event.getGuild().getName())
                         .replace("%mention%", event.getMember().getUser().getAsMention());
-                channel.sendMessage(msg).queue();
+                channel.sendMessage(msg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
             } else flareBot.getWelcomes().remove(welcome);
         }
         if (flareBot.getAutoAssignRoles().containsKey(event.getGuild().getId())) {

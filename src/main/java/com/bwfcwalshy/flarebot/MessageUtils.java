@@ -12,9 +12,15 @@ import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.function.Consumer;
 
 public class MessageUtils {
     public static final String DEBUG_CHANNEL = "226786557862871040";
+
+    public static <T> Consumer<T> noOpConsumer(){
+        return t -> {
+        };
+    }
 
     public static Message sendPM(User user, CharSequence message) {
         return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
