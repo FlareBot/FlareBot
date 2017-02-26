@@ -31,13 +31,13 @@ public class DeleteCommand implements Command {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
                 connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  name VARCHAR(10),\n" +
+                        "  playlist_name VARCHAR(10),\n" +
                         "  guild VARCHAR(10),\n" +
                         "  list VARCHAR(80),\n" +
                         "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(name, guild)\n" +
+                        "  PRIMARY KEY(playlist_name, guild)\n" +
                         ")");
-                PreparedStatement update = connection.prepareStatement("DELETE FROM playlist WHERE name = ? AND guild = ?");
+                PreparedStatement update = connection.prepareStatement("DELETE FROM playlist WHERE playlist_name = ? AND guild = ?");
                 update.setString(1, finalName);
                 update.setString(2, channel.getGuild().getId());
                 if (update.executeUpdate() > 0) {
