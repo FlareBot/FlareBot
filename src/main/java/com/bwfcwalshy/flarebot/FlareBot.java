@@ -442,11 +442,11 @@ public class FlareBot {
                     setStatus("_help | _invite");
             }
         }.repeat(10, 32000);
-        new FlarebotTask("PostDbotstData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostDbotsData" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
-                    postToBotlist(FlareBot.dBotsAuth, String.format("/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                    postToBotlist(FlareBot.dBotsAuth, String.format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
         }.repeat(10, 600000);
@@ -454,7 +454,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
-                    postToBotlist(FlareBot.botListAuth, "");
+                    postToBotlist(FlareBot.botListAuth, String.format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
         }.repeat(10, 600000);
