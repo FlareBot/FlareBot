@@ -37,6 +37,7 @@ import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -281,12 +282,23 @@ public class FlareBot {
                         TextChannel c =
                                 getChannelByID(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
                         if (c != null) {
-                            if (!c.canTalk()) {
+                            if (c.getGuild().getSelfMember().hasPermission(c,
+                                    Permission.MESSAGE_EMBED_LINKS,
+                                    Permission.MESSAGE_READ,
+                                    Permission.MESSAGE_WRITE)) {
+                                Track track = player.getPlayingTrack();
+                                Queue<Track> playlist = player.getPlaylist();
+                                c.sendMessage(MessageUtils.getEmbed()
+                                        .addField("Now Playing: ", SongCommand.getLink(track), false)
+                                        .addField("Duration: ", SongCommand.formatDuration(track), false)
+                                        .addField("Requested by: ",
+                                                String.format("<@!%s>", track.getMeta().get("requester")), false)
+                                        .addField("Next up: ", playlist.isEmpty() ? "Nothing" :
+                                                SongCommand.getLink(playlist.peek()), false)
+                                        .build()).queue();
+                            } else {
                                 MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                             }
-                            Track track = player.getPlayingTrack();
-                            c.sendMessage(MessageUtils.getEmbed()
-                                    .addField("Now Playing: ", SongCommand.getLink(track), false).build()).queue();
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
