@@ -490,7 +490,7 @@ public class FlareBot {
                         .header("Content-Type", "application/json")
                         .body(new JSONObject()
                                 .put("server_count", client.getGuilds().size())
-                                .put("shard_id", ++i)
+                                .put("shard_id", i++)
                                 .put("shard_count", clients.length))
                         .asStringAsync();
             } catch (Exception e1) {
