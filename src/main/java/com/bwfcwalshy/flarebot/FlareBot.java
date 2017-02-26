@@ -483,6 +483,16 @@ public class FlareBot {
     private void postToBotlist(String auth, String url) {
         int i = 0;
         for (JDA client : clients) {
+            if (clients.length == 1) {
+                Unirest.post(url)
+                        .header("Authorization", auth)
+                        .header("User-Agent", "Mozilla/5.0 FlareBot")
+                        .header("Content-Type", "application/json")
+                        .body(new JSONObject()
+                                .put("server_count", client.getGuilds().size()))
+                        .asStringAsync();
+                return;
+            }
             try {
                 Unirest.post(url)
                         .header("Authorization", auth)
