@@ -190,6 +190,8 @@ public class FlareBot {
                 ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                         .setLevel(Level.DEBUG);
             }
+            if(parsed.hasOption("bl"))
+                FlareBot.botListAuth = parsed.getOptionValue("bl");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
