@@ -481,7 +481,6 @@ public class FlareBot {
     }
 
     private void postToBotlist(String auth, String url) {
-        int i = 0;
         for (JDA client : clients) {
             if (clients.length == 1) {
                 Unirest.post(url)
@@ -500,8 +499,8 @@ public class FlareBot {
                         .header("Content-Type", "application/json")
                         .body(new JSONObject()
                                 .put("server_count", client.getGuilds().size())
-                                .put("shard_id", i++)
-                                .put("shard_count", clients.length))
+                                .put("shard_id", client.getShardInfo().getShardId())
+                                .put("shard_count", client.getShardInfo().getShardTotal()))
                         .asStringAsync();
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
