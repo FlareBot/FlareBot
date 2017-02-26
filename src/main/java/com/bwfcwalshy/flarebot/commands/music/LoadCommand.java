@@ -34,15 +34,17 @@ public class LoadCommand implements Command {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
                 connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  name  VARCHAR(60),\n" +
+                        "  playlist_name  VARCHAR(60),\n" +
                         "  guild VARCHAR(20),\n" +
                         "  list  TEXT,\n" +
                         "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(name, guild)\n" +
+                        "  PRIMARY KEY(playlist_name, guild)\n" +
                         ")");
-                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE name = ? AND guild = ? OR scope = 'global'");
+                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE (playlist_name = ? AND guild = ?) " +
+                        "OR (playlist_name=? AND scope = 'global')");
                 exists.setString(1, finalName);
                 exists.setString(2, channel.getGuild().getId());
+                exists.setString(3, channel.getGuild().getId());
                 exists.execute();
                 ResultSet set = exists.getResultSet();
                 if (set.isBeforeFirst()) {
