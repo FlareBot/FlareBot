@@ -74,6 +74,7 @@ public class FlareBot {
 
     private static final Map<String, Logger> LOGGERS = new ConcurrentHashMap<>();
     public static final Logger LOGGER = getLog(FlareBot.class);
+    private static String botListAuth;
     private static String dBotsAuth;
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
@@ -152,6 +153,12 @@ public class FlareBot {
         dBots.setLongOpt("discord-bots-token");
         dBots.setRequired(false);
         options.addOption(dBots);
+
+        Option botList = new Option("bl", true, "Botlist token");
+        botList.setArgName("botlist-token");
+        botList.setLongOpt("botlist-token");
+        botList.setRequired(false);
+        options.addOption(botList);
 
         Option youtubeApi = new Option("yt", true, "YouTube search API token");
         youtubeApi.setArgName("yt-api-token");
@@ -423,19 +430,19 @@ public class FlareBot {
                     setStatus("_help | _invite");
             }
         }.repeat(10, 32000);
-        new FlarebotTask("PostData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostDbotstData" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
-                    try {
-                        Unirest.post("https://bots.discord.pw/api/bots/" + clients[0].getSelfUser().getId() + "/stats")
-                                .header("Authorization", FlareBot.dBotsAuth)
-                                .header("Content-Type", "application/json")
-                                .body(new JSONObject().put("server_count", getGuilds().size()))
-                                .asString();
-                    } catch (Exception e1) {
-                        FlareBot.LOGGER.error("Could not POST data to DBots", e1);
-                    }
+                    postToBotlist(FlareBot.dBotsAuth, String.format("/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, 600000);
+        new FlarebotTask("PostBotlistData" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                if (FlareBot.botListAuth != null) {
+                    postToBotlist(FlareBot.botListAuth, "");
                 }
             }
         }.repeat(10, 600000);
@@ -458,6 +465,25 @@ public class FlareBot {
                 quit(true);
             }
         } catch (NoSuchElementException ignored) {
+        }
+    }
+
+    private void postToBotlist(String auth, String url) {
+        int i = 0;
+        for (JDA client : clients) {
+            try {
+                Unirest.post(url)
+                        .header("Authorization", auth)
+                        .header("User-Agent", "Mozilla/5.0 FlareBot")
+                        .header("Content-Type", "application/json")
+                        .body(new JSONObject()
+                                .put("server_count", client.getGuilds().size())
+                                .put("shard_id", ++i)
+                                .put("shard_count", clients.length))
+                        .asStringAsync();
+            } catch (Exception e1) {
+                FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
+            }
         }
     }
 
