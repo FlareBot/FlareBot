@@ -190,6 +190,8 @@ public class FlareBot {
                 ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                         .setLevel(Level.DEBUG);
             }
+            if(parsed.hasOption("bl"))
+                FlareBot.botListAuth = parsed.getOptionValue("bl");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
@@ -481,8 +483,17 @@ public class FlareBot {
     }
 
     private void postToBotlist(String auth, String url) {
-        int i = 0;
         for (JDA client : clients) {
+            if (clients.length == 1) {
+                Unirest.post(url)
+                        .header("Authorization", auth)
+                        .header("User-Agent", "Mozilla/5.0 FlareBot")
+                        .header("Content-Type", "application/json")
+                        .body(new JSONObject()
+                                .put("server_count", client.getGuilds().size()))
+                        .asStringAsync();
+                return;
+            }
             try {
                 Unirest.post(url)
                         .header("Authorization", auth)
@@ -490,8 +501,8 @@ public class FlareBot {
                         .header("Content-Type", "application/json")
                         .body(new JSONObject()
                                 .put("server_count", client.getGuilds().size())
-                                .put("shard_id", ++i)
-                                .put("shard_count", clients.length))
+                                .put("shard_id", client.getShardInfo().getShardId())
+                                .put("shard_count", client.getShardInfo().getShardTotal()))
                         .asStringAsync();
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);

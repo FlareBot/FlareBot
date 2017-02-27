@@ -5,18 +5,21 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("Duplicates") // IntelliJ IDEA Ultimate is bitching about it.
 public class HelpCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
+            if(args[0].equalsIgnoreCase("here")) {
+                sendCommands(channel.getGuild(), sender.openPrivateChannel().complete(), sender);
+                return;
+            }
             CommandType type;
             try {
                 type = CommandType.valueOf(args[0].toUpperCase());
@@ -27,33 +30,53 @@ public class HelpCommand implements Command {
             if (type != CommandType.HIDDEN) {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
-                channel.sendMessage(embedBuilder.addField(type.toString(), type.getCommands()
+                List<String> help = type.getCommands()
                         .stream()
-                        .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
-                        .collect(Collectors.joining("")), false).build()).queue();
+                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command.getDescription() + '\n')
+                        .collect(Collectors.toList());
+                StringBuilder sb = new StringBuilder();
+                int page = 0;
+                for(String s : help){
+                    if(sb.length() + s.length() > 1024){
+                        embedBuilder.addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+                        sb.setLength(0);
+                    }
+                    sb.append(s);
+                }
+                embedBuilder.addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+                channel.sendMessage(embedBuilder.build()).queue();
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
             }
         } else {
-            sendCommands(channel, sender);
+            sendCommands(channel.getGuild(), channel, sender);
         }
     }
 
-    private char get(TextChannel channel) {
-        if (channel.getGuild() != null) {
-            return FlareBot.getPrefixes().get(channel.getGuild().getId());
+    private char get(Guild guild) {
+        if (guild != null) {
+            return FlareBot.getPrefixes().get(guild.getId());
         }
         return FlareBot.getPrefixes().get(null);
     }
 
-    private void sendCommands(TextChannel channel, User sender) {
+    private void sendCommands(Guild guild, MessageChannel channel, User sender) {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
-            String help = c.getCommands()
+            List<String> help = c.getCommands()
                     .stream()
-                    .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
-                    .collect(Collectors.joining(""));
-            embedBuilder.addField(c.toString(), help, false);
+                    .map(command -> get(guild) + command.getCommand() + " - " + command.getDescription() + '\n')
+                    .collect(Collectors.toList());
+            StringBuilder sb = new StringBuilder();
+            int page = 0;
+            for(String s : help){
+                if(sb.length() + s.length() > 1024){
+                    embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+                    sb.setLength(0);
+                }
+                sb.append(s);
+            }
+            embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
         }
         channel.sendMessage(embedBuilder.build()).queue();
     }
