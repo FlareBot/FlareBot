@@ -81,7 +81,7 @@ public class PlaylistsCommand implements Command {
                             "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                             "  PRIMARY KEY(name, guild)\n" +
                             ")");
-                    PreparedStatement get = connection.prepareStatement("SELECT name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
+                    PreparedStatement get = connection.prepareStatement("SELECT playlist_name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
                     get.setString(1, channel.getGuild().getId());
                     get.execute();
                     ResultSet set = get.getResultSet();
