@@ -75,7 +75,7 @@ public class PlaylistsCommand implements Command {
             try {
                 SQLController.runSqlTask(connection -> {
                     connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                            "  name  VARCHAR(60),\n" +
+                            "  playlist_name  VARCHAR(60),\n" +
                             "  guild VARCHAR(20),\n" +
                             "  list  TEXT,\n" +
                             "  scope  VARCHAR(7) DEFAULT 'local',\n" +
