@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class UserInfoCommand implements Command {
 
     private FlareBot flareBot = FlareBot.getInstance();
-    private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
@@ -36,10 +35,10 @@ public class UserInfoCommand implements Command {
                             "Servers: " + FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(id) != null).count() + " shared\n" +
                                     "Roles: " + channel.getGuild().getMember(user).getRoles().stream()
                                     .map(Role::getName).collect(Collectors.joining(", ")), true)
-                    .addField("Time Data", "Created: " + formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
-                            "Joined: " + formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
-                            "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : formatTime(cache.getLastSeen())) + "\n" +
-                            "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : formatTime(cache.getLastMessage())), false)
+                    .addField("Time Data", "Created: " + flareBot.formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
+                            "Joined: " + flareBot.formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
+                            "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : flareBot.formatTime(cache.getLastSeen())) + "\n" +
+                            "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : flareBot.formatTime(cache.getLastMessage())), false)
                     .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
     }
 
@@ -56,26 +55,5 @@ public class UserInfoCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.GENERAL;
-    }
-
-    private String formatTime(LocalDateTime time) {
-        return time.getDayOfMonth() + getDayOfMonthSuffix(time.getDayOfMonth()) + " " + time.format(timeFormat) + " UTC";
-    }
-
-    private String getDayOfMonthSuffix(final int n) {
-        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
-        if (n >= 11 && n <= 13) {
-            return "th";
-        }
-        switch (n % 10) {
-            case 1:
-                return "st";
-            case 2:
-                return "nd";
-            case 3:
-                return "rd";
-            default:
-                return "th";
-        }
     }
 }

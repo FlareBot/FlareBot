@@ -57,6 +57,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
@@ -201,6 +202,8 @@ public class FlareBot {
 
     private String version = null;
     private JDA[] clients;
+
+    private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
 
     private List<Command> commands = new CopyOnWriteArrayList<>();
     // Guild ID | List role ID
@@ -396,6 +399,7 @@ public class FlareBot {
         registerCommand(new AvatarCommand());
         registerCommand(new RandomCommand());
         registerCommand(new UserInfoCommand());
+        registerCommand(new PollCommand());
 
         ApiFactory.bind();
 
@@ -829,6 +833,18 @@ public class FlareBot {
                 .sum() == clients.length;
     }
 
+    public static String getMessage(String[] args, int min) {
+        return Arrays.stream(args).skip(min).collect(Collectors.joining(" ")).trim();
+    }
+
+    public static String getMessage(String[] args, int min, int max) {
+        String message = "";
+        for(int index = min; index < max; index++){
+            message += args[index] + " ";
+        }
+        return message.trim();
+    }
+
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
     }
 
@@ -913,5 +929,30 @@ public class FlareBot {
         return Arrays.stream(clients).map(jda -> jda.getUserById(id))
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
+    }
+
+    public DateTimeFormatter getTimeFormatter(){
+        return this.timeFormat;
+    }
+
+    public String formatTime(LocalDateTime dateTime){
+        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime.format(timeFormat) + " UTC";
+    }
+
+    private String getDayOfMonthSuffix(final int n) {
+        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
+        if (n >= 11 && n <= 13) {
+            return "th";
+        }
+        switch (n % 10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
+        }
     }
 }

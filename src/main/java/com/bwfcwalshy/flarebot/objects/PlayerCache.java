@@ -16,7 +16,6 @@ public class PlayerCache {
         this.lastSeen = lastSeen;
     }
 
-
     public String getUserId() {
         return userId;
     }
