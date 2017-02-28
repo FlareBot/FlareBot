@@ -52,7 +52,7 @@ public class SaveCommand implements Command {
                         "  guild VARCHAR(20),\n" +
                         "  list  TEXT,\n" +
                         "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(name, guild)\n" +
+                        "  PRIMARY KEY(playlist_name, guild)\n" +
                         ")");
                 PreparedStatement exists = connection.prepareStatement("SELECT * FROM playlist WHERE playlist_name = ? AND guild = ?");
                 exists.setString(1, finalName);
