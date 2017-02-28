@@ -75,14 +75,13 @@ public class PlaylistsCommand implements Command {
             try {
                 SQLController.runSqlTask(connection -> {
                     connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                            "  name  VARCHAR(60),\n" +
+                            "  playlist_name  VARCHAR(60),\n" +
                             "  guild VARCHAR(20),\n" +
                             "  list  TEXT,\n" +
                             "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                             "  PRIMARY KEY(name, guild)\n" +
                             ")");
-                    PreparedStatement get = connection.prepareStatement("SELECT list FROM playlist WHERE (playlist_name = ? AND guild = ?) " +
-                            "OR (playlist_name=? AND scope = 'global') ORDER BY scope ASC");
+                    PreparedStatement get = connection.prepareStatement("SELECT playlist_name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
                     get.setString(1, channel.getGuild().getId());
                     get.execute();
                     ResultSet set = get.getResultSet();
