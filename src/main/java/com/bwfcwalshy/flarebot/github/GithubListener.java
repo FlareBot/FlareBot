@@ -16,7 +16,7 @@ public class GithubListener implements EventListener<PushEvent> {
         EmbedBuilder eb = MessageUtils.getEmbed();
         eb.setAuthor(e.getSender().getLogin(), e.getSender().getProfile(), e.getSender().getAvatarUrl());
         for (Commit commit : e.getCommits()) {
-			eb.addField("Commit:","[" + commit.getId().substring(0, 7) + "](" + commit.getUrl() + ")" + "```" + commit.getMessage() + "```", false);
+        	eb.addField("Commit:","[" + commit.getId().substring(0, 7) + "](" + commit.getUrl() + ")\n Branch `" + e.getRef().substring(e.getRef().lastIndexOf('/') + 1) + "` " + "```" + commit.getMessage() + "```", false);
         	
         	if(commit.getAdded().length > 0){
                 StringBuilder sb = new StringBuilder();
