@@ -12,9 +12,11 @@ import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.regex.Pattern;
 
 public class MessageUtils {
     public static final String DEBUG_CHANNEL = "226786557862871040";
+    private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
 
     public static Message sendPM(User user, CharSequence message) {
         return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
@@ -99,5 +101,9 @@ public class MessageUtils {
     public static void editMessage(String s, EmbedBuilder embed, Message message) {
         if (message != null)
             message.editMessage(new MessageBuilder().append(s).setEmbed(embed.build()).build()).queue();
+    }
+
+    public static boolean hasInvite(Message message) {
+        return INVITE_REGEX.matcher(message.getRawContent()).find();
     }
 }
