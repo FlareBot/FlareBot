@@ -22,7 +22,7 @@ public enum Automod {
 
     public boolean tryOn(Message message) {
         if (test.test(message)) {
-            ConfigurationProvider.getSeverityFor(message.getGuild(), this).accept(message.getGuild().getMember(message.getAuthor()));
+            SeverityProvider.getSeverityFor(message.getGuild(), this).accept(message.getGuild().getMember(message.getAuthor()));
             return true;
         }
         return false;
