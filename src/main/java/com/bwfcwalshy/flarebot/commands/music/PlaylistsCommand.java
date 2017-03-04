@@ -71,7 +71,7 @@ public class PlaylistsCommand implements Command {
                 }
             }
         } else {
-            channel.sendTyping().queue();
+            channel.sendTyping().complete();
             try {
                 SQLController.runSqlTask(connection -> {
                     connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +

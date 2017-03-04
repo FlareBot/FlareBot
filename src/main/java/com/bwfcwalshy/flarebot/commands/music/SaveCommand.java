@@ -43,7 +43,7 @@ public class SaveCommand implements Command {
             channel.sendMessage("Your playlist is empty!").queue();
             return;
         }
-        channel.sendTyping().queue();
+        channel.sendTyping().complete();
         try {
             String finalName = name;
             SQLController.runSqlTask(connection -> {

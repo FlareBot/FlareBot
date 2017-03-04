@@ -29,7 +29,7 @@ public class LoadCommand implements Command {
         String name = "";
         for (String arg : args) name += arg + ' ';
         name = name.trim();
-        channel.sendTyping().queue();
+        channel.sendTyping().complete();
         try {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
