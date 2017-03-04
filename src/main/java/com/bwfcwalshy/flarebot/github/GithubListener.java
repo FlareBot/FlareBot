@@ -24,7 +24,7 @@ public class GithubListener implements EventListener<PushEvent> {
 
             if (commit.getAdded().length > 0) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("```Markdown\n");
+                sb.append("```md\n");
                 for (String file : commit.getAdded()) {
                     sb.append("* " + file + "\n\n");
                 }
@@ -34,7 +34,7 @@ public class GithubListener implements EventListener<PushEvent> {
 
             if (commit.getRemoved().length > 0) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("```Markdown\n");
+                sb.append("```md\n");
                 for (String file : commit.getRemoved()) {
                     sb.append("* " + file + "\n\n");
                 }
@@ -44,7 +44,7 @@ public class GithubListener implements EventListener<PushEvent> {
 
             if (commit.getModified().length > 0) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("```Markdown\n");
+                sb.append("```md\n");
                 for (String file : commit.getModified()) {
                     sb.append("* " + file + "\n\n");
                 }
