@@ -6,6 +6,9 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 import javax.naming.Context;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <br>
@@ -15,6 +18,8 @@ public class SQLController {
 
     private static final Context context = null;
     private static final MysqlDataSource dataSource;
+    private static final AtomicInteger COUNTER = new AtomicInteger(0);
+    private static final ExecutorService SQL_POOL = Executors.newCachedThreadPool(r -> new Thread(r, "SQL Thread " + COUNTER.incrementAndGet()));
 
     static {
         dataSource = new MysqlDataSource();
@@ -29,7 +34,6 @@ public class SQLController {
     }
 
     private static Connection getConnection() throws SQLException {
-//        return DriverManager.getConnection("jdbc:mysql://localhost:3306/flarebot?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false", "flare", FlareBot.passwd);
         return dataSource.getConnection();
     }
 
@@ -38,5 +42,15 @@ public class SQLController {
         toRun.execute(c);
         if (!c.isClosed())
             c.close();
+    }
+
+    public static void asyncRunSqlTask(SQLTask toRun) {
+        SQL_POOL.submit(() -> {
+            try {
+                runSqlTask(toRun);
+            } catch (Exception e) {
+                FlareBot.LOGGER.error("Exception in " + Thread.currentThread().getName(), e);
+            }
+        });
     }
 }
