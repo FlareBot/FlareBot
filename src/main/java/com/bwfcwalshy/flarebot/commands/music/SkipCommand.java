@@ -45,7 +45,7 @@ public class SkipCommand implements Command {
                         .count());
                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("Can't start a vote right now! " +
-                                "Another one in progress! Please use _skip YES|NO to vote!")
+                                "Another one in progress! Please use " + FlareBot.getPrefix(channel.getGuild().getId()) + "skip YES|NO to vote!")
                         .addField("Votes for YES:", yes, true).addField("Votes for NO:", no, true).build()).queue();
             } else getVotes(channel, member);
         } else {
@@ -115,7 +115,6 @@ public class SkipCommand implements Command {
                         votes.remove(s);
                         return;
                     }
-                    String res = "";
                     boolean skip = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
                             .count() > (votes.size() / 2.0f);
@@ -129,7 +128,7 @@ public class SkipCommand implements Command {
             }.delay(20000);
             channel.sendMessage(MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
-                    + "** has started!\nUse _skip YES|NO to vote!").build()).queue();
+                    + "** has started!\nUse " + FlareBot.getPrefix(channel.getGuild().getId()) + "skip YES|NO to vote!").build()).queue();
             return new HashMap<>();
         });
     }
