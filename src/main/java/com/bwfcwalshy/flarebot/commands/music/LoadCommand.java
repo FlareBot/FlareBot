@@ -44,7 +44,7 @@ public class LoadCommand implements Command {
                         "OR (playlist_name=? AND scope = 'global')");
                 exists.setString(1, finalName);
                 exists.setString(2, channel.getGuild().getId());
-                exists.setString(3, channel.getGuild().getId());
+                exists.setString(3, finalName);
                 exists.execute();
                 ResultSet set = exists.getResultSet();
                 if (set.isBeforeFirst()) {
