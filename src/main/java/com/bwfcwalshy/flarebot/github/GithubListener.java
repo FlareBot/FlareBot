@@ -25,9 +25,17 @@ public class GithubListener implements EventListener<PushEvent> {
             if (commit.getAdded().length > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
+                int i = 1;
                 for (String file : commit.getAdded()) {
-                    sb.append("* " + file + "\n\n");
+                    if (!(i++ >= 5)) {
+                        sb.append("* " + file + "\n\n");
+                    }
                 }
+
+                if (commit.getRemoved().length >= 5) {
+                    sb.append("...");
+                }
+
                 String added = sb.toString() + "```";
                 eb.addField("Added files", added, false);
             }
@@ -35,9 +43,17 @@ public class GithubListener implements EventListener<PushEvent> {
             if (commit.getRemoved().length > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
+                int i = 1;
                 for (String file : commit.getRemoved()) {
-                    sb.append("* " + file + "\n\n");
+                    if (!(i++ >= 5)) {
+                        sb.append("* " + file + "\n\n");
+                    }
                 }
+
+                if (commit.getRemoved().length >= 5) {
+                    sb.append("...");
+                }
+
                 String removed = sb.toString() + "```";
                 eb.addField("Removed files", removed, false);
             }
@@ -45,9 +61,17 @@ public class GithubListener implements EventListener<PushEvent> {
             if (commit.getModified().length > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
+                int i = 1;
                 for (String file : commit.getModified()) {
-                    sb.append("* " + file + "\n\n");
+                    if (!(i++ >= 5)) {
+                        sb.append("* " + file + "\n\n");
+                    }
                 }
+
+                if (commit.getModified().length >= 5) {
+                    sb.append("...");
+                }
+
                 String modified = sb.toString() + "```";
                 eb.addField("Modified files", modified, false);
             }
