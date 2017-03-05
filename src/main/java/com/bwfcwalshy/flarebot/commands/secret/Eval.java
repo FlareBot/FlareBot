@@ -26,6 +26,8 @@ public class Eval implements Command {
     private static final List<String> IMPORTS = Arrays.asList("com.bwfcwalshy.flarebot.*",
             "com.bwfcwalshy.flarebot.music.*",
             "com.bwfcwalshy.flarebot.util.*",
+            "com.bwfcwalshy.flarebot.mod.*",
+            "com.bwfcwalshy.flarebot.mod.events.*",
             "com.bwfcwalshy.flarebot.sheduler.*",
             "com.bwfcwalshy.flarebot.permissions.*",
             "com.bwfcwalshy.flarebot.commands.*",
