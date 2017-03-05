@@ -54,6 +54,11 @@ public enum Automod {
 
     public boolean tryOn(Message message) {
         if (test.test(message)) {
+            try {
+                message.delete().complete();
+            } catch (Exception ignored) {
+
+            }
             SeverityProvider.getSeverityFor(message.getGuild(), this)
                     .accept(message.getGuild().getMember(message.getAuthor()), message.getTextChannel(), this);
             return true;
