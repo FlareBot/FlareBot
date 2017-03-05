@@ -115,7 +115,7 @@ public class StrikeCounter {
             statement.setString(2, member.getGuild().getId());
             statement.setString(3, member.getUser().getId());
             if (statement.executeUpdate() == 0) {
-                statement = conn.prepareStatement("INSERT INTO strikes (strike, guild, userid) VALUES (\n" +
+                statement = conn.prepareStatement("INSERT INTO strikes (strikes, guild, userid) VALUES (\n" +
                         "   ?,\n" +
                         "   ?,\n" +
                         "   ?\n" +
@@ -124,8 +124,6 @@ public class StrikeCounter {
                 statement.setString(2, member.getGuild().getId());
                 statement.setString(3, member.getUser().getId());
             }
-            PreparedStatement deleteOlds = conn.prepareStatement("DELETE FROM strike_listeners WHERE guild = ?");
-
         });
     }
 
