@@ -1,12 +1,4 @@
 .idea
-flarebot.iml
-cached/
-modules/
-perms.json
-roles.json
-target/
-welcomes.json
+target
 latest.log
-database.db
-FlareBot/
-/cleanCache
+*.json
