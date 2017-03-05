@@ -13,11 +13,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SeverityProvider {
-    private static final Map<String, Map<Automod, SeverityLevel>> LEVELS = new ConcurrentHashMap<>();
+    private static final Map<String, Map<Automod, SeverityLevel>> LEVELS;
 
     private static final File FILE = new File("severities.json");
 
     static {
+        LEVELS = new ConcurrentHashMap<>();
         if (FILE.exists())
             try {
                 LEVELS.putAll(FlareBot.GSON.fromJson(new FileReader(FILE), new TypeToken<Map<String, String>>() {

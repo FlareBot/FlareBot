@@ -53,6 +53,7 @@ public class StrikeCounter {
             } catch (Exception e) {
                 FlareBot.LOGGER.error("Could not load strike listeners!", e);
             }
+        Runtime.getRuntime().addShutdownHook(new Thread(StrikeCounter::store));
         new FlarebotTask("Save strike listeners") {
             @Override
             public void run() {
