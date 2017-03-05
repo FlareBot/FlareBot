@@ -153,7 +153,7 @@ public class PermissionsCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.ADMINISTRATIVE;
+        return CommandType.MODERATION;
     }
 
     @Override

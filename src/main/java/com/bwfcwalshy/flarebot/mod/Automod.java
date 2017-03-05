@@ -53,15 +53,18 @@ public enum Automod {
     }
 
     public boolean tryOn(Message message) {
-        if (test.test(message)) {
-            try {
-                message.delete().complete();
-            } catch (Exception ignored) {
+        if (!FlareBot.getInstance().getPermissions(message.getChannel())
+                .hasPermission(message.getGuild().getMember(message.getAuthor()), "flarebot.automod.bypass")) {
+            if (test.test(message)) {
+                try {
+                    message.delete().complete();
+                } catch (Exception ignored) {
 
+                }
+                SeverityProvider.getSeverityFor(message.getGuild(), this)
+                        .accept(message.getGuild().getMember(message.getAuthor()), message.getTextChannel(), this);
+                return true;
             }
-            SeverityProvider.getSeverityFor(message.getGuild(), this)
-                    .accept(message.getGuild().getMember(message.getAuthor()), message.getTextChannel(), this);
-            return true;
         }
         return false;
     }
@@ -70,9 +73,13 @@ public enum Automod {
         return MODS.getOrDefault(guild.getId(), false);
     }
 
+    public static void setEnabled(Guild guild, boolean enabled) {
+        MODS.put(guild.getId(), enabled);
+    }
+
     public static void asyncProcess(GuildMessageReceivedEvent event) {
         AUTOMOD_POOL.submit(() -> {
-            if (!FlareBot.getInstance().getPermissions(event.getChannel()).hasPermission(event.getMember(), "flarebot.noautomod"))
+            if (!FlareBot.getInstance().getPermissions(event.getChannel()).hasPermission(event.getMember(), "flarebot.automod.bypass"))
                 for (Automod a : values())
                     a.tryOn(event.getMessage());
         });

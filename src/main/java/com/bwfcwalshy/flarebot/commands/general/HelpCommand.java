@@ -4,6 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.util.HelpFormatter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -29,7 +30,7 @@ public class HelpCommand implements Command {
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 channel.sendMessage(embedBuilder.addField(type.toString(), type.getCommands()
                         .stream()
-                        .map(command -> get(channel) + command.getCommand() + " - " + command.getDescription() + '\n')
+                        .map(command -> get(channel) + command.getCommand() + " - " + HelpFormatter.on(channel, command.getDescription()) + '\n')
                         .collect(Collectors.joining("")), false).build()).queue();
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
