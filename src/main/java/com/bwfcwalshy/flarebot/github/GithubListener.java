@@ -15,16 +15,67 @@ public class GithubListener implements EventListener<PushEvent> {
             return;
         EmbedBuilder eb = MessageUtils.getEmbed();
         eb.setAuthor(e.getSender().getLogin(), e.getSender().getProfile(), e.getSender().getAvatarUrl());
-        StringBuilder sb = new StringBuilder();
         for (Commit commit : e.getCommits()) {
-            sb.append(String.format("`%s` in `%s` - [`%s`](%s) %s\n",
-                    commit.getAuthor().getName(),
-                    e.getRef().substring(e.getRef().lastIndexOf('/') + 1),
-                    commit.getId().substring(0, 7),
-                    commit.getUrl(),
-                    commit.getMessage()));
+            eb.addField("Commit:", "[" +
+                    commit.getId().substring(0, 7) + "](" +
+                    commit.getUrl() + ")\n Branch `" +
+                    e.getRef().substring(e.getRef().lastIndexOf('/') + 1) + "` " + "```" +
+                    commit.getMessage() + "```", false);
+
+            if (commit.getAdded().length > 0) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("```md\n");
+                int i = 1;
+                for (String file : commit.getAdded()) {
+                    if (!(i++ >= 5)) {
+                        sb.append("* " + file + "\n\n");
+                    }
+                }
+
+                if (commit.getRemoved().length >= 5) {
+                    sb.append("...");
+                }
+
+                String added = sb.toString() + "```";
+                eb.addField("Added files", added, false);
+            }
+
+            if (commit.getRemoved().length > 0) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("```md\n");
+                int i = 1;
+                for (String file : commit.getRemoved()) {
+                    if (!(i++ >= 5)) {
+                        sb.append("* " + file + "\n\n");
+                    }
+                }
+
+                if (commit.getRemoved().length >= 5) {
+                    sb.append("...");
+                }
+
+                String removed = sb.toString() + "```";
+                eb.addField("Removed files", removed, false);
+            }
+
+            if (commit.getModified().length > 0) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("```md\n");
+                int i = 1;
+                for (String file : commit.getModified()) {
+                    if (!(i++ >= 5)) {
+                        sb.append("* " + file + "\n\n");
+                    }
+                }
+
+                if (commit.getModified().length >= 5) {
+                    sb.append("...");
+                }
+
+                String modified = sb.toString() + "```";
+                eb.addField("Modified files", modified, false);
+            }
         }
-        eb.setDescription(sb.toString());
         FlareBot.getInstance().getChannelByID("229236239201468417").sendMessage(eb.build()).queue();
     }
 }
