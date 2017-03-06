@@ -21,9 +21,11 @@ import com.bwfcwalshy.flarebot.commands.secret.*;
 import com.bwfcwalshy.flarebot.github.GithubListener;
 import com.bwfcwalshy.flarebot.music.QueueListener;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
+import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
+import com.bwfcwalshy.flarebot.util.SQLController;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.bwfcwalshy.flarebot.web.ApiFactory;
 import com.google.gson.*;
@@ -55,10 +57,14 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -325,6 +331,8 @@ public class FlareBot {
         manager = new FlareBotManager();
         manager.loadRandomSongs();
 
+        loadPolls();
+
         musicManager.getPlayerCreateHooks().register(player -> player.getQueueHookManager().register(new QueueListener()));
 
         latch.await();
@@ -400,6 +408,7 @@ public class FlareBot {
         registerCommand(new RandomCommand());
         registerCommand(new UserInfoCommand());
         registerCommand(new PollCommand());
+        registerCommand(new PinCommand());
 
         ApiFactory.bind();
 
@@ -450,6 +459,19 @@ public class FlareBot {
                 sendData();
             }
         }.repeat(10, 30000);
+
+        new FlarebotTask("PollChecker" + System.currentTimeMillis()){
+            @Override
+            public void run() {
+                for(Poll poll : getManager().getPolls().values()){
+                    if(poll.isOpen()) {
+                        if (LocalDateTime.now().until(poll.getEndTime(), ChronoUnit.SECONDS) <= 0) {
+                            poll.setStatus(Poll.PollStatus.CLOSED);
+                        }
+                    }
+                }
+            }
+        }.repeat(1000, 1000);
 
         setupUpdate();
 
@@ -642,13 +664,44 @@ public class FlareBot {
     }
 
     protected void stop() {
-        LOGGER.debug("Saving data.");
+        LOGGER.info("Saving data.");
         saveRoles();
         saveWelcomes();
         sendData();
         try {
             permissions.save();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+        savePolls();
+    }
+
+    private void savePolls() {
+        for(String guildId : getManager().getPolls().keySet()){
+            String pollJson = GSON.toJson(getManager().getPollFromGuild(getGuildByID(guildId)));
+
+            try {
+                SQLController.runSqlTask((conn) -> {
+                    PreparedStatement statement = conn.prepareStatement("INSERT INTO polls (guild_id, poll) VALUES (?, ?) ON DUPLICATE KEY UPDATE poll = poll");
+                    statement.setString(1, guildId);
+                    statement.setString(2, pollJson);
+                    statement.execute();
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadPolls(){
+        try {
+            SQLController.runSqlTask((conn) -> {
+                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM polls");
+                while(set.next()) {
+                    getManager().getPolls().put(set.getString("guild_id"), GSON.fromJson(set.getString("poll"), Poll.class));
+                }
+            });
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

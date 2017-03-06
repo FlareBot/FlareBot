@@ -2,7 +2,9 @@ package com.bwfcwalshy.flarebot.commands;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
+import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.util.SQLController;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.sql.ResultSet;
@@ -15,6 +17,8 @@ public class FlareBotManager {
 
     private List<String> loadedSongs = new ArrayList<>();
     private Random rand = new Random();
+
+    private Map<String, Poll> polls = new HashMap<>();
 
     public FlareBotManager() {
         instance = this;
@@ -50,5 +54,13 @@ public class FlareBotManager {
             songs.add(loadedSongs.get(rand.nextInt(loadedSongs.size())));
         }
         return songs;
+    }
+
+    public Map<String, Poll> getPolls(){
+        return this.polls;
+    }
+
+    public Poll getPollFromGuild(Guild guild){
+        return this.polls.get(guild.getId());
     }
 }
