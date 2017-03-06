@@ -16,7 +16,7 @@ public class AutomodCommand implements Command {
             channel.sendMessage(HelpFormatter.on(channel, getDescription())).queue();
         } else {
             Automod.setEnabled(channel.getGuild(), args[0].equalsIgnoreCase("on"));
-            channel.sendMessage("Turned automod " + args[0]).queue();
+            channel.sendMessage("Turned automod " + args[0].toLowerCase()).queue();
         }
     }
 
