@@ -1,65 +1,23 @@
 package com.bwfcwalshy.flarebot.mod;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.mod.events.StrikeListener;
-import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.SQLController;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.dv8tion.jda.core.entities.Member;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.lang.reflect.Constructor;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.StreamSupport;
 
 public class StrikeCounter {
     private static Map<String, Map<String, Integer>> strikes;
-    public static final Set<StrikeListener> LISTENERS = ConcurrentHashMap.newKeySet();
 
     private static final File FILE = new File("strikeListeners.json");
 
     static {
-        if (FILE.exists())
-            try {
-                JsonArray array = FlareBot.GSON.fromJson(new FileReader(FILE), JsonArray.class);
-                Runtime.getRuntime().addShutdownHook(new Thread(StrikeCounter::store));
-                StreamSupport.stream(array.spliterator(), false)
-                        .map(JsonElement::getAsJsonObject)
-                        .forEach(o -> {
-                            String guild = o.get("guild").getAsString();
-                            String clazz = o.get("class").getAsString();
-                            try {
-                                int strikesNeeded = o.getAsJsonPrimitive("strikesNeeded").getAsInt();
-                                Class<?> c = Class.forName(clazz);
-                                //noinspection unchecked
-                                Constructor<? extends StrikeListener> co = (Constructor<? extends StrikeListener>)
-                                        c.getConstructor(Integer.TYPE, String.class);
-                                co.setAccessible(true);
-                                LISTENERS.add(co.newInstance(strikesNeeded, guild));
-                                co.setAccessible(false);
-                            } catch (Exception e) {
-                                FlareBot.LOGGER.error("Could not obtain " + clazz + " listener for " + guild, e);
-                            }
-                        });
-            } catch (Exception e) {
-                FlareBot.LOGGER.error("Could not load strike listeners!", e);
-            }
-        Runtime.getRuntime().addShutdownHook(new Thread(StrikeCounter::store));
-        new FlarebotTask("Save strike listeners") {
-            @Override
-            public void run() {
-                store();
-            }
-        }.repeat(300000, 300000);
         strikes = new ConcurrentHashMap<>();
         try {
             SQLController.runSqlTask(conn -> {
@@ -82,28 +40,12 @@ public class StrikeCounter {
         }
     }
 
-    private static void store() {
-        JsonArray jsonArray = new JsonArray();
-        for (StrikeListener s : LISTENERS) {
-            JsonObject listener = new JsonObject();
-            listener.addProperty("guild", s.getGuild());
-            listener.addProperty("class", s.getClass().getName());
-            listener.addProperty("strikesNeeded", s.getNeededStrikes());
-        }
-        try {
-            FileWriter writer = new FileWriter(FILE);
-            FlareBot.GSON.toJson(jsonArray, writer);
-            writer.flush();
-            writer.close();
-        } catch (Exception e) {
-            FlareBot.LOGGER.error("Could not save strike listeners!", e);
-        }
-    }
-
     public static void strike(Member member, int i) {
         Map<String, Integer> strikeMap = strikes.computeIfAbsent(member.getGuild().getId(), m -> new ConcurrentHashMap<>());
         strikeMap.put(member.getUser().getId(), strikeMap.getOrDefault(member.getUser().getId(), 0) + 1);
-        callListeners(member);
+        Arrays.stream(OnStrikeActions.values()).anyMatch(m -> m.on(member, i));
+        // Before anyone asks, purpose of anyMatch is so it only does one (successful) action. Also, when I add modlog it will be useful to have findFirst.
+        // Will probably switch it to a for loop though
         updateDatabase(member);
     }
 
@@ -126,10 +68,6 @@ public class StrikeCounter {
                 statement.setString(3, member.getUser().getId());
             }
         });
-    }
-
-    private static void callListeners(Member member) {
-        LISTENERS.forEach(l -> l.accept(member));
     }
 
     public static void strike(Member member) {

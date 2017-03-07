@@ -9,6 +9,8 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -17,7 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 public enum Automod {
-    INVITES(MessageUtils::hasInvite, SeverityLevel.MEDIUM);
+    INVITES("Stops any Discord guild adversiter right in their tracks by detecting all messages that have an invite!",
+            MessageUtils::hasInvite, SeverityLevel.MEDIUM);
 
     private static final Map<String, Boolean> MODS = new ConcurrentHashMap<>();
     private static final AtomicInteger THREADS = new AtomicInteger(0);
@@ -40,12 +43,18 @@ public enum Automod {
         }
     }
 
+    private String description;
     private final Predicate<Message> test;
     private final SeverityLevel severityLevel;
 
-    Automod(Predicate<Message> test, SeverityLevel severityLevel) {
+    Automod(String description, Predicate<Message> test, SeverityLevel severityLevel) {
+        this.description = description;
         this.test = test;
         this.severityLevel = severityLevel;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public SeverityLevel getSeverityLevel() {
