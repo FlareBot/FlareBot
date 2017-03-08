@@ -15,49 +15,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/**
- * <br>
- * Created by Arsen on 29.10.16..
- */
 public class LoadCommand implements Command {
+
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "load [NAME]").queue();
             return;
         }
-        String name = "";
-        for (String arg : args) name += arg + ' ';
-        name = name.trim();
+        String name = FlareBot.getMessage(args, 0);
         channel.sendTyping().queue();
-        try {
-            String finalName = name;
-            SQLController.runSqlTask(connection -> {
-                connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  playlist_name  VARCHAR(60),\n" +
-                        "  guild VARCHAR(20),\n" +
-                        "  list  TEXT,\n" +
-                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(playlist_name, guild)\n" +
-                        ")");
-                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE (playlist_name = ? AND guild = ?) " +
-                        "OR (playlist_name=? AND scope = 'global')");
-                exists.setString(1, finalName);
-                exists.setString(2, channel.getGuild().getId());
-                exists.setString(3, channel.getGuild().getId());
-                exists.execute();
-                ResultSet set = exists.getResultSet();
-                if (set.isBeforeFirst()) {
-                    set.next();
-                    VideoThread.getThread(finalName + '\u200B' + set.getString("list"), channel, sender).start();
-                } else
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("*That playlist does not exist!*").build()).queue();
-            });
-        } catch (SQLException e) {
-            MessageUtils.sendException("**Database error!**", e, channel);
-            FlareBot.LOGGER.error("Database error!", e);
-        }
+        VideoThread.getThread(name + '\u200B' + FlareBot.getInstance().getManager().loadPlaylist(channel, sender, name), channel, sender).start();
     }
 
     @Override

@@ -2,17 +2,17 @@ package com.bwfcwalshy.flarebot.commands;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
+import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
-import javax.xml.soap.Text;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FlareBotManager {
 
@@ -115,5 +115,29 @@ public class FlareBotManager {
             flareBot.reportError(channel, "The playlist could not be saved! " + e.getMessage());
             FlareBot.LOGGER.error("Database error!", e);
         }
+    }
+
+    public String loadPlaylist(TextChannel channel, User sender, String name) {
+        final String[] list = new String[1];
+        try {
+            SQLController.runSqlTask(connection -> {
+                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE (playlist_name = ? AND guild = ?) " +
+                        "OR (playlist_name=? AND scope = 'global')");
+                exists.setString(1, name);
+                exists.setString(2, channel.getGuild().getId());
+                exists.setString(3, channel.getGuild().getId());
+                exists.execute();
+                ResultSet set = exists.getResultSet();
+                if (set.next()) {
+                    list[0] = set.getString("list");
+                } else
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("*That playlist does not exist!*").build()).queue();
+            });
+        } catch (SQLException e) {
+            MessageUtils.sendException("**Database error!**", e, channel);
+            FlareBot.LOGGER.error("Database error!", e);
+        }
+        return list[0];
     }
 }
