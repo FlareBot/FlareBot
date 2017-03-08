@@ -23,11 +23,8 @@ public class FlareBotManager {
 
     private Map<String, Poll> polls = new HashMap<>();
 
-    private FlareBot flareBot;
-
-    public FlareBotManager(FlareBot bot) {
+    public FlareBotManager() {
         instance = this;
-        this.flareBot = bot;
     }
 
     public static FlareBotManager getInstance() {
@@ -112,7 +109,7 @@ public class FlareBotManager {
                 channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner)).setDescription("Success!").build()).queue();
             });
         } catch (SQLException e) {
-            flareBot.reportError(channel, "The playlist could not be saved! " + e.getMessage());
+            FlareBot.reportError(channel, "The playlist could not be saved!", e);
             FlareBot.LOGGER.error("Database error!", e);
         }
     }
@@ -135,7 +132,7 @@ public class FlareBotManager {
                             .setDescription("*That playlist does not exist!*").build()).queue();
             });
         } catch (SQLException e) {
-            MessageUtils.sendException("**Database error!**", e, channel);
+            FlareBot.reportError(channel, "Unable to load the playlist!", e);
             FlareBot.LOGGER.error("Database error!", e);
         }
         return list[0];

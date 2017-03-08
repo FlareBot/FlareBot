@@ -25,6 +25,7 @@ import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
+import com.bwfcwalshy.flarebot.util.ExceptionUtils;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.bwfcwalshy.flarebot.web.ApiFactory;
@@ -954,10 +955,11 @@ public class FlareBot {
         return message.trim();
     }
 
-    public void reportError(TextChannel channel, String s) {
+    public static void reportError(TextChannel channel, String s, Exception e) {
         JsonObject message = new JsonObject();
         message.addProperty("message", s);
-        String id = postToApi("postError", "error", message);
+        message.addProperty("exception", ExceptionUtils.getStackTrace(e));
+        String id = instance.postToApi("postError", "error", message);
         channel.sendMessage(new EmbedBuilder().setColor(Color.red)
                 .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id).build()).queue();
     }
