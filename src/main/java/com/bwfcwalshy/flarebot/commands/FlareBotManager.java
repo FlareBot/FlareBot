@@ -7,9 +7,12 @@ import com.bwfcwalshy.flarebot.util.SQLController;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 
+import javax.xml.soap.Text;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FlareBotManager {
 
@@ -20,8 +23,11 @@ public class FlareBotManager {
 
     private Map<String, Poll> polls = new HashMap<>();
 
-    public FlareBotManager() {
+    private FlareBot flareBot;
+
+    public FlareBotManager(FlareBot bot) {
         instance = this;
+        this.flareBot = bot;
     }
 
     public static FlareBotManager getInstance() {
@@ -62,5 +68,52 @@ public class FlareBotManager {
 
     public Poll getPollFromGuild(Guild guild){
         return this.polls.get(guild.getId());
+    }
+
+    public void executeCreations(){
+        try {
+            SQLController.runSqlTask(conn -> {
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
+                        "  playlist_name  VARCHAR(60),\n" +
+                        "  guild VARCHAR(20),\n" +
+                        "  owner VARCHAR(20),\n" +
+                        "  list  TEXT,\n" +
+                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
+                        "  PRIMARY KEY(name, guild)\n" +
+                        ")");
+            });
+        } catch (SQLException e) {
+            FlareBot.LOGGER.error("Database error!", e);
+        }
+    }
+
+    public void savePlaylist(TextChannel channel, String owner, String name, String list) {
+        try {
+            SQLController.runSqlTask(connection -> {
+                PreparedStatement exists = connection.prepareStatement("SELECT * FROM playlist WHERE playlist_name = ? AND guild = ?");
+                exists.setString(1, name);
+                exists.setString(2, channel.getGuild().getId());
+                exists.execute();
+                if (exists.getResultSet().isBeforeFirst()) {
+                    channel.sendMessage("That name is already taken!").queue();
+                    return;
+                }
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (playlist_name, guild, owner, list) VALUES (" +
+                        "   ?," +
+                        "   ?," +
+                        "   ?," +
+                        "   ?" +
+                        ")");
+                statement.setString(1, name);
+                statement.setString(2, channel.getGuild().getId());
+                statement.setString(3, owner);
+                statement.setString(4, list);
+                statement.executeUpdate();
+                channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner)).setDescription("Success!").build()).queue();
+            });
+        } catch (SQLException e) {
+            flareBot.reportError(channel, "The playlist could not be saved! " + e.getMessage());
+            FlareBot.LOGGER.error("Database error!", e);
+        }
     }
 }

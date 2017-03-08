@@ -37,6 +37,7 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
@@ -51,6 +52,7 @@ import org.slf4j.LoggerFactory;
 import spark.Spark;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.awt.*;
 import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.net.URL;
@@ -67,6 +69,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -349,7 +352,7 @@ public class FlareBot {
             }
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 
-        manager = new FlareBotManager();
+        manager = new FlareBotManager(this);
         manager.loadRandomSongs();
 
         loadPolls();
@@ -432,6 +435,8 @@ public class FlareBot {
         registerCommand(new PinCommand());
 
         ApiFactory.bind();
+
+        manager.executeCreations();
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
@@ -608,8 +613,9 @@ public class FlareBot {
                 }
             }, "API Thread " + api++));
 
-    public void postToApi(String action, String property, JsonElement data) {
-        if (!apiEnabled) return;
+    public String postToApi(String action, String property, JsonElement data) {
+        if (!apiEnabled) return null;
+        final String[] message = new String[1];
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
@@ -633,7 +639,7 @@ public class FlareBot {
                 int code = obj.get("code").getAsInt();
 
                 if (code % 100 == 0) {
-                    LOGGER.info(code + " - " + obj.get("message").getAsString());
+                    message[0] = obj.get("message").getAsString();
                 } else {
                     LOGGER.error("Error updating site! " + obj.get("error").getAsString());
                 }
@@ -642,6 +648,7 @@ public class FlareBot {
                 FlareBot.LOGGER.error("Could not make POST request!\n\nDetails:\nAction: " + action + "\nProperty: " + property + "\nData: " + data.toString(), e);
             }
         });
+        return message[0];
     }
 
     public void quit(boolean update) {
@@ -945,6 +952,14 @@ public class FlareBot {
             message += args[index] + " ";
         }
         return message.trim();
+    }
+
+    public void reportError(TextChannel channel, String s) {
+        JsonObject message = new JsonObject();
+        message.addProperty("message", s);
+        String id = postToApi("postError", "error", message);
+        channel.sendMessage(new EmbedBuilder().setColor(Color.red)
+                .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id).build()).queue();
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {

@@ -1,6 +1,5 @@
 package com.bwfcwalshy.flarebot.commands.administrator;
 
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
