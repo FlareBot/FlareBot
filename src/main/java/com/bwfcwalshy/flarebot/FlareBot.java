@@ -353,7 +353,7 @@ public class FlareBot {
             }
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 
-        manager = new FlareBotManager(this);
+        manager = new FlareBotManager();
         manager.loadRandomSongs();
 
         loadPolls();

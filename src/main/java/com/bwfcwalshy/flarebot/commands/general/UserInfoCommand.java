@@ -41,10 +41,10 @@ public class UserInfoCommand implements Command {
                                         (member.getGame().getUrl() == null ? "`" + member.getGame().getName() + "`" :
                                                 String.format("[`%s`](%s)", member.getGame().getName(),
                                                         member.getGame().getUrl())) : ""), true)
-                .addField("Time Data", "Created: " + formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
-                        "Joined: " + formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
-                        "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : formatTime(cache.getLastSeen())) + "\n" +
-                        "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : formatTime(cache.getLastMessage())), false)
+                .addField("Time Data", "Created: " + flareBot.formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
+                        "Joined: " + flareBot.formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
+                        "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : flareBot.formatTime(cache.getLastSeen())) + "\n" +
+                        "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : flareBot.formatTime(cache.getLastMessage())), false)
                 .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
     }
 
