@@ -66,11 +66,14 @@ public class Events extends ListenerAdapter {
             Welcome welcome = flareBot.getWelcomeForGuild(event.getGuild());
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
             if (channel != null) {
+                if (!channel.canTalk()) {
+                    flareBot.getWelcomes().remove(welcome);
+                }
                 String msg = welcome.getMessage()
                         .replace("%user%", event.getMember().getUser().getName())
                         .replace("%guild%", event.getGuild().getName())
                         .replace("%mention%", event.getMember().getUser().getAsMention());
-                channel.sendMessage(msg).queue();
+                channel.sendMessage(msg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
             } else flareBot.getWelcomes().remove(welcome);
         }
         if (flareBot.getAutoAssignRoles().containsKey(event.getGuild().getId())) {

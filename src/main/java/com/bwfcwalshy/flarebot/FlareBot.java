@@ -39,6 +39,7 @@ import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -81,6 +82,7 @@ public class FlareBot {
 
     private static final Map<String, Logger> LOGGERS = new ConcurrentHashMap<>();
     public static final Logger LOGGER = getLog(FlareBot.class);
+    private static String botListAuth;
     private static String dBotsAuth;
     private Permissions permissions;
     private GithubWebhooks4J gitHubWebhooks;
@@ -160,6 +162,12 @@ public class FlareBot {
         dBots.setRequired(false);
         options.addOption(dBots);
 
+        Option botList = new Option("bl", true, "Botlist token");
+        botList.setArgName("botlist-token");
+        botList.setLongOpt("botlist-token");
+        botList.setRequired(false);
+        options.addOption(botList);
+
         Option youtubeApi = new Option("yt", true, "YouTube search API token");
         youtubeApi.setArgName("yt-api-token");
         youtubeApi.setLongOpt("yt-api-token");
@@ -189,6 +197,8 @@ public class FlareBot {
                 ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                         .setLevel(Level.DEBUG);
             }
+            if(parsed.hasOption("bl"))
+                FlareBot.botListAuth = parsed.getOptionValue("bl");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
@@ -283,12 +293,23 @@ public class FlareBot {
                         TextChannel c =
                                 getChannelByID(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
                         if (c != null) {
-                            if (!c.canTalk()) {
+                            if (c.getGuild().getSelfMember().hasPermission(c,
+                                    Permission.MESSAGE_EMBED_LINKS,
+                                    Permission.MESSAGE_READ,
+                                    Permission.MESSAGE_WRITE)) {
+                                Track track = player.getPlayingTrack();
+                                Queue<Track> playlist = player.getPlaylist();
+                                c.sendMessage(MessageUtils.getEmbed()
+                                        .addField("Now Playing: ", SongCommand.getLink(track), false)
+                                        .addField("Duration: ", SongCommand.formatDuration(track), false)
+                                        .addField("Requested by: ",
+                                                String.format("<@!%s>", track.getMeta().get("requester")), false)
+                                        .addField("Next up: ", playlist.isEmpty() ? "Nothing" :
+                                                SongCommand.getLink(playlist.peek()), false)
+                                        .build()).queue();
+                            } else {
                                 MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                             }
-                            Track track = player.getPlayingTrack();
-                            c.sendMessage(MessageUtils.getEmbed()
-                                    .addField("Now Playing: ", SongCommand.getLink(track), false).build()).queue();
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
@@ -436,19 +457,19 @@ public class FlareBot {
                     setStatus("_help | _invite");
             }
         }.repeat(10, 32000);
-        new FlarebotTask("PostData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostDbotsData" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
-                    try {
-                        Unirest.post("https://bots.discord.pw/api/bots/" + clients[0].getSelfUser().getId() + "/stats")
-                                .header("Authorization", FlareBot.dBotsAuth)
-                                .header("Content-Type", "application/json")
-                                .body(new JSONObject().put("server_count", getGuilds().size()))
-                                .asString();
-                    } catch (Exception e1) {
-                        FlareBot.LOGGER.error("Could not POST data to DBots", e1);
-                    }
+                    postToBotlist(FlareBot.dBotsAuth, String.format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, 600000);
+        new FlarebotTask("PostBotlistData" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                if (FlareBot.botListAuth != null) {
+                    postToBotlist(FlareBot.botListAuth, String.format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
         }.repeat(10, 600000);
@@ -484,6 +505,34 @@ public class FlareBot {
                 quit(true);
             }
         } catch (NoSuchElementException ignored) {
+        }
+    }
+
+    private void postToBotlist(String auth, String url) {
+        for (JDA client : clients) {
+            if (clients.length == 1) {
+                Unirest.post(url)
+                        .header("Authorization", auth)
+                        .header("User-Agent", "Mozilla/5.0 FlareBot")
+                        .header("Content-Type", "application/json")
+                        .body(new JSONObject()
+                                .put("server_count", client.getGuilds().size()))
+                        .asStringAsync();
+                return;
+            }
+            try {
+                Unirest.post(url)
+                        .header("Authorization", auth)
+                        .header("User-Agent", "Mozilla/5.0 FlareBot")
+                        .header("Content-Type", "application/json")
+                        .body(new JSONObject()
+                                .put("server_count", client.getGuilds().size())
+                                .put("shard_id", client.getShardInfo().getShardId())
+                                .put("shard_count", client.getShardInfo().getShardTotal()))
+                        .asStringAsync();
+            } catch (Exception e1) {
+                FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
+            }
         }
     }
 
@@ -671,7 +720,7 @@ public class FlareBot {
         try {
             permissions.save();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Perms save failed on stop!", e);
         }
         savePolls();
     }
@@ -771,13 +820,13 @@ public class FlareBot {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to load roles!", e);
             }
         } else {
             try {
                 roleFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to load roles!", e);
             }
         }
     }
@@ -787,7 +836,7 @@ public class FlareBot {
             try {
                 roleFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to save roles!", e);
             }
         }
 
@@ -810,7 +859,7 @@ public class FlareBot {
             fw.flush();
             fw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to save roles!", e);
         }
     }
 

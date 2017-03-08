@@ -48,13 +48,13 @@ public class SaveCommand implements Command {
             String finalName = name;
             SQLController.runSqlTask(connection -> {
                 connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  name  VARCHAR(60),\n" +
+                        "  playlist_name  VARCHAR(60),\n" +
                         "  guild VARCHAR(20),\n" +
                         "  list  TEXT,\n" +
                         "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(name, guild)\n" +
+                        "  PRIMARY KEY(playlist_name, guild)\n" +
                         ")");
-                PreparedStatement exists = connection.prepareStatement("SELECT * FROM playlist WHERE name = ? AND guild = ?");
+                PreparedStatement exists = connection.prepareStatement("SELECT * FROM playlist WHERE playlist_name = ? AND guild = ?");
                 exists.setString(1, finalName);
                 exists.setString(2, channel.getGuild().getId());
                 exists.execute();
@@ -62,7 +62,7 @@ public class SaveCommand implements Command {
                     channel.sendMessage("That name is already taken!").queue();
                     return;
                 }
-                PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (name, guild, list) VALUES (" +
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (playlist_name, guild, list) VALUES (" +
                         "   ?," +
                         "   ?," +
                         "   ?" +

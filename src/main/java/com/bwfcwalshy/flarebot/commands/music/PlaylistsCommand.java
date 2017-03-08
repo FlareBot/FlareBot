@@ -41,14 +41,14 @@ public class PlaylistsCommand implements Command {
                             String finalPlaylist = playlist;
                             SQLController.runSqlTask(conn -> {
                                 PreparedStatement statement = conn.prepareStatement("SELECT * FROM playlist WHERE " +
-                                        "guild = ? AND name = ?");
+                                        "guild = ? AND playlist_name = ?");
                                 statement.setString(1, channel.getGuild().getId());
                                 statement.setString(2, finalPlaylist);
                                 statement.execute();
                                 if (statement.getResultSet().next()) {
                                     if (args[1].equalsIgnoreCase("global") || args[1].equalsIgnoreCase("local")) {
                                         PreparedStatement statement1 = conn.prepareStatement("UPDATE playlist SET " +
-                                                "scope = ? WHERE guild = ? AND name = ?");
+                                                "scope = ? WHERE guild = ? AND playlist_name = ?");
                                         statement1.setString(1, args[1].toLowerCase());
                                         statement1.setString(2, channel.getGuild().getId());
                                         statement1.setString(3, finalPlaylist);
@@ -75,14 +75,13 @@ public class PlaylistsCommand implements Command {
             try {
                 SQLController.runSqlTask(connection -> {
                     connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                            "  name  VARCHAR(60),\n" +
+                            "  playlist_name  VARCHAR(60),\n" +
                             "  guild VARCHAR(20),\n" +
                             "  list  TEXT,\n" +
                             "  scope  VARCHAR(7) DEFAULT 'local',\n" +
                             "  PRIMARY KEY(name, guild)\n" +
                             ")");
-                    PreparedStatement get = connection.prepareStatement("SELECT name, scope FROM playlist WHERE guild" +
-                            " = ? OR scope = 'global' ORDER BY scope ASC");
+                    PreparedStatement get = connection.prepareStatement("SELECT playlist_name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
                     get.setString(1, channel.getGuild().getId());
                     get.execute();
                     ResultSet set = get.getResultSet();

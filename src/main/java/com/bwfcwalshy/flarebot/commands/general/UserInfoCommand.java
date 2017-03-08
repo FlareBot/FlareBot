@@ -26,20 +26,26 @@ public class UserInfoCommand implements Command {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
             return;
         }
+        member = channel.getGuild().getMember(user);
         PlayerCache cache = flareBot.getPlayerCache(id);
         channel.sendMessage(MessageUtils.getEmbed(sender).addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
-                    + "\nID: " + user.getId() + "\n" +
-                    "Avatar: " + (user.getEffectiveAvatarUrl() != null ? "[`link`](" + user.getEffectiveAvatarUrl() + ')' : "None") + "\n" +
-                    "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
-                    .addField("General Info",
-                            "Servers: " + FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(id) != null).count() + " shared\n" +
-                                    "Roles: " + channel.getGuild().getMember(user).getRoles().stream()
-                                    .map(Role::getName).collect(Collectors.joining(", ")), true)
-                    .addField("Time Data", "Created: " + flareBot.formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
-                            "Joined: " + flareBot.formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
-                            "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : flareBot.formatTime(cache.getLastSeen())) + "\n" +
-                            "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : flareBot.formatTime(cache.getLastMessage())), false)
-                    .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
+                + "\nID: " + user.getId() + "\n" +
+                "Avatar: " + (user.getEffectiveAvatarUrl() != null ? "[`link`](" + user.getEffectiveAvatarUrl() + ')' : "None") + "\n" +
+                "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
+                .addField("General Info",
+                        "Servers: " + FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(id) != null).count() + " shared\n" +
+                                "Roles: " + channel.getGuild().getMember(user).getRoles().stream()
+                                .map(Role::getName).collect(Collectors.joining(", ")) +
+                                (member.getGame() != null ? "\nStatus" +
+                                        (member.getUser().isBot() ? " (Current Shard)" : "") + ": " +
+                                        (member.getGame().getUrl() == null ? "`" + member.getGame().getName() + "`" :
+                                                String.format("[`%s`](%s)", member.getGame().getName(),
+                                                        member.getGame().getUrl())) : ""), true)
+                .addField("Time Data", "Created: " + formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
+                        "Joined: " + formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
+                        "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : formatTime(cache.getLastSeen())) + "\n" +
+                        "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : formatTime(cache.getLastMessage())), false)
+                .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
     }
 
     @Override

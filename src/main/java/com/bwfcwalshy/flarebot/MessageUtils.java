@@ -13,10 +13,16 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.regex.Pattern;
+import java.util.function.Consumer;
 
 public class MessageUtils {
     public static final String DEBUG_CHANNEL = "226786557862871040";
     private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
+
+    public static <T> Consumer<T> noOpConsumer(){
+        return t -> {
+        };
+    }
 
     public static Message sendPM(User user, CharSequence message) {
         return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
