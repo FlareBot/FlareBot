@@ -86,14 +86,14 @@ public class PlaylistsCommand implements Command {
                     while (set.next() && songs.size() < 25) {
                         String toAppend;
                         if (set.getString("scope").equalsIgnoreCase("global")) {
-                            toAppend = String.format("%s. %s\n", i++, set.getString("name"));
+                            toAppend = String.format("%s. %s\n", i++, set.getString("playlist_name"));
                             globalSb.append(toAppend);
                         } else {
                             if (loopingGlobal) {
                                 loopingGlobal = false;
                                 i = 1;
                             }
-                            toAppend = String.format("%s. %s\n", i++, set.getString("name"));
+                            toAppend = String.format("%s. %s\n", i++, set.getString("playlist_name"));
                             if (sb.length() + toAppend.length() > 1024) {
                                 songs.add(sb.toString());
                                 sb = new StringBuilder();
@@ -111,7 +111,7 @@ public class PlaylistsCommand implements Command {
                     channel.sendMessage(builder.build()).queue();
                 });
             } catch (SQLException e) {
-                MessageUtils.sendException("**Database error!**", e, channel);
+                FlareBot.reportError(channel, "Unable to load playlists!", e);
             }
         }
     }

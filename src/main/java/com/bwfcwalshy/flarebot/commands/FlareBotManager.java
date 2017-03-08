@@ -69,16 +69,14 @@ public class FlareBotManager {
 
     public void executeCreations(){
         try {
-            SQLController.runSqlTask(conn -> {
-                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  playlist_name  VARCHAR(60),\n" +
-                        "  guild VARCHAR(20),\n" +
-                        "  owner VARCHAR(20),\n" +
-                        "  list  TEXT,\n" +
-                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(name, guild)\n" +
-                        ")");
-            });
+            SQLController.runSqlTask(conn -> conn.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
+                    "  playlist_name  VARCHAR(60),\n" +
+                    "  guild VARCHAR(20),\n" +
+                    "  owner VARCHAR(20),\n" +
+                    "  list  TEXT,\n" +
+                    "  scope  VARCHAR(7) DEFAULT 'local',\n" +
+                    "  PRIMARY KEY(playlist_name, guild)\n" +
+                    ")"));
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
         }
