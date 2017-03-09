@@ -13,7 +13,7 @@ public class AutomodCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length != 1 || !args[0].toLowerCase().matches("on|off")) {
-            channel.sendMessage(HelpFormatter.on(channel, getDescription())).queue();
+            channel.sendMessage(HelpFormatter.on(channel, HelpFormatter.on(channel, getDescription()))).queue();
         } else {
             Automod.setEnabled(channel.getGuild(), args[0].equalsIgnoreCase("on"));
             channel.sendMessage("Turned automod " + args[0].toLowerCase()).queue();

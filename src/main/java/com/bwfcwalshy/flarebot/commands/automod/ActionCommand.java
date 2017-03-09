@@ -3,6 +3,7 @@ package com.bwfcwalshy.flarebot.commands.automod;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.mod.OnStrikeActions;
+import com.bwfcwalshy.flarebot.util.HelpFormatter;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -18,12 +19,12 @@ public class ActionCommand implements Command {
                 strikes = Integer.parseInt(args[1]);
                 action = OnStrikeActions.valueOf(args[0].toUpperCase());
             } catch (Exception e) {
-                channel.sendMessage("Usage: `%psetaction RULE STRIKES`").queue();
+                channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE STRIKES`")).queue();
                 return;
             }
             action.setNeededStrikes(strikes, channel.getGuild());
         } else {
-            channel.sendMessage("Usage: `%psetaction RULE STRIKES`").queue();
+            channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE STRIKES`")).queue();
         }
     }
 

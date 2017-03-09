@@ -67,7 +67,7 @@ public class StrikeCounter {
                                         .addField("Action", action.toString(), true)
                                         .setAuthor(member.getUser().getName(), null, member.getUser().getEffectiveAvatarUrl())
                                         .setTimestamp(ZonedDateTime.now())
-                                        .build());
+                                        .build()).queue();
                     }
                 }
                 break;
