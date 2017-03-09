@@ -81,9 +81,9 @@ public class WarningCounter {
     private static void updateDatabase(Member member) {
         SQLController.asyncRunSqlTask(conn -> {
             Map<String, Integer> strikeMap = points.computeIfAbsent(member.getGuild().getId(), m -> new ConcurrentHashMap<>());
-            int strikes = strikeMap.getOrDefault(member.getUser().getId(), 0);
+            int points = strikeMap.getOrDefault(member.getUser().getId(), 0);
             PreparedStatement statement = conn.prepareStatement("UPDATE points SET points = ? WHERE guild = ? AND userid = ?");
-            statement.setInt(1, strikes);
+            statement.setInt(1, points);
             statement.setString(2, member.getGuild().getId());
             statement.setString(3, member.getUser().getId());
             if (statement.executeUpdate() == 0) {
@@ -92,7 +92,7 @@ public class WarningCounter {
                         "   ?,\n" +
                         "   ?\n" +
                         ")");
-                statement.setInt(1, strikes);
+                statement.setInt(1, points);
                 statement.setString(2, member.getGuild().getId());
                 statement.setString(3, member.getUser().getId());
             }
