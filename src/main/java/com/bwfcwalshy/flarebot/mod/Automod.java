@@ -9,8 +9,6 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -22,11 +20,12 @@ public enum Automod {
     INVITES("Stops any Discord guild adversiter right in their tracks by detecting all messages that have an invite!",
             MessageUtils::hasInvite, SeverityLevel.MEDIUM);
 
-    private static final Map<String, Boolean> MODS = new ConcurrentHashMap<>();
+    private static final Map<String, Boolean> MODS;
     private static final AtomicInteger THREADS = new AtomicInteger(0);
     private static final ExecutorService AUTOMOD_POOL = Executors.newCachedThreadPool(r -> new Thread(r, "Automod Thread " + THREADS.incrementAndGet()));
 
     static {
+        MODS = new ConcurrentHashMap<>();
         try {
             SQLController.runSqlTask(conn -> {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS automods (\n" +
