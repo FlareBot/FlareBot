@@ -23,7 +23,7 @@ public class ActionCommand implements Command {
             }
             action.setNeededStrikes(strikes, channel.getGuild());
         } else {
-            channel.sendMessage("Usage: `%psetaction RULE ACTION`").queue();
+            channel.sendMessage("Usage: `%psetaction RULE STRIKES`").queue();
         }
     }
 
