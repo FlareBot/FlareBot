@@ -53,7 +53,7 @@ public class VideoThread extends Thread {
             extractor.process(url, manager.getPlayer(channel.getGuild().getId()), message, user);
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not init extractor for '{}'".replace("{}", url), e);
-            MessageUtils.editMessage(message, "Something went wrong. This incident has been reported. Sorry :/");
+            FlareBot.reportError(channel, "Something went wrong while searching for the video!", e);
         }
     }
 
