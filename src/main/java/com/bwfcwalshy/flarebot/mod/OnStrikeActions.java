@@ -28,7 +28,7 @@ public enum OnStrikeActions {
         return false;
     }
 
-    public void setNeededStrikes(int i, Guild g) {
+    public void setNeededPoints(int i, Guild g) {
         guild.put(g.getId(), i);
     }
 }

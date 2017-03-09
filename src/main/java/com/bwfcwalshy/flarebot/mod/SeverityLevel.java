@@ -8,9 +8,9 @@ import java.util.function.Consumer;
 
 public enum SeverityLevel implements TriConsumer<Member, TextChannel, Automod> {
     NONE(m -> {}, (m, c, a) -> {}),
-    SMALL(StrikeCounter::strike, (m, c, a) -> c.sendMessage(m.getAsMention() + ", you have been given a strikes for violating " + a).complete()),
-    MEDIUM(m -> StrikeCounter.strike(m, 2), (m, c, a) -> c.sendMessage(m.getAsMention() + ", you have been given 2 strikes for violating " + a).complete()),
-    HIGH(m -> StrikeCounter.strike(m, 3), (m, c, a) -> c.sendMessage(m.getAsMention() + ", you have been given 3 strikes for violating " + a).complete()),
+    SMALL(WarningCounter::warn, (m, c, a) -> c.sendMessage(m.getAsMention() + ", you have been given a warning points for violating " + a).complete()),
+    MEDIUM(m -> WarningCounter.warn(m, 2), (m, c, a) -> c.sendMessage(m.getAsMention() + ", you have been given 2 warning points for violating " + a).complete()),
+    HIGH(m -> WarningCounter.warn(m, 3), (m, c, a) -> c.sendMessage(m.getAsMention() + ", you have been given 3 warning points for violating " + a).complete()),
     INSTABAN(m -> m.getGuild().getController().ban(m, 14), (m, c, a) ->
             m.getUser().openPrivateChannel().complete().sendMessage("You have been banned for violating automod rule " + a).queue());
 

@@ -13,16 +13,16 @@ public class ActionCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 2) {
-            int strikes;
+            int points;
             OnStrikeActions action;
             try {
-                strikes = Integer.parseInt(args[1]);
+                points = Integer.parseInt(args[1]);
                 action = OnStrikeActions.valueOf(args[0].toUpperCase());
             } catch (Exception e) {
                 channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE STRIKES`")).queue();
                 return;
             }
-            action.setNeededStrikes(strikes, channel.getGuild());
+            action.setNeededPoints(points, channel.getGuild());
         } else {
             channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE STRIKES`")).queue();
         }
