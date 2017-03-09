@@ -19,12 +19,12 @@ public class ActionCommand implements Command {
                 points = Integer.parseInt(args[1]);
                 action = OnStrikeActions.valueOf(args[0].toUpperCase());
             } catch (Exception e) {
-                channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE STRIKES`")).queue();
+                channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE POINTS`")).queue();
                 return;
             }
             action.setNeededPoints(points, channel.getGuild());
         } else {
-            channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE STRIKES`")).queue();
+            channel.sendMessage(HelpFormatter.on(channel, "Usage: `%psetaction RULE POINTS`")).queue();
         }
     }
 
