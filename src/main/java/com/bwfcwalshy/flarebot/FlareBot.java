@@ -15,6 +15,10 @@ import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.commands.Prefixes;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
+import com.bwfcwalshy.flarebot.commands.automod.ActionCommand;
+import com.bwfcwalshy.flarebot.commands.automod.AutomodCommand;
+import com.bwfcwalshy.flarebot.commands.automod.ModlogCommand;
+import com.bwfcwalshy.flarebot.commands.automod.SetSeverityCommand;
 import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
 import com.bwfcwalshy.flarebot.commands.secret.*;
@@ -64,7 +68,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -409,6 +412,10 @@ public class FlareBot {
         registerCommand(new UserInfoCommand());
         registerCommand(new PollCommand());
         registerCommand(new PinCommand());
+        registerCommand(new AutomodCommand());
+        registerCommand(new ActionCommand());
+        registerCommand(new ModlogCommand());
+        registerCommand(new SetSeverityCommand());
 
         ApiFactory.bind();
 
