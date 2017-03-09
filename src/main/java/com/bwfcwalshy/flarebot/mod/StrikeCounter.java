@@ -63,7 +63,7 @@ public class StrikeCounter {
                         member.getGuild().getTextChannelById(CHANNELS.get(member.getGuild().getId()))
                                 .sendMessage(MessageUtils.getEmbed()
                                         .addField("User", member.getAsMention(), true)
-                                        .addField("Reason", "Too many violation!", true)
+                                        .addField("Reason", "Too many violations!", true)
                                         .addField("Action", action.toString(), true)
                                         .setAuthor(member.getUser().getName(), null, member.getUser().getEffectiveAvatarUrl())
                                         .setTimestamp(ZonedDateTime.now())
