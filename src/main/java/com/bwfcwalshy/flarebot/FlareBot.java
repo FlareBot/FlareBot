@@ -68,7 +68,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
@@ -617,6 +616,7 @@ public class FlareBot {
     public String postToApi(String action, String property, JsonElement data) {
         if (!apiEnabled) return null;
         final String[] message = new String[1];
+        CountDownLatch latch = new CountDownLatch(1);
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
             object.addProperty("secret", webSecret);
@@ -645,10 +645,16 @@ public class FlareBot {
                     LOGGER.error("Error updating site! " + obj.get("error").getAsString());
                 }
                 con.disconnect();
+                latch.countDown();
             } catch (IOException e) {
                 FlareBot.LOGGER.error("Could not make POST request!\n\nDetails:\nAction: " + action + "\nProperty: " + property + "\nData: " + data.toString(), e);
             }
         });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return message[0];
     }
 
@@ -959,7 +965,7 @@ public class FlareBot {
         JsonObject message = new JsonObject();
         message.addProperty("message", s);
         message.addProperty("exception", ExceptionUtils.getStackTrace(e));
-        String id = instance.postToApi("postError", "error", message);
+        String id = instance.postToApi("postReport", "error", message);
         channel.sendMessage(new EmbedBuilder().setColor(Color.red)
                 .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id).build()).queue();
     }
