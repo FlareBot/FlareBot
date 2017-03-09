@@ -1,4 +1,4 @@
-package com.bwfcwalshy.flarebot.commands.moderation;
+package com.bwfcwalshy.flarebot.commands.automod;
 
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -27,7 +27,7 @@ public class AutomodCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "%pautomod on/off - Toggles automod on or off";
+        return "`%pautomod on/off` - Toggles automod on or off";
     }
 
     @Override

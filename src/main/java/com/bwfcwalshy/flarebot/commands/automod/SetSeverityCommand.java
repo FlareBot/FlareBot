@@ -1,4 +1,4 @@
-package com.bwfcwalshy.flarebot.commands.moderation;
+package com.bwfcwalshy.flarebot.commands.automod;
 
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
@@ -43,5 +43,10 @@ public class SetSeverityCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MODERATION;
+    }
+
+    @Override
+    public String getPermission() {
+        return "flarebot.automod.setseverity";
     }
 }
