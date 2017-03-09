@@ -12,7 +12,7 @@ import net.dv8tion.jda.core.entities.User;
 public class AutomodCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length != 1 || args[0].toLowerCase().matches("on|off")) {
+        if (args.length != 1 || !args[0].toLowerCase().matches("on|off")) {
             channel.sendMessage(HelpFormatter.on(channel, getDescription())).queue();
         } else {
             Automod.setEnabled(channel.getGuild(), args[0].equalsIgnoreCase("on"));
