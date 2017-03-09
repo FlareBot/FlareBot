@@ -1,14 +1,18 @@
 package com.bwfcwalshy.flarebot.mod;
 
 import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.util.SQLController;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,6 +20,7 @@ public class StrikeCounter {
     private static Map<String, Map<String, Integer>> strikes;
 
     private static final File FILE = new File("strikeListeners.json");
+    private static final Map<String, String> CHANNELS = new ConcurrentHashMap<>();
 
     static {
         strikes = new ConcurrentHashMap<>();
@@ -43,7 +48,31 @@ public class StrikeCounter {
     public static void strike(Member member, int i) {
         Map<String, Integer> strikeMap = strikes.computeIfAbsent(member.getGuild().getId(), m -> new ConcurrentHashMap<>());
         strikeMap.put(member.getUser().getId(), strikeMap.getOrDefault(member.getUser().getId(), 0) + 1);
-        Arrays.stream(OnStrikeActions.values()).anyMatch(m -> m.on(member, i));
+        for (OnStrikeActions action : OnStrikeActions.values()) {
+            if (action.on(member, i)) {
+                if (CHANNELS.containsKey(member.getGuild().getId())) {
+                    if (member.getGuild().getTextChannelById(CHANNELS.get(member.getGuild().getId())) == null) {
+                        CHANNELS.remove(member.getGuild().getId());
+                    } else {
+                        if (!member.getGuild().getSelfMember().hasPermission(member.getGuild().getTextChannelById(CHANNELS.get(member.getGuild().getId())),
+                                Permission.MESSAGE_WRITE,
+                                Permission.MESSAGE_EMBED_LINKS)) {
+                            CHANNELS.remove(member.getGuild().getId());
+                            return;
+                        }
+                        member.getGuild().getTextChannelById(CHANNELS.get(member.getGuild().getId()))
+                                .sendMessage(MessageUtils.getEmbed()
+                                        .addField("User", member.getAsMention(), true)
+                                        .addField("Reason", "Too many violation!", true)
+                                        .addField("Action", action.toString(), true)
+                                        .setAuthor(member.getUser().getName(), null, member.getUser().getEffectiveAvatarUrl())
+                                        .setTimestamp(ZonedDateTime.now())
+                                        .build());
+                    }
+                }
+                break;
+            }
+        }
         // Before anyone asks, purpose of anyMatch is so it only does one (successful) action. Also, when I add modlog it will be useful to have findFirst.
         // Will probably switch it to a for loop though
         updateDatabase(member);
@@ -80,5 +109,10 @@ public class StrikeCounter {
 
     public static void resetStrikes(Member member) {
         strikes.computeIfAbsent(member.getGuild().getId(), m -> new ConcurrentHashMap<>()).put(member.getUser().getId(), 0);
+    }
+
+    public static void setChannel(TextChannel t, Guild guild) {
+        if (!t.getGuild().equals(guild)) throw new IllegalArgumentException("t.getGuild() must be guild!");
+        CHANNELS.put(guild.getId(), t.getId());
     }
 }
