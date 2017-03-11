@@ -33,8 +33,8 @@ public class UserInfoCommand implements Command {
                     "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
                     .addField("General Info",
                             "Servers: " + FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(id) != null).count() + " shared\n" +
-                                    "Roles: " + channel.getGuild().getMember(user).getRoles().stream()
-                                    .map(Role::getName).collect(Collectors.joining(", ")), true)
+                                    "Roles: " + (channel.getGuild().getMember(user).getRoles().size() > 0 ? channel.getGuild().getMember(user).getRoles().stream()
+                                    .map(Role::getName).collect(Collectors.joining(", ")) : "No roles"), true)
                     .addField("Time Data", "Created: " + flareBot.formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
                             "Joined: " + flareBot.formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate())) + "\n" +
                             "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : flareBot.formatTime(cache.getLastSeen())) + "\n" +
