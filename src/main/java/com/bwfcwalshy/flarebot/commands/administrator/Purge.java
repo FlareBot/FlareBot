@@ -100,17 +100,17 @@ public class Purge implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.purge";
-    }
-
-    @Override
     public String[] getAliases() {
         return new String[]{"clean"};
     }
 
     @Override
     public boolean deleteMessage() {
+        return false;
+    }
+
+    @Override
+    public boolean isDefaultPermission(){
         return false;
     }
 }

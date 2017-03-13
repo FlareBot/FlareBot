@@ -97,7 +97,7 @@ public class WelcomeCommand implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.welcome";
+    public boolean isDefaultPermission(){
+        return false;
     }
 }

@@ -1,5 +1,7 @@
 package com.bwfcwalshy.flarebot.permissions;
 
+import com.bwfcwalshy.flarebot.FlareBot;
+import com.bwfcwalshy.flarebot.commands.Command;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 
@@ -19,19 +21,11 @@ public class PerGuildPermissions {
     public PerGuildPermissions(String id) {
         this.id = id;
         if (!hasGroup("Default")) {
-            addPermission("Default", "flarebot.skip");
-            addPermission("Default", "flarebot.leave");
-            addPermission("Default", "flarebot.play");
-            addPermission("Default", "flarebot.pause");
-            addPermission("Default", "flarebot.info");
-            addPermission("Default", "flarebot.join");
-            addPermission("Default", "flarebot.skip");
-            addPermission("Default", "flarebot.search");
-            addPermission("Default", "flarebot.playlist.save");
-            addPermission("Default", "flarebot.playlist.load");
-            addPermission("Default", "flarebot.help");
-            addPermission("Default", "flarebot.playlist");
-            addPermission("Default", "flarebot.userinfo");
+            for(Command command : FlareBot.getInstance().getCommands()){
+                if(command.isDefaultPermission()){
+                    addPermission("Default", command.getPermission());
+                }
+            }
         }
     }
 

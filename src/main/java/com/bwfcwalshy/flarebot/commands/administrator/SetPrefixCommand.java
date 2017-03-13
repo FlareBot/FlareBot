@@ -46,8 +46,8 @@ public class SetPrefixCommand implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.prefix";
+    public boolean isDefaultPermission(){
+        return false;
     }
 
     @Override

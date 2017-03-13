@@ -39,4 +39,9 @@ public class AutomodCommand implements Command {
     public String getPermission() {
         return "flarebot.automod.command";
     }
+
+    @Override
+    public boolean isDefaultPermission(){
+        return false;
+    }
 }

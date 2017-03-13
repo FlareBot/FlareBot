@@ -38,7 +38,7 @@ public class ShuffleCommand implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.shuffle";
+    public boolean isDefaultPermission(){
+        return false;
     }
 }

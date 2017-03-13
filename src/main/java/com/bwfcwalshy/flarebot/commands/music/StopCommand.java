@@ -41,4 +41,9 @@ public class StopCommand implements Command {
     public String getPermission() {
         return "flarebot.stop";
     }
+
+    @Override
+    public boolean isDefaultPermission(){
+        return false;
+    }
 }

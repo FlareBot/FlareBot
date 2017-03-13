@@ -104,4 +104,9 @@ public class MusicAnnounceCommand implements Command {
     public String getPermission() {
         return "flarebot.songannounce";
     }
+
+    @Override
+    public boolean isDefaultPermission(){
+        return false;
+    }
 }

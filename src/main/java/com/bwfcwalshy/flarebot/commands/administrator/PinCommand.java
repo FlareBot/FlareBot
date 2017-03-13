@@ -36,4 +36,9 @@ public class PinCommand implements Command {
     public CommandType getType() {
         return CommandType.MODERATION;
     }
+
+    @Override
+    public boolean isDefaultPermission(){
+        return false;
+    }
 }

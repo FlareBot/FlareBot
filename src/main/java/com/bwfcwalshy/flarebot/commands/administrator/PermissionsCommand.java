@@ -157,7 +157,7 @@ public class PermissionsCommand implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.permissions";
+    public boolean isDefaultPermission(){
+        return false;
     }
 }

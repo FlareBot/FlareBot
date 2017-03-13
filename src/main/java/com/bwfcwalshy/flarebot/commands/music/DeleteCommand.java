@@ -71,4 +71,10 @@ public class DeleteCommand implements Command {
     public String getPermission() {
         return "flarebot.playlist.delete";
     }
+
+    @Override
+    public boolean isDefaultPermission(){
+        return false;
+    }
+
 }

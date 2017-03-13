@@ -120,6 +120,11 @@ public class AutoAssignCommand implements Command {
         return new String[]{"autorole"};
     }
 
+    @Override
+    public boolean isDefaultPermission(){
+        return false;
+    }
+
     private boolean validRole(Guild guild, String role) {
         for (Role iRole : guild.getRoles()) {
             if (iRole.getId().equals(role) || iRole.getName().equalsIgnoreCase(role))

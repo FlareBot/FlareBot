@@ -34,7 +34,7 @@ public class RolesCommand implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.roles";
+    public boolean isDefaultPermission(){
+        return false;
     }
 }

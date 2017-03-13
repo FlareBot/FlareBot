@@ -149,11 +149,6 @@ public class SkipCommand implements Command {
         return CommandType.MUSIC;
     }
 
-    @Override
-    public String getPermission() {
-        return "flarebot.skip";
-    }
-
     private enum Vote {
         YES,
         NO;

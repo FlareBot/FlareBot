@@ -38,4 +38,9 @@ public class LogsCommands implements Command {
     public CommandType getType() {
         return CommandType.HIDDEN;
     }
+
+    @Override
+    public boolean isDefaultPermission(){
+        return false;
+    }
 }
