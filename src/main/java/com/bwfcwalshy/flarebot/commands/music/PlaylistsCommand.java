@@ -75,7 +75,6 @@ public class PlaylistsCommand implements Command {
             channel.sendTyping().complete();
             try {
                 SQLController.runSqlTask(connection -> {
-                            "  PRIMARY KEY(playlist_name, guild)\n" +
                     PreparedStatement get = connection.prepareStatement("SELECT playlist_name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
                     get.setString(1, channel.getGuild().getId());
                     get.execute();
