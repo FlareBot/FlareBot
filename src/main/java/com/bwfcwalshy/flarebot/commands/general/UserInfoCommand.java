@@ -26,7 +26,8 @@ public class UserInfoCommand implements Command {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
             return;
         }
-        member = channel.getGuild().getMember(user);
+        member = (channel.getGuild().getMember(user) != null ? channel.getGuild().getMember(user) :
+                FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(user.getId()) != null).findFirst().orElse(null).getMember(user));
         PlayerCache cache = flareBot.getPlayerCache(id);
         channel.sendMessage(MessageUtils.getEmbed(sender).addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
                 + "\nID: " + user.getId() + "\n" +
@@ -34,8 +35,8 @@ public class UserInfoCommand implements Command {
                 "Default Avatar: [`link`](" + MessageUtils.getDefaultAvatar(sender) + ')', true)
                 .addField("General Info",
                         "Servers: " + FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(id) != null).count() + " shared\n" +
-                                "Roles: " + channel.getGuild().getMember(user).getRoles().stream()
-                                .map(Role::getName).collect(Collectors.joining(", ")) +
+                                "Roles: " + (channel.getGuild().getMemberById(id) == null ? "The user is not in this server." : channel.getGuild().getMember(user).getRoles().stream()
+                                .map(Role::getName).collect(Collectors.joining(", "))) +
                                 (member.getGame() != null ? "\nStatus" +
                                         (member.getUser().isBot() ? " (Current Shard)" : "") + ": " +
                                         (member.getGame().getUrl() == null ? "`" + member.getGame().getName() + "`" :
