@@ -97,7 +97,7 @@ public class WelcomeCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 }

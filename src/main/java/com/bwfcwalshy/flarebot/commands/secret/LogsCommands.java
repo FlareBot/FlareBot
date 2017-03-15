@@ -40,7 +40,7 @@ public class LogsCommands implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 }

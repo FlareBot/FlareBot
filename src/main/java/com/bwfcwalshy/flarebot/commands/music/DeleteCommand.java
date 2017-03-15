@@ -73,7 +73,7 @@ public class DeleteCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 

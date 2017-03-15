@@ -43,7 +43,7 @@ public class SavedPlaylistExtractor implements Extractor {
                 track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
                 playlist.add(track);
-                if(playlist.size() == 10){
+                if (playlist.size() == 10) {
                     player.queue(new Playlist(playlist));
                     playlist.clear();
                 }
@@ -51,7 +51,7 @@ public class SavedPlaylistExtractor implements Extractor {
             } catch (FriendlyException ignored) {
             }
         }
-        if(!playlist.isEmpty()){
+        if (!playlist.isEmpty()) {
             player.queue(new Playlist(playlist));
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed(user)

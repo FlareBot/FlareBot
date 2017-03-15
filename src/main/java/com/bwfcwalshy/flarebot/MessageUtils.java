@@ -12,14 +12,14 @@ import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.regex.Pattern;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class MessageUtils {
     public static final String DEBUG_CHANNEL = "226786557862871040";
     private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
 
-    public static <T> Consumer<T> noOpConsumer(){
+    public static <T> Consumer<T> noOpConsumer() {
         return t -> {
         };
     }

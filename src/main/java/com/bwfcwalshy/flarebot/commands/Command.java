@@ -26,11 +26,11 @@ public interface Command {
         return FlareBot.getInstance().getPermissions(chan);
     }
 
-    default boolean isDefaultPermission(){
+    default boolean isDefaultPermission() {
         return true;
     }
 
-    default boolean deleteMessage(){
+    default boolean deleteMessage() {
         return true;
     }
 }

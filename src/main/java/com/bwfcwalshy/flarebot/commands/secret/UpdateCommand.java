@@ -150,7 +150,7 @@ public class UpdateCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 }

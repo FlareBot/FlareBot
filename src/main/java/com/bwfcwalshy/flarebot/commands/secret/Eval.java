@@ -94,7 +94,7 @@ public class Eval implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 }

@@ -21,8 +21,8 @@ public class PerGuildPermissions {
     public PerGuildPermissions(String id) {
         this.id = id;
         if (!hasGroup("Default")) {
-            for(Command command : FlareBot.getInstance().getCommands()){
-                if(command.isDefaultPermission()){
+            for (Command command : FlareBot.getInstance().getCommands()) {
+                if (command.isDefaultPermission()) {
                     addPermission("Default", command.getPermission());
                 }
             }

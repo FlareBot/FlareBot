@@ -9,11 +9,11 @@ public class PollOption {
     private int votes;
     private List<String> voters = new ArrayList<>();
 
-    public PollOption(String option){
+    public PollOption(String option) {
         this.option = option;
     }
 
-    public void incrementVotes(String userId){
+    public void incrementVotes(String userId) {
         this.votes++;
         this.voters.add(userId);
     }
@@ -22,7 +22,7 @@ public class PollOption {
         return option;
     }
 
-    public int getVotes(){
+    public int getVotes() {
         return this.votes;
     }
 }

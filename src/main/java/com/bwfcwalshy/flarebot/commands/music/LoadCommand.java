@@ -1,19 +1,13 @@
 package com.bwfcwalshy.flarebot.commands.music;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.music.VideoThread;
-import com.bwfcwalshy.flarebot.util.SQLController;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class LoadCommand implements Command {
 

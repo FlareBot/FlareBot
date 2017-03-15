@@ -27,7 +27,7 @@ public class Scheduler {
                 timer.scheduleAtFixedRate(() -> {
                     try {
                         task.run();
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         FlareBot.LOGGER.error("Error in " + taskName + " task scheduler!", e);
                     }
                 }, delay, interval, TimeUnit.MILLISECONDS));

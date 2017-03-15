@@ -1,6 +1,5 @@
-package com.bwfcwalshy.flarebot.commands.secret;
+package com.bwfcwalshy.flarebot.commands.automod;
 
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
@@ -8,32 +7,27 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
-public class QuitCommand implements Command {
-
+public class WarningsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (sender.getId().equals("158310004187725824") || sender.getId().equals("155954930191040513")) {
-            FlareBot.getInstance().quit(false);
+        if (args.length != 2) {
+            channel.sendMessage("").queue();
+            return;
         }
     }
 
     @Override
     public String getCommand() {
-        return "quit";
+        return "warnings";
     }
 
     @Override
     public String getDescription() {
-        return "Dev only command";
+        return "Lists/controls warning points in your guild.";
     }
 
     @Override
     public CommandType getType() {
-        return CommandType.HIDDEN;
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
+        return CommandType.MODERATION;
     }
 }

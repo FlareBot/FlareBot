@@ -8,7 +8,6 @@ import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import net.dv8tion.jda.core.entities.*;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 public class UserInfoCommand implements Command {

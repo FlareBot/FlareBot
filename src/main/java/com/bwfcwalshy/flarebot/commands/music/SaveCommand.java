@@ -2,17 +2,13 @@ package com.bwfcwalshy.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.bwfcwalshy.flarebot.FlareBot;
-import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.util.SQLController;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Queue;
 import java.util.stream.Collectors;
 

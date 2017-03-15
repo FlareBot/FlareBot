@@ -52,7 +52,7 @@ public class AvatarCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 }

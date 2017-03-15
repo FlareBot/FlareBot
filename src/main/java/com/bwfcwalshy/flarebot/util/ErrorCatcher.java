@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 public class ErrorCatcher extends Filter<ILoggingEvent> {
 
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+
     @Override
     public FilterReply decide(ILoggingEvent event) {
         String msg = event.getFormattedMessage();

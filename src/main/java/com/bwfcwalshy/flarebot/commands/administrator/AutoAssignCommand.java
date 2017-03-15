@@ -62,7 +62,7 @@ public class AutoAssignCommand implements Command {
                         roles.add(role.getId());
                         flareBot.getAutoAssignRoles().put(channel.getGuild().getId(), roles);
                         channel.sendMessage(MessageUtils.getEmbed(sender)
-                                        .setDescription("Added " + role.getName() + " to your auto assigned roles!").build()).queue();
+                                .setDescription("Added " + role.getName() + " to your auto assigned roles!").build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(role.getName() + " is already being assigned!"), channel);
                     }
@@ -121,7 +121,7 @@ public class AutoAssignCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 

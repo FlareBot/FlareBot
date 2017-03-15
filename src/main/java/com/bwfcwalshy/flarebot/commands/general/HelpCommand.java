@@ -4,7 +4,6 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
-import com.bwfcwalshy.flarebot.util.HelpFormatter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 
@@ -17,7 +16,7 @@ public class HelpCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
-            if(args[0].equalsIgnoreCase("here")) {
+            if (args[0].equalsIgnoreCase("here")) {
                 sendCommands(channel.getGuild(), sender.openPrivateChannel().complete(), sender);
                 return;
             }
@@ -37,8 +36,8 @@ public class HelpCommand implements Command {
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
                 int page = 0;
-                for(String s : help){
-                    if(sb.length() + s.length() > 1024){
+                for (String s : help) {
+                    if (sb.length() + s.length() > 1024) {
                         embedBuilder.addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
                         sb.setLength(0);
                     }
@@ -70,8 +69,8 @@ public class HelpCommand implements Command {
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
             int page = 0;
-            for(String s : help){
-                if(sb.length() + s.length() > 1024){
+            for (String s : help) {
+                if (sb.length() + s.length() > 1024) {
                     embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
                     sb.setLength(0);
                 }

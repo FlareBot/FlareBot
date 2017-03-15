@@ -37,14 +37,9 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sun.management.OperatingSystemMXBean;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
-import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.cli.*;
 import org.json.JSONObject;
@@ -70,6 +65,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -199,7 +195,7 @@ public class FlareBot {
                 ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                         .setLevel(Level.DEBUG);
             }
-            if(parsed.hasOption("bl"))
+            if (parsed.hasOption("bl"))
                 FlareBot.botListAuth = parsed.getOptionValue("bl");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
@@ -485,11 +481,11 @@ public class FlareBot {
             }
         }.repeat(10, 30000);
 
-        new FlarebotTask("PollChecker" + System.currentTimeMillis()){
+        new FlarebotTask("PollChecker" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                for(Poll poll : getManager().getPolls().values()){
-                    if(poll.isOpen()) {
+                for (Poll poll : getManager().getPolls().values()) {
+                    if (poll.isOpen()) {
                         if (LocalDateTime.now().until(poll.getEndTime(), ChronoUnit.SECONDS) <= 0) {
                             poll.setStatus(Poll.PollStatus.CLOSED);
                         }
@@ -739,7 +735,7 @@ public class FlareBot {
     }
 
     private void savePolls() {
-        for(String guildId : getManager().getPolls().keySet()){
+        for (String guildId : getManager().getPolls().keySet()) {
             String pollJson = GSON.toJson(getManager().getPollFromGuild(getGuildByID(guildId)));
 
             try {
@@ -755,11 +751,11 @@ public class FlareBot {
         }
     }
 
-    private void loadPolls(){
+    private void loadPolls() {
         try {
             SQLController.runSqlTask((conn) -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM polls");
-                while(set.next()) {
+                while (set.next()) {
                     getManager().getPolls().put(set.getString("guild_id"), GSON.fromJson(set.getString("poll"), Poll.class));
                 }
             });
@@ -954,7 +950,7 @@ public class FlareBot {
 
     public static String getMessage(String[] args, int min, int max) {
         String message = "";
-        for(int index = min; index < max; index++){
+        for (int index = min; index < max; index++) {
             message += args[index] + " ";
         }
         return message.trim();
@@ -1055,11 +1051,11 @@ public class FlareBot {
                 .findFirst().orElse(null);
     }
 
-    public DateTimeFormatter getTimeFormatter(){
+    public DateTimeFormatter getTimeFormatter() {
         return this.timeFormat;
     }
 
-    public String formatTime(LocalDateTime dateTime){
+    public String formatTime(LocalDateTime dateTime) {
         return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime.format(timeFormat) + " UTC";
     }
 

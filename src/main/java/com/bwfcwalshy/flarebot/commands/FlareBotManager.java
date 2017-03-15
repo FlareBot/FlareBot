@@ -2,7 +2,6 @@ package com.bwfcwalshy.flarebot.commands;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
-import com.bwfcwalshy.flarebot.music.VideoThread;
 import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import net.dv8tion.jda.core.entities.Guild;
@@ -59,15 +58,15 @@ public class FlareBotManager {
         return songs;
     }
 
-    public Map<String, Poll> getPolls(){
+    public Map<String, Poll> getPolls() {
         return this.polls;
     }
 
-    public Poll getPollFromGuild(Guild guild){
+    public Poll getPollFromGuild(Guild guild) {
         return this.polls.get(guild.getId());
     }
 
-    public void executeCreations(){
+    public void executeCreations() {
         try {
             SQLController.runSqlTask(conn -> conn.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
                     "  playlist_name  VARCHAR(60),\n" +

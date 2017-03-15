@@ -12,12 +12,12 @@ public class PinCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 1){
+        if (args.length == 1) {
             String messageId = args[0].replaceAll("[^0-9]", "");
             Message msg = channel.getMessageById(messageId).complete();
             msg.pin().complete();
-            channel.getHistory().retrievePast(1).complete().get(0).deleteMessage().queue();
-        }else{
+            channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
+        } else {
             MessageUtils.sendErrorMessage("Usage: `pin (messageId)`", channel);
         }
     }
@@ -38,7 +38,7 @@ public class PinCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission(){
+    public boolean isDefaultPermission() {
         return false;
     }
 }

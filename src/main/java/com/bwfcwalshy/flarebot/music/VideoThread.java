@@ -27,7 +27,7 @@ public class VideoThread extends Thread {
     private Extractor extractor;
 
     private VideoThread() {
-        if(manager == null)
+        if (manager == null)
             manager = FlareBot.getInstance().getMusicManager();
         setName("Video Thread " + VIDEO_THREADS.activeCount());
     }
