@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
@@ -22,6 +23,25 @@ public class MessageUtils {
     public static <T> Consumer<T> noOpConsumer() {
         return t -> {
         };
+    }
+
+    public static int getLength(EmbedBuilder embed) {
+        int len = 0;
+        MessageEmbed e = embed.build();
+        if (e.getTitle() != null)
+            len += e.getTitle().length();
+        if (e.getDescription() != null)
+            len += e.getDescription().length();
+        if (e.getAuthor() != null)
+            len += e.getAuthor().getName().length();
+        if (e.getFooter() != null)
+            len += e.getFooter().getText().length();
+        if (e.getFields() != null) {
+            for (MessageEmbed.Field f : e.getFields()) {
+                len += f.getName().length() + f.getValue().length();
+            }
+        }
+        return len;
     }
 
     public static Message sendPM(User user, CharSequence message) {
