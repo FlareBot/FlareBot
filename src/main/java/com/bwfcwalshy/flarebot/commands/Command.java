@@ -27,7 +27,7 @@ public interface Command {
     }
 
     default boolean isDefaultPermission() {
-        return true;
+        return (getPermission() != null);
     }
 
     default boolean deleteMessage() {
