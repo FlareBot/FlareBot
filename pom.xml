@@ -13,10 +13,6 @@
     </properties>
 
     <repositories>
-        <repository>
-            <id>jitpack</id>
-            <url>https://jitpack.io/</url>
-        </repository>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
             <id>jcenter</id>
             <url>http://jcenter.bintray.com</url>
