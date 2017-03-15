@@ -3,7 +3,6 @@ package com.bwfcwalshy.flarebot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
-import com.bwfcwalshy.flarebot.mod.Automod;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
@@ -175,9 +174,6 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        if(Automod.isEnabled(event.getGuild())){
-            Automod.asyncProcess(event);
-        }
         PlayerCache cache = flareBot.getPlayerCache(event.getAuthor().getId());
         cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
         cache.setLastSeen(LocalDateTime.now());
