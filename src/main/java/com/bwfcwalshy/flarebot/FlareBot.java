@@ -655,10 +655,10 @@ public class FlareBot {
 
     public void quit(boolean update) {
         if (update) {
-            LOGGER.debug("Updating bot!");
+            LOGGER.info("Updating bot!");
             try {
                 File git = new File("FlareBot" + File.separator);
-                if (!git.exists() || !git.isDirectory()) {
+                if (!(git.exists() && git.isDirectory())) {
                     ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git.getAbsolutePath());
                     clone.redirectErrorStream(true);
                     Process p = clone.start();
@@ -690,7 +690,7 @@ public class FlareBot {
                         return;
                     }
                 }
-                ProcessBuilder maven = new ProcessBuilder("mvn", "clean", "package", "-e");
+                ProcessBuilder maven = new ProcessBuilder("mvn", "clean", "package", "-e", "-U");
                 maven.directory(git);
                 Process p = maven.start();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -716,7 +716,7 @@ public class FlareBot {
                 UpdateCommand.UPDATING.set(false);
             }
         } else
-            LOGGER.debug("Exiting.");
+            LOGGER.info("Exiting.");
         stop();
         System.exit(0);
     }
