@@ -17,7 +17,6 @@
             <id>jcenter</id>
             <url>http://jcenter.bintray.com</url>
         </repository>
-        
         <repository>
             <id>jitpack</id>
             <url>https://jitpack.io</url>
@@ -36,7 +35,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0._155</version>
+            <version>3.0.0_155</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
