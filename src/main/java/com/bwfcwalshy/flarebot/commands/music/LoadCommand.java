@@ -20,11 +20,14 @@ public class LoadCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
+
             channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "load [NAME]").queue();
             return;
         }
         String name = FlareBot.getMessage(args, 0);
-        channel.sendTyping().queue();
+
+        channel.sendTyping().complete();
+
         VideoThread.getThread(name + '\u200B' + FlareBot.getInstance().getManager().loadPlaylist(channel, sender, name), channel, sender).start();
     }
 

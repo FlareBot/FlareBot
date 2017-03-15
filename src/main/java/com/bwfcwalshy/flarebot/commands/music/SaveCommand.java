@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+
 public class SaveCommand implements Command {
 
     @Override
@@ -24,6 +25,7 @@ public class SaveCommand implements Command {
             channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "save [NAME]").queue();
             return;
         }
+
         String name = FlareBot.getMessage(args, 0);
         if (name.length() > 20) {
             channel.sendMessage("Name must be up to 20 characters!").queue();
@@ -38,7 +40,9 @@ public class SaveCommand implements Command {
             channel.sendMessage("Your playlist is empty!").queue();
             return;
         }
-        channel.sendTyping().queue();
+
+        channel.sendTyping().complete();
+
         FlareBot.getInstance().getManager().savePlaylist(channel, sender.getId(), name, playlist.stream()
                 .map(track -> track.getTrack().getIdentifier())
                 .collect(Collectors.joining(",")));
