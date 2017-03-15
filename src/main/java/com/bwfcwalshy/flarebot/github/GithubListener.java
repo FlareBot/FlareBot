@@ -26,14 +26,15 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String file : commit.getAdded()) {
-                    if (!(i++ >= 5)) {
+                for (String filePath : commit.getAdded()) {
+                    if (i++ <= 5) {
+                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                         sb.append("* " + file + "\n\n");
                     }
                 }
 
                 if (commit.getRemoved().length >= 5) {
-                    sb.append("...");
+                    sb.append("...\n");
                 }
 
                 String added = sb.toString() + "```";
@@ -44,14 +45,15 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String file : commit.getRemoved()) {
-                    if (!(i++ >= 5)) {
+                for (String filePath : commit.getRemoved()) {
+                    if (i++ <= 5) {
+                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                         sb.append("* " + file + "\n\n");
                     }
                 }
 
                 if (commit.getRemoved().length >= 5) {
-                    sb.append("...");
+                    sb.append("...\n");
                 }
 
                 String removed = sb.toString() + "```";
@@ -62,14 +64,15 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String file : commit.getModified()) {
-                    if (!(i++ >= 5)) {
+                for (String filePath : commit.getModified()) {
+                    if (i++ <= 5) {
+                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                         sb.append("* " + file + "\n\n");
                     }
                 }
 
                 if (commit.getModified().length >= 5) {
-                    sb.append("...");
+                    sb.append("...\n");
                 }
 
                 String modified = sb.toString() + "```";
