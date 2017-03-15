@@ -33,9 +33,9 @@
             <version>1.0.3</version>
         </dependency>
         <dependency>
-            <groupId>net.dv8tion</groupId>
+             <groupId>com.github.DV8FromTheWorld</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.0_155</version>
+            <version>experimental~cache-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
