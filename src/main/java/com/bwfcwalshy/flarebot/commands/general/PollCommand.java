@@ -70,7 +70,7 @@ public class PollCommand implements Command {
                 } else {
                     String question = FlareBot.getMessage(args, 1);
                     manager.getPolls().put(guildId, new Poll(question));
-                    channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null).setColor(Color.green).setAuthor(sender.getName(), null, sender.getEffectiveAvatarUrl())
+                    channel.sendMessage(new EmbedBuilder().setTitle("Poll created").setColor(Color.green).setAuthor(sender.getName(), null, sender.getEffectiveAvatarUrl())
                             .setDescription("Poll has been created! To close the poll use `poll close` and to edit the auto-close time of the poll do `poll set closetime (time eg 10m)`\n" +
                                     "To open the poll for people to vote on do `poll open`!").build()).queue();
                 }
@@ -139,7 +139,7 @@ public class PollCommand implements Command {
 
     private void listOptions(TextChannel channel) {
         Poll poll = manager.getPollFromGuild(channel.getGuild());
-        EmbedBuilder builder = new EmbedBuilder().setTitle("Options", null).setDescription("Options for `" + poll.getPollOptions() + "`");
+        EmbedBuilder builder = new EmbedBuilder().setTitle("Options").setDescription("Options for `" + poll.getPollOptions() + "`");
         poll.getPollOptions().forEach(option -> builder.addField("Option " + (poll.getPollOptions().indexOf(option) + 1), option.getOption() + "\nVotes: " + option.getVotes(), true));
         channel.sendMessage(builder.build()).queue();
     }

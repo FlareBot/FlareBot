@@ -90,6 +90,10 @@ public class PlaylistCommand implements Command {
             EmbedBuilder builder = MessageUtils.getEmbed(sender.getUser());
             i = 1;
             for (String s : songs) {
+//                EmbedBuilder b = new EmbedBuilder(builder.build());
+//                b.addField("Page " + i++, s, false);
+//                if(!b.isSendable(channel.getJDA().getAccountType()))
+//                    break; // Uncomment once youre back on stable
                 builder.addField("Page " + i++, s, false);
             }
             mchannel.sendMessage(builder.build()).queue();
