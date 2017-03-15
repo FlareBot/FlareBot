@@ -106,7 +106,6 @@ public class FlareBot {
     CountDownLatch latch;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException {
-        RestAction.DEFAULT_FAILURE = t -> LOGGER.error("RestAction failed!", t);
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
         SimpleLog.addListener(new SimpleLog.LogListener() {
             @Override
