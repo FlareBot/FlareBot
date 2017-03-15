@@ -26,8 +26,9 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String file : commit.getAdded()) {
+                for (String filePath : commit.getAdded()) {
                     if (!(i++ >= 5)) {
+                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                         sb.append("* " + file + "\n\n");
                     }
                 }
@@ -44,8 +45,9 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String file : commit.getRemoved()) {
+                for (String filePath : commit.getRemoved()) {
                     if (!(i++ >= 5)) {
+                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                         sb.append("* " + file + "\n\n");
                     }
                 }
@@ -62,8 +64,9 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String file : commit.getModified()) {
+                for (String filePath : commit.getModified()) {
                     if (!(i++ >= 5)) {
+                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                         sb.append("* " + file + "\n\n");
                     }
                 }
