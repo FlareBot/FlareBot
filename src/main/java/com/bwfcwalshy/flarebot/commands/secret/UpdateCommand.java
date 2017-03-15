@@ -94,7 +94,7 @@ public class UpdateCommand implements Command {
                 if (line != null && (line.contains("<version>") && line.contains("</version>"))) {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "").replaceAll("\t", "");
                     String currentVersion = FlareBot.getInstance().getVersion();
-                    if (force || isHigher(latestVersion, currentVersion)) {
+                    if (isHigher(latestVersion, currentVersion)) {
                         doTheUpdate(channel, latestVersion, currentVersion);
                     } else {
                         if (channel != null)
