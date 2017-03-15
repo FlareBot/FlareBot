@@ -34,7 +34,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 }
 
                 if (commit.getRemoved().length >= 5) {
-                    sb.append("...");
+                    sb.append("...\n");
                 }
 
                 String added = sb.toString() + "```";
@@ -53,7 +53,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 }
 
                 if (commit.getRemoved().length >= 5) {
-                    sb.append("...");
+                    sb.append("...\n");
                 }
 
                 String removed = sb.toString() + "```";
@@ -72,7 +72,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 }
 
                 if (commit.getModified().length >= 5) {
-                    sb.append("...");
+                    sb.append("...\n");
                 }
 
                 String modified = sb.toString() + "```";
