@@ -40,6 +40,7 @@ import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.cli.*;
 import org.json.JSONObject;
@@ -241,6 +242,7 @@ public class FlareBot {
     }
 
     public void init(String tkn) throws InterruptedException, UnirestException {
+        RestAction.DEFAULT_FAILURE = t -> {};
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + tkn)
                 .asJson()
