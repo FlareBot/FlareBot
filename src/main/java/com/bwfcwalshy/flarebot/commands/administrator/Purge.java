@@ -60,14 +60,14 @@ public class Purge implements Command {
                     if (!toDelete.isEmpty()) {
                         if (toDelete.size() != 1)
                             channel.deleteMessages(toDelete).complete();
-                        else toDelete.forEach(mssage -> mssage.deleteMessage().complete());
+                        else toDelete.forEach(mssage -> mssage.delete().complete());
                     }
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Deleted `%s` messages!", i)).build())
                             .queue(s -> new FlarebotTask("Delete Message " + s) {
                                 @Override
                                 public void run() {
-                                    s.deleteMessage().queue();
+                                    s.delete().queue();
                                 }
                             }.delay(30_000));
                 } catch (Exception e) {
