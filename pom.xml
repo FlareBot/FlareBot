@@ -73,6 +73,11 @@
             <version>1.13-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.neovisionaries</groupId>
+            <artifactId>nv-websocket-client</artifactId>
+            <version>1.30</version>
+        </dependency>
+        <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
             <version>1.2.28</version>

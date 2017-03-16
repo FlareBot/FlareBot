@@ -13,6 +13,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
@@ -287,6 +288,14 @@ public class Events extends ListenerAdapter {
         if (event.getPreviousOnlineStatus() == OnlineStatus.OFFLINE) {
             flareBot.getPlayerCache(event.getUser().getId()).setLastSeen(LocalDateTime.now());
         }
+    }
+
+    @Override
+    public void onDisconnect(DisconnectEvent event) {
+        if (event.isClosedByServer())
+            System.out.printf("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame().getCloseCode(), event.getCloseCode());
+        else
+            System.out.printf("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame().getCloseCode(), event.getClientCloseFrame().getCloseReason());
     }
 
     private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
