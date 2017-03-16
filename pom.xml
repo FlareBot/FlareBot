@@ -40,7 +40,6 @@
         <!--<dependency>-->
             <!--<groupId>net.dv8tion</groupId>-->
             <!--<artifactId>JDA</artifactId>-->
-            <!--<version>3.0.0_155</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -76,6 +75,12 @@
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
             <artifactId>jda-impl</artifactId>
             <version>1.12-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.dv8tion</groupId>
+                    <artifactId>JDA</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
