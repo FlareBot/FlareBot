@@ -295,7 +295,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onStatusChange(StatusChangeEvent event) {
-        Unirest.post(FlareBot.getInstance().getStatusHook())
+        Unirest.post(FlareBot.getStatusHook())
                 .body(new JSONObject()
                 .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
                         event.getOldStatus(), event.getStatus(),

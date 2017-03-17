@@ -101,7 +101,7 @@ public class FlareBot {
     private File welcomeFile;
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     CountDownLatch latch;
-    private String statusHook;
+    private static String statusHook;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -202,6 +202,9 @@ public class FlareBot {
             if (parsed.hasOption("debug")) {
                 ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                         .setLevel(Level.DEBUG);
+            }
+            if (parsed.hasOption("sh")) {
+                FlareBot.statusHook = parsed.getOptionValue("sh");
             }
             if (parsed.hasOption("bl"))
                 FlareBot.botListAuth = parsed.getOptionValue("bl");
@@ -974,7 +977,7 @@ public class FlareBot {
                 .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id).build()).queue();
     }
 
-    public String getStatusHook() {
+    public static String getStatusHook() {
         return statusHook;
     }
 
