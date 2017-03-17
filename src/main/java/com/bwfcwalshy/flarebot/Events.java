@@ -300,7 +300,7 @@ public class Events extends ListenerAdapter {
                 .body(new JSONObject()
                 .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
                         event.getOldStatus(), event.getStatus(),
-                        Arrays.asList(flareBot.getClients()).indexOf(event.getJDA()))))
+                        event.getJDA().getShardInfo().getShardId())))
                 .asStringAsync();
     }
 
