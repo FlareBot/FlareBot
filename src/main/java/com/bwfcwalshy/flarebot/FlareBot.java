@@ -101,6 +101,7 @@ public class FlareBot {
     private File welcomeFile;
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     CountDownLatch latch;
+    private String statusHook;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -178,6 +179,12 @@ public class FlareBot {
         websiteSecret.setLongOpt("web-secret");
         websiteSecret.setRequired(false);
         options.addOption(websiteSecret);
+
+        Option statusHook = new Option("status-hook", true, "Status webhook");
+        statusHook.setArgName("status-hook");
+        statusHook.setLongOpt("status-hook");
+        statusHook.setRequired(true);
+        options.addOption(statusHook);
 
         String tkn;
         try {
@@ -965,6 +972,10 @@ public class FlareBot {
         String id = instance.postToApi("postReport", "error", message);
         channel.sendMessage(new EmbedBuilder().setColor(Color.red)
                 .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id).build()).queue();
+    }
+
+    public String getStatusHook() {
+        return statusHook;
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {

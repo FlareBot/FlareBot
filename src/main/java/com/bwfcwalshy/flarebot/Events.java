@@ -6,6 +6,7 @@ import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
+import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.StatusChangeEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -24,6 +26,7 @@ import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -288,6 +291,16 @@ public class Events extends ListenerAdapter {
         if (event.getPreviousOnlineStatus() == OnlineStatus.OFFLINE) {
             flareBot.getPlayerCache(event.getUser().getId()).setLastSeen(LocalDateTime.now());
         }
+    }
+
+    @Override
+    public void onStatusChange(StatusChangeEvent event) {
+        Unirest.post(FlareBot.getInstance().getStatusHook())
+                .body(new JSONObject()
+                .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
+                        event.getOldStatus(), event.getStatus(),
+                        Arrays.asList(flareBot.getClients()).indexOf(event.getJDA()))))
+                .asStringAsync();
     }
 
     @Override
