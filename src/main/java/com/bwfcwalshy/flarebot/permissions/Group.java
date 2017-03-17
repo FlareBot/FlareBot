@@ -1,11 +1,11 @@
 package com.bwfcwalshy.flarebot.permissions;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 
 public class Group {
-    final HashSet<String> permissions = new HashSet<>();
+    final ConcurrentSkipListSet<String> permissions = new ConcurrentSkipListSet<>();
     private String name;
 
     private Group() {
