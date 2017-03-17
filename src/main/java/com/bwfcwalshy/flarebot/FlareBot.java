@@ -180,8 +180,8 @@ public class FlareBot {
         websiteSecret.setRequired(false);
         options.addOption(websiteSecret);
 
-        Option statusHook = new Option("status-hook", true, "Status webhook");
-        statusHook.setArgName("status-hook");
+        Option statusHook = new Option("sh", true, "Status webhook");
+        statusHook.setArgName("statushook");
         statusHook.setLongOpt("status-hook");
         statusHook.setRequired(true);
         options.addOption(statusHook);
