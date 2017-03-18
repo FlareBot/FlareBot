@@ -721,7 +721,6 @@ public class FlareBot {
                 Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
                 File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                System.exit(0);
             } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
                 setupUpdate();
