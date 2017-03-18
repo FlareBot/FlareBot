@@ -11,4 +11,8 @@ public interface Extractor {
     void process(String input, Player player, Message message, User user) throws Exception;
 
     boolean valid(String input);
+
+    default AudioSourceManager newSourceManagerInstance() throws Exception {
+        return getSourceManagerClass().newInstance();
+    }
 }

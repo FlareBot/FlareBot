@@ -42,4 +42,11 @@ public class RandomExtractor implements Extractor {
     public boolean valid(String input) {
         return input.matches("([^,]{11},)*[^,]{11}");
     }
+
+    @Override
+    public AudioSourceManager newSourceManagerInstance() throws Exception {
+        YoutubeAudioSourceManager manager = new YoutubeAudioSourceManager();
+        manager.setPlaylistPageCount(100);
+        return manager;
+    }
 }

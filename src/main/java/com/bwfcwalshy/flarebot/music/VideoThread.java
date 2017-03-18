@@ -49,7 +49,7 @@ public class VideoThread extends Thread {
                 return;
             }
             if (managers.add(extractor.getSourceManagerClass()))
-                manager.getManager().registerSourceManager(extractor.getSourceManagerClass().newInstance());
+                manager.getManager().registerSourceManager(extractor.newSourceManagerInstance());
             extractor.process(url, manager.getPlayer(channel.getGuild().getId()), message, user);
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not init extractor for '{}'".replace("{}", url), e);

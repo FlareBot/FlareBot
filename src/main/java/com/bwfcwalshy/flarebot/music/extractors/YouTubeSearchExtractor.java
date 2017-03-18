@@ -4,6 +4,8 @@ import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.mashape.unirest.http.Unirest;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONArray;
@@ -41,5 +43,12 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
             return;
         }
         super.process(link, player, message, user);
+    }
+
+    @Override
+    public AudioSourceManager newSourceManagerInstance() throws Exception {
+        YoutubeAudioSourceManager manager = new YoutubeAudioSourceManager();
+        manager.setPlaylistPageCount(100);
+        return manager;
     }
 }
