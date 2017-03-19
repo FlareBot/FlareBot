@@ -21,12 +21,15 @@ public class ShardRestart implements Command {
         if (getPermissions(channel).isCreator(sender)) {
             int shard = Integer.parseInt(args[0]);
             try {
-                FlareBot.getInstance().getClients()[shard] = new JDABuilder(AccountType.BOT)
-                                .addListener(FlareBot.getInstance().getEvents())
-                                .useSharding(shard, FlareBot.getInstance().getClients().length)
-                                .setToken(FlareBot.getToken())
-                                .setAudioSendFactory(new NativeAudioSendFactory())
-                                .buildAsync();
+                synchronized (FlareBot.getInstance().getClients()) {
+                    FlareBot.getInstance().getClients()[shard].shutdown(false);
+                    FlareBot.getInstance().getClients()[shard] = new JDABuilder(AccountType.BOT)
+                            .addListener(FlareBot.getInstance().getEvents())
+                            .useSharding(shard, FlareBot.getInstance().getClients().length)
+                            .setToken(FlareBot.getToken())
+                            .setAudioSendFactory(new NativeAudioSendFactory())
+                            .buildAsync();
+                }
             } catch (LoginException | RateLimitedException e) {
                 MessageUtils.sendException("", e, channel);
             }
