@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
 
+    private volatile boolean sd = false;
     private FlareBot flareBot;
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
@@ -51,9 +52,9 @@ public class Events extends ListenerAdapter {
     public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
     private AtomicInteger i = new AtomicInteger(0);
 
-
     public Events(FlareBot bot) {
         this.flareBot = bot;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> sd = true));
     }
 
     @Override
@@ -295,6 +296,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onStatusChange(StatusChangeEvent event) {
+        if(sd) return;
         Unirest.post(FlareBot.getStatusHook())
                 .header("Content-Type", "application/json")
                 .body(new JSONObject()
