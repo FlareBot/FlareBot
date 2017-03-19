@@ -38,17 +38,17 @@ public class ShardRestart implements Command {
 
     @Override
     public String getCommand() {
-        return null;
+        return "restart" ;
     }
-
+    
     @Override
     public String getDescription() {
-        return null;
+        return "";
     }
 
     @Override
     public CommandType getType() {
-        return null;
+        return CommandType.HIDDEN;
     }
 
     @Override
