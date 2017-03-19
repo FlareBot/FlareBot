@@ -102,6 +102,7 @@ public class FlareBot {
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     CountDownLatch latch;
     private static String statusHook;
+    private static String token;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -225,6 +226,15 @@ public class FlareBot {
 
     public static final char COMMAND_CHAR = '_';
 
+    public static String getToken() {
+        return token;
+    }
+
+    public Events getEvents() {
+        return events;
+    }
+
+    private Events events;
     private String version = null;
     private JDA[] clients;
 
@@ -252,6 +262,7 @@ public class FlareBot {
     }
 
     public void init(String tkn) throws InterruptedException, UnirestException {
+        token = tkn;
         RestAction.DEFAULT_FAILURE = t -> {};
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + tkn)
@@ -262,7 +273,7 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         latch = new CountDownLatch(clients.length);
-        Events events = new Events(this);
+        events = new Events(this);
         try {
             if (clients.length == 1) {
                 while (true) {
@@ -440,6 +451,7 @@ public class FlareBot {
         registerCommand(new UserInfoCommand());
         registerCommand(new PollCommand());
         registerCommand(new PinCommand());
+        registerCommand(new ShardRestart());
 
         ApiFactory.bind();
 
