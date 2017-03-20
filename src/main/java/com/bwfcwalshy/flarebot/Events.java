@@ -149,6 +149,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+            event.getGuild().getAudioManager().setSelfDeafened(true);
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
             }
