@@ -452,6 +452,7 @@ public class FlareBot {
         registerCommand(new PollCommand());
         registerCommand(new PinCommand());
         registerCommand(new ShardRestart());
+        registerCommand(new QueryCommand());
 
         ApiFactory.bind();
 

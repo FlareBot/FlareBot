@@ -7,10 +7,7 @@ import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
 import com.mashape.unirest.http.Unirest;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -28,7 +25,12 @@ import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.json.JSONObject;
 
+import javax.imageio.ImageIO;
+import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -210,6 +212,30 @@ public class Events extends ListenerAdapter {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
                     if (cmd.getType() == CommandType.HIDDEN) {
                         if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
+                            try {
+                                File dir = new File("imgs");
+                                if(!dir.exists())
+                                    dir.mkdir();
+                                File trap = new File("imgs" + File.separator + "trap.jpg");
+                                if(!trap.exists()){
+                                    trap.createNewFile();
+                                    URL url = new URL("https://cdn.discordapp.com/attachments/242297848123621376/293873454678147073/trap.jpg");
+                                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+                                    InputStream is = conn.getInputStream();
+                                    OutputStream os = new FileOutputStream(trap);
+                                    byte[] b = new byte[2048];
+                                    int length;
+                                    while ((length = is.read(b)) != -1) {
+                                        os.write(b, 0, length);
+                                    }
+                                    is.close();
+                                    os.close();
+                                }
+                                event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null).queue();
+                            } catch (IOException e) {
+                                FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
+                            }
                             return;
                         }
                     }

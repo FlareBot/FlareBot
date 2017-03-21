@@ -71,7 +71,7 @@ public class Purge implements Command {
                                 public void run() {
                                     s.delete().queue();
                                 }
-                            }.delay(30_000));
+                            }.delay(5_000));
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Failed to bulk delete or load messages! Error: `%s`", e)).build()).queue();
