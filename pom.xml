@@ -35,7 +35,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.0_155</version>
+            <version>3.0.0_158</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
             <artifactId>jda-impl</artifactId>
-            <version>1.13-SNAPSHOT</version>
+            <version>1.14-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.neovisionaries</groupId>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.28</version>
+            <version>1.2.31</version>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>
