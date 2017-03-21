@@ -62,4 +62,11 @@ public class SavedPlaylistExtractor implements Extractor {
     public boolean valid(String input) {
         return input.matches(".+\u200B([^,]{11},)*[^,]{11}");
     }
+
+    @Override
+    public AudioSourceManager newSourceManagerInstance() throws Exception {
+        YoutubeAudioSourceManager manager = new YoutubeAudioSourceManager();
+        manager.setPlaylistPageCount(100);
+        return manager;
+    }
 }

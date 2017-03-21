@@ -85,4 +85,11 @@ public class YouTubeExtractor implements Extractor {
     public boolean valid(String input) {
         return input.matches(ANY_YT_URL);
     }
+
+    @Override
+    public AudioSourceManager newSourceManagerInstance() throws Exception {
+        YoutubeAudioSourceManager manager = new YoutubeAudioSourceManager();
+        manager.setPlaylistPageCount(100);
+        return manager;
+    }
 }

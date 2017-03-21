@@ -101,6 +101,8 @@ public class FlareBot {
     private File welcomeFile;
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     CountDownLatch latch;
+    private static String statusHook;
+    private static String token;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -179,6 +181,12 @@ public class FlareBot {
         websiteSecret.setRequired(false);
         options.addOption(websiteSecret);
 
+        Option statusHook = new Option("sh", true, "Status webhook");
+        statusHook.setArgName("statushook");
+        statusHook.setLongOpt("status-hook");
+        statusHook.setRequired(true);
+        options.addOption(statusHook);
+
         String tkn;
         try {
             CommandLineParser parser = new DefaultParser();
@@ -195,6 +203,9 @@ public class FlareBot {
             if (parsed.hasOption("debug")) {
                 ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                         .setLevel(Level.DEBUG);
+            }
+            if (parsed.hasOption("sh")) {
+                FlareBot.statusHook = parsed.getOptionValue("sh");
             }
             if (parsed.hasOption("bl"))
                 FlareBot.botListAuth = parsed.getOptionValue("bl");
@@ -215,6 +226,15 @@ public class FlareBot {
 
     public static final char COMMAND_CHAR = '_';
 
+    public static String getToken() {
+        return token;
+    }
+
+    public Events getEvents() {
+        return events;
+    }
+
+    private Events events;
     private String version = null;
     private JDA[] clients;
 
@@ -242,6 +262,7 @@ public class FlareBot {
     }
 
     public void init(String tkn) throws InterruptedException, UnirestException {
+        token = tkn;
         RestAction.DEFAULT_FAILURE = t -> {};
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + tkn)
@@ -252,7 +273,7 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         latch = new CountDownLatch(clients.length);
-        Events events = new Events(this);
+        events = new Events(this);
         try {
             if (clients.length == 1) {
                 while (true) {
@@ -430,6 +451,7 @@ public class FlareBot {
         registerCommand(new UserInfoCommand());
         registerCommand(new PollCommand());
         registerCommand(new PinCommand());
+        registerCommand(new ShardRestart());
 
         ApiFactory.bind();
 
@@ -711,7 +733,6 @@ public class FlareBot {
                 Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
                 File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                System.exit(0);
             } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
                 setupUpdate();
@@ -965,6 +986,10 @@ public class FlareBot {
         String id = instance.postToApi("postReport", "error", message);
         channel.sendMessage(new EmbedBuilder().setColor(Color.red)
                 .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id).build()).queue();
+    }
+
+    public static String getStatusHook() {
+        return statusHook;
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {

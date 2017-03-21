@@ -8,11 +8,12 @@ import net.dv8tion.jda.core.entities.Member;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class PerGuildPermissions {
-    private final HashMap<String, Group> groups = new HashMap<>();
-    private final HashMap<String, User> users = new HashMap<>();
+    private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
     protected String id;
 
     protected PerGuildPermissions() {
