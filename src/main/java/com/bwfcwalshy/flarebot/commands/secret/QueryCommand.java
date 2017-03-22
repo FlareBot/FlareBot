@@ -25,7 +25,18 @@ public class QueryCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         try {
             SQLController.runSqlTask(conn -> {
-                ResultSet set = conn.createStatement().executeQuery(FlareBot.getMessage(args, 0));
+                ResultSet set;
+                try {
+                    set = conn.createStatement().executeQuery(FlareBot.getMessage(args, 0));
+                }catch(SQLException e){
+                    try {
+                        conn.createStatement().execute(FlareBot.getMessage(args, 0));
+                        channel.sendMessage(new EmbedBuilder().setDescription("Query was executed successfully!").setColor(Color.green).build()).queue();
+                    }catch(SQLException e1) {
+                        channel.sendMessage(new EmbedBuilder().setDescription("Failed to execute query! " + e.getMessage()).setColor(Color.red).build()).queue();
+                    }
+                    return;
+                }
                 List<String> header = new ArrayList<>();
                 List<List<String>> table = new ArrayList<>();
                 ResultSetMetaData metaData = set.getMetaData();

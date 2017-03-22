@@ -33,4 +33,8 @@ public interface Command {
     default boolean deleteMessage() {
         return true;
     }
+
+    default char getPrefix(Guild guild){
+        return FlareBot.getPrefix(guild.getId());
+    }
 }

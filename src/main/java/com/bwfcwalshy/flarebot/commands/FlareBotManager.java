@@ -21,6 +21,7 @@ public class FlareBotManager {
     private Random rand = new Random();
 
     private Map<String, Poll> polls = new HashMap<>();
+    private Map<String, List<String>> selfAssignRoles = new HashMap<>();
 
     public FlareBotManager() {
         instance = this;
@@ -68,14 +69,17 @@ public class FlareBotManager {
 
     public void executeCreations() {
         try {
-            SQLController.runSqlTask(conn -> conn.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                    "  playlist_name  VARCHAR(60),\n" +
-                    "  guild VARCHAR(20),\n" +
-                    "  owner VARCHAR(20),\n" +
-                    "  list  TEXT,\n" +
-                    "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                    "  PRIMARY KEY(playlist_name, guild)\n" +
-                    ")"));
+            SQLController.runSqlTask(conn -> {
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
+                        "  playlist_name  VARCHAR(60),\n" +
+                        "  guild VARCHAR(20),\n" +
+                        "  owner VARCHAR(20),\n" +
+                        "  list  TEXT,\n" +
+                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
+                        "  PRIMARY KEY(playlist_name, guild)\n" +
+                        ")");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS selfassign (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, roles TEXT)");
+            });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
         }
@@ -133,5 +137,13 @@ public class FlareBotManager {
             FlareBot.LOGGER.error("Database error!", e);
         }
         return list[0];
+    }
+
+    public List<String> getSelfAssignRoles(String guildId){
+        return this.selfAssignRoles.computeIfAbsent(guildId, gid -> new ArrayList<>());
+    }
+
+    public Map<String, List<String>> getSelfAssignRoles(){
+        return this.selfAssignRoles;
     }
 }

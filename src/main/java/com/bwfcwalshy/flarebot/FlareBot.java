@@ -374,6 +374,7 @@ public class FlareBot {
         manager.loadRandomSongs();
 
         loadPolls();
+        loadSelfAssign();
 
         musicManager.getPlayerCreateHooks().register(player -> player.getQueueHookManager().register(new QueueListener()));
 
@@ -453,6 +454,7 @@ public class FlareBot {
         registerCommand(new PinCommand());
         registerCommand(new ShardRestart());
         registerCommand(new QueryCommand());
+        registerCommand(new SelfAssignCommand());
 
         ApiFactory.bind();
 
@@ -756,6 +758,35 @@ public class FlareBot {
             LOGGER.error("Perms save failed on stop!", e);
         }
         savePolls();
+        saveSelfAssign();
+    }
+
+    private void saveSelfAssign() {
+        for(String guild : getManager().getSelfAssignRoles().keySet()){
+            try {
+                SQLController.runSqlTask(conn -> {
+                    PreparedStatement statement = conn.prepareStatement("INSERT INTO selfassign (guild_id, roles) VALUES (?, ?) ON DUPLICATE KEY UPDATE roles = VALUES(roles)");
+                    statement.setString(1, guild);
+                    statement.setString(2, getManager().getSelfAssignRoles(guild).stream().collect(Collectors.joining(",")));
+                    statement.execute();
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadSelfAssign(){
+        try {
+            SQLController.runSqlTask(conn -> {
+                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM selfassign");
+                while(set.next()){
+                    getManager().getSelfAssignRoles().put(set.getString("guild_id"), Arrays.asList(set.getString("roles").replaceAll(" ", "").split(",")));
+                }
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void savePolls() {

@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot;
 
+import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -131,5 +132,19 @@ public class MessageUtils {
 
     public static boolean hasInvite(Message message) {
         return INVITE_REGEX.matcher(message.getRawContent()).find();
+    }
+
+    public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel){
+        sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
+    }
+
+    public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel){
+        Message msg = channel.sendMessage(message).complete();
+        new FlarebotTask("AutoDeleteTask") {
+            @Override
+            public void run() {
+                msg.delete().queue();
+            }
+        }.delay(delay);
     }
 }
