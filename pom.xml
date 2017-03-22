@@ -76,6 +76,12 @@
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
             <artifactId>jda-impl</artifactId>
             <version>1.14-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>JDA</artifactId>
+                    <groupId>net.dv8tion</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.neovisionaries</groupId>
