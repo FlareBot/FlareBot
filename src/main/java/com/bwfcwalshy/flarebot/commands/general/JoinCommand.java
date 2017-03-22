@@ -2,11 +2,14 @@ package com.bwfcwalshy.flarebot.commands.general;
 
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+
+import java.awt.*;
 
 public class JoinCommand implements Command {
 
@@ -18,13 +21,15 @@ public class JoinCommand implements Command {
                 return;
             }
             if (channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
-                    channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK))
-                try {
-                    channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-                } catch (Exception e) {
-                    channel.sendMessage("Could not connect! " + e.getMessage()).queue();
+                    channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
+                if (member.getVoiceState().getChannel().getMembers().size() < member.getVoiceState().getChannel().getUserLimit() &&
+                        !member.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.MANAGE_CHANNEL)) {
+                    channel.sendMessage(new EmbedBuilder().setDescription("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
+                            "bypass it!").setColor(Color.red).build()).queue();
+                    return;
                 }
-            else
+                channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            }else
                 channel.sendMessage("I do not have permission to " + (!channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) ?
                         "connect" : "speak") + " in your voice channel!").queue();
         }
