@@ -1,5 +1,6 @@
 package com.bwfcwalshy.flarebot.commands.general;
 
+import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -18,6 +19,12 @@ public class JoinCommand implements Command {
         if (member.getVoiceState().inVoiceChannel()) {
             if (channel.getGuild().getAudioManager().isAttemptingToConnect()) {
                 channel.sendMessage("Currently connecting to a voice channel! Try again soon!").queue();
+                return;
+            }
+            if(channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getAudioChannel().getId()
+                    .equals(member.getVoiceState().getAudioChannel().getId()) && !FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.join.other")){
+                channel.sendMessage(new EmbedBuilder().setColor(Color.red).setDescription("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!")
+                    .build()).queue();
                 return;
             }
             if (channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
