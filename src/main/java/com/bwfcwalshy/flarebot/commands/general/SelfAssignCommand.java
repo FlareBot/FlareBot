@@ -8,7 +8,6 @@ import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 
-import javax.xml.soap.Text;
 import java.awt.*;
 
 public class SelfAssignCommand implements Command {
@@ -56,15 +55,7 @@ public class SelfAssignCommand implements Command {
                 }
 
                 if(FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).contains(roleId)){
-                    if(member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
-                        channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
-                        channel.sendMessage(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild().getRoleById(roleId).getName() + "` to yourself!")
-                                .setColor(Color.green).build()).queue();
-                    }else{
-                        channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId)).queue();
-                        channel.sendMessage(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild().getRoleById(roleId).getName() + "` from yourself!")
-                                .setColor(Color.red).build()).queue();
-                    }
+                    handleRole(member, channel, roleId);
                 }else{
                     MessageUtils.sendErrorMessage("You cannot auto-assign that role! Do `" + getPrefix(channel.getGuild()) + "selfassign list` to see what you can assign to yourself!",
                             channel);
@@ -150,14 +141,14 @@ public class SelfAssignCommand implements Command {
     }
 
     private void handleRole(Member member, TextChannel channel, String roleId){
-        if(member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
+        if(!member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
             channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
             channel.sendMessage(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild().getRoleById(roleId).getName() + "` to yourself!")
                     .setColor(Color.green).build()).queue();
         }else{
             channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId)).queue();
             channel.sendMessage(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild().getRoleById(roleId).getName() + "` from yourself!")
-                    .setColor(Color.red).build()).queue();
+                    .setColor(Color.orange).build()).queue();
         }
     }
 }
