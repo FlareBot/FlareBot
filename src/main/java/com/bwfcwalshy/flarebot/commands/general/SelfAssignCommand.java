@@ -6,6 +6,7 @@ import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 
 import java.awt.*;
@@ -143,12 +144,12 @@ public class SelfAssignCommand implements Command {
     private void handleRole(Member member, TextChannel channel, String roleId){
         if(!member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
             channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
-            channel.sendMessage(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild().getRoleById(roleId).getName() + "` to yourself!")
-                    .setColor(Color.green).build()).queue();
+            MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild()
+                    .getRoleById(roleId).getName() + "` to yourself!").setColor(Color.green).build()).build(), 30_000, channel);
         }else{
             channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId)).queue();
-            channel.sendMessage(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild().getRoleById(roleId).getName() + "` from yourself!")
-                    .setColor(Color.orange).build()).queue();
+            MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild()
+                    .getRoleById(roleId).getName() + "` from yourself!").setColor(Color.orange).build()).build(), 30_000, channel);
         }
     }
 }
