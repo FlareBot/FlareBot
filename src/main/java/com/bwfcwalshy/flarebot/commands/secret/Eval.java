@@ -43,7 +43,8 @@ public class Eval implements Command {
             "java.time.*",
             "java.io.*",
             "java.nio.*",
-            "java.nio.files.*");
+            "java.nio.files.*",
+            "java.util.stream.*");
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
