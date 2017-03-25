@@ -781,7 +781,8 @@ public class FlareBot {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM selfassign");
                 while(set.next()){
-                    getManager().getSelfAssignRoles().put(set.getString("guild_id"), Arrays.asList(set.getString("roles").replaceAll(" ", "").split(",")));
+                    getManager().getSelfAssignRoles().put(set.getString("guild_id"),
+                            Arrays.stream(set.getString("roles").replaceAll(" ", "").split(",")).collect(Collectors.toCollection(ConcurrentHashMap::newKeySet)));
                 }
             });
         } catch (SQLException e) {
