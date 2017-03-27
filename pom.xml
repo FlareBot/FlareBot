@@ -38,11 +38,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>net.dv8tion</groupId>-->
-            <!--<artifactId>JDA</artifactId>-->
-            <!--<version>3.0.0_158</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.github.DV8FromTheWorld</groupId>
             <artifactId>JDA</artifactId>

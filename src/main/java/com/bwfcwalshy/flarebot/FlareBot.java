@@ -72,16 +72,20 @@ import java.util.stream.Collectors;
 
 public class FlareBot {
 
+    private static final Map<String, Logger> LOGGERS;
+    public static final Logger LOGGER;
+
     private static FlareBot instance;
     public static String passwd;
     private static String youtubeApi;
 
+
     static {
+        LOGGERS = new ConcurrentHashMap<>();
+        LOGGER = getLog(FlareBot.class);
         new File("latest.log").delete();
     }
 
-    private static final Map<String, Logger> LOGGERS = new ConcurrentHashMap<>();
-    public static final Logger LOGGER = getLog(FlareBot.class);
     private static String botListAuth;
     private static String dBotsAuth;
     private Permissions permissions;

@@ -338,9 +338,9 @@ public class Events extends ListenerAdapter {
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
-            System.out.printf("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame().getCloseCode(), event.getCloseCode());
+            FlareBot.LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame().getCloseCode(), event.getCloseCode()));
         else
-            System.out.printf("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame().getCloseCode(), event.getClientCloseFrame().getCloseReason());
+            FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame().getCloseCode(), event.getClientCloseFrame().getCloseReason()));
     }
 
     private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
