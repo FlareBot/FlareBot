@@ -618,10 +618,7 @@ public class FlareBot {
         for (Guild guild : getGuilds()) {
             JsonObject object = new JsonObject();
             object.addProperty("guildId", guild.getId());
-            if (prefixes.getPrefixes().containsKey(guild.getId()))
-                object.addProperty("prefix", prefixes.getPrefixes().get(guild.getId()));
-            else
-                object.addProperty("prefix", FlareBot.COMMAND_CHAR);
+            object.addProperty("prefix", prefixes.getPrefixes().getOrDefault(guild.getId(), FlareBot.COMMAND_CHAR));
             array.add(object);
         }
 
