@@ -15,10 +15,13 @@ import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.commands.Prefixes;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
+import com.bwfcwalshy.flarebot.commands.automod.ModlogCommand;
+import com.bwfcwalshy.flarebot.commands.automod.SetSeverityCommand;
 import com.bwfcwalshy.flarebot.commands.general.*;
 import com.bwfcwalshy.flarebot.commands.music.*;
 import com.bwfcwalshy.flarebot.commands.secret.*;
 import com.bwfcwalshy.flarebot.github.GithubListener;
+import com.bwfcwalshy.flarebot.mod.AutoModTracker;
 import com.bwfcwalshy.flarebot.music.QueueListener;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.objects.Poll;
@@ -251,6 +254,7 @@ public class FlareBot {
     private long startTime;
     private static String secret = null;
     private static Prefixes prefixes;
+    private AutoModTracker tracker;
 
     public static Prefixes getPrefixes() {
         return prefixes;
@@ -277,12 +281,13 @@ public class FlareBot {
 
         latch = new CountDownLatch(1);
         events = new Events(this);
+        tracker = new AutoModTracker();
         try {
             if (clients.length == 1) {
                 while (true) {
                     try {
                         clients[0] = new JDABuilder(AccountType.BOT)
-                                .addListener(events)
+                                .addListener(events, tracker)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
@@ -296,7 +301,7 @@ public class FlareBot {
                     while (true) {
                         try {
                             clients[i] = new JDABuilder(AccountType.BOT)
-                                    .addListener(events)
+                                    .addListener(events, tracker)
                                     .useSharding(i, clients.length)
                                     .setToken(tkn)
                                     .setAudioSendFactory(new NativeAudioSendFactory())
@@ -455,9 +460,11 @@ public class FlareBot {
         registerCommand(new UserInfoCommand());
         registerCommand(new PollCommand());
         registerCommand(new PinCommand());
-        registerCommand(new ShardRestart());
-        registerCommand(new QueryCommand());
+		registerCommand(new ShardRestart());
+		registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
+        registerCommand(new ModlogCommand());
+        registerCommand(new SetSeverityCommand());
 
         ApiFactory.bind();
 
@@ -1023,6 +1030,10 @@ public class FlareBot {
 
     public static String getStatusHook() {
         return statusHook;
+    }
+
+    public AutoModTracker getAutoModTracker() {
+        return tracker;
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {

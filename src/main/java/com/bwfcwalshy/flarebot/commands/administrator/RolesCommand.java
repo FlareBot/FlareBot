@@ -35,6 +35,6 @@ public class RolesCommand implements Command {
 
     @Override
     public boolean isDefaultPermission() {
-        return false;
+        return true;
     }
 }

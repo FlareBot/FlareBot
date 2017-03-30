@@ -2,6 +2,7 @@ package com.bwfcwalshy.flarebot.commands;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
+import com.bwfcwalshy.flarebot.mod.AutoModConfig;
 import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import net.dv8tion.jda.core.entities.Guild;
@@ -23,6 +24,7 @@ public class FlareBotManager {
 
     private Map<String, Poll> polls = new ConcurrentHashMap<>();
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
+    private Map<String, AutoModConfig> autoModConfigs = new ConcurrentHashMap<>();
 
     public FlareBotManager() {
         instance = this;
@@ -146,5 +148,9 @@ public class FlareBotManager {
 
     public Map<String, Set<String>> getSelfAssignRoles(){
         return this.selfAssignRoles;
+    }
+
+    public AutoModConfig getAutoModConfig(String guild){
+        return this.autoModConfigs.getOrDefault(guild, new AutoModConfig());
     }
 }

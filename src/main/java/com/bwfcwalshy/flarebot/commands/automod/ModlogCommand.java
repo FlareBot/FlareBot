@@ -7,27 +7,25 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
-public class WarningsCommand implements Command {
+public class ModlogCommand implements Command {
+
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length != 2) {
-            channel.sendMessage("").queue();
-            return;
-        }
+
     }
 
     @Override
     public String getCommand() {
-        return "warnings";
+        return null;
     }
 
     @Override
     public String getDescription() {
-        return "Lists/controls warning points in your guild.";
+        return null;
     }
 
     @Override
     public CommandType getType() {
-        return CommandType.MODERATION;
+        return null;
     }
 }
