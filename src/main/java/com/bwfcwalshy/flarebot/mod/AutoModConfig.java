@@ -7,10 +7,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AutoModConfig {
 
+    //TODO: Disable by default. Enabled for testing
+    private boolean enabled = true;
+
     private String modLogChannel;
     private Map<Action, Integer> actions = new ConcurrentHashMap<>();
     private Map<Action, ConcurrentHashSet<String>> whitelist = new ConcurrentHashMap<>();
     private int maxMessagesPerSecond = 3;
+
+    public boolean isEnabled(){
+        return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled){
+        this.enabled = enabled;
+    }
 
     public String getModLogChannel(){
         return this.modLogChannel;

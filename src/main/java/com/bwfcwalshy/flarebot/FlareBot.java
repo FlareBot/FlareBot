@@ -380,6 +380,7 @@ public class FlareBot {
 
         manager = new FlareBotManager();
         manager.loadRandomSongs();
+        manager.loadProfanity();
 
         loadPolls();
         loadSelfAssign();

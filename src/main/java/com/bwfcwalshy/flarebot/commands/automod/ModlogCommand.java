@@ -16,7 +16,7 @@ public class ModlogCommand implements Command {
 
     @Override
     public String getCommand() {
-        return null;
+        return "modlog";
     }
 
     @Override
@@ -26,6 +26,6 @@ public class ModlogCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return null;
+        return CommandType.MODERATION;
     }
 }

@@ -2,9 +2,12 @@ package com.bwfcwalshy.flarebot.commands;
 
 import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
+import com.bwfcwalshy.flarebot.mod.AutoModGuild;
 import com.bwfcwalshy.flarebot.mod.AutoModConfig;
 import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.util.SQLController;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -24,7 +27,9 @@ public class FlareBotManager {
 
     private Map<String, Poll> polls = new ConcurrentHashMap<>();
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
-    private Map<String, AutoModConfig> autoModConfigs = new ConcurrentHashMap<>();
+    private Map<String, AutoModGuild> autoMod = new ConcurrentHashMap<>();
+
+    private Set<String> profanitySet = new HashSet<>();
 
     public FlareBotManager() {
         instance = this;
@@ -142,6 +147,14 @@ public class FlareBotManager {
         return list[0];
     }
 
+    public void loadProfanity(){
+        try {
+            Unirest.get("https://flarebot.stream/api/profanity.php").asJson().getBody().getObject().getJSONArray("words").forEach(word -> profanitySet.add(word.toString()));
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+    }
+
     public Set<String> getSelfAssignRoles(String guildId){
         return this.selfAssignRoles.computeIfAbsent(guildId, gid -> ConcurrentHashMap.newKeySet());
     }
@@ -151,6 +164,16 @@ public class FlareBotManager {
     }
 
     public AutoModConfig getAutoModConfig(String guild){
-        return this.autoModConfigs.getOrDefault(guild, new AutoModConfig());
+        return this.autoMod.getOrDefault(guild, new AutoModGuild()).getConfig();
+    }
+
+    public Set<String> getProfanity() {
+        return profanitySet;
+    }
+
+    public AutoModGuild getAutoModGuild(String guild) {
+        if(!autoMod.containsKey(guild))
+            autoMod.put(guild, new AutoModGuild());
+        return this.autoMod.get(guild);
     }
 }
