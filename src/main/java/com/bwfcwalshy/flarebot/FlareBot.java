@@ -25,6 +25,7 @@ import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
+import com.bwfcwalshy.flarebot.util.CPUDaemon;
 import com.bwfcwalshy.flarebot.util.ExceptionUtils;
 import com.bwfcwalshy.flarebot.util.SQLController;
 import com.bwfcwalshy.flarebot.util.Welcome;
@@ -36,7 +37,6 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sun.management.OperatingSystemMXBean;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -51,7 +51,6 @@ import spark.Spark;
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
 import java.io.*;
-import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -72,16 +71,20 @@ import java.util.stream.Collectors;
 
 public class FlareBot {
 
+    private static final Map<String, Logger> LOGGERS;
+    public static final Logger LOGGER;
+
     private static FlareBot instance;
     public static String passwd;
     private static String youtubeApi;
 
+
     static {
+        LOGGERS = new ConcurrentHashMap<>();
+        LOGGER = getLog(FlareBot.class);
         new File("latest.log").delete();
     }
 
-    private static final Map<String, Logger> LOGGERS = new ConcurrentHashMap<>();
-    public static final Logger LOGGER = getLog(FlareBot.class);
     private static String botListAuth;
     private static String dBotsAuth;
     private Permissions permissions;
@@ -272,7 +275,7 @@ public class FlareBot {
                 .getInt("shards")];
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
-        latch = new CountDownLatch(clients.length);
+        latch = new CountDownLatch(1);
         events = new Events(this);
         try {
             if (clients.length == 1) {
@@ -586,7 +589,7 @@ public class FlareBot {
         data.addProperty("active_voice_channels", getActiveVoiceChannels());
         data.addProperty("num_queued_songs", getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getId()).getPlaylist().size()).sum());
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
-        data.addProperty("cpu", ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%");
+        data.addProperty("cpu", ((int) (CPUDaemon.get() * 10000)) / 100f + "%");
         data.addProperty("uptime", getUptime());
 
         postToApi("postData", "data", data);
@@ -615,10 +618,7 @@ public class FlareBot {
         for (Guild guild : getGuilds()) {
             JsonObject object = new JsonObject();
             object.addProperty("guildId", guild.getId());
-            if (prefixes.getPrefixes().containsKey(guild.getId()))
-                object.addProperty("prefix", prefixes.getPrefixes().get(guild.getId()));
-            else
-                object.addProperty("prefix", FlareBot.COMMAND_CHAR);
+            object.addProperty("prefix", prefixes.getPrefixes().getOrDefault(guild.getId(), FlareBot.COMMAND_CHAR));
             array.add(object);
         }
 
@@ -781,7 +781,8 @@ public class FlareBot {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM selfassign");
                 while(set.next()){
-                    getManager().getSelfAssignRoles().put(set.getString("guild_id"), Arrays.asList(set.getString("roles").replaceAll(" ", "").split(",")));
+                    getManager().getSelfAssignRoles().put(set.getString("guild_id"),
+                            Arrays.stream(set.getString("roles").replaceAll(" ", "").split(",")).collect(Collectors.toCollection(ConcurrentHashMap::newKeySet)));
                 }
             });
         } catch (SQLException e) {

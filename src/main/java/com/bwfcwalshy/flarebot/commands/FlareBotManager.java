@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FlareBotManager {
 
@@ -20,8 +21,8 @@ public class FlareBotManager {
     private List<String> loadedSongs = new ArrayList<>();
     private Random rand = new Random();
 
-    private Map<String, Poll> polls = new HashMap<>();
-    private Map<String, List<String>> selfAssignRoles = new HashMap<>();
+    private Map<String, Poll> polls = new ConcurrentHashMap<>();
+    private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
 
     public FlareBotManager() {
         instance = this;
@@ -139,11 +140,11 @@ public class FlareBotManager {
         return list[0];
     }
 
-    public List<String> getSelfAssignRoles(String guildId){
-        return this.selfAssignRoles.computeIfAbsent(guildId, gid -> new ArrayList<>());
+    public Set<String> getSelfAssignRoles(String guildId){
+        return this.selfAssignRoles.computeIfAbsent(guildId, gid -> ConcurrentHashMap.newKeySet());
     }
 
-    public Map<String, List<String>> getSelfAssignRoles(){
+    public Map<String, Set<String>> getSelfAssignRoles(){
         return this.selfAssignRoles;
     }
 }

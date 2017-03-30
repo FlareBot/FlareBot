@@ -29,7 +29,7 @@ public class JoinCommand implements Command {
             }
             if (channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
                     channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
-                if (member.getVoiceState().getChannel().getMembers().size() < member.getVoiceState().getChannel().getUserLimit() &&
+                if (member.getVoiceState().getChannel().getMembers().size() >= member.getVoiceState().getChannel().getUserLimit() &&
                         !member.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.MANAGE_CHANNEL)) {
                     channel.sendMessage(new EmbedBuilder().setDescription("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
                             "bypass it!").setColor(Color.red).build()).queue();
