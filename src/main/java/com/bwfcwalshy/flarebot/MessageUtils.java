@@ -91,7 +91,7 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot",
+                .setAuthor(FlareBot.getInstance().getClients()[0].getSelfUser().getName(),
                         "https://github.com/FlareBot/FlareBot",
                         FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl());
     }
