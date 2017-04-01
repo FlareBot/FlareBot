@@ -2,10 +2,8 @@ package com.bwfcwalshy.flarebot.commands.secret;
 
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.entities.*;
-
-import java.io.IOException;
-import java.net.URL;
 
 public class AvatarCommand implements Command {
     @Override
@@ -15,10 +13,11 @@ public class AvatarCommand implements Command {
                 Message.Attachment attachment = message.getAttachments().get(0);
                 try {
                     sender.getJDA().getSelfUser().getManager().setAvatar(Icon.from(
-                            new URL(attachment.getUrl()).openStream()
+                            Unirest.get(attachment.getUrl()).header("User-Agent", "Mozilla/5.0 FlareBot").asBinary().getBody()
                     )).complete();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     channel.sendMessage("Failed to update avatar!! " + e).queue();
+                    return;
                 }
                 channel.sendMessage("Success!").queue();
             } else {
@@ -27,10 +26,11 @@ public class AvatarCommand implements Command {
         } else {
             try {
                 sender.getJDA().getSelfUser().getManager().setAvatar(Icon.from(
-                        new URL(args[0]).openStream()
+                        Unirest.get(args[0]).header("User-Agent", "Mozilla/5.0 FlareBot").asBinary().getBody()
                 )).complete();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 channel.sendMessage("Failed to update avatar!! " + e).queue();
+                return;
             }
             channel.sendMessage("Success!").queue();
         }
