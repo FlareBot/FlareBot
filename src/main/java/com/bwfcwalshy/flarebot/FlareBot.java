@@ -275,7 +275,7 @@ public class FlareBot {
                 .getInt("shards")];
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
-        latch = new CountDownLatch(clients.length);
+        latch = new CountDownLatch(1);
         events = new Events(this);
         try {
             if (clients.length == 1) {
