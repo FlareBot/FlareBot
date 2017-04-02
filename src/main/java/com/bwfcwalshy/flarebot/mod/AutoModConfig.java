@@ -13,7 +13,7 @@ public class AutoModConfig {
     private String modLogChannel;
     private Map<Action, Integer> actions = new ConcurrentHashMap<>();
     private Map<Action, ConcurrentHashSet<String>> whitelist = new ConcurrentHashMap<>();
-    private int maxMessagesPerSecond = 3;
+    private int maxMessagesPerMinute = 10;
 
     public boolean isEnabled(){
         return this.enabled;
@@ -39,7 +39,7 @@ public class AutoModConfig {
         return this.whitelist.get(action);
     }
 
-    public int getMaxMessagesPerSecond(){
-        return this.maxMessagesPerSecond;
+    public int getMaxMessagesPerMinute(){
+        return this.maxMessagesPerMinute;
     }
 }

@@ -381,6 +381,7 @@ public class FlareBot {
         manager = new FlareBotManager();
         manager.loadRandomSongs();
         manager.loadProfanity();
+        manager.loadAutoMod();
 
         loadPolls();
         loadSelfAssign();
@@ -466,6 +467,7 @@ public class FlareBot {
         registerCommand(new SelfAssignCommand());
         registerCommand(new ModlogCommand());
         registerCommand(new SetSeverityCommand());
+        registerCommand(new TestCommand());
 
         ApiFactory.bind();
 
@@ -767,6 +769,7 @@ public class FlareBot {
         }
         savePolls();
         saveSelfAssign();
+        manager.saveAutoMod();
     }
 
     private void saveSelfAssign() {

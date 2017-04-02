@@ -87,6 +87,7 @@ public class FlareBotManager {
                         "  PRIMARY KEY(playlist_name, guild)\n" +
                         ")");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS selfassign (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, roles TEXT)");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -175,5 +176,33 @@ public class FlareBotManager {
         if(!autoMod.containsKey(guild))
             autoMod.put(guild, new AutoModGuild());
         return this.autoMod.get(guild);
+    }
+
+    public void loadAutoMod() {
+        try {
+            SQLController.runSqlTask(conn -> {
+                ResultSet set = conn.createStatement().executeQuery("SELECT guild_id, automod_data FROM automod");
+                while(set.next()){
+                    autoMod.put(set.getString("guild_id"), FlareBot.GSON.fromJson(set.getString("automod_data"), AutoModGuild.class));
+                }
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveAutoMod() {
+        for(String s : autoMod.keySet()){
+            try {
+                SQLController.runSqlTask(conn -> {
+                    PreparedStatement statement = conn.prepareStatement("INSERT INTO automod (guild_id, automod_data) VALUES (?, ?)");
+                    statement.setString(1, s);
+                    statement.setString(2, FlareBot.GSON.toJson(autoMod.get(s)));
+                    statement.execute();
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

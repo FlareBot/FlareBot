@@ -18,8 +18,11 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class MessageUtils {
+
     public static final String DEBUG_CHANNEL = "226786557862871040";
     private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
+    private static final Pattern LINK_REGEX = Pattern.compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
+    private static final Pattern YOUTUBE_LINK_REGEX = Pattern.compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
 
     public static <T> Consumer<T> noOpConsumer() {
         return t -> {
@@ -132,6 +135,14 @@ public class MessageUtils {
 
     public static boolean hasInvite(Message message) {
         return INVITE_REGEX.matcher(message.getRawContent()).find();
+    }
+
+    public static boolean hasLink(Message message) {
+        return LINK_REGEX.matcher(message.getRawContent()).find();
+    }
+
+    public static boolean hasYouTubeLink(Message message) {
+        return YOUTUBE_LINK_REGEX.matcher(message.getRawContent()).find();
     }
 
     public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel){
