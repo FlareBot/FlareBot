@@ -1,6 +1,5 @@
 package com.bwfcwalshy.flarebot.commands.secret;
 
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.FlareBotManager;
@@ -15,7 +14,7 @@ public class TestCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
-        sender.openPrivateChannel().complete().sendMessage(FlareBot.GSON.toJson(guild)).queue();
+        sender.openPrivateChannel().complete().sendMessage(FlareBotManager.GSON.toJson(guild)).queue();
     }
 
     @Override

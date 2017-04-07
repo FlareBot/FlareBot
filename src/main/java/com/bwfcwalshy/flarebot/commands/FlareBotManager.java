@@ -6,6 +6,8 @@ import com.bwfcwalshy.flarebot.mod.AutoModGuild;
 import com.bwfcwalshy.flarebot.mod.AutoModConfig;
 import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.util.SQLController;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.entities.Guild;
@@ -21,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FlareBotManager {
 
     private static FlareBotManager instance;
+
+    public static final Gson GSON = new GsonBuilder().create();
 
     private List<String> loadedSongs = new ArrayList<>();
     private Random rand = new Random();
@@ -183,7 +187,7 @@ public class FlareBotManager {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT guild_id, automod_data FROM automod");
                 while(set.next()){
-                    autoMod.put(set.getString("guild_id"), FlareBot.GSON.fromJson(set.getString("automod_data"), AutoModGuild.class));
+                    autoMod.put(set.getString("guild_id"), GSON.fromJson(set.getString("automod_data"), AutoModGuild.class));
                 }
             });
         } catch (SQLException e) {
@@ -192,12 +196,13 @@ public class FlareBotManager {
     }
 
     public void saveAutoMod() {
+        FlareBot.LOGGER.info("Saving automod data!");
         for(String s : autoMod.keySet()){
             try {
                 SQLController.runSqlTask(conn -> {
-                    PreparedStatement statement = conn.prepareStatement("INSERT INTO automod (guild_id, automod_data) VALUES (?, ?)");
+                    PreparedStatement statement = conn.prepareStatement("INSERT INTO automod (guild_id, automod_data) VALUES (?, ?) ON DUPLICATE KEY automod_data = VALUES(automod_data)");
                     statement.setString(1, s);
-                    statement.setString(2, FlareBot.GSON.toJson(autoMod.get(s)));
+                    statement.setString(2, GSON.toJson(autoMod.get(s)));
                     statement.execute();
                 });
             } catch (SQLException e) {

@@ -137,8 +137,16 @@ public class MessageUtils {
         return INVITE_REGEX.matcher(message.getRawContent()).find();
     }
 
+    public static boolean hasInvite(String message) {
+        return INVITE_REGEX.matcher(message).find();
+    }
+
     public static boolean hasLink(Message message) {
         return LINK_REGEX.matcher(message.getRawContent()).find();
+    }
+
+    public static boolean hasLink(String message) {
+        return LINK_REGEX.matcher(message).find();
     }
 
     public static boolean hasYouTubeLink(Message message) {

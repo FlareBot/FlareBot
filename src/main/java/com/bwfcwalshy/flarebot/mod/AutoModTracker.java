@@ -4,9 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
-import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -23,17 +21,23 @@ public class AutoModTracker extends ListenerAdapter {
 
     private Map<String, ConcurrentHashMap<String, Integer>> spamCounter = new ConcurrentHashMap<>();
 
+    private int i = 0;
+
     public AutoModTracker(){
         new FlarebotTask("AutoModTracker") {
             @Override
             public void run() {
+                i++;
                 spamCounter.forEach((s, map) -> map.clear());
+                if(i == 5){
+                    i = 0;
+                    FlareBotManager.getInstance().saveAutoMod();
+                }
             }
         }.repeat(60_000, 60_000);
     }
 
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        long start = System.currentTimeMillis();
         if(event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake()) return;
         String userId = event.getAuthor().getId();
         AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(event.getGuild().getId());
@@ -45,7 +49,7 @@ public class AutoModTracker extends ListenerAdapter {
         counter.put(userId, (counter.containsKey(userId) ? counter.get(userId) + 1 : 1));
         spamCounter.put(event.getGuild().getId(), counter);
 
-        // Checks
+        outer:
         for(Action action : Action.values){
             if(action.check(event.getMessage())){
                 if(action == Action.LINKS){
@@ -54,6 +58,12 @@ public class AutoModTracker extends ListenerAdapter {
                             return;
                         }
                     }
+                }
+
+                if(action == Action.LINKS || action == Action.INVITE_LINKS || action == Action.PROFANITY){
+                    for(String whitelistItem : guild.getConfig().getWhitelist(action))
+                        if(event.getMessage().getContent().contains(whitelistItem))
+                            continue outer;
                 }
 
                 guild.addPoints(userId, guild.getConfig().getActions().get(action));
@@ -69,8 +79,6 @@ public class AutoModTracker extends ListenerAdapter {
                 break;
             }
         }
-        long end = System.currentTimeMillis();
-        event.getChannel().sendMessage("Check took " + (end - start) + "ms").queue();
     }
 
     public ConcurrentHashMap<String,Integer> getSpamCounter(String guild) {
@@ -86,17 +94,17 @@ public class AutoModTracker extends ListenerAdapter {
                 + " Your message contained content not allowed on this server! Due to this you have been given " + config.getActions().get(action) + " points.")
                 .addField("Reason", action.getName(), true).addField("Points given", config.getActions().get(action).toString(), true)
                 .addField("New Point Total", String.valueOf(guild.getPointsForUser(user.getId())), true).setColor(Color.white).build(), 10_000, channel);
-        postToModLog(channel.getGuild(), user, action);
+        postToModLog(channel, user, action);
     }
 
-    public void postToModLog(Guild guild, User user, Action action){
-        AutoModGuild modGuild = FlareBotManager.getInstance().getAutoModGuild(guild.getId());
+    public void postToModLog(TextChannel channel, User user, Action action){
+        AutoModGuild modGuild = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
         AutoModConfig config = modGuild.getConfig();
         if(config.isEnabled()){
-            if(config.getModLogChannel() != null && !config.getModLogChannel().isEmpty() && guild.getTextChannelById(config.getModLogChannel()) != null){
-                guild.getTextChannelById(config.getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription(user.getAsMention()
-                        + " Has been given " + config.getActions().get(action) + " points for " + action.getName() + ".\n" + user.getName() + " now has "
-                        + String.valueOf(modGuild.getPointsForUser(user.getId())) + "points.").setColor(Color.white).build()).queue();
+            if(config.getModLogChannel() != null && !config.getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(config.getModLogChannel()) != null){
+                channel.getGuild().getTextChannelById(config.getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription("Message sent by "
+                        + user.getAsMention() + " has been automatically deleted in " + channel.getAsMention() + " and has been given " + config.getActions().get(action) + " points.")
+                        .addField("Reason", action.getName(), true).setColor(Color.white).build()).queue();
             }
         }
     }

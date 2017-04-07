@@ -15,6 +15,7 @@ import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.commands.FlareBotManager;
 import com.bwfcwalshy.flarebot.commands.Prefixes;
 import com.bwfcwalshy.flarebot.commands.administrator.*;
+import com.bwfcwalshy.flarebot.commands.automod.AutoModCommand;
 import com.bwfcwalshy.flarebot.commands.automod.ModlogCommand;
 import com.bwfcwalshy.flarebot.commands.automod.SetSeverityCommand;
 import com.bwfcwalshy.flarebot.commands.general.*;
@@ -465,6 +466,7 @@ public class FlareBot {
 		registerCommand(new ShardRestart());
 		registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
+        registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
         registerCommand(new SetSeverityCommand());
         registerCommand(new TestCommand());
@@ -1038,6 +1040,28 @@ public class FlareBot {
 
     public AutoModTracker getAutoModTracker() {
         return tracker;
+    }
+
+    public String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
+        long totalSeconds = 0;
+        if(durUnit == TimeUnit.MILLISECONDS)
+            totalSeconds = duration / 1000;
+        else if(durUnit == TimeUnit.SECONDS)
+            totalSeconds = duration;
+        else if(durUnit == TimeUnit.MINUTES)
+            totalSeconds = duration * 60;
+        else if(durUnit == TimeUnit.HOURS)
+            totalSeconds = (duration * 60) * 60;
+        else if(durUnit == TimeUnit.DAYS)
+            totalSeconds = ((duration * 60) * 60) * 24;
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = (totalSeconds / 3600) % 24;
+        long days = (totalSeconds / 86400);
+        return (days > 0 ? (append0 && days < 10 ? "0" + days : days) + (fullUnits ? " days " : "d ") : "")
+                + (hours > 0 ? (append0 && hours < 10 ? "0" + hours : hours) + (fullUnits ? " hours " : "h ") : "")
+                + (minutes > 0 ? (append0 && minutes < 10 ? "0" + minutes : minutes) + (fullUnits ? " minutes" : "m ") : "")
+                + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "").trim();
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {

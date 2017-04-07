@@ -13,6 +13,7 @@ public class AutoModGuild {
         config = new AutoModConfig();
         for(Action action : Action.values)
             config.getActions().put(action, action.getDefaultPoints());
+        config.resetPunishments();
     }
 
     public AutoModConfig getConfig() {
