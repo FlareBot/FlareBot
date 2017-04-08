@@ -50,7 +50,7 @@ public class HelpCommand implements Command {
             }
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription("Moved to [here](https://flarebot.stream/#commands)").build()).queue();
+                    .setDescription("You can see all the commands [here](https://flarebot.stream/#commands)").build()).queue();
         }
     }
 
