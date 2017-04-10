@@ -1084,6 +1084,12 @@ public class FlareBot {
         return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
     }
 
+    public User getUserByID(String id) {
+        return Arrays.stream(clients).map(jda -> jda.getUserById(id))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
+    }
+
     // getXs
 
     public List<Guild> getGuilds() {
@@ -1105,10 +1111,10 @@ public class FlareBot {
                 .collect(Collectors.toList());
     }
 
-    public User getUserByID(String id) {
-        return Arrays.stream(clients).map(jda -> jda.getUserById(id))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+    public List<User> getUsers() {
+        return Arrays.stream(getClients()).flatMap(c -> c.getUsers().stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public DateTimeFormatter getTimeFormatter() {
