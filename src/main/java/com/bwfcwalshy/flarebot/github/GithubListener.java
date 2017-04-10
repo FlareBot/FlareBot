@@ -19,8 +19,8 @@ public class GithubListener implements EventListener<PushEvent> {
             eb.addField("Commit:", "[" +
                     commit.getId().substring(0, 7) + "](" +
                     commit.getUrl() + ")\n Branch `" +
-                    e.getRef().substring(e.getRef().lastIndexOf('/') + 1) + "` " + "```" +
-                    commit.getMessage() + "```", false);
+                    e.getRef().substring(e.getRef().lastIndexOf('/') + 1) + "` " + "```bf\n" +
+                    commit.getMessage() + "\n```", false);
 
             if (commit.getAdded().length > 0) {
                 StringBuilder sb = new StringBuilder();
@@ -29,7 +29,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 for (String filePath : commit.getAdded()) {
                     if (i++ <= 5) {
                         String file = filePath.substring(filePath.lastIndexOf("/") + 1);
-                        sb.append("* " + file + "\n\n");
+                        sb.append("* ").append(file).append("\n\n");
                     }
                 }
 
@@ -48,7 +48,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 for (String filePath : commit.getRemoved()) {
                     if (i++ <= 5) {
                         String file = filePath.substring(filePath.lastIndexOf("/") + 1);
-                        sb.append("* " + file + "\n\n");
+                        sb.append("* ").append(file).append("\n\n");
                     }
                 }
 
@@ -67,7 +67,7 @@ public class GithubListener implements EventListener<PushEvent> {
                 for (String filePath : commit.getModified()) {
                     if (i++ <= 5) {
                         String file = filePath.substring(filePath.lastIndexOf("/") + 1);
-                        sb.append("* " + file + "\n\n");
+                        sb.append("* ").append(file).append("\n\n");
                     }
                 }
 
