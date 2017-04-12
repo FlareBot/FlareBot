@@ -93,11 +93,11 @@ public class WelcomeCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.ADMINISTRATIVE;
+        return CommandType.MODERATION;
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.welcome";
+    public boolean isDefaultPermission() {
+        return false;
     }
 }

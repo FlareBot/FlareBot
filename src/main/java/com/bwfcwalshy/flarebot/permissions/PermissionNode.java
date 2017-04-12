@@ -19,7 +19,7 @@ public class PermissionNode implements Predicate<PermissionNode> {
 
     @Override
     public boolean test(PermissionNode node) {
-        if(getNode().equals("*"))
+        if (getNode().equals("*"))
             return true;
         // It splits by a `*` that's on a start of a string or has . around them
         String textNode = Arrays.stream(getNode().split("(?:^\\*(\\.))|(?:(?<=\\.)\\*(?=\\.))|(?:(?<=\\.)\\*$)"))

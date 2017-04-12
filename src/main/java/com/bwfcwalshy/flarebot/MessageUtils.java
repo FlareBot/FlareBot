@@ -1,20 +1,52 @@
 package com.bwfcwalshy.flarebot;
 
+import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class MessageUtils {
+
     public static final String DEBUG_CHANNEL = "226786557862871040";
+    private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
+    private static final Pattern LINK_REGEX = Pattern.compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
+    private static final Pattern YOUTUBE_LINK_REGEX = Pattern.compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
+
+    public static <T> Consumer<T> noOpConsumer() {
+        return t -> {
+        };
+    }
+
+    public static int getLength(EmbedBuilder embed) {
+        int len = 0;
+        MessageEmbed e = embed.build();
+        if (e.getTitle() != null)
+            len += e.getTitle().length();
+        if (e.getDescription() != null)
+            len += e.getDescription().length();
+        if (e.getAuthor() != null)
+            len += e.getAuthor().getName().length();
+        if (e.getFooter() != null)
+            len += e.getFooter().getText().length();
+        if (e.getFields() != null) {
+            for (MessageEmbed.Field f : e.getFields()) {
+                len += f.getName().length() + f.getValue().length();
+            }
+        }
+        return len;
+    }
 
     public static Message sendPM(User user, CharSequence message) {
         return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
@@ -99,5 +131,39 @@ public class MessageUtils {
     public static void editMessage(String s, EmbedBuilder embed, Message message) {
         if (message != null)
             message.editMessage(new MessageBuilder().append(s).setEmbed(embed.build()).build()).queue();
+    }
+
+    public static boolean hasInvite(Message message) {
+        return INVITE_REGEX.matcher(message.getRawContent()).find();
+    }
+
+    public static boolean hasInvite(String message) {
+        return INVITE_REGEX.matcher(message).find();
+    }
+
+    public static boolean hasLink(Message message) {
+        return LINK_REGEX.matcher(message.getRawContent()).find();
+    }
+
+    public static boolean hasLink(String message) {
+        return LINK_REGEX.matcher(message).find();
+    }
+
+    public static boolean hasYouTubeLink(Message message) {
+        return YOUTUBE_LINK_REGEX.matcher(message.getRawContent()).find();
+    }
+
+    public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel){
+        sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
+    }
+
+    public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel){
+        Message msg = channel.sendMessage(message).complete();
+        new FlarebotTask("AutoDeleteTask") {
+            @Override
+            public void run() {
+                msg.delete().queue();
+            }
+        }.delay(delay);
     }
 }

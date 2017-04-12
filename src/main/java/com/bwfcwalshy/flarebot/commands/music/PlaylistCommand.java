@@ -8,10 +8,7 @@ import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.music.extractors.YouTubeExtractor;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,33 +26,7 @@ public class PlaylistCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length < 1 || args.length > 2) {
-            if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()) {
-                List<String> songs = new ArrayList<>();
-                int i = 1;
-                StringBuilder sb = new StringBuilder();
-                Iterator<Track> it = manager.getPlayer(channel.getGuild().getId()).getPlaylist().iterator();
-                while (it.hasNext() && songs.size() < 24) {
-                    Track next = it.next();
-                    String toAppend = String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i++,
-                            next.getTrack().getInfo().title,
-                            YouTubeExtractor.WATCH_URL + next.getTrack().getIdentifier(),
-                            next.getMeta().get("requester"));
-                    if (sb.length() + toAppend.length() > 1024) {
-                        songs.add(sb.toString());
-                        sb = new StringBuilder();
-                    }
-                    sb.append(toAppend);
-                }
-                songs.add(sb.toString());
-                EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                i = 1;
-                for (String s : songs) {
-                    builder.addField("Page " + i++, s, false);
-                }
-                MessageUtils.sendPM(sender, builder);
-            } else {
-                MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);
-            }
+            send(member.getUser().openPrivateChannel().complete(), channel, member);
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
@@ -63,6 +34,8 @@ public class PlaylistCommand implements Command {
                     channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "playlist remove (number)"), channel);
+                } else if (args[0].equalsIgnoreCase("here")) {
+                    send(channel, channel, member);
                 } else {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Incorrect usage! " + getDescription()), channel);
                 }
@@ -95,6 +68,41 @@ public class PlaylistCommand implements Command {
         }
     }
 
+    private void send(MessageChannel mchannel, TextChannel channel, Member sender) {
+        if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()) {
+            List<String> songs = new ArrayList<>();
+            int i = 1;
+            StringBuilder sb = new StringBuilder();
+            Iterator<Track> it = manager.getPlayer(channel.getGuild().getId()).getPlaylist().iterator();
+            while (it.hasNext() && songs.size() < 24) {
+                Track next = it.next();
+                String toAppend = String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i++,
+                        next.getTrack().getInfo().title,
+                        YouTubeExtractor.WATCH_URL + next.getTrack().getIdentifier(),
+                        next.getMeta().get("requester"));
+                if (sb.length() + toAppend.length() > 1024) {
+                    songs.add(sb.toString());
+                    sb = new StringBuilder();
+                }
+                sb.append(toAppend);
+            }
+            songs.add(sb.toString());
+            EmbedBuilder builder = MessageUtils.getEmbed(sender.getUser());
+            i = 1;
+            for (String s : songs) {
+                int page = i++;
+                EmbedBuilder b = new EmbedBuilder(builder.build());
+                b.addField("Page " + page, s, false);
+                if(MessageUtils.getLength(b) > 4000)
+                    break;
+                builder.addField("Page " + page, s, false);
+            }
+            mchannel.sendMessage(builder.build()).queue();
+        } else {
+            MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);
+        }
+    }
+
     @Override
     public String getCommand() {
         return "playlist";
@@ -103,7 +111,9 @@ public class PlaylistCommand implements Command {
     @Override
     public String getDescription() {
         return "View the songs currently on your playlist. " +
-                "NOTE: If too many it shows only the amount that can fit. You can use `playlist clear` to remove all songs.";
+                "NOTE: If too many it shows only the amount that can fit. You can use `playlist clear` to remove all songs." +
+                " You can use `playlist remove #` to remove a song under #.\n" +
+                "To make it not send a DM do `playlist here`";
     }
 
     @Override

@@ -44,6 +44,8 @@ public class Purge implements Command {
                         if (history.retrievePast(Math.min(toRetrieve, 100)).complete().isEmpty())
                             break;
                         toRetrieve -= Math.min(toRetrieve, 100);
+                        if(toRetrieve < 2)
+                            toRetrieve = 2;
                     }
                     int i = 0;
                     List<Message> toDelete = new ArrayList<>();
@@ -63,14 +65,13 @@ public class Purge implements Command {
                         else toDelete.forEach(mssage -> mssage.delete().complete());
                     }
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("Deleted `%s` messages!", i)).build()).queue(s -> {
-                        new FlarebotTask("Delete Message " + s) {
-                            @Override
-                            public void run() {
-                                s.delete().queue();
-                            }
-                        }.delay(30_000);
-                    });
+                            .setDescription(String.format("Deleted `%s` messages!", i)).build())
+                            .queue(s -> new FlarebotTask("Delete Message " + s) {
+                                @Override
+                                public void run() {
+                                    s.delete().queue();
+                                }
+                            }.delay(5_000));
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Failed to bulk delete or load messages! Error: `%s`", e)).build()).queue();
@@ -96,12 +97,7 @@ public class Purge implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.ADMINISTRATIVE;
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.purge";
+        return CommandType.MODERATION;
     }
 
     @Override
@@ -111,6 +107,11 @@ public class Purge implements Command {
 
     @Override
     public boolean deleteMessage() {
+        return false;
+    }
+
+    @Override
+    public boolean isDefaultPermission() {
         return false;
     }
 }

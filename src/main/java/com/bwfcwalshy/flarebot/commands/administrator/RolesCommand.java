@@ -30,11 +30,11 @@ public class RolesCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.ADMINISTRATIVE;
+        return CommandType.MODERATION;
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.roles";
+    public boolean isDefaultPermission() {
+        return true;
     }
 }

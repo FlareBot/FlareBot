@@ -26,7 +26,15 @@ public interface Command {
         return FlareBot.getInstance().getPermissions(chan);
     }
 
-    default boolean deleteMessage(){
+    default boolean isDefaultPermission() {
+        return (getPermission() != null && getType() != CommandType.HIDDEN && getType() != CommandType.MODERATION);
+    }
+
+    default boolean deleteMessage() {
         return true;
+    }
+
+    default char getPrefix(Guild guild){
+        return FlareBot.getPrefix(guild.getId());
     }
 }

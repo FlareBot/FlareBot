@@ -33,7 +33,8 @@ public class SkipCommand implements Command {
             channel.sendMessage("I am not streaming!").queue();
             return;
         }
-        if (!channel.getGuild().getSelfMember().getVoiceState().getChannel().equals(member.getVoiceState().getChannel())) {
+        if (member.getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getChannel().getId().equals(member.getVoiceState().getChannel().getId())
+                && !getPermissions(channel).hasPermission(member, "flarebot.skip.force")) {
             channel.sendMessage("You must be in the channel in order to skip songs!").queue();
             return;
         }
@@ -147,11 +148,6 @@ public class SkipCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.skip";
     }
 
     private enum Vote {

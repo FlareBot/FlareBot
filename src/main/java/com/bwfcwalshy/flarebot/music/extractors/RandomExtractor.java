@@ -17,7 +17,7 @@ public class RandomExtractor implements Extractor {
         return YoutubeAudioSourceManager.class;
     }
 
-    @SuppressWarnings("Duplicates") // I dont give a damn
+    @SuppressWarnings("Duplicates") // I don't give a damn
     @Override
     public void process(String input, Player player, Message message, User user) throws Exception {
         int i = 0;
@@ -41,5 +41,12 @@ public class RandomExtractor implements Extractor {
     @Override
     public boolean valid(String input) {
         return input.matches("([^,]{11},)*[^,]{11}");
+    }
+
+    @Override
+    public AudioSourceManager newSourceManagerInstance() throws Exception {
+        YoutubeAudioSourceManager manager = new YoutubeAudioSourceManager();
+        manager.setPlaylistPageCount(100);
+        return manager;
     }
 }

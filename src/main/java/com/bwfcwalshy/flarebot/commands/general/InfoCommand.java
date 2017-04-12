@@ -5,7 +5,7 @@ import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import com.bwfcwalshy.flarebot.music.VideoThread;
-import com.sun.management.OperatingSystemMXBean;
+import com.bwfcwalshy.flarebot.util.CPUDaemon;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.*;
@@ -13,7 +13,6 @@ import spark.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -103,7 +102,7 @@ public class InfoCommand implements Command {
         VERSION("Version", FlareBot.getInstance().getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
-        CPU_USAGE("CPU Usage", () -> ((int) (ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class).getSystemCpuLoad() * 10000)) / 100f + "%"),
+        CPU_USAGE("CPU Usage", () -> ((int) (CPUDaemon.get() * 10000)) / 100d + "%"),
         SUPPORT_SERVER("Support Server", "[`Discord`](http://discord.me/flarebot)"),
         DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/FlareBot/)"),
         PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),
@@ -111,7 +110,7 @@ public class InfoCommand implements Command {
         TWITTER("Twitter", "[`Twitter`](https://twitter.com/DiscordFlareBot)"),
         INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite())),
         EMPTY("\u200B", "\u200B", false),
-        MADE_BY("Made By", "bwfcwalshy#1284 and Arsen#3291"),
+        MADE_BY("Made By", "bwfcwalshy#1284 and Arsen#7525"),
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)");
 
         private String name;

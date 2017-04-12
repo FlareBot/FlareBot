@@ -81,6 +81,10 @@ public class UpdateCommand implements Command {
      * @param channel Channel the command was sent in.
      */
     public static void update(boolean force, TextChannel channel) {
+        if (force) {
+            doTheUpdate(channel, "latest", FlareBot.getInstance().getVersion());
+            return;
+        }
         try {
             URL url = new URL("https://raw.githubusercontent.com/FlareBot/FlareBot/master/pom.xml");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -90,12 +94,8 @@ public class UpdateCommand implements Command {
                 if (line != null && (line.contains("<version>") && line.contains("</version>"))) {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "").replaceAll("\t", "");
                     String currentVersion = FlareBot.getInstance().getVersion();
-                    if (force || isHigher(latestVersion, currentVersion)) {
-                        FlareBot.getInstance().setStatus("Updating..");
-                        if (channel != null)
-                            channel.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`").queue();
-                        UPDATING.set(true);
-                        FlareBot.getInstance().quit(true);
+                    if (isHigher(latestVersion, currentVersion)) {
+                        doTheUpdate(channel, latestVersion, currentVersion);
                     } else {
                         if (channel != null)
                             channel.sendMessage("I am currently up to date! Current version: `" + currentVersion + "`").queue();
@@ -106,6 +106,14 @@ public class UpdateCommand implements Command {
         } catch (IOException e) {
             FlareBot.LOGGER.error("Could not update!", e);
         }
+    }
+
+    private static void doTheUpdate(TextChannel channel, String latestVersion, String currentVersion) {
+        FlareBot.getInstance().setStatus("Updating..");
+        if (channel != null)
+            channel.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`").queue();
+        UPDATING.set(true);
+        FlareBot.getInstance().quit(true);
     }
 
 
@@ -147,5 +155,10 @@ public class UpdateCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
+    }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
     }
 }

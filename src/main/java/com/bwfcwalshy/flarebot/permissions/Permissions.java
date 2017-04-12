@@ -1,15 +1,17 @@
 package com.bwfcwalshy.flarebot.permissions;
 
 import com.bwfcwalshy.flarebot.FlareBot;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Permissions {
-    private HashMap<String, PerGuildPermissions> perms = new HashMap<>();
+    private ConcurrentHashMap<String, PerGuildPermissions> perms = new ConcurrentHashMap<>();
 
     public void save() throws IOException {
         try (Writer fw = new FileWriter(FlareBot.PERMS_FILE)) {

@@ -1,39 +1,34 @@
 package com.bwfcwalshy.flarebot.commands.secret;
 
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.commands.FlareBotManager;
+import com.bwfcwalshy.flarebot.mod.AutoModGuild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
-public class QuitCommand implements Command {
+public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (sender.getId().equals("158310004187725824") || sender.getId().equals("155954930191040513")) {
-            FlareBot.getInstance().quit(false);
-        }
+        AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
+        sender.openPrivateChannel().complete().sendMessage(FlareBotManager.GSON.toJson(guild)).queue();
     }
 
     @Override
     public String getCommand() {
-        return "quit";
+        return "test";
     }
 
     @Override
     public String getDescription() {
-        return "Dev only command";
+        return null;
     }
 
     @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
     }
 }

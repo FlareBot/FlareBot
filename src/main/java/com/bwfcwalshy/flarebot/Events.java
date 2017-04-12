@@ -6,6 +6,7 @@ import com.bwfcwalshy.flarebot.commands.secret.UpdateCommand;
 import com.bwfcwalshy.flarebot.objects.PlayerCache;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
 import com.bwfcwalshy.flarebot.util.Welcome;
+import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -13,7 +14,9 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.StatusChangeEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -23,8 +26,12 @@ import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.json.JSONObject;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
+import java.io.*;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -39,6 +46,7 @@ import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
 
+    private volatile boolean sd = false;
     private FlareBot flareBot;
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
@@ -47,9 +55,9 @@ public class Events extends ListenerAdapter {
     public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
     private AtomicInteger i = new AtomicInteger(0);
 
-
     public Events(FlareBot bot) {
         this.flareBot = bot;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> sd = true));
     }
 
     @Override
@@ -65,11 +73,14 @@ public class Events extends ListenerAdapter {
             Welcome welcome = flareBot.getWelcomeForGuild(event.getGuild());
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
             if (channel != null) {
+                if (!channel.canTalk()) {
+                    flareBot.getWelcomes().remove(welcome);
+                }
                 String msg = welcome.getMessage()
                         .replace("%user%", event.getMember().getUser().getName())
                         .replace("%guild%", event.getGuild().getName())
                         .replace("%mention%", event.getMember().getUser().getAsMention());
-                channel.sendMessage(msg).queue();
+                channel.sendMessage(msg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
             } else flareBot.getWelcomes().remove(welcome);
         }
         if (flareBot.getAutoAssignRoles().containsKey(event.getGuild().getId())) {
@@ -141,6 +152,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+            event.getGuild().getAudioManager().setSelfDeafened(true);
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
             }
@@ -201,6 +213,30 @@ public class Events extends ListenerAdapter {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
                     if (cmd.getType() == CommandType.HIDDEN) {
                         if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
+                            try {
+                                File dir = new File("imgs");
+                                if (!dir.exists())
+                                    dir.mkdir();
+                                File trap = new File("imgs" + File.separator + "trap.jpg");
+                                if (!trap.exists()) {
+                                    trap.createNewFile();
+                                    URL url = new URL("https://cdn.discordapp.com/attachments/242297848123621376/293873454678147073/trap.jpg");
+                                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+                                    InputStream is = conn.getInputStream();
+                                    OutputStream os = new FileOutputStream(trap);
+                                    byte[] b = new byte[2048];
+                                    int length;
+                                    while ((length = is.read(b)) != -1) {
+                                        os.write(b, 0, length);
+                                    }
+                                    is.close();
+                                    os.close();
+                                }
+                                event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null).queue();
+                            } catch (IOException e) {
+                                FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
+                            }
                             return;
                         }
                     }
@@ -284,6 +320,27 @@ public class Events extends ListenerAdapter {
         if (event.getPreviousOnlineStatus() == OnlineStatus.OFFLINE) {
             flareBot.getPlayerCache(event.getUser().getId()).setLastSeen(LocalDateTime.now());
         }
+    }
+
+    @Override
+    public void onStatusChange(StatusChangeEvent event) {
+        if (sd) return;
+        Unirest.post(FlareBot.getStatusHook())
+                .header("Content-Type", "application/json")
+                .body(new JSONObject()
+                        .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
+                                event.getOldStatus(), event.getStatus(),
+                                event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
+                                        : null)))
+                .asStringAsync();
+    }
+
+    @Override
+    public void onDisconnect(DisconnectEvent event) {
+        if (event.isClosedByServer())
+            FlareBot.LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame().getCloseCode(), event.getCloseCode()));
+        else
+            FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame().getCloseCode(), event.getClientCloseFrame().getCloseReason()));
     }
 
     private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {

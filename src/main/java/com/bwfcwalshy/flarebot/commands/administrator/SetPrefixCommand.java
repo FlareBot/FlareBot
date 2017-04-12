@@ -42,12 +42,12 @@ public class SetPrefixCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.ADMINISTRATIVE;
+        return CommandType.MODERATION;
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.prefix";
+    public boolean isDefaultPermission() {
+        return false;
     }
 
     @Override

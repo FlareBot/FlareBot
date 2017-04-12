@@ -1,7 +1,5 @@
-package com.bwfcwalshy.flarebot.commands.music;
+package com.bwfcwalshy.flarebot.commands.automod;
 
-import com.arsenarsen.lavaplayerbridge.PlayerManager;
-import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
@@ -9,36 +7,30 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
-public class ShuffleCommand implements Command {
-
-    private PlayerManager musicManager;
-
-    public ShuffleCommand(FlareBot bot) {
-        this.musicManager = bot.getMusicManager();
-    }
+public class SetSeverityCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        this.musicManager.getPlayer(channel.getGuild().getId()).shuffle();
+
     }
 
     @Override
     public String getCommand() {
-        return "shuffle";
+        return "setseverity";
     }
 
     @Override
     public String getDescription() {
-        return "Shuffle up the order of the songs";
+        return "Change the severity of an action";
     }
 
     @Override
     public CommandType getType() {
-        return CommandType.MUSIC;
+        return CommandType.MODERATION;
     }
 
     @Override
-    public boolean isDefaultPermission() {
-        return false;
+    public String[] getAliases() {
+        return new String[] {"severity"};
     }
 }

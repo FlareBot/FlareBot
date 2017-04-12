@@ -20,7 +20,7 @@ public class AutoAssignCommand implements Command {
     @SuppressWarnings("ConstantConditions")
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (channel.getGuild().getOwner().getUser().getId().equals(sender.getId()) || flareBot.getPermissions(channel).hasPermission(member, "flarebot.commands.autoassign")) {
+        if (channel.getGuild().getOwner().getUser().getId().equals(sender.getId())) {
             if (args.length == 0) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
                         .setDescription(sender.getAsMention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "autoassign <add/remove/list> (role)"), channel);
@@ -62,7 +62,7 @@ public class AutoAssignCommand implements Command {
                         roles.add(role.getId());
                         flareBot.getAutoAssignRoles().put(channel.getGuild().getId(), roles);
                         channel.sendMessage(MessageUtils.getEmbed(sender)
-                                        .setDescription("Added " + role.getName() + " to your auto assigned roles!").build()).queue();
+                                .setDescription("Added " + role.getName() + " to your auto assigned roles!").build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(role.getName() + " is already being assigned!"), channel);
                     }
@@ -107,17 +107,17 @@ public class AutoAssignCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.ADMINISTRATIVE;
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.assign";
+        return CommandType.MODERATION;
     }
 
     @Override
     public String[] getAliases() {
         return new String[]{"autorole"};
+    }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
     }
 
     private boolean validRole(Guild guild, String role) {

@@ -49,7 +49,7 @@ public class MusicAnnounceCommand implements Command {
             if (args[0].equalsIgnoreCase("here")) {
                 announcements.put(channel.getGuild().getId(), channel.getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("Set music announcements to appear in " + channel).build()).queue();
+                        .setDescription("Set music announcements to appear in " + channel.getAsMention()).build()).queue();
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("UPDATE announces SET channelid = ? WHERE guildid = ?");
@@ -103,5 +103,10 @@ public class MusicAnnounceCommand implements Command {
     @Override
     public String getPermission() {
         return "flarebot.songannounce";
+    }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
     }
 }

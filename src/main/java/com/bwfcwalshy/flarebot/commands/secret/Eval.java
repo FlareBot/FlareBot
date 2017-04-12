@@ -26,6 +26,8 @@ public class Eval implements Command {
     private static final List<String> IMPORTS = Arrays.asList("com.bwfcwalshy.flarebot.*",
             "com.bwfcwalshy.flarebot.music.*",
             "com.bwfcwalshy.flarebot.util.*",
+            "com.bwfcwalshy.flarebot.mod.*",
+            "com.bwfcwalshy.flarebot.mod.events.*",
             "com.bwfcwalshy.flarebot.sheduler.*",
             "com.bwfcwalshy.flarebot.permissions.*",
             "com.bwfcwalshy.flarebot.commands.*",
@@ -41,7 +43,8 @@ public class Eval implements Command {
             "java.time.*",
             "java.io.*",
             "java.nio.*",
-            "java.nio.files.*");
+            "java.nio.files.*",
+            "java.util.stream.*");
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
@@ -89,5 +92,10 @@ public class Eval implements Command {
     @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
+    }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
     }
 }

@@ -27,7 +27,7 @@ public class VideoThread extends Thread {
     private Extractor extractor;
 
     private VideoThread() {
-        if(manager == null)
+        if (manager == null)
             manager = FlareBot.getInstance().getMusicManager();
         setName("Video Thread " + VIDEO_THREADS.activeCount());
     }
@@ -49,11 +49,11 @@ public class VideoThread extends Thread {
                 return;
             }
             if (managers.add(extractor.getSourceManagerClass()))
-                manager.getManager().registerSourceManager(extractor.getSourceManagerClass().newInstance());
+                manager.getManager().registerSourceManager(extractor.newSourceManagerInstance());
             extractor.process(url, manager.getPlayer(channel.getGuild().getId()), message, user);
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not init extractor for '{}'".replace("{}", url), e);
-            MessageUtils.editMessage(message, "Something went wrong. This incident has been reported. Sorry :/");
+            FlareBot.reportError(channel, "Something went wrong while searching for the video!", e);
         }
     }
 
