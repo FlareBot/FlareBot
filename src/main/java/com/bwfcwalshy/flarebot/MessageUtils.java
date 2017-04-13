@@ -5,10 +5,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -16,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 
 public class MessageUtils {
 
@@ -101,6 +99,29 @@ public class MessageUtils {
 
     public static String getTag(User user) {
         return user.getName() + '#' + user.getDiscriminator();
+    }
+
+    public static User getUserFromString(String string, TextChannel channel) {
+        if (string.substring(0, 1).equals("<#") && string.substring(string.length() - 1).equals(">")) {
+            String id = string.substring(2, string.length() - 1);
+            return FlareBot.getInstance().getUserByID(id);
+        } else {
+            try {
+                Long.parseLong(string);
+                return FlareBot.getInstance().getUserByID(string);
+            } catch (Exception e) {
+                ArrayList<Member> memebers = (ArrayList<Member>) channel.getGuild().getMembersByNickname(string, true);
+                if (memebers.size() > 1) {
+                    StringBuilder sb = new StringBuilder();
+                    for (Member member : memebers) {
+                        sb.append(member.getUser().getId() + "\n");
+                    }
+                    MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("Multiple users found with that name. ```" + sb.toString() + "```").setColor(Color.red).build(), 500, channel);
+                    return null;
+                }
+            }
+        }
+        return null;
     }
 
     public static EmbedBuilder getEmbed(User user) {
