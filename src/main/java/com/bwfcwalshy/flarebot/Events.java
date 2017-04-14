@@ -183,136 +183,132 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        PlayerCache cache = flareBot.getPlayerCache(event.getAuthor().getId());
-        cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
-        cache.setLastSeen(LocalDateTime.now());
-        cache.setLastSpokeGuild(event.getGuild().getId());
-        if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
-                && !event.getAuthor().isBot()) {
-            List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
-            if (!perms.contains(Permission.ADMINISTRATOR)) {
-                if (!perms.contains(Permission.MESSAGE_WRITE)) {
-                    return;
+        CACHED_POOL.submit(() -> {
+            PlayerCache cache = flareBot.getPlayerCache(event.getAuthor().getId());
+            cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
+            cache.setLastSeen(LocalDateTime.now());
+            cache.setLastSpokeGuild(event.getGuild().getId());
+            if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
+                    && !event.getAuthor().isBot()) {
+                List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
+                if (!perms.contains(Permission.ADMINISTRATOR)) {
+                    if (!perms.contains(Permission.MESSAGE_WRITE)) {
+                        return;
+                    }
+                    if (!perms.contains(Permission.MESSAGE_EMBED_LINKS)) {
+                        event.getChannel().sendMessage("Hey! I can't be used here." +
+                                "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
+                                "\nThanks :D").queue();
+                        return;
+                    }
                 }
-                if (!perms.contains(Permission.MESSAGE_EMBED_LINKS)) {
-                    event.getChannel().sendMessage("Hey! I can't be used here." +
-                            "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
-                            "\nThanks :D").queue();
-                    return;
-                }
-            }
-            String message = event.getMessage().getRawContent();
-            String command = message.substring(1);
-            String[] args = new String[0];
-            if (message.contains(" ")) {
-                command = command.substring(0, message.indexOf(" ") - 1);
+                String message = event.getMessage().getRawContent();
+                String command = message.substring(1);
+                String[] args = new String[0];
+                if (message.contains(" ")) {
+                    command = command.substring(0, message.indexOf(" ") - 1);
 
-                args = message.substring(message.indexOf(" ") + 1).split(" ");
-            }
-            for (Command cmd : flareBot.getCommands()) {
-                if (cmd.getCommand().equalsIgnoreCase(command)) {
-                    if (cmd.getType() == CommandType.HIDDEN) {
-                        if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
-                            try {
-                                File dir = new File("imgs");
-                                if (!dir.exists())
-                                    dir.mkdir();
-                                File trap = new File("imgs" + File.separator + "trap.jpg");
-                                if (!trap.exists()) {
-                                    trap.createNewFile();
-                                    URL url = new URL("https://cdn.discordapp.com/attachments/242297848123621376/293873454678147073/trap.jpg");
-                                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-                                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
-                                    InputStream is = conn.getInputStream();
-                                    OutputStream os = new FileOutputStream(trap);
-                                    byte[] b = new byte[2048];
-                                    int length;
-                                    while ((length = is.read(b)) != -1) {
-                                        os.write(b, 0, length);
+                    args = message.substring(message.indexOf(" ") + 1).split(" ");
+                }
+                for (Command cmd : flareBot.getCommands()) {
+                    if (cmd.getCommand().equalsIgnoreCase(command)) {
+                        if (cmd.getType() == CommandType.HIDDEN) {
+                            if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
+                                try {
+                                    File dir = new File("imgs");
+                                    if (!dir.exists())
+                                        dir.mkdir();
+                                    File trap = new File("imgs" + File.separator + "trap.jpg");
+                                    if (!trap.exists()) {
+                                        trap.createNewFile();
+                                        URL url = new URL("https://cdn.discordapp.com/attachments/242297848123621376/293873454678147073/trap.jpg");
+                                        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+                                        InputStream is = conn.getInputStream();
+                                        OutputStream os = new FileOutputStream(trap);
+                                        byte[] b = new byte[2048];
+                                        int length;
+                                        while ((length = is.read(b)) != -1) {
+                                            os.write(b, 0, length);
+                                        }
+                                        is.close();
+                                        os.close();
                                     }
-                                    is.close();
-                                    os.close();
+                                    event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null).queue();
+                                } catch (IOException e) {
+                                    FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
                                 }
-                                event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null).queue();
-                            } catch (IOException e) {
-                                FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
+                                return;
                             }
+                        }
+                        if (UpdateCommand.UPDATING.get()) {
+                            event.getChannel().sendMessage("**Currently updating!**").queue();
                             return;
                         }
-                    }
-                    if (UpdateCommand.UPDATING.get()) {
-                        event.getChannel().sendMessage("**Currently updating!**").queue();
-                        return;
-                    }
-                    if (handleMissingPermission(cmd, event))
-                        return;
-                    COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger()).incrementAndGet();
-                    String[] finalArgs = args;
-                    CACHED_POOL.submit(() -> {
+                        if (handleMissingPermission(cmd, event))
+                            return;
+                        COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger()).incrementAndGet();
                         FlareBot.LOGGER.info(
-                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                         try {
-                            cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
+                            cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), args, event.getMember());
                         } catch (Exception ex) {
                             MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
                             FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                    + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                    + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                                     event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                         }
                         if (cmd.deleteMessage())
                             delete(event.getMessage());
-                    });
-                    return;
-                } else {
-                    for (String alias : cmd.getAliases()) {
-                        if (alias.equalsIgnoreCase(command)) {
-                            if (cmd.getType() == CommandType.HIDDEN) {
-                                if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
+                        return;
+                    } else {
+                        for (String alias : cmd.getAliases()) {
+                            if (alias.equalsIgnoreCase(command)) {
+                                if (cmd.getType() == CommandType.HIDDEN) {
+                                    if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
+                                        return;
+                                    }
+                                }
+                                if (UpdateCommand.UPDATING.get()) {
+                                    event.getChannel().sendMessage("**Currently updating!**").queue();
                                     return;
                                 }
-                            }
-                            if (UpdateCommand.UPDATING.get()) {
-                                event.getChannel().sendMessage("**Currently updating!**").queue();
-                                return;
-                            }
-                            FlareBot.LOGGER.info(
-                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
-                                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
-                            if (handleMissingPermission(cmd, event))
-                                return;
-                            COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
-                                    g -> new AtomicInteger()).incrementAndGet();
-                            String[] finalArgs = args;
-                            CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
-                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
+                                                event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
+                                if (handleMissingPermission(cmd, event))
+                                    return;
+                                COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
+                                        g -> new AtomicInteger()).incrementAndGet();
+                                FlareBot.LOGGER.info(
+                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                                                 event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                                 try {
-                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
+                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), args, event.getMember());
                                 } catch (Exception ex) {
                                     FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                            + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                            + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                                     MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
                                 }
                                 if (cmd.deleteMessage())
                                     delete(event.getMessage());
-                            });
-                            return;
+                                return;
+                            }
                         }
                     }
                 }
-            }
-        } else {
-            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
-                    && !event.getAuthor().isBot()) {
-                if (event.getMessage().getRawContent().startsWith("_prefix")) {
-                    event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
-                            .setDescription("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(event)) + "`").build()).queue();
+            } else {
+                if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
+                        && !event.getAuthor().isBot()) {
+                    if (event.getMessage().getRawContent().startsWith("_prefix")) {
+                        event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
+                                .setDescription("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(event)) + "`").build()).queue();
+                    }
                 }
             }
-        }
+        });
     }
 
     @Override
