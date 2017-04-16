@@ -8,10 +8,6 @@
     <artifactId>flarebot</artifactId>
     <version>2.7.1-SNAPSHOT</version>
 
-    <properties>
-        <jetty.version>9.3.6.v20151106</jetty.version>
-    </properties>
-
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
             <id>jcenter</id>
@@ -41,7 +37,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.0_156</version>
+            <version>3.0.0_175</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
