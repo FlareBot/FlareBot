@@ -282,7 +282,7 @@ public class FlareBot {
                 while (true) {
                     try {
                         clients[0] = new JDABuilder(AccountType.BOT)
-                                .addListener(events)
+                                .addEventListener(events)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
@@ -296,7 +296,7 @@ public class FlareBot {
                     while (true) {
                         try {
                             clients[i] = new JDABuilder(AccountType.BOT)
-                                    .addListener(events)
+                                    .addEventListener(events)
                                     .useSharding(i, clients.length)
                                     .setToken(tkn)
                                     .setAudioSendFactory(new NativeAudioSendFactory())

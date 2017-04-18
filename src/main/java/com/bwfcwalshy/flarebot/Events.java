@@ -339,7 +339,7 @@ public class Events extends ListenerAdapter {
             FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame().getCloseCode(), event.getClientCloseFrame().getCloseReason()));
     }
 
-    private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
+    private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
