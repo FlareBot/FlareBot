@@ -25,10 +25,7 @@ import com.bwfcwalshy.flarebot.objects.Poll;
 import com.bwfcwalshy.flarebot.permissions.PerGuildPermissions;
 import com.bwfcwalshy.flarebot.permissions.Permissions;
 import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
-import com.bwfcwalshy.flarebot.util.CPUDaemon;
-import com.bwfcwalshy.flarebot.util.ExceptionUtils;
-import com.bwfcwalshy.flarebot.util.SQLController;
-import com.bwfcwalshy.flarebot.util.Welcome;
+import com.bwfcwalshy.flarebot.util.*;
 import com.bwfcwalshy.flarebot.web.ApiFactory;
 import com.google.gson.*;
 import com.mashape.unirest.http.Unirest;
@@ -43,6 +40,7 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.cli.*;
+import org.apache.commons.cli.HelpFormatter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -600,7 +598,7 @@ public class FlareBot {
         for (Command cmd : commands) {
             JsonObject cmdObj = new JsonObject();
             cmdObj.addProperty("command", cmd.getCommand());
-            cmdObj.addProperty("description", cmd.getDescription());
+            cmdObj.addProperty("description", com.bwfcwalshy.flarebot.util.HelpFormatter.on(null, cmd.getDescription()));
             cmdObj.addProperty("permission", cmd.getPermission() == null ? "" : cmd.getPermission());
             cmdObj.addProperty("type", cmd.getType().toString());
             JsonArray aliases = new JsonArray();

@@ -4,6 +4,7 @@ import com.bwfcwalshy.flarebot.FlareBot;
 import com.bwfcwalshy.flarebot.MessageUtils;
 import com.bwfcwalshy.flarebot.commands.Command;
 import com.bwfcwalshy.flarebot.commands.CommandType;
+import com.bwfcwalshy.flarebot.util.HelpFormatter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 
@@ -32,7 +33,7 @@ public class HelpCommand implements Command {
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()
                         .stream()
-                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command.getDescription() + '\n')
+                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + HelpFormatter.on(channel, command.getDescription()) + '\n')
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
                 int page = 0;
@@ -61,12 +62,12 @@ public class HelpCommand implements Command {
         return FlareBot.getPrefixes().get(null);
     }
 
-    private void sendCommands(Guild guild, MessageChannel channel, User sender) {
+    private void sendCommands(Guild guild, TextChannel channel, User sender) {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
                     .stream()
-                    .map(command -> get(guild) + command.getCommand() + " - " + command.getDescription() + '\n')
+                    .map(command -> get(guild) + command.getCommand() + " - " + HelpFormatter.on(channel, command.getDescription()) + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
             int page = 0;

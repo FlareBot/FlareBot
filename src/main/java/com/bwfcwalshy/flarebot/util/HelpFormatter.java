@@ -11,6 +11,8 @@ public class HelpFormatter {
     }
 
     private static char get(TextChannel channel) {
+        if (channel == null)
+            return FlareBot.getPrefixes().get(null);
         if (channel.getGuild() != null) {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
