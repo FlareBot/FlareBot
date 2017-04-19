@@ -118,7 +118,7 @@ public class SkipCommand implements Command {
                     }
                     boolean skip = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
-                            .count() > (votes.size() / 2.0f);
+                            .count() / 0.5 > 0.5;
                     channel.sendMessage(MessageUtils.getEmbed()
                             .setDescription("The votes are in!")
                             .addField("Results: ", (skip ? "Skip!" : "Keep!"), false).build()).queue();
