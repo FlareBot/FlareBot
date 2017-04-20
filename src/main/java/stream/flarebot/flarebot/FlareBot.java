@@ -1005,11 +1005,11 @@ public class FlareBot {
     }
 
     public static String getMessage(String[] args, int min, int max) {
-        String message = "";
+        StringBuilder message = new StringBuilder();
         for (int index = min; index < max; index++) {
-            message += args[index] + " ";
+            message.append(args[index]).append(" ");
         }
-        return message.trim();
+        return message.toString().trim();
     }
 
     public static void reportError(TextChannel channel, String s, Exception e) {
