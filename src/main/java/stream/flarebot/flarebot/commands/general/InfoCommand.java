@@ -117,7 +117,7 @@ public class InfoCommand implements Command {
         TWITTER("Twitter", "[`Twitter`](https://twitter.com/DiscordFlareBot)"),
         INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite())),
         EMPTY("\u200B", "\u200B", false),
-        MADE_BY("Made By", "bwfcwalshy#1284 and Arsen#7525"),
+        MADE_BY("Made By", "bwfcwalshy#1284 and Electricity (Arsen)#7525"),
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)");
 
         private String name;
