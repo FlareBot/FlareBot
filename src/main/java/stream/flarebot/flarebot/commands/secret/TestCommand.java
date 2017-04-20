@@ -1,0 +1,34 @@
+package stream.flarebot.flarebot.commands.secret;
+
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.mod.AutoModGuild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+
+public class TestCommand implements Command {
+
+    @Override
+    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+        AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
+        sender.openPrivateChannel().complete().sendMessage(FlareBotManager.GSON.toJson(guild)).queue();
+    }
+
+    @Override
+    public String getCommand() {
+        return "test";
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
+    }
+
+    @Override
+    public CommandType getType() {
+        return CommandType.HIDDEN;
+    }
+}
