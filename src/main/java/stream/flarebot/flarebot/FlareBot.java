@@ -806,7 +806,10 @@ public class FlareBot {
 
     private void savePolls() {
         for (String guildId : getManager().getPolls().keySet()) {
-            String pollJson = GSON.toJson(getManager().getPollFromGuild(getGuildByID(guildId)));
+            Guild g = getGuildByID(guildId);
+            if(g == null)
+                continue;
+            String pollJson = GSON.toJson(getManager().getPollFromGuild(g));
 
             try {
                 SQLController.runSqlTask((conn) -> {
