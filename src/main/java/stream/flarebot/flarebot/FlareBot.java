@@ -275,7 +275,8 @@ public class FlareBot {
 
     public void init(String tkn) throws InterruptedException, UnirestException {
         token = tkn;
-        RestAction.DEFAULT_FAILURE = t -> {};
+        RestAction.DEFAULT_FAILURE = t -> {
+        };
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + tkn)
                 .asJson()
@@ -467,8 +468,8 @@ public class FlareBot {
         registerCommand(new UserInfoCommand());
         registerCommand(new PollCommand());
         registerCommand(new PinCommand());
-		registerCommand(new ShardRestart());
-		registerCommand(new QueryCommand());
+        registerCommand(new ShardRestart());
+        registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
         registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
@@ -779,7 +780,7 @@ public class FlareBot {
     }
 
     private void saveSelfAssign() {
-        for(String guild : getManager().getSelfAssignRoles().keySet()){
+        for (String guild : getManager().getSelfAssignRoles().keySet()) {
             try {
                 SQLController.runSqlTask(conn -> {
                     PreparedStatement statement = conn.prepareStatement("INSERT INTO selfassign (guild_id, roles) VALUES (?, ?) ON DUPLICATE KEY UPDATE roles = VALUES(roles)");
@@ -793,11 +794,11 @@ public class FlareBot {
         }
     }
 
-    private void loadSelfAssign(){
+    private void loadSelfAssign() {
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM selfassign");
-                while(set.next()){
+                while (set.next()) {
                     getManager().getSelfAssignRoles().put(set.getString("guild_id"),
                             Arrays.stream(set.getString("roles").replaceAll(" ", "").split(",")).collect(Collectors.toCollection(ConcurrentHashMap::newKeySet)));
                 }
@@ -1048,15 +1049,15 @@ public class FlareBot {
 
     public String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
         long totalSeconds = 0;
-        if(durUnit == TimeUnit.MILLISECONDS)
+        if (durUnit == TimeUnit.MILLISECONDS)
             totalSeconds = duration / 1000;
-        else if(durUnit == TimeUnit.SECONDS)
+        else if (durUnit == TimeUnit.SECONDS)
             totalSeconds = duration;
-        else if(durUnit == TimeUnit.MINUTES)
+        else if (durUnit == TimeUnit.MINUTES)
             totalSeconds = duration * 60;
-        else if(durUnit == TimeUnit.HOURS)
+        else if (durUnit == TimeUnit.HOURS)
             totalSeconds = (duration * 60) * 60;
-        else if(durUnit == TimeUnit.DAYS)
+        else if (durUnit == TimeUnit.DAYS)
             totalSeconds = ((duration * 60) * 60) * 24;
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;

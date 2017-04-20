@@ -153,11 +153,11 @@ public class MessageUtils {
         return YOUTUBE_LINK_REGEX.matcher(message.getRawContent()).find();
     }
 
-    public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel){
+    public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel) {
         sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
     }
 
-    public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel){
+    public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
         Message msg = channel.sendMessage(message).complete();
         new FlarebotTask("AutoDeleteTask") {
             @Override

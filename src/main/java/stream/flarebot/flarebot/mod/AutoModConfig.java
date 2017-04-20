@@ -16,37 +16,37 @@ public class AutoModConfig {
     private Map<Integer, Punishment> punishments = new ConcurrentHashMap<>();
     private int maxMessagesPerMinute = 10;
 
-    public boolean isEnabled(){
+    public boolean isEnabled() {
         return this.enabled;
     }
 
-    public void setEnabled(boolean enabled){
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
-    public String getModLogChannel(){
+    public String getModLogChannel() {
         return this.modLogChannel;
     }
 
-    public void setModLogChannel(String modLogChannel){
+    public void setModLogChannel(String modLogChannel) {
         this.modLogChannel = modLogChannel;
     }
 
-    public Map<Action, Integer> getActions(){
+    public Map<Action, Integer> getActions() {
         return this.actions;
     }
 
-    public ConcurrentHashSet<String> getWhitelist(Action action){
-        if(!whitelist.containsKey(action))
+    public ConcurrentHashSet<String> getWhitelist(Action action) {
+        if (!whitelist.containsKey(action))
             whitelist.put(action, new ConcurrentHashSet<>());
         return this.whitelist.get(action);
     }
 
-    public Map<Action, ConcurrentHashSet<String>> getWhitelist(){
+    public Map<Action, ConcurrentHashSet<String>> getWhitelist() {
         return this.whitelist;
     }
 
-    public int getMaxMessagesPerMinute(){
+    public int getMaxMessagesPerMinute() {
         return this.maxMessagesPerMinute;
     }
 

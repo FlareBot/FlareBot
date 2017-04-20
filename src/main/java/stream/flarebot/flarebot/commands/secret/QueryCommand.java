@@ -28,11 +28,11 @@ public class QueryCommand implements Command {
                 ResultSet set;
                 try {
                     set = conn.createStatement().executeQuery(FlareBot.getMessage(args, 0));
-                }catch(SQLException e){
+                } catch (SQLException e) {
                     try {
                         conn.createStatement().execute(FlareBot.getMessage(args, 0));
                         channel.sendMessage(new EmbedBuilder().setDescription("Query was executed successfully!").setColor(Color.green).build()).queue();
-                    }catch(SQLException e1) {
+                    } catch (SQLException e1) {
                         channel.sendMessage(new EmbedBuilder().setDescription("Failed to execute query! " + e.getMessage()).setColor(Color.red).build()).queue();
                     }
                     return;

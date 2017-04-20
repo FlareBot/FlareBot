@@ -33,14 +33,14 @@ public final class CPUDaemon {
                         String cpu = Files.readAllLines(PROCFILE.toPath()).get(0);
                         String[] astrs = cpu.split("\\s+");
                         double[] a = new double[astrs.length];
-                        for(int i = 1; i < astrs.length; i++)
+                        for (int i = 1; i < astrs.length; i++)
                             a[i] = Double.parseDouble(astrs[i]);
 
                         Thread.sleep(500);
                         String cpu2 = Files.readAllLines(PROCFILE.toPath()).get(0);
                         String[] bstrs = cpu2.split("\\s+");
                         double[] b = new double[bstrs.length];
-                        for(int i = 1; i < bstrs.length; i++)
+                        for (int i = 1; i < bstrs.length; i++)
                             b[i] = Double.parseDouble(bstrs[i]);
 
                         double loadavg = ((b[1] + b[2] + b[3]) - (a[1] + a[2] + a[3])) /

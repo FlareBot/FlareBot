@@ -34,7 +34,7 @@ public interface Command {
         return true;
     }
 
-    default char getPrefix(Guild guild){
+    default char getPrefix(Guild guild) {
         return FlareBot.getPrefix(guild.getId());
     }
 }

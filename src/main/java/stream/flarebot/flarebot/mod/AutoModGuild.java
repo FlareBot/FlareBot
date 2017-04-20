@@ -9,9 +9,9 @@ public class AutoModGuild {
 
     private Map<String, Integer> userPoints = new ConcurrentHashMap<>();
 
-    public AutoModGuild(){
+    public AutoModGuild() {
         config = new AutoModConfig();
-        for(Action action : Action.values)
+        for (Action action : Action.values)
             config.getActions().put(action, action.getDefaultPoints());
         config.resetPunishments();
     }
@@ -20,11 +20,11 @@ public class AutoModGuild {
         return config;
     }
 
-    public Map<String, Integer> getUserPoints(){
+    public Map<String, Integer> getUserPoints() {
         return this.userPoints;
     }
 
-    public int getPointsForUser(String userId){
+    public int getPointsForUser(String userId) {
         return this.userPoints.getOrDefault(userId, 0);
     }
 

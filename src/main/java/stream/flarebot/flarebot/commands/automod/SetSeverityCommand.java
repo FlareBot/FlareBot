@@ -31,6 +31,6 @@ public class SetSeverityCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"severity"};
+        return new String[]{"severity"};
     }
 }

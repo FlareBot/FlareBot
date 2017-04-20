@@ -21,8 +21,8 @@ public class AutoModCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 1){
-            if(args[0].equalsIgnoreCase("config")){
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("config")) {
                 AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());
                 EmbedBuilder builder = new EmbedBuilder().setColor(Color.white).addField("Auto Mod Enabled", String.valueOf(config.isEnabled()), true)
                         .addField("Messages per minute", String.valueOf(config.getMaxMessagesPerMinute()), true)
@@ -33,56 +33,57 @@ public class AutoModCommand implements Command {
                         .append(punishment.getDuration() > 0 ? " (" + FlareBot.getInstance().formatTime(punishment.getDuration(), TimeUnit.SECONDS, true, false).trim() + ")\n" : ""));
                 builder.addField("Punishments", sb.toString(), false);
                 channel.sendMessage(builder.build()).queue();
-            }else if(args[0].equalsIgnoreCase("punishments")){
+            } else if (args[0].equalsIgnoreCase("punishments")) {
                 StringBuilder sb = new StringBuilder();
-                FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).getPunishments().forEach((points, punishment) ->{ sb.append(points).append(" = ")
-                        .append(punishment.getName());
-                    if(punishment.getDuration() > 0)
+                FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).getPunishments().forEach((points, punishment) -> {
+                    sb.append(points).append(" = ")
+                            .append(punishment.getName());
+                    if (punishment.getDuration() > 0)
                         sb.append(" (").append(FlareBot.getInstance().formatTime(punishment.getDuration(), TimeUnit.SECONDS, true, false)).append(")");
                     sb.append("\n");
                 });
                 channel.sendMessage(new EmbedBuilder().setTitle("Guild Punishments", null).setDescription(sb.toString()).build()).queue();
             }
-        }else if(args.length == 2){
-            if(args[0].equalsIgnoreCase("punishments")){
-                if(args[1].equalsIgnoreCase("set")){
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("punishments")) {
+                if (args[1].equalsIgnoreCase("set")) {
 
-                }else if(args[1].equalsIgnoreCase("reset")){
+                } else if (args[1].equalsIgnoreCase("reset")) {
                     FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).resetPunishments();
                     channel.sendMessage(new EmbedBuilder().setColor(Color.green).setDescription("Reset the punishments back to default").build()).queue();
-                }else{
+                } else {
                     MessageUtils.sendErrorMessage("Invalid argument!", channel);
                 }
-            }else if(args[0].equalsIgnoreCase("whitelist")){
-                if(args[1].equalsIgnoreCase("list")){
+            } else if (args[0].equalsIgnoreCase("whitelist")) {
+                if (args[1].equalsIgnoreCase("list")) {
                     AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());
                     EmbedBuilder builder = new EmbedBuilder();
                     builder.setColor(Color.white).setTitle("Whitelists", null);
                     config.getWhitelist().keySet().forEach(action -> builder.addField(action.getName(),
                             config.getWhitelist(action).stream().collect(Collectors.joining("\n")), false));
                     channel.sendMessage(builder.build()).queue();
-                }else if(args[1].equalsIgnoreCase("add")){
+                } else if (args[1].equalsIgnoreCase("add")) {
 
-                }else if(args[1].equalsIgnoreCase("remove")){
+                } else if (args[1].equalsIgnoreCase("remove")) {
 
-                }else{
+                } else {
 
                 }
             }
-        }else{
-            if(args[0].equalsIgnoreCase("whitelist")){
-                if(args.length >= 4){
+        } else {
+            if (args[0].equalsIgnoreCase("whitelist")) {
+                if (args.length >= 4) {
                     Action action = Action.getAction(args[2]);
-                    if(action != null && action.canBeWhitelisted()) {
+                    if (action != null && action.canBeWhitelisted()) {
                         String whitelist = FlareBot.getMessage(args, 3);
 
                         FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).getWhitelist(action).add(whitelist);
                         channel.sendMessage(new EmbedBuilder().setColor(Color.green).setDescription("Added `" + whitelist + "` to the `" + action.getNameWithUnderscore() + "` whitelist!")
                                 .build()).queue();
-                    }else{
+                    } else {
                         StringBuilder sb = new StringBuilder();
-                        for(Action a : Action.values) {
-                            if(!a.canBeWhitelisted()) continue;
+                        for (Action a : Action.values) {
+                            if (!a.canBeWhitelisted()) continue;
                             sb.append(a.getNameWithUnderscore()).append("\n");
                         }
                         MessageUtils.sendErrorMessage("Invalid action! Possible actions you can add a whitelist to are:\n```\n" + sb.toString() + "\n```", channel);

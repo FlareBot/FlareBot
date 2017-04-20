@@ -14,9 +14,9 @@ public class LeaveCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if(channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel()) {
-            if((!member.getVoiceState().inVoiceChannel() || !channel.getGuild().getSelfMember().getVoiceState().getAudioChannel().getId()
-                    .equals(member.getVoiceState().getAudioChannel().getId())) && !getPermissions(channel).hasPermission(member, "flarebot.leave.other")){
+        if (channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel()) {
+            if ((!member.getVoiceState().inVoiceChannel() || !channel.getGuild().getSelfMember().getVoiceState().getAudioChannel().getId()
+                    .equals(member.getVoiceState().getAudioChannel().getId())) && !getPermissions(channel).hasPermission(member, "flarebot.leave.other")) {
                 channel.sendMessage(new EmbedBuilder().setColor(Color.red).setDescription("You need the permission `flarebot.leave.other` for me to leave a different voice channel!").build())
                         .queue();
                 return;

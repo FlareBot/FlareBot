@@ -152,7 +152,7 @@ public class FlareBotManager {
         return list[0];
     }
 
-    public void loadProfanity(){
+    public void loadProfanity() {
         try {
             Unirest.get("https://flarebot.stream/api/profanity.php").asJson().getBody().getObject().getJSONArray("words").forEach(word -> profanitySet.add(word.toString()));
         } catch (UnirestException e) {
@@ -160,15 +160,15 @@ public class FlareBotManager {
         }
     }
 
-    public Set<String> getSelfAssignRoles(String guildId){
+    public Set<String> getSelfAssignRoles(String guildId) {
         return this.selfAssignRoles.computeIfAbsent(guildId, gid -> ConcurrentHashMap.newKeySet());
     }
 
-    public Map<String, Set<String>> getSelfAssignRoles(){
+    public Map<String, Set<String>> getSelfAssignRoles() {
         return this.selfAssignRoles;
     }
 
-    public AutoModConfig getAutoModConfig(String guild){
+    public AutoModConfig getAutoModConfig(String guild) {
         return this.autoMod.getOrDefault(guild, new AutoModGuild()).getConfig();
     }
 
@@ -177,7 +177,7 @@ public class FlareBotManager {
     }
 
     public AutoModGuild getAutoModGuild(String guild) {
-        if(!autoMod.containsKey(guild))
+        if (!autoMod.containsKey(guild))
             autoMod.put(guild, new AutoModGuild());
         return this.autoMod.get(guild);
     }
@@ -186,7 +186,7 @@ public class FlareBotManager {
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT guild_id, automod_data FROM automod");
-                while(set.next()){
+                while (set.next()) {
                     autoMod.put(set.getString("guild_id"), GSON.fromJson(set.getString("automod_data"), AutoModGuild.class));
                 }
             });
@@ -197,7 +197,7 @@ public class FlareBotManager {
 
     public void saveAutoMod() {
         FlareBot.LOGGER.info("Saving automod data!");
-        for(String s : autoMod.keySet()){
+        for (String s : autoMod.keySet()) {
             try {
                 SQLController.runSqlTask(conn -> {
                     PreparedStatement statement = conn.prepareStatement("INSERT INTO automod (guild_id, automod_data) VALUES (?, ?) ON DUPLICATE KEY automod_data = VALUES(automod_data)");

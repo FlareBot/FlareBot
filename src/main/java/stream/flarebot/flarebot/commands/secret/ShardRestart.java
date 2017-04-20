@@ -38,9 +38,9 @@ public class ShardRestart implements Command {
 
     @Override
     public String getCommand() {
-        return "restart" ;
+        return "restart";
     }
-    
+
     @Override
     public String getDescription() {
         return "";

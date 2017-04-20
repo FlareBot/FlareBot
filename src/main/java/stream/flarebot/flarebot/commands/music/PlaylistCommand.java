@@ -93,7 +93,7 @@ public class PlaylistCommand implements Command {
                 int page = i++;
                 EmbedBuilder b = new EmbedBuilder(builder.build());
                 b.addField("Page " + page, s, false);
-                if(MessageUtils.getLength(b) > 4000)
+                if (MessageUtils.getLength(b) > 4000)
                     break;
                 builder.addField("Page " + page, s, false);
             }

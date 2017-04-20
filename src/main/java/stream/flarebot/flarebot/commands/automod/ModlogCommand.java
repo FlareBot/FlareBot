@@ -17,29 +17,29 @@ public class ModlogCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if(!getPermissions(channel).hasPermission(member, "flarebot.modlog"))
+        if (!getPermissions(channel).hasPermission(member, "flarebot.modlog"))
             return;
-        if(args.length == 1){
-            if(args[0].equalsIgnoreCase("setchannel")){
+        if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("setchannel")) {
                 FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).setModLogChannel(channel.getId());
                 channel.sendMessage(new EmbedBuilder().setColor(Color.green).setDescription("The modlog channel has been changed to " + channel.getAsMention()).build()).queue();
-            }else if(args[0].equalsIgnoreCase("config")){
+            } else if (args[0].equalsIgnoreCase("config")) {
                 AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());
-            }else if(args[0].equalsIgnoreCase("set")){
+            } else if (args[0].equalsIgnoreCase("set")) {
 
-            }else{
+            } else {
                 MessageUtils.sendErrorMessage("Invalid argument!", channel);
             }
-        }else if(args.length == 2){
+        } else if (args.length == 2) {
 
-        }else if(args.length == 3){
+        } else if (args.length == 3) {
 
-        }else{
+        } else {
             sendHelp(channel);
         }
     }
 
-    private void sendHelp(TextChannel channel){
+    private void sendHelp(TextChannel channel) {
         channel.sendMessage(new EmbedBuilder().setColor(Color.red).setDescription("Command usage for mdlog")
                 .addField("Command Usage", "`" + getPrefix(channel.getGuild()) + "modlog setchannel` - Set the modlog to be displayed in this channel.\n" +
                         "`" + getPrefix(channel.getGuild()) + "modlog config` - View the config of the modlog.\n" +

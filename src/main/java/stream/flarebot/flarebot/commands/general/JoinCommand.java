@@ -21,10 +21,10 @@ public class JoinCommand implements Command {
                 channel.sendMessage("Currently connecting to a voice channel! Try again soon!").queue();
                 return;
             }
-            if(channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getAudioChannel().getId()
-                    .equals(member.getVoiceState().getAudioChannel().getId()) && !FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.join.other")){
+            if (channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getAudioChannel().getId()
+                    .equals(member.getVoiceState().getAudioChannel().getId()) && !FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.join.other")) {
                 channel.sendMessage(new EmbedBuilder().setColor(Color.red).setDescription("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!")
-                    .build()).queue();
+                        .build()).queue();
                 return;
             }
             if (channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
@@ -37,7 +37,7 @@ public class JoinCommand implements Command {
                     return;
                 }
                 channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            }else
+            } else
                 channel.sendMessage("I do not have permission to " + (!channel.getGuild().getSelfMember().hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) ?
                         "connect" : "speak") + " in your voice channel!").queue();
         }

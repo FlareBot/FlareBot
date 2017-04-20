@@ -44,7 +44,7 @@ public class Purge implements Command {
                         if (history.retrievePast(Math.min(toRetrieve, 100)).complete().isEmpty())
                             break;
                         toRetrieve -= Math.min(toRetrieve, 100);
-                        if(toRetrieve < 2)
+                        if (toRetrieve < 2)
                             toRetrieve = 2;
                     }
                     int i = 0;

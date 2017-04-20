@@ -23,13 +23,13 @@ public class AutoModTracker extends ListenerAdapter {
 
     private int i = 0;
 
-    public AutoModTracker(){
+    public AutoModTracker() {
         new FlarebotTask("AutoModTracker") {
             @Override
             public void run() {
                 i++;
                 spamCounter.forEach((s, map) -> map.clear());
-                if(i == 5){
+                if (i == 5) {
                     i = 0;
                     FlareBotManager.getInstance().saveAutoMod();
                 }
@@ -38,58 +38,58 @@ public class AutoModTracker extends ListenerAdapter {
     }
 
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        if(event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake()) return;
+        if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake()) return;
         String userId = event.getAuthor().getId();
         AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(event.getGuild().getId());
-        if(!guild.getConfig().isEnabled()) return;
+        if (!guild.getConfig().isEnabled()) return;
         ConcurrentHashMap<String, Integer> counter = new ConcurrentHashMap<>();
-        if(spamCounter.containsKey(event.getGuild().getId()))
+        if (spamCounter.containsKey(event.getGuild().getId()))
             counter = spamCounter.get(event.getGuild().getId());
 
         counter.put(userId, (counter.containsKey(userId) ? counter.get(userId) + 1 : 1));
         spamCounter.put(event.getGuild().getId(), counter);
 
         outer:
-        for(Action action : Action.values){
-            if(action.check(event.getMessage())){
-                if(action == Action.LINKS){
-                    if(event.getMessage().getContent().startsWith(FlareBot.getPrefix(event.getGuild().getId()) + "search")){
-                        if(MessageUtils.hasYouTubeLink(event.getMessage())) {
+        for (Action action : Action.values) {
+            if (action.check(event.getMessage())) {
+                if (action == Action.LINKS) {
+                    if (event.getMessage().getContent().startsWith(FlareBot.getPrefix(event.getGuild().getId()) + "search")) {
+                        if (MessageUtils.hasYouTubeLink(event.getMessage())) {
                             return;
                         }
                     }
                 }
 
-                if(action == Action.LINKS || action == Action.INVITE_LINKS || action == Action.PROFANITY){
-                    for(String whitelistItem : guild.getConfig().getWhitelist(action))
-                        if(event.getMessage().getContent().contains(whitelistItem))
+                if (action == Action.LINKS || action == Action.INVITE_LINKS || action == Action.PROFANITY) {
+                    for (String whitelistItem : guild.getConfig().getWhitelist(action))
+                        if (event.getMessage().getContent().contains(whitelistItem))
                             continue outer;
                 }
 
                 guild.addPoints(userId, guild.getConfig().getActions().get(action));
                 sendMessage(event.getChannel(), event.getAuthor(), action, guild, guild.getConfig());
 
-                if(action == Action.SPAM){
+                if (action == Action.SPAM) {
                     spamCounter.get(event.getGuild().getId()).put(userId, 0);
                     List<Message> messageList = event.getChannel().getHistory().retrievePast(guild.getConfig().getMaxMessagesPerMinute() * 2).complete();
                     event.getChannel().deleteMessages(messageList.stream().filter(message -> message.getAuthor().getId().equals(userId))
                             .limit(guild.getConfig().getMaxMessagesPerMinute()).collect(Collectors.toList())).queue();
-                }else
+                } else
                     event.getMessage().delete().queue();
                 break;
             }
         }
     }
 
-    public ConcurrentHashMap<String,Integer> getSpamCounter(String guild) {
+    public ConcurrentHashMap<String, Integer> getSpamCounter(String guild) {
         return spamCounter.getOrDefault(guild, new ConcurrentHashMap<>());
     }
 
-    public int getMessages(String guild, String userId){
+    public int getMessages(String guild, String userId) {
         return getSpamCounter(guild).getOrDefault(userId, 0);
     }
 
-    public void sendMessage(TextChannel channel, User user, Action action, AutoModGuild guild, AutoModConfig config){
+    public void sendMessage(TextChannel channel, User user, Action action, AutoModGuild guild, AutoModConfig config) {
         MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription(user.getAsMention()
                 + " Your message contained content not allowed on this server! Due to this you have been given " + config.getActions().get(action) + " points.")
                 .addField("Reason", action.getName(), true).addField("Points given", config.getActions().get(action).toString(), true)
@@ -97,11 +97,11 @@ public class AutoModTracker extends ListenerAdapter {
         postToModLog(channel, user, action);
     }
 
-    public void postToModLog(TextChannel channel, User user, Action action){
+    public void postToModLog(TextChannel channel, User user, Action action) {
         AutoModGuild modGuild = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
         AutoModConfig config = modGuild.getConfig();
-        if(config.isEnabled()){
-            if(config.getModLogChannel() != null && !config.getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(config.getModLogChannel()) != null){
+        if (config.isEnabled()) {
+            if (config.getModLogChannel() != null && !config.getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(config.getModLogChannel()) != null) {
                 channel.getGuild().getTextChannelById(config.getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription("Message sent by "
                         + user.getAsMention() + " has been automatically deleted in " + channel.getAsMention() + " and has been given " + config.getActions().get(action) + " points.")
                         .addField("Reason", action.getName(), true).setColor(Color.white).build()).queue();

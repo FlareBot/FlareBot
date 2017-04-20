@@ -5,16 +5,16 @@ public class Punishment {
     private EPunishment punishment;
     private long duration;
 
-    public Punishment(EPunishment punishment){
+    public Punishment(EPunishment punishment) {
         this.punishment = punishment;
     }
 
-    public Punishment(EPunishment punishment, int duration){
+    public Punishment(EPunishment punishment, int duration) {
         this.punishment = punishment;
         this.duration = duration;
     }
 
-    public long getDuration(){
+    public long getDuration() {
         return this.duration;
     }
 

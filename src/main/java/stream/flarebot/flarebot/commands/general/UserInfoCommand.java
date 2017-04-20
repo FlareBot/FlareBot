@@ -42,7 +42,7 @@ public class UserInfoCommand implements Command {
                                                 String.format("[`%s`](%s)", member.getGame().getName(),
                                                         member.getGame().getUrl())) : ""), true)
                 .addField("Time Data", "Created: " + flareBot.formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
-                        "Joined: " + (channel.getGuild().getMember(user) == null? "The user is not in this server."
+                        "Joined: " + (channel.getGuild().getMember(user) == null ? "The user is not in this server."
                         : flareBot.formatTime(LocalDateTime.from(channel.getGuild().getMember(user).getJoinDate()))) + "\n" +
                         "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : flareBot.formatTime(cache.getLastSeen())) + "\n" +
                         "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : flareBot.formatTime(cache.getLastMessage())), false)
