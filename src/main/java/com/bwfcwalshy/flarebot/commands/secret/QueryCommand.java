@@ -72,7 +72,7 @@ public class QueryCommand implements Command {
 
     @Override
     public String getDescription() {
-        return null;
+        return "royal secrets";
     }
 
     @Override

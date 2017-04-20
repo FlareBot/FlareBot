@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 
 public class HelpFormatter {
     public static String on(TextChannel channel, String description) {
+        if(description == null)
+            return null;
         return description.replaceAll("(?<!\\\\)%p", Matcher.quoteReplacement(String.valueOf(get(channel))));
     }
 
