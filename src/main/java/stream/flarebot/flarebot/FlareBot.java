@@ -266,7 +266,8 @@ public class FlareBot {
 
     public void init(String tkn) throws InterruptedException, UnirestException {
         token = tkn;
-        RestAction.DEFAULT_FAILURE = t -> {};
+        RestAction.DEFAULT_FAILURE = t -> {
+        };
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + tkn)
                 .asJson()
@@ -762,7 +763,7 @@ public class FlareBot {
     }
 
     private void saveSelfAssign() {
-        for(String guild : getManager().getSelfAssignRoles().keySet()){
+        for (String guild : getManager().getSelfAssignRoles().keySet()) {
             try {
                 SQLController.runSqlTask(conn -> {
                     PreparedStatement statement = conn.prepareStatement("INSERT INTO selfassign (guild_id, roles) VALUES (?, ?) ON DUPLICATE KEY UPDATE roles = VALUES(roles)");
@@ -776,11 +777,11 @@ public class FlareBot {
         }
     }
 
-    private void loadSelfAssign(){
+    private void loadSelfAssign() {
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM selfassign");
-                while(set.next()){
+                while (set.next()) {
                     getManager().getSelfAssignRoles().put(set.getString("guild_id"),
                             Arrays.stream(set.getString("roles").replaceAll(" ", "").split(",")).collect(Collectors.toCollection(ConcurrentHashMap::newKeySet)));
                 }
@@ -792,17 +793,20 @@ public class FlareBot {
 
     private void savePolls() {
         for (String guildId : getManager().getPolls().keySet()) {
-            String pollJson = GSON.toJson(getManager().getPollFromGuild(getGuildByID(guildId)));
-
             try {
-                SQLController.runSqlTask((conn) -> {
-                    PreparedStatement statement = conn.prepareStatement("INSERT INTO polls (guild_id, poll) VALUES (?, ?) ON DUPLICATE KEY UPDATE poll = poll");
-                    statement.setString(1, guildId);
-                    statement.setString(2, pollJson);
-                    statement.execute();
-                });
-            } catch (SQLException e) {
-                e.printStackTrace();
+                String pollJson = GSON.toJson(getManager().getPollFromGuild(guildId));
+
+                try {
+                    SQLController.runSqlTask((conn) -> {
+                        PreparedStatement statement = conn.prepareStatement("INSERT INTO polls (guild_id, poll) VALUES (?, ?) ON DUPLICATE KEY UPDATE poll = poll");
+                        statement.setString(1, guildId);
+                        statement.setString(2, pollJson);
+                        statement.execute();
+                    });
+                } catch (SQLException e) {
+                    LOGGER.error("", e);
+                }
+            } catch (Exception ignored) {
             }
         }
     }

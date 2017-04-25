@@ -1,12 +1,11 @@
 package stream.flarebot.flarebot.commands;
 
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.util.SQLController;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,8 +63,8 @@ public class FlareBotManager {
         return this.polls;
     }
 
-    public Poll getPollFromGuild(Guild guild) {
-        return this.polls.get(guild.getId());
+    public Poll getPollFromGuild(String guild) {
+        return this.polls.get(guild);
     }
 
     public void executeCreations() {
