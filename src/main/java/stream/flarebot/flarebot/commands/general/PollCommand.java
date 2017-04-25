@@ -65,7 +65,7 @@ public class PollCommand implements Command {
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("create")) {
-                if (manager.getPolls().containsKey(channel.getGuild().getId()) && manager.getPollFromGuild(channel.getGuild()).isOpen()) {
+                if (manager.getPolls().containsKey(channel.getGuild().getId()) && manager.getPollFromGuild(channel.getGuild().getId()).isOpen()) {
                     MessageUtils.sendErrorMessage("Close current poll, also make this message better", channel);
                 } else {
                     String question = FlareBot.getMessage(args, 1);
@@ -138,7 +138,7 @@ public class PollCommand implements Command {
     }
 
     private void listOptions(TextChannel channel) {
-        Poll poll = manager.getPollFromGuild(channel.getGuild());
+        Poll poll = manager.getPollFromGuild(channel.getGuild().getId());
         EmbedBuilder builder = new EmbedBuilder().setTitle("Options", null).setDescription("Options for `" + poll.getPollOptions() + "`");
         poll.getPollOptions().forEach(option -> builder.addField("Option " + (poll.getPollOptions().indexOf(option) + 1), option.getOption() + "\nVotes: " + option.getVotes(), true));
         channel.sendMessage(builder.build()).queue();
