@@ -285,6 +285,7 @@ public class FlareBot {
                         clients[0] = new JDABuilder(AccountType.BOT)
                                 .addEventListener(events)
                                 .setToken(tkn)
+                                .setCorePoolSize(10)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
                         break;
