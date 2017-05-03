@@ -34,6 +34,13 @@ public enum Language {
     // Pin
     PIN_DESCRIPTION,
     PIN_USAGE,
+    // Purge
+    PURGE_COOLDOWN,
+    PURGE_MIN,
+    PURGE_DELETED,
+    PURGE_FAILED,
+    PURGE_NOPERMS,
+    PURGE_DESCRIPTION,
 
 
 

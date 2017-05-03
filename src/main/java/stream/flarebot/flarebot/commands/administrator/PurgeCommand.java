@@ -81,6 +81,7 @@ public class PurgeCommand implements Command {
             }
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
+                    //TODO: Fix inconsistency (See autoassign)
                     .setDescription("Bad arguments!\n" + getDescription()).build()).queue();
         }
     }
