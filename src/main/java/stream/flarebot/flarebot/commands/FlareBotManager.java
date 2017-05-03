@@ -13,6 +13,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import sun.util.resources.LocaleNames;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,6 +33,7 @@ public class FlareBotManager {
     private Map<String, Poll> polls = new ConcurrentHashMap<>();
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
     private Map<String, AutoModGuild> autoMod = new ConcurrentHashMap<>();
+    private Map<String, String> locale = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
 
@@ -92,6 +94,7 @@ public class FlareBotManager {
                         ")");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS selfassign (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, roles TEXT)");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -210,4 +213,35 @@ public class FlareBotManager {
             }
         }
     }
+
+    public void loadLocalisation() {
+        try {
+            SQLController.runSqlTask(conn -> {
+                ResultSet set = conn.createStatement().executeQuery("SELECT guild_id, locale FROM localisation");
+                while (set.next()) {
+                    locale.put(set.getString("guild_id"), set.getString("locale"));
+                }
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveLocalisation() {
+        FlareBot.LOGGER.info("Saving localisation data!");
+        for (String s : locale.keySet()) {
+            try {
+                SQLController.runSqlTask(conn -> {
+                    PreparedStatement statement = conn.prepareStatement("INSERT INTO localisation (guild_id, locale) VALUES (?, ?) ON DUPLICATE KEY locale = VALUES(locale)");
+                    statement.setString(1, s);
+                    statement.setString(2, locale.get(s));
+                    statement.execute();
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }
