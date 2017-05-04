@@ -1,7 +1,13 @@
 package stream.flarebot.flarebot.mod;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import stream.flarebot.flarebot.commands.FlareBotManager;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,5 +64,15 @@ public class AutoModConfig {
         punishments.put(3, new Punishment(Punishment.EPunishment.TEMP_MUTE, 259200));
         punishments.put(5, new Punishment(Punishment.EPunishment.TEMP_BAN, 604800));
         punishments.put(10, new Punishment(Punishment.EPunishment.BAN));
+    }
+
+    public void postToModLog(TextChannel channel, User user, Action action) {
+        if (isEnabled()) {
+            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(getModLogChannel()) != null) {
+                channel.getGuild().getTextChannelById(getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription("Message sent by "
+                        + user.getAsMention() + " has been automatically deleted in " + channel.getAsMention() + " and has been given " + getActions().get(action) + " points.")
+                        .addField("Reason", action.getName(), true).setColor(Color.white).build()).queue();
+            }
+        }
     }
 }

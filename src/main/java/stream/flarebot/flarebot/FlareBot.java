@@ -1175,4 +1175,9 @@ public class FlareBot {
                 return "th";
         }
     }
+
+    private TextChannel getModLogChannel(String guildId){
+        return (this.getManager().getAutoModGuild(guildId).getConfig().isEnabled()
+                ? getChannelByID(getManager().getAutoModGuild(guildId).getConfig().getModLogChannel()) : null);
+    }
 }

@@ -1,14 +1,12 @@
 package stream.flarebot.flarebot;
 
+import net.dv8tion.jda.core.entities.*;
+import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -165,5 +163,10 @@ public class MessageUtils {
                 msg.delete().queue();
             }
         }.delay(delay);
+    }
+
+    public static void sendUsage(Command command, TextChannel channel){
+        channel.sendMessage(new EmbedBuilder().setTitle(command.getCommand() + " Usage", null).addField("Usage", "Insert", false)
+            .addField("Permission", command.getPermission() + "\nDefault permission: " + command.isDefaultPermission(), false).setColor(Color.red).build()).queue();
     }
 }
