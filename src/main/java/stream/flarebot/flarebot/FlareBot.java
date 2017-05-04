@@ -471,6 +471,7 @@ public class FlareBot {
         registerCommand(new ModlogCommand());
         registerCommand(new SetSeverityCommand());
         registerCommand(new TestCommand());
+        registerCommand(new BanCommand());
 
         ApiFactory.bind();
 
@@ -1146,6 +1147,11 @@ public class FlareBot {
                 .map(c -> c.getAudioManager().getConnectedChannel())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    public Set<User> getUsers() {
+        return Arrays.stream(clients).flatMap(jda -> jda.getUsers().stream())
+                .distinct().collect(Collectors.toSet());
     }
 
     public User getUserByID(String id) {
