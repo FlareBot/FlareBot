@@ -168,10 +168,10 @@ public class PermissionsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "permissions <givegroup/revokegroup> <user> <group>\n"
-                + "permissions <list>\n"
-                + "permissions <addpermission/removepermission> <group> <permission>\n"
-                + "permissions groups <user>";
+        return "permissions <givegroup/revokegroup> <user> <group> - Add/Remove a user from a group\n"
+                + "permissions <list> <group> - Lists permissions for a group\n"
+                + "permissions <addpermission/removepermission> <group> <permission> - Add/Remove Permissions From group\n"
+                + "permissions groups [user] - List groups [for a user]";
     }
 
     @Override
