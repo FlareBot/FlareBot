@@ -1,11 +1,9 @@
 package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
-import stream.flarebot.flarebot.commands.FlareBotManager;
 
 import java.awt.*;
 import java.util.Map;
@@ -72,6 +70,37 @@ public class AutoModConfig {
                 channel.getGuild().getTextChannelById(getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription("Message sent by "
                         + user.getAsMention() + " has been automatically deleted in " + channel.getAsMention() + " and has been given " + getActions().get(action) + " points.")
                         .addField("Reason", action.getName(), true).setColor(Color.white).build()).queue();
+            }
+        }
+    }
+
+    public void postToModLog(TextChannel channel, User user, User responsible, Punishment.EPunishment action, String reason) {
+        if (isEnabled()) {
+            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(getModLogChannel()) != null) {
+                String desc = "";
+                switch(action){
+                    case PURGE:
+                        desc = user.getName() + " has been purged by " + responsible.getName();
+                        break;
+                    case TEMP_MUTE:
+                        desc = user.getName() + " has been temporarily muted by " + responsible.getName();
+                        break;
+                    case MUTE:
+                        desc = user.getName() + " has been muted by " + responsible.getName();
+                        break;
+                    case KICK:
+                        desc = user.getName() + " has been kicked by " + responsible.getName();
+                        break;
+                    case TEMP_BAN:
+                        desc = user.getName() + " has been temporarily banned by " + responsible.getName();
+                        break;
+                    case BAN:
+                        desc = user.getName() + " has been banned by " + responsible.getName();
+                        break;
+                }
+
+                channel.getGuild().getTextChannelById(getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
+                        .setDescription(desc + "\nReason: " + reason).setColor(Color.white).build()).queue();
             }
         }
     }
