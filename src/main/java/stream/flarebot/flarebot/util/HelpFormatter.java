@@ -19,6 +19,6 @@ public class HelpFormatter {
     }
 
     public static String formatCommandUsage(TextChannel channel, String usage) {
-        return FlareBot.getPrefix(channel.getGuild().getId()) + usage;
+        return get(channel) + usage;
     }
 }
