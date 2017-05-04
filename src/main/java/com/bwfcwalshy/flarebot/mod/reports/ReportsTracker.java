@@ -1,7 +1,14 @@
 package com.bwfcwalshy.flarebot.mod.reports;
 
-/**
- * Created by developer on 4/12/2017.
- */
+import com.bwfcwalshy.flarebot.scheduler.FlarebotTask;
+
 public class ReportsTracker {
+    public ReportsTracker(){
+        new FlarebotTask("ReportsTracker"){
+            @Override
+            public void run(){
+
+            }
+        }.repeat(60_000, 60_000);
+    }
 }

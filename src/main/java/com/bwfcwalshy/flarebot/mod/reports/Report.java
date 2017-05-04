@@ -1,4 +1,4 @@
-package com.bwfcwalshy.flarebot.mod;
+package com.bwfcwalshy.flarebot.mod.reports;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;

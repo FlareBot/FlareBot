@@ -1,4 +1,4 @@
-package com.bwfcwalshy.flarebot.mod;
+package com.bwfcwalshy.flarebot.mod.reports;
 
 import java.util.List;
 

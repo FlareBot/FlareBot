@@ -92,6 +92,7 @@ public class FlareBotManager {
                         ")");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS selfassign (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, roles TEXT)");
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS reports (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, reports_data TEXT)");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
