@@ -455,7 +455,7 @@ public class FlareBot {
         registerCommand(new SaveCommand());
         registerCommand(new DeleteCommand());
         registerCommand(new PlaylistsCommand());
-        registerCommand(new Purge());
+        registerCommand(new PurgeCommand());
         registerCommand(new Eval());
         registerCommand(new MusicAnnounceCommand());
         registerCommand(new SetPrefixCommand());
