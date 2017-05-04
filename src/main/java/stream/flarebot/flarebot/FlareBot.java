@@ -208,7 +208,8 @@ public class FlareBot {
             if (parsed.hasOption("web-secret"))
                 FlareBot.webSecret = parsed.getOptionValue("web-secret");
             if (parsed.hasOption("debug")) {
-                ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+                ((ch.qos.logback.classic.Logger) LoggerFactory
+                        .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                         .setLevel(Level.DEBUG);
             }
             if (parsed.hasOption("sh")) {
@@ -219,7 +220,8 @@ public class FlareBot {
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/FlareBot/FlareBot", true);
+            formatter
+                    .printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/FlareBot/FlareBot", true);
             e.printStackTrace();
             return;
         }
@@ -227,7 +229,8 @@ public class FlareBot {
         if (webSecret == null || webSecret.isEmpty()) apiEnabled = false;
 
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
-        Thread.currentThread().setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
+        Thread.currentThread()
+              .setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         (instance = new FlareBot()).init(tkn);
     }
 
@@ -274,11 +277,11 @@ public class FlareBot {
         RestAction.DEFAULT_FAILURE = t -> {
         };
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
-                .header("Authorization", "Bot " + tkn)
-                .asJson()
-                .getBody()
-                .getObject()
-                .getInt("shards")];
+                                 .header("Authorization", "Bot " + tkn)
+                                 .asJson()
+                                 .getBody()
+                                 .getObject()
+                                 .getInt("shards")];
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         latch = new CountDownLatch(1);
@@ -331,13 +334,15 @@ public class FlareBot {
                                 Track track = player.getPlayingTrack();
                                 Queue<Track> playlist = player.getPlaylist();
                                 c.sendMessage(MessageUtils.getEmbed()
-                                        .addField("Now Playing: ", SongCommand.getLink(track), false)
-                                        .addField("Duration: ", SongCommand.formatDuration(track), false)
-                                        .addField("Requested by: ",
-                                                String.format("<@!%s>", track.getMeta().get("requester")), false)
-                                        .addField("Next up: ", playlist.isEmpty() ? "Nothing" :
-                                                SongCommand.getLink(playlist.peek()), false)
-                                        .build()).queue();
+                                                          .addField("Now Playing: ", SongCommand.getLink(track), false)
+                                                          .addField("Duration: ", SongCommand
+                                                                  .formatDuration(track), false)
+                                                          .addField("Requested by: ",
+                                                                  String.format("<@!%s>", track.getMeta()
+                                                                                               .get("requester")), false)
+                                                          .addField("Next up: ", playlist.isEmpty() ? "Nothing" :
+                                                                  SongCommand.getLink(playlist.peek()), false)
+                                                          .build()).queue();
                             } else {
                                 MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                             }
@@ -388,7 +393,8 @@ public class FlareBot {
         loadPolls();
         loadSelfAssign();
 
-        musicManager.getPlayerCreateHooks().register(player -> player.getQueueHookManager().register(new QueueListener()));
+        musicManager.getPlayerCreateHooks()
+                    .register(player -> player.getQueueHookManager().register(new QueueListener()));
 
         latch.await();
         run();
@@ -455,7 +461,7 @@ public class FlareBot {
         registerCommand(new SaveCommand());
         registerCommand(new DeleteCommand());
         registerCommand(new PlaylistsCommand());
-        registerCommand(new Purge());
+        registerCommand(new PurgeCommand());
         registerCommand(new Eval());
         registerCommand(new MusicAnnounceCommand());
         registerCommand(new SetPrefixCommand());
@@ -505,7 +511,8 @@ public class FlareBot {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
-                    postToBotlist(FlareBot.dBotsAuth, String.format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                    postToBotlist(FlareBot.dBotsAuth, String
+                            .format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
         }.repeat(10, 600000);
@@ -513,7 +520,8 @@ public class FlareBot {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
-                    postToBotlist(FlareBot.botListAuth, String.format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                    postToBotlist(FlareBot.botListAuth, String
+                            .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
         }.repeat(10, 600000);
@@ -556,24 +564,24 @@ public class FlareBot {
         for (JDA client : clients) {
             if (clients.length == 1) {
                 Unirest.post(url)
-                        .header("Authorization", auth)
-                        .header("User-Agent", "Mozilla/5.0 FlareBot")
-                        .header("Content-Type", "application/json")
-                        .body(new JSONObject()
-                                .put("server_count", client.getGuilds().size()))
-                        .asStringAsync();
+                       .header("Authorization", auth)
+                       .header("User-Agent", "Mozilla/5.0 FlareBot")
+                       .header("Content-Type", "application/json")
+                       .body(new JSONObject()
+                               .put("server_count", client.getGuilds().size()))
+                       .asStringAsync();
                 return;
             }
             try {
                 Unirest.post(url)
-                        .header("Authorization", auth)
-                        .header("User-Agent", "Mozilla/5.0 FlareBot")
-                        .header("Content-Type", "application/json")
-                        .body(new JSONObject()
-                                .put("server_count", client.getGuilds().size())
-                                .put("shard_id", client.getShardInfo().getShardId())
-                                .put("shard_count", client.getShardInfo().getShardTotal()))
-                        .asStringAsync();
+                       .header("Authorization", auth)
+                       .header("User-Agent", "Mozilla/5.0 FlareBot")
+                       .header("Content-Type", "application/json")
+                       .body(new JSONObject()
+                               .put("server_count", client.getGuilds().size())
+                               .put("shard_id", client.getShardInfo().getShardId())
+                               .put("shard_count", client.getShardInfo().getShardTotal()))
+                       .asStringAsync();
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
@@ -587,8 +595,8 @@ public class FlareBot {
                 quit(true);
             }
         }.delay(LocalDateTime.now().until(LocalDate.now()
-                .plusDays(LocalDateTime.now().getHour() >= 13 ? 1 : 0)
-                .atTime(13, 0, 0), ChronoUnit.MILLIS));
+                                                   .plusDays(LocalDateTime.now().getHour() >= 13 ? 1 : 0)
+                                                   .atTime(13, 0, 0), ChronoUnit.MILLIS));
     }
 
     private Runtime runtime = Runtime.getRuntime();
@@ -601,7 +609,9 @@ public class FlareBot {
         data.addProperty("text_channels", getChannels().size());
         data.addProperty("voice_channels", getConnectedVoiceChannels().size());
         data.addProperty("active_voice_channels", getActiveVoiceChannels());
-        data.addProperty("num_queued_songs", getGuilds().stream().mapToInt(guild -> musicManager.getPlayer(guild.getId()).getPlaylist().size()).sum());
+        data.addProperty("num_queued_songs", getGuilds().stream()
+                                                        .mapToInt(guild -> musicManager.getPlayer(guild.getId())
+                                                                                       .getPlaylist().size()).sum());
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("cpu", ((int) (CPUDaemon.get() * 10000)) / 100f + "%");
         data.addProperty("uptime", getUptime());
@@ -683,7 +693,9 @@ public class FlareBot {
                 con.disconnect();
                 latch.countDown();
             } catch (IOException e) {
-                FlareBot.LOGGER.error("Could not make POST request!\n\nDetails:\nAction: " + action + "\nProperty: " + property + "\nData: " + data.toString(), e);
+                FlareBot.LOGGER
+                        .error("Could not make POST request!\n\nDetails:\nAction: " + action + "\nProperty: " + property + "\nData: " + data
+                                .toString(), e);
             }
         });
         try {
@@ -700,7 +712,8 @@ public class FlareBot {
             try {
                 File git = new File("FlareBot" + File.separator);
                 if (!(git.exists() && git.isDirectory())) {
-                    ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git.getAbsolutePath());
+                    ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git
+                            .getAbsolutePath());
                     clone.redirectErrorStream(true);
                     Process p = clone.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -746,8 +759,10 @@ public class FlareBot {
                     LOGGER.error("Could not update! Log:** {} **", MessageUtils.hastebin(out));
                     return;
                 }
-                File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")); // pfft this will go well..
-                Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
+                File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation()
+                                                                    .getPath(), "UTF-8")); // pfft this will go well..
+                Files.copy(current.toPath(), Paths
+                        .get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
                 File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (InterruptedException | IOException e) {
@@ -780,9 +795,11 @@ public class FlareBot {
         for (String guild : getManager().getSelfAssignRoles().keySet()) {
             try {
                 SQLController.runSqlTask(conn -> {
-                    PreparedStatement statement = conn.prepareStatement("INSERT INTO selfassign (guild_id, roles) VALUES (?, ?) ON DUPLICATE KEY UPDATE roles = VALUES(roles)");
+                    PreparedStatement statement = conn
+                            .prepareStatement("INSERT INTO selfassign (guild_id, roles) VALUES (?, ?) ON DUPLICATE KEY UPDATE roles = VALUES(roles)");
                     statement.setString(1, guild);
-                    statement.setString(2, getManager().getSelfAssignRoles(guild).stream().collect(Collectors.joining(",")));
+                    statement.setString(2, getManager().getSelfAssignRoles(guild).stream()
+                                                       .collect(Collectors.joining(",")));
                     statement.execute();
                 });
             } catch (SQLException e) {
@@ -797,7 +814,8 @@ public class FlareBot {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM selfassign");
                 while (set.next()) {
                     getManager().getSelfAssignRoles().put(set.getString("guild_id"),
-                            Arrays.stream(set.getString("roles").replaceAll(" ", "").split(",")).collect(Collectors.toCollection(ConcurrentHashMap::newKeySet)));
+                            Arrays.stream(set.getString("roles").replaceAll(" ", "").split(","))
+                                  .collect(Collectors.toCollection(ConcurrentHashMap::newKeySet)));
                 }
             });
         } catch (SQLException e) {
@@ -808,13 +826,14 @@ public class FlareBot {
     private void savePolls() {
         for (String guildId : getManager().getPolls().keySet()) {
             Guild g = getGuildByID(guildId);
-            if(g == null)
+            if (g == null)
                 continue;
             String pollJson = GSON.toJson(getManager().getPollFromGuild(g));
 
             try {
                 SQLController.runSqlTask((conn) -> {
-                    PreparedStatement statement = conn.prepareStatement("INSERT INTO polls (guild_id, poll) VALUES (?, ?) ON DUPLICATE KEY UPDATE poll = poll");
+                    PreparedStatement statement = conn
+                            .prepareStatement("INSERT INTO polls (guild_id, poll) VALUES (?, ?) ON DUPLICATE KEY UPDATE poll = poll");
                     statement.setString(1, guildId);
                     statement.setString(2, pollJson);
                     statement.execute();
@@ -830,7 +849,8 @@ public class FlareBot {
             SQLController.runSqlTask((conn) -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM polls");
                 while (set.next()) {
-                    getManager().getPolls().put(set.getString("guild_id"), GSON.fromJson(set.getString("poll"), Poll.class));
+                    getManager().getPolls()
+                                .put(set.getString("guild_id"), GSON.fromJson(set.getString("poll"), Poll.class));
                 }
             });
         } catch (SQLException e) {
@@ -896,7 +916,8 @@ public class FlareBot {
                 JsonArray guilds = parsed.getAsJsonArray("guilds");
                 for (JsonElement o : guilds) {
                     JsonObject guild = o.getAsJsonObject();
-                    List<String> roles = autoAssignRoles.computeIfAbsent(guild.get("guildId").getAsString(), key -> new CopyOnWriteArrayList<>());
+                    List<String> roles = autoAssignRoles
+                            .computeIfAbsent(guild.get("guildId").getAsString(), key -> new CopyOnWriteArrayList<>());
                     for (JsonElement e : guild.get("roles").getAsJsonArray()) {
                         if (!roles.contains(e.getAsString()))
                             roles.add(e.getAsString());
@@ -1015,7 +1036,7 @@ public class FlareBot {
 
     public boolean isReady() {
         return Arrays.stream(clients).mapToInt(c -> (c.getStatus() == JDA.Status.CONNECTED ? 1 : 0))
-                .sum() == clients.length;
+                     .sum() == clients.length;
     }
 
     public static String getMessage(String[] args, int min) {
@@ -1036,7 +1057,8 @@ public class FlareBot {
         message.addProperty("exception", ExceptionUtils.getStackTrace(e));
         String id = instance.postToApi("postReport", "error", message);
         channel.sendMessage(new EmbedBuilder().setColor(Color.red)
-                .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id).build()).queue();
+                                              .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id)
+                                              .build()).queue();
     }
 
     public static String getStatusHook() {
@@ -1066,7 +1088,8 @@ public class FlareBot {
         return (days > 0 ? (append0 && days < 10 ? "0" + days : days) + (fullUnits ? " days " : "d ") : "")
                 + (hours > 0 ? (append0 && hours < 10 ? "0" + hours : hours) + (fullUnits ? " hours " : "h ") : "")
                 + (minutes > 0 ? (append0 && minutes < 10 ? "0" + minutes : minutes) + (fullUnits ? " minutes" : "m ") : "")
-                + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "").trim();
+                + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "")
+                .trim();
     }
 
     public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
@@ -1086,12 +1109,12 @@ public class FlareBot {
 
     public long getActiveVoiceChannels() {
         return getConnectedVoiceChannels().stream()
-                .map(VoiceChannel::getGuild)
-                .map(ISnowflake::getId)
-                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
-                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
-                .filter(p -> p.getPlayingTrack() != null)
-                .filter(p -> !p.getPaused()).count();
+                                          .map(VoiceChannel::getGuild)
+                                          .map(ISnowflake::getId)
+                                          .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
+                                          .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
+                                          .filter(p -> p.getPlayingTrack() != null)
+                                          .filter(p -> !p.getPaused()).count();
     }
 
     public FlareBotManager getManager() {
@@ -1119,9 +1142,9 @@ public class FlareBot {
 
     public TextChannel getChannelByID(String id) {
         return getGuilds().stream()
-                .map(g -> g.getTextChannelById(id))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                          .map(g -> g.getTextChannelById(id))
+                          .filter(Objects::nonNull)
+                          .findFirst().orElse(null);
     }
 
     public Guild getGuildByID(String id) {
@@ -1144,20 +1167,20 @@ public class FlareBot {
 
     public List<VoiceChannel> getConnectedVoiceChannels() {
         return Arrays.stream(getClients()).flatMap(c -> c.getGuilds().stream())
-                .map(c -> c.getAudioManager().getConnectedChannel())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                     .map(c -> c.getAudioManager().getConnectedChannel())
+                     .filter(Objects::nonNull)
+                     .collect(Collectors.toList());
     }
 
     public Set<User> getUsers() {
         return Arrays.stream(clients).flatMap(jda -> jda.getUsers().stream())
-                .distinct().collect(Collectors.toSet());
+                     .distinct().collect(Collectors.toSet());
     }
 
     public User getUserByID(String id) {
         return Arrays.stream(clients).map(jda -> jda.getUserById(id))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                     .filter(Objects::nonNull)
+                     .findFirst().orElse(null);
     }
 
     public DateTimeFormatter getTimeFormatter() {
@@ -1165,7 +1188,8 @@ public class FlareBot {
     }
 
     public String formatTime(LocalDateTime dateTime) {
-        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime.format(timeFormat) + " UTC";
+        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
+                .format(timeFormat) + " UTC";
     }
 
     private String getDayOfMonthSuffix(final int n) {
@@ -1185,7 +1209,7 @@ public class FlareBot {
         }
     }
 
-    private TextChannel getModLogChannel(String guildId){
+    private TextChannel getModLogChannel(String guildId) {
         return (this.getManager().getAutoModGuild(guildId).getConfig().isEnabled()
                 ? getChannelByID(getManager().getAutoModGuild(guildId).getConfig().getModLogChannel()) : null);
     }

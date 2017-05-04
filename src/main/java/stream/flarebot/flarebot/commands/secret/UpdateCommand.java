@@ -1,9 +1,5 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -11,6 +7,10 @@ import net.dv8tion.jda.core.entities.User;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,7 +35,8 @@ public class UpdateCommand implements Command {
                 if (args[0].equalsIgnoreCase("force")) {
                     update(true, channel);
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
-                    channel.sendMessage("I will now update to the latest version when no channels are playing music!").queue();
+                    channel.sendMessage("I will now update to the latest version when no channels are playing music!")
+                           .queue();
                     if (flareBot.getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     } else {
@@ -66,7 +67,9 @@ public class UpdateCommand implements Command {
                             channel.sendMessage("That is an invalid time option!").queue();
                             return;
                         }
-                        channel.sendMessage("I will now update to the latest version in " + p.toStandardSeconds().getSeconds() + " seconds.").queue();
+                        channel.sendMessage("I will now update to the latest version in " + p.toStandardSeconds()
+                                                                                             .getSeconds() + " seconds.")
+                               .queue();
                     } else
                         channel.sendMessage("There is already an update queued!").queue();
                 }
@@ -92,13 +95,15 @@ public class UpdateCommand implements Command {
             while (true) {
                 line = br.readLine();
                 if (line != null && (line.contains("<version>") && line.contains("</version>"))) {
-                    String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "").replaceAll("\t", "");
+                    String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "")
+                                               .replaceAll("\t", "");
                     String currentVersion = FlareBot.getInstance().getVersion();
                     if (isHigher(latestVersion, currentVersion)) {
                         doTheUpdate(channel, latestVersion, currentVersion);
                     } else {
                         if (channel != null)
-                            channel.sendMessage("I am currently up to date! Current version: `" + currentVersion + "`").queue();
+                            channel.sendMessage("I am currently up to date! Current version: `" + currentVersion + "`")
+                                   .queue();
                     }
                     break;
                 }

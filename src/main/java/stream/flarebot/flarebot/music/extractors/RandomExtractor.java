@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.music.extractors;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -10,6 +9,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.MessageUtils;
 
 public class RandomExtractor implements Extractor {
     @Override
@@ -35,7 +35,7 @@ public class RandomExtractor implements Extractor {
             }
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed()
-                .setDescription("Added " + i + " random songs to the playlist!"), message);
+                                                 .setDescription("Added " + i + " random songs to the playlist!"), message);
     }
 
     @Override

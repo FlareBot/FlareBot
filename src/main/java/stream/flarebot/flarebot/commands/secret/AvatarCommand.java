@@ -1,8 +1,8 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import net.dv8tion.jda.core.entities.*;
 
 import java.io.IOException;
 import java.net.URL;

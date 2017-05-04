@@ -1,13 +1,13 @@
 package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -31,7 +31,8 @@ public class SaveCommand implements Command {
             channel.sendMessage("Your playlist is empty!").queue();
             return;
         }
-        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist();
+        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId())
+                                        .getPlaylist();
         if (playlist.isEmpty()) {
             channel.sendMessage("Your playlist is empty!").queue();
             return;
@@ -40,8 +41,11 @@ public class SaveCommand implements Command {
         channel.sendTyping().complete();
 
         FlareBot.getInstance().getManager().savePlaylist(channel, sender.getId(), name, playlist.stream()
-                .map(track -> track.getTrack().getIdentifier())
-                .collect(Collectors.joining(",")));
+                                                                                                .map(track -> track
+                                                                                                        .getTrack()
+                                                                                                        .getIdentifier())
+                                                                                                .collect(Collectors
+                                                                                                        .joining(",")));
     }
 
     @Override

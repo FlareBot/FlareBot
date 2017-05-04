@@ -1,13 +1,13 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -64,12 +64,13 @@ public class Eval implements Command {
                         eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
                     } else eResult = "```groovy\n" + eResult + "\n```";
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .addField("Code:", "```groovy\n" + code + "```", false)
-                            .addField("Result: ", eResult, false).build()).queue();
+                                                    .addField("Code:", "```groovy\n" + code + "```", false)
+                                                    .addField("Result: ", eResult, false).build()).queue();
                 } catch (ScriptException e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .addField("Code:", "```groovy\n" + code + "```", false)
-                            .addField("Result: ", "```groovy\n" + e.getMessage() + "```", false).build()).queue();
+                                                    .addField("Code:", "```groovy\n" + code + "```", false)
+                                                    .addField("Result: ", "```groovy\n" + e.getMessage() + "```", false)
+                                                    .build()).queue();
                 } catch (Exception e) {
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }

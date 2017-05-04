@@ -1,9 +1,9 @@
 package stream.flarebot.flarebot.permissions;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -40,11 +40,11 @@ public class PerGuildPermissions {
             return true;
         PermissionNode node = new PermissionNode(permission);
         return getUser(user).getGroups().stream()
-                .map(this::getGroup)
-                .map(Group::getPermissions)
-                .flatMap(Collection::stream)
-                .map(PermissionNode::new)
-                .anyMatch(e -> e.test(node));
+                            .map(this::getGroup)
+                            .map(Group::getPermissions)
+                            .flatMap(Collection::stream)
+                            .map(PermissionNode::new)
+                            .anyMatch(e -> e.test(node));
     }
 
     public boolean addPermission(String group, String permission) {

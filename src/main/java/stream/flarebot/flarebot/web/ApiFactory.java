@@ -1,9 +1,9 @@
 package stream.flarebot.flarebot.web;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.ExceptionUtils;
 import com.google.gson.JsonObject;
 import spark.Spark;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.ExceptionUtils;
 
 @SuppressWarnings("Duplicates")
 public class ApiFactory {
