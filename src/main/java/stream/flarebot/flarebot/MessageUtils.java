@@ -1,12 +1,12 @@
 package stream.flarebot.flarebot;
 
-import net.dv8tion.jda.core.entities.*;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.HelpFormatter;
 
 import java.awt.*;

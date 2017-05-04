@@ -5,9 +5,9 @@ import com.arsenarsen.lavaplayerbridge.player.Item;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Playlist;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.FlareBot;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import stream.flarebot.flarebot.FlareBot;
 
 import java.util.ArrayList;
 import java.util.List;

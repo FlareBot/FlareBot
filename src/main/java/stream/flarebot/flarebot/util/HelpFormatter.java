@@ -1,8 +1,7 @@
 package stream.flarebot.flarebot.util;
 
-import stream.flarebot.flarebot.FlareBot;
 import net.dv8tion.jda.core.entities.TextChannel;
-import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.FlareBot;
 
 import java.util.regex.Matcher;
 

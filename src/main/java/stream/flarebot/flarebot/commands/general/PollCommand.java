@@ -1,5 +1,10 @@
 package stream.flarebot.flarebot.commands.general;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
@@ -8,11 +13,6 @@ import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.objects.PollOption;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
 
@@ -30,12 +30,15 @@ public class PollCommand implements Command {
                 Poll poll = manager.getPolls().get(channel.getGuild().getId());
                 channel.sendMessage(poll.getPollEmbed("Poll", null).build()).queue();
             } else {
-                MessageUtils.sendErrorMessage("There are no polls running!" + (!perms.hasPermission(member, "flarebot.poll.create") ? "" :
-                        " To start a poll you can use " + FlareBot.getPrefix(channel.getGuild().getId()) + "poll create (Question)"), channel);
+                MessageUtils.sendErrorMessage("There are no polls running!" + (!perms
+                        .hasPermission(member, "flarebot.poll.create") ? "" :
+                        " To start a poll you can use " + FlareBot
+                                .getPrefix(channel.getGuild().getId()) + "poll create (Question)"), channel);
             }
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("create")) {
-                MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "poll create (Question)", channel);
+                MessageUtils.sendErrorMessage("Usage: " + FlareBot
+                        .getPrefix(channel.getGuild().getId()) + "poll create (Question)", channel);
             } else if (args[0].equalsIgnoreCase("set")) {
 
             } else if (args[0].equalsIgnoreCase("close")) {
@@ -44,12 +47,14 @@ public class PollCommand implements Command {
                     if (poll.isOpen()) {
                         poll.setStatus(Poll.PollStatus.CLOSED);
                         manager.getPolls().put(guildId, poll);
-                        channel.sendMessage(poll.getClosedPollEmbed("Poll Closed!", "The poll has been closed!").build()).queue();
+                        channel.sendMessage(poll.getClosedPollEmbed("Poll Closed!", "The poll has been closed!")
+                                                .build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage("The current poll isn't open!", channel);
                     }
                 } else {
-                    channel.sendMessage(new EmbedBuilder().setDescription("There is no poll currently open!").build()).queue();
+                    channel.sendMessage(new EmbedBuilder().setDescription("There is no poll currently open!").build())
+                           .queue();
                 }
             } else if (args[0].equalsIgnoreCase("edit")) {
 
@@ -65,14 +70,18 @@ public class PollCommand implements Command {
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("create")) {
-                if (manager.getPolls().containsKey(channel.getGuild().getId()) && manager.getPollFromGuild(channel.getGuild()).isOpen()) {
+                if (manager.getPolls().containsKey(channel.getGuild().getId()) && manager
+                        .getPollFromGuild(channel.getGuild()).isOpen()) {
                     MessageUtils.sendErrorMessage("Close current poll, also make this message better", channel);
                 } else {
                     String question = FlareBot.getMessage(args, 1);
                     manager.getPolls().put(guildId, new Poll(question));
-                    channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null).setColor(Color.green).setAuthor(sender.getName(), null, sender.getEffectiveAvatarUrl())
-                            .setDescription("Poll has been created! To close the poll use `poll close` and to edit the auto-close time of the poll do `poll set closetime (time eg 10m)`\n" +
-                                    "To open the poll for people to vote on do `poll open`!").build()).queue();
+                    channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null).setColor(Color.green)
+                                                          .setAuthor(sender.getName(), null, sender
+                                                                  .getEffectiveAvatarUrl())
+                                                          .setDescription("Poll has been created! To close the poll use `poll close` and to edit the auto-close time of the poll do `poll set closetime (time eg 10m)`\n" +
+                                                                  "To open the poll for people to vote on do `poll open`!")
+                                                          .build()).queue();
                 }
             } else if (args[0].equalsIgnoreCase("edit")) {
                 if (args[1].equalsIgnoreCase("colour") || args[1].equalsIgnoreCase("color")) {
@@ -85,13 +94,16 @@ public class PollCommand implements Command {
                             Poll poll = manager.getPolls().get(channel.getGuild().getId());
                             poll.setColor(Color.decode(args[2]));
                             manager.getPolls().put(guildId, poll);
-                            channel.sendMessage(new EmbedBuilder().setColor(Color.decode(args[2])).setDescription("Changed the color of the poll to `" + args[2] + "`").build()).queue();
+                            channel.sendMessage(new EmbedBuilder().setColor(Color.decode(args[2]))
+                                                                  .setDescription("Changed the color of the poll to `" + args[2] + "`")
+                                                                  .build()).queue();
                         } catch (NumberFormatException e) {
                             MessageUtils.sendErrorMessage("That is not a valid color input!", channel);
                             return;
                         }
                     } else {
-                        MessageUtils.sendErrorMessage("There is no poll currently, use `poll create` to make one!", channel);
+                        MessageUtils
+                                .sendErrorMessage("There is no poll currently, use `poll create` to make one!", channel);
                     }
                 }
             } else if (args[0].equalsIgnoreCase("options")) {
@@ -116,7 +128,8 @@ public class PollCommand implements Command {
             } else if (args[0].equalsIgnoreCase("vote")) {
                 Poll poll = manager.getPolls().get(channel.getGuild().getId());
                 if (!poll.isOpen()) {
-                    channel.sendMessage(new EmbedBuilder().setDescription("There is no poll currently open!").build()).queue();
+                    channel.sendMessage(new EmbedBuilder().setDescription("There is no poll currently open!").build())
+                           .queue();
                 }
                 int option;
                 try {
@@ -139,8 +152,11 @@ public class PollCommand implements Command {
 
     private void listOptions(TextChannel channel) {
         Poll poll = manager.getPollFromGuild(channel.getGuild());
-        EmbedBuilder builder = new EmbedBuilder().setTitle("Options", null).setDescription("Options for `" + poll.getPollOptions() + "`");
-        poll.getPollOptions().forEach(option -> builder.addField("Option " + (poll.getPollOptions().indexOf(option) + 1), option.getOption() + "\nVotes: " + option.getVotes(), true));
+        EmbedBuilder builder = new EmbedBuilder().setTitle("Options", null)
+                                                 .setDescription("Options for `" + poll.getPollOptions() + "`");
+        poll.getPollOptions().forEach(option -> builder
+                .addField("Option " + (poll.getPollOptions().indexOf(option) + 1), option
+                        .getOption() + "\nVotes: " + option.getVotes(), true));
         channel.sendMessage(builder.build()).queue();
     }
 

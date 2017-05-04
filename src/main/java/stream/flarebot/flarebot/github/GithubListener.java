@@ -3,9 +3,9 @@ package stream.flarebot.flarebot.github;
 import com.arsenarsen.githubwebhooks4j.events.EventListener;
 import com.arsenarsen.githubwebhooks4j.events.PushEvent;
 import com.arsenarsen.githubwebhooks4j.objects.Commit;
+import net.dv8tion.jda.core.EmbedBuilder;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
-import net.dv8tion.jda.core.EmbedBuilder;
 
 public class GithubListener implements EventListener<PushEvent> {
 

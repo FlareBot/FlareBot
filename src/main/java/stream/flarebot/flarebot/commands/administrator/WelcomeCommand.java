@@ -1,14 +1,14 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.util.Welcome;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 
 public class WelcomeCommand implements Command {
 
@@ -47,12 +47,14 @@ public class WelcomeCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("message")) {
                 channel.sendMessage(sender.getAsMention() +
-                        " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome message (message)\n" +
+                        " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild()
+                                                                                        .getId()) + "welcome message (message)\n" +
                         "Known variables are:\n" +
                         "``%user%`` for the username,\n" +
                         "``%mention%`` to mention the user, and\n" +
                         "``%guild%`` for the guild name.\n" +
-                        (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md\n"
+                        (flareBot
+                                .getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md\n"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```")).queue();
             } else {
                 MessageUtils.sendUsage(this, channel);

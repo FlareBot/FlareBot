@@ -1,15 +1,15 @@
 package stream.flarebot.flarebot.commands.music;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.util.SQLController;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,12 +27,11 @@ public class PlaylistsCommand implements Command {
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("mark")) {
                 if (FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
-                    if (args.length == 1) {
-                        MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) +
-                                "playlists mark (global/local) (playlist)", channel);
+                    if (args.length == 1 || args.length == 2) {
+                        MessageUtils.sendUsage(this, channel);
                     } else if (args.length == 2) {
                         MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) +
-                                "playlists mark (global/local) (playlist)", channel);
+                                "", channel);
                     } else if (args.length >= 3) {
                         String playlist = "";
                         for (int i = 2; i < args.length; i++) playlist += args[i] + ' ';
@@ -54,8 +53,9 @@ public class PlaylistsCommand implements Command {
                                         statement1.setString(3, finalPlaylist);
                                         statement1.execute();
                                         channel.sendMessage(MessageUtils.getEmbed()
-                                                .setDescription("Changed the scope of '" + finalPlaylist + "' to "
-                                                        + args[1].toLowerCase()).build()).queue();
+                                                                        .setDescription("Changed the scope of '" + finalPlaylist + "' to "
+                                                                                + args[1].toLowerCase()).build())
+                                               .queue();
                                     } else {
                                         MessageUtils.sendErrorMessage("Invalid scope! Scopes are local and global!",
                                                 channel);
@@ -75,7 +75,8 @@ public class PlaylistsCommand implements Command {
             channel.sendTyping().complete();
             try {
                 SQLController.runSqlTask(connection -> {
-                    PreparedStatement get = connection.prepareStatement("SELECT playlist_name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
+                    PreparedStatement get = connection
+                            .prepareStatement("SELECT playlist_name, scope FROM playlist WHERE guild = ? OR scope = 'global' ORDER BY scope ASC");
                     get.setString(1, channel.getGuild().getId());
                     get.execute();
                     ResultSet set = get.getResultSet();
@@ -105,7 +106,9 @@ public class PlaylistsCommand implements Command {
                     songs.add(sb.toString());
                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
                     i = 1;
-                    builder.addField("Global Playlists", (globalSb.toString().isEmpty() ? "No global playlists!" : globalSb.toString()), false);
+                    builder.addField("Global Playlists", (globalSb.toString()
+                                                                  .isEmpty() ? "No global playlists!" : globalSb
+                            .toString()), false);
                     for (String s : songs) {
                         builder.addField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);
                     }
@@ -125,6 +128,11 @@ public class PlaylistsCommand implements Command {
     @Override
     public String getDescription() {
         return "Lists all playlists saved in the current guild";
+    }
+
+    @Override
+    public String getUsage() {
+        return "playlists mark (global/local) (playlist)";
     }
 
     @Override

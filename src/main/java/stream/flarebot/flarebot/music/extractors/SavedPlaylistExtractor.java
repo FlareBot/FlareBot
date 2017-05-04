@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.music.extractors;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Playlist;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -12,6 +11,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import stream.flarebot.flarebot.MessageUtils;
 
 import java.util.ArrayList;
 
@@ -55,7 +55,7 @@ public class SavedPlaylistExtractor implements Extractor {
             player.queue(new Playlist(playlist));
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed(user)
-                .setDescription(String.format("*Loaded %s songs!*", i)), message);
+                                                 .setDescription(String.format("*Loaded %s songs!*", i)), message);
     }
 
     @Override

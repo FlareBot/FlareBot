@@ -1,13 +1,13 @@
 package stream.flarebot.flarebot.commands.music;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.music.VideoThread;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.music.VideoThread;
 
 public class LoadCommand implements Command {
 
@@ -22,7 +22,8 @@ public class LoadCommand implements Command {
 
         channel.sendTyping().complete();
 
-        VideoThread.getThread(name + '\u200B' + FlareBot.getInstance().getManager().loadPlaylist(channel, sender, name), channel, sender).start();
+        VideoThread.getThread(name + '\u200B' + FlareBot.getInstance().getManager()
+                                                        .loadPlaylist(channel, sender, name), channel, sender).start();
     }
 
     @Override

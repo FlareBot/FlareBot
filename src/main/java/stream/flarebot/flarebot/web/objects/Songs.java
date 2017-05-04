@@ -2,8 +2,8 @@ package stream.flarebot.flarebot.web.objects;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.FlareBot;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -70,7 +70,7 @@ public class Songs {
             if (p.getPlayingTrack() != null)
                 current = new Songs(p.getPlayingTrack());
             this.playlist = p.getPlaylist().stream().map(Songs::new)
-                    .collect(Collectors.toList());
+                             .collect(Collectors.toList());
         }
     }
 }
