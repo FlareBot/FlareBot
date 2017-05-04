@@ -30,7 +30,7 @@ public class RolesCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "roles";
+        return "{%}roles";
     }
 
     @Override

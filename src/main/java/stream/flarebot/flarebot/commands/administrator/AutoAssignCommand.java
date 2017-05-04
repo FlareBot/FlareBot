@@ -124,7 +124,7 @@ public class AutoAssignCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "autoassign <add/remove/list> [role]";
+        return "{%}autoassign <add/remove/list> [role]";
     }
 
     @Override

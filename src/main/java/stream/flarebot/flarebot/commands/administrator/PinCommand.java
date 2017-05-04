@@ -34,7 +34,7 @@ public class PinCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "pin <messageID>";
+        return "{%}pin <messageID>";
     }
 
     @Override

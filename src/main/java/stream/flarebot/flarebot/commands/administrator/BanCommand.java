@@ -60,7 +60,7 @@ public class BanCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "ban <user> <reason>";
+        return "{%}ban <user> <reason>";
     }
 
     @Override

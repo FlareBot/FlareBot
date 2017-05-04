@@ -18,6 +18,7 @@ public class HelpFormatter {
     }
 
     public static String formatCommandUsage(TextChannel channel, String usage) {
-        return get(channel) + usage;
+        String prefix = String.valueOf(get(channel));
+        return usage.replace("{%}", prefix);
     }
 }

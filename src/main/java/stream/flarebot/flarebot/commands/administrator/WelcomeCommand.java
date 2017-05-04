@@ -92,7 +92,7 @@ public class WelcomeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "welcome <enable/disable/set/message>";
+        return "{%}welcome <enable/disable/set/message>";
     }
 
     @Override
