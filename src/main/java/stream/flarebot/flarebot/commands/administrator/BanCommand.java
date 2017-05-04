@@ -52,6 +52,11 @@ public class BanCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "ban <user> <reason>";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }

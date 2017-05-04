@@ -22,8 +22,7 @@ public class AutoAssignCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (channel.getGuild().getOwner().getUser().getId().equals(sender.getId())) {
             if (args.length == 0) {
-                MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(sender.getAsMention() + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "autoassign <add/remove/list> (role)"), channel);
+                MessageUtils.sendUsage(this, channel);
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("list")) {
                     if (flareBot.getAutoAssignRoles().containsKey(channel.getGuild().getId())) {
@@ -103,6 +102,11 @@ public class AutoAssignCommand implements Command {
     @Override
     public String getDescription() {
         return "Auto assign roles to users when they join.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "autoassign <add/remove/list> [role]";
     }
 
     @Override

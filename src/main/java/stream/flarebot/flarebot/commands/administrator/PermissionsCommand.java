@@ -145,10 +145,15 @@ public class PermissionsCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "`permissions givegroup` | `revokegroup` `<user> <group>` for user management.\n" +
-                "Or `permissions list` | `addpermission` | `removepermission` `<group> <permission>` for group management.\n" +
-                "`permissions groups <user>` lists groups of a user.\n" +
-                "Better tutorial is found on the support server.";
+        return "Manages server-wide permissions for FlareBot.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "permissions <givegroup/revokegroup> <user> <group>\n"
+                + "permissions <list>\n"
+                + "permissions <addpermission/removepermission> <group> <permission>\n"
+                + "permissions groups <user>";
     }
 
     @Override

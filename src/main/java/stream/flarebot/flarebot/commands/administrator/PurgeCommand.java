@@ -80,9 +80,7 @@ public class PurgeCommand implements Command {
                 channel.sendMessage("Insufficient permissions! I need `Manage Messages` and `Read Message History`").queue();
             }
         } else {
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                    //TODO: Fix inconsistency (See autoassign)
-                    .setDescription("Bad arguments!\n" + getDescription()).build()).queue();
+            MessageUtils.sendUsage(this, channel);
         }
     }
 
@@ -93,7 +91,12 @@ public class PurgeCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Removes last X messages. Usage: `purge MESSAGES`";
+        return "Removes last X messages.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "purge <messages>";
     }
 
     @Override

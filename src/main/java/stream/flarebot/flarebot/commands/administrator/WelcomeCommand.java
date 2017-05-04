@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands.administrator;
 
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.util.Welcome;
@@ -20,8 +21,7 @@ public class WelcomeCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage(sender.getAsMention() + " Usage: " +
-                    FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+            MessageUtils.sendUsage(this, channel);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("enable")) {
                 if (flareBot.getWelcomeForGuild(channel.getGuild()) == null) {
@@ -55,8 +55,7 @@ public class WelcomeCommand implements Command {
                         (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md\n"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```")).queue();
             } else {
-                channel.sendMessage(sender.getAsMention()
-                        + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+                MessageUtils.sendUsage(this, channel);
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("message")) {
@@ -72,12 +71,10 @@ public class WelcomeCommand implements Command {
                     channel.sendMessage("Welcomes are not enabled!").queue();
                 }
             } else {
-                channel.sendMessage(sender.getAsMention() + " Usage: " +
-                        FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+                MessageUtils.sendUsage(this, channel);
             }
         } else {
-            channel.sendMessage(sender.getAsMention() + " Usage: " +
-                    FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+            MessageUtils.sendUsage(this, channel);
         }
     }
 
@@ -89,6 +86,11 @@ public class WelcomeCommand implements Command {
     @Override
     public String getDescription() {
         return "Add welcome messages to your server!";
+    }
+
+    @Override
+    public String getUsage() {
+        return "welcome <enable/disable/set/message>";
     }
 
     @Override

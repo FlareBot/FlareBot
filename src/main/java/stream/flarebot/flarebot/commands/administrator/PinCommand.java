@@ -18,7 +18,7 @@ public class PinCommand implements Command {
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else {
-            MessageUtils.sendErrorMessage("Usage: `pin (messageId)`", channel);
+            MessageUtils.sendUsage(this, channel);
         }
     }
 
@@ -30,6 +30,11 @@ public class PinCommand implements Command {
     @Override
     public String getDescription() {
         return "Pin a message";
+    }
+
+    @Override
+    public String getUsage() {
+        return "pin <messageID>";
     }
 
     @Override

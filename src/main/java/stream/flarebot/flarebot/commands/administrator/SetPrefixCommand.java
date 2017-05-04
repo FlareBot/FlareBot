@@ -41,6 +41,11 @@ public class SetPrefixCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "prefix [reset]/[prefix]";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }

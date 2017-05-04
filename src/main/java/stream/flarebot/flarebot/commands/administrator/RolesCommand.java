@@ -29,6 +29,11 @@ public class RolesCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "roles";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }
