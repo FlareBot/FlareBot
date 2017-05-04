@@ -31,7 +31,7 @@ public class HelpCommand implements Command {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()
-                        .stream()
+                        .stream().filter(cmd -> FlareBot.getInstance().getPermissions(channel).hasPermission(member, cmd.getPermission()))
                         .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command.getDescription() + '\n')
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
@@ -64,7 +64,7 @@ public class HelpCommand implements Command {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
-                    .stream()
+                    .stream().filter(cmd -> cmd.getPermission() != null && FlareBot.getInstance().getPermissions(channel).hasPermission(guild.getMember(sender), cmd.getPermission()))
                     .map(command -> get(guild) + command.getCommand() + " - " + command.getDescription() + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
@@ -76,6 +76,7 @@ public class HelpCommand implements Command {
                 }
                 sb.append(s);
             }
+            if(sb.toString().trim().isEmpty()) continue;
             embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
         }
         channel.sendMessage(embedBuilder.build()).queue();
