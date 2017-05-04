@@ -70,9 +70,10 @@ public class AutoModCommand implements Command {
                                                           .setDescription("Reset the punishments back to default")
                                                           .build()).queue();
                 } else {
-                    MessageUtils.sendErrorMessage("Invalid argument!", channel);
+                    MessageUtils.sendUsage(this, channel);
                 }
             } else if (args[0].equalsIgnoreCase("whitelist")) {
+                //TODO: Walshy - Add this to usage when finished
                 if (args[1].equalsIgnoreCase("list")) {
                     AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());
                     EmbedBuilder builder = new EmbedBuilder();
@@ -90,6 +91,7 @@ public class AutoModCommand implements Command {
             }
         } else {
             if (args[0].equalsIgnoreCase("whitelist")) {
+                //TODO: Walshy - Add this to usage when finished
                 if (args.length >= 4) {
                     Action action = Action.getAction(args[2]);
                     if (action != null && action.canBeWhitelisted()) {
@@ -124,6 +126,15 @@ public class AutoModCommand implements Command {
     @Override
     public String getDescription() {
         return "Control all aspects of automod with this command!";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}automod <config/punishments> - View config/punishments for a server\n"
+                + "{%}automod <punishments> <set/reset> - Set or reset punishments\n"
+                + "{%}automod <whitelist> <list/add/remove>\n"
+                //TODO: Walshy - See above
+                + "{%}automod";
     }
 
     @Override

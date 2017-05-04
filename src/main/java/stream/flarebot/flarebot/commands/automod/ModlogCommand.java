@@ -38,19 +38,8 @@ public class ModlogCommand implements Command {
         } else if (args.length == 3) {
 
         } else {
-            sendHelp(channel);
+            MessageUtils.sendUsage(this, channel);
         }
-    }
-
-    private void sendHelp(TextChannel channel) {
-        channel.sendMessage(new EmbedBuilder().setColor(Color.red).setDescription("Command usage for mdlog")
-                                              .addField("Command Usage", "`" + getPrefix(channel
-                                                      .getGuild()) + "modlog setchannel` - Set the modlog to be displayed in this channel.\n" +
-                                                      "`" + getPrefix(channel
-                                                      .getGuild()) + "modlog config` - View the config of the modlog.\n" +
-                                                      "`" + getPrefix(channel
-                                                      .getGuild()) + "modlog set (configOption) (value)` - Set config options.", false)
-                                              .build()).queue();
     }
 
     @Override
@@ -61,6 +50,13 @@ public class ModlogCommand implements Command {
     @Override
     public String getDescription() {
         return null;
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}modlog setchannel` - Set the modlog to be displayed in this channel.\n"
+                + "`{%}modlog config` - View the config of the modlog.\n"
+                + "`{%}modlog set <configOption> <value>` - Set config options";
     }
 
     @Override

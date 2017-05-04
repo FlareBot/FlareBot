@@ -24,6 +24,12 @@ public class SetSeverityCommand implements Command {
         return "Change the severity of an action";
     }
 
+    //TODO: Enter usage when finished
+    @Override
+    public String getUsage() {
+        return "{%}";
+    }
+
     @Override
     public CommandType getType() {
         return CommandType.MODERATION;
