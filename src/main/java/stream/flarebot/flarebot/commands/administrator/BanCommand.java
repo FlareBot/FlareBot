@@ -32,7 +32,7 @@ public class BanCommand implements Command {
                 channel.sendMessage(new EmbedBuilder().setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
                         .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
                                 "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null).build()).queue();
-                channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7 /*, reason*/);
+                channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7 /*, reason*/).queue();
             }else{
                 channel.sendMessage(new EmbedBuilder().setDescription("We can't ban users! Make sure we have the `Ban Members` permission!").setColor(Color.red).build()).queue();
             }
