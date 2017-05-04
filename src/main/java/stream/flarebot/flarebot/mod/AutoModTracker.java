@@ -38,7 +38,7 @@ public class AutoModTracker extends ListenerAdapter {
     }
 
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake()) return;
+        if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake() || event.getGuild() == null) return;
         String userId = event.getAuthor().getId();
         AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(event.getGuild().getId());
         if (!guild.getConfig().isEnabled()) return;
@@ -94,18 +94,6 @@ public class AutoModTracker extends ListenerAdapter {
                 + " Your message contained content not allowed on this server! Due to this you have been given " + config.getActions().get(action) + " points.")
                 .addField("Reason", action.getName(), true).addField("Points given", config.getActions().get(action).toString(), true)
                 .addField("New Point Total", String.valueOf(guild.getPointsForUser(user.getId())), true).setColor(Color.white).build(), 10_000, channel);
-        postToModLog(channel, user, action);
-    }
-
-    public void postToModLog(TextChannel channel, User user, Action action) {
-        AutoModGuild modGuild = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
-        AutoModConfig config = modGuild.getConfig();
-        if (config.isEnabled()) {
-            if (config.getModLogChannel() != null && !config.getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(config.getModLogChannel()) != null) {
-                channel.getGuild().getTextChannelById(config.getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription("Message sent by "
-                        + user.getAsMention() + " has been automatically deleted in " + channel.getAsMention() + " and has been given " + config.getActions().get(action) + " points.")
-                        .addField("Reason", action.getName(), true).setColor(Color.white).build()).queue();
-            }
-        }
+        config.postToModLog(channel, user, action);
     }
 }
