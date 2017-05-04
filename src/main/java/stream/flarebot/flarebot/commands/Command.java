@@ -12,6 +12,8 @@ public interface Command {
 
     String getDescription();
 
+    String getUsage();
+
     CommandType getType();
 
     default String getPermission() {
