@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.util;
 
 import stream.flarebot.flarebot.FlareBot;
 import net.dv8tion.jda.core.entities.TextChannel;
+import stream.flarebot.flarebot.commands.Prefixes;
 
 import java.util.regex.Matcher;
 
@@ -15,5 +16,9 @@ public class HelpFormatter {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
         return FlareBot.getPrefixes().get(null);
+    }
+
+    public static String formatCommandUsage(TextChannel channel, String usage) {
+        return FlareBot.getPrefix(channel.getGuild().getId()) + usage;
     }
 }
