@@ -21,6 +21,7 @@ public class MessageUtils {
     private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
     private static final Pattern LINK_REGEX = Pattern.compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
     private static final Pattern YOUTUBE_LINK_REGEX = Pattern.compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
+    private static final Pattern userDiscrim = Pattern.compile(".#[0-9]{4}");
 
     public static <T> Consumer<T> noOpConsumer() {
         return t -> {
@@ -168,5 +169,23 @@ public class MessageUtils {
     public static void sendUsage(Command command, TextChannel channel){
         channel.sendMessage(new EmbedBuilder().setTitle(command.getCommand() + " Usage", null).addField("Usage", "Insert", false)
             .addField("Permission", command.getPermission() + "\nDefault permission: " + command.isDefaultPermission(), false).setColor(Color.red).build()).queue();
+    }
+
+    public static User getUser(String s){
+        if(userDiscrim.matcher(s).find()){
+            return FlareBot.getInstance().getUsers().stream().filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s)).findFirst().orElse(null);
+        }else{
+            User tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s)).findFirst().orElse(null);
+            if(tmp != null)
+                return tmp;
+
+            try{
+                Long.parseLong(s.replaceAll("[^0-9]", ""));tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                if(tmp != null)
+                    return tmp;
+            }catch(NumberFormatException e){}
+
+            return null;
+        }
     }
 }
