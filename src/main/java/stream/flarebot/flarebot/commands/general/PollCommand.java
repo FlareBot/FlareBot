@@ -170,6 +170,7 @@ public class PollCommand implements Command {
         return "Create a poll for your community to vote on!";
     }
 
+    //TODO: Finish when poll is fully done
     @Override
     public String getUsage() {
         return "`{%}poll ";
