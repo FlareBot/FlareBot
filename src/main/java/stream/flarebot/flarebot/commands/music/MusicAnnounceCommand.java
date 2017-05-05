@@ -102,6 +102,9 @@ public class MusicAnnounceCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}anounce HERE|OFF"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

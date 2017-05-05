@@ -68,6 +68,9 @@ public class DeleteCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}delete <playlist>"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

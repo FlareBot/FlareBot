@@ -37,6 +37,9 @@ public class LoadCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%)load <playlist>"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

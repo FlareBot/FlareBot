@@ -52,6 +52,9 @@ public class RandomCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}random [amount]"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

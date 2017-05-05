@@ -33,6 +33,9 @@ public class StopCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}stop"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

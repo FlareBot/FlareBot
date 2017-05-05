@@ -57,6 +57,9 @@ public class SongCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}song"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

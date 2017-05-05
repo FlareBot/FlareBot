@@ -47,6 +47,9 @@ public class ShardRestart implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}restart <shard>"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
     }

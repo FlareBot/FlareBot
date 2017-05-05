@@ -158,6 +158,9 @@ public class UpdateCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}update [option]"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
     }

@@ -28,6 +28,9 @@ public class TestCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}test"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
     }
