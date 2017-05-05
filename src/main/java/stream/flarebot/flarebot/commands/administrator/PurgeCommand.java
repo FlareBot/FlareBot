@@ -102,7 +102,7 @@ public class PurgeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}purge <messages>";
+        return "`{%}purge <messages>` - Purges a certain amount of messages";
     }
 
     @Override

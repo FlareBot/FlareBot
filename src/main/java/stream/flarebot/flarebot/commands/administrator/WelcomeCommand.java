@@ -92,7 +92,8 @@ public class WelcomeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}welcome <enable/disable/set/message>";
+        return "`{%}welcome <enable/disable>` - Enables or disables welcomes\n"
+                + "`{%}welcome <set/message>` - Sets or views the current welcome message";
     }
 
     @Override

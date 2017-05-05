@@ -45,7 +45,7 @@ public class SetPrefixCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}prefix [reset]/[prefix]";
+        return "`{%}prefix [reset]/[prefix]` - Reset or set a prefix for FlareBot commands";
     }
 
     @Override

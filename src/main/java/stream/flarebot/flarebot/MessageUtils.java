@@ -162,7 +162,7 @@ public class MessageUtils {
 
     public static void sendUsage(Command command, TextChannel channel) {
         String title = command.getCommand() + " Usage";
-        String usage = HelpFormatter.formatCommandUsage(channel, command.getUsage());
+        String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
         channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
                                               .addField("Permission", permission, false).setColor(Color.red).build())
