@@ -82,6 +82,9 @@ public class QueryCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}query <sql>"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
     }

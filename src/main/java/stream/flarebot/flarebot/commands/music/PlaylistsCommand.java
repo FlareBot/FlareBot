@@ -132,7 +132,7 @@ public class PlaylistsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "playlists mark (global/local) (playlist)";
+        return "{%}playlists mark <global/local> <playlist>";
     }
 
     @Override

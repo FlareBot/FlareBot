@@ -59,6 +59,9 @@ public class SaveCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}save <name>"; }
+
+    @Override
     public String getPermission() {
         return "flarebot.playlist.save";
     }

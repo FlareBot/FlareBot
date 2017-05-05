@@ -91,6 +91,9 @@ public class Eval implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}eval <code>"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
     }

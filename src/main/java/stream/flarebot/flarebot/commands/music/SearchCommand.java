@@ -41,6 +41,11 @@ public class SearchCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "{%}search <URL/words>";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }
