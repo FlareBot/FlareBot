@@ -160,6 +160,12 @@ public class SkipCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "{%}skip [yes/no]\n" +
+                "{%}skip force";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

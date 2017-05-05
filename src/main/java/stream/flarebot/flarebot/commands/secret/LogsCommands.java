@@ -35,6 +35,9 @@ public class LogsCommands implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}logs"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
     }

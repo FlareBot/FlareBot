@@ -28,6 +28,9 @@ public class QuitCommand implements Command {
     }
 
     @Override
+    public String getUsage() { return "{%}quit"; }
+
+    @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
     }

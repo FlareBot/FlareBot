@@ -122,6 +122,12 @@ public class PlaylistCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "{%}playlist [option]\n" +
+                "{%}playlist remove <#>";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }
