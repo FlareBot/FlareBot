@@ -46,7 +46,6 @@ import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.CPUDaemon;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.SQLController;
 import stream.flarebot.flarebot.util.Welcome;
@@ -613,7 +612,6 @@ public class FlareBot {
                                                         .mapToInt(guild -> musicManager.getPlayer(guild.getId())
                                                                                        .getPlaylist().size()).sum());
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
-        data.addProperty("cpu", ((int) (CPUDaemon.get() * 10000)) / 100f + "%");
         data.addProperty("uptime", getUptime());
 
         postToApi("postData", "data", data);

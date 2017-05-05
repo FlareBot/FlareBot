@@ -9,7 +9,6 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
-import stream.flarebot.flarebot.util.CPUDaemon;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,7 +105,6 @@ public class InfoCommand implements Command {
         VERSION("Version", FlareBot.getInstance().getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
-        CPU_USAGE("CPU Usage", () -> ((int) (CPUDaemon.get() * 10000)) / 100d + "%"),
         SUPPORT_SERVER("Support Server", "[`Discord`](http://discord.me/flarebot)"),
         DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/FlareBot/)"),
         PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),
