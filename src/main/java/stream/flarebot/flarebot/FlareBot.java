@@ -36,6 +36,7 @@ import stream.flarebot.flarebot.commands.automod.AutoModCommand;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
 import stream.flarebot.flarebot.commands.automod.SetSeverityCommand;
 import stream.flarebot.flarebot.commands.general.*;
+import stream.flarebot.flarebot.commands.mod.BanCommand;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.github.GithubListener;
