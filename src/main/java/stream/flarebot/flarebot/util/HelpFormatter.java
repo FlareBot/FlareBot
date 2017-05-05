@@ -6,9 +6,6 @@ import stream.flarebot.flarebot.FlareBot;
 import java.util.regex.Matcher;
 
 public class HelpFormatter {
-    public static String on(TextChannel channel, String description) {
-        return description.replaceAll("(?<!\\\\)%p", Matcher.quoteReplacement(String.valueOf(get(channel))));
-    }
 
     private static char get(TextChannel channel) {
         if (channel.getGuild() != null) {
@@ -17,8 +14,8 @@ public class HelpFormatter {
         return FlareBot.getPrefixes().get(null);
     }
 
-    public static String formatCommandUsage(TextChannel channel, String usage) {
+    public static String formatCommandPrefix(TextChannel channel, String usage) {
         String prefix = String.valueOf(get(channel));
-        return usage.replace("{%}", prefix);
+        return usage.replaceAll("\\{%\\}", prefix);
     }
 }
