@@ -171,6 +171,11 @@ public class PollCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "`{%}poll ";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }

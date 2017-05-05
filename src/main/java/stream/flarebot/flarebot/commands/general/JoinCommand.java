@@ -71,6 +71,11 @@ public class JoinCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "`{%}join` - Joins FlareBot to join your active voice channel";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }

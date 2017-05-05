@@ -82,6 +82,11 @@ public class InfoCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "`{%}help [section] - Sends info about the bot to your PMs [or about a specific section to the channel]";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }

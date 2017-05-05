@@ -41,6 +41,11 @@ public class LeaveCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "`{%}leave` - Makes FlareBot leave its current channel";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }

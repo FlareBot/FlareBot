@@ -28,6 +28,11 @@ public class InviteCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "`{%}invite` - Gets FlareBot's invite link";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }
