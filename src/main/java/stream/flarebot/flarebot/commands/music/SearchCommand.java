@@ -10,21 +10,42 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.music.VideoThread;
 
 import java.awt.*;
 
 public class SearchCommand implements Command {
 
-    private FlareBot bot;
+    private PlayerManager musicManager;
 
     public SearchCommand(FlareBot bot) {
-        this.bot = bot;
+        this.musicManager = bot.getMusicManager();
     }
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         channel.sendMessage(new EmbedBuilder().setColor(Color.YELLOW).setDescription("This is deprecated! Please use _play instead!").build());
-        new PlayCommand(bot).onCommand(sender, channel, message, args, member);
+        if (args.length > 0) {
+            if (args[0].startsWith("http") || args[0].startsWith("www.")) {
+                VideoThread.getThread(args[0], channel, sender).start();
+            } else {
+                String term = "";
+                for (String s : args) {
+                    term += s + " ";
+                }
+                term = term.trim();
+                VideoThread.getSearchThread(term, channel, sender).start();
+            }
+        } else {
+            boolean playing = musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null;
+            boolean paused = musicManager.getPlayer(channel.getGuild().getId()).getPaused();
+            if (!playing && !paused) {
+                MessageUtils.sendErrorMessage("There is no music playing!", channel);
+            } else {
+                musicManager.getPlayer(channel.getGuild().getId()).play();
+                channel.sendMessage("Resuming...!").queue();
+            }
+        }
     }
 
     @Override
