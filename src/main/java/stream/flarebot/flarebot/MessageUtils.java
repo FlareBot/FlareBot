@@ -161,12 +161,16 @@ public class MessageUtils {
     }
 
     public static void sendUsage(Command command, TextChannel channel) {
-        String title = command.getCommand() + " Usage";
+        String title = capitalize(command.getCommand()) + " Usage";
         String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
         channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
                 .addField("Permission", permission, false).setColor(Color.red).build())
                 .queue();
+    }
+
+    private static String capitalize(String s) {
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     public static User getUser(String s) {
