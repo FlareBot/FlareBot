@@ -37,9 +37,8 @@ public class SearchCommand implements Command {
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
         } else {
-            boolean playing = musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null;
-            boolean paused = musicManager.getPlayer(channel.getGuild().getId()).getPaused();
-            if (!playing && !paused) {
+            if (!(musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) &&
+                    (musicManager.getPlayer(channel.getGuild().getId()).getPaused())) {
                 MessageUtils.sendErrorMessage("There is no music playing!", channel);
             } else {
                 musicManager.getPlayer(channel.getGuild().getId()).play();
