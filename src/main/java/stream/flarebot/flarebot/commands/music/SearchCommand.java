@@ -12,7 +12,7 @@ public class SearchCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        MessageUtils.sendErrorMessage("This command is deprecated!\nUse `_search` instead!", channel);
+        MessageUtils.sendErrorMessage("This command is deprecated!\nUse `_play` instead!", channel);
     }
 
     @Override
