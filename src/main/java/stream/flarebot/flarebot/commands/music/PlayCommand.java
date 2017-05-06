@@ -25,11 +25,7 @@ public class PlayCommand implements Command {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();
             } else {
-                String term = "";
-                for (String s : args) {
-                    term += s + " ";
-                }
-                term = term.trim();
+                String term = FlareBot.getMessage(args, 0);
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
         } else {
