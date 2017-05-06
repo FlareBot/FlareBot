@@ -1,12 +1,12 @@
 package stream.flarebot.flarebot.commands.administrator;
 
-import stream.flarebot.flarebot.MessageUtils;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 
 public class PinCommand implements Command {
 
@@ -18,7 +18,7 @@ public class PinCommand implements Command {
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else {
-            MessageUtils.sendErrorMessage("Usage: `pin (messageId)`", channel);
+            MessageUtils.sendUsage(this, channel);
         }
     }
 
@@ -30,6 +30,11 @@ public class PinCommand implements Command {
     @Override
     public String getDescription() {
         return "Pin a message";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}pin <messageID>` - Pins a message";
     }
 
     @Override

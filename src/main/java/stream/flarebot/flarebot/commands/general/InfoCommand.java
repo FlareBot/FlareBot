@@ -1,15 +1,14 @@
 package stream.flarebot.flarebot.commands.general;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDAInfo;
+import net.dv8tion.jda.core.entities.*;
+import spark.utils.IOUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
-import stream.flarebot.flarebot.util.CPUDaemon;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDAInfo;
-import net.dv8tion.jda.core.entities.*;
-import spark.utils.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +40,8 @@ public class InfoCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            EmbedBuilder bld = MessageUtils.getEmbed(sender).setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
+            EmbedBuilder bld = MessageUtils.getEmbed(sender)
+                    .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
             bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
@@ -55,9 +55,11 @@ public class InfoCommand implements Command {
             search = search.trim();
 
             for (Content content : Content.values) {
-                if (search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ").equalsIgnoreCase(content.getName())) {
+                if (search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ")
+                        .equalsIgnoreCase(content.getName())) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .addField(content.getName(), content.getReturn(), false).build()).queue();
+                            .addField(content.getName(), content.getReturn(), false).build())
+                            .queue();
                     return;
                 }
             }
@@ -80,6 +82,11 @@ public class InfoCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "`{%}help [section] - Sends info about the bot to your PMs [or about a specific section to the channel]";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }
@@ -87,10 +94,13 @@ public class InfoCommand implements Command {
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
         TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients())
-                .flatMap(c -> c.getUsers().stream()).map(ISnowflake::getId)
+                .flatMap(c -> c.getUsers().stream())
+                .map(ISnowflake::getId)
                 .collect(Collectors.toSet()).size())),
-        VOICE_CONNECTIONS("Voice Connections", () -> String.valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
-        ACTIVE_CHANNELS("Channels Playing Music", () -> String.valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
+        VOICE_CONNECTIONS("Voice Connections", () -> String
+                .valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
+        ACTIVE_CHANNELS("Channels Playing Music", () -> String
+                .valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
         TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),
         UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
         MEM_USAGE("Memory Usage", () -> getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
@@ -100,7 +110,6 @@ public class InfoCommand implements Command {
         VERSION("Version", FlareBot.getInstance().getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
-        CPU_USAGE("CPU Usage", () -> ((int) (CPUDaemon.get() * 10000)) / 100d + "%"),
         SUPPORT_SERVER("Support Server", "[`Discord`](http://discord.me/flarebot)"),
         DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/FlareBot/)"),
         PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),

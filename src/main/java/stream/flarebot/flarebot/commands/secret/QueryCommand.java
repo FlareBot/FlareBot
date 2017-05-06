@@ -1,15 +1,15 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.util.SQLController;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.util.SQLController;
 
 import java.awt.*;
 import java.sql.ResultSet;
@@ -31,9 +31,12 @@ public class QueryCommand implements Command {
                 } catch (SQLException e) {
                     try {
                         conn.createStatement().execute(FlareBot.getMessage(args, 0));
-                        channel.sendMessage(new EmbedBuilder().setDescription("Query was executed successfully!").setColor(Color.green).build()).queue();
+                        channel.sendMessage(new EmbedBuilder().setDescription("Query was executed successfully!")
+                                .setColor(Color.green).build()).queue();
                     } catch (SQLException e1) {
-                        channel.sendMessage(new EmbedBuilder().setDescription("Failed to execute query! " + e.getMessage()).setColor(Color.red).build()).queue();
+                        channel.sendMessage(new EmbedBuilder()
+                                .setDescription("Failed to execute query! " + e.getMessage()).setColor(Color.red)
+                                .build()).queue();
                     }
                     return;
                 }
@@ -56,12 +59,15 @@ public class QueryCommand implements Command {
                 if (output.length() < 2000) {
                     channel.sendMessage(output).queue();
                 } else {
-                    channel.sendMessage(new EmbedBuilder().setDescription("The query result set was very large, it has been posted to hastebin [here](" + MessageUtils.hastebin(output) + ")")
+                    channel.sendMessage(new EmbedBuilder()
+                            .setDescription("The query result set was very large, it has been posted to hastebin [here](" + MessageUtils
+                                    .hastebin(output) + ")")
                             .setColor(Color.red).build()).queue();
                 }
             });
         } catch (SQLException e) {
-            channel.sendMessage(new EmbedBuilder().setDescription("Could not execute query! " + e.getMessage()).setColor(Color.red).build()).queue();
+            channel.sendMessage(new EmbedBuilder().setDescription("Could not execute query! " + e.getMessage())
+                    .setColor(Color.red).build()).queue();
         }
     }
 
@@ -73,6 +79,11 @@ public class QueryCommand implements Command {
     @Override
     public String getDescription() {
         return null;
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}query <sql>";
     }
 
     @Override

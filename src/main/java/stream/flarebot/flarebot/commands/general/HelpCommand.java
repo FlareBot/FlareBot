@@ -1,11 +1,11 @@
 package stream.flarebot.flarebot.commands.general;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,14 +31,17 @@ public class HelpCommand implements Command {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()
-                        .stream().filter(cmd -> FlareBot.getInstance().getPermissions(channel).hasPermission(member, cmd.getPermission()))
-                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command.getDescription() + '\n')
+                        .stream().filter(cmd -> FlareBot.getInstance().getPermissions(channel)
+                                .hasPermission(member, cmd.getPermission()))
+                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
+                                .getDescription() + '\n')
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
                 int page = 0;
                 for (String s : help) {
                     if (sb.length() + s.length() > 1024) {
-                        embedBuilder.addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+                        embedBuilder
+                                .addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
                         sb.setLength(0);
                     }
                     sb.append(s);
@@ -64,8 +67,13 @@ public class HelpCommand implements Command {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
-                    .stream().filter(cmd -> cmd.getPermission() != null && FlareBot.getInstance().getPermissions(channel).hasPermission(guild.getMember(sender), cmd.getPermission()))
-                    .map(command -> get(guild) + command.getCommand() + " - " + command.getDescription() + '\n')
+                    .stream().filter(cmd -> cmd.getPermission() != null && FlareBot.getInstance()
+                            .getPermissions(channel)
+                            .hasPermission(guild
+                                    .getMember(sender), cmd
+                                    .getPermission()))
+                    .map(command -> get(guild) + command.getCommand() + " - " + command
+                            .getDescription() + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
             int page = 0;
@@ -76,7 +84,7 @@ public class HelpCommand implements Command {
                 }
                 sb.append(s);
             }
-            if(sb.toString().trim().isEmpty()) continue;
+            if (sb.toString().trim().isEmpty()) continue;
             embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
         }
         channel.sendMessage(embedBuilder.build()).queue();
@@ -95,6 +103,12 @@ public class HelpCommand implements Command {
     @Override
     public String getDescription() {
         return "See a list of all commands.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}help [here]` - Gives a list of commands [in this channel]\n"
+                + "`{%}help <category>` - Gives a list of commands in a specific category";
     }
 
     @Override

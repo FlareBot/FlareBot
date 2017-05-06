@@ -1,8 +1,8 @@
 package stream.flarebot.flarebot.commands;
 
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import net.dv8tion.jda.core.entities.*;
 
 public interface Command {
 
@@ -11,6 +11,8 @@ public interface Command {
     String getCommand();
 
     String getDescription();
+
+    String getUsage();
 
     CommandType getType();
 

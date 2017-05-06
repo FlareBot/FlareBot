@@ -1,12 +1,12 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Purge implements Command {
+public class PurgeCommand implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();
     private static final long cooldown = 60000;
 
@@ -25,8 +25,11 @@ public class Purge implements Command {
                 long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - calmitdood < cooldown) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("You are on a cooldown! %s seconds left!",
-                                    (cooldown - (System.currentTimeMillis() - calmitdood)) / 1000)).build()).queue();
+                            .setDescription(String
+                                    .format("You are on a cooldown! %s seconds left!",
+                                            (cooldown - (System
+                                                    .currentTimeMillis() - calmitdood)) / 1000))
+                            .build()).queue();
                     return;
                 }
             }
@@ -74,14 +77,16 @@ public class Purge implements Command {
                             }.delay(5_000));
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("Failed to bulk delete or load messages! Error: `%s`", e)).build()).queue();
+                            .setDescription(String
+                                    .format("Failed to bulk delete or load messages! Error: `%s`", e))
+                            .build()).queue();
                 }
             } else {
-                channel.sendMessage("Insufficient permissions! I need `Manage Messages` and `Read Message History`").queue();
+                channel.sendMessage("Insufficient permissions! I need `Manage Messages` and `Read Message History`")
+                        .queue();
             }
         } else {
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription("Bad arguments!\n" + getDescription()).build()).queue();
+            MessageUtils.sendUsage(this, channel);
         }
     }
 
@@ -92,7 +97,12 @@ public class Purge implements Command {
 
     @Override
     public String getDescription() {
-        return "Removes last X messages. Usage: `purge MESSAGES`";
+        return "Removes last X messages.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}purge <messages>` - Purges a certain amount of messages";
     }
 
     @Override

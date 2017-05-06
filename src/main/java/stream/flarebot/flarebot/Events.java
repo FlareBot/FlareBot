@@ -1,11 +1,5 @@
 package stream.flarebot.flarebot;
 
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
-import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.Welcome;
 import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -27,6 +21,12 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.json.JSONObject;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.objects.PlayerCache;
+import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.Welcome;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
@@ -233,7 +233,8 @@ public class Events extends ListenerAdapter {
                                     is.close();
                                     os.close();
                                 }
-                                event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null).queue();
+                                event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null)
+                                        .queue();
                             } catch (IOException e) {
                                 FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
                             }
@@ -246,16 +247,21 @@ public class Events extends ListenerAdapter {
                     }
                     if (handleMissingPermission(cmd, event))
                         return;
-                    COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger()).incrementAndGet();
+                    COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger())
+                            .incrementAndGet();
                     String[] finalArgs = args;
                     CACHED_POOL.submit(() -> {
                         FlareBot.LOGGER.info(
-                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays
+                                        .toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                         try {
-                            cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
+                            cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event
+                                    .getMember());
                         } catch (Exception ex) {
-                            MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
+                            MessageUtils
+                                    .sendException("**There was an internal error trying to execute your command**", ex, event
+                                            .getChannel());
                             FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
                                     + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                     event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
@@ -277,7 +283,8 @@ public class Events extends ListenerAdapter {
                                 return;
                             }
                             FlareBot.LOGGER.info(
-                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
+                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays
+                                            .toString(args) + " in " + event.getChannel() + "! Sender: " +
                                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                             if (handleMissingPermission(cmd, event))
                                 return;
@@ -286,15 +293,21 @@ public class Events extends ListenerAdapter {
                             String[] finalArgs = args;
                             CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
-                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
-                                                event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
+                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays
+                                                .toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
+                                                event.getAuthor().getName() + '#' + event.getAuthor()
+                                                .getDiscriminator());
                                 try {
-                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event.getMember());
+                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event
+                                            .getMessage(), finalArgs, event.getMember());
                                 } catch (Exception ex) {
                                     FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
                                             + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
-                                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
-                                    MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
+                                            event.getAuthor().getName() + '#' + event.getAuthor()
+                                            .getDiscriminator(), ex);
+                                    MessageUtils
+                                            .sendException("**There was an internal error trying to execute your command**", ex, event
+                                                    .getChannel());
                                 }
                                 if (cmd.deleteMessage())
                                     delete(event.getMessage());
@@ -309,7 +322,9 @@ public class Events extends ListenerAdapter {
                     && !event.getAuthor().isBot()) {
                 if (event.getMessage().getRawContent().startsWith("_prefix")) {
                     event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
-                            .setDescription("The server prefix is `" + FlareBot.getPrefixes().get(getGuildId(event)) + "`").build()).queue();
+                            .setDescription("The server prefix is `" + FlareBot
+                                    .getPrefixes().get(getGuildId(event)) + "`")
+                            .build()).queue();
                 }
             }
         }
@@ -338,9 +353,13 @@ public class Events extends ListenerAdapter {
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
-            FlareBot.LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame().getCloseCode(), event.getCloseCode()));
+            FlareBot.LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
+                    .getCloseCode(), event
+                    .getCloseCode()));
         else
-            FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame().getCloseCode(), event.getClientCloseFrame().getCloseReason()));
+            FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
+                    .getCloseCode(), event
+                    .getClientCloseFrame().getCloseReason()));
     }
 
     private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
@@ -348,7 +367,9 @@ public class Events extends ListenerAdapter {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
                         .setDescription("You are missing the permission ``"
-                                + cmd.getPermission() + "`` which is required for use of this command!"), e.getChannel());
+                                + cmd
+                                .getPermission() + "`` which is required for use of this command!"), e
+                        .getChannel());
                 delete(e.getMessage());
                 new FlarebotTask("Delete message " + msg.getChannel().toString()) {
                     @Override

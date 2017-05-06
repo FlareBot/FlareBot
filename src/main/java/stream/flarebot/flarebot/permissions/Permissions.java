@@ -1,9 +1,9 @@
 package stream.flarebot.flarebot.permissions;
 
-import stream.flarebot.flarebot.FlareBot;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
+import stream.flarebot.flarebot.FlareBot;
 
 import java.io.FileWriter;
 import java.io.IOException;

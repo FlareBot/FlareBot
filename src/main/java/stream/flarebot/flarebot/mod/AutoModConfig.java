@@ -66,19 +66,27 @@ public class AutoModConfig {
 
     public void postToModLog(TextChannel channel, User user, Action action) {
         if (isEnabled()) {
-            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(getModLogChannel()) != null) {
-                channel.getGuild().getTextChannelById(getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null).setDescription("Message sent by "
-                        + user.getAsMention() + " has been automatically deleted in " + channel.getAsMention() + " and has been given " + getActions().get(action) + " points.")
-                        .addField("Reason", action.getName(), true).setColor(Color.white).build()).queue();
+            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild()
+                    .getTextChannelById(getModLogChannel()) != null) {
+                channel.getGuild().getTextChannelById(getModLogChannel())
+                        .sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
+                                .setDescription("Message sent by "
+                                        + user
+                                        .getAsMention() + " has been automatically deleted in " + channel
+                                        .getAsMention() + " and has been given " + getActions()
+                                        .get(action) + " points.")
+                                .addField("Reason", action.getName(), true).setColor(Color.white)
+                                .build()).queue();
             }
         }
     }
 
     public void postToModLog(TextChannel channel, User user, User responsible, Punishment.EPunishment action, String reason) {
         if (isEnabled()) {
-            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild().getTextChannelById(getModLogChannel()) != null) {
+            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild()
+                    .getTextChannelById(getModLogChannel()) != null) {
                 String desc = "";
-                switch(action){
+                switch (action) {
                     case PURGE:
                         desc = user.getName() + " has been purged by " + responsible.getName();
                         break;
@@ -99,8 +107,10 @@ public class AutoModConfig {
                         break;
                 }
 
-                channel.getGuild().getTextChannelById(getModLogChannel()).sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
-                        .setDescription(desc + "\nReason: " + reason).setColor(Color.white).build()).queue();
+                channel.getGuild().getTextChannelById(getModLogChannel())
+                        .sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
+                                .setDescription(desc + "\nReason: " + reason)
+                                .setColor(Color.white).build()).queue();
             }
         }
     }

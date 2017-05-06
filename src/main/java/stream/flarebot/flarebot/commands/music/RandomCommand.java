@@ -1,14 +1,14 @@
 package stream.flarebot.flarebot.commands.music;
 
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.music.VideoThread;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +49,11 @@ public class RandomCommand implements Command {
     @Override
     public String getDescription() {
         return "Put random songs into your playlist.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}random [amount]";
     }
 
     @Override

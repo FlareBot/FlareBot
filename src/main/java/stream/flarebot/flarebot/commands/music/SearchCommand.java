@@ -1,13 +1,13 @@
 package stream.flarebot.flarebot.commands.music;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.music.VideoThread;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.music.VideoThread;
 
 public class SearchCommand implements Command {
 
@@ -38,6 +38,11 @@ public class SearchCommand implements Command {
     @Override
     public String getDescription() {
         return "Search for a song on YouTube. Usage: `search URL` or `search WORDS`";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}search <URL/words>";
     }
 
     @Override

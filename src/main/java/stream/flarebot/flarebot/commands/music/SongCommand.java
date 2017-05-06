@@ -2,15 +2,15 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 
 public class SongCommand implements Command {
 
@@ -27,12 +27,16 @@ public class SongCommand implements Command {
             channel.sendMessage(MessageUtils.getEmbed(sender)
                     .addField("Current song: ", getLink(track), false)
                     .addField("Amount Played: ",
-                            (int) (100f / track.getTrack().getDuration() * track.getTrack().getPosition()) + "% of "
+                            (int) (100f / track.getTrack().getDuration() * track.getTrack()
+                                    .getPosition()) + "% of "
                                     + formatDuration(track), true)
-                    .addField("Requested by:", String.format("<@!%s>", track.getMeta().get("requester")), false).build()).queue();
+                    .addField("Requested by:", String
+                            .format("<@!%s>", track.getMeta().get("requester")), false).build())
+                    .queue();
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .addField("Current song: ", "**No song playing right now!**", false).build()).queue();
+                    .addField("Current song: ", "**No song playing right now!**", false)
+                    .build()).queue();
         }
     }
 
@@ -50,6 +54,11 @@ public class SongCommand implements Command {
     @Override
     public String getDescription() {
         return "Get the current song playing.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}song";
     }
 
     @Override

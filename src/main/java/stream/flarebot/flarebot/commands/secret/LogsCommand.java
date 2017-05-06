@@ -1,18 +1,18 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 
 import java.io.File;
 import java.io.IOException;
 
-public class LogsCommands implements Command {
+public class LogsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
@@ -32,6 +32,11 @@ public class LogsCommands implements Command {
     @Override
     public String getDescription() {
         return "Gets the logs";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}logs";
     }
 
     @Override

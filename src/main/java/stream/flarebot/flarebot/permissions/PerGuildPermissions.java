@@ -1,9 +1,9 @@
 package stream.flarebot.flarebot.permissions;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
 
 import java.util.Collection;
 import java.util.HashMap;

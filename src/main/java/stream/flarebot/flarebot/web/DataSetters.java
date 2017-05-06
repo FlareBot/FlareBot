@@ -1,14 +1,14 @@
 package stream.flarebot.flarebot.web;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.SQLController;
-import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.SQLController;
+import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 
 import java.sql.PreparedStatement;
 import java.util.Arrays;
@@ -16,14 +16,18 @@ import java.util.stream.Collectors;
 
 public enum DataSetters {
     ADDPERMISSION((request, response) -> FlareBot.getInstance()
-            .getPermissions(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")))
-            .addPermission(request.queryParams("group"), request.queryParams("permission")),
+            .getPermissions(FlareBot.getInstance().getChannelByID(request
+                    .queryParams("guildid")))
+            .addPermission(request.queryParams("group"), request
+                    .queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),
     REMOVEPERMISSION((request, response) -> FlareBot.getInstance()
-            .getPermissions(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")))
-            .removePermission(request.queryParams("group"), request.queryParams("permission")),
+            .getPermissions(FlareBot.getInstance().getChannelByID(request
+                    .queryParams("guildid")))
+            .removePermission(request.queryParams("group"), request
+                    .queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),
@@ -38,12 +42,13 @@ public enum DataSetters {
                     "  PRIMARY KEY(playlist_name, guild)\n" +
                     ")");
             connection.createStatement().executeUpdate("DELETE FROM playlist WHERE guild = '691337'");
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO playlist (playlist_name, guild, list, scope) VALUES (" +
-                    "   ?," +
-                    "   ?," +
-                    "   ?," +
-                    "   'global'" +
-                    ")");
+            PreparedStatement statement = connection
+                    .prepareStatement("INSERT INTO playlist (playlist_name, guild, list, scope) VALUES (" +
+                            "   ?," +
+                            "   ?," +
+                            "   ?," +
+                            "   'global'" +
+                            ")");
             statement.setString(1, playlist.name);
             statement.setString(2, "691337");
             statement.setString(3, Arrays.stream(playlist.playlist).collect(Collectors.joining(",")));

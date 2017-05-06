@@ -1,12 +1,13 @@
 package stream.flarebot.flarebot;
 
-import net.dv8tion.jda.core.entities.*;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.HelpFormatter;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -16,11 +17,13 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class MessageUtils {
-
     public static final String DEBUG_CHANNEL = "226786557862871040";
-    private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
-    private static final Pattern LINK_REGEX = Pattern.compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
-    private static final Pattern YOUTUBE_LINK_REGEX = Pattern.compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
+    private static final Pattern INVITE_REGEX = Pattern
+            .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
+    private static final Pattern LINK_REGEX = Pattern
+            .compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
+    private static final Pattern YOUTUBE_LINK_REGEX = Pattern
+            .compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
     private static final Pattern userDiscrim = Pattern.compile(".#[0-9]{4}");
 
     public static <T> Consumer<T> noOpConsumer() {
@@ -31,14 +34,10 @@ public class MessageUtils {
     public static int getLength(EmbedBuilder embed) {
         int len = 0;
         MessageEmbed e = embed.build();
-        if (e.getTitle() != null)
-            len += e.getTitle().length();
-        if (e.getDescription() != null)
-            len += e.getDescription().length();
-        if (e.getAuthor() != null)
-            len += e.getAuthor().getName().length();
-        if (e.getFooter() != null)
-            len += e.getFooter().getText().length();
+        if (e.getTitle() != null) len += e.getTitle().length();
+        if (e.getDescription() != null) len += e.getDescription().length();
+        if (e.getAuthor() != null) len += e.getAuthor().getName().length();
+        if (e.getFooter() != null) len += e.getFooter().getText().length();
         if (e.getFields() != null) {
             for (MessageEmbed.Field f : e.getFields()) {
                 len += f.getName().length() + f.getValue().length();
@@ -48,14 +47,13 @@ public class MessageUtils {
     }
 
     public static Message sendPM(User user, CharSequence message) {
-        return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
-                .length(), 1999))).complete();
+        return user.openPrivateChannel().complete()
+                .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
     }
 
     public static Message sendPM(User user, EmbedBuilder message) {
-        return user.openPrivateChannel().complete().sendMessage(new MessageBuilder().setEmbed(message.build())
-                .append("\u200B")
-                .build()).complete();
+        return user.openPrivateChannel().complete()
+                .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
     }
 
     public static Message sendException(String s, Throwable e, MessageChannel channel) {
@@ -71,10 +69,7 @@ public class MessageUtils {
         try {
             return "https://hastebin.com/" + Unirest.post("https://hastebin.com/documents")
                     .header("User-Agent", "Mozilla/5.0 FlareBot")
-                    .header("Content-Type", "text/plain")
-                    .body(trace)
-                    .asJson()
-                    .getBody()
+                    .header("Content-Type", "text/plain").body(trace).asJson().getBody()
                     .getObject().getString("key");
         } catch (UnirestException e) {
             FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
@@ -93,9 +88,8 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot",
-                        "https://github.com/FlareBot/FlareBot",
-                        FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl());
+                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", FlareBot.getInstance().getClients()[0]
+                        .getSelfUser().getEffectiveAvatarUrl());
     }
 
     public static String getTag(User user) {
@@ -166,25 +160,30 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static void sendUsage(Command command, TextChannel channel){
-        channel.sendMessage(new EmbedBuilder().setTitle(command.getCommand() + " Usage", null).addField("Usage", "Insert", false)
-            .addField("Permission", command.getPermission() + "\nDefault permission: " + command.isDefaultPermission(), false).setColor(Color.red).build()).queue();
+    public static void sendUsage(Command command, TextChannel channel) {
+        String title = command.getCommand() + " Usage";
+        String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
+        String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
+        channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
+                .addField("Permission", permission, false).setColor(Color.red).build())
+                .queue();
     }
 
-    public static User getUser(String s){
-        if(userDiscrim.matcher(s).find()){
-            return FlareBot.getInstance().getUsers().stream().filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s)).findFirst().orElse(null);
-        }else{
-            User tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s)).findFirst().orElse(null);
-            if(tmp != null)
-                return tmp;
-
-            try{
-                Long.parseLong(s.replaceAll("[^0-9]", ""));tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
-                if(tmp != null)
-                    return tmp;
-            }catch(NumberFormatException e){}
-
+    public static User getUser(String s) {
+        if (userDiscrim.matcher(s).find()) {
+            return FlareBot.getInstance().getUsers().stream()
+                    .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                    .findFirst().orElse(null);
+        } else {
+            User tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+                    .findFirst().orElse(null);
+            if (tmp != null) return tmp;
+            try {
+                Long.parseLong(s.replaceAll("[^0-9]", ""));
+                tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                if (tmp != null) return tmp;
+            } catch (NumberFormatException e) {
+            }
             return null;
         }
     }

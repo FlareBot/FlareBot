@@ -1,8 +1,8 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import net.dv8tion.jda.core.entities.*;
 
 public class RolesCommand implements Command {
 
@@ -26,6 +26,11 @@ public class RolesCommand implements Command {
     @Override
     public String getDescription() {
         return "Get roles on the server";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}roles` - Gets the roles for the current server";
     }
 
     @Override

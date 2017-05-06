@@ -1,12 +1,12 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 
 public class QuitCommand implements Command {
 
@@ -25,6 +25,11 @@ public class QuitCommand implements Command {
     @Override
     public String getDescription() {
         return "Dev only command";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}quit";
     }
 
     @Override

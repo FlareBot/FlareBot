@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.music.extractors;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Playlist;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
@@ -12,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +73,8 @@ public class YouTubeExtractor implements Extractor {
                 player.queue(tracks.get(0));
             }
             EmbedBuilder builder = MessageUtils.getEmbed(user);
-            builder.setDescription(String.format("%s added the %s [`%s`](%s)", user.getAsMention(), audioTracks.size() == 1 ? "song" : "playlist",
+            builder.setDescription(String.format("%s added the %s [`%s`](%s)", user.getAsMention(), audioTracks
+                            .size() == 1 ? "song" : "playlist",
                     name, input));
             if (audioTracks.size() > 1)
                 builder.addField("Song count:", String.valueOf(audioTracks.size()), true);
