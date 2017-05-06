@@ -19,9 +19,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class Eval implements Command {
+public class EvalCommand implements Command {
     private ScriptEngineManager manager = new ScriptEngineManager();
-    private static final ThreadGroup EVALS = new ThreadGroup("Eval Thread Pool");
+    private static final ThreadGroup EVALS = new ThreadGroup("EvalCommand Thread Pool");
     private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r,
             EVALS.getName() + EVALS.activeCount()));
     private static final List<String> IMPORTS = Arrays.asList("stream.flarebot.flarebot.*",
