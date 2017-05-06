@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.music.VideoThread;
 
 public class PlayCommand implements Command {
 
@@ -21,12 +22,20 @@ public class PlayCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length > 0) {
-            MessageUtils
-                    .sendErrorMessage(MessageUtils.getEmbed().setDescription("To search for a song by term or URL do "
-                            + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "search <term/URL>"), channel);
+            if (args[0].startsWith("http") || args[0].startsWith("www.")) {
+                VideoThread.getThread(args[0], channel, sender).start();
+            } else {
+                String term = FlareBot.getMessage(args, 0);
+                VideoThread.getSearchThread(term, channel, sender).start();
+            }
         } else {
-            musicManager.getPlayer(channel.getGuild().getId()).play();
-            channel.sendMessage("Resuming...!").queue();
+            if (!(musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) &&
+                    (musicManager.getPlayer(channel.getGuild().getId()).getPaused())) {
+                MessageUtils.sendErrorMessage("There is no music playing!", channel);
+            } else {
+                musicManager.getPlayer(channel.getGuild().getId()).play();
+                channel.sendMessage("Resuming...!").queue();
+            }
         }
     }
 
@@ -37,17 +46,12 @@ public class PlayCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Resumes your song and playlist.";
+        return "Resumes your playlist or searches for songs on YouTube";
     }
 
     @Override
     public String getUsage() {
-        return "{%}play";
-    }
-
-    @Override
-    public String[] getAliases() {
-        return new String[]{"resume"};
+        return "`{%}play [searchTerm/URL]` - Resumes the playlist [or searches for a song on YouTube]";
     }
 
     @Override

@@ -436,10 +436,11 @@ public class FlareBot {
 
     protected void run() {
         registerCommand(new HelpCommand());
-        registerCommand(new SearchCommand());
+        registerCommand(new SearchCommand(this));
         registerCommand(new JoinCommand());
         registerCommand(new LeaveCommand());
         registerCommand(new InfoCommand());
+        registerCommand(new ResumeCommand(this));
         registerCommand(new PlayCommand(this));
         registerCommand(new PauseCommand(this));
         registerCommand(new StopCommand(this));
