@@ -23,7 +23,7 @@ public class PermissionsCommand implements Command {
             return;
         }
         switch (args[0].toLowerCase()) {
-            case "givegroup":
+            case "give":
                 if (args.length < 3) {
                     MessageUtils
                             .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(getDescription()), channel);
@@ -47,7 +47,7 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
                             .setDescription("User already had that group!"), channel);
                 break;
-            case "revokegroup":
+            case "revoke":
                 if (args.length < 3) {
                     MessageUtils
                             .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(getDescription()), channel);
@@ -96,7 +96,7 @@ public class PermissionsCommand implements Command {
                                         .joining(", ", "`", "`")))
                         .build()).queue();
                 break;
-            case "addpermission":
+            case "add":
                 if (args.length < 3) {
                     channel.sendMessage(getDescription()).queue();
                     return;
@@ -108,7 +108,7 @@ public class PermissionsCommand implements Command {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
                             .setDescription("Group already had that permission"), channel);
                 break;
-            case "removepermission":
+            case "remove":
                 if (args.length < 3) {
                     channel.sendMessage(getDescription()).queue();
                     return;
@@ -168,9 +168,9 @@ public class PermissionsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}permissions <givegroup/revokegroup> <user> <group>` - Add/Remove a user from a group\n"
+        return "`{%}permissions <give/revoke> <user> <group>` - Add/Remove a user from a group\n"
                 + "`{%}permissions <list> <group>` - Lists permissions for a group\n"
-                + "`{%}permissions <addpermission/removepermission> <group> <permission>` - Add/Remove Permissions From group\n"
+                + "`{%}permissions <add/remove> <group> <permission>` - Add/Remove Permissions From group\n"
                 + "`{%}permissions groups [user]` - List groups [for a user]";
     }
 
