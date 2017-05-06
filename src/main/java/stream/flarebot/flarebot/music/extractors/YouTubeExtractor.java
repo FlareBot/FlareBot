@@ -35,13 +35,13 @@ public class YouTubeExtractor implements Extractor {
             item = player.resolve(input);
             if (item == null) {
                 MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                                                     .setDescription("Could not get that video/playlist! Make sure the URL is correct!"), message);
+                        .setDescription("Could not get that video/playlist! Make sure the URL is correct!"), message);
                 return;
             }
         } catch (RuntimeException e) {
             MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                                                 .setDescription("Could not get that video/playlist!")
-                                                 .addField("YouTube said: ", e.getMessage(), true), message);
+                    .setDescription("Could not get that video/playlist!")
+                    .addField("YouTube said: ", e.getMessage(), true), message);
             return;
         }
         List<AudioTrack> audioTracks = new ArrayList<>();

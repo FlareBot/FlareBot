@@ -55,7 +55,7 @@ public class AutoModTracker extends ListenerAdapter {
             if (action.check(event.getMessage())) {
                 if (action == Action.LINKS) {
                     if (event.getMessage().getContent()
-                             .startsWith(FlareBot.getPrefix(event.getGuild().getId()) + "search")) {
+                            .startsWith(FlareBot.getPrefix(event.getGuild().getId()) + "search")) {
                         if (MessageUtils.hasYouTubeLink(event.getMessage())) {
                             return;
                         }
@@ -74,12 +74,12 @@ public class AutoModTracker extends ListenerAdapter {
                 if (action == Action.SPAM) {
                     spamCounter.get(event.getGuild().getId()).put(userId, 0);
                     List<Message> messageList = event.getChannel().getHistory()
-                                                     .retrievePast(guild.getConfig().getMaxMessagesPerMinute() * 2)
-                                                     .complete();
+                            .retrievePast(guild.getConfig().getMaxMessagesPerMinute() * 2)
+                            .complete();
                     event.getChannel().deleteMessages(messageList.stream().filter(message -> message.getAuthor().getId()
-                                                                                                    .equals(userId))
-                                                                 .limit(guild.getConfig().getMaxMessagesPerMinute())
-                                                                 .collect(Collectors.toList())).queue();
+                            .equals(userId))
+                            .limit(guild.getConfig().getMaxMessagesPerMinute())
+                            .collect(Collectors.toList())).queue();
                 } else
                     event.getMessage().delete().queue();
                 break;
@@ -97,15 +97,15 @@ public class AutoModTracker extends ListenerAdapter {
 
     public void sendMessage(TextChannel channel, User user, Action action, AutoModGuild guild, AutoModConfig config) {
         MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
-                                                              .setDescription(user.getAsMention()
-                                                                      + " Your message contained content not allowed on this server! Due to this you have been given " + config
-                                                                      .getActions().get(action) + " points.")
-                                                              .addField("Reason", action.getName(), true)
-                                                              .addField("Points given", config.getActions().get(action)
-                                                                                              .toString(), true)
-                                                              .addField("New Point Total", String.valueOf(guild
-                                                                      .getPointsForUser(user.getId())), true)
-                                                              .setColor(Color.white).build(), 10_000, channel);
+                .setDescription(user.getAsMention()
+                        + " Your message contained content not allowed on this server! Due to this you have been given " + config
+                        .getActions().get(action) + " points.")
+                .addField("Reason", action.getName(), true)
+                .addField("Points given", config.getActions().get(action)
+                        .toString(), true)
+                .addField("New Point Total", String.valueOf(guild
+                        .getPointsForUser(user.getId())), true)
+                .setColor(Color.white).build(), 10_000, channel);
         config.postToModLog(channel, user, action);
     }
 }

@@ -16,18 +16,18 @@ import java.util.stream.Collectors;
 
 public enum DataSetters {
     ADDPERMISSION((request, response) -> FlareBot.getInstance()
-                                                 .getPermissions(FlareBot.getInstance().getChannelByID(request
-                                                         .queryParams("guildid")))
-                                                 .addPermission(request.queryParams("group"), request
-                                                         .queryParams("permission")),
+            .getPermissions(FlareBot.getInstance().getChannelByID(request
+                    .queryParams("guildid")))
+            .addPermission(request.queryParams("group"), request
+                    .queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),
     REMOVEPERMISSION((request, response) -> FlareBot.getInstance()
-                                                    .getPermissions(FlareBot.getInstance().getChannelByID(request
-                                                            .queryParams("guildid")))
-                                                    .removePermission(request.queryParams("group"), request
-                                                            .queryParams("permission")),
+            .getPermissions(FlareBot.getInstance().getChannelByID(request
+                    .queryParams("guildid")))
+            .removePermission(request.queryParams("group"), request
+                    .queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),

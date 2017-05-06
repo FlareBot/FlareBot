@@ -36,7 +36,7 @@ public class UpdateCommand implements Command {
                     update(true, channel);
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
                     channel.sendMessage("I will now update to the latest version when no channels are playing music!")
-                           .queue();
+                            .queue();
                     if (flareBot.getConnectedVoiceChannels().size() == 0) {
                         update(true, channel);
                     } else {
@@ -68,8 +68,8 @@ public class UpdateCommand implements Command {
                             return;
                         }
                         channel.sendMessage("I will now update to the latest version in " + p.toStandardSeconds()
-                                                                                             .getSeconds() + " seconds.")
-                               .queue();
+                                .getSeconds() + " seconds.")
+                                .queue();
                     } else
                         channel.sendMessage("There is already an update queued!").queue();
                 }
@@ -96,14 +96,14 @@ public class UpdateCommand implements Command {
                 line = br.readLine();
                 if (line != null && (line.contains("<version>") && line.contains("</version>"))) {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "")
-                                               .replaceAll("\t", "");
+                            .replaceAll("\t", "");
                     String currentVersion = FlareBot.getInstance().getVersion();
                     if (isHigher(latestVersion, currentVersion)) {
                         doTheUpdate(channel, latestVersion, currentVersion);
                     } else {
                         if (channel != null)
                             channel.sendMessage("I am currently up to date! Current version: `" + currentVersion + "`")
-                                   .queue();
+                                    .queue();
                     }
                     break;
                 }
@@ -158,7 +158,9 @@ public class UpdateCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}update [option]"; }
+    public String getUsage() {
+        return "{%}update [option]";
+    }
 
     @Override
     public CommandType getType() {

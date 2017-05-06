@@ -15,7 +15,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 
 import javax.security.auth.login.LoginException;
 
-public class ShardRestart implements Command {
+public class ShardRestartCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
@@ -47,7 +47,9 @@ public class ShardRestart implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}restart <shard>"; }
+    public String getUsage() {
+        return "{%}restart <shard>";
+    }
 
     @Override
     public CommandType getType() {

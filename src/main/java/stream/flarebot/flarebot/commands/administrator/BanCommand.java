@@ -31,7 +31,7 @@ public class BanCommand implements Command {
                 //TODO: When reasons are out for JDA add them here!!!
                 String reason = FlareBot.getMessage(args, 1);
                 FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId())
-                               .postToModLog(channel, user, sender, Punishment.EPunishment.BAN, reason);
+                        .postToModLog(channel, user, sender, Punishment.EPunishment.BAN, reason);
                 channel.sendMessage(new EmbedBuilder()
                         .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
                         .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?

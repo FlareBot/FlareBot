@@ -32,7 +32,7 @@ public class SaveCommand implements Command {
             return;
         }
         Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId())
-                                        .getPlaylist();
+                .getPlaylist();
         if (playlist.isEmpty()) {
             channel.sendMessage("Your playlist is empty!").queue();
             return;
@@ -41,11 +41,11 @@ public class SaveCommand implements Command {
         channel.sendTyping().complete();
 
         FlareBot.getInstance().getManager().savePlaylist(channel, sender.getId(), name, playlist.stream()
-                                                                                                .map(track -> track
-                                                                                                        .getTrack()
-                                                                                                        .getIdentifier())
-                                                                                                .collect(Collectors
-                                                                                                        .joining(",")));
+                .map(track -> track
+                        .getTrack()
+                        .getIdentifier())
+                .collect(Collectors
+                        .joining(",")));
     }
 
     @Override
@@ -59,7 +59,9 @@ public class SaveCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}save <name>"; }
+    public String getUsage() {
+        return "{%}save <name>";
+    }
 
     @Override
     public String getPermission() {

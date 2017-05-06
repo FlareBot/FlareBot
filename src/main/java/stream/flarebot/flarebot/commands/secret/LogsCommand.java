@@ -12,7 +12,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import java.io.File;
 import java.io.IOException;
 
-public class LogsCommands implements Command {
+public class LogsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
@@ -35,7 +35,9 @@ public class LogsCommands implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}logs"; }
+    public String getUsage() {
+        return "{%}logs";
+    }
 
     @Override
     public CommandType getType() {

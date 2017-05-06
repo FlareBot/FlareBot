@@ -65,14 +65,14 @@ public class Poll {
 
     public EmbedBuilder getPollEmbed(String title, String description) {
         EmbedBuilder builder = new EmbedBuilder().setTitle(title, null).setDescription(description)
-                                                 .addField("Question", getQuestion(), false);
+                .addField("Question", getQuestion(), false);
         getPollOptions().forEach(option -> builder
                 .addField("Option " + (getPollOptions().indexOf(option) + 1), option.getOption() + "\nVotes: " + option
                         .getVotes(), true));
         builder.setColor(pollColor).addBlankField(false)
-               .addField("End", (isClosed() ? "Closed" : "The poll will be ending at `" + FlareBot.getInstance()
-                                                                                                  .formatTime(getEndTime()) + "`"),
-                       false).addField("Total Votes", String
+                .addField("End", (isClosed() ? "Closed" : "The poll will be ending at `" + FlareBot.getInstance()
+                                .formatTime(getEndTime()) + "`"),
+                        false).addField("Total Votes", String
                 .valueOf(getPollOptions().stream().mapToInt(PollOption::getVotes).sum()), true);
         return builder;
     }
@@ -81,7 +81,7 @@ public class Poll {
         List<PollOption> orderedOptions = new ArrayList<>(getPollOptions());
         orderedOptions.sort((o1, o2) -> o2.getVotes() - o1.getVotes());
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.red).setTitle("Poll Closed", null)
-                                                 .setDescription("The poll has been closed!\nHere are the results: ");
+                .setDescription("The poll has been closed!\nHere are the results: ");
         orderedOptions
                 .forEach(option -> builder.addField(option.getOption(), "Final votes: " + option.getVotes(), false));
         builder.addBlankField(false).addField("Total Votes", String

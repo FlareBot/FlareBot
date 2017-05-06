@@ -18,9 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class Eval implements Command {
+public class EvalCommand implements Command {
     private ScriptEngineManager manager = new ScriptEngineManager();
-    private static final ThreadGroup EVALS = new ThreadGroup("Eval Thread Pool");
+    private static final ThreadGroup EVALS = new ThreadGroup("EvalCommand Thread Pool");
     private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r,
             EVALS.getName() + EVALS.activeCount()));
     private static final List<String> IMPORTS = Arrays.asList("stream.flarebot.flarebot.*",
@@ -64,13 +64,13 @@ public class Eval implements Command {
                         eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
                     } else eResult = "```groovy\n" + eResult + "\n```";
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .addField("Code:", "```groovy\n" + code + "```", false)
-                                                    .addField("Result: ", eResult, false).build()).queue();
+                            .addField("Code:", "```groovy\n" + code + "```", false)
+                            .addField("Result: ", eResult, false).build()).queue();
                 } catch (ScriptException e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .addField("Code:", "```groovy\n" + code + "```", false)
-                                                    .addField("Result: ", "```groovy\n" + e.getMessage() + "```", false)
-                                                    .build()).queue();
+                            .addField("Code:", "```groovy\n" + code + "```", false)
+                            .addField("Result: ", "```groovy\n" + e.getMessage() + "```", false)
+                            .build()).queue();
                 } catch (Exception e) {
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                 }
@@ -91,7 +91,9 @@ public class Eval implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}eval <code>"; }
+    public String getUsage() {
+        return "{%}eval <code>";
+    }
 
     @Override
     public CommandType getType() {

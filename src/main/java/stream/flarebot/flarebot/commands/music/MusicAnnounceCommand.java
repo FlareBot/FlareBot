@@ -49,8 +49,8 @@ public class MusicAnnounceCommand implements Command {
             if (args[0].equalsIgnoreCase("here")) {
                 announcements.put(channel.getGuild().getId(), channel.getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                .setDescription("Set music announcements to appear in " + channel
-                                                        .getAsMention()).build()).queue();
+                        .setDescription("Set music announcements to appear in " + channel
+                                .getAsMention()).build()).queue();
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn
@@ -71,10 +71,10 @@ public class MusicAnnounceCommand implements Command {
             } else {
                 announcements.remove(channel.getGuild().getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                .setDescription(String
-                                                        .format("Disabled announcements for `%s`", channel.getGuild()
-                                                                                                          .getName()))
-                                                .build()).queue();
+                        .setDescription(String
+                                .format("Disabled announcements for `%s`", channel.getGuild()
+                                        .getName()))
+                        .build()).queue();
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("DELETE FROM announces WHERE guildid = ?");
@@ -100,7 +100,9 @@ public class MusicAnnounceCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}anounce <HERE|OFF>"; }
+    public String getUsage() {
+        return "{%}anounce <HERE|OFF>";
+    }
 
     @Override
     public CommandType getType() {

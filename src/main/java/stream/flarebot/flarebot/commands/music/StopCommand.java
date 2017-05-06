@@ -33,7 +33,9 @@ public class StopCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}stop"; }
+    public String getUsage() {
+        return "{%}stop";
+    }
 
     @Override
     public CommandType getType() {

@@ -22,10 +22,10 @@ public class ModlogCommand implements Command {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("setchannel")) {
                 FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId())
-                               .setModLogChannel(channel.getId());
+                        .setModLogChannel(channel.getId());
                 channel.sendMessage(new EmbedBuilder().setColor(Color.green)
-                                                      .setDescription("The modlog channel has been changed to " + channel
-                                                              .getAsMention()).build()).queue();
+                        .setDescription("The modlog channel has been changed to " + channel
+                                .getAsMention()).build()).queue();
             } else if (args[0].equalsIgnoreCase("config")) {
                 AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());
             } else if (args[0].equalsIgnoreCase("set")) {

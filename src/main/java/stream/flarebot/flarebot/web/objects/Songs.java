@@ -70,7 +70,7 @@ public class Songs {
             if (p.getPlayingTrack() != null)
                 current = new Songs(p.getPlayingTrack());
             this.playlist = p.getPlaylist().stream().map(Songs::new)
-                             .collect(Collectors.toList());
+                    .collect(Collectors.toList());
         }
     }
 }

@@ -55,7 +55,7 @@ public class SavedPlaylistExtractor implements Extractor {
             player.queue(new Playlist(playlist));
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed(user)
-                                                 .setDescription(String.format("*Loaded %s songs!*", i)), message);
+                .setDescription(String.format("*Loaded %s songs!*", i)), message);
     }
 
     @Override

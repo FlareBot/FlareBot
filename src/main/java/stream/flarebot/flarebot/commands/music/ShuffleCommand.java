@@ -33,7 +33,9 @@ public class ShuffleCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}shuffle"; }
+    public String getUsage() {
+        return "{%}shuffle";
+    }
 
     @Override
     public CommandType getType() {

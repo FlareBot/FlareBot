@@ -10,9 +10,9 @@ import stream.flarebot.flarebot.web.objects.Songs;
 public enum DataProviders {
     SONGS((req, res) -> Songs.get()),
     GETPERMISSIONS((request, response) -> FlareBot.getInstance()
-                                                  .getPermissions(FlareBot.getInstance()
-                                                                          .getChannelByID(request
-                                                                                  .queryParams("guildid"))),
+            .getPermissions(FlareBot.getInstance()
+                    .getChannelByID(request
+                            .queryParams("guildid"))),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null));
 
     private Route consumer;

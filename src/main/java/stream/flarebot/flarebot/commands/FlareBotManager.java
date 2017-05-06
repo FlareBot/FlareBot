@@ -48,7 +48,7 @@ public class FlareBotManager {
         try {
             SQLController.runSqlTask(conn -> {
                 conn.createStatement()
-                    .executeUpdate("CREATE TABLE IF NOT EXISTS random_songs (video_id VARCHAR(12) PRIMARY KEY);");
+                        .executeUpdate("CREATE TABLE IF NOT EXISTS random_songs (video_id VARCHAR(12) PRIMARY KEY);");
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM random_songs;");
                 while (set.next()) {
                     loadedSongs.add(set.getString("video_id"));
@@ -63,7 +63,7 @@ public class FlareBotManager {
         Set<String> songs = new HashSet<>();
         if (amount < 10 || amount > 100) {
             MessageUtils.sendErrorMessage(MessageUtils.getEmbed()
-                                                      .setDescription("Invalid amount. Make sure it is 10 or more and 100 or less!"), channel);
+                    .setDescription("Invalid amount. Make sure it is 10 or more and 100 or less!"), channel);
             return null;
         }
 
@@ -93,11 +93,11 @@ public class FlareBotManager {
                         "  PRIMARY KEY(playlist_name, guild)\n" +
                         ")");
                 conn.createStatement()
-                    .execute("CREATE TABLE IF NOT EXISTS selfassign (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, roles TEXT)");
+                        .execute("CREATE TABLE IF NOT EXISTS selfassign (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, roles TEXT)");
                 conn.createStatement()
-                    .execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
+                        .execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
                 conn.createStatement()
-                    .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
+                        .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -129,7 +129,7 @@ public class FlareBotManager {
                 statement.setString(4, list);
                 statement.executeUpdate();
                 channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner))
-                                                .setDescription("Success!").build()).queue();
+                        .setDescription("Success!").build()).queue();
             });
         } catch (SQLException e) {
             FlareBot.reportError(channel, "The playlist could not be saved!", e);
@@ -153,7 +153,7 @@ public class FlareBotManager {
                     list[0] = set.getString("list");
                 } else
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .setDescription("*That playlist does not exist!*").build()).queue();
+                            .setDescription("*That playlist does not exist!*").build()).queue();
             });
         } catch (SQLException e) {
             FlareBot.reportError(channel, "Unable to load the playlist!", e);
@@ -165,7 +165,7 @@ public class FlareBotManager {
     public void loadProfanity() {
         try {
             Unirest.get("https://flarebot.stream/api/profanity.php").asJson().getBody().getObject()
-                   .getJSONArray("words").forEach(word -> profanitySet.add(word.toString()));
+                    .getJSONArray("words").forEach(word -> profanitySet.add(word.toString()));
         } catch (UnirestException e) {
             e.printStackTrace();
         }

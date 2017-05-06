@@ -35,7 +35,7 @@ public class RandomExtractor implements Extractor {
             }
         }
         MessageUtils.editMessage("", MessageUtils.getEmbed()
-                                                 .setDescription("Added " + i + " random songs to the playlist!"), message);
+                .setDescription("Added " + i + " random songs to the playlist!"), message);
     }
 
     @Override

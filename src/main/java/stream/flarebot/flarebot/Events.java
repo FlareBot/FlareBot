@@ -77,9 +77,9 @@ public class Events extends ListenerAdapter {
                     flareBot.getWelcomes().remove(welcome);
                 }
                 String msg = welcome.getMessage()
-                                    .replace("%user%", event.getMember().getUser().getName())
-                                    .replace("%guild%", event.getGuild().getName())
-                                    .replace("%mention%", event.getMember().getUser().getAsMention());
+                        .replace("%user%", event.getMember().getUser().getName())
+                        .replace("%guild%", event.getGuild().getName())
+                        .replace("%mention%", event.getMember().getUser().getAsMention());
                 channel.sendMessage(msg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
             } else flareBot.getWelcomes().remove(welcome);
         }
@@ -111,11 +111,11 @@ public class Events extends ListenerAdapter {
 
         message.append("**Hello!\nI am here to tell you that I could not give the role(s) ```\n");
         message.append(roles.stream().map(Role::getName).collect(Collectors.joining("\n")))
-               .append("\n``` to one of your new users!\n");
+                .append("\n``` to one of your new users!\n");
         message.append("Please move one of the following roles so they are higher up than any of the above: \n```")
-               .append(event.getGuild().getSelfMember().getRoles().stream()
-                            .map(Role::getName)
-                            .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
+                .append(event.getGuild().getSelfMember().getRoles().stream()
+                        .map(Role::getName)
+                        .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
         MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
     }
 
@@ -234,7 +234,7 @@ public class Events extends ListenerAdapter {
                                     os.close();
                                 }
                                 event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null)
-                                     .queue();
+                                        .queue();
                             } catch (IOException e) {
                                 FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
                             }
@@ -248,7 +248,7 @@ public class Events extends ListenerAdapter {
                     if (handleMissingPermission(cmd, event))
                         return;
                     COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger())
-                                   .incrementAndGet();
+                            .incrementAndGet();
                     String[] finalArgs = args;
                     CACHED_POOL.submit(() -> {
                         FlareBot.LOGGER.info(
@@ -296,7 +296,7 @@ public class Events extends ListenerAdapter {
                                         "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                                                 .toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                                 event.getAuthor().getName() + '#' + event.getAuthor()
-                                                                                         .getDiscriminator());
+                                                .getDiscriminator());
                                 try {
                                     cmd.onCommand(event.getAuthor(), event.getChannel(), event
                                             .getMessage(), finalArgs, event.getMember());
@@ -304,7 +304,7 @@ public class Events extends ListenerAdapter {
                                     FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
                                             + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                             event.getAuthor().getName() + '#' + event.getAuthor()
-                                                                                     .getDiscriminator(), ex);
+                                            .getDiscriminator(), ex);
                                     MessageUtils
                                             .sendException("**There was an internal error trying to execute your command**", ex, event
                                                     .getChannel());
@@ -322,9 +322,9 @@ public class Events extends ListenerAdapter {
                     && !event.getAuthor().isBot()) {
                 if (event.getMessage().getRawContent().startsWith("_prefix")) {
                     event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
-                                                               .setDescription("The server prefix is `" + FlareBot
-                                                                       .getPrefixes().get(getGuildId(event)) + "`")
-                                                               .build()).queue();
+                            .setDescription("The server prefix is `" + FlareBot
+                                    .getPrefixes().get(getGuildId(event)) + "`")
+                            .build()).queue();
                 }
             }
         }
@@ -341,24 +341,24 @@ public class Events extends ListenerAdapter {
     public void onStatusChange(StatusChangeEvent event) {
         if (sd) return;
         Unirest.post(FlareBot.getStatusHook())
-               .header("Content-Type", "application/json")
-               .body(new JSONObject()
-                       .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
-                               event.getOldStatus(), event.getStatus(),
-                               event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
-                                       : null)))
-               .asStringAsync();
+                .header("Content-Type", "application/json")
+                .body(new JSONObject()
+                        .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
+                                event.getOldStatus(), event.getStatus(),
+                                event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
+                                        : null)))
+                .asStringAsync();
     }
 
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
             FlareBot.LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
-                                                                                                 .getCloseCode(), event
+                    .getCloseCode(), event
                     .getCloseCode()));
         else
             FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
-                                                                                                 .getCloseCode(), event
+                    .getCloseCode(), event
                     .getClientCloseFrame().getCloseReason()));
     }
 
@@ -366,9 +366,9 @@ public class Events extends ListenerAdapter {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
-                                                                        .setDescription("You are missing the permission ``"
-                                                                                + cmd
-                                                                                .getPermission() + "`` which is required for use of this command!"), e
+                        .setDescription("You are missing the permission ``"
+                                + cmd
+                                .getPermission() + "`` which is required for use of this command!"), e
                         .getChannel());
                 delete(e.getMessage());
                 new FlarebotTask("Delete message " + msg.getChannel().toString()) {
@@ -385,7 +385,7 @@ public class Events extends ListenerAdapter {
 
     private void delete(Message message) {
         if (message.getTextChannel().getGuild().getSelfMember()
-                   .getPermissions(message.getTextChannel()).contains(Permission.MESSAGE_MANAGE))
+                .getPermissions(message.getTextChannel()).contains(Permission.MESSAGE_MANAGE))
             message.delete().queue();
     }
 

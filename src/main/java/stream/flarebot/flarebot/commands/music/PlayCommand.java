@@ -41,7 +41,9 @@ public class PlayCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}play"; }
+    public String getUsage() {
+        return "{%}play";
+    }
 
     @Override
     public String[] getAliases() {

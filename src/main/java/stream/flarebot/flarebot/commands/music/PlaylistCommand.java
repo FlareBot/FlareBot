@@ -39,7 +39,7 @@ public class PlaylistCommand implements Command {
                     send(channel, channel, member);
                 } else {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed()
-                                                              .setDescription("Incorrect usage! " + getDescription()), channel);
+                            .setDescription("Incorrect usage! " + getDescription()), channel);
                 }
             } else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("remove")) {
@@ -66,8 +66,8 @@ public class PlaylistCommand implements Command {
                     queue.addAll(playlist);
 
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .setDescription("Removed number " + number + " from the playlist!")
-                                                    .build()).queue();
+                            .setDescription("Removed number " + number + " from the playlist!")
+                            .build()).queue();
                 }
             }
         }

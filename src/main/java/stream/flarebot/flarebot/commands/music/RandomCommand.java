@@ -38,7 +38,7 @@ public class RandomCommand implements Command {
     private void loadSongs(int amount, TextChannel channel, User sender) {
         Set<String> songs = manager.getRandomSongs(amount, channel);
         VideoThread.getThread(songs.stream()
-                                   .collect(Collectors.joining(",")), channel, sender).start();
+                .collect(Collectors.joining(",")), channel, sender).start();
     }
 
     @Override
@@ -52,7 +52,9 @@ public class RandomCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}random [amount]"; }
+    public String getUsage() {
+        return "{%}random [amount]";
+    }
 
     @Override
     public CommandType getType() {

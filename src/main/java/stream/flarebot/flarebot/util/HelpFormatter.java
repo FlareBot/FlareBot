@@ -3,8 +3,6 @@ package stream.flarebot.flarebot.util;
 import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.FlareBot;
 
-import java.util.regex.Matcher;
-
 public class HelpFormatter {
 
     private static char get(TextChannel channel) {

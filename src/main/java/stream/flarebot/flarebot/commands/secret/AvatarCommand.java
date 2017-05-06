@@ -47,7 +47,9 @@ public class AvatarCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}avatar [user]"; }
+    public String getUsage() {
+        return "{%}avatar [user]";
+    }
 
     @Override
     public CommandType getType() {

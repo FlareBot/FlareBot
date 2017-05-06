@@ -1,9 +1,5 @@
 package stream.flarebot.flarebot;
 
-/**
- * Created by William on 03/05/2017.
- * Project flarebot
- */
 public enum Language {
 
     // General

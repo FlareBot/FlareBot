@@ -33,7 +33,9 @@ public class LoopCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}loop"; }
+    public String getUsage() {
+        return "{%}loop";
+    }
 
     @Override
     public CommandType getType() {

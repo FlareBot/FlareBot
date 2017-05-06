@@ -32,7 +32,7 @@ public class QueryCommand implements Command {
                     try {
                         conn.createStatement().execute(FlareBot.getMessage(args, 0));
                         channel.sendMessage(new EmbedBuilder().setDescription("Query was executed successfully!")
-                                                              .setColor(Color.green).build()).queue();
+                                .setColor(Color.green).build()).queue();
                     } catch (SQLException e1) {
                         channel.sendMessage(new EmbedBuilder()
                                 .setDescription("Failed to execute query! " + e.getMessage()).setColor(Color.red)
@@ -67,7 +67,7 @@ public class QueryCommand implements Command {
             });
         } catch (SQLException e) {
             channel.sendMessage(new EmbedBuilder().setDescription("Could not execute query! " + e.getMessage())
-                                                  .setColor(Color.red).build()).queue();
+                    .setColor(Color.red).build()).queue();
         }
     }
 
@@ -82,7 +82,9 @@ public class QueryCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}query <sql>"; }
+    public String getUsage() {
+        return "{%}query <sql>";
+    }
 
     @Override
     public CommandType getType() {

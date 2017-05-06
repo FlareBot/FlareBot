@@ -41,7 +41,7 @@ public class InfoCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             EmbedBuilder bld = MessageUtils.getEmbed(sender)
-                                           .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
+                    .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
             bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
@@ -56,10 +56,10 @@ public class InfoCommand implements Command {
 
             for (Content content : Content.values) {
                 if (search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ")
-                                                                        .equalsIgnoreCase(content.getName())) {
+                        .equalsIgnoreCase(content.getName())) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .addField(content.getName(), content.getReturn(), false).build())
-                           .queue();
+                            .addField(content.getName(), content.getReturn(), false).build())
+                            .queue();
                     return;
                 }
             }
@@ -94,9 +94,9 @@ public class InfoCommand implements Command {
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
         TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients())
-                                                              .flatMap(c -> c.getUsers().stream())
-                                                              .map(ISnowflake::getId)
-                                                              .collect(Collectors.toSet()).size())),
+                .flatMap(c -> c.getUsers().stream())
+                .map(ISnowflake::getId)
+                .collect(Collectors.toSet()).size())),
         VOICE_CONNECTIONS("Voice Connections", () -> String
                 .valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
         ACTIVE_CHANNELS("Channels Playing Music", () -> String

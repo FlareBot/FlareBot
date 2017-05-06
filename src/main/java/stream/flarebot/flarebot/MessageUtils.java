@@ -48,12 +48,12 @@ public class MessageUtils {
 
     public static Message sendPM(User user, CharSequence message) {
         return user.openPrivateChannel().complete()
-                   .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
+                .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
     }
 
     public static Message sendPM(User user, EmbedBuilder message) {
         return user.openPrivateChannel().complete()
-                   .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
+                .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
     }
 
     public static Message sendException(String s, Throwable e, MessageChannel channel) {
@@ -68,9 +68,9 @@ public class MessageUtils {
     public static String hastebin(String trace) {
         try {
             return "https://hastebin.com/" + Unirest.post("https://hastebin.com/documents")
-                                                    .header("User-Agent", "Mozilla/5.0 FlareBot")
-                                                    .header("Content-Type", "text/plain").body(trace).asJson().getBody()
-                                                    .getObject().getString("key");
+                    .header("User-Agent", "Mozilla/5.0 FlareBot")
+                    .header("Content-Type", "text/plain").body(trace).asJson().getBody()
+                    .getObject().getString("key");
         } catch (UnirestException e) {
             FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
             return null;
@@ -114,7 +114,7 @@ public class MessageUtils {
 
     public static Message sendErrorMessage(String message, MessageChannel channel) {
         return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.red).setDescription(message).build())
-                      .complete();
+                .complete();
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {
@@ -165,18 +165,18 @@ public class MessageUtils {
         String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
         channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
-                                              .addField("Permission", permission, false).setColor(Color.red).build())
-               .queue();
+                .addField("Permission", permission, false).setColor(Color.red).build())
+                .queue();
     }
 
     public static User getUser(String s) {
         if (userDiscrim.matcher(s).find()) {
             return FlareBot.getInstance().getUsers().stream()
-                           .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                           .findFirst().orElse(null);
+                    .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                    .findFirst().orElse(null);
         } else {
             User tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
-                               .findFirst().orElse(null);
+                    .findFirst().orElse(null);
             if (tmp != null) return tmp;
             try {
                 Long.parseLong(s.replaceAll("[^0-9]", ""));

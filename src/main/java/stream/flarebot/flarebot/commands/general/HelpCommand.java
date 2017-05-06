@@ -31,11 +31,11 @@ public class HelpCommand implements Command {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()
-                                        .stream().filter(cmd -> FlareBot.getInstance().getPermissions(channel)
-                                                                        .hasPermission(member, cmd.getPermission()))
-                                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
-                                                .getDescription() + '\n')
-                                        .collect(Collectors.toList());
+                        .stream().filter(cmd -> FlareBot.getInstance().getPermissions(channel)
+                                .hasPermission(member, cmd.getPermission()))
+                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
+                                .getDescription() + '\n')
+                        .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
                 int page = 0;
                 for (String s : help) {
@@ -67,14 +67,14 @@ public class HelpCommand implements Command {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
-                                 .stream().filter(cmd -> cmd.getPermission() != null && FlareBot.getInstance()
-                                                                                                .getPermissions(channel)
-                                                                                                .hasPermission(guild
-                                                                                                        .getMember(sender), cmd
-                                                                                                        .getPermission()))
-                                 .map(command -> get(guild) + command.getCommand() + " - " + command
-                                         .getDescription() + '\n')
-                                 .collect(Collectors.toList());
+                    .stream().filter(cmd -> cmd.getPermission() != null && FlareBot.getInstance()
+                            .getPermissions(channel)
+                            .hasPermission(guild
+                                    .getMember(sender), cmd
+                                    .getPermission()))
+                    .map(command -> get(guild) + command.getCommand() + " - " + command
+                            .getDescription() + '\n')
+                    .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
             int page = 0;
             for (String s : help) {

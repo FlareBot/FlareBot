@@ -40,11 +40,11 @@ public class PerGuildPermissions {
             return true;
         PermissionNode node = new PermissionNode(permission);
         return getUser(user).getGroups().stream()
-                            .map(this::getGroup)
-                            .map(Group::getPermissions)
-                            .flatMap(Collection::stream)
-                            .map(PermissionNode::new)
-                            .anyMatch(e -> e.test(node));
+                .map(this::getGroup)
+                .map(Group::getPermissions)
+                .flatMap(Collection::stream)
+                .map(PermissionNode::new)
+                .anyMatch(e -> e.test(node));
     }
 
     public boolean addPermission(String group, String permission) {

@@ -25,18 +25,18 @@ public class SongCommand implements Command {
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             channel.sendMessage(MessageUtils.getEmbed(sender)
-                                            .addField("Current song: ", getLink(track), false)
-                                            .addField("Amount Played: ",
-                                                    (int) (100f / track.getTrack().getDuration() * track.getTrack()
-                                                                                                        .getPosition()) + "% of "
-                                                            + formatDuration(track), true)
-                                            .addField("Requested by:", String
-                                                    .format("<@!%s>", track.getMeta().get("requester")), false).build())
-                   .queue();
+                    .addField("Current song: ", getLink(track), false)
+                    .addField("Amount Played: ",
+                            (int) (100f / track.getTrack().getDuration() * track.getTrack()
+                                    .getPosition()) + "% of "
+                                    + formatDuration(track), true)
+                    .addField("Requested by:", String
+                            .format("<@!%s>", track.getMeta().get("requester")), false).build())
+                    .queue();
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
-                                            .addField("Current song: ", "**No song playing right now!**", false)
-                                            .build()).queue();
+                    .addField("Current song: ", "**No song playing right now!**", false)
+                    .build()).queue();
         }
     }
 
@@ -57,7 +57,9 @@ public class SongCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%}song"; }
+    public String getUsage() {
+        return "{%}song";
+    }
 
     @Override
     public CommandType getType() {

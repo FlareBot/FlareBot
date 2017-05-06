@@ -53,9 +53,9 @@ public class PlaylistsCommand implements Command {
                                         statement1.setString(3, finalPlaylist);
                                         statement1.execute();
                                         channel.sendMessage(MessageUtils.getEmbed()
-                                                                        .setDescription("Changed the scope of '" + finalPlaylist + "' to "
-                                                                                + args[1].toLowerCase()).build())
-                                               .queue();
+                                                .setDescription("Changed the scope of '" + finalPlaylist + "' to "
+                                                        + args[1].toLowerCase()).build())
+                                                .queue();
                                     } else {
                                         MessageUtils.sendErrorMessage("Invalid scope! Scopes are local and global!",
                                                 channel);
@@ -107,7 +107,7 @@ public class PlaylistsCommand implements Command {
                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
                     i = 1;
                     builder.addField("Global Playlists", (globalSb.toString()
-                                                                  .isEmpty() ? "No global playlists!" : globalSb
+                            .isEmpty() ? "No global playlists!" : globalSb
                             .toString()), false);
                     for (String s : songs) {
                         builder.addField("Page " + i++, s.isEmpty() ? "**No playlists!**" : s, false);

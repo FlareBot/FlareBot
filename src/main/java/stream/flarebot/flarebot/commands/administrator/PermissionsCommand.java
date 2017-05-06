@@ -45,7 +45,7 @@ public class PermissionsCommand implements Command {
                     channel.sendMessage("Success").queue();
                 else
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                                                              .setDescription("User already had that group!"), channel);
+                            .setDescription("User already had that group!"), channel);
                 break;
             case "revokegroup":
                 if (args.length < 3) {
@@ -69,17 +69,17 @@ public class PermissionsCommand implements Command {
                     channel.sendMessage("Success").queue();
                 else
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                                                              .setDescription("User never had that group!"), channel);
+                            .setDescription("User never had that group!"), channel);
                 break;
             case "groups":
                 if (args.length == 1) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .setDescription("Groups: " + getPermissions(channel).getGroups()
-                                                                                                        .keySet()
-                                                                                                        .stream()
-                                                                                                        .collect(Collectors
-                                                                                                                .joining(", ", "`", "`")))
-                                                    .build()).queue();
+                            .setDescription("Groups: " + getPermissions(channel).getGroups()
+                                    .keySet()
+                                    .stream()
+                                    .collect(Collectors
+                                            .joining(", ", "`", "`")))
+                            .build()).queue();
                     return;
                 }
                 Member iUser = Parser.mention(args[1], channel.getGuild());
@@ -90,11 +90,11 @@ public class PermissionsCommand implements Command {
                 }
                 User toList = getPermissions(channel).getUser(iUser);
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                .addField("User", iUser.getAsMention(), true)
-                                                .setDescription("Groups: " + toList.getGroups().stream()
-                                                                                   .collect(Collectors
-                                                                                           .joining(", ", "`", "`")))
-                                                .build()).queue();
+                        .addField("User", iUser.getAsMention(), true)
+                        .setDescription("Groups: " + toList.getGroups().stream()
+                                .collect(Collectors
+                                        .joining(", ", "`", "`")))
+                        .build()).queue();
                 break;
             case "addpermission":
                 if (args.length < 3) {
@@ -106,7 +106,7 @@ public class PermissionsCommand implements Command {
                     channel.sendMessage("Success").queue();
                 else
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                                                              .setDescription("Group already had that permission"), channel);
+                            .setDescription("Group already had that permission"), channel);
                 break;
             case "removepermission":
                 if (args.length < 3) {
@@ -118,7 +118,7 @@ public class PermissionsCommand implements Command {
                     channel.sendMessage("Success").queue();
                 else
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                                                              .setDescription("Group never had that permission"), channel);
+                            .setDescription("Group never had that permission"), channel);
                 break;
             case "list":
                 if (args.length < 2) {
@@ -132,7 +132,7 @@ public class PermissionsCommand implements Command {
                 }
                 Group group5 = getPermissions(channel).getGroup(args[1]);
                 StringBuilder perms = new StringBuilder("**Permissions for group ").append(group5.getName())
-                                                                                   .append("**\n```fix\n");
+                        .append("**\n```fix\n");
                 group5.getPermissions().forEach(perm -> perms.append(perm).append('\n'));
                 perms.append("\n```");
                 channel.sendMessage(perms.toString()).queue();

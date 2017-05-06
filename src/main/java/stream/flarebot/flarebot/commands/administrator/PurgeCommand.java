@@ -25,18 +25,18 @@ public class PurgeCommand implements Command {
                 long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - calmitdood < cooldown) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .setDescription(String
-                                                            .format("You are on a cooldown! %s seconds left!",
-                                                                    (cooldown - (System
-                                                                            .currentTimeMillis() - calmitdood)) / 1000))
-                                                    .build()).queue();
+                            .setDescription(String
+                                    .format("You are on a cooldown! %s seconds left!",
+                                            (cooldown - (System
+                                                    .currentTimeMillis() - calmitdood)) / 1000))
+                            .build()).queue();
                     return;
                 }
             }
             int count = Integer.parseInt(args[0]) + 1;
             if (count < 2) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                .setDescription("Can't purge less than 2 messages!").build()).queue();
+                        .setDescription("Can't purge less than 2 messages!").build()).queue();
             }
             List<Permission> perms = channel.getGuild().getSelfMember().getPermissions(channel);
             if (perms.contains(Permission.MESSAGE_HISTORY) && perms.contains(Permission.MESSAGE_MANAGE)) {
@@ -68,22 +68,22 @@ public class PurgeCommand implements Command {
                         else toDelete.forEach(mssage -> mssage.delete().complete());
                     }
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .setDescription(String.format("Deleted `%s` messages!", i)).build())
-                           .queue(s -> new FlarebotTask("Delete Message " + s) {
-                               @Override
-                               public void run() {
-                                   s.delete().queue();
-                               }
-                           }.delay(5_000));
+                            .setDescription(String.format("Deleted `%s` messages!", i)).build())
+                            .queue(s -> new FlarebotTask("Delete Message " + s) {
+                                @Override
+                                public void run() {
+                                    s.delete().queue();
+                                }
+                            }.delay(5_000));
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                                                    .setDescription(String
-                                                            .format("Failed to bulk delete or load messages! Error: `%s`", e))
-                                                    .build()).queue();
+                            .setDescription(String
+                                    .format("Failed to bulk delete or load messages! Error: `%s`", e))
+                            .build()).queue();
                 }
             } else {
                 channel.sendMessage("Insufficient permissions! I need `Manage Messages` and `Read Message History`")
-                       .queue();
+                        .queue();
             }
         } else {
             MessageUtils.sendUsage(this, channel);

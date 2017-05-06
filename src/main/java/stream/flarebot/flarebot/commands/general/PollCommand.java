@@ -48,13 +48,13 @@ public class PollCommand implements Command {
                         poll.setStatus(Poll.PollStatus.CLOSED);
                         manager.getPolls().put(guildId, poll);
                         channel.sendMessage(poll.getClosedPollEmbed("Poll Closed!", "The poll has been closed!")
-                                                .build()).queue();
+                                .build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage("The current poll isn't open!", channel);
                     }
                 } else {
                     channel.sendMessage(new EmbedBuilder().setDescription("There is no poll currently open!").build())
-                           .queue();
+                            .queue();
                 }
             } else if (args[0].equalsIgnoreCase("edit")) {
 
@@ -77,11 +77,11 @@ public class PollCommand implements Command {
                     String question = FlareBot.getMessage(args, 1);
                     manager.getPolls().put(guildId, new Poll(question));
                     channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null).setColor(Color.green)
-                                                          .setAuthor(sender.getName(), null, sender
-                                                                  .getEffectiveAvatarUrl())
-                                                          .setDescription("Poll has been created! To close the poll use `poll close` and to edit the auto-close time of the poll do `poll set closetime (time eg 10m)`\n" +
-                                                                  "To open the poll for people to vote on do `poll open`!")
-                                                          .build()).queue();
+                            .setAuthor(sender.getName(), null, sender
+                                    .getEffectiveAvatarUrl())
+                            .setDescription("Poll has been created! To close the poll use `poll close` and to edit the auto-close time of the poll do `poll set closetime (time eg 10m)`\n" +
+                                    "To open the poll for people to vote on do `poll open`!")
+                            .build()).queue();
                 }
             } else if (args[0].equalsIgnoreCase("edit")) {
                 if (args[1].equalsIgnoreCase("colour") || args[1].equalsIgnoreCase("color")) {
@@ -95,8 +95,8 @@ public class PollCommand implements Command {
                             poll.setColor(Color.decode(args[2]));
                             manager.getPolls().put(guildId, poll);
                             channel.sendMessage(new EmbedBuilder().setColor(Color.decode(args[2]))
-                                                                  .setDescription("Changed the color of the poll to `" + args[2] + "`")
-                                                                  .build()).queue();
+                                    .setDescription("Changed the color of the poll to `" + args[2] + "`")
+                                    .build()).queue();
                         } catch (NumberFormatException e) {
                             MessageUtils.sendErrorMessage("That is not a valid color input!", channel);
                             return;
@@ -129,7 +129,7 @@ public class PollCommand implements Command {
                 Poll poll = manager.getPolls().get(channel.getGuild().getId());
                 if (!poll.isOpen()) {
                     channel.sendMessage(new EmbedBuilder().setDescription("There is no poll currently open!").build())
-                           .queue();
+                            .queue();
                 }
                 int option;
                 try {
@@ -153,7 +153,7 @@ public class PollCommand implements Command {
     private void listOptions(TextChannel channel) {
         Poll poll = manager.getPollFromGuild(channel.getGuild());
         EmbedBuilder builder = new EmbedBuilder().setTitle("Options", null)
-                                                 .setDescription("Options for `" + poll.getPollOptions() + "`");
+                .setDescription("Options for `" + poll.getPollOptions() + "`");
         poll.getPollOptions().forEach(option -> builder
                 .addField("Option " + (poll.getPollOptions().indexOf(option) + 1), option
                         .getOption() + "\nVotes: " + option.getVotes(), true));

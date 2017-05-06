@@ -23,7 +23,7 @@ public class LoadCommand implements Command {
         channel.sendTyping().complete();
 
         VideoThread.getThread(name + '\u200B' + FlareBot.getInstance().getManager()
-                                                        .loadPlaylist(channel, sender, name), channel, sender).start();
+                .loadPlaylist(channel, sender, name), channel, sender).start();
     }
 
     @Override
@@ -37,7 +37,9 @@ public class LoadCommand implements Command {
     }
 
     @Override
-    public String getUsage() { return "{%)load <playlist>"; }
+    public String getUsage() {
+        return "{%)load <playlist>";
+    }
 
     @Override
     public CommandType getType() {
