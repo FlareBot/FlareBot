@@ -21,7 +21,7 @@ public class DeleteCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "delete [NAME]").queue();
+            MessageUtils.sendUsage(this, channel);
             return;
         }
         String name = "";

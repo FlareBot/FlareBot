@@ -19,9 +19,10 @@ public class SelfAssignCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendErrorMessage("Usage: `" + getPrefix(channel
-                    .getGuild()) + "selfassign (roleId/name)`\n\nIf you don't know how to find the role ID, do "
-                    + getPrefix(channel.getGuild()) + "roles", channel);
+            char prefix = getPrefix(channel.getGuild());
+            MessageUtils
+                    .sendErrorMessage("Usage: `" + prefix + "selfassign (roleId/name)`\n\nIf you don't know how to find the role ID, do "
+                            + prefix + "roles", channel);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("add")) {
                 if (FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.selfassign.admin")) {
@@ -160,6 +161,13 @@ public class SelfAssignCommand implements Command {
     @Override
     public String getDescription() {
         return "Self assign a role to yourself!\nTo add roles to selfassign do `selfassign add (userId)`";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}selfassign <roleID/name>` - Adds a role to yourself\n"
+                + "`{%}selfassign <add/remove> <roleID/name>` - Allows admins to add roles to the self assign list\n"
+                + "`{%}selfassign list` - Lists roles that are self-assignable";
     }
 
     @Override

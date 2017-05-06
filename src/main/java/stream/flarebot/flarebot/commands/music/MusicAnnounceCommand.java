@@ -85,9 +85,7 @@ public class MusicAnnounceCommand implements Command {
                 }
             }
         } else {
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                                            .setDescription("Bad syntax! Must have either `HERE` or `OFF` as your first, and only, argument." +
-                                                    "\nCase insensitive.").build()).queue();
+            MessageUtils.sendUsage(this, channel);
         }
     }
 
@@ -98,11 +96,11 @@ public class MusicAnnounceCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Announces a track start in a text channel. Usage: `announce HERE|OFF`";
+        return "Announces a track start in a text channel.";
     }
 
     @Override
-    public String getUsage() { return "{%}anounce HERE|OFF"; }
+    public String getUsage() { return "{%}anounce <HERE|OFF>"; }
 
     @Override
     public CommandType getType() {

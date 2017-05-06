@@ -76,6 +76,11 @@ public class UserInfoCommand implements Command {
     }
 
     @Override
+    public String getUsage() {
+        return "`{%}userinfo [userID]` - Views your user info [or info for another user]";
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }

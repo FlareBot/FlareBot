@@ -86,7 +86,7 @@ public class PollCommand implements Command {
             } else if (args[0].equalsIgnoreCase("edit")) {
                 if (args[1].equalsIgnoreCase("colour") || args[1].equalsIgnoreCase("color")) {
                     if (args.length < 3) {
-                        MessageUtils.sendErrorMessage("Usage: `poll set color (color)`", channel);
+                        MessageUtils.sendErrorMessage("Usage: `poll edit colour (color)`", channel);
                         return;
                     }
                     if (manager.getPolls().containsKey(channel.getGuild().getId())) {
