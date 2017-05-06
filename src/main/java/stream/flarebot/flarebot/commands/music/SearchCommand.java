@@ -1,18 +1,30 @@
 package stream.flarebot.flarebot.commands.music;
 
+import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 
+import java.awt.*;
+
 public class SearchCommand implements Command {
+
+    private FlareBot bot;
+
+    public SearchCommand(FlareBot bot) {
+        this.bot = bot;
+    }
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        MessageUtils.sendErrorMessage("This command is deprecated!\nUse `_play` instead!", channel);
+        channel.sendMessage(new EmbedBuilder().setColor(Color.YELLOW).setDescription("This is deprecated! Please use _play instead!").build());
+        new PlayCommand(bot).onCommand(sender, channel, message, args, member);
     }
 
     @Override
