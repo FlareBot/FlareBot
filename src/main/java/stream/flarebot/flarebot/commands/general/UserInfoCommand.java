@@ -19,7 +19,13 @@ public class UserInfoCommand implements Command {
         String id;
         if (args.length != 1)
             id = sender.getId();
-        else id = args[0].replaceAll("[^0-9]", "");
+        else
+            id = args[0].replaceAll("[^0-9]", "");
+        
+        if (id.isEmpty()) {
+            MessageUtils.sendErrorMessage("You must mention the user!", channel);
+            return;
+        }
         User user = FlareBot.getInstance().getUserByID(id);
         if (user == null) {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
