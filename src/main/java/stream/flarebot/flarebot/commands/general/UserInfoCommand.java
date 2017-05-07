@@ -17,11 +17,15 @@ public class UserInfoCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         String id;
-        if (args.length != 1)
+        if (args.length == 0)
             id = sender.getId();
-        else
+        else if (args.length == 1)
             id = args[0].replaceAll("[^0-9]", "");
-        
+        else {
+            MessageUtils.sendUsage(this, channel);
+            return;
+        }
+
         if (id.isEmpty()) {
             MessageUtils.sendErrorMessage("You must mention the user!", channel);
             return;
