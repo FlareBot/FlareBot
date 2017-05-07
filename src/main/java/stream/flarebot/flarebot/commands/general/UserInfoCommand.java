@@ -17,13 +17,14 @@ public class UserInfoCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         String id;
-        if (args.length != 1) {
+        if (args.length != 1)
             id = sender.getId();
-        } else {
+        else
             id = args[0].replaceAll("[^0-9]", "");
-        }
+        
         if (id.isEmpty()) {
             MessageUtils.sendErrorMessage("You must mention the user!", channel);
+            return;
         }
         User user = FlareBot.getInstance().getUserByID(id);
         if (user == null) {
