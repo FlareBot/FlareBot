@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Purge implements Command {
+public class PurgeCommand implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();
     private static final long cooldown = 60000;
 

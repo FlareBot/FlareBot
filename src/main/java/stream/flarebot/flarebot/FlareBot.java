@@ -442,14 +442,14 @@ public class FlareBot {
         registerCommand(new WelcomeCommand(this));
         registerCommand(new PermissionsCommand());
         registerCommand(new UpdateCommand());
-        registerCommand(new LogsCommands());
+        registerCommand(new LogsCommand());
         registerCommand(new LoopCommand());
         registerCommand(new LoadCommand());
         registerCommand(new SaveCommand());
         registerCommand(new DeleteCommand());
         registerCommand(new PlaylistsCommand());
-        registerCommand(new Purge());
-        registerCommand(new Eval());
+        registerCommand(new PurgeCommand());
+        registerCommand(new EvalCommand());
         registerCommand(new MusicAnnounceCommand());
         registerCommand(new SetPrefixCommand());
         registerCommand(new AvatarCommand());
@@ -457,7 +457,7 @@ public class FlareBot {
         registerCommand(new UserInfoCommand());
         registerCommand(new PollCommand());
         registerCommand(new PinCommand());
-        registerCommand(new ShardRestart());
+        registerCommand(new ShardRestartCommand());
         registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
 
