@@ -8,7 +8,6 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.PlayerCache;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class UserInfoCommand implements Command {
@@ -18,19 +17,9 @@ public class UserInfoCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         String id;
-        if (args.length == 0) {
+        if (args.length != 1)
             id = sender.getId();
-        } else if (args.length == 1) {
-            List<User> mentions = message.getMentionedUsers();
-            if (mentions.isEmpty()) {
-                id = sender.getId();
-            } else {
-                id = mentions.get(0).getId();
-            }
-        } else {
-            MessageUtils.sendUsage(this, channel);
-            return;
-        }
+        else id = args[0].replaceAll("[^0-9]", "");
         User user = FlareBot.getInstance().getUserByID(id);
         if (user == null) {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
@@ -88,7 +77,7 @@ public class UserInfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}userinfo [user]` - Views your user info [or info for another user]";
+        return "`{%}userinfo [userID]` - Views your user info [or info for another user]";
     }
 
     @Override
