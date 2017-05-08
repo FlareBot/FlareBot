@@ -14,3 +14,4 @@ If you want to help FlareBot's hosting and development please use [this link](ht
 ## Credits
 * Initially started by bwfcwalshyPluginDev(@bwfcwalshy#1284) and ArsenArsen(@Arsen#7525)
 * FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
+* Big thanks to EJ Technologies for providing us with open source licenses for [their Java profiler](https://www.ej-technologies.com/products/jprofiler/overview.html). 
