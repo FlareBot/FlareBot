@@ -8,10 +8,12 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.objects.Poll;
+import stream.flarebot.flarebot.util.Config;
 import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
@@ -32,7 +34,8 @@ public class FlareBotManager {
     private Map<String, Poll> polls = new ConcurrentHashMap<>();
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
     private Map<String, AutoModGuild> autoMod = new ConcurrentHashMap<>();
-    private Map<String, String> locale = new ConcurrentHashMap<>();
+    private Map<String, Locale> locale = new ConcurrentHashMap<>();
+    private Map<Locale, Config> localeFiles = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
 
@@ -229,7 +232,11 @@ public class FlareBotManager {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT guild_id, locale FROM localisation");
                 while (set.next()) {
-                    locale.put(set.getString("guild_id"), set.getString("locale"));
+                    Locale l = Locale.forLanguageTag(set.getString("locale"));
+                    locale.put(set.getString("guild_id"), l);
+                    if (!localeFiles.containsKey(l)) {
+                        localeFiles.put(l, new Config(l.toString()));
+                    }
                 }
             });
         } catch (SQLException e) {
@@ -245,14 +252,32 @@ public class FlareBotManager {
                     PreparedStatement statement = conn
                             .prepareStatement("INSERT INTO localisation (guild_id, locale) VALUES (?, ?) ON DUPLICATE KEY locale = VALUES(locale)");
                     statement.setString(1, s);
-                    statement.setString(2, locale.get(s));
+                    statement.setString(2, locale.get(s).toLanguageTag());
                     statement.execute();
                 });
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+        for (Config localeFile : localeFiles.values()) {
+            localeFile.save();
+        }
     }
+
+    public String getLang(Language lang, String id) {
+        if (locale.containsKey(id)) {
+            Locale l = locale.get(id);
+            String path = lang.name().toLowerCase().replaceAll("\\_", ".");
+            Config config = localeFiles.get(l);
+            return config.getString(path);
+        } else {
+            locale.put(id, Locale.UK);
+            String path = lang.name().toLowerCase().replaceAll("\\_", ".");
+            Config config = localeFiles.get(Locale.UK);
+            return config.getString(path);
+        }
+    }
+
 
 
 }
