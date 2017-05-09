@@ -34,15 +34,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>net.dv8tion</groupId>-->
-            <!--<artifactId>JDA</artifactId>-->
-            <!--<version>3.0.0_188</version>-->
-        <!--</dependency>-->
         <dependency>
-            <groupId>com.github.DV8FromTheWorld</groupId>
+            <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>bug~audio-lock-fix-SNAPSHOT</version>
+            <version>3.0.0_193</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
