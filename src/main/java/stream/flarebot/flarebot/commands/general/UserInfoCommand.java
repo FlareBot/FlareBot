@@ -16,15 +16,17 @@ public class UserInfoCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        String id;
-        if (args.length != 1)
-            id = sender.getId();
-        else id = args[0].replaceAll("[^0-9]", "");
-        User user = FlareBot.getInstance().getUserByID(id);
+        User user;
+        if (args.length == 0)
+            user = sender;
+        else
+            user = MessageUtils.getUser(FlareBot.getMessage(args, 0));
+
         if (user == null) {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
             return;
         }
+        String id = user.getId();
         member = (channel.getGuild().getMember(user) != null ? channel.getGuild().getMember(user) :
                 FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(user.getId()) != null)
                         .findFirst().orElse(null).getMember(user));
