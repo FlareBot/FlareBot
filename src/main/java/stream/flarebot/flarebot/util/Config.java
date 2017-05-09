@@ -1,6 +1,7 @@
-package com.walshydev.jba;
+package stream.flarebot.flarebot.util;
 
 import com.google.gson.*;
+import stream.flarebot.flarebot.FlareBot;
 
 import java.io.File;
 import java.io.FileReader;
@@ -28,7 +29,7 @@ public class Config {
             else
                 this.object = new JsonObject();
         } catch (IOException e) {
-            JBA.LOGGER.error("There was an error creating the config file!", e);
+            FlareBot.LOGGER.error("There was an error creating the config file!", e);
         }
     }
 
