@@ -11,13 +11,14 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.awt.*;
 
 public class SelfAssignCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             char prefix = getPrefix(channel.getGuild());
             MessageUtils

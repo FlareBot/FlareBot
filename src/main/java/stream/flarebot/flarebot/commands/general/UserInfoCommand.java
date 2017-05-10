@@ -5,6 +5,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ public class UserInfoCommand implements Command {
     private FlareBot flareBot = FlareBot.getInstance();
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         User user;
         if (args.length == 0)
             user = sender;

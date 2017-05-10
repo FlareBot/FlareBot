@@ -8,11 +8,12 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 public class TestCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
         sender.openPrivateChannel().complete().sendMessage(FlareBotManager.GSON.toJson(guild)).queue();
     }

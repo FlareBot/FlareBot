@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class InfoCommand implements Command {
     }
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             EmbedBuilder bld = MessageUtils.getEmbed(sender)
                     .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));

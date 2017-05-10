@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.awt.*;
@@ -27,7 +28,7 @@ public class SkipCommand implements Command {
     }
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
             channel.sendMessage("I am not streaming!").queue();

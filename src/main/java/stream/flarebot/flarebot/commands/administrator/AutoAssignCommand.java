@@ -5,6 +5,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -19,7 +20,7 @@ public class AutoAssignCommand implements Command {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel);
         } else if (args.length == 1) {

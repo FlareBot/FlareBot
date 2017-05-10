@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.mod.Action;
 import stream.flarebot.flarebot.mod.AutoModConfig;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 public class AutoModCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("config")) {
                 AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());

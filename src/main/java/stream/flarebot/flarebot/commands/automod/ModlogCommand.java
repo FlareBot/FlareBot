@@ -10,13 +10,14 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.mod.AutoModConfig;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.awt.*;
 
 public class ModlogCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (!getPermissions(channel).hasPermission(member, "flarebot.modlog"))
             return;
         if (args.length == 1) {

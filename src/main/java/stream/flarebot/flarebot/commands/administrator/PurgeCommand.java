@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.time.OffsetDateTime;
@@ -19,7 +20,7 @@ public class PurgeCommand implements Command {
     private static final long cooldown = 60000;
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && args[0].matches("\\d+")) {
             if (!FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
                 long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);

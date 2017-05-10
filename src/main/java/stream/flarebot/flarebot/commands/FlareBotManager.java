@@ -11,6 +11,8 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.util.SQLController;
 
@@ -35,6 +37,8 @@ public class FlareBotManager {
     private Map<String, String> locale = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
+
+    private Map<String, GuildWrapper> guilds = new ConcurrentHashMap<>();
 
     public FlareBotManager() {
         instance = this;
@@ -255,4 +259,8 @@ public class FlareBotManager {
     }
 
 
+    public GuildWrapper getGuild(String id) {
+        guilds.putIfAbsent(id, new GuildWrapperBuilder().build());
+        return guilds.get(id);
+    }
 }

@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.music.VideoThread;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ public class RandomCommand implements Command {
     private FlareBotManager manager = FlareBotManager.getInstance();
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length != 1) {
             loadSongs(25, channel, sender);
         } else {

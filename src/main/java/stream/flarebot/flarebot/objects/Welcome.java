@@ -1,13 +1,12 @@
-package stream.flarebot.flarebot.util;
+package stream.flarebot.flarebot.objects;
 
 public class Welcome {
 
-    private String guildId;
+    private boolean enabled;
     private String channelId;
     private String welcomeMessage;
 
-    public Welcome(String guildId, String channelId) {
-        this.guildId = guildId;
+    public Welcome(String channelId) {
         this.channelId = channelId;
         this.welcomeMessage = "Welcome %user% to %guild%";
     }
@@ -22,15 +21,19 @@ public class Welcome {
         return this;
     }
 
-    public String getGuildId() {
-        return this.guildId;
-    }
-
     public String getChannelId() {
         return this.channelId;
     }
 
     public String getMessage() {
         return this.welcomeMessage;
+    }
+
+    public boolean isEnabled(){
+        return this.enabled;
+    }
+
+    public void setEnabled(boolean enabled){
+        this.enabled = enabled;
     }
 }

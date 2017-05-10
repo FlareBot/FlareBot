@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.objects.PollOption;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
@@ -22,7 +23,7 @@ public class PollCommand implements Command {
     private FlareBotManager manager = flareBot.getManager();
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         PerGuildPermissions perms = flareBot.getPermissions(channel);
         String guildId = channel.getGuild().getId();
         if (args.length == 0) {

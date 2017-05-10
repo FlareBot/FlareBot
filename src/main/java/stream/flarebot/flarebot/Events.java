@@ -23,10 +23,11 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.Welcome;
+import stream.flarebot.flarebot.objects.Welcome;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
@@ -256,7 +257,7 @@ public class Events extends ListenerAdapter {
                                         .toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
                                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                         try {
-                            cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), finalArgs, event
+                            cmd.onCommand(event.getAuthor(), flareBot.getManager().getGuild(event.getGuild().getId()), event.getChannel(), event.getMessage(), finalArgs, event
                                     .getMember());
                         } catch (Exception ex) {
                             MessageUtils
@@ -298,7 +299,7 @@ public class Events extends ListenerAdapter {
                                                 event.getAuthor().getName() + '#' + event.getAuthor()
                                                 .getDiscriminator());
                                 try {
-                                    cmd.onCommand(event.getAuthor(), event.getChannel(), event
+                                    cmd.onCommand(event.getAuthor(), flareBot.getManager().getGuild(event.getGuild().getId()), event.getChannel(), event
                                             .getMessage(), finalArgs, event.getMember());
                                 } catch (Exception ex) {
                                     FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "

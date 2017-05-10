@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -47,7 +48,7 @@ public class EvalCommand implements Command {
             "java.util.stream.*");
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
             String imports = IMPORTS.stream().map(s -> "import " + s + ';').collect(Collectors.joining("\n"));
             ScriptEngine engine = manager.getEngineByName("groovy");

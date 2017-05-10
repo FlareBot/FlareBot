@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 /**
  * Created by william on 06/05/17.
@@ -22,7 +23,7 @@ public class ResumeCommand implements Command {
     }
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (!(musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) &&
                 (musicManager.getPlayer(channel.getGuild().getId()).getPaused())) {
             MessageUtils.sendErrorMessage("There is no music playing!", channel);

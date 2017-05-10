@@ -2,11 +2,12 @@ package stream.flarebot.flarebot.commands;
 
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
 public interface Command {
 
-    void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member);
+    void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member);
 
     String getCommand();
 
