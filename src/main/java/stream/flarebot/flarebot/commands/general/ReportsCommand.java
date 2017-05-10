@@ -38,13 +38,11 @@ public class ReportsCommand implements Command {
                                 reportarray = Arrays.copyOfRange(reportarray, 0, 19);
                                 reports = Arrays.asList(reportarray);
 
-                                List<String> footer = new ArrayList<String>();
-                                footer.add("Pages");
-                                footer.add("Current page: " + 1);
-                                footer.add("Total pages" + pages);
-                                footer.add("");
-
-                                String reportsTable = getReportsTable(reports, footer);
+                                String reportsTable = getReportsTable(reports);
+                                EmbedBuilder builder = MessageUtils.getEmbed(sender);
+                                builder.addField("Reports", reportsTable, false);
+                                builder.addField("Pages", String.valueOf(pages), true);
+                                builder.addField("Current page", String.valueOf(1), true);
                             } else {
                                 int pages = (reports.size() / 20) + 1;
                                 int page = 0;
@@ -67,16 +65,17 @@ public class ReportsCommand implements Command {
                                     reportarray = Arrays.copyOfRange(reportarray, start, end);
                                     reports = Arrays.asList(reportarray);
 
-                                    List<String> footer = new ArrayList<String>();
-                                    footer.add("Pages");
-                                    footer.add("Current page: " + page);
-                                    footer.add("Total pages" + pages);
-                                    footer.add("");
-                                    String reportsTable = getReportsTable(reports, footer);
+                                    String reportsTable = getReportsTable(reports);
+                                    EmbedBuilder builder = MessageUtils.getEmbed(sender);
+                                    builder.addField("Reports", reportsTable, false);
+                                    builder.addField("Pages", String.valueOf(pages), true);
+                                    builder.addField("Current page", String.valueOf(page), true);
                                 }
                             }
                         } else {
-                            String reportsTable = getReportsTable(reports, null);
+                            String reportsTable = getReportsTable(reports);
+                            EmbedBuilder builder = MessageUtils.getEmbed(sender);
+                            builder.addField("Reports", reportsTable, false);
                         }
                     } else {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.list` to do this."), channel);
@@ -86,7 +85,7 @@ public class ReportsCommand implements Command {
         }
     }
 
-    public String getReportsTable(List<Report> reports, List<String> footer){
+    public String getReportsTable(List<Report> reports){
         ArrayList<String> header = new ArrayList<String>();
         header.add("Id");
         header.add("Reporter");
@@ -108,7 +107,7 @@ public class ReportsCommand implements Command {
             table.add(row);
         }
 
-        String reportsTable = MessageUtils.makeAsciiTable(header, table, footer);
+        String reportsTable = MessageUtils.makeAsciiTable(header, table, null);
 
         return reportsTable;
     }
