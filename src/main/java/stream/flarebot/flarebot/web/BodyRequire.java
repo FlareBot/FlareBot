@@ -7,8 +7,8 @@ import spark.Request;
 import java.util.function.Predicate;
 
 public class BodyRequire extends Require {
-    JsonParser parser = new JsonParser();
     private Predicate<JsonElement> eTest = r -> true;
+    JsonParser parser = new JsonParser();
 
     public BodyRequire(String name, Predicate<String> test) {
         super(name, test);

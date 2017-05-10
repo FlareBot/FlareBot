@@ -21,64 +21,6 @@ import java.util.List;
 
 public class QueryCommand implements Command {
 
-    public static String makeAsciiTable(List<String> headers, List<List<String>> table, List<String> footer) {
-        StringBuilder sb = new StringBuilder();
-        int padding = 1;
-        int[] widths = new int[headers.size()];
-        for (int i = 0; i < widths.length; i++) {
-            widths[i] = 0;
-        }
-        for (int i = 0; i < headers.size(); i++) {
-            if (headers.get(i).length() > widths[i]) {
-                widths[i] = headers.get(i).length();
-                if (footer != null) {
-                    widths[i] = Math.max(widths[i], footer.get(i).length());
-                }
-            }
-        }
-        for (List<String> row : table) {
-            for (int i = 0; i < row.size(); i++) {
-                String cell = row.get(i);
-                if (cell.length() > widths[i]) {
-                    widths[i] = cell.length();
-                }
-            }
-        }
-        sb.append("```").append("\n");
-        String formatLine = "|";
-        for (int width : widths) {
-            formatLine += " %-" + width + "s |";
-        }
-        formatLine += "\n";
-        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        sb.append(String.format(formatLine, headers.toArray()));
-        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        for (List<String> row : table) {
-            sb.append(String.format(formatLine, row.toArray()));
-        }
-        if (footer != null) {
-            sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-            sb.append(String.format(formatLine, footer.toArray()));
-        }
-        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        sb.append("```");
-        return sb.toString();
-    }
-
-    private static String appendSeparatorLine(String left, String middle, String right, int padding, int... sizes) {
-        boolean first = true;
-        StringBuilder ret = new StringBuilder();
-        for (int size : sizes) {
-            if (first) {
-                first = false;
-                ret.append(left).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
-            } else {
-                ret.append(middle).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
-            }
-        }
-        return ret.append(right).append("\n").toString();
-    }
-
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         try {
@@ -147,5 +89,63 @@ public class QueryCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.HIDDEN;
+    }
+
+    public static String makeAsciiTable(List<String> headers, List<List<String>> table, List<String> footer) {
+        StringBuilder sb = new StringBuilder();
+        int padding = 1;
+        int[] widths = new int[headers.size()];
+        for (int i = 0; i < widths.length; i++) {
+            widths[i] = 0;
+        }
+        for (int i = 0; i < headers.size(); i++) {
+            if (headers.get(i).length() > widths[i]) {
+                widths[i] = headers.get(i).length();
+                if (footer != null) {
+                    widths[i] = Math.max(widths[i], footer.get(i).length());
+                }
+            }
+        }
+        for (List<String> row : table) {
+            for (int i = 0; i < row.size(); i++) {
+                String cell = row.get(i);
+                if (cell.length() > widths[i]) {
+                    widths[i] = cell.length();
+                }
+            }
+        }
+        sb.append("```").append("\n");
+        String formatLine = "|";
+        for (int width : widths) {
+            formatLine += " %-" + width + "s |";
+        }
+        formatLine += "\n";
+        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
+        sb.append(String.format(formatLine, headers.toArray()));
+        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
+        for (List<String> row : table) {
+            sb.append(String.format(formatLine, row.toArray()));
+        }
+        if (footer != null) {
+            sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
+            sb.append(String.format(formatLine, footer.toArray()));
+        }
+        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
+        sb.append("```");
+        return sb.toString();
+    }
+
+    private static String appendSeparatorLine(String left, String middle, String right, int padding, int... sizes) {
+        boolean first = true;
+        StringBuilder ret = new StringBuilder();
+        for (int size : sizes) {
+            if (first) {
+                first = false;
+                ret.append(left).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
+            } else {
+                ret.append(middle).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
+            }
+        }
+        return ret.append(right).append("\n").toString();
     }
 }

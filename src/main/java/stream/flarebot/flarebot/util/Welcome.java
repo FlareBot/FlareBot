@@ -12,6 +12,16 @@ public class Welcome {
         this.welcomeMessage = "Welcome %user% to %guild%";
     }
 
+    public Welcome setMessage(String msg) {
+        this.welcomeMessage = msg;
+        return this;
+    }
+
+    public Welcome setChannelId(String channelId) {
+        this.channelId = channelId;
+        return this;
+    }
+
     public String getGuildId() {
         return this.guildId;
     }
@@ -20,17 +30,7 @@ public class Welcome {
         return this.channelId;
     }
 
-    public Welcome setChannelId(String channelId) {
-        this.channelId = channelId;
-        return this;
-    }
-
     public String getMessage() {
         return this.welcomeMessage;
-    }
-
-    public Welcome setMessage(String msg) {
-        this.welcomeMessage = msg;
-        return this;
     }
 }

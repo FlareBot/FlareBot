@@ -37,10 +37,6 @@ public class InfoCommand implements Command {
         }
     }
 
-    private static String getMb(long bytes) {
-        return (bytes / 1024 / 1024) + "MB";
-    }
-
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
@@ -69,6 +65,10 @@ public class InfoCommand implements Command {
             }
             MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
         }
+    }
+
+    private static String getMb(long bytes) {
+        return (bytes / 1024 / 1024) + "MB";
     }
 
     @Override
@@ -120,10 +120,11 @@ public class InfoCommand implements Command {
         MADE_BY("Made By", "bwfcwalshy#1284 and Arsen#7525"),
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)");
 
-        public static Content[] values = values();
         private String name;
         private Supplier<String> returns;
         private boolean align = true;
+
+        public static Content[] values = values();
 
         Content(String name, String returns) {
             this.name = name;

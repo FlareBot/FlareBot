@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class EvalCommand implements Command {
+    private ScriptEngineManager manager = new ScriptEngineManager();
     private static final ThreadGroup EVALS = new ThreadGroup("EvalCommand Thread Pool");
     private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r,
             EVALS.getName() + EVALS.activeCount()));
@@ -44,7 +45,6 @@ public class EvalCommand implements Command {
             "java.nio.*",
             "java.nio.files.*",
             "java.util.stream.*");
-    private ScriptEngineManager manager = new ScriptEngineManager();
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {

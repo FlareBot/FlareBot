@@ -25,8 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class FlareBotManager {
 
-    public static final Gson GSON = new GsonBuilder().create();
     private static FlareBotManager instance;
+
+    public static final Gson GSON = new GsonBuilder().create();
+
     private List<String> loadedSongs = new ArrayList<>();
     private Random rand = new Random();
 

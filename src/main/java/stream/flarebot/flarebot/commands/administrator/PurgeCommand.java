@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PurgeCommand implements Command {
-    private static final long cooldown = 60000;
     private Map<String, Long> cooldowns = new HashMap<>();
+    private static final long cooldown = 60000;
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
