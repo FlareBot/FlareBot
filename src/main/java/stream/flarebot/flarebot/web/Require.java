@@ -5,8 +5,8 @@ import spark.Request;
 import java.util.function.Predicate;
 
 public class Require {
-    protected Predicate<String> test;
     private String name;
+    protected Predicate<String> test;
 
     public Require(String name, Predicate<String> test) {
         this.name = name;
