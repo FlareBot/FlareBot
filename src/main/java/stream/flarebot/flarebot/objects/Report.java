@@ -8,25 +8,24 @@ import java.util.Date;
  * Represents an individual report
  */
 public class Report {
-    long guildId;
+    private long guildId;
 
-    int id;
+    private int id;
 
-    String message;
+    private String message;
 
-    long reporterId;
-    long reportedId;
+    private long reporterId;
+    private long reportedId;
 
-    Date time;
+    private Date time;
 
-    boolean solved;
+    private boolean solved;
 
     public Report(long guildId, int id, String message, long reporterId, long reportedId, DateTime time, boolean solved){
         this.guildId = guildId;
         this.id = id;
         this.message = message;
-        Date date = time.toDate();
-        this.time = date;
+        this.time = time.toDate();
 
         this.reporterId = reporterId;
         this.reportedId = reportedId;

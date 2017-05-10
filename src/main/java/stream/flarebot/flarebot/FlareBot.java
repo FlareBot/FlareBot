@@ -479,6 +479,7 @@ public class FlareBot {
         registerCommand(new SetSeverityCommand());
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
+        registerCommand(new ReportsCommand());
 
         ApiFactory.bind();
 

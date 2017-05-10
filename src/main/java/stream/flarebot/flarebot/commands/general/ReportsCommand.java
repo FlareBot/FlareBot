@@ -16,7 +16,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class ReportsCommand implements Command {
@@ -33,21 +32,22 @@ public class ReportsCommand implements Command {
                         if(reports.size() > 20){
                             if(args.length != 2){
                                 int pages = (reports.size() / 20) + 1;
-                                Report[] reportarray = new Report[reports.size() - 1];
-                                reportarray = reports.toArray(reportarray);
-                                reportarray = Arrays.copyOfRange(reportarray, 0, 19);
-                                reports = Arrays.asList(reportarray);
+                                Report[] reportArray = new Report[reports.size() - 1];
+                                reportArray = reports.toArray(reportArray);
+                                reportArray = Arrays.copyOfRange(reportArray, 0, 19);
+                                reports = Arrays.asList(reportArray);
 
                                 String reportsTable = getReportsTable(reports);
                                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
                                 builder.addField("Reports", reportsTable, false);
                                 builder.addField("Pages", String.valueOf(pages), true);
                                 builder.addField("Current page", String.valueOf(1), true);
+                                channel.sendMessage(builder.build());
                             } else {
                                 int pages = (reports.size() / 20) + 1;
-                                int page = 0;
-                                int start = 0;
-                                int end = 0;
+                                int page;
+                                int start;
+                                int end;
                                 try {
                                     page = Integer.valueOf(args[1]);
                                     start = 20 * (page - 1);
@@ -60,22 +60,24 @@ public class ReportsCommand implements Command {
                                 if(page > pages || page < 0){
                                     MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That page doesn't exist. Current page count: " + pages), channel);
                                 } else {
-                                    Report[] reportarray = new Report[reports.size() - 1];
-                                    reportarray = reports.toArray(reportarray);
-                                    reportarray = Arrays.copyOfRange(reportarray, start, end);
-                                    reports = Arrays.asList(reportarray);
+                                    Report[] reportArray = new Report[reports.size() - 1];
+                                    reportArray = reports.toArray(reportArray);
+                                    reportArray = Arrays.copyOfRange(reportArray, start, end);
+                                    reports = Arrays.asList(reportArray);
 
                                     String reportsTable = getReportsTable(reports);
                                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
                                     builder.addField("Reports", reportsTable, false);
                                     builder.addField("Pages", String.valueOf(pages), true);
                                     builder.addField("Current page", String.valueOf(page), true);
+                                    channel.sendMessage(builder.build());
                                 }
                             }
                         } else {
                             String reportsTable = getReportsTable(reports);
                             EmbedBuilder builder = MessageUtils.getEmbed(sender);
                             builder.addField("Reports", reportsTable, false);
+                            channel.sendMessage(builder.build());
                         }
                     } else {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.list` to do this."), channel);
@@ -85,16 +87,17 @@ public class ReportsCommand implements Command {
         }
     }
 
-    public String getReportsTable(List<Report> reports){
-        ArrayList<String> header = new ArrayList<String>();
+    private String getReportsTable(List<Report> reports){
+        ArrayList<String> header = new ArrayList<>();
         header.add("Id");
         header.add("Reporter");
         header.add("Reported");
         header.add("Time");
+        header.add("Solved");
 
         List<List<String>> table = new ArrayList<>();
         for (Report report : reports) {
-            ArrayList<String> row = new ArrayList<String>();
+            ArrayList<String> row = new ArrayList<>();
             row.add(String.valueOf(report.getId()));
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()))));
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
@@ -104,12 +107,12 @@ public class ReportsCommand implements Command {
 
             row.add(date);
 
+            row.add(String.valueOf(report.getSolved()));
+
             table.add(row);
         }
 
-        String reportsTable = MessageUtils.makeAsciiTable(header, table, null);
-
-        return reportsTable;
+        return MessageUtils.makeAsciiTable(header, table, null);
     }
 
     @Override
