@@ -8,12 +8,15 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.objects.Poll;
+import stream.flarebot.flarebot.util.LocalConfig;
 import stream.flarebot.flarebot.util.SQLController;
 
+import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +35,7 @@ public class FlareBotManager {
     private Map<String, Poll> polls = new ConcurrentHashMap<>();
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
     private Map<String, AutoModGuild> autoMod = new ConcurrentHashMap<>();
-    private Map<String, String> locale = new ConcurrentHashMap<>();
+    private Map<String, Language.Locales> locale = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
 
@@ -231,7 +234,8 @@ public class FlareBotManager {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT guild_id, locale FROM localisation");
                 while (set.next()) {
-                    locale.put(set.getString("guild_id"), set.getString("locale"));
+                    Language.Locales l = Language.Locales.from(set.getString("locale"));
+                    locale.put(set.getString("guild_id"), l);
                 }
             });
         } catch (SQLException e) {
@@ -247,7 +251,7 @@ public class FlareBotManager {
                     PreparedStatement statement = conn
                             .prepareStatement("INSERT INTO localisation (guild_id, locale) VALUES (?, ?) ON DUPLICATE KEY locale = VALUES(locale)");
                     statement.setString(1, s);
-                    statement.setString(2, locale.get(s));
+                    statement.setString(2, locale.get(s).toString());
                     statement.execute();
                 });
             } catch (SQLException e) {
@@ -256,5 +260,17 @@ public class FlareBotManager {
         }
     }
 
+    public LocalConfig loadConfig(Language.Locales l) {
+        ClassLoader cl = FlareBot.class.getClassLoader();
+        URL u = cl.getResource(l.getCode() + ".json");
+        return new LocalConfig(u);
+    }
 
+    public String getLang(Language lang, String id) {
+        String path = lang.name().toLowerCase().replaceAll("_", ".");
+        LocalConfig config = loadConfig(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
+        return config.getString(path);
+    }
 }
+
+
