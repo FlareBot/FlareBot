@@ -24,7 +24,7 @@ public class ReportsCommand implements Command {
         ReportManager man = new ReportManager();
         if(args.length == 0){
             MessageUtils.sendUsage(this, channel);
-        } else if(args.length == 1){
+        } else if(args.length == 1 || args.length == 2){
             switch (args[0]){
                 case "list":{
                     if(getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")){
@@ -35,22 +35,41 @@ public class ReportsCommand implements Command {
                         header.add("Time");
 
                         List<List<String>> table = new ArrayList<>();
+                        List<Report> reports = man.getGuildReports(channel.getGuild().getIdLong());
+                        if(reports.size() > 20){
+                            if(args.length != 2){
 
-                        for(Report report: man.getGuildReports(channel.getGuild().getIdLong())){
-                            ArrayList<String> row = new ArrayList<String>();
-                            row.add(String.valueOf(report.getId()));
-                            row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()))));
-                            row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
+                            } else {
+                                int pages = (reports.size() / 20) + 1;
+                                int page = 0;
+                                try {
+                                    page = Integer.valueOf(args[1]);
+                                } catch (Exception e){
+                                    MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid page number: " + args[1] + "."), channel);
+                                    return;
+                                }
+                                if(page > pages || page < 0){
+                                    MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That page doesn't exist. Current page count: " + pages), channel);
+                                }
+                            }
+                        } else {
+                            for (Report report : reports) {
+                                ArrayList<String> row = new ArrayList<String>();
+                                row.add(String.valueOf(report.getId()));
+                                row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()))));
+                                row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
 
-                            DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
-                            String date = formatedDate.format(report.getTime());
+                                DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
+                                String date = formatedDate.format(report.getTime());
 
-                            row.add(date);
+                                row.add(date);
 
-                            table.add(row);
+                                table.add(row);
+                            }
+
+                            String reportsTable = MessageUtils.makeAsciiTable(header, table, null);
+
                         }
-
-                        String reports = MessageUtils.makeAsciiTable(header, table, null);
                     } else {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.list` to do this."), channel);
                     }
