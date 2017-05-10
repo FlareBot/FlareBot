@@ -70,19 +70,21 @@ public class Events extends ListenerAdapter {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
-        if (flareBot.getWelcomeForGuild(event.getGuild()) != null) {
-            Welcome welcome = flareBot.getWelcomeForGuild(event.getGuild());
+        if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
+            Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
             if (channel != null) {
                 if (!channel.canTalk()) {
-                    flareBot.getWelcomes().remove(welcome);
+                    welcome.setEnabled(false);
+                    MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
+                            + channel.getAsMention() + " due to this, welcomes have been disabled!");
                 }
                 String msg = welcome.getMessage()
                         .replace("%user%", event.getMember().getUser().getName())
                         .replace("%guild%", event.getGuild().getName())
                         .replace("%mention%", event.getMember().getUser().getAsMention());
                 channel.sendMessage(msg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
-            } else flareBot.getWelcomes().remove(welcome);
+            } else welcome.setEnabled(false);
         }
         if (flareBot.getAutoAssignRoles().containsKey(event.getGuild().getId())) {
             List<String> autoAssignRoles = flareBot.getAutoAssignRoles().get(event.getGuild().getId());

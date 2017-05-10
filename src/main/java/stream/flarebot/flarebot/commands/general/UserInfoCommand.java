@@ -29,7 +29,7 @@ public class UserInfoCommand implements Command {
         }
         String id = user.getId();
         member = (channel.getGuild().getMember(user) != null ? channel.getGuild().getMember(user) :
-                FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(user.getId()) != null)
+                FlareBot.getInstance().getGuilds().stream().filter(g -> g.getMemberById(user.getId()) != null)
                         .findFirst().orElse(null).getMember(user));
         PlayerCache cache = flareBot.getPlayerCache(id);
         channel.sendMessage(MessageUtils.getEmbed(sender)
@@ -41,7 +41,7 @@ public class UserInfoCommand implements Command {
                         .getDefaultAvatar(sender) + ')', true)
                 .addField("General Info",
                         "Servers: " + FlareBot.getInstance().getGuilds().stream()
-                                .filter(guild -> guild.getMemberById(id) != null)
+                                .filter(g -> g.getMemberById(id) != null)
                                 .count() + " shared\n" +
                                 "Roles: " + (channel.getGuild()
                                 .getMemberById(id) == null ? "The user is not in this server." : channel

@@ -48,7 +48,6 @@ import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.SQLController;
-import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -103,7 +102,6 @@ public class FlareBot {
     public static final String OFFICIAL_GUILD = "226785954537406464";
     public static final String FLAREBOT_API = "https://flarebot.stream/api/";
 
-    private Welcomes welcomes = new Welcomes();
     private File welcomeFile;
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     CountDownLatch latch;
@@ -355,7 +353,7 @@ public class FlareBot {
             loadRoles();
             loadPerms();
             welcomeFile = new File("welcomes.json");
-            loadWelcomes();
+            //loadWelcomes();
             try {
                 gitHubWebhooks = new WebhooksBuilder()
                         .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
@@ -452,7 +450,7 @@ public class FlareBot {
         registerCommand(new AutoAssignCommand(this));
         registerCommand(new QuitCommand());
         registerCommand(new RolesCommand());
-        registerCommand(new WelcomeCommand(this));
+        registerCommand(new WelcomeCommand());
         registerCommand(new PermissionsCommand());
         registerCommand(new UpdateCommand());
         registerCommand(new LogsCommand());
@@ -494,7 +492,7 @@ public class FlareBot {
             public void run() {
                 try {
                     getPermissions().save();
-                    saveWelcomes();
+                    //saveWelcomes();
                 } catch (IOException e) {
                     LOGGER.error("Could not save permissions!", e);
                 }
@@ -778,7 +776,7 @@ public class FlareBot {
     protected void stop() {
         LOGGER.info("Saving data.");
         saveRoles();
-        saveWelcomes();
+        //saveWelcomes();
         sendData();
         try {
             permissions.save();
@@ -966,7 +964,7 @@ public class FlareBot {
         }
     }
 
-    public void loadWelcomes() {
+    /*public void loadWelcomes() {
         try {
             if (welcomeFile.exists()) {
                 welcomes = GSON.fromJson(new FileReader(welcomeFile), Welcomes.class);
@@ -996,22 +994,10 @@ public class FlareBot {
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
-    }
+    }*/
 
     public GithubWebhooks4J getWebHooks() {
         return this.gitHubWebhooks;
-    }
-
-    public List<Welcome> getWelcomes() {
-        return welcomes;
-    }
-
-    public Welcome getWelcomeForGuild(Guild guild) {
-        for (Welcome welcome : welcomes) {
-            if (welcome.getGuildId().equals(guild.getId()))
-                return welcome;
-        }
-        return null;
     }
 
     public String getInvite() {
@@ -1089,9 +1075,6 @@ public class FlareBot {
                 + (minutes > 0 ? (append0 && minutes < 10 ? "0" + minutes : minutes) + (fullUnits ? " minutes" : "m ") : "")
                 + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "")
                 .trim();
-    }
-
-    public static class Welcomes extends CopyOnWriteArrayList<Welcome> {
     }
 
     public TextChannel getUpdateChannel() {

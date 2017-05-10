@@ -260,7 +260,7 @@ public class FlareBotManager {
 
 
     public GuildWrapper getGuild(String id) {
-        guilds.putIfAbsent(id, new GuildWrapperBuilder().build());
+        guilds.putIfAbsent(id, new GuildWrapperBuilder(id).build());
         return guilds.get(id);
     }
 }
