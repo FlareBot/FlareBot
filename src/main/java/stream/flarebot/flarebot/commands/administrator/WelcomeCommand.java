@@ -19,15 +19,15 @@ public class WelcomeCommand implements Command {
             MessageUtils.sendUsage(this, channel);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("enable")) {
-                if (guild.getWelcome() != null) {
-                    guild.setWelcome(new Welcome(channel.getId()));
+                if (!guild.getWelcome().isEnabled()) {
+                    guild.getWelcome().setEnabled(true);
                     channel.sendMessage("Welcomes **enabled**!").queue();
                 } else {
                     channel.sendMessage("Welcomes already **enabled**!").queue();
                 }
             } else if (args[0].equalsIgnoreCase("disable")) {
-                if (guild.getWelcome() != null) {
-                    guild.setWelcome(null);
+                if (guild.getWelcome().isEnabled()) {
+                    guild.getWelcome().setEnabled(false);
                     channel.sendMessage("Welcomes **disabled**!").queue();
                 } else {
                     channel.sendMessage("Welcomes already **disabled**!").queue();

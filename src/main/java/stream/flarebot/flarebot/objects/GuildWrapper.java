@@ -41,10 +41,6 @@ public class GuildWrapper {
         return this.welcome;
     }
 
-    public void setWelcome(Welcome welcome) {
-        this.welcome = welcome;
-    }
-
     public Set<Poll> getPolls(){
         return this.polls;
     }
