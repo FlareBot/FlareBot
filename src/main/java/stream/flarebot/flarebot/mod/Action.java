@@ -54,6 +54,14 @@ public enum Action {
         this.check = check;
     }
 
+    public static Action getAction(String action) {
+        for (Action action1 : values) {
+            if (action1.getName().equalsIgnoreCase(action) || action1.getNameWithUnderscore().equalsIgnoreCase(action))
+                return action1;
+        }
+        return null;
+    }
+
     public int getDefaultPoints() {
         return this.points;
     }
@@ -76,13 +84,5 @@ public enum Action {
 
     public boolean canBeWhitelisted() {
         return this.canBeWhitelisted;
-    }
-
-    public static Action getAction(String action) {
-        for (Action action1 : values) {
-            if (action1.getName().equalsIgnoreCase(action) || action1.getNameWithUnderscore().equalsIgnoreCase(action))
-                return action1;
-        }
-        return null;
     }
 }

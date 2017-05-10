@@ -61,9 +61,9 @@ public class Songs {
     }
 
     private static class ResponsePlayer {
-        private List<Songs> playlist;
         public Songs current;
         public String guildId;
+        private List<Songs> playlist;
 
         public ResponsePlayer(Player p) {
             guildId = p.getGuildId();

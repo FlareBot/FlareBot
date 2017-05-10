@@ -20,6 +20,21 @@ public class SongCommand implements Command {
         this.manager = bot.getMusicManager();
     }
 
+    public static String getLink(Track track) {
+        String name = String.valueOf(track.getTrack().getInfo().title);
+        String link = YouTubeExtractor.WATCH_URL + track.getTrack().getIdentifier();
+        return String.format("[`%s`](%s)", name, link);
+    }
+
+    public static String formatDuration(Track track) {
+        long totalSeconds = track.getTrack().getDuration() / 1000;
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = (totalSeconds / 3600);
+        return (hours > 0 ? (hours < 10 ? "0" + hours : hours) + ":" : "")
+                + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+    }
+
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
@@ -40,12 +55,6 @@ public class SongCommand implements Command {
         }
     }
 
-    public static String getLink(Track track) {
-        String name = String.valueOf(track.getTrack().getInfo().title);
-        String link = YouTubeExtractor.WATCH_URL + track.getTrack().getIdentifier();
-        return String.format("[`%s`](%s)", name, link);
-    }
-
     @Override
     public String getCommand() {
         return "song";
@@ -64,14 +73,5 @@ public class SongCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
-    }
-
-    public static String formatDuration(Track track) {
-        long totalSeconds = track.getTrack().getDuration() / 1000;
-        long seconds = totalSeconds % 60;
-        long minutes = (totalSeconds / 60) % 60;
-        long hours = (totalSeconds / 3600);
-        return (hours > 0 ? (hours < 10 ? "0" + hours : hours) + ":" : "")
-                + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
     }
 }

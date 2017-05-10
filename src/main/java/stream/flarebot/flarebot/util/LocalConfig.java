@@ -3,33 +3,33 @@ package stream.flarebot.flarebot.util;
 import com.google.gson.*;
 import stream.flarebot.flarebot.FlareBot;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Config {
+public class LocalConfig {
 
-    private final Gson gson = new Gson();
+    private final Gson gson = FlareBot.GSON;
     private final JsonParser parser = new JsonParser();
 
-    private File configFile;
     private JsonObject object;
 
-    public Config(String fileName) {
-        this.configFile = new File((fileName.endsWith(".json") ? fileName : fileName + ".json"));
-        try {
-            if (!configFile.exists())
-                configFile.createNewFile();
-            JsonElement element = new JsonParser().parse(new FileReader(configFile));
+    public LocalConfig(URL url) {
+
+        if (url == null)
+            throw new IllegalArgumentException("URL cannot be null!");
+
+        try (Reader r = new InputStreamReader(url.openStream())) {
+            JsonElement element = new JsonParser().parse(r);
             if (element != null && !element.isJsonNull() && element.getAsJsonObject() != null)
                 this.object = element.getAsJsonObject();
             else
                 this.object = new JsonObject();
         } catch (IOException e) {
-            FlareBot.LOGGER.error("There was an error creating the config file!", e);
+            FlareBot.LOGGER.error("There was an error reading the config file!", e);
         }
     }
 
@@ -125,54 +125,7 @@ public class Config {
         }
     }
 
-    /**
-     * Set the JsonObject at the specified path to the Object passed (Serialized if needed).
-     *
-     * @param path Path to the JsonObject
-     * @param obj  Object to set
-     */
-    public void set(String path, Object obj) {
-        String lastSubPath = path;
-        if (path.contains("."))
-            lastSubPath = path.substring(0, path.lastIndexOf('.'));
-        JsonElement element = getElement(lastSubPath, new JsonObject());
-
-        if (element.isJsonObject())
-            element.getAsJsonObject().add(lastSubPath, parser.parse(gson.toJson(obj)));
-        else
-            throw new IllegalArgumentException("Make sure the element at the specified path is a JsonObject not a JsonArray!!");
-        //element.getAsJsonArray().add(parser.parse(gson.toJson(obj)));
-    }
-
-    /**
-     * Add the Object passed (Serialized if needed) to the JsonObject at the specified path.
-     *
-     * @param path Path to the JsonArray
-     * @param obj  Object to set
-     */
-    public void add(String path, Object obj) {
-        JsonElement element = getElement(path, new JsonArray());
-
-        if (element.isJsonObject())
-            throw new IllegalArgumentException("Make sure the element at the specified path is a JsonArray not a JsonObject!!");
-        else
-            element.getAsJsonArray().add(parser.parse(gson.toJson(obj)));
-    }
-
-    public void save() {
-        try (FileWriter writer = new FileWriter(configFile)) {
-            writer.write(object.toString());
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public JsonObject getJsonObject() {
         return object;
-    }
-
-    public File getConfigFile() {
-        return configFile;
     }
 }

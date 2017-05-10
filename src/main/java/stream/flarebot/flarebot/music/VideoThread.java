@@ -16,11 +16,11 @@ import java.util.Set;
 
 public class VideoThread extends Thread {
 
-    private static PlayerManager manager;
+    public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
     private static final List<Class<? extends Extractor>> extractors = Arrays.asList(YouTubeExtractor.class,
             SavedPlaylistExtractor.class, RandomExtractor.class);
     private static final Set<Class<? extends AudioSourceManager>> managers = new HashSet<>();
-    public static final ThreadGroup VIDEO_THREADS = new ThreadGroup("Video Threads");
+    private static PlayerManager manager;
     private User user;
     private TextChannel channel;
     private String url;
@@ -30,6 +30,23 @@ public class VideoThread extends Thread {
         if (manager == null)
             manager = FlareBot.getInstance().getMusicManager();
         setName("Video Thread " + VIDEO_THREADS.activeCount());
+    }
+
+    public static VideoThread getThread(String url, TextChannel channel, User user) {
+        VideoThread thread = new VideoThread();
+        thread.url = url;
+        thread.channel = channel;
+        thread.user = user;
+        return thread;
+    }
+
+    public static VideoThread getSearchThread(String term, TextChannel channel, User user) {
+        VideoThread thread = new VideoThread();
+        thread.url = term;
+        thread.channel = channel;
+        thread.user = user;
+        thread.extractor = new YouTubeSearchExtractor();
+        return thread;
     }
 
     @Override
@@ -62,22 +79,5 @@ public class VideoThread extends Thread {
         if (url == null)
             throw new IllegalStateException("URL Was not set!");
         super.start();
-    }
-
-    public static VideoThread getThread(String url, TextChannel channel, User user) {
-        VideoThread thread = new VideoThread();
-        thread.url = url;
-        thread.channel = channel;
-        thread.user = user;
-        return thread;
-    }
-
-    public static VideoThread getSearchThread(String term, TextChannel channel, User user) {
-        VideoThread thread = new VideoThread();
-        thread.url = term;
-        thread.channel = channel;
-        thread.user = user;
-        thread.extractor = new YouTubeSearchExtractor();
-        return thread;
     }
 }
