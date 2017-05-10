@@ -64,7 +64,39 @@ public enum Language {
     HELP_CONTINUED,
     HELP_DESCRIPTION,
     // Info
-    INFO_HEADER
+    INFO_HEADER;
 
+
+    public enum Locales {
+
+        ENGLISH_UK("en_uk"),
+        ENGLISH_US("en_us"),
+        FRENCH("fr");
+
+        private String code;
+
+        Locales(String code) {
+            this.code = code;
+        }
+
+        public static Locales from(String s) {
+            for (Locales l : Locales.values()) {
+                if (s.equalsIgnoreCase(l.getCode()))
+                    return l;
+                else
+                    throw new IllegalArgumentException("Unknown language code (" + l.getCode() + " !");
+            }
+            return null;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        @Override
+        public String toString() {
+            return this.code;
+        }
+    }
 
 }

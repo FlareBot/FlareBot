@@ -388,6 +388,7 @@ public class FlareBot {
         manager.loadRandomSongs();
         manager.loadProfanity();
         manager.loadAutoMod();
+        manager.loadLocalisation();
 
         loadPolls();
         loadSelfAssign();
@@ -495,6 +496,7 @@ public class FlareBot {
                 try {
                     getPermissions().save();
                     saveWelcomes();
+                    manager.saveLocalisation();
                 } catch (IOException e) {
                     LOGGER.error("Could not save permissions!", e);
                 }
@@ -788,6 +790,7 @@ public class FlareBot {
         savePolls();
         saveSelfAssign();
         manager.saveAutoMod();
+        manager.saveLocalisation();
     }
 
     private void saveSelfAssign() {
