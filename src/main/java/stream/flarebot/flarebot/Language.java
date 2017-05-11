@@ -83,10 +83,8 @@ public enum Language {
             for (Locales l : Locales.values()) {
                 if (s.equalsIgnoreCase(l.getCode()))
                     return l;
-                else
-                    throw new IllegalArgumentException("Unknown language code (" + l.getCode() + " !");
             }
-            return null;
+            throw new IllegalArgumentException("Unknown language code (" + s + ") !");
         }
 
         public String getCode() {

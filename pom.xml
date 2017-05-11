@@ -8,10 +8,6 @@
     <artifactId>flarebot</artifactId>
     <version>2.99.99-IN_DEV</version>
 
-    <properties>
-        <jetty.version>9.3.6.v20151106</jetty.version>
-    </properties>
-
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
             <id>jcenter</id>
