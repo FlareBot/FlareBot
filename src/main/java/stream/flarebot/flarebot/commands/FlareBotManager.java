@@ -259,7 +259,7 @@ public class FlareBotManager {
     }
 
     public LocalConfig loadConfig(Language.Locales l) {
-        return configs.computeIfAbsent(l, locale -> new LocalConfig(getClass().getResource("/langs/" + l.getCode())));
+        return configs.computeIfAbsent(l, locale -> new LocalConfig(getClass().getResource("/langs/" + l.getCode() + ".json)));
     }
 
     public String getLang(Language lang, String id) {
