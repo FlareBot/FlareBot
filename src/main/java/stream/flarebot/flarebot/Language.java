@@ -90,11 +90,5 @@ public enum Language {
         public String getCode() {
             return code;
         }
-
-        @Override
-        public String toString() {
-            return this.code;
-        }
     }
-
 }
