@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -27,10 +26,10 @@ public class QueryCommand implements Command {
             SQLController.runSqlTask(conn -> {
                 ResultSet set;
                 try {
-                    set = conn.createStatement().executeQuery(FlareBot.getMessage(args, 0));
+                    set = conn.createStatement().executeQuery(MessageUtils.getMessage(args, 0));
                 } catch (SQLException e) {
                     try {
-                        conn.createStatement().execute(FlareBot.getMessage(args, 0));
+                        conn.createStatement().execute(MessageUtils.getMessage(args, 0));
                         channel.sendMessage(new EmbedBuilder().setDescription("Query was executed successfully!")
                                 .setColor(Color.green).build()).queue();
                     } catch (SQLException e1) {

@@ -64,7 +64,15 @@ public enum Language {
     HELP_CONTINUED,
     HELP_DESCRIPTION,
     // Info
-    INFO_HEADER;
+    INFO_HEADER,
+    // Report
+    REPORT_STATUS_OPEN,
+    REPORT_STATUS_ONHOLD,
+    REPORT_STATUS_RESOLVED,
+    REPORT_STATUS_CLOSED,
+    REPORT_STATUS_UNDERREVIEW,
+    REPORT_STATUS_DUPLICATE
+    ;
 
 
     public enum Locales {
@@ -83,20 +91,12 @@ public enum Language {
             for (Locales l : Locales.values()) {
                 if (s.equalsIgnoreCase(l.getCode()))
                     return l;
-                else
-                    throw new IllegalArgumentException("Unknown language code (" + l.getCode() + " !");
             }
-            return null;
+            throw new IllegalArgumentException("Unknown language code (" + s + ") !");
         }
 
         public String getCode() {
             return code;
         }
-
-        @Override
-        public String toString() {
-            return this.code;
-        }
     }
-
 }

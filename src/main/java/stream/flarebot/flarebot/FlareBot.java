@@ -1043,18 +1043,6 @@ public class FlareBot {
                 .sum() == clients.length;
     }
 
-    public static String getMessage(String[] args, int min) {
-        return Arrays.stream(args).skip(min).collect(Collectors.joining(" ")).trim();
-    }
-
-    public static String getMessage(String[] args, int min, int max) {
-        String message = "";
-        for (int index = min; index < max; index++) {
-            message += args[index] + " ";
-        }
-        return message.trim();
-    }
-
     public static void reportError(TextChannel channel, String s, Exception e) {
         JsonObject message = new JsonObject();
         message.addProperty("message", s);

@@ -29,7 +29,7 @@ public class SearchCommand implements Command {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();
             } else {
-                String term = FlareBot.getMessage(args, 0);
+                String term = MessageUtils.getMessage(args, 0);
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
         } else {

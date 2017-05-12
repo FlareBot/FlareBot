@@ -6,11 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>stream.flarebot</groupId>
     <artifactId>flarebot</artifactId>
-    <version>2.7.1-SNAPSHOT</version>
-
-    <properties>
-        <jetty.version>9.3.6.v20151106</jetty.version>
-    </properties>
+    <version>2.99.99-IN_DEV</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
