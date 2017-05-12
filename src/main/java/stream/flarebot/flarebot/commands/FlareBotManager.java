@@ -101,6 +101,8 @@ public class FlareBotManager {
                         .execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
                 conn.createStatement()
                         .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
+                conn.createStatement()
+                        .execute("CREATE TABLE IF NOT EXISTS reports (guild_id INT(5), report_id INT(5), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), status INT(2))");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -266,6 +268,11 @@ public class FlareBotManager {
         String path = lang.name().toLowerCase().replaceAll("_", ".");
         LocalConfig config = loadConfig(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
         return config.getString(path);
+    }
+
+    public void saveReports(){
+        FlareBot.LOGGER.info("Saving reports data");
+        //I need to check for if the report exists and update it else create it. Problem with that is the report has 2 values that identify it.
     }
 }
 
