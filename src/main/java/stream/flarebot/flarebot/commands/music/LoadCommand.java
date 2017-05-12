@@ -18,7 +18,7 @@ public class LoadCommand implements Command {
             MessageUtils.sendUsage(this, channel);
             return;
         }
-        String name = FlareBot.getMessage(args, 0);
+        String name = MessageUtils.getMessage(args, 0);
 
         channel.sendTyping().complete();
 

@@ -74,7 +74,7 @@ public class PollCommand implements Command {
                         .getPollFromGuild(channel.getGuild()).isOpen()) {
                     MessageUtils.sendErrorMessage("Close current poll, also make this message better", channel);
                 } else {
-                    String question = FlareBot.getMessage(args, 1);
+                    String question = MessageUtils.getMessage(args, 1);
                     manager.getPolls().put(guildId, new Poll(question));
                     channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null).setColor(Color.green)
                             .setAuthor(sender.getName(), null, sender
@@ -110,7 +110,7 @@ public class PollCommand implements Command {
                 if (args[1].equalsIgnoreCase("add")) {
                     if (perms.hasPermission(member, "flarebot.poll.options.add")) {
                         if (args.length >= 3) {
-                            String option = FlareBot.getMessage(args, 2);
+                            String option = MessageUtils.getMessage(args, 2);
                             Poll poll = manager.getPolls().get(channel.getGuild().getId());
                             poll.getPollOptions().add(new PollOption(option));
                             manager.getPolls().put(guildId, poll);

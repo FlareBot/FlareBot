@@ -20,7 +20,7 @@ public class UserInfoCommand implements Command {
         if (args.length == 0)
             user = sender;
         else
-            user = MessageUtils.getUser(FlareBot.getMessage(args, 0));
+            user = MessageUtils.getUser(MessageUtils.getMessage(args, 0));
 
         if (user == null) {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
