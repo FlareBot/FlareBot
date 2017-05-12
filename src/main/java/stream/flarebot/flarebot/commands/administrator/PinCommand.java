@@ -17,7 +17,7 @@ public class PinCommand implements Command {
             Message msg = channel.getMessageById(args[0].trim()).complete();
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
-        } else if (args.length != 0){
+        } else if (args.length != 0) {
             Message msg = channel.sendMessage(new EmbedBuilder().setTitle(sender.getName(), null)
                     .setThumbnail(MessageUtils.getAvatar(sender)).setDescription(MessageUtils.getMessage(args, 0))
                     .build()).complete();
