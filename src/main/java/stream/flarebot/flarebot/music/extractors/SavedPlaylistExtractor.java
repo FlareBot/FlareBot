@@ -3,15 +3,14 @@ package stream.flarebot.flarebot.music.extractors;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Playlist;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import stream.flarebot.flarebot.MessageUtils;
 
 import java.util.ArrayList;
 
@@ -29,17 +28,11 @@ public class SavedPlaylistExtractor implements Extractor {
         ArrayList<Track> playlist = new ArrayList<>();
         for (String s : input.split(",")) {
             String url = YouTubeExtractor.WATCH_URL + s;
-            Document doc;
             try {
-                doc = Jsoup.connect(url).get();
-            } catch (Exception e) {
-                continue;
-            }
-            if (!doc.title().endsWith("YouTube") || doc.title().equals("YouTube")) {
-                continue;
-            }
-            try {
-                Track track = new Track((AudioTrack) player.resolve(url));
+                AudioItem item = player.resolve(url);
+                if(item == null || !(item instanceof AudioTrack))
+                    continue;
+                Track track = new Track((AudioTrack) item);
                 track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
                 playlist.add(track);
