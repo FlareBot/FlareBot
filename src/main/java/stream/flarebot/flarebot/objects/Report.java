@@ -2,30 +2,31 @@ package stream.flarebot.flarebot.objects;
 
 import org.joda.time.DateTime;
 
-import java.util.Date;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 /**
  * Represents an individual report
  */
 public class Report {
-    private long guildId;
+    private String guildId;
 
     private int id;
 
     private String message;
 
-    private long reporterId;
-    private long reportedId;
+    private String reporterId;
+    private String reportedId;
 
-    private Date time;
+    private Timestamp time;
 
     private ReportStatus status;
 
-    public Report(long guildId, int id, String message, long reporterId, long reportedId, DateTime time, ReportStatus status){
+    public Report(String guildId, int id, String message, String reporterId, String reportedId, Timestamp time, ReportStatus status){
         this.guildId = guildId;
         this.id = id;
         this.message = message;
-        this.time = time.toDate();
+        this.time = time;
 
         this.reporterId = reporterId;
         this.reportedId = reportedId;
@@ -35,15 +36,15 @@ public class Report {
 
     public int getId(){ return id; }
 
-    public long getGuildId(){ return guildId; }
+    public String getGuildId(){ return guildId; }
 
     public String getMessage(){ return message; }
 
-    public long getReporterId(){ return reporterId; }
+    public String getReporterId(){ return reporterId; }
 
-    public long getReportedId(){ return reportedId; }
+    public String getReportedId(){ return reportedId; }
 
-    public Date getTime(){ return time; }
+    public Timestamp getTime(){ return time; }
 
     public ReportStatus getStatus(){ return status; }
 

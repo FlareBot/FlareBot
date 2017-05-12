@@ -13,7 +13,9 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.objects.Poll;
+import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.util.LocalConfig;
+import stream.flarebot.flarebot.util.ReportManager;
 import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
@@ -102,7 +104,7 @@ public class FlareBotManager {
                 conn.createStatement()
                         .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
                 conn.createStatement()
-                        .execute("CREATE TABLE IF NOT EXISTS reports (guild_id INT(5), report_id INT(5), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), status INT(2))");
+                        .execute("CREATE TABLE IF NOT EXISTS reports (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, guild_id VARCHAR(20), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), status INT(2))");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -261,7 +263,7 @@ public class FlareBotManager {
     }
 
     public LocalConfig loadConfig(Language.Locales l) {
-        return configs.computeIfAbsent(l, locale -> new LocalConfig(getClass().getResource("/langs/" + l.getCode() + ".json)));
+        return configs.computeIfAbsent(l, locale -> new LocalConfig(getClass().getResource("/langs/" + l.getCode() + ".json")));
     }
 
     public String getLang(Language lang, String id) {
@@ -272,7 +274,22 @@ public class FlareBotManager {
 
     public void saveReports(){
         FlareBot.LOGGER.info("Saving reports data");
-        //I need to check for if the report exists and update it else create it. Problem with that is the report has 2 values that identify it.
+        for (Report report : ReportManager.reportsToSave) {
+            try {
+                SQLController.runSqlTask(conn -> {
+                    PreparedStatement statement = conn.prepareStatement("INSERT INTO reports (guild_id, time, message, reporter_id, reported_id, status) VALUES (?, ?, ?, ?, ?, ?)");
+                    statement.setString(1, report.getGuildId());
+                    statement.setObject(2, report.getTime());
+                    statement.setString(3, report.getMessage());
+                    statement.setString(4, report.getReporterId());
+                    statement.setString(5, report.getReportedId());
+                    statement.setInt(6, report.getStatus().ordinal());
+                    statement.execute();
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 

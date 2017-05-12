@@ -2,17 +2,19 @@ package stream.flarebot.flarebot.util;
 
 import org.joda.time.DateTime;
 import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReportManager {
 
-    private static List<Report> reportsToSave = new ArrayList<>();
+    public static List<Report> reportsToSave = new ArrayList<>();
 
-    public List<Report> getGuildReports(long guildID){
+    public static List<Report> getGuildReports(String guildID){
         List<Report> reports = new ArrayList<>();
         try {
             SQLController.runSqlTask(conn ->{
@@ -20,12 +22,12 @@ public class ReportManager {
                 while(set.next()){
                     int id = set.getInt("report_id");
                     String message = set.getString("message");
-                    long reporterId = set.getLong("reporter_id");
-                    long reportedId = set.getLong("reported_id");
-                    DateTime time = new DateTime(set.getTimestamp("time").getTime());
-                    boolean solved = set.getBoolean("solved");
+                    String reporterId = set.getString("reporter_id");
+                    String reportedId = set.getString("reported_id");
+                    Timestamp time = set.getTimestamp("time");
+                    ReportStatus status = ReportStatus.get(set.getInt("status"));
 
-                    Report report = new Report(guildID, id, message, reporterId, reportedId, time, solved);
+                    Report report = new Report(guildID, id, message, reporterId, reportedId, time, status);
                     reports.add(report);
                 }
             });
@@ -36,24 +38,25 @@ public class ReportManager {
         return reports;
     }
 
-    public Report getReport(long guildID, int id){
-        List<Report> theReport = new ArrayList<>(); //Probably not the best way to do it but I couldn't think of anything else
+    public static Report getReport(String guildID, int id){
+        final Report[] report = new Report[1];
         try {
             SQLController.runSqlTask(conn ->{
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + ", report_id = " + id );
                 String message = set.getString("message");
-                long reporterId = set.getLong("reporter_id");
-                long reportedId = set.getLong("reported_id");
-                DateTime time = new DateTime(set.getTimestamp("time").getTime());
-                boolean solved = set.getBoolean("solved");
+                String reporterId = set.getString("reporter_id");
+                String reportedId = set.getString("reported_id");
+                Timestamp time = set.getTimestamp("time");
+                ReportStatus status = ReportStatus.get(set.getInt("status"));
 
-                theReport.add(new Report(guildID, id, message, reporterId, reportedId, time, solved));
+                report[0] = new Report(guildID, id, message, reporterId, reportedId, time, status);
 
             });
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
-        return theReport.get(0);
+        return report[0];
     }
+
 }

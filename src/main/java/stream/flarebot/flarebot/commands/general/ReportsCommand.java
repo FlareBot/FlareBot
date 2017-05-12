@@ -2,10 +2,7 @@ package stream.flarebot.flarebot.commands.general;
 
 import com.sun.org.apache.regexp.internal.RE;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
@@ -22,14 +19,13 @@ import java.util.List;
 public class ReportsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        ReportManager man = new ReportManager();
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel);
         } else if (args.length == 1 || args.length == 2) {
             switch (args[0]) { //I'm used to using switch statements. If you want this as an if statement just tell me.
                 case "list": {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
-                        List<Report> reports = man.getGuildReports(channel.getGuild().getIdLong());
+                        List<Report> reports = ReportManager.getGuildReports(channel.getGuild().getId());
                         if (reports.size() > 20) {
                             if (args.length != 2) {
                                 int pages = (reports.size() / 20) + 1;
@@ -38,7 +34,7 @@ public class ReportsCommand implements Command {
                                 reportArray = Arrays.copyOfRange(reportArray, 0, 19);
                                 reports = Arrays.asList(reportArray);
 
-                                String reportsTable = getReportsTable(reports);
+                                String reportsTable = getReportsTable(channel.getGuild(), reports);
                                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
                                 builder.addField("Reports", reportsTable, false);
                                 builder.addField("Pages", String.valueOf(pages), true);
@@ -66,7 +62,7 @@ public class ReportsCommand implements Command {
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
                                     reports = Arrays.asList(reportArray);
 
-                                    String reportsTable = getReportsTable(reports);
+                                    String reportsTable = getReportsTable(channel.getGuild(), reports);
                                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
                                     builder.addField("Reports", reportsTable, false);
                                     builder.addField("Pages", String.valueOf(pages), true);
@@ -75,7 +71,7 @@ public class ReportsCommand implements Command {
                                 }
                             }
                         } else {
-                            String reportsTable = getReportsTable(reports);
+                            String reportsTable = getReportsTable(channel.getGuild(), reports);
                             EmbedBuilder builder = MessageUtils.getEmbed(sender);
                             builder.addField("Reports", reportsTable, false);
                             channel.sendMessage(builder.build());
@@ -100,7 +96,7 @@ public class ReportsCommand implements Command {
                         return;
                     }
 
-                    Report report = man.getReport(channel.getGuild().getIdLong(), id);
+                    Report report = ReportManager.getReport(channel.getGuild().getId(), id);
                     if (report == null) {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
                         return;
@@ -135,7 +131,7 @@ public class ReportsCommand implements Command {
         }
     }
 
-    private String getReportsTable(List<Report> reports) {
+    private String getReportsTable(Guild guild, List<Report> reports) {
         ArrayList<String> header = new ArrayList<>();
         header.add("Id");
         header.add("Reporter");
@@ -155,7 +151,7 @@ public class ReportsCommand implements Command {
 
             row.add(date);
 
-            row.add(String.valueOf(report.getSolved()));
+            row.add(report.getStatus().getMessage(guild.getId()));
 
             table.add(row);
         }

@@ -64,7 +64,15 @@ public enum Language {
     HELP_CONTINUED,
     HELP_DESCRIPTION,
     // Info
-    INFO_HEADER;
+    INFO_HEADER,
+    // Report
+    REPORT_STATUS_OPEN,
+    REPORT_STATUS_ONHOLD,
+    REPORT_STATUS_RESOLVED,
+    REPORT_STATUS_CLOSED,
+    REPORT_STATUS_UNDERREVIEW,
+    REPORT_STATUS_DUPLICATE
+    ;
 
 
     public enum Locales {
