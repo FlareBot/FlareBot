@@ -102,7 +102,7 @@ public class FlareBotManager {
                 conn.createStatement()
                         .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
                 conn.createStatement()
-                        .execute("CREATE TABLE IF NOT EXISTS reports (guild_id INT(5), report_id INT(5), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), solved BOOL)");
+                        .execute("CREATE TABLE IF NOT EXISTS reports (guild_id INT(5), report_id INT(5), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), status INT(2))");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);

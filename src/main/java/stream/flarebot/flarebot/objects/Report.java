@@ -19,9 +19,9 @@ public class Report {
 
     private Date time;
 
-    private boolean solved;
+    private ReportStatus status;
 
-    public Report(long guildId, int id, String message, long reporterId, long reportedId, DateTime time, boolean solved){
+    public Report(long guildId, int id, String message, long reporterId, long reportedId, DateTime time, ReportStatus status){
         this.guildId = guildId;
         this.id = id;
         this.message = message;
@@ -30,7 +30,7 @@ public class Report {
         this.reporterId = reporterId;
         this.reportedId = reportedId;
 
-        this.solved = solved;
+        this.status = status;
     }
 
     public int getId(){ return id; }
@@ -45,7 +45,7 @@ public class Report {
 
     public Date getTime(){ return time; }
 
-    public boolean getSolved(){ return solved; }
+    public ReportStatus getStatus(){ return status; }
 
-    public void setSolved(boolean solved){ this.solved = solved; }
+    public void setStatus(ReportStatus status){ this.status = status; }
 }
