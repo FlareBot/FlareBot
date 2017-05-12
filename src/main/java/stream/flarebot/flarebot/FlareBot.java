@@ -498,6 +498,7 @@ public class FlareBot {
                     getPermissions().save();
                     saveWelcomes();
                     manager.saveLocalisation();
+
                 } catch (IOException e) {
                     LOGGER.error("Could not save permissions!", e);
                 }
