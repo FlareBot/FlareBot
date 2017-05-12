@@ -46,4 +46,6 @@ public class Report {
     public Date getTime(){ return time; }
 
     public boolean getSolved(){ return solved; }
+
+    public void setSolved(boolean solved){ this.solved = solved; }
 }

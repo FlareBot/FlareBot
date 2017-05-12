@@ -23,15 +23,15 @@ public class ReportsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         ReportManager man = new ReportManager();
-        if(args.length == 0){
+        if (args.length == 0) {
             MessageUtils.sendUsage(this, channel);
-        } else if(args.length == 1 || args.length == 2){
-            switch (args[0]){ //I'm used to using switch statements. If you want this as an if statement just tell me.
-                case "list":{
-                    if(getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")){
+        } else if (args.length == 1 || args.length == 2) {
+            switch (args[0]) { //I'm used to using switch statements. If you want this as an if statement just tell me.
+                case "list": {
+                    if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
                         List<Report> reports = man.getGuildReports(channel.getGuild().getIdLong());
-                        if(reports.size() > 20){
-                            if(args.length != 2){
+                        if (reports.size() > 20) {
+                            if (args.length != 2) {
                                 int pages = (reports.size() / 20) + 1;
                                 Report[] reportArray = new Report[reports.size() - 1];
                                 reportArray = reports.toArray(reportArray);
@@ -53,12 +53,12 @@ public class ReportsCommand implements Command {
                                     page = Integer.valueOf(args[1]);
                                     start = 20 * (page - 1);
                                     end = (20 * page) - 1;
-                                } catch (Exception e){
+                                } catch (Exception e) {
                                     MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid page number: " + args[1] + "."), channel);
                                     return;
                                 }
 
-                                if(page > pages || page < 0){
+                                if (page > pages || page < 0) {
                                     MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That page doesn't exist. Current page count: " + pages), channel);
                                 } else {
                                     Report[] reportArray = new Report[reports.size() - 1];
@@ -85,23 +85,23 @@ public class ReportsCommand implements Command {
                     }
                 }
                 break;
-                default:{
+                default: {
                     MessageUtils.sendUsage(this, channel);
                 }
             }
-        } else if(args.length == 4){
-            switch (args[0]){
-                case "view":{
+        } else if (args.length == 4) {
+            switch (args[0]) {
+                case "view": {
                     int id;
-                    try{
+                    try {
                         id = Integer.valueOf(args[1]);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
                         return;
                     }
 
                     Report report = man.getReport(channel.getGuild().getIdLong(), id);
-                    if(report == null){
+                    if (report == null) {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
                         return;
                     }
@@ -120,14 +120,22 @@ public class ReportsCommand implements Command {
                     eb.addField("Message", "```" + report.getMessage() + "```", false);
                 }
                 break;
-                case "report" :{
-                    
+                case "close": {
+
+                }
+                break;
+                case "report": {
+
+                }
+                break;
+                default: {
+                    MessageUtils.sendUsage(this, channel);
                 }
             }
         }
     }
 
-    private String getReportsTable(List<Report> reports){
+    private String getReportsTable(List<Report> reports) {
         ArrayList<String> header = new ArrayList<>();
         header.add("Id");
         header.add("Reporter");
@@ -156,19 +164,26 @@ public class ReportsCommand implements Command {
     }
 
     @Override
-    public String getCommand() { return "reports"; }
+    public String getCommand() {
+        return "reports";
+    }
 
     @Override
-    public String getDescription() { return "Used to view reports and to report users"; }
+    public String getDescription() {
+        return "Used to view reports and to report users";
+    }
 
     @Override
     public String getUsage() {
         return "{%}reports\n" +
                 "{%}reports list [page]" +
                 "{%}reports view <number>\n" +
+                "{%}reports close <number>\n" +
                 "{%}reports report <user> [reason]";
     }
 
     @Override
-    public CommandType getType() { return CommandType.MODERATION; }
+    public CommandType getType() {
+        return CommandType.MODERATION;
+    }
 }
