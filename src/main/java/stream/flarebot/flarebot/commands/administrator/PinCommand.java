@@ -13,15 +13,14 @@ public class PinCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 1 && !args[0].replaceAll("[^0-9]", "").isEmpty()) {
-            String messageId = args[0].replaceAll("[^0-9]", "");
-            Message msg = channel.getMessageById(messageId).complete();
+        if (args.length == 1 && args[0].matches("[0-9]{18,22}")) {
+            Message msg = channel.getMessageById(args[0].trim()).complete();
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else if (args.length != 0){
-            String pinMessage = MessageUtils.getMessage(args, 0);
             Message msg = channel.sendMessage(new EmbedBuilder().setTitle(sender.getName(), null)
-                    .setThumbnail(MessageUtils.getAvatar(sender)).setDescription(pinMessage).build()).complete();
+                    .setThumbnail(MessageUtils.getAvatar(sender)).setDescription(MessageUtils.getMessage(args, 0))
+                    .build()).complete();
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else {
