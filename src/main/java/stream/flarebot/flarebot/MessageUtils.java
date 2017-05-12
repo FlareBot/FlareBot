@@ -13,8 +13,10 @@ import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class MessageUtils {
     public static final String DEBUG_CHANNEL = "226786557862871040";
@@ -190,5 +192,17 @@ public class MessageUtils {
             }
             return null;
         }
+    }
+
+    public static String getMessage(String[] args, int min) {
+        return Arrays.stream(args).skip(min).collect(Collectors.joining(" ")).trim();
+    }
+
+    public static String getMessage(String[] args, int min, int max) {
+        String message = "";
+        for (int index = min; index < max; index++) {
+            message += args[index] + " ";
+        }
+        return message.trim();
     }
 }

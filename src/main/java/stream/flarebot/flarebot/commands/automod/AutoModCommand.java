@@ -95,7 +95,7 @@ public class AutoModCommand implements Command {
                 if (args.length >= 4) {
                     Action action = Action.getAction(args[2]);
                     if (action != null && action.canBeWhitelisted()) {
-                        String whitelist = FlareBot.getMessage(args, 3);
+                        String whitelist = MessageUtils.getMessage(args, 3);
 
                         FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).getWhitelist(action)
                                 .add(whitelist);

@@ -121,11 +121,11 @@ public class SelfAssignCommand implements Command {
                     MessageUtils.sendErrorMessage("That role does not exist!", channel);
             } else {
                 String roleId;
-                if (channel.getGuild().getRolesByName(FlareBot.getMessage(args, 0), true).isEmpty()) {
+                if (channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).isEmpty()) {
                     MessageUtils.sendErrorMessage("That role does not exist!", channel);
                     return;
                 } else
-                    roleId = channel.getGuild().getRolesByName(FlareBot.getMessage(args, 0), true).get(0).getId();
+                    roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getId();
 
                 if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).contains(roleId)) {
                     handleRole(member, channel, roleId);
@@ -137,11 +137,11 @@ public class SelfAssignCommand implements Command {
             }
         } else {
             String roleId;
-            if (channel.getGuild().getRolesByName(FlareBot.getMessage(args, 0), true).isEmpty()) {
+            if (channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).isEmpty()) {
                 MessageUtils.sendErrorMessage("That role does not exist!", channel);
                 return;
             } else
-                roleId = channel.getGuild().getRolesByName(FlareBot.getMessage(args, 0), true).get(0).getId();
+                roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getId();
 
             if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).contains(roleId)) {
                 handleRole(member, channel, roleId);

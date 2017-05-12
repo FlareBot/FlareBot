@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 
@@ -22,7 +23,7 @@ public class SaveCommand implements Command {
             return;
         }
 
-        String name = FlareBot.getMessage(args, 0);
+        String name = MessageUtils.getMessage(args, 0);
         if (name.length() > 20) {
             channel.sendMessage("Name must be up to 20 characters!").queue();
             return;
