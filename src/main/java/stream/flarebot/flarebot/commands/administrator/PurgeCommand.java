@@ -33,7 +33,13 @@ public class PurgeCommand implements Command {
                     return;
                 }
             }
-            int count = Integer.parseInt(args[0]) + 1;
+            int count;
+            try {
+                count = Integer.parseInt(args[0]) + 1;
+            } catch (NumberFormatException e) {
+                MessageUtils.sendErrorMessage("The number entered is too high!", channel);
+                return;
+            }
             if (count < 2) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("Can't purge less than 2 messages!").build()).queue();
