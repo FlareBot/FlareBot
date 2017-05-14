@@ -54,7 +54,7 @@ public class MessageUtils {
             return user.openPrivateChannel().complete()
                     .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
         } catch (ErrorResponseException e) {
-            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", String.valueOf(message), false), channel);
+            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", String.valueOf(message), false).setColor(Color.RED), channel);
             return null;
         }
     }
@@ -64,7 +64,7 @@ public class MessageUtils {
             return user.openPrivateChannel().complete()
                     .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
         } catch (ErrorResponseException e) {
-            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", message.build().getDescription(), false), channel);
+            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", message.build().getDescription(), false).setColor(Color.RED), channel);
             return null;
         }
     }

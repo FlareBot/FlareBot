@@ -30,7 +30,7 @@ public class BanCommand implements Command {
                 }
                 //TODO: When reasons are out for JDA add them here!!!
                 String reason = null;
-                if(args.length >= 2)
+                if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
                 FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId())
                         .postToModLog(channel, user, sender, Punishment.EPunishment.BAN, reason);
@@ -69,7 +69,7 @@ public class BanCommand implements Command {
     public CommandType getType() {
         return CommandType.MODERATION;
     }
-    
+
     @Override
     public Permission getDiscordPermission() {
         return Permission.BAN_MEMBERS;

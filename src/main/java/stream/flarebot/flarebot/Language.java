@@ -151,8 +151,7 @@ public enum Language {
     USERINFO_TIMEDATA_LASTSEEN,
     USERINFO_TIMEDATA_LASTSPOKE,
     USERINFO_DESCRIPTION,
-    USERINFO_USAGE,
-    ;
+    USERINFO_USAGE,;
 
 
     public enum Locales {
