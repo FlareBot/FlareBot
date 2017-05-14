@@ -103,7 +103,7 @@ public class Events extends ListenerAdapter {
 
     private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
         if (!e1.getMessage().startsWith("Can't modify a role with higher")) {
-            MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+            MessageUtils.sendPM(event.getGuild().getPublicChannel(), event.getGuild().getOwner().getUser(),
                     "**Could not auto assign a role!**\n" + e1.getMessage());
             return;
         }
@@ -116,7 +116,7 @@ public class Events extends ListenerAdapter {
                 .append(event.getGuild().getSelfMember().getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
-        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
+        MessageUtils.sendPM(event.getGuild().getPublicChannel(), event.getGuild().getOwner().getUser(), message);
     }
 
     @Override

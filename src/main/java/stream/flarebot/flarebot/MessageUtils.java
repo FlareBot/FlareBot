@@ -49,19 +49,24 @@ public class MessageUtils {
         return len;
     }
 
-    public static Message sendPM(User user, CharSequence message) {
+    public static Message sendPM(MessageChannel channel, User user, CharSequence message) {
         try {
             return user.openPrivateChannel().complete()
                     .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
         } catch (ErrorResponseException e) {
-            FlareBot.LOGGER.error(String.format("Failed to send a PM to user: %s! Message: " + e.getMessage(), getTag(user)));
+            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", String.valueOf(message), false), channel);
             return null;
         }
     }
 
-    public static Message sendPM(User user, EmbedBuilder message) {
-        return user.openPrivateChannel().complete()
-                .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
+    public static Message sendPM(MessageChannel channel, User user, EmbedBuilder message) {
+        try {
+            return user.openPrivateChannel().complete()
+                    .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
+        } catch (ErrorResponseException e) {
+            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", message.build().getDescription(), false), channel);
+            return null;
+        }
     }
 
     public static Message sendException(String s, Throwable e, MessageChannel channel) {

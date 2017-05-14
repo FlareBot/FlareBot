@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands.administrator;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -51,5 +52,10 @@ public class PinCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public Permission getDiscordPermission() {
+        return Permission.MESSAGE_MANAGE;
     }
 }

@@ -130,4 +130,9 @@ public class PurgeCommand implements Command {
     public boolean isDefaultPermission() {
         return false;
     }
+
+    @Override
+    public Permission getDiscordPermission() {
+        return Permission.MESSAGE_MANAGE;
+    }
 }
