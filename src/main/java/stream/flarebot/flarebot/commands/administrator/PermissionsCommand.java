@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -12,6 +13,7 @@ import stream.flarebot.flarebot.permissions.User;
 import stream.flarebot.flarebot.util.Parser;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
@@ -182,5 +184,10 @@ public class PermissionsCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MANAGE_PERMISSIONS);
     }
 }

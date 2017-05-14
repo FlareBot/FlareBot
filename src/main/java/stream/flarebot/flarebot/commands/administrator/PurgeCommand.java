@@ -9,10 +9,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PurgeCommand implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();
@@ -129,5 +126,10 @@ public class PurgeCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MESSAGE_MANAGE);
     }
 }
