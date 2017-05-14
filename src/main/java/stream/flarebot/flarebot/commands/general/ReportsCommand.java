@@ -101,26 +101,27 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
                         return;
                     }
+                    if(getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") ||
+                           sender.getId() == report.getReporterId() ) {
+                        EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
+                        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
 
-                    EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                    User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-                    User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+                        eb.addField("Reporter", MessageUtils.getTag(reporter), true);
+                        eb.addField("Reported", MessageUtils.getTag(reported), true);
 
-                    eb.addField("Reporter", MessageUtils.getTag(reporter), true);
-                    eb.addField("Reported", MessageUtils.getTag(reported), true);
+                        DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
+                        String date = formatedDate.format(report.getTime());
 
-                    DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
-                    String date = formatedDate.format(report.getTime());
-
-                    eb.addField("Time", date, true);
-                    eb.addField("Message", "```" + report.getMessage() + "```", false);
-                }
-                break;
-                case "close": {
-
+                        eb.addField("Time", date, true);
+                        eb.addField("Message", "```" + report.getMessage() + "```", false);
+                    } else {
+                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You don't have permisons to view reports that arn't yours."), channel);
+                    }
                 }
                 break;
                 case "report": {
+                    User reported = MessageUtils.getUser(MessageUtils.getMessage(args, 1));
 
                 }
                 break;
@@ -174,7 +175,7 @@ public class ReportsCommand implements Command {
         return "{%}reports\n" +
                 "{%}reports list [page]" +
                 "{%}reports view <number>\n" +
-                "{%}reports close <number>\n" +
+                "{%}reports status <number> <status>\n" +
                 "{%}reports report <user> [reason]";
     }
 
