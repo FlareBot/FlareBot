@@ -201,48 +201,39 @@ public enum Language {
 
     ;
 
-    public EmbedBuilder getEmbed(String guildId, Language lang) {
-       return getEmbed(Optional.empty(), guildId, lang);
+    public EmbedBuilder getEmbed(String guildId, Language lang, Object... args) {
+        return getEmbed(Optional.empty(), guildId, lang, args);
     }
 
-    public EmbedBuilder getEmbed(Optional<User> user, String guildId, Language lang) {
+    public EmbedBuilder getEmbed(Optional<User> user, String guildId, Language lang, Object... args) {
         if (user.isPresent())
             return MessageUtils.getEmbed(user.get()).setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
         else
             return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
     }
 
-    public EmbedBuilder getErrorEmbed(String guildId, Language lang) {
-        return getErrorEmbed(Optional.empty(), guildId, lang);
+    public EmbedBuilder getErrorEmbed(String guildId, Language lang, Object... args) {
+        return getErrorEmbed(Optional.empty(), guildId, lang, args);
     }
 
-    public EmbedBuilder getErrorEmbed(Optional<User> user, String guildId, Language lang) {
+    public EmbedBuilder getErrorEmbed(Optional<User> user, String guildId, Language lang, Object... args) {
         if (user.isPresent())
-            return MessageUtils.getEmbed(user.get()).setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
+            return MessageUtils.getEmbed(user.get()).setDescription(get(guildId, lang, args));
         else
             return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
     }
 
-    public Message send(MessageChannel channel, String guildId, Language lang) {
-        return channel.sendMessage(FlareBotManager.getInstance().getLang(lang, guildId)).complete();
-    }
-
-    public Message sendFormat(MessageChannel channel, String guildId, Language lang, Object... args) {
+    public Message send(MessageChannel channel, String guildId, Language lang, Object... args) {
         return channel.sendMessage(String.format(FlareBotManager.getInstance().getLang(lang, guildId), args)).complete();
     }
 
-    public String get(String guildId, Language lang) {
-        return FlareBotManager.getInstance().getLang(lang, guildId);
-    }
-
-    public String getFormat(String guildId, Language lang, Object... args) {
+    public String get(String guildId, Language lang, Object... args) {
         return String.format(FlareBotManager.getInstance().getLang(lang, guildId), args);
     }
 
-    public Message sendEmbed(MessageChannel channel, String guildId, Language lang) {
-        return channel.sendMessage(getEmbed(guildId, lang).build()).complete();
+    public Message sendEmbed(MessageChannel channel, String guildId, Language lang, Object... args) {
+        return channel.sendMessage(getEmbed(guildId, lang, args).build()).complete();
     }
-
 
 
     public enum Locales {
