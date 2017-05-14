@@ -116,7 +116,7 @@ public class Events extends ListenerAdapter {
                 .append(event.getGuild().getSelfMember().getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
-        MessageUtils.sendPM(event.getGuild().getPublicChannel(), event.getGuild().getOwner().getUser(), message);
+        MessageUtils.sendPM(event.getGuild().getPublicChannel(), event.getGuild().getOwner().getUser(), message.toString());
     }
 
     @Override

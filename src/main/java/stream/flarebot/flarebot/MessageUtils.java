@@ -49,12 +49,12 @@ public class MessageUtils {
         return len;
     }
 
-    public static Message sendPM(MessageChannel channel, User user, CharSequence message) {
+    public static Message sendPM(MessageChannel channel, User user, String message) {
         try {
             return user.openPrivateChannel().complete()
-                    .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
+                    .sendMessage(message.substring(0, Math.min(message.length(), 1999))).complete();
         } catch (ErrorResponseException e) {
-            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", String.valueOf(message), false).setColor(Color.RED), channel);
+            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", message, false).setColor(Color.RED), channel);
             return null;
         }
     }
