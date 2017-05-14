@@ -106,7 +106,23 @@ public enum Language {
     // Invite
     INVITE_INVITATION,
     INVITE_DESCRIPTION,
-    INVITE_USAGE;
+    INVITE_USAGE,
+    // Join
+    JOIN_CURRENTLYCONNECTING,
+    JOIN_JOINOTHERPERM,
+    JOIN_USERLIMIT,
+    JOIN_NOPERMS,
+    JOIN_DESCRIPTION,
+    JOIN_USAGE,
+    // Leave
+    LEAVE_LEAVEOTHERPERM,
+    LEAVE_DESCRIPTION,
+    LEAVE_USAGE,
+    // Poll
+    // TODO: Add when rewritten
+
+
+    ;
 
 
     public enum Locales {
