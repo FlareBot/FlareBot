@@ -8,8 +8,10 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.ReportManager;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,53 +83,98 @@ public class ReportsCommand implements Command {
                     }
                 }
                 break;
+                case "view": {
+                    if (args.length == 2) {
+                        int id;
+                        try {
+                            id = Integer.valueOf(args[1]);
+                        } catch (Exception e) {
+                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
+                            return;
+                        }
+
+                        Report report = ReportManager.getReport(channel.getGuild().getId(), id);
+                        if (report == null) {
+                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
+                            return;
+                        }
+
+                        if(getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId() == sender.getId()) {
+                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                            User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
+                            User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+
+                            eb.addField("Reporter", MessageUtils.getTag(reporter), true);
+                            eb.addField("Reported", MessageUtils.getTag(reported), true);
+
+                            DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
+                            String date = formatedDate.format(report.getTime());
+
+                            eb.addField("Time", date, true);
+                            eb.addField("Status", report.getStatus().getMessage(channel.getGuild().getId()), true);
+
+                            eb.addField("Message", "```" + report.getMessage() + "```", false);
+                        } else {
+                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report"), channel);
+                        }
+                    } else {
+                        MessageUtils.sendUsage(this, channel);
+                    }
+
+                }
+                break;
                 default: {
                     MessageUtils.sendUsage(this, channel);
                 }
             }
-        } else if (args.length == 4) {
+        } else if (args.length >= 4) {
             switch (args[0]) {
-                case "view": {
-                    int id;
-                    try {
-                        id = Integer.valueOf(args[1]);
-                    } catch (Exception e) {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
-                        return;
+                case "status": {
+                    if(getPermissions(message.getChannel()).hasPermission(member, "flarebot.report.status")) {
+                        int id;
+                        try {
+                            id = Integer.valueOf(args[1]);
+                        } catch (Exception e) {
+                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
+                            return;
+                        }
+                        ReportStatus status = ReportStatus.valueOf(args[2].toUpperCase());
+                        if (status == null) {
+                            EmbedBuilder errorBuilder = new EmbedBuilder();
+                            errorBuilder.setDescription("Invalid status: " + args[2]);
+                            errorBuilder.addField("Statuses", "```\nOPEN\nON_HOLD\nRESOLVED\nCLOSED\nUNDER_REVIEW\nDUPLICATE\n```", false);
+                            MessageUtils.sendErrorMessage(errorBuilder, channel);
+                            return;
+                        }
+                        Report report = ReportManager.getReport(channel.getGuild().getId(), id);
+                        report.setStatus(status);
+
+                        ReportManager.reportsToSave.add(report);
+                    } else {
+
                     }
-
-                    Report report = ReportManager.getReport(channel.getGuild().getId(), id);
-                    if (report == null) {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
-                        return;
-                    }
-
-                    EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                    User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-                    User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
-
-                    eb.addField("Reporter", MessageUtils.getTag(reporter), true);
-                    eb.addField("Reported", MessageUtils.getTag(reported), true);
-
-                    DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
-                    String date = formatedDate.format(report.getTime());
-
-                    eb.addField("Time", date, true);
-                    eb.addField("Message", "```" + report.getMessage() + "```", false);
-                }
-                break;
-                case "close": {
-
                 }
                 break;
                 case "report": {
+                    User user = MessageUtils.getUser(args[1]);
+                    if(user == null){
+                        MessageUtils.sendErrorMessage("Invalid user: " + args[1], channel);
+                        return;
+                    }
 
+                    String reason = MessageUtils.getMessage(args, 2);
+
+                    Report report = new Report(channel.getGuild().getId(), 0, reason, sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
+
+                    ReportManager.reportsToSave.add(report);
                 }
                 break;
                 default: {
                     MessageUtils.sendUsage(this, channel);
                 }
             }
+        } else {
+            MessageUtils.sendUsage(this, channel);
         }
     }
 
@@ -137,7 +184,7 @@ public class ReportsCommand implements Command {
         header.add("Reporter");
         header.add("Reported");
         header.add("Time");
-        header.add("Solved");
+        header.add("Status");
 
         List<List<String>> table = new ArrayList<>();
         for (Report report : reports) {
@@ -174,7 +221,7 @@ public class ReportsCommand implements Command {
         return "{%}reports\n" +
                 "{%}reports list [page]" +
                 "{%}reports view <number>\n" +
-                "{%}reports close <number>\n" +
+                "{%}reports status <number> <status>\n" +
                 "{%}reports report <user> [reason]";
     }
 
