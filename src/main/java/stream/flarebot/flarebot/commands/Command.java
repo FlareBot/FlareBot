@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.commands;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.Permission;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
@@ -21,7 +20,7 @@ public interface Command {
     default String getPermission() {
         return "flarebot." + getCommand();
     }
-    
+
     default Permission getDiscordPermission() {
         return null;
     }
@@ -36,10 +35,6 @@ public interface Command {
 
     default boolean isDefaultPermission() {
         return (getPermission() != null && getType() != CommandType.HIDDEN && getType() != CommandType.MODERATION);
-    }
-
-    default Permission getDiscordPermission() {
-        return null;
     }
 
     default boolean deleteMessage() {

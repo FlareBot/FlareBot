@@ -5,6 +5,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.HelpFormatter;
@@ -49,8 +50,13 @@ public class MessageUtils {
     }
 
     public static Message sendPM(User user, CharSequence message) {
-        return user.openPrivateChannel().complete()
-                .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
+        try {
+            return user.openPrivateChannel().complete()
+                    .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
+        } catch (ErrorResponseException e) {
+            FlareBot.LOGGER.error(String.format("Failed to send a PM to user: %s! Message: " + e.getMessage(), getTag(user)));
+            return null;
+        }
     }
 
     public static Message sendPM(User user, EmbedBuilder message) {
