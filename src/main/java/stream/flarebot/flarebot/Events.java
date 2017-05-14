@@ -103,7 +103,7 @@ public class Events extends ListenerAdapter {
 
     private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
         if (!e1.getMessage().startsWith("Can't modify a role with higher")) {
-            MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+            MessageUtils.sendPM(event.getGuild().getPublicChannel(), event.getGuild().getOwner().getUser(),
                     "**Could not auto assign a role!**\n" + e1.getMessage());
             return;
         }
@@ -116,7 +116,7 @@ public class Events extends ListenerAdapter {
                 .append(event.getGuild().getSelfMember().getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
-        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
+        MessageUtils.sendPM(event.getGuild().getPublicChannel(), event.getGuild().getOwner().getUser(), message.toString());
     }
 
     @Override
@@ -363,6 +363,10 @@ public class Events extends ListenerAdapter {
     }
 
     private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
+        if (cmd.getDiscordPermission() != null) {
+            if (e.getMember().getPermissions().contains(cmd.getDiscordPermission()))
+                return false;
+        }
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())

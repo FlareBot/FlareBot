@@ -19,16 +19,11 @@ public class SelfAssignCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            char prefix = getPrefix(channel.getGuild());
-            MessageUtils
-                    .sendErrorMessage("Usage: `" + prefix + "selfassign (roleId/name)`\n\nIf you don't know how to find the role ID, do "
-                            + prefix + "roles", channel);
+            MessageUtils.sendUsage(this, channel);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("add")) {
                 if (FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendErrorMessage("Usage: `" + getPrefix(channel
-                                    .getGuild()) + "selfassign add (roleId/name)`\n\nIf you don't know how to find the role ID, do _roles",
-                            channel);
+                    MessageUtils.sendUsage(this, channel);
                 } else {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
                                     .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
@@ -37,9 +32,7 @@ public class SelfAssignCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendErrorMessage("Usage: `" + getPrefix(channel
-                                    .getGuild()) + "selfassign remove (roleId/name)`\n\nIf you don't know how to find the role ID, do _roles",
-                            channel);
+                    MessageUtils.sendUsage(this, channel);
                 } else {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
                                     .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
@@ -153,28 +146,6 @@ public class SelfAssignCommand implements Command {
         }
     }
 
-    @Override
-    public String getCommand() {
-        return "selfassign";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Self assign a role to yourself!\nTo add roles to selfassign do `selfassign add (userId)`";
-    }
-
-    @Override
-    public String getUsage() {
-        return "`{%}selfassign <roleID/name>` - Adds a role to yourself\n"
-                + "`{%}selfassign <add/remove> <roleID/name>` - Allows admins to add roles to the self assign list\n"
-                + "`{%}selfassign list` - Lists roles that are self-assignable";
-    }
-
-    @Override
-    public CommandType getType() {
-        return CommandType.GENERAL;
-    }
-
     private void handleRole(Member member, TextChannel channel, String roleId) {
         if (!member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
             channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
@@ -198,5 +169,27 @@ public class SelfAssignCommand implements Command {
                             .setColor(Color.orange).build())
                     .build(), 30_000, channel);
         }
+    }
+
+    @Override
+    public String getCommand() {
+        return "selfassign";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Self assign a role to yourself!\nTo add roles to selfassign do `selfassign add (userId)`";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}selfassign <roleID/name>` - Adds a role to yourself\n"
+                + "`{%}selfassign <add/remove> <roleID/name>` - Allows admins to add roles to the self assign list\n"
+                + "`{%}selfassign list` - Lists roles that are self-assignable";
+    }
+
+    @Override
+    public CommandType getType() {
+        return CommandType.GENERAL;
     }
 }

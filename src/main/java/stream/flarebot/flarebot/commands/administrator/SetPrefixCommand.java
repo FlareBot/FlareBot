@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -8,6 +9,8 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+
+import java.util.EnumSet;
 
 public class SetPrefixCommand implements Command {
     @Override
@@ -56,6 +59,11 @@ public class SetPrefixCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MANAGE_SERVER);
     }
 
     @Override

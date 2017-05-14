@@ -9,10 +9,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PurgeCommand implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();
@@ -33,7 +30,13 @@ public class PurgeCommand implements Command {
                     return;
                 }
             }
-            int count = Integer.parseInt(args[0]) + 1;
+            int count;
+            try {
+                count = Integer.parseInt(args[0]) + 1;
+            } catch (NumberFormatException e) {
+                MessageUtils.sendErrorMessage("The number entered is too high!", channel);
+                return;
+            }
             if (count < 2) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("Can't purge less than 2 messages!").build()).queue();
@@ -123,5 +126,10 @@ public class PurgeCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MESSAGE_MANAGE);
     }
 }
