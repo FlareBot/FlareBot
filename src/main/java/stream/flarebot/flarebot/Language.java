@@ -1,5 +1,13 @@
 package stream.flarebot.flarebot;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.commands.FlareBotManager;
+
+import java.util.Optional;
+
 public enum Language {
 
     // General
@@ -189,6 +197,52 @@ public enum Language {
     PLAYLIST_REMOVEDSONG,
     PLAYLIST_NOSONGS,
     //TODO: Add desc and usage when fixed
+
+
+    ;
+
+    public EmbedBuilder getEmbed(String guildId, Language lang) {
+       return getEmbed(Optional.empty(), guildId, lang);
+    }
+
+    public EmbedBuilder getEmbed(Optional<User> user, String guildId, Language lang) {
+        if (user.isPresent())
+            return MessageUtils.getEmbed(user.get()).setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
+        else
+            return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
+    }
+
+    public EmbedBuilder getErrorEmbed(String guildId, Language lang) {
+        return getErrorEmbed(Optional.empty(), guildId, lang);
+    }
+
+    public EmbedBuilder getErrorEmbed(Optional<User> user, String guildId, Language lang) {
+        if (user.isPresent())
+            return MessageUtils.getEmbed(user.get()).setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
+        else
+            return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(lang, guildId));
+    }
+
+    public Message send(MessageChannel channel, String guildId, Language lang) {
+        return channel.sendMessage(FlareBotManager.getInstance().getLang(lang, guildId)).complete();
+    }
+
+    public Message sendFormat(MessageChannel channel, String guildId, Language lang, Object... args) {
+        return channel.sendMessage(String.format(FlareBotManager.getInstance().getLang(lang, guildId), args)).complete();
+    }
+
+    public String get(String guildId, Language lang) {
+        return FlareBotManager.getInstance().getLang(lang, guildId);
+    }
+
+    public String getFormat(String guildId, Language lang, Object... args) {
+        return String.format(FlareBotManager.getInstance().getLang(lang, guildId), args);
+    }
+
+    public Message sendEmbed(MessageChannel channel, String guildId, Language lang) {
+        return channel.sendMessage(getEmbed(guildId, lang).build()).complete();
+    }
+
 
 
     public enum Locales {
