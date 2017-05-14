@@ -48,7 +48,7 @@ public class DeleteCommand implements Command {
                             .queue();
                 } else channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription(String
-                                .format("*The playlist %s never existed!", finalName))
+                                .format("*The playlist %s doesn't exist!", finalName))
                         .build()).queue();
             });
         } catch (SQLException e) {
@@ -63,12 +63,12 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Deletes a playlist. Usage `delete NAME`";
+        return "Deletes a playlist.";
     }
 
     @Override
     public String getUsage() {
-        return "{%}delete <playlist>";
+        return "`{%}delete <playlist>` - Deletes a playlist";
     }
 
     @Override
