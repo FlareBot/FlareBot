@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands;
 
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.Permission;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
@@ -18,6 +19,10 @@ public interface Command {
 
     default String getPermission() {
         return "flarebot." + getCommand();
+    }
+    
+    default Permission getDiscordPermission() {
+        return null;
     }
 
     default String[] getAliases() {
