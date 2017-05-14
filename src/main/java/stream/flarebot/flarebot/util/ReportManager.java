@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.util;
 
+import org.joda.time.DateTime;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 
@@ -41,7 +42,7 @@ public class ReportManager {
         final Report[] report = new Report[1];
         try {
             SQLController.runSqlTask(conn ->{
-                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + ", id = " + id );
+                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + ", report_id = " + id );
                 String message = set.getString("message");
                 String reporterId = set.getString("reporter_id");
                 String reportedId = set.getString("reported_id");
