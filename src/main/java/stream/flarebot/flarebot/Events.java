@@ -363,6 +363,10 @@ public class Events extends ListenerAdapter {
     }
 
     private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
+        if (cmd.getDiscordPermission() != null) {
+            if (e.getMember().getPermissions().contains(cmd.getDiscordPermission()))
+                return false;
+        }
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
