@@ -10,6 +10,8 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 
+import java.util.EnumSet;
+
 public class PinCommand implements Command {
 
     @Override
@@ -55,7 +57,7 @@ public class PinCommand implements Command {
     }
 
     @Override
-    public Permission getDiscordPermission() {
-        return Permission.MESSAGE_MANAGE;
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MESSAGE_MANAGE);
     }
 }

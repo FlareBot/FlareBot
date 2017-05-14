@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.permissions.User;
 import stream.flarebot.flarebot.util.Parser;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
@@ -186,7 +187,7 @@ public class PermissionsCommand implements Command {
     }
 
     @Override
-    public Permission getDiscordPermission() {
-        return Permission.MANAGE_PERMISSIONS;
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MANAGE_PERMISSIONS);
     }
 }

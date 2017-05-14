@@ -10,6 +10,8 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 
+import java.util.EnumSet;
+
 public class SetPrefixCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
@@ -60,8 +62,8 @@ public class SetPrefixCommand implements Command {
     }
 
     @Override
-    public Permission getDiscordPermission() {
-        return Permission.MANAGE_SERVER;
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MANAGE_SERVER);
     }
 
     @Override

@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
+import java.util.EnumSet;
+
 public interface Command {
 
     void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member);
@@ -21,7 +23,7 @@ public interface Command {
         return "flarebot." + getCommand();
     }
 
-    default Permission getDiscordPermission() {
+    default EnumSet<Permission> getDiscordPermission() {
         return null;
     }
 

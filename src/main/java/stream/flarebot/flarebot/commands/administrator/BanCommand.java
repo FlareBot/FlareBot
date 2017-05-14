@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.mod.Punishment;
 
 import java.awt.*;
+import java.util.EnumSet;
 
 public class BanCommand implements Command {
 
@@ -71,7 +72,7 @@ public class BanCommand implements Command {
     }
 
     @Override
-    public Permission getDiscordPermission() {
-        return Permission.BAN_MEMBERS;
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.BAN_MEMBERS);
     }
 }
