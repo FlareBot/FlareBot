@@ -24,7 +24,7 @@ public interface Command {
     }
 
     default EnumSet<Permission> getDiscordPermission() {
-        return null;
+        return EnumSet.noneOf(Permission.class);
     }
 
     default String[] getAliases() {
