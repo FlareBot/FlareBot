@@ -33,12 +33,12 @@ public class LoadCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Loads a playlist. Usage `load NAME`";
+        return "Loads a playlist";
     }
 
     @Override
     public String getUsage() {
-        return "{%)load <playlist>";
+        return "`{%)load <playlist>` - Loads a playlist";
     }
 
     @Override
