@@ -16,6 +16,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -202,7 +204,7 @@ public class ReportsCommand implements Command {
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
         eb.addField("Reported", MessageUtils.getTag(reported), true);
 
-        LocalDateTime date = report.getTime().toLocalDateTime();
+        OffsetDateTime date = report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
         eb.addField("Time", date.format(formatter), true);
