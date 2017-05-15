@@ -27,8 +27,7 @@ public class ReportManager {
                     Timestamp time = set.getTimestamp("time");
                     ReportStatus status = ReportStatus.get(set.getInt("status"));
 
-                    Report report = new Report(guildID, id, message, reporterId, reportedId, time, status);
-                    reports.add(report);
+                    reports.add(new Report(guildID, id, message, reporterId, reportedId, time, status));
                 }
             });
         } catch (SQLException e) {

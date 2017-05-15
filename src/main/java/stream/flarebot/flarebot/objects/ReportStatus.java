@@ -4,7 +4,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 
 public enum ReportStatus {
-    
+
     OPEN(Language.REPORT_STATUS_OPEN),
     ON_HOLD(Language.REPORT_STATUS_ONHOLD),
     RESOLVED(Language.REPORT_STATUS_RESOLVED),
