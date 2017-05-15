@@ -262,13 +262,13 @@ public class FlareBotManager {
         }
     }
 
-    public LocalConfig loadConfig(Language.Locales l) {
+    public LocalConfig loadLang(Language.Locales l) {
         return configs.computeIfAbsent(l, locale -> new LocalConfig(getClass().getResource("/langs/" + l.getCode() + ".json")));
     }
 
     public String getLang(Language lang, String id) {
         String path = lang.name().toLowerCase().replaceAll("_", ".");
-        LocalConfig config = loadConfig(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
+        LocalConfig config = loadLang(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
         return config.getString(path);
     }
 
