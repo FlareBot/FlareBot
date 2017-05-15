@@ -14,12 +14,12 @@ public class ReportManager {
 
     public static List<Report> reportsToSave = new ArrayList<>();
 
-    public static List<Report> getGuildReports(String guildID){
+    public static List<Report> getGuildReports(String guildID) {
         List<Report> reports = new ArrayList<>();
         try {
-            SQLController.runSqlTask(conn ->{
+            SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID);
-                while(set.next()){
+                while (set.next()) {
                     int id = set.getInt("report_id");
                     String message = set.getString("message");
                     String reporterId = set.getString("reporter_id");
@@ -38,11 +38,11 @@ public class ReportManager {
         return reports;
     }
 
-    public static Report getReport(String guildID, int id){
+    public static Report getReport(String guildID, int id) {
         final Report[] report = new Report[1];
         try {
-            SQLController.runSqlTask(conn ->{
-                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + ", report_id = " + id );
+            SQLController.runSqlTask(conn -> {
+                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + ", report_id = " + id);
                 String message = set.getString("message");
                 String reporterId = set.getString("reporter_id");
                 String reportedId = set.getString("reported_id");

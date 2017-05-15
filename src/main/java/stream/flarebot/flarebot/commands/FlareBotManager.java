@@ -272,7 +272,7 @@ public class FlareBotManager {
         return config.getString(path);
     }
 
-    public void saveReports(){
+    public void saveReports() {
         FlareBot.LOGGER.info("Saving reports data");
         for (Report report : ReportManager.reportsToSave) {
             try {

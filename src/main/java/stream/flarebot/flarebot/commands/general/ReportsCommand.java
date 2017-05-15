@@ -14,6 +14,9 @@ import stream.flarebot.flarebot.util.ReportManager;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,18 +67,16 @@ public class ReportsCommand implements Command {
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
                                     reports = Arrays.asList(reportArray);
 
-                                    String reportsTable = getReportsTable(channel.getGuild(), reports);
                                     EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                                    builder.addField("Reports", reportsTable, false);
+                                    builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
                                     builder.addField("Pages", String.valueOf(pages), true);
                                     builder.addField("Current page", String.valueOf(page), true);
                                     channel.sendMessage(builder.build());
                                 }
                             }
                         } else {
-                            String reportsTable = getReportsTable(channel.getGuild(), reports);
                             EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                            builder.addField("Reports", reportsTable, false);
+                            builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
                             channel.sendMessage(builder.build());
                         }
                     } else {
@@ -99,7 +100,7 @@ public class ReportsCommand implements Command {
                             return;
                         }
 
-                        if(getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId() == sender.getId()) {
+                        if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId() == sender.getId()) {
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
                             User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
                             User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
@@ -130,7 +131,7 @@ public class ReportsCommand implements Command {
         } else if (args.length >= 4) {
             switch (args[0]) {
                 case "status": {
-                    if(getPermissions(message.getChannel()).hasPermission(member, "flarebot.report.status")) {
+                    if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.report.status")) {
                         int id;
                         try {
                             id = Integer.valueOf(args[1]);
@@ -146,18 +147,16 @@ public class ReportsCommand implements Command {
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
-                        Report report = ReportManager.getReport(channel.getGuild().getId(), id);
-                        report.setStatus(status);
 
-                        ReportManager.reportsToSave.add(report);
+                        ReportManager.reportsToSave.add(ReportManager.getReport(channel.getGuild().getId(), id).setStatus(status));
                     } else {
-
+                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.status` to do this."), channel);
                     }
                 }
                 break;
                 case "report": {
                     User user = MessageUtils.getUser(args[1]);
-                    if(user == null){
+                    if (user == null) {
                         MessageUtils.sendErrorMessage("Invalid user: " + args[1], channel);
                         return;
                     }
@@ -193,10 +192,10 @@ public class ReportsCommand implements Command {
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()))));
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
 
-            DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
-            String date = formatedDate.format(report.getTime());
+            LocalDateTime date = report.getTime().toLocalDateTime();
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-            row.add(date);
+            row.add(date.format(formatter));
 
             row.add(report.getStatus().getMessage(guild.getId()));
 

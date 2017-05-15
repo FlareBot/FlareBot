@@ -22,7 +22,7 @@ public class Report {
 
     private ReportStatus status;
 
-    public Report(String guildId, int id, String message, String reporterId, String reportedId, Timestamp time, ReportStatus status){
+    public Report(String guildId, int id, String message, String reporterId, String reportedId, Timestamp time, ReportStatus status) {
         this.guildId = guildId;
         this.id = id;
         this.message = message;
@@ -34,19 +34,36 @@ public class Report {
         this.status = status;
     }
 
-    public int getId(){ return id; }
+    public int getId() {
+        return id;
+    }
 
-    public String getGuildId(){ return guildId; }
+    public String getGuildId() {
+        return guildId;
+    }
 
-    public String getMessage(){ return message; }
+    public String getMessage() {
+        return message;
+    }
 
-    public String getReporterId(){ return reporterId; }
+    public String getReporterId() {
+        return reporterId;
+    }
 
-    public String getReportedId(){ return reportedId; }
+    public String getReportedId() {
+        return reportedId;
+    }
 
-    public Timestamp getTime(){ return time; }
+    public Timestamp getTime() {
+        return time;
+    }
 
-    public ReportStatus getStatus(){ return status; }
+    public ReportStatus getStatus() {
+        return status;
+    }
 
-    public void setStatus(ReportStatus status){ this.status = status; }
+    public Report setStatus(ReportStatus status) {
+        this.status = status;
+        return this;
+    }
 }
