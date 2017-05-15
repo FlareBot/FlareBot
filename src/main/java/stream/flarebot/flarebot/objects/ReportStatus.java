@@ -26,7 +26,7 @@ public enum ReportStatus {
     }
 
     public String getMessage(String guildId) {
-        return FlareBot.getInstance().getManager().getLang(this.message, guildId);
+        return this.message.get(guildId);
     }
 
 
