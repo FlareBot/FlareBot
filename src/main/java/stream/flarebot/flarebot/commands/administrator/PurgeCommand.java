@@ -89,7 +89,7 @@ public class PurgeCommand implements Command {
                         .queue();
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 

@@ -29,7 +29,7 @@ public class BanCommand implements Command {
                             .setColor(Color.red).build()).queue();
                     return;
                 }
-                //TODO: When reasons are out for JDA add them here!!!
+                // TODO: When reasons are out for JDA add them here!!!
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
@@ -47,7 +47,7 @@ public class BanCommand implements Command {
                         .setColor(Color.red).build()).queue();
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 

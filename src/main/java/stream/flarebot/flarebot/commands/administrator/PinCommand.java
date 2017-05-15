@@ -27,7 +27,7 @@ public class PinCommand implements Command {
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 

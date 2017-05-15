@@ -85,7 +85,7 @@ public class MusicAnnounceCommand implements Command {
                 }
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 

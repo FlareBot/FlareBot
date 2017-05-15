@@ -33,11 +33,11 @@ public class PlaylistCommand implements Command {
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
                     channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.sendUsage(this, channel);
+                    MessageUtils.sendUsage(this, channel).queue();
                 } else if (args[0].equalsIgnoreCase("here")) {
                     send(channel, channel, member);
                 } else {
-                    MessageUtils.sendUsage(this, channel);
+                    MessageUtils.sendUsage(this, channel).queue();
                 }
             } else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("remove")) {
