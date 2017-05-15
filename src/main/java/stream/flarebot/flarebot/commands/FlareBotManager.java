@@ -274,7 +274,7 @@ public class FlareBotManager {
 
     public void saveReports() {
         FlareBot.LOGGER.info("Saving reports data");
-        for (Report report : ReportManager.reportsToSave) {
+        for (Report report : ReportManager.getInstance().getReportsToSave()) {
             try {
                 SQLController.runSqlTask(conn -> {
                     PreparedStatement statement = conn.prepareStatement("INSERT INTO reports (guild_id, time, message, reporter_id, reported_id, status) VALUES (?, ?, ?, ?, ?, ?)");

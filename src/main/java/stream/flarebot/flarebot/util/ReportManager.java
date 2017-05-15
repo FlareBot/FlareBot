@@ -10,11 +10,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReportManager {
+public final class ReportManager {
 
-    public static List<Report> reportsToSave = new ArrayList<>();
+    private ReportManager(){
+    }
 
-    public static List<Report> getGuildReports(String guildID) {
+    private final List<Report> reportsToSave = new ArrayList<>();
+
+    public List<Report> getGuildReports(String guildID) {
         List<Report> reports = new ArrayList<>();
         try {
             SQLController.runSqlTask(conn -> {
@@ -37,7 +40,7 @@ public class ReportManager {
         return reports;
     }
 
-    public static Report getReport(String guildID, int id) {
+    public Report getReport(String guildID, int id) {
         final Report[] report = new Report[1];
         try {
             SQLController.runSqlTask(conn -> {
@@ -49,7 +52,6 @@ public class ReportManager {
                 ReportStatus status = ReportStatus.get(set.getInt("status"));
 
                 report[0] = new Report(guildID, id, message, reporterId, reportedId, time, status);
-
             });
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,4 +60,15 @@ public class ReportManager {
         return report[0];
     }
 
+    public List<Report> getReportsToSave(){
+        return reportsToSave;
+    }
+
+    static ReportManager instance;
+    public static ReportManager getInstance(){
+        if(instance == null){
+            instance = new ReportManager();
+        }
+        return instance;
+    }
 }

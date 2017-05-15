@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ReportsCommand implements Command {
+
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
@@ -26,7 +27,7 @@ public class ReportsCommand implements Command {
             switch (args[0]) { //I'm used to using switch statements. If you want this as an if statement just tell me.
                 case "list": {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
-                        List<Report> reports = ReportManager.getGuildReports(channel.getGuild().getId());
+                        List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         if (reports.size() > 20) {
                             if (args.length != 2) {
                                 int pages = (reports.size() / 20) + 1;
@@ -90,7 +91,7 @@ public class ReportsCommand implements Command {
                             return;
                         }
 
-                        Report report = ReportManager.getReport(channel.getGuild().getId(), id);
+                        Report report = ReportManager.getInstance().getReport(channel.getGuild().getId(), id);
                         if (report == null) {
                             MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
                             return;
@@ -126,12 +127,16 @@ public class ReportsCommand implements Command {
                         if (status == null) {
                             EmbedBuilder errorBuilder = new EmbedBuilder();
                             errorBuilder.setDescription("Invalid status: " + args[2]);
-                            errorBuilder.addField("Statuses", "```\nOPEN\nON_HOLD\nRESOLVED\nCLOSED\nUNDER_REVIEW\nDUPLICATE\n```", false);
+                            StringBuilder sb = new StringBuilder();
+                            for(ReportStatus listStatus : ReportStatus.values()){
+                                sb.append(listStatus.getMessage(channel.getGuild().getId()) + "\n");
+                            }
+                            errorBuilder.addField("Statuses", "```\n"+ sb.toString() + "```", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
 
-                        ReportManager.reportsToSave.add(ReportManager.getReport(channel.getGuild().getId(), id).setStatus(status));
+                        ReportManager.getInstance().getReportsToSave().add(ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status));
                     } else {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.status` to do this."), channel);
                     }
@@ -148,7 +153,7 @@ public class ReportsCommand implements Command {
 
                     Report report = new Report(channel.getGuild().getId(), 0, reason, sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
-                    ReportManager.reportsToSave.add(report);
+                    ReportManager.getInstance().getReportsToSave().add(report);
 
                     MessageUtils.sendPM(channel, sender, getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
                 }
