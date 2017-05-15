@@ -64,7 +64,7 @@ public final class ReportManager {
         return reportsToSave;
     }
 
-    static ReportManager instance;
+    private static ReportManager instance;
     public static ReportManager getInstance(){
         if(instance == null){
             instance = new ReportManager();
