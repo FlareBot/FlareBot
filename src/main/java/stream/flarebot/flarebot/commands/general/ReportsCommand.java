@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.general;
 
-import com.sun.org.apache.regexp.internal.RE;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
@@ -12,7 +11,6 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.ReportManager;
 
 import java.sql.Timestamp;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -179,10 +177,7 @@ public class ReportsCommand implements Command {
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()))));
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
 
-            OffsetDateTime date = report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC);
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
-            row.add(date.format(formatter));
+            row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
             row.add(report.getStatus().getMessage(guild.getId()));
 
@@ -200,10 +195,7 @@ public class ReportsCommand implements Command {
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
         eb.addField("Reported", MessageUtils.getTag(reported), true);
 
-        OffsetDateTime date = report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC);
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
-        eb.addField("Time", date.format(formatter), true);
+        eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), true);
         eb.addField("Status", report.getStatus().getMessage(channel.getGuild().getId()), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
