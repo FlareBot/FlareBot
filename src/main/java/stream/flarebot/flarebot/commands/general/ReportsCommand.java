@@ -183,7 +183,7 @@ public class ReportsCommand implements Command {
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()))));
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
 
-            LocalDateTime date = report.getTime().toLocalDateTime();
+            OffsetDateTime date = report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC);
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
             row.add(date.format(formatter));
