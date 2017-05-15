@@ -202,10 +202,10 @@ public class ReportsCommand implements Command {
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
         eb.addField("Reported", MessageUtils.getTag(reported), true);
 
-        DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
-        String date = formatedDate.format(report.getTime());
+        LocalDateTime date = report.getTime().toLocalDateTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-        eb.addField("Time", date, true);
+        eb.addField("Time", date.format(formatter), true);
         eb.addField("Status", report.getStatus().getMessage(channel.getGuild().getId()), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
