@@ -1,5 +1,13 @@
 package stream.flarebot.flarebot;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.commands.FlareBotManager;
+
+import java.util.Optional;
+
 public enum Language {
 
     // General
@@ -8,6 +16,8 @@ public enum Language {
     GENERAL_SUCCESS,
     GENERAL_USER,
     GENERAL_UNKNOWN,
+    GENERAL_REQUESTEDBY,
+    GENERAL_PAGE,
     // Auto Assign
     AUTOASSIGN_CURRENT,
     AUTOASSIGN_NOROLES,
@@ -76,6 +86,13 @@ public enum Language {
     HELP_HEADER,
     HELP_CONTINUED,
     HELP_DESCRIPTION,
+    // Report
+    REPORT_STATUS_OPEN,
+    REPORT_STATUS_ONHOLD,
+    REPORT_STATUS_RESOLVED,
+    REPORT_STATUS_CLOSED,
+    REPORT_STATUS_UNDERREVIEW,
+    REPORT_STATUS_DUPLICATE,
     // Info
     INFO_HEADER,
     INFO_INFONOTFOUND,
@@ -151,8 +168,79 @@ public enum Language {
     USERINFO_TIMEDATA_LASTSEEN,
     USERINFO_TIMEDATA_LASTSPOKE,
     USERINFO_DESCRIPTION,
-    USERINFO_USAGE,;
+    USERINFO_USAGE,
+    // Delete
+    DELETE_REMOVEDPLAYLIST,
+    DELETE_PLAYLISTDOESNTEXIST,
+    DELETE_DATABASEERROR,
+    DELETE_DESCRIPTION,
+    DELETE_USAGE,
+    // Load
+    LOAD_DESCRIPTION,
+    LOAD_USAGE,
+    // Loop
+    LOOP_LOOPINGON,
+    LOOP_LOOPINGOFF,
+    LOOP_DESCRIPTION,
+    LOOP_USAGE,
+    // Music Announce
+    ANNOUNCE_SETCHANNEL,
+    ANNOUNCE_DATABASEERROR,
+    ANNOUNCE_DISABLEANNOUCEMENTS,
+    ANNOUNCE_DESCRIPTION,
+    ANNOUNCE_USAGE,
+    // Pause
+    PAUSE_DESCRIPTION,
+    PAUSE_USAGE,
+    // Play
+    PLAY_NOMUSICPLAYING,
+    PLAY_RESUMING,
+    PLAY_DESCRIPTION,
+    PLAY_USAGE,
+    // Playlist
+    PLAYLIST_CLEARED,
+    PLAYLIST_INVALIDNUMBER,
+    PLAYLIST_NOSONGWITHINDEX,
+    PLAYLIST_REMOVEDSONG,
+    PLAYLIST_NOSONGS,
+    //TODO: Add desc and usage when fixed
 
+
+    ;
+
+    public EmbedBuilder getEmbed(String guildId, Object... args) {
+        return this.getEmbed(Optional.empty(), guildId, args);
+    }
+
+    public EmbedBuilder getEmbed(Optional<User> user, String guildId, Object... args) {
+        if (user.isPresent())
+            return MessageUtils.getEmbed(user.get()).setDescription(FlareBotManager.getInstance().getLang(this, guildId));
+        else
+            return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(this, guildId));
+    }
+
+    public EmbedBuilder getErrorEmbed(String guildId, Object... args) {
+        return this.getErrorEmbed(Optional.empty(), guildId, args);
+    }
+
+    public EmbedBuilder getErrorEmbed(Optional<User> user, String guildId, Object... args) {
+        if (user.isPresent())
+            return MessageUtils.getEmbed(user.get()).setDescription(get(guildId, this, args));
+        else
+            return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(this, guildId));
+    }
+
+    public Message send(MessageChannel channel, String guildId, Object... args) {
+        return channel.sendMessage(String.format(FlareBotManager.getInstance().getLang(this, guildId), args)).complete();
+    }
+
+    public String get(String guildId, Object... args) {
+        return String.format(FlareBotManager.getInstance().getLang(this, guildId), args);
+    }
+
+    public Message sendEmbed(MessageChannel channel, String guildId, Object... args) {
+        return channel.sendMessage(getEmbed(guildId, this, args).build()).complete();
+    }
 
     public enum Locales {
 

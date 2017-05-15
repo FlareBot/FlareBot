@@ -29,12 +29,12 @@ public class PauseCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Pause your song. Opposite of play";
+        return "Pauses your song. Opposite of play";
     }
 
     @Override
     public String getUsage() {
-        return "{%}pause";
+        return "`{%}pause` - Pauses the currently playing song";
     }
 
     @Override

@@ -33,13 +33,11 @@ public class PlaylistCommand implements Command {
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
                     channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Usage: " + FlareBot
-                            .getPrefix(channel.getGuild().getId()) + "playlist remove (number)"), channel);
+                    MessageUtils.sendUsage(this, channel);
                 } else if (args[0].equalsIgnoreCase("here")) {
                     send(channel, channel, member);
                 } else {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed()
-                            .setDescription("Incorrect usage! " + getDescription()), channel);
+                    MessageUtils.sendUsage(this, channel);
                 }
             } else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("remove")) {
@@ -113,6 +111,7 @@ public class PlaylistCommand implements Command {
         return "playlist";
     }
 
+    // TODO: FIX THIS MONSTROSITY
     @Override
     public String getDescription() {
         return "View the songs currently on your playlist. " +
