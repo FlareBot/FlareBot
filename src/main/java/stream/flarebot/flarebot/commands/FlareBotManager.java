@@ -13,7 +13,9 @@ import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.objects.Poll;
+import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.util.LocalConfig;
+import stream.flarebot.flarebot.util.ReportManager;
 import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
@@ -101,6 +103,8 @@ public class FlareBotManager {
                         .execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
                 conn.createStatement()
                         .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
+                conn.createStatement()
+                        .execute("CREATE TABLE IF NOT EXISTS reports (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, guild_id VARCHAR(20), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), status INT(2))");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -266,6 +270,26 @@ public class FlareBotManager {
         String path = lang.name().toLowerCase().replaceAll("_", ".");
         LocalConfig config = loadConfig(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
         return config.getString(path);
+    }
+
+    public void saveReports() {
+        FlareBot.LOGGER.info("Saving reports data");
+        for (Report report : ReportManager.reportsToSave) {
+            try {
+                SQLController.runSqlTask(conn -> {
+                    PreparedStatement statement = conn.prepareStatement("INSERT INTO reports (guild_id, time, message, reporter_id, reported_id, status) VALUES (?, ?, ?, ?, ?, ?)");
+                    statement.setString(1, report.getGuildId());
+                    statement.setObject(2, report.getTime());
+                    statement.setString(3, report.getMessage());
+                    statement.setString(4, report.getReporterId());
+                    statement.setString(5, report.getReportedId());
+                    statement.setInt(6, report.getStatus().ordinal());
+                    statement.execute();
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 

@@ -86,6 +86,13 @@ public enum Language {
     HELP_HEADER,
     HELP_CONTINUED,
     HELP_DESCRIPTION,
+    // Report
+    REPORT_STATUS_OPEN,
+    REPORT_STATUS_ONHOLD,
+    REPORT_STATUS_RESOLVED,
+    REPORT_STATUS_CLOSED,
+    REPORT_STATUS_UNDERREVIEW,
+    REPORT_STATUS_DUPLICATE,
     // Info
     INFO_HEADER,
     INFO_INFONOTFOUND,
@@ -234,7 +241,6 @@ public enum Language {
     public Message sendEmbed(MessageChannel channel, String guildId, Object... args) {
         return channel.sendMessage(getEmbed(guildId, this, args).build()).complete();
     }
-
 
     public enum Locales {
 

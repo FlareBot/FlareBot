@@ -479,6 +479,7 @@ public class FlareBot {
         registerCommand(new SetSeverityCommand());
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
+        registerCommand(new ReportsCommand());
 
         ApiFactory.bind();
 
@@ -497,6 +498,7 @@ public class FlareBot {
                     getPermissions().save();
                     saveWelcomes();
                     manager.saveLocalisation();
+
                 } catch (IOException e) {
                     LOGGER.error("Could not save permissions!", e);
                 }
