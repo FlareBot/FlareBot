@@ -101,20 +101,7 @@ public class ReportsCommand implements Command {
                         }
 
                         if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId() == sender.getId()) {
-                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-                            User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
-
-                            eb.addField("Reporter", MessageUtils.getTag(reporter), true);
-                            eb.addField("Reported", MessageUtils.getTag(reported), true);
-
-                            DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
-                            String date = formatedDate.format(report.getTime());
-
-                            eb.addField("Time", date, true);
-                            eb.addField("Status", report.getStatus().getMessage(channel.getGuild().getId()), true);
-
-                            eb.addField("Message", "```" + report.getMessage() + "```", false);
+                            channel.sendMessage(getReportEmbed(sender, report, channel).build());
                         } else {
                             MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report"), channel);
                         }
@@ -166,6 +153,8 @@ public class ReportsCommand implements Command {
                     Report report = new Report(channel.getGuild().getId(), 0, reason, sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
                     ReportManager.reportsToSave.add(report);
+
+                    MessageUtils.sendPM(channel, sender, getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
                 }
                 break;
                 default: {
@@ -205,6 +194,24 @@ public class ReportsCommand implements Command {
         return MessageUtils.makeAsciiTable(header, table, null);
     }
 
+    public EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel){
+        EmbedBuilder eb = MessageUtils.getEmbed(sender);
+        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
+        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+
+        eb.addField("Reporter", MessageUtils.getTag(reporter), true);
+        eb.addField("Reported", MessageUtils.getTag(reported), true);
+
+        DateFormat formatedDate = new SimpleDateFormat("MM/dd/yyyy HH:mm"); //US format
+        String date = formatedDate.format(report.getTime());
+
+        eb.addField("Time", date, true);
+        eb.addField("Status", report.getStatus().getMessage(channel.getGuild().getId()), true);
+
+        eb.addField("Message", "```" + report.getMessage() + "```", false);
+        return eb;
+    }
+
     @Override
     public String getCommand() {
         return "reports";
@@ -217,11 +224,11 @@ public class ReportsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}reports\n" +
-                "{%}reports list [page]" +
-                "{%}reports view <number>\n" +
-                "{%}reports status <number> <status>\n" +
-                "{%}reports report <user> [reason]";
+        return "`{%}reports` - shows the usage\n" +
+                "`{%}reports list [page]` - list the reports on your guild\n" +
+                "`{%}reports view <number>` - views a report with the given number\n" +
+                "`{%}reports status <number> <status>` - edits the status of a report\n" +
+                "`{%}reports report <user> [reason]` - reports a user the your guild moderators";
     }
 
     @Override
