@@ -67,9 +67,7 @@ public class FlareBotManager {
     public Set<String> getRandomSongs(int amount, TextChannel channel) {
         Set<String> songs = new HashSet<>();
         if (amount < 10 || amount > 100) {
-            MessageUtils.sendErrorMessage(MessageUtils.getEmbed()
-                    .setDescription("Invalid amount. Make sure it is 10 or more and 100 or less!"), channel);
-            return null;
+            throw new IllegalArgumentException("Invalid amount. Make sure it is 10 or more and 100 or less!");
         }
 
         for (int i = 0; i < amount; i++) {
