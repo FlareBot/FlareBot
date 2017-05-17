@@ -781,18 +781,17 @@ public class FlareBot {
 
     protected void stop() {
         LOGGER.info("Saving data.");
-        saveRoles();
-        saveWelcomes();
-        sendData();
         try {
-            permissions.save();
-        } catch (IOException e) {
-            LOGGER.error("Perms save failed on stop!", e);
+            saveRoles();
+            saveWelcomes();
+            sendData();
+            savePolls();
+            saveSelfAssign();
+            manager.saveAutoMod();
+            manager.saveLocalisation();
+        } catch (Exception e) {
+            LOGGER.error("Something failed on stop!", e);
         }
-        savePolls();
-        saveSelfAssign();
-        manager.saveAutoMod();
-        manager.saveLocalisation();
     }
 
     private void saveSelfAssign() {
