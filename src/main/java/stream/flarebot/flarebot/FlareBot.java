@@ -1170,7 +1170,13 @@ public class FlareBot {
     }
 
     public User getUserByID(String id) {
-        return Arrays.stream(clients).map(jda -> jda.getUserById(id))
+        return Arrays.stream(clients).map(jda -> {
+            try {
+                return jda.getUserById(id);
+            } catch (Exception ignored) {
+            }
+            return null;
+        })
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
     }

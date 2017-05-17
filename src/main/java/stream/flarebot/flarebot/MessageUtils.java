@@ -6,12 +6,12 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import net.dv8tion.jda.core.requests.RestAction;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.HelpFormatter;
 
 import java.awt.*;
-import java.awt.List;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -175,13 +175,12 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static void sendUsage(Command command, TextChannel channel) {
+    public static RestAction<Message> sendUsage(Command command, TextChannel channel) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
-        channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
-                .addField("Permission", permission, false).setColor(Color.red).build())
-                .queue();
+        return channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
+                .addField("Permission", permission, false).setColor(Color.red).build());
     }
 
     private static String capitalize(String s) {

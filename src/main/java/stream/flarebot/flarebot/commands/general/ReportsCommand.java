@@ -22,7 +22,7 @@ public class ReportsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         } else if (args.length == 1 || args.length == 2) {
             switch (args[0]) { //I'm used to using switch statements. If you want this as an if statement just tell me.
                 case "list": {
@@ -103,13 +103,13 @@ public class ReportsCommand implements Command {
                             MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report"), channel);
                         }
                     } else {
-                        MessageUtils.sendUsage(this, channel);
+                        MessageUtils.sendUsage(this, channel).queue();
                     }
 
                 }
                 break;
                 default: {
-                    MessageUtils.sendUsage(this, channel);
+                    MessageUtils.sendUsage(this, channel).queue();
                 }
             }
         } else if (args.length >= 4) {
@@ -159,11 +159,11 @@ public class ReportsCommand implements Command {
                 }
                 break;
                 default: {
-                    MessageUtils.sendUsage(this, channel);
+                    MessageUtils.sendUsage(this, channel).queue();
                 }
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 

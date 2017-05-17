@@ -67,9 +67,7 @@ public class FlareBotManager {
     public Set<String> getRandomSongs(int amount, TextChannel channel) {
         Set<String> songs = new HashSet<>();
         if (amount < 10 || amount > 100) {
-            MessageUtils.sendErrorMessage(MessageUtils.getEmbed()
-                    .setDescription("Invalid amount. Make sure it is 10 or more and 100 or less!"), channel);
-            return null;
+            throw new IllegalArgumentException("Invalid amount. Make sure it is 10 or more and 100 or less!");
         }
 
         for (int i = 0; i < amount; i++) {
@@ -262,13 +260,13 @@ public class FlareBotManager {
         }
     }
 
-    public LocalConfig loadConfig(Language.Locales l) {
+    public LocalConfig loadLang(Language.Locales l) {
         return configs.computeIfAbsent(l, locale -> new LocalConfig(getClass().getResource("/langs/" + l.getCode() + ".json")));
     }
 
     public String getLang(Language lang, String id) {
         String path = lang.name().toLowerCase().replaceAll("_", ".");
-        LocalConfig config = loadConfig(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
+        LocalConfig config = loadLang(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
         return config.getString(path);
     }
 

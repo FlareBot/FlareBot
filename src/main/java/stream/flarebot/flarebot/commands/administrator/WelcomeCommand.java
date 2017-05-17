@@ -21,7 +21,7 @@ public class WelcomeCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("enable")) {
                 if (flareBot.getWelcomeForGuild(channel.getGuild()) == null) {
@@ -57,7 +57,7 @@ public class WelcomeCommand implements Command {
                                 .getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md\n"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```")).queue();
             } else {
-                MessageUtils.sendUsage(this, channel);
+                MessageUtils.sendUsage(this, channel).queue();
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("message")) {
@@ -73,10 +73,10 @@ public class WelcomeCommand implements Command {
                     channel.sendMessage("Welcomes are not enabled!").queue();
                 }
             } else {
-                MessageUtils.sendUsage(this, channel);
+                MessageUtils.sendUsage(this, channel).queue();
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 

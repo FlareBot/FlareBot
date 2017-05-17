@@ -38,7 +38,7 @@ public class ModlogCommand implements Command {
         } else if (args.length == 3) {
 
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 
