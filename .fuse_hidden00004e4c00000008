@@ -1,0 +1,29 @@
+[2017.05.15 21:28 main INFO ] Login Successful!
+[2017.05.15 21:28 ReadingThread INFO ] Connected to WebSocket
+[2017.05.15 21:28 ReadingThread INFO ] Finished Loading!
+[2017.05.15 21:28 Thread-7 INFO ] Logging initialized @4167ms
+[2017.05.15 21:28 Thread-7 INFO ] == Spark has ignited ...
+[2017.05.15 21:28 Thread-7 INFO ] >> Listening on 0.0.0.0:8080
+[2017.05.15 21:28 Thread-7 INFO ] jetty-9.3.6.v20151106
+[2017.05.15 21:28 Thread-7 INFO ] Started ServerConnector@75863b7d{HTTP/1.1,[http/1.1]}{0.0.0.0:8080}
+[2017.05.15 21:28 Thread-7 INFO ] Started @4239ms
+[2017.05.15 21:28 main INFO ] FlareBot v2.99.99-IN_DEV booted!
+[2017.05.15 21:28 FlareBot Scheduled Task INFO ] Audio System successfully setup!
+[2017.05.15 21:29 Command Pool-0 INFO ] Dispatching command 'permissions' [give, <@215644829969809421>, Contributor] in TC:flare-test-bot(242297848123621376)! Sender: Arsen#7525
+[2017.05.15 21:29 Command Pool-0 INFO ] Dispatching command 'reports' [report, <@155954930191040513>, test] in TC:flare-test-bot(242297848123621376)! Sender: weeryan17#1258
+[2017.05.15 21:30 Command Pool-0 INFO ] Dispatching command 'reports' [report, <@155954930191040513>, too, good, 4, u] in TC:flare-test-bot(242297848123621376)! Sender: Arsen#7525
+[2017.05.15 21:30 Command Pool-0 ERROR] Exception in guild !
+'reports' [report, <@155954930191040513>, too, good, 4, u] in TC:flare-test-bot(242297848123621376)! Sender: Arsen#7525
+java.lang.NullPointerException: null
+	at loadLang(FlareBotManager.java:266)
+	at stream.flarebot.flarebot.commands.FlareBotManager.getLang(FlareBotManager.java:271)
+	at stream.flarebot.flarebot.Language.get(Language.java:238)
+	at stream.flarebot.flarebot.objects.ReportStatus.getMessage(ReportStatus.java:30)
+	at stream.flarebot.flarebot.commands.general.ReportsCommand.getReportEmbed(ReportsCommand.java:204)
+	at stream.flarebot.flarebot.commands.general.ReportsCommand.onCommand(ReportsCommand.java:158)
+	at stream.flarebot.flarebot.Events.lambda$onGuildMessageReceived$5(Events.java:259)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
