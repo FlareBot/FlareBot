@@ -73,6 +73,9 @@ public class EvalCommand implements Command {
                             .addField("Result: ", "```bf\n" + ExceptionUtils.getStackTrace(e) + "```", false).build()).queue();
                 } catch (Exception e) {
                     FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .addField("Code:", "```groovy\n" + code + "```", false)
+                            .addField("Result: ", "```bf\n" + ExceptionUtils.getStackTrace(e) + "```", false).build()).queue();
                 }
             });
         } else {
