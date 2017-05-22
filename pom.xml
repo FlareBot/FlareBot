@@ -37,7 +37,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.0_193</version>
+            <version>3.1.0_204</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.32</version>
+            <version>1.2.39</version>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>
