@@ -3,11 +3,11 @@ package stream.flarebot.flarebot.commands.general;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
 import java.sql.Timestamp;
@@ -128,10 +128,10 @@ public class ReportsCommand implements Command {
                             EmbedBuilder errorBuilder = new EmbedBuilder();
                             errorBuilder.setDescription("Invalid status: " + args[2]);
                             StringBuilder sb = new StringBuilder();
-                            for(ReportStatus listStatus : ReportStatus.values()){
+                            for (ReportStatus listStatus : ReportStatus.values()) {
                                 sb.append(listStatus.getMessage(channel.getGuild().getId()) + "\n");
                             }
-                            errorBuilder.addField("Statuses", "```\n"+ sb.toString() + "```", false);
+                            errorBuilder.addField("Statuses", "```\n" + sb.toString() + "```", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
@@ -192,7 +192,7 @@ public class ReportsCommand implements Command {
         return MessageUtils.makeAsciiTable(header, table, null);
     }
 
-    public EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel){
+    public EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
         User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
         User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));

@@ -26,6 +26,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Welcome;
 
 import javax.net.ssl.HttpsURLConnection;

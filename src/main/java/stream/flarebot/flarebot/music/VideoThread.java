@@ -6,8 +6,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.music.extractors.*;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;

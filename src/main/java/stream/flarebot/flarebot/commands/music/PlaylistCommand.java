@@ -5,10 +5,10 @@ import com.arsenarsen.lavaplayerbridge.player.Track;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;

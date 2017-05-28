@@ -47,6 +47,7 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ExceptionUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 import stream.flarebot.flarebot.util.Welcome;
 import stream.flarebot.flarebot.web.ApiFactory;
