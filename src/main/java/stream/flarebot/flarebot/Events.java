@@ -20,6 +20,7 @@ import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -291,7 +292,7 @@ public class Events extends ListenerAdapter {
                                 return;
                             COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
                                     g -> new AtomicInteger()).incrementAndGet();
-                            String[] finalArgs = args;
+                            String[] finalArgs = Arrays.stream(args).filter(StringUtils::isNotBlank).toArray(String[]::new);
                             CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
                                         "Dispatching command '" + cmd.getCommand() + "' " + Arrays
