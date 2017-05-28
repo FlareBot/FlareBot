@@ -47,6 +47,7 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ExceptionUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 import stream.flarebot.flarebot.util.Welcome;
 import stream.flarebot.flarebot.web.ApiFactory;
@@ -781,18 +782,17 @@ public class FlareBot {
 
     protected void stop() {
         LOGGER.info("Saving data.");
-        saveRoles();
-        saveWelcomes();
-        sendData();
         try {
-            permissions.save();
-        } catch (IOException e) {
-            LOGGER.error("Perms save failed on stop!", e);
+            saveRoles();
+            saveWelcomes();
+            sendData();
+            savePolls();
+            saveSelfAssign();
+            manager.saveAutoMod();
+            manager.saveLocalisation();
+        } catch (Exception e) {
+            LOGGER.error("Something failed on stop!", e);
         }
-        savePolls();
-        saveSelfAssign();
-        manager.saveAutoMod();
-        manager.saveLocalisation();
     }
 
     private void saveSelfAssign() {

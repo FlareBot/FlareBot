@@ -9,12 +9,12 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.util.LocalConfig;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 import stream.flarebot.flarebot.util.SQLController;
 

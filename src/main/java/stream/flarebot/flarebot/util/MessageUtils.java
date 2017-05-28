@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot;
+package stream.flarebot.flarebot.util;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -7,9 +7,10 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.HelpFormatter;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;

@@ -26,6 +26,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Welcome;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -249,7 +250,7 @@ public class Events extends ListenerAdapter {
                         return;
                     COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger())
                             .incrementAndGet();
-                    String[] finalArgs = args;
+                    String[] finalArgs = Arrays.stream(args).filter(s -> !s.isEmpty()).toArray(String[]::new);
                     CACHED_POOL.submit(() -> {
                         FlareBot.LOGGER.info(
                                 "Dispatching command '" + cmd.getCommand() + "' " + Arrays
@@ -290,7 +291,7 @@ public class Events extends ListenerAdapter {
                                 return;
                             COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
                                     g -> new AtomicInteger()).incrementAndGet();
-                            String[] finalArgs = args;
+                            String[] finalArgs = Arrays.stream(args).filter(s -> !s.isEmpty()).toArray(String[]::new);
                             CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
                                         "Dispatching command '" + cmd.getCommand() + "' " + Arrays

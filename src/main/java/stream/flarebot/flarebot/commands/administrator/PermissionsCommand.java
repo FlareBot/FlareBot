@@ -5,11 +5,11 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.User;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Parser;
 
 import java.io.IOException;
