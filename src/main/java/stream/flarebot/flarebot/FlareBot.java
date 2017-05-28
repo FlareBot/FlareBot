@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
+import spark.utils.IOUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
@@ -691,12 +692,8 @@ public class FlareBot {
                     ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git.getAbsolutePath());
                     clone.redirectErrorStream(true);
                     Process p = clone.start();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String out = "";
-                    String line;
-                    if ((line = reader.readLine()) != null) {
-                        out += line + '\n';
-                    }
+                    String out = IOUtils.toString(p.getInputStream());
+                    p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
                         UpdateCommand.UPDATING.set(false);
@@ -706,12 +703,7 @@ public class FlareBot {
                     ProcessBuilder builder = new ProcessBuilder("git", "pull");
                     builder.directory(git);
                     Process p = builder.start();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String out = "";
-                    String line;
-                    if ((line = reader.readLine()) != null) {
-                        out += line + '\n';
-                    }
+                    String out = IOUtils.toString(p.getInputStream());
                     p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
@@ -722,12 +714,7 @@ public class FlareBot {
                 ProcessBuilder maven = new ProcessBuilder("mvn", "clean", "package", "-e", "-U");
                 maven.directory(git);
                 Process p = maven.start();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String out = "";
-                String line;
-                if ((line = reader.readLine()) != null) {
-                    out += line + '\n';
-                }
+                String out = IOUtils.toString(p.getInputStream());
                 p.waitFor();
                 if (p.exitValue() != 0) {
                     UpdateCommand.UPDATING.set(false);
