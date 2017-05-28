@@ -250,7 +250,7 @@ public class Events extends ListenerAdapter {
                         return;
                     COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger())
                             .incrementAndGet();
-                    String[] finalArgs = Arrays.stream(args).filter(String::isEmpty).toArray(String[]::new);
+                    String[] finalArgs = Arrays.stream(args).filter(s -> !s.isEmpty()).toArray(String[]::new);
                     CACHED_POOL.submit(() -> {
                         FlareBot.LOGGER.info(
                                 "Dispatching command '" + cmd.getCommand() + "' " + Arrays
@@ -291,7 +291,7 @@ public class Events extends ListenerAdapter {
                                 return;
                             COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
                                     g -> new AtomicInteger()).incrementAndGet();
-                            String[] finalArgs = Arrays.stream(args).filter(String::isEmpty).toArray(String[]::new);
+                            String[] finalArgs = Arrays.stream(args).filter(s -> !s.isEmpty()).toArray(String[]::new);
                             CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
                                         "Dispatching command '" + cmd.getCommand() + "' " + Arrays
