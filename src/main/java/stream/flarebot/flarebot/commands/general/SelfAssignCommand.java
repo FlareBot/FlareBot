@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
+import java.util.Set;
 
 public class SelfAssignCommand implements Command {
 
@@ -41,10 +42,14 @@ public class SelfAssignCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 StringBuilder sb = new StringBuilder();
+                Set<String> roles = FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId());
+                if (roles.isEmpty()) {
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 10, channel);
+                    return;
+                }
                 sb.append("**Self assignable roles**").append("\n```\n");
-                FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId())
-                        .forEach(role -> sb.append(channel.getGuild().getRoleById(role).getName()).append(" (")
-                                .append(role).append(")\n"));
+                roles.forEach(role -> sb.append(channel.getGuild().getRoleById(role).getName()).append(" (")
+                        .append(role).append(")\n"));
                 sb.append("```");
                 channel.sendMessage(sb.toString()).queue();
             } else {
