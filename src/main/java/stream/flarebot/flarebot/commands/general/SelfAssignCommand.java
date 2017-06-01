@@ -13,7 +13,6 @@ import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
-import java.util.Set;
 
 public class SelfAssignCommand implements Command {
 
