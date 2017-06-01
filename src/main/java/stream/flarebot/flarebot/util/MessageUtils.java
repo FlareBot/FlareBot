@@ -279,7 +279,7 @@ public class MessageUtils {
     }
 
     public static String getShardId(JDA jda) {
-        return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
+        return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
     }
 
 
