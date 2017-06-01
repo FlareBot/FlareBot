@@ -46,6 +46,11 @@ public class LeaveCommand implements Command {
     }
 
     @Override
+    public String[] getAliases() {
+        return new String[]{"gtfo", "banish", "getout"};
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }
