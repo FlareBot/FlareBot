@@ -11,22 +11,13 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShardInfoCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        StringBuilder builder = new StringBuilder(String.format("```diff\nTotal: %d\n", FlareBot.getInstance().getClients().length));
-        for (JDA jda : FlareBot.getInstance().getClients()) {
-            if (jda.getStatus() == JDA.Status.CONNECTED) {
-                builder.append(String.format("+ Shard ID: %s - %s\n" +
-                        "+     Guild Count: %d\n", MessageUtils.getShardId(jda), WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")), jda.getGuilds().size()));
-            } else {
-                builder.append(String.format("- Shard ID: %s - %s\n" +
-                        "+     Guild Count: %d\n", MessageUtils.getShardId(jda), WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")), jda.getGuilds().size()));
-            }
-        }
-        builder.append("```");
-        channel.sendMessage(builder.toString()).queue();
-
+        channel.sendMessage(buildTable(FlareBot.getInstance().getClients())).queue();
     }
 
     @Override
@@ -47,5 +38,23 @@ public class ShardInfoCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.GENERAL;
+    }
+
+    public String buildTable(JDA[] jdas) {
+        List<String> headers = new ArrayList<>();
+        headers.add("Shard ID");
+        headers.add("Status");
+        headers.add("Guild Count");
+
+        List<List<String>> table = new ArrayList<>();
+        for (JDA jda : jdas) {
+            List<String> row = new ArrayList<>();
+            row.add(MessageUtils.getShardId(jda));
+            row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));
+            row.add(String.valueOf(jda.getGuilds().size()));
+            table.add(row);
+        }
+
+        return MessageUtils.makeAsciiTable(headers, table, null);
     }
 }
