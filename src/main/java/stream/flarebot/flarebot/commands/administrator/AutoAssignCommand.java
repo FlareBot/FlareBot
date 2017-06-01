@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -35,8 +36,8 @@ public class AutoAssignCommand implements Command {
                     sb.append("```");
                     channel.sendMessage(sb.toString()).queue();
                 } else {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This server has no roles being assigned."), channel);
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("This server has no roles being assigned!").setColor(Color.RED).build(), 500, channel);
                 }
             } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
