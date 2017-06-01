@@ -1,5 +1,8 @@
 package stream.flarebot.flarebot.objects;
 
+import org.joda.time.DateTime;
+
+import java.sql.Date;
 import java.sql.Timestamp;
 
 /**
