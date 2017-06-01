@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.secret;
+package stream.flarebot.flarebot.commands.general;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Member;
@@ -47,6 +47,6 @@ public class ShardInfoCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.HIDDEN;
+        return CommandType.GENERAL;
     }
 }
