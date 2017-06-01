@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.Optional;
 

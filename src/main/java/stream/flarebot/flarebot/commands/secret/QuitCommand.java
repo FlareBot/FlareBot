@@ -12,9 +12,7 @@ public class QuitCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (sender.getId().equals("158310004187725824") || sender.getId().equals("155954930191040513")) {
-            FlareBot.getInstance().quit(false);
-        }
+        FlareBot.getInstance().quit(false);
     }
 
     @Override

@@ -2,10 +2,10 @@ package stream.flarebot.flarebot.commands.general;
 
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.PlayerCache;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
