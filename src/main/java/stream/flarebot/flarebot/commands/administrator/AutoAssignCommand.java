@@ -37,7 +37,7 @@ public class AutoAssignCommand implements Command {
                     channel.sendMessage(sb.toString()).queue();
                 } else {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This server has no roles being assigned!").setColor(Color.RED).build(), 500, channel);
+                            .setDescription("This server has no roles being assigned!").setColor(Color.RED).build(), 5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)

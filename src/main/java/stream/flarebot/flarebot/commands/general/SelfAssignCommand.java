@@ -42,7 +42,7 @@ public class SelfAssignCommand implements Command {
             } else if (args[0].equalsIgnoreCase("list")) {
                 StringBuilder sb = new StringBuilder();
                 if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).isEmpty()) {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 10, channel);
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 5000, channel);
                     return;
                 }
                 sb.append("**Self assignable roles**").append("\n```\n");
