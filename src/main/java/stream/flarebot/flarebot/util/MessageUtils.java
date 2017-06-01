@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.util;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
@@ -276,4 +277,10 @@ public class MessageUtils {
         }
         return message.trim();
     }
+
+    public static String getShardId(JDA jda) {
+        return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
+    }
+
+
 }

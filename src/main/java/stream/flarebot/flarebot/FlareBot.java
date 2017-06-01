@@ -481,6 +481,7 @@ public class FlareBot {
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
+        registerCommand(new ShardInfoCommand());
 
         ApiFactory.bind();
 
