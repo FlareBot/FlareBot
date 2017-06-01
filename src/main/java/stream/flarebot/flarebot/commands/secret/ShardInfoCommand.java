@@ -18,10 +18,12 @@ public class ShardInfoCommand implements Command {
         for (JDA jda : FlareBot.getInstance().getClients()) {
             switch (jda.getStatus()) {
                 case CONNECTED:
-                    builder.append(String.format("+ Shard ID: %s - %s\n+     Guild Count: %d\n", MessageUtils.getShardId(jda), WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")), jda.getGuilds().size()));
+                    builder.append(String.format("+ Shard ID: %s - %s\n" +
+                            "+     Guild Count: %d\n", MessageUtils.getShardId(jda), WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")), jda.getGuilds().size()));
                     break;
                 default:
-                    builder.append(String.format("- Shard ID: %s - %s\n+     Guild Count: %d\n", MessageUtils.getShardId(jda), WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")), jda.getGuilds().size()));
+                    builder.append(String.format("- Shard ID: %s - %s\n" +
+                            "+     Guild Count: %d\n", MessageUtils.getShardId(jda), WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")), jda.getGuilds().size()));
             }
         }
         builder.append("```");
