@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.objects;
 
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 
 public enum ReportStatus {

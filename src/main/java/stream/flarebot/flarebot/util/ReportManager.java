@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.util;
 
-import org.joda.time.DateTime;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 
@@ -12,7 +11,7 @@ import java.util.List;
 
 public final class ReportManager {
 
-    private ReportManager(){
+    private ReportManager() {
     }
 
     private final List<Report> reportsToSave = new ArrayList<>();
@@ -60,13 +59,14 @@ public final class ReportManager {
         return report[0];
     }
 
-    public List<Report> getReportsToSave(){
+    public List<Report> getReportsToSave() {
         return reportsToSave;
     }
 
     private static ReportManager instance;
-    public static ReportManager getInstance(){
-        if(instance == null){
+
+    public static ReportManager getInstance() {
+        if (instance == null) {
             instance = new ReportManager();
         }
         return instance;
