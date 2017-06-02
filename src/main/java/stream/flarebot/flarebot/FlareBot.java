@@ -711,7 +711,7 @@ public class FlareBot {
                         return;
                     }
                 }
-                ProcessBuilder maven = new ProcessBuilder("gradle shadowJar");
+                ProcessBuilder maven = new ProcessBuilder("./gradlew shadowJar");
                 maven.directory(git);
                 Process p = maven.start();
                 String out = IOUtils.toString(p.getInputStream());
