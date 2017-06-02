@@ -250,7 +250,7 @@ public class FlareBot {
 
     private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
 
-    private List<Command> commands = new CopyOnWriteArrayList<>();
+    private Set<Command> commands = ConcurrentHashMap.newKeySet();
     // Guild ID | List role ID
     private Map<String, CopyOnWriteArrayList<String>> autoAssignRoles;
     private File roleFile;
@@ -318,7 +318,7 @@ public class FlareBot {
                     }
                 }
             prefixes = new Prefixes();
-            commands = new ArrayList<>();
+            commands = ConcurrentHashMap.newKeySet();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
@@ -496,6 +496,7 @@ public class FlareBot {
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
         registerCommand(new ShardInfoCommand());
+        registerCommand(new SongNickCommand());
 
         ApiFactory.bind();
 
@@ -881,7 +882,7 @@ public class FlareBot {
         this.commands.add(command);
     }
 
-    public List<Command> getCommands() {
+    public Set<Command> getCommands() {
         return this.commands;
     }
 
