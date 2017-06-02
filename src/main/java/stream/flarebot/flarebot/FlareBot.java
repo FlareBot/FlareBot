@@ -292,7 +292,7 @@ public class FlareBot {
                 while (true) {
                     try {
                         clients[0] = new JDABuilder(AccountType.BOT)
-                                .addListener(events, tracker)
+                                .addEventListener(events, tracker)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
@@ -306,7 +306,7 @@ public class FlareBot {
                     while (true) {
                         try {
                             clients[i] = new JDABuilder(AccountType.BOT)
-                                    .addListener(events, tracker)
+                                    .addEventListener(events, tracker)
                                     .useSharding(i, clients.length)
                                     .setToken(tkn)
                                     .setAudioSendFactory(new NativeAudioSendFactory())
@@ -348,6 +348,20 @@ public class FlareBot {
                             }
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
+                        }
+                    }
+                    if(SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                        Guild c = getGuildByID(player.getGuildId());
+                        if(c == null) {
+                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                        } else {
+                            Track track = player.getPlayingTrack();
+                            c.getController()
+                                    .setNickname(c.getSelfMember(),
+                                            track != null ?
+                                                    track.getTrack().getInfo().title.substring(0,
+                                                            Math.min(track.getTrack().getInfo().title.length(), 32)) : null)
+                                    .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
                         }
                     }
                 }
