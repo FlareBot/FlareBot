@@ -68,6 +68,8 @@ public class SongCommand implements Command {
 
     public static String formatDuration(Track track) {
         long totalSeconds = track.getTrack().getDuration() / 1000;
+    public static String formatDuration(long duration) {
+        long totalSeconds = duration / 1000;
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;
         long hours = (totalSeconds / 3600);
