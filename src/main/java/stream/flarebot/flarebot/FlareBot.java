@@ -17,6 +17,7 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -322,6 +323,18 @@ public class FlareBot {
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
+                public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
+                    if(SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                        Guild c = getGuildByID(player.getGuildId());
+                        if(c == null) {
+                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                        } else {
+                            if(player.getPlaylist().isEmpty())
+                                c.getController().setNickname(c.getSelfMember(), null).queue();
+                        }
+                    }
+                }
+                @Override
                 public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
                     if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
                         TextChannel c =
@@ -356,11 +369,15 @@ public class FlareBot {
                             SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
                         } else {
                             Track track = player.getPlayingTrack();
+                            String str = null;
+                            if (track != null) {
+                                str = track.getTrack().getInfo().title;
+                                if(str.length() > 32)
+                                    str = str.substring(0, 32);
+                                str = str.substring(0, str.lastIndexOf(' ') + 1);
+                            } // Even I couldn't make this a one-liner
                             c.getController()
-                                    .setNickname(c.getSelfMember(),
-                                            track != null ?
-                                                    track.getTrack().getInfo().title.substring(0,
-                                                            Math.min(track.getTrack().getInfo().title.length(), 32)) : null)
+                                    .setNickname(c.getSelfMember(), str)
                                     .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
                         }
                     }

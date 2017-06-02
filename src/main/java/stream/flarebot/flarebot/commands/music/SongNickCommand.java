@@ -53,7 +53,7 @@ public class SongNickCommand implements Command {
                 return;
             }
         }
-        MessageUtils.sendUsage(this, channel);
+        MessageUtils.sendUsage(this, channel).queue();
     }
 
     @Override

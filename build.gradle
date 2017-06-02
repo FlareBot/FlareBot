@@ -5,6 +5,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
+build.dependsOn jdaction
+
 group = 'stream.flarebot'
 version = '2.99.99-IN_DEV'
 
@@ -22,6 +24,7 @@ repositories {
     maven { url "https://repo.arsenarsen.com/content/repositories/snapshots/" }
     maven { url "http://repo.maven.apache.org/maven2" }
 }
+
 dependencies {
     compile(group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.4') {
         exclude(module: 'JDA')
