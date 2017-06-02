@@ -55,6 +55,6 @@ public class ShardInfoCommand implements Command {
             table.add(row);
         }
 
-        return MessageUtils.makeAsciiTable(headers, table, null);
+        return MessageUtils.makeAsciiTable(headers, table, null, "swift");
     }
 }
