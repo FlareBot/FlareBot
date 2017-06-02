@@ -17,6 +17,7 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -250,7 +251,7 @@ public class FlareBot {
 
     private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
 
-    private List<Command> commands = new CopyOnWriteArrayList<>();
+    private Set<Command> commands = ConcurrentHashMap.newKeySet();
     // Guild ID | List role ID
     private Map<String, CopyOnWriteArrayList<String>> autoAssignRoles;
     private File roleFile;
@@ -292,7 +293,7 @@ public class FlareBot {
                 while (true) {
                     try {
                         clients[0] = new JDABuilder(AccountType.BOT)
-                                .addListener(events, tracker)
+                                .addEventListener(events, tracker)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
@@ -306,7 +307,7 @@ public class FlareBot {
                     while (true) {
                         try {
                             clients[i] = new JDABuilder(AccountType.BOT)
-                                    .addListener(events, tracker)
+                                    .addEventListener(events, tracker)
                                     .useSharding(i, clients.length)
                                     .setToken(tkn)
                                     .setAudioSendFactory(new NativeAudioSendFactory())
@@ -318,9 +319,21 @@ public class FlareBot {
                     }
                 }
             prefixes = new Prefixes();
-            commands = new ArrayList<>();
+            commands = ConcurrentHashMap.newKeySet();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
+                @Override
+                public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
+                    if(SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                        Guild c = getGuildByID(player.getGuildId());
+                        if(c == null) {
+                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                        } else {
+                            if(player.getPlaylist().isEmpty())
+                                c.getController().setNickname(c.getSelfMember(), null).queue();
+                        }
+                    }
+                }
                 @Override
                 public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
                     if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
@@ -348,6 +361,24 @@ public class FlareBot {
                             }
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
+                        }
+                    }
+                    if(SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                        Guild c = getGuildByID(player.getGuildId());
+                        if(c == null) {
+                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                        } else {
+                            Track track = player.getPlayingTrack();
+                            String str = null;
+                            if (track != null) {
+                                str = track.getTrack().getInfo().title;
+                                if(str.length() > 32)
+                                    str = str.substring(0, 32);
+                                str = str.substring(0, str.lastIndexOf(' ') + 1);
+                            } // Even I couldn't make this a one-liner
+                            c.getController()
+                                    .setNickname(c.getSelfMember(), str)
+                                    .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
                         }
                     }
                 }
@@ -482,6 +513,7 @@ public class FlareBot {
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
         registerCommand(new ShardInfoCommand());
+        registerCommand(new SongNickCommand());
 
         ApiFactory.bind();
 
@@ -867,7 +899,7 @@ public class FlareBot {
         this.commands.add(command);
     }
 
-    public List<Command> getCommands() {
+    public Set<Command> getCommands() {
         return this.commands;
     }
 

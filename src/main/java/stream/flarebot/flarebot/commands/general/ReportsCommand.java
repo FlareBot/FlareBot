@@ -41,7 +41,7 @@ public class ReportsCommand implements Command {
                                 builder.addField("Reports", reportsTable, false);
                                 builder.addField("Pages", String.valueOf(pages), true);
                                 builder.addField("Current page", String.valueOf(1), true);
-                                channel.sendMessage(builder.build());
+                                channel.sendMessage(builder.build()).queue();
                             } else {
                                 int pages = (reports.size() / 20) + 1;
                                 int page;
@@ -68,13 +68,13 @@ public class ReportsCommand implements Command {
                                     builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
                                     builder.addField("Pages", String.valueOf(pages), true);
                                     builder.addField("Current page", String.valueOf(page), true);
-                                    channel.sendMessage(builder.build());
+                                    channel.sendMessage(builder.build()).queue();
                                 }
                             }
                         } else {
                             EmbedBuilder builder = MessageUtils.getEmbed(sender);
                             builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
-                            channel.sendMessage(builder.build());
+                            channel.sendMessage(builder.build()).queue();
                         }
                     } else {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.list` to do this."), channel);
@@ -97,8 +97,8 @@ public class ReportsCommand implements Command {
                             return;
                         }
 
-                        if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId() == sender.getId()) {
-                            channel.sendMessage(getReportEmbed(sender, report, channel).build());
+                        if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
+                            channel.sendMessage(getReportEmbed(sender, report, channel).build()).queue();
                         } else {
                             MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report"), channel);
                         }
@@ -129,7 +129,7 @@ public class ReportsCommand implements Command {
                             errorBuilder.setDescription("Invalid status: " + args[2]);
                             StringBuilder sb = new StringBuilder();
                             for (ReportStatus listStatus : ReportStatus.values()) {
-                                sb.append(listStatus.getMessage(channel.getGuild().getId()) + "\n");
+                                sb.append(listStatus.getMessage() + "\n");
                             }
                             errorBuilder.addField("Statuses", "```\n" + sb.toString() + "```", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
@@ -184,7 +184,7 @@ public class ReportsCommand implements Command {
 
             row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
-            row.add(report.getStatus().getMessage(guild.getId()));
+            row.add(report.getStatus().getMessage());
 
             table.add(row);
         }
@@ -201,7 +201,7 @@ public class ReportsCommand implements Command {
         eb.addField("Reported", MessageUtils.getTag(reported), true);
 
         eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), true);
-        eb.addField("Status", report.getStatus().getMessage(channel.getGuild().getId()), true);
+        eb.addField("Status", report.getStatus().getMessage(), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
         return eb;

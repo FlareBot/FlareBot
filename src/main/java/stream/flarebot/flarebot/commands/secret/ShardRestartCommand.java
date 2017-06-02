@@ -24,7 +24,7 @@ public class ShardRestartCommand implements Command {
                 synchronized (FlareBot.getInstance().getClients()) {
                     FlareBot.getInstance().getClients()[shard].shutdown(false);
                     FlareBot.getInstance().getClients()[shard] = new JDABuilder(AccountType.BOT)
-                            .addListener(FlareBot.getInstance().getEvents())
+                            .addEventListener(FlareBot.getInstance().getEvents())
                             .useSharding(shard, FlareBot.getInstance().getClients().length)
                             .setToken(FlareBot.getToken())
                             .setAudioSendFactory(new NativeAudioSendFactory())
