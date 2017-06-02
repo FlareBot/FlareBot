@@ -22,8 +22,8 @@ public class SongNickCommand implements Command {
     static {
         try {
             SQLController.runSqlTask(conn -> {
-                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS guilds (id BIGINT UNSIGNED PRIMARY KEY)");
-                ResultSet results = conn.createStatement().executeQuery("SELECT * FROM guilds");
+                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS songnick (id BIGINT UNSIGNED PRIMARY KEY)");
+                ResultSet results = conn.createStatement().executeQuery("SELECT * FROM songnick");
                 while(results.next())
                     guilds.add(results.getLong("id"));
             });
@@ -41,13 +41,13 @@ public class SongNickCommand implements Command {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("true")) {
                 SQLController.asyncRunSqlTask(conn ->
-                        conn.createStatement().execute("INSERT INTO guilds (id) VALUES (" + channel.getGuild().getId() + ")"));
+                        conn.createStatement().execute("INSERT INTO songnick (id) VALUES (" + channel.getGuild().getId() + ")"));
                 guilds.add(channel.getGuild().getIdLong());
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Done :-)").build()).queue();
                 return;
             } else if (args[0].equalsIgnoreCase("false")) {
                 SQLController.asyncRunSqlTask(conn ->
-                        conn.createStatement().execute("DELETE FROM guilds WHERE id = " + channel.getGuild().getId()));
+                        conn.createStatement().execute("DELETE FROM songnick WHERE id = " + channel.getGuild().getId()));
                 guilds.remove(channel.getGuild().getIdLong());
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Done :-)").build()).queue();
                 return;
