@@ -15,9 +15,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShardInfoCommand implements Command {
+
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        channel.sendMessage(buildTable(FlareBot.getInstance().getClients())).queue();
+        List<String> headers = new ArrayList<>();
+        headers.add("Shard ID");
+        headers.add("Status");
+        headers.add("Guild Count");
+
+        List<List<String>> table = new ArrayList<>();
+        for (JDA jda : FlareBot.getInstance().getClients()) {
+            List<String> row = new ArrayList<>();
+            row.add(MessageUtils.getShardId(jda));
+            row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));
+            row.add(String.valueOf(jda.getGuilds().size()));
+            table.add(row);
+        }
+
+        channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
     }
 
     @Override
@@ -38,23 +53,5 @@ public class ShardInfoCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.GENERAL;
-    }
-
-    public String buildTable(JDA[] jdas) {
-        List<String> headers = new ArrayList<>();
-        headers.add("Shard ID");
-        headers.add("Status");
-        headers.add("Guild Count");
-
-        List<List<String>> table = new ArrayList<>();
-        for (JDA jda : jdas) {
-            List<String> row = new ArrayList<>();
-            row.add(MessageUtils.getShardId(jda));
-            row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));
-            row.add(String.valueOf(jda.getGuilds().size()));
-            table.add(row);
-        }
-
-        return MessageUtils.makeAsciiTable(headers, table, null, "swift");
     }
 }

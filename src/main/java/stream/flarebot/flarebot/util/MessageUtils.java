@@ -236,7 +236,7 @@ public class MessageUtils {
                 }
             }
         }
-        sb.append("```" + lang).append("\n");
+        sb.append("```").append(lang).append("\n");
         String formatLine = "|";
         for (int width : widths) {
             formatLine += " %-" + width + "s |";

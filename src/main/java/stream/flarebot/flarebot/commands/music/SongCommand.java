@@ -23,6 +23,8 @@ public class SongCommand implements Command {
         this.manager = bot.getMusicManager();
     }
 
+    private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
+
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
@@ -81,7 +83,7 @@ public class SongCommand implements Command {
         progress.append(StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)));
         progress.append("]()");
         progress.append(StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)));
-        progress.append(" " + new DecimalFormat("#.##").format(percentage) + "%");
+        progress.append(" " + percentageFormat.format(percentage) + "%");
         return progress.toString();
     }
 
