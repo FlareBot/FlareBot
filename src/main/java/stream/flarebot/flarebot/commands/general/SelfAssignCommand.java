@@ -6,6 +6,8 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.PermissionException;
+
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -41,10 +43,13 @@ public class SelfAssignCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 StringBuilder sb = new StringBuilder();
+                if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).isEmpty()) {
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 5000, channel);
+                    return;
+                }
                 sb.append("**Self assignable roles**").append("\n```\n");
-                FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId())
-                        .forEach(role -> sb.append(channel.getGuild().getRoleById(role).getName()).append(" (")
-                                .append(role).append(")\n"));
+                FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).forEach(role -> sb.append(channel.getGuild().getRoleById(role).getName()).append(" (")
+                        .append(role).append(")\n"));
                 sb.append("```");
                 channel.sendMessage(sb.toString()).queue();
             } else {
@@ -147,27 +152,18 @@ public class SelfAssignCommand implements Command {
     }
 
     private void handleRole(Member member, TextChannel channel, String roleId) {
-        if (!member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
-            channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
-            MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention())
-                    .setEmbed(new EmbedBuilder()
-                            .setDescription("You have been assigned `" + channel
-                                    .getGuild()
-                                    .getRoleById(roleId)
-                                    .getName() + "` to yourself!")
-                            .setColor(Color.green).build())
-                    .build(), 30_000, channel);
-        } else {
-            channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId))
-                    .queue();
-            MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention())
-                    .setEmbed(new EmbedBuilder()
-                            .setDescription("You have removed the role `" + channel
-                                    .getGuild()
-                                    .getRoleById(roleId)
-                                    .getName() + "` from yourself!")
-                            .setColor(Color.orange).build())
-                    .build(), 30_000, channel);
+        try {
+            if (!member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
+                channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
+                MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild()
+                    .getRoleById(roleId).getName() + "` to yourself!").setColor(Color.green).build()).build(), 30_000, channel);
+            } else {
+                channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId)).queue();
+                MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild()
+                    .getRoleById(roleId).getName() + "` from yourself!").setColor(Color.orange).build()).build(), 30_000, channel);
+            }
+        } catch(PermissionException e) {
+            MessageUtils.sendErrorMessage(e.getMessage() + "\nContact a server administrator!", channel);
         }
     }
 

@@ -50,7 +50,7 @@ public class EvalCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
             String imports = IMPORTS.stream().map(s -> "import " + s + ';').collect(Collectors.joining("\n"));
-            ScriptEngine engine = manager.getEngineByName("groovy");
+            ScriptEngine engine = manager.getEngineByName("nashorn");
             engine.put("channel", channel);
             engine.put("guild", channel.getGuild());
             engine.put("message", message);

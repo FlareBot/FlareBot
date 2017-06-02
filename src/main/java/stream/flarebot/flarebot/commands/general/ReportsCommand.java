@@ -41,7 +41,7 @@ public class ReportsCommand implements Command {
                                 builder.addField("Reports", reportsTable, false);
                                 builder.addField("Pages", String.valueOf(pages), true);
                                 builder.addField("Current page", String.valueOf(1), true);
-                                channel.sendMessage(builder.build());
+                                channel.sendMessage(builder.build()).queue();
                             } else {
                                 int pages = (reports.size() / 20) + 1;
                                 int page;
@@ -68,13 +68,13 @@ public class ReportsCommand implements Command {
                                     builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
                                     builder.addField("Pages", String.valueOf(pages), true);
                                     builder.addField("Current page", String.valueOf(page), true);
-                                    channel.sendMessage(builder.build());
+                                    channel.sendMessage(builder.build()).queue();
                                 }
                             }
                         } else {
                             EmbedBuilder builder = MessageUtils.getEmbed(sender);
                             builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
-                            channel.sendMessage(builder.build());
+                            channel.sendMessage(builder.build()).queue();
                         }
                     } else {
                         MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.list` to do this."), channel);
@@ -98,7 +98,7 @@ public class ReportsCommand implements Command {
                         }
 
                         if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId() == sender.getId()) {
-                            channel.sendMessage(getReportEmbed(sender, report, channel).build());
+                            channel.sendMessage(getReportEmbed(sender, report, channel).build()).queue();
                         } else {
                             MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report"), channel);
                         }
