@@ -711,7 +711,7 @@ public class FlareBot {
                         return;
                     }
                 }
-                ProcessBuilder maven = new ProcessBuilder("mvn", "clean", "package", "-e", "-U");
+                ProcessBuilder maven = new ProcessBuilder("gradle shadowJar");
                 maven.directory(git);
                 Process p = maven.start();
                 String out = IOUtils.toString(p.getInputStream());
@@ -723,7 +723,7 @@ public class FlareBot {
                 }
                 File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")); // pfft this will go well..
                 Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
-                File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
+                File built = new File(git, "build/libs/flarebot-2.7.1-SNAPSHOT-all.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
