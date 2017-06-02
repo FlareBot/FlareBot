@@ -363,9 +363,9 @@ public class Events extends ListenerAdapter {
                     .getClientCloseFrame().getCloseReason()));
     }
 
-    private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
+    private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
         if (cmd.getDiscordPermission() != null) {
-            if (e.getMember().getPermissions().contains(cmd.getDiscordPermission()))
+            if (e.getMember().getPermissions().containsAll(cmd.getDiscordPermission()))
                 return false;
         }
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
