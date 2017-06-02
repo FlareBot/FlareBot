@@ -74,4 +74,15 @@ public class SongCommand implements Command {
         return (hours > 0 ? (hours < 10 ? "0" + hours : hours) + ":" : "")
                 + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
     }
+
+    public static String getProgressBar(Track track) {
+        float percentage = (100f / track.getTrack().getDuration() * track.getTrack().getPosition());
+        StringBuilder progress = new StringBuilder("[");
+        progress.append(StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)));
+        progress.append("]()");
+        progress.append(StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)));
+        progress.append(" " + new DecimalFormat("#.##").format(percentage) + "%");
+        return progress.toString();
+    }
+
 }
