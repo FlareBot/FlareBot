@@ -334,13 +334,13 @@ public class FlareBot {
                                 Track track = player.getPlayingTrack();
                                 Queue<Track> playlist = player.getPlaylist();
                                 c.sendMessage(MessageUtils.getEmbed()
-                                        .addField("Now Playing: ", SongCommand.getLink(track), false)
-                                        .addField("Duration: ", SongCommand
-                                                .formatDuration(track), false)
-                                        .addField("Requested by: ",
+                                        .addField("Now Playing", SongCommand.getLink(track), false)
+                                        .addField("Duration", SongCommand
+                                                .formatDuration(track.getTrack().getDuration()), false)
+                                        .addField("Requested by",
                                                 String.format("<@!%s>", track.getMeta()
                                                         .get("requester")), false)
-                                        .addField("Next up: ", playlist.isEmpty() ? "Nothing" :
+                                        .addField("Next up", playlist.isEmpty() ? "Nothing" :
                                                 SongCommand.getLink(playlist.peek()), false)
                                         .build()).queue();
                             } else {
@@ -481,6 +481,7 @@ public class FlareBot {
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
+        registerCommand(new ShardInfoCommand());
 
         ApiFactory.bind();
 
