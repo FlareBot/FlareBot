@@ -209,6 +209,11 @@ public class MessageUtils {
     }
 
     public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, java.util.List<String> footer) {
+        return makeAsciiTable(headers, table, footer, "");
+    }
+
+
+    public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, java.util.List<String> footer, String lang) {
         StringBuilder sb = new StringBuilder();
         int padding = 1;
         int[] widths = new int[headers.size()];
@@ -231,7 +236,7 @@ public class MessageUtils {
                 }
             }
         }
-        sb.append("```").append("\n");
+        sb.append("```" + lang).append("\n");
         String formatLine = "|";
         for (int width : widths) {
             formatLine += " %-" + width + "s |";
