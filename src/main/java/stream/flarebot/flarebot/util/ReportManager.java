@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.util;
 
-import org.joda.time.DateTime;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
@@ -8,18 +7,17 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class ReportManager {
 
     private ReportManager(){
     }
 
-    private final List<Report> reportsToSave = new ArrayList<>();
+    Map<String, Set<Report>> reports = new HashMap<>();
 
-    public List<Report> getGuildReports(String guildID) {
-        List<Report> reports = new ArrayList<>();
+    public Set<Report> getGuildReports(String guildID) {
+        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID);
@@ -37,12 +35,15 @@ public final class ReportManager {
         } catch (SQLException e) {
             // TODO: Fix
             FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
-            return new ArrayList<>();
+            return new HashSet<>();
         }
+        this.reports.put(guildID, reports);
         return reports;
     }
 
     public Report getReport(String guildID, int id) {
+        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
+
         final Report[] report = new Report[1];
         try {
             SQLController.runSqlTask(conn -> {
@@ -60,11 +61,23 @@ public final class ReportManager {
             FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
             return null;
         }
+        reports.add(report[0]);
+        this.reports.put(guildID, reports);
         return report[0];
     }
 
-    public List<Report> getReportsToSave(){
-        return reportsToSave;
+    public void report(String guildID, Report report){
+        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
+        reports.add(report);
+        this.reports.put(guildID, reports);
+    }
+
+    public List<Report> getAllReports() {
+        List<Report> reports = new ArrayList<>();
+        for (Map.Entry<String, Set<Report>> entry : this.reports.entrySet()) {
+            reports.addAll(entry.getValue());
+        }
+        return reports;
     }
 
     private static ReportManager instance;

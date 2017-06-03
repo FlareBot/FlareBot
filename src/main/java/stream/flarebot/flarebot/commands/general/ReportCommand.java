@@ -25,11 +25,9 @@ public class ReportCommand implements Command {
                 return;
             }
 
-            String reason = MessageUtils.getMessage(args, 1);
+            Report report = new Report(channel.getGuild().getId(), 0, MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
-            Report report = new Report(channel.getGuild().getId(), 0, reason, sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
-
-            ReportManager.getInstance().getReportsToSave().add(report);
+            ReportManager.getInstance().report(channel.getGuild().getId(), report);
 
             MessageUtils.sendPM(channel, sender, MessageUtils.getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
         }
