@@ -824,6 +824,7 @@ public class FlareBot {
             saveSelfAssign();
             manager.saveAutoMod();
             manager.saveLocalisation();
+            manager.saveReports();
         } catch (Exception e) {
             LOGGER.error("Something failed on stop!", e);
         }

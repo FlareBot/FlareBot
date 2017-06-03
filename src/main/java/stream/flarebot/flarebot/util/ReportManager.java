@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.util;
 
-import org.joda.time.DateTime;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
@@ -8,18 +7,22 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class ReportManager {
 
     private ReportManager(){
     }
 
-    private final List<Report> reportsToSave = new ArrayList<>();
+    Map<String, Set<Report>> reports = new HashMap<>();
 
     public List<Report> getGuildReports(String guildID) {
-        List<Report> reports = new ArrayList<>();
+        Set<Report> reports;
+        if(this.reports.containsKey(guildID)){
+            reports = this.reports.get(guildID);
+        } else {
+            reports = new HashSet<>();
+        }
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID);
@@ -39,10 +42,18 @@ public final class ReportManager {
             FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
             return new ArrayList<>();
         }
-        return reports;
+        this.reports.put(guildID, reports);
+        return new ArrayList<>(reports);
     }
 
     public Report getReport(String guildID, int id) {
+        Set<Report> reports;
+        if(this.reports.containsKey(guildID)){
+            reports = this.reports.get(guildID);
+        } else {
+            reports = new HashSet<>();
+        }
+
         final Report[] report = new Report[1];
         try {
             SQLController.runSqlTask(conn -> {
@@ -60,11 +71,9 @@ public final class ReportManager {
             FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
             return null;
         }
+        reports.add(report[0]);
+        this.reports.put(guildID, reports);
         return report[0];
-    }
-
-    public List<Report> getReportsToSave(){
-        return reportsToSave;
     }
 
     private static ReportManager instance;
