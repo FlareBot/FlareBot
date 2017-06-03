@@ -51,28 +51,22 @@ public class ReportsCommand implements Command {
                                     start = 20 * (page - 1);
                                     end = (20 * page) - 1;
                                 } catch (NumberFormatException e) {
-                                    MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid page number: " + args[1] + "."), channel);
+                                    MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
                                     return;
                                 }
                                 if (page > pages || page < 0) {
-                                    MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That page doesn't exist. Current page count: " + pages), channel);
+                                    MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                                 } else {
                                     Report[] reportArray = new Report[reports.size() - 1];
                                     reportArray = reports.toArray(reportArray);
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
                                     reports = Arrays.asList(reportArray);
 
-                                    EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                                    builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
-                                    builder.addField("Pages", String.valueOf(pages), true);
-                                    builder.addField("Current page", String.valueOf(page), true);
-                                    channel.sendMessage(builder.build()).queue();
+                                    channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                                 }
                             }
                         } else {
-                            EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                            builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
-                            channel.sendMessage(builder.build()).queue();
+                            channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                         }
                     }
                 } else {
@@ -84,20 +78,20 @@ public class ReportsCommand implements Command {
                     try {
                         id = Integer.valueOf(args[1]);
                     } catch (Exception e) {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
+                        MessageUtils.sendErrorMessage("Invalid report number: " + args[1] + ".", channel);
                         return;
                     }
 
                     Report report = ReportManager.getInstance().getReport(channel.getGuild().getId(), id);
                     if (report == null) {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
+                        MessageUtils.sendErrorMessage("That report doesn't exist.", channel);
                         return;
                     }
 
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
-                        channel.sendMessage(getReportEmbed(sender, report, channel).build()).queue();
+                        channel.sendMessage(MessageUtils.getReportEmbed(sender, report, channel).build()).queue();
                     } else {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report"), channel);
+                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel).queue();
@@ -109,7 +103,7 @@ public class ReportsCommand implements Command {
                         try {
                             id = Integer.valueOf(args[1]);
                         } catch (Exception e) {
-                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
+                            MessageUtils.sendErrorMessage("Invalid report number: " + args[1] + ".", channel);
                             return;
                         }
                         ReportStatus status;
@@ -128,7 +122,7 @@ public class ReportsCommand implements Command {
                         }
                         ReportManager.getInstance().getReportsToSave().add(ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status));
                     } else {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.status` to do this."), channel);
+                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
                 }
             }
@@ -157,22 +151,7 @@ public class ReportsCommand implements Command {
             table.add(row);
         }
 
-        return MessageUtils.makeAsciiTable(header, table, null);
-    }
-
-    public EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel) {
-        EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
-
-        eb.addField("Reporter", MessageUtils.getTag(reporter), true);
-        eb.addField("Reported", MessageUtils.getTag(reported), true);
-
-        eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), true);
-        eb.addField("Status", report.getStatus().getMessage(), true);
-
-        eb.addField("Message", "```" + report.getMessage() + "```", false);
-        return eb;
+        return MessageUtils.makeAsciiTable(header, table, null, "swift");
     }
 
     @Override
@@ -190,8 +169,6 @@ public class ReportsCommand implements Command {
         return "`{%}reports` - shows the usage\n" +
                 "`{%}reports list [page]` - list the reports on your guild\n" +
                 "`{%}reports view <number>` - views a report with the given number\n" +
-                "`{%}reports status <number> <status>` - edits the status of a report\n" +
-                "`{%}reports report <user> [reason]` - reports a user the your guild moderators";
                 "`{%}reports status <number> <status>` - edits the status of a report\n";
     }
 

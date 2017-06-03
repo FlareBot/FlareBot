@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.util;
 
 import org.joda.time.DateTime;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 
@@ -23,7 +24,7 @@ public final class ReportManager {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID);
                 while (set.next()) {
-                    int id = set.getInt("report_id");
+                    int id = set.getInt("id");
                     String message = set.getString("message");
                     String reporterId = set.getString("reporter_id");
                     String reportedId = set.getString("reported_id");
@@ -34,8 +35,9 @@ public final class ReportManager {
                 }
             });
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            // TODO: Fix
+            FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
+            return new ArrayList<>();
         }
         return reports;
     }
@@ -44,7 +46,8 @@ public final class ReportManager {
         final Report[] report = new Report[1];
         try {
             SQLController.runSqlTask(conn -> {
-                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + ", report_id = " + id);
+                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + " AND id = " + id);
+                set.next();
                 String message = set.getString("message");
                 String reporterId = set.getString("reporter_id");
                 String reportedId = set.getString("reported_id");
@@ -54,7 +57,7 @@ public final class ReportManager {
                 report[0] = new Report(guildID, id, message, reporterId, reportedId, time, status);
             });
         } catch (SQLException e) {
-            e.printStackTrace();
+            FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
             return null;
         }
         return report[0];
