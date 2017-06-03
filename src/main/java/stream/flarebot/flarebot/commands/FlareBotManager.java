@@ -287,6 +287,7 @@ public class FlareBotManager {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            ReportManager.getInstance().getReportsToSave().remove(report);
         }
     }
 }
