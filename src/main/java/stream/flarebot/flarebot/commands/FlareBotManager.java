@@ -272,7 +272,7 @@ public class FlareBotManager {
 
     public void saveReports() {
         FlareBot.LOGGER.info("Saving reports data");
-        for (Report report : ReportManager.getInstance().getReportsToSave()) {
+        for (Report report : ReportManager.getInstance().getAllReports()) {
             try {
                 SQLController.runSqlTask(conn -> {
                     PreparedStatement statement = conn.prepareStatement("INSERT INTO reports (guild_id, time, message, reporter_id, reported_id, status) VALUES (?, ?, ?, ?, ?, ?)");
@@ -287,7 +287,6 @@ public class FlareBotManager {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ReportManager.getInstance().getReportsToSave().remove(report);
         }
     }
 }

@@ -114,7 +114,7 @@ public class ReportsCommand implements Command {
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
-                        ReportManager.getInstance().getReportsToSave().add(ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status));
+                        ReportManager.getInstance().report(channel.getGuild().getId(), ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status));
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }

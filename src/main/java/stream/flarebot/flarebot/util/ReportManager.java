@@ -76,6 +76,25 @@ public final class ReportManager {
         return report[0];
     }
 
+    public void report(String guildID, Report report){
+        Set<Report> reports;
+        if(this.reports.containsKey(guildID)){
+            reports = this.reports.get(guildID);
+        } else {
+            reports = new HashSet<>();
+        }
+        reports.add(report);
+        this.reports.put(guildID, reports);
+    }
+
+    public List<Report> getAllReports() {
+        List<Report> reports = new ArrayList<>();
+        for (Map.Entry<String, Set<Report>> entry : this.reports.entrySet()) {
+            reports.addAll(entry.getValue());
+        }
+        return reports;
+    }
+
     private static ReportManager instance;
     public static ReportManager getInstance(){
         if(instance == null){
