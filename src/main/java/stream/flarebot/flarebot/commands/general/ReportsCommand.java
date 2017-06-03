@@ -192,6 +192,7 @@ public class ReportsCommand implements Command {
                 "`{%}reports view <number>` - views a report with the given number\n" +
                 "`{%}reports status <number> <status>` - edits the status of a report\n" +
                 "`{%}reports report <user> [reason]` - reports a user the your guild moderators";
+                "`{%}reports status <number> <status>` - edits the status of a report\n";
     }
 
     @Override
