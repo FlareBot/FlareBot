@@ -58,7 +58,7 @@ public class MessageUtils {
     }
     
     public static Message sendException(String s, MessageChannel channel) {
-        sendException(s, null, channel);
+        return sendException(s, null, channel);
     }
 
     public static Message sendException(String s, Throwable e, MessageChannel channel) {
