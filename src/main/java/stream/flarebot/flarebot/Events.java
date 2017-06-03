@@ -254,8 +254,10 @@ public class Events extends ListenerAdapter {
                         try {
                             cmd.onCommand(event.getAuthor(), event.getChannel(), event.getMessage(), args, event.getMember());
                         } catch (Exception ex) {
-                            MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event.getChannel());
-                            FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
+                            MessageUtils.sendException("**There was an internal error trying to execute your command**\n\n" +
+                                                      "Please report this to our support guild! Invite: https://discord.gg/TTAUGvZ",
+                                                      ex, event.getChannel());
+                            FlareBot.LOGGER.error("Exception in guild " + event.getChannel().getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
                                     + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                                     event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
                         }
