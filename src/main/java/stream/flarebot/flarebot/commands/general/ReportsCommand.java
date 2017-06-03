@@ -29,18 +29,12 @@ public class ReportsCommand implements Command {
                         List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         if (reports.size() > 20) {
                             if (args.length != 2) {
-                                int pages = (reports.size() / 20) + 1;
-                                Report[] reportArray = new Report[reports.size() - 1];
+                                Report[] reportArray = new Report[reports.size()];
                                 reportArray = reports.toArray(reportArray);
-                                reportArray = Arrays.copyOfRange(reportArray, 0, 19);
+                                reportArray = Arrays.copyOfRange(reportArray, 0, 20);
                                 reports = Arrays.asList(reportArray);
 
-                                String reportsTable = getReportsTable(channel.getGuild(), reports);
-                                EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                                builder.addField("Reports", reportsTable, false);
-                                builder.addField("Pages", String.valueOf(pages), true);
-                                builder.addField("Current page", String.valueOf(1), true);
-                                channel.sendMessage(builder.build()).queue();
+                                channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                             } else {
                                 int pages = (reports.size() / 20) + 1;
                                 int page;
@@ -49,7 +43,7 @@ public class ReportsCommand implements Command {
                                 try {
                                     page = Integer.valueOf(args[1]);
                                     start = 20 * (page - 1);
-                                    end = (20 * page) - 1;
+                                    end = (20 * page);
                                 } catch (NumberFormatException e) {
                                     MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
                                     return;
@@ -57,7 +51,7 @@ public class ReportsCommand implements Command {
                                 if (page > pages || page < 0) {
                                     MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                                 } else {
-                                    Report[] reportArray = new Report[reports.size() - 1];
+                                    Report[] reportArray = new Report[reports.size()];
                                     reportArray = reports.toArray(reportArray);
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
                                     reports = Arrays.asList(reportArray);
@@ -132,7 +126,6 @@ public class ReportsCommand implements Command {
     private String getReportsTable(Guild guild, List<Report> reports) {
         ArrayList<String> header = new ArrayList<>();
         header.add("Id");
-        header.add("Reporter");
         header.add("Reported");
         header.add("Time");
         header.add("Status");
@@ -141,7 +134,6 @@ public class ReportsCommand implements Command {
         for (Report report : reports) {
             ArrayList<String> row = new ArrayList<>();
             row.add(String.valueOf(report.getId()));
-            row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()))));
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
 
             row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
