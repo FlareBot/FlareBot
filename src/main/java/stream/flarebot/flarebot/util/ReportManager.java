@@ -16,13 +16,8 @@ public final class ReportManager {
 
     Map<String, Set<Report>> reports = new HashMap<>();
 
-    public List<Report> getGuildReports(String guildID) {
-        Set<Report> reports;
-        if(this.reports.containsKey(guildID)){
-            reports = this.reports.get(guildID);
-        } else {
-            reports = new HashSet<>();
-        }
+    public Set<Report> getGuildReports(String guildID) {
+        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID);
@@ -40,19 +35,14 @@ public final class ReportManager {
         } catch (SQLException e) {
             // TODO: Fix
             FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
-            return new ArrayList<>();
+            return new HashSet<>();
         }
         this.reports.put(guildID, reports);
-        return new ArrayList<>(reports);
+        return reports;
     }
 
     public Report getReport(String guildID, int id) {
-        Set<Report> reports;
-        if(this.reports.containsKey(guildID)){
-            reports = this.reports.get(guildID);
-        } else {
-            reports = new HashSet<>();
-        }
+        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
 
         final Report[] report = new Report[1];
         try {
@@ -77,12 +67,7 @@ public final class ReportManager {
     }
 
     public void report(String guildID, Report report){
-        Set<Report> reports;
-        if(this.reports.containsKey(guildID)){
-            reports = this.reports.get(guildID);
-        } else {
-            reports = new HashSet<>();
-        }
+        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
         reports.add(report);
         this.reports.put(guildID, reports);
     }

@@ -12,9 +12,7 @@ import stream.flarebot.flarebot.util.ReportManager;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ReportsCommand implements Command {
 
@@ -26,13 +24,13 @@ public class ReportsCommand implements Command {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
-                        List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
+                        Set<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         if (reports.size() > 20) {
                             if (args.length != 2) {
                                 Report[] reportArray = new Report[reports.size()];
                                 reportArray = reports.toArray(reportArray);
                                 reportArray = Arrays.copyOfRange(reportArray, 0, 20);
-                                reports = Arrays.asList(reportArray);
+                                reports = new HashSet<>(Arrays.asList(reportArray));
 
                                 channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                             } else {
@@ -54,7 +52,7 @@ public class ReportsCommand implements Command {
                                     Report[] reportArray = new Report[reports.size()];
                                     reportArray = reports.toArray(reportArray);
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
-                                    reports = Arrays.asList(reportArray);
+                                    reports = new HashSet<Report>(Arrays.asList(reportArray));
 
                                     channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                                 }
@@ -123,7 +121,7 @@ public class ReportsCommand implements Command {
         }
     }
 
-    private String getReportsTable(Guild guild, List<Report> reports) {
+    private String getReportsTable(Guild guild, Set<Report> reports) {
         ArrayList<String> header = new ArrayList<>();
         header.add("Id");
         header.add("Reported");
