@@ -68,7 +68,7 @@ public class SongNickCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}songnick true|false` - Turns on/off nickname auto changing to current song names.";
+        return "`{%}songnick` - Turns on/off nickname auto changing to current song names.";
     }
 
     @Override

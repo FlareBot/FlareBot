@@ -512,6 +512,7 @@ public class FlareBot {
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
+        registerCommand(new ReportCommand());
         registerCommand(new ShardInfoCommand());
         registerCommand(new SongNickCommand());
 

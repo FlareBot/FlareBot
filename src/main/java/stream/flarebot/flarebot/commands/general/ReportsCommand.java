@@ -10,7 +10,6 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
-import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -23,9 +22,9 @@ public class ReportsCommand implements Command {
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel).queue();
-        } else if (args.length == 1 || args.length == 2) {
-            switch (args[0]) { //I'm used to using switch statements. If you want this as an if statement just tell me.
-                case "list": {
+        } else {
+            if (args[0].equalsIgnoreCase("list")) {
+                if (args.length <= 2) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
                         List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         if (reports.size() > 20) {
@@ -51,119 +50,82 @@ public class ReportsCommand implements Command {
                                     page = Integer.valueOf(args[1]);
                                     start = 20 * (page - 1);
                                     end = (20 * page) - 1;
-                                } catch (Exception e) {
-                                    MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid page number: " + args[1] + "."), channel);
+                                } catch (NumberFormatException e) {
+                                    MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
                                     return;
                                 }
-
                                 if (page > pages || page < 0) {
-                                    MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That page doesn't exist. Current page count: " + pages), channel);
+                                    MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                                 } else {
                                     Report[] reportArray = new Report[reports.size() - 1];
                                     reportArray = reports.toArray(reportArray);
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
                                     reports = Arrays.asList(reportArray);
 
-                                    EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                                    builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
-                                    builder.addField("Pages", String.valueOf(pages), true);
-                                    builder.addField("Current page", String.valueOf(page), true);
-                                    channel.sendMessage(builder.build()).queue();
+                                    channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                                 }
                             }
                         } else {
-                            EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                            builder.addField("Reports", getReportsTable(channel.getGuild(), reports), false);
-                            channel.sendMessage(builder.build()).queue();
+                            channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                         }
-                    } else {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.list` to do this."), channel);
                     }
+                } else {
+                    MessageUtils.sendUsage(this, channel);
                 }
-                break;
-                case "view": {
-                    if (args.length == 2) {
-                        int id;
-                        try {
-                            id = Integer.valueOf(args[1]);
-                        } catch (Exception e) {
-                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
-                            return;
-                        }
-
-                        Report report = ReportManager.getInstance().getReport(channel.getGuild().getId(), id);
-                        if (report == null) {
-                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("That report doesn't exist."), channel);
-                            return;
-                        }
-
-                        if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
-                            channel.sendMessage(getReportEmbed(sender, report, channel).build()).queue();
-                        } else {
-                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report"), channel);
-                        }
-                    } else {
-                        MessageUtils.sendUsage(this, channel).queue();
+            } else if (args[0].equalsIgnoreCase("view")) {
+                if (args.length == 2) {
+                    int id;
+                    try {
+                        id = Integer.valueOf(args[1]);
+                    } catch (Exception e) {
+                        MessageUtils.sendErrorMessage("Invalid report number: " + args[1] + ".", channel);
+                        return;
                     }
 
-                }
-                break;
-                default: {
+                    Report report = ReportManager.getInstance().getReport(channel.getGuild().getId(), id);
+                    if (report == null) {
+                        MessageUtils.sendErrorMessage("That report doesn't exist.", channel);
+                        return;
+                    }
+
+                    if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
+                        channel.sendMessage(MessageUtils.getReportEmbed(sender, report, channel).build()).queue();
+                    } else {
+                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report", channel);
+                    }
+                } else {
                     MessageUtils.sendUsage(this, channel).queue();
                 }
-            }
-        } else if (args.length >= 4) {
-            switch (args[0]) {
-                case "status": {
+            } else if (args[0].equalsIgnoreCase("status")) {
+                if (args.length <= 3) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.report.status")) {
                         int id;
                         try {
                             id = Integer.valueOf(args[1]);
                         } catch (Exception e) {
-                            MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("Invalid report number: " + args[1] + "."), channel);
+                            MessageUtils.sendErrorMessage("Invalid report number: " + args[1] + ".", channel);
                             return;
                         }
-                        ReportStatus status = ReportStatus.valueOf(args[2].toUpperCase());
-                        if (status == null) {
+                        ReportStatus status;
+                        try {
+                            status = ReportStatus.valueOf(args[2].toUpperCase());
+                        } catch (IllegalArgumentException e) {
                             EmbedBuilder errorBuilder = new EmbedBuilder();
                             errorBuilder.setDescription("Invalid status: " + args[2]);
                             StringBuilder sb = new StringBuilder();
                             for (ReportStatus listStatus : ReportStatus.values()) {
-                                sb.append(listStatus.getMessage() + "\n");
+                                sb.append(listStatus.getMessage()).append("\n");
                             }
                             errorBuilder.addField("Statuses", "```\n" + sb.toString() + "```", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
-
                         ReportManager.getInstance().getReportsToSave().add(ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status));
                     } else {
-                        MessageUtils.sendErrorMessage(new EmbedBuilder().setDescription("You need the permission `flarebot.reports.status` to do this."), channel);
+                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
-                }
-                break;
-                case "report": {
-                    User user = MessageUtils.getUser(args[1]);
-                    if (user == null) {
-                        MessageUtils.sendErrorMessage("Invalid user: " + args[1], channel);
-                        return;
-                    }
-
-                    String reason = MessageUtils.getMessage(args, 2);
-
-                    Report report = new Report(channel.getGuild().getId(), 0, reason, sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
-
-                    ReportManager.getInstance().getReportsToSave().add(report);
-
-                    MessageUtils.sendPM(channel, sender, getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
-                }
-                break;
-                default: {
-                    MessageUtils.sendUsage(this, channel).queue();
                 }
             }
-        } else {
-            MessageUtils.sendUsage(this, channel).queue();
         }
     }
 
@@ -189,22 +151,7 @@ public class ReportsCommand implements Command {
             table.add(row);
         }
 
-        return MessageUtils.makeAsciiTable(header, table, null);
-    }
-
-    public EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel) {
-        EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
-
-        eb.addField("Reporter", MessageUtils.getTag(reporter), true);
-        eb.addField("Reported", MessageUtils.getTag(reported), true);
-
-        eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME), true);
-        eb.addField("Status", report.getStatus().getMessage(), true);
-
-        eb.addField("Message", "```" + report.getMessage() + "```", false);
-        return eb;
+        return MessageUtils.makeAsciiTable(header, table, null, "swift");
     }
 
     @Override
@@ -222,8 +169,7 @@ public class ReportsCommand implements Command {
         return "`{%}reports` - shows the usage\n" +
                 "`{%}reports list [page]` - list the reports on your guild\n" +
                 "`{%}reports view <number>` - views a report with the given number\n" +
-                "`{%}reports status <number> <status>` - edits the status of a report\n" +
-                "`{%}reports report <user> [reason]` - reports a user the your guild moderators";
+                "`{%}reports status <number> <status>` - edits the status of a report\n";
     }
 
     @Override
