@@ -322,7 +322,8 @@ public class MessageUtils {
         EmbedBuilder eb = getEmbed(sender);
         User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
         User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
-
+        
+        eb.addField("Report ID", String.valueOf(report.getId()), true);
         eb.addField("Reporter", getTag(reporter), true);
         eb.addField("Reported", getTag(reported), true);
 
