@@ -84,8 +84,6 @@ public final class ReportManager {
         }
         if (report[0] != null) {
             reports.add(report[0]);
-        } else if (this.getReportLocal(id, guildID) != null) {
-            reports.add(this.getReportLocal(id, guildID));
         }
         this.reports.put(guildID, reports);
         return report[0] == null ? this.getReportLocal(id, guildID) : report[0];
