@@ -332,6 +332,8 @@ public class FlareBot {
                             if(player.getPlaylist().isEmpty())
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
                         }
+                    } else {
+                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
                     }
                 }
                 @Override
@@ -380,6 +382,8 @@ public class FlareBot {
                                     .setNickname(c.getSelfMember(), str)
                                     .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
                         }
+                    } else {
+                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
                     }
                 }
             }));
