@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
-import java.util.EnumSet;
+import java.util.*;
 
 public interface Command {
 
@@ -33,6 +33,10 @@ public interface Command {
 
     default PerGuildPermissions getPermissions(MessageChannel chan) {
         return FlareBot.getInstance().getPermissions(chan);
+    }
+
+    default boolean hasPermission(TextChannel channel, Member member, String permission) {
+        return getPermissions(channel).hasPermission(member, permission) || member.hasPermission(channel, getDiscordPermission()) || member.hasPermission(channel, Permission.ADMINISTRATOR);
     }
 
     default boolean isDefaultPermission() {
