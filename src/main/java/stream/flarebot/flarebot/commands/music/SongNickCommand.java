@@ -40,7 +40,7 @@ public class SongNickCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            if (!isEnabled(channel.getGuild().getId())) {
+            if (getGuilds().contains(channel.getGuild().getIdLong())) {
                 SQLController.asyncRunSqlTask(conn ->
                         conn.createStatement().execute("INSERT INTO songnick (id) VALUES (" + channel.getGuild().getId() + ")"));
                 guilds.add(channel.getGuild().getIdLong());
@@ -85,19 +85,6 @@ public class SongNickCommand implements Command {
 
     public static void removeGuild(long l) {
         guilds.remove(l);
-    }
-
-    public static boolean isEnabled(String id) {
-        final boolean[] bool = new boolean[1];
-        try {
-            SQLController.runSqlTask(c -> {
-                ResultSet set = c.createStatement().executeQuery("SELECT * FROM songnick LIMIT 1");
-                bool[0] = set.next();
-            });
-        } catch (SQLException e) {
-            return false;
-        }
-        return bool[0];
     }
 
 }
