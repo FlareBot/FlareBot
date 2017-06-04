@@ -44,8 +44,7 @@ public final class ReportManager {
                 }
             });
         } catch (SQLException e) {
-            // TODO: Fix
-            FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
+            FlareBot.LOGGER.error(e.getMessage(), e);
             return new ArrayList<>();
         }
         Collections.sort(reports);
