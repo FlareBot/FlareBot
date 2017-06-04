@@ -99,4 +99,14 @@ public final class ReportManager {
         }
         return instance;
     }
+
+    public int getLastId() {
+        if (!getAllReports().isEmpty()){
+            List<Report> reports = getAllReports();
+            Collections.sort(reports);
+            return reports.get(reports.size() - 1).getId() + 1;
+        } else {
+            return 1;
+        }
+    }
 }
