@@ -24,14 +24,12 @@ public class ReportsCommand implements Command {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
-                        Set<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         if (reports.size() > 20) {
                             if (args.length != 2) {
                                 Report[] reportArray = new Report[reports.size()];
                                 reportArray = reports.toArray(reportArray);
                                 reportArray = Arrays.copyOfRange(reportArray, 0, 20);
-                                reports = new HashSet<>(Arrays.asList(reportArray));
                                 reports = Arrays.asList(reportArray);
 
                                 channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
@@ -54,7 +52,6 @@ public class ReportsCommand implements Command {
                                     Report[] reportArray = new Report[reports.size()];
                                     reportArray = reports.toArray(reportArray);
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
-                                    reports = new HashSet<Report>(Arrays.asList(reportArray));
                                     reports = Arrays.asList(reportArray);
 
                                     channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
@@ -120,11 +117,12 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
                 }
+            } else {
+                MessageUtils.sendUsage(this, channel);
             }
         }
     }
 
-    private String getReportsTable(Guild guild, Set<Report> reports) {
     private String getReportsTable(Guild guild, List<Report> reports) {
         ArrayList<String> header = new ArrayList<>();
         header.add("Id");
