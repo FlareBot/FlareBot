@@ -15,10 +15,10 @@ public final class ReportManager {
     private ReportManager(){
     }
 
-    Map<String, Set<Report>> reports = new HashMap<>();
+    Map<String, List<Report>> reports = new HashMap<>();
 
-    public Set<Report> getGuildReports(String guildID) {
-        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
+    public List<Report> getGuildReports(String guildID) {
+        List<Report> reports = this.reports.getOrDefault(guildID, new ArrayList<>());
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID);
@@ -46,14 +46,15 @@ public final class ReportManager {
         } catch (SQLException e) {
             // TODO: Fix
             FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
-            return new HashSet<>();
+            return new ArrayList<>();
         }
+        Collections.sort(reports);
         this.reports.put(guildID, reports);
         return reports;
     }
 
     public Report getReport(String guildID, int id) {
-        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
+        List<Report> reports = this.reports.getOrDefault(guildID, new ArrayList<>());
 
         final Report[] report = new Report[1];
         try {
@@ -78,14 +79,14 @@ public final class ReportManager {
     }
 
     public void report(String guildID, Report report){
-        Set<Report> reports = this.reports.getOrDefault(guildID, new HashSet<>());
+        List<Report> reports = this.reports.getOrDefault(guildID, new ArrayList<>());
         reports.add(report);
         this.reports.put(guildID, reports);
     }
 
     public List<Report> getAllReports() {
         List<Report> reports = new ArrayList<>();
-        for (Map.Entry<String, Set<Report>> entry : this.reports.entrySet()) {
+        for (Map.Entry<String, List<Report>> entry : this.reports.entrySet()) {
             reports.addAll(entry.getValue());
         }
         return reports;
