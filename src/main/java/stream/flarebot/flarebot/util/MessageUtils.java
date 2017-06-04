@@ -199,10 +199,13 @@ public class MessageUtils {
                         .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
-                        .map(m -> m.getUser())
-                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
+                try {
+                    return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                            .map(m -> m.getUser())
+                            .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } catch (NullPointerException ignored) {
+                }
             }
         } else {
             User tmp;
@@ -224,10 +227,11 @@ public class MessageUtils {
                     tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
                 }
                 if (tmp != null) return tmp;
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
+            } catch (NullPointerException ignored) {
             }
-            return null;
         }
+        return null;
     }
 
     public static User getUser(String s) {
