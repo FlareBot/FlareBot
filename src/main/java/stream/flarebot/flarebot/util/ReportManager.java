@@ -22,6 +22,16 @@ public final class ReportManager {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID);
                 while (set.next()) {
+                    if (reports.stream().filter(r -> {
+                        try {
+                            return r.getId() == set.getInt("id");
+                        } catch (SQLException e) {
+                            // TODO: FIX
+                            return false;
+                        }
+                    }).collect(Collectors.toList()).size() != 0) {
+                        continue;
+                    }
                     int id = set.getInt("id");
                     String message = set.getString("message");
                     String reporterId = set.getString("reporter_id");
