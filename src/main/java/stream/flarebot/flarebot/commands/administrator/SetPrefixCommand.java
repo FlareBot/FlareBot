@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.administrator;
 
-import com.sun.org.apache.regexp.internal.RE;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;

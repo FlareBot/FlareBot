@@ -192,23 +192,46 @@ public class MessageUtils {
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
-    public static User getUser(String s) {
+    public static User getUser(String s, String guildId) {
         if (userDiscrim.matcher(s).find()) {
-            return FlareBot.getInstance().getUsers().stream()
-                    .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                    .findFirst().orElse(null);
+            if (guildId.isEmpty()) {
+                return FlareBot.getInstance().getUsers().stream()
+                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                        .map(m -> m.getUser())
+                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            }
         } else {
-            User tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
-                    .findFirst().orElse(null);
+            User tmp;
+            if (guildId.isEmpty()) {
+                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                        .map(m -> m.getUser())
+                        .filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            }
             if (tmp != null) return tmp;
             try {
                 Long.parseLong(s.replaceAll("[^0-9]", ""));
-                tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                if (guildId.isEmpty()) {
+                    tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                } else {
+                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
+                }
                 if (tmp != null) return tmp;
             } catch (NumberFormatException e) {
             }
             return null;
         }
+    }
+
+    public static User getUser(String s) {
+        return getUser(s, "");
     }
 
     public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, java.util.List<String> footer) {

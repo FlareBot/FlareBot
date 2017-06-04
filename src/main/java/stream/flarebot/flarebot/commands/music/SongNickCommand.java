@@ -25,7 +25,7 @@ public class SongNickCommand implements Command {
             SQLController.runSqlTask(conn -> {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS songnick (id BIGINT UNSIGNED PRIMARY KEY)");
                 ResultSet results = conn.createStatement().executeQuery("SELECT * FROM songnick");
-                while(results.next())
+                while (results.next())
                     guilds.add(results.getLong("id"));
             });
         } catch (SQLException e) {
@@ -70,7 +70,7 @@ public class SongNickCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}songnick` - Turns on/off nickname auto changing to current song names.";
+        return "`{%}songnick` - Toggles nickname auto changing to current song names.";
     }
 
     @Override
@@ -92,9 +92,7 @@ public class SongNickCommand implements Command {
         try {
             SQLController.runSqlTask(c -> {
                 ResultSet set = c.createStatement().executeQuery("SELECT * FROM songnick LIMIT 1");
-                while (set.next()) {
-                    bool[0] = true;
-                }
+                bool[0] = set.next();
             });
         } catch (SQLException e) {
             return false;

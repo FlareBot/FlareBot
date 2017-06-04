@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 
 public final class ReportManager {
 
-    private ReportManager(){
+    private ReportManager() {
     }
 
-    Map<String, List<Report>> reports = new HashMap<>();
+    private Map<String, List<Report>> reports = new HashMap<>();
 
     public List<Report> getGuildReports(String guildID) {
         List<Report> reports = this.reports.getOrDefault(guildID, new ArrayList<>());
@@ -60,25 +60,52 @@ public final class ReportManager {
         try {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM reports WHERE guild_id = " + guildID + " AND id = " + id);
-                set.next();
-                String message = set.getString("message");
-                String reporterId = set.getString("reporter_id");
-                String reportedId = set.getString("reported_id");
-                Timestamp time = set.getTimestamp("time");
-                ReportStatus status = ReportStatus.get(set.getInt("status"));
+                if (set.next()) {
+                    if (reports.stream().filter(r -> {
+                        try {
+                            return r.getId() == set.getInt("id");
+                        } catch (SQLException e) {
+                            return false;
+                        }
+                    }).collect(Collectors.toList()).size() != 0) {
+                        return;
+                    }
+                    String message = set.getString("message");
+                    String reporterId = set.getString("reporter_id");
+                    String reportedId = set.getString("reported_id");
+                    Timestamp time = set.getTimestamp("time");
+                    ReportStatus status = ReportStatus.get(set.getInt("status"));
 
-                report[0] = new Report(guildID, id, message, reporterId, reportedId, time, status);
+                    report[0] = new Report(guildID, id, message, reporterId, reportedId, time, status);
+                }
             });
         } catch (SQLException e) {
-            FlareBot.LOGGER.error(ExceptionUtils.getStackTrace(e));
-            return null;
+            FlareBot.LOGGER.error(e.getMessage(), e);
+            return this.getReportLocal(id, guildID);
         }
-        reports.add(report[0]);
+        if (report[0] != null) {
+            reports.add(report[0]);
+        } else if (this.getReportLocal(id, guildID) != null) {
+            reports.add(this.getReportLocal(id, guildID));
+        }
         this.reports.put(guildID, reports);
-        return report[0];
+        return report[0] == null ? this.getReportLocal(id, guildID) : report[0];
     }
 
-    public void report(String guildID, Report report){
+    public Report getReportLocal(int id, String guildId) {
+        if (this.reports.containsKey(guildId)) {
+            List<Report> reports = this.reports.get(guildId).stream().filter(r -> r.getId() == id).collect(Collectors.toList());
+            if (reports.size() >= 1) {
+                return reports.get(0);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public void report(String guildID, Report report) {
         List<Report> reports = this.reports.getOrDefault(guildID, new ArrayList<>());
         reports.add(report);
         this.reports.put(guildID, reports);
@@ -93,15 +120,16 @@ public final class ReportManager {
     }
 
     private static ReportManager instance;
-    public static ReportManager getInstance(){
-        if(instance == null){
+
+    public static ReportManager getInstance() {
+        if (instance == null) {
             instance = new ReportManager();
         }
         return instance;
     }
 
     public int getLastId() {
-        if (!getAllReports().isEmpty()){
+        if (!getAllReports().isEmpty()) {
             List<Report> reports = getAllReports();
             Collections.sort(reports);
             return reports.get(reports.size() - 1).getId() + 1;
