@@ -15,7 +15,6 @@ import java.sql.Timestamp;
 
 public class ReportCommand implements Command {
 
-
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 2) {
