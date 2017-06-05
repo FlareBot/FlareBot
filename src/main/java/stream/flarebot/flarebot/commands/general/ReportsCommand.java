@@ -10,9 +10,11 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
+import java.awt.*;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 
 public class ReportsCommand implements Command {
 
@@ -32,7 +34,11 @@ public class ReportsCommand implements Command {
                                 reportArray = Arrays.copyOfRange(reportArray, 0, 20);
                                 reports = Arrays.asList(reportArray);
 
-                                channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
+                                if (reports.isEmpty()) {
+                                    channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
+                                } else {
+                                    channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
+                                }
                             } else {
                                 int pages = (reports.size() / 20) + 1;
                                 int page;
@@ -54,11 +60,19 @@ public class ReportsCommand implements Command {
                                     reportArray = Arrays.copyOfRange(reportArray, start, end);
                                     reports = Arrays.asList(reportArray);
 
-                                    channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
+                                    if (reports.isEmpty()) {
+                                        channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
+                                    } else {
+                                        channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
+                                    }
                                 }
                             }
                         } else {
-                            channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
+                            if (reports.isEmpty()) {
+                                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
+                            } else {
+                                channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
+                            }
                         }
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
