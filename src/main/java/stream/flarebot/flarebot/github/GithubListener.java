@@ -17,7 +17,8 @@ public class GithubListener implements EventListener<PushEvent> {
             return;
         EmbedBuilder eb = MessageUtils.getEmbed();
         eb.setAuthor(e.getSender().getLogin(), e.getSender().getProfile(), e.getSender().getAvatarUrl());
-        for (Commit commit : Arrays.copyOfRange(e.getCommits(), Math.max(e.getCommits().length - 6, 0), e.getCommits().length - 1)) {
+        Commit[] commits = Arrays.copyOfRange(e.getCommits(), Math.max(e.getCommits().length - 6, 0), e.getCommits().length);
+        for (Commit commit : commits) {
             eb.addField("Commit:", "[" +
                     commit.getId().substring(0, 7) + "](" +
                     commit.getUrl() + ")\n Branch `" +
@@ -29,8 +30,9 @@ public class GithubListener implements EventListener<PushEvent> {
             if (commit.getAdded().length > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
-                int i = 1;
-                for (String filePath : Arrays.copyOfRange(commit.getAdded(), Math.max(commit.getAdded().length - 6, 0), commit.getAdded().length - 1)) {
+
+                String[] added = Arrays.copyOfRange(commit.getAdded(), Math.max(commit.getAdded().length - 6, 0), commit.getAdded().length - 1);
+                for (String filePath : added) {
                     String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                     sb.append("* ").append(file).append("\n");
                 }
@@ -39,15 +41,15 @@ public class GithubListener implements EventListener<PushEvent> {
                     sb.append("...\n");
                 }
 
-                String added = sb.toString() + "```";
-                eb.addField("Added files", added, false);
+                eb.addField("Added files", sb.toString() + "```", false);
             }
 
             if (commit.getRemoved().length > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
-                int i = 1;
-                for (String filePath : Arrays.copyOfRange(commit.getRemoved(), Math.max(commit.getRemoved().length - 6, 0), commit.getRemoved().length - 1)) {
+
+                String[] removed = Arrays.copyOfRange(commit.getRemoved(), Math.max(commit.getRemoved().length - 6, 0), commit.getRemoved().length);
+                for (String filePath : removed) {
                     String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                     sb.append("* ").append(file).append("\n");
                 }
@@ -56,15 +58,15 @@ public class GithubListener implements EventListener<PushEvent> {
                     sb.append("...\n");
                 }
 
-                String removed = sb.toString() + "```";
-                eb.addField("Removed files", removed, false);
+                eb.addField("Removed files", sb.toString() + "```", false);
             }
 
             if (commit.getModified().length > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
-                int i = 1;
-                for (String filePath : Arrays.copyOfRange(commit.getModified(), Math.max(commit.getModified().length - 6, 0), commit.getModified().length - 1)) {
+
+                String[] modified = Arrays.copyOfRange(commit.getModified(), Math.max(commit.getModified().length - 6, 0), commit.getModified().length);
+                for (String filePath : modified) {
                     String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                     sb.append("* ").append(file).append("\n");
                 }
@@ -73,8 +75,7 @@ public class GithubListener implements EventListener<PushEvent> {
                     sb.append("...\n");
                 }
 
-                String modified = sb.toString() + "```";
-                eb.addField("Modified files", modified, false);
+                eb.addField("Modified files", sb.toString() + "```", false);
             }
         }
         FlareBot.getInstance().getChannelByID("229236239201468417").sendMessage(eb.build()).queue();
