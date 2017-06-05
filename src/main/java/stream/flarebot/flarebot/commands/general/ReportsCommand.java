@@ -19,7 +19,7 @@ public class ReportsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel).queue();
         } else {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
@@ -64,7 +64,6 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel);
                     MessageUtils.getUsage(this, channel);
                 }
             } else if (args[0].equalsIgnoreCase("view")) {
@@ -89,11 +88,10 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel).queue();
                     MessageUtils.getUsage(this, channel).queue();
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
-                if (args.length <= 3) {
+                if (args.length == 3) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.report.status")) {
                         int id;
                         try {
@@ -120,9 +118,10 @@ public class ReportsCommand implements Command {
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
+                } else {
+                    MessageUtils.getUsage(this, channel).queue();
                 }
             } else {
-                MessageUtils.sendUsage(this, channel);
                 MessageUtils.getUsage(this, channel).queue();
             }
         }
