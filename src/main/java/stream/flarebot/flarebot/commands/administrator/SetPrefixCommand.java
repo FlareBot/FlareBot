@@ -19,7 +19,7 @@ public class SetPrefixCommand implements Command {
                 FlareBot.getPrefixes().set(channel.getGuild().getId(), args[0].charAt(0));
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("Cannot set the prefix to be more that one character long!").build()).queue();
+                        .setDescription("Cannot set the prefix to be more than one character long!").build()).queue();
                 return;
             }
             channel.sendMessage(MessageUtils.getEmbed(sender)
