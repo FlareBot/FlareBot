@@ -124,7 +124,7 @@ public class ReportsCommand implements Command {
                             for (ReportStatus listStatus : ReportStatus.values()) {
                                 sb.append(listStatus.getMessage()).append("\n");
                             }
-                            errorBuilder.addField("Statuses", "```\n" + sb.toString() + "```", false);
+                            errorBuilder.addField("Statuses", "```swift\n" + sb.toString() + "```", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
