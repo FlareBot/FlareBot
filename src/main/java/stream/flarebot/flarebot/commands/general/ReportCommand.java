@@ -20,7 +20,7 @@ public class ReportCommand implements Command {
         if (args.length >= 2) {
             User user = MessageUtils.getUser(args[0], channel.getId());
             if (user == null) {
-                MessageUtils.sendErrorMessage("Invalid user: " + args[1], channel);
+                MessageUtils.sendErrorMessage("Invalid user: " + args[0], channel);
                 return;
             }
 
