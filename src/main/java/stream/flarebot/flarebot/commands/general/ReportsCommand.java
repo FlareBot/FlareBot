@@ -108,8 +108,13 @@ public class ReportsCommand implements Command {
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
-                        ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status);
-                        channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage())).build()).queue();
+                        if (ReportManager.getInstance().getReport(channel.getGuild().getId(), id).getStatus().equals(status)) {
+                            channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("Current status is: **" + status.getMessage() + "**").build()).queue();
+                        } else {
+                            ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status);
+                            channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage())).build()).queue();
+
+                        }
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
@@ -120,6 +125,7 @@ public class ReportsCommand implements Command {
                 MessageUtils.getUsage(this, channel).queue();
             }
         }
+
     }
 
     private String getReportsTable(Guild guild, List<Report> reports) {
