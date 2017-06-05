@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.commands.general;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
-import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -14,7 +13,8 @@ import stream.flarebot.flarebot.util.ReportManager;
 import java.awt.*;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,47 +29,29 @@ public class ReportsCommand implements Command {
                 if (args.length <= 2) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
                         List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
-                        if (reports.size() > 20) {
-                            if (args.length != 2) {
-                                Report[] reportArray = new Report[reports.size()];
-                                reportArray = reports.toArray(reportArray);
-                                reportArray = Arrays.copyOfRange(reportArray, 0, 20);
-                                reports = Arrays.asList(reportArray);
-
-                                if (reports.isEmpty()) {
-                                    channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
-                                } else {
-                                    channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
-                                }
-                            } else {
-                                int pages = (reports.size() / 20) + 1;
-                                int page;
-                                int start;
-                                int end;
-                                try {
-                                    page = Integer.valueOf(args[1]);
-                                    start = 20 * (page - 1);
-                                    end = (20 * page);
-                                } catch (NumberFormatException e) {
-                                    MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
-                                    return;
-                                }
-                                if (page > pages || page < 0) {
-                                    MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-                                } else {
-                                    Report[] reportArray = new Report[reports.size()];
-                                    reportArray = reports.toArray(reportArray);
-                                    reportArray = Arrays.copyOfRange(reportArray, start, end);
-                                    reports = Arrays.asList(reportArray);
-
-                                    if (reports.isEmpty()) {
-                                        channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
-                                    } else {
-                                        channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
-                                    }
-                                }
+                        int page = 1;
+                        if (args.length == 2) {
+                            try {
+                                page = Integer.valueOf(args[1]);
+                            } catch (NumberFormatException e) {
+                                MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
+                                return;
                             }
+                        }
+                        int pages = reports.size() < 20 ? 1 : (reports.size() / 20) + reports.size() % 20 != 0 ? 1 : 0;
+                        int start;
+                        int end;
+
+                        start = 20 * (page - 1);
+                        end = reports.size() < 20 ? reports.size() : (20 * page);
+                        if (page > pages || page < 0) {
+                            MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                         } else {
+                            Report[] reportArray = new Report[reports.size()];
+                            reportArray = reports.toArray(reportArray);
+                            reportArray = Arrays.copyOfRange(reportArray, start, end);
+                            reports = Arrays.asList(reportArray);
+
                             if (reports.isEmpty()) {
                                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
                             } else {
