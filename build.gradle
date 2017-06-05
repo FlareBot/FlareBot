@@ -5,6 +5,14 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            'version': project.property('version')
+    ]
+}
+
 group = 'stream.flarebot'
 version = '2.7.1-SNAPSHOT'
 

@@ -71,13 +71,14 @@ public class SelfAssignCommand implements Command {
                 }
 
                 String roleId = args[1];
+                long id;
                 try {
-                    Long.parseLong(roleId);
+                    id = Long.parseLong(roleId);
                 } catch (NumberFormatException e) {
                     MessageUtils.sendErrorMessage("Make sure to use the role ID!", channel);
                     return;
                 }
-                if (channel.getGuild().getRoleById(roleId) != null) {
+                if (channel.getGuild().getRoleById(id) != null) {
                     FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).add(roleId);
                     channel.sendMessage(new EmbedBuilder().setDescription("Added `" + channel.getGuild().getRoleById(roleId).getName() + "` to the self-assign list!").build()).queue();
                 } else
@@ -88,8 +89,16 @@ public class SelfAssignCommand implements Command {
                             5000, channel);
                     return;
                 }
+
                 String roleId = args[1];
-                if (channel.getGuild().getRoleById(roleId) != null) {
+                long id;
+                try {
+                    id = Long.parseLong(roleId);
+                } catch (NumberFormatException e) {
+                    MessageUtils.sendErrorMessage("Make sure to use the role ID!", channel);
+                    return;
+                }
+                if (channel.getGuild().getRoleById(id) != null) {
                     FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).remove(roleId);
                     channel.sendMessage(new EmbedBuilder().setDescription("Removed `" + channel.getGuild().getRoleById(roleId).getName() + "` from the self-assign list!").build()).queue();
                 } else
