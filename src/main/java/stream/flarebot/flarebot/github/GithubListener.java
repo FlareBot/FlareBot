@@ -7,6 +7,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.util.Arrays;
+
 public class GithubListener implements EventListener<PushEvent> {
 
     @Override
@@ -15,25 +17,25 @@ public class GithubListener implements EventListener<PushEvent> {
             return;
         EmbedBuilder eb = MessageUtils.getEmbed();
         eb.setAuthor(e.getSender().getLogin(), e.getSender().getProfile(), e.getSender().getAvatarUrl());
-        for (Commit commit : e.getCommits()) {
+        for (Commit commit : Arrays.copyOfRange(e.getCommits(), Math.max(e.getCommits().length - 6, 0), e.getCommits().length - 1)) {
             eb.addField("Commit:", "[" +
                     commit.getId().substring(0, 7) + "](" +
                     commit.getUrl() + ")\n Branch `" +
                     e.getRef().substring(e.getRef().lastIndexOf('/') + 1) + "` " + "```" +
-                    commit.getMessage() + "```", false);
+                    commit.getMessage().substring(0, Math.min(commit.getMessage().length(), 80) - 1) +
+                    (commit.getMessage().length() > 80 ? "..." : "")
+                    + "```", false);
 
             if (commit.getAdded().length > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String filePath : commit.getAdded()) {
-                    if (i++ <= 5) {
-                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
-                        sb.append("* " + file + "\n\n");
-                    }
+                for (String filePath : Arrays.copyOfRange(commit.getAdded(), Math.max(commit.getAdded().length - 6, 0), commit.getAdded().length - 1)) {
+                    String file = filePath.substring(filePath.lastIndexOf("/") + 1);
+                    sb.append("* ").append(file).append("\n");
                 }
 
-                if (commit.getRemoved().length >= 5) {
+                if (commit.getAdded().length >= 5) {
                     sb.append("...\n");
                 }
 
@@ -45,11 +47,9 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String filePath : commit.getRemoved()) {
-                    if (i++ <= 5) {
-                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
-                        sb.append("* " + file + "\n\n");
-                    }
+                for (String filePath : Arrays.copyOfRange(commit.getRemoved(), Math.max(commit.getRemoved().length - 6, 0), commit.getRemoved().length - 1)) {
+                    String file = filePath.substring(filePath.lastIndexOf("/") + 1);
+                    sb.append("* ").append(file).append("\n");
                 }
 
                 if (commit.getRemoved().length >= 5) {
@@ -64,11 +64,9 @@ public class GithubListener implements EventListener<PushEvent> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("```md\n");
                 int i = 1;
-                for (String filePath : commit.getModified()) {
-                    if (i++ <= 5) {
-                        String file = filePath.substring(filePath.lastIndexOf("/") + 1);
-                        sb.append("* " + file + "\n\n");
-                    }
+                for (String filePath : Arrays.copyOfRange(commit.getModified(), Math.max(commit.getModified().length - 6, 0), commit.getModified().length - 1)) {
+                    String file = filePath.substring(filePath.lastIndexOf("/") + 1);
+                    sb.append("* ").append(file).append("\n");
                 }
 
                 if (commit.getModified().length >= 5) {
