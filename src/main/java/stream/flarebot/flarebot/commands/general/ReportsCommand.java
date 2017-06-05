@@ -47,10 +47,7 @@ public class ReportsCommand implements Command {
                         if (page > pages || page < 0) {
                             MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                         } else {
-                            Report[] reportArray = new Report[reports.size()];
-                            reportArray = reports.toArray(reportArray);
-                            reportArray = Arrays.copyOfRange(reportArray, start, end);
-                            reports = Arrays.asList(reportArray);
+                            reports = reports.subList(start, end);
 
                             if (reports.isEmpty()) {
                                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
