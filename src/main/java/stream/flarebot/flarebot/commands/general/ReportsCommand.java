@@ -125,6 +125,7 @@ public class ReportsCommand implements Command {
                             return;
                         }
                         ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status);
+                        channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: %d to %s", id, status.getMessage())).build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
