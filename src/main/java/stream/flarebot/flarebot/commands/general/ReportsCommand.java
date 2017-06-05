@@ -120,11 +120,7 @@ public class ReportsCommand implements Command {
                         } catch (IllegalArgumentException e) {
                             EmbedBuilder errorBuilder = new EmbedBuilder();
                             errorBuilder.setDescription("Invalid status: " + args[2]);
-                            StringBuilder sb = new StringBuilder();
-                            for (ReportStatus listStatus : ReportStatus.values()) {
-                                sb.append(listStatus.getMessage()).append("\n");
-                            }
-                            errorBuilder.addField("Statuses", "```swift\n" + sb.toString() + "```", false);
+                            errorBuilder.addField("Statuses", "```swift\n" + Arrays.stream(ReportStatus.values()).map(ReportStatus::getMessage).collect(Collectors.joining("\n")) + "```", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
