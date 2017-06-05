@@ -5,16 +5,16 @@ import stream.flarebot.flarebot.Language;
 
 public enum ReportStatus {
 
-    OPEN(Language.REPORT_STATUS_OPEN),
-    ON_HOLD(Language.REPORT_STATUS_ONHOLD),
-    RESOLVED(Language.REPORT_STATUS_RESOLVED),
-    CLOSED(Language.REPORT_STATUS_CLOSED),
-    UNDER_REVIEW(Language.REPORT_STATUS_UNDERREVIEW),
-    DUPLICATE(Language.REPORT_STATUS_DUPLICATE);
+    OPEN("Open"),
+    ON_HOLD("On Hold"),
+    RESOLVED("Resolved"),
+    CLOSED("Closed"),
+    UNDER_REVIEW("Under Review"),
+    DUPLICATE("Duplicate");
 
-    public Language message;
+    public String message;
 
-    ReportStatus(Language message) {
+    ReportStatus(String message) {
         this.message = message;
     }
 
@@ -26,9 +26,8 @@ public enum ReportStatus {
         return null;
     }
 
-    public String getMessage(String guildId) {
-        return this.message.get(guildId);
+    public String getMessage() {
+        return this.message;
     }
-
 
 }

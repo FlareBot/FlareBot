@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.*;
 import java.util.EnumSet;
 
 public class SetPrefixCommand implements Command {
@@ -18,17 +19,22 @@ public class SetPrefixCommand implements Command {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reset")) {
                 FlareBot.getPrefixes().set(channel.getGuild().getId(), '_');
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setColor(Color.CYAN)
+                        .setDescription("Reset the prefix back to `_`!").build())
+                        .queue();
             } else if (args[0].length() == 1) {
                 FlareBot.getPrefixes().set(channel.getGuild().getId(), args[0].charAt(0));
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription(String.format("Set the prefix to `%s`", args[0])).build())
+                        .queue();
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("Cannot set the prefix to be more that one character long!")
+                        .setColor(Color.RED)
                         .build()).queue();
                 return;
             }
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription(String.format("Set the prefix to `%s`", args[0])).build())
-                    .queue();
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
                     .setDescription(String.format("Current guild prefix is `%s`!", FlareBot

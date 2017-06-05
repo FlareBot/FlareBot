@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 /**
  * Represents an individual report
  */
-public class Report {
+public class Report implements Comparable<Report> {
 
     private String guildId;
     private int id;
@@ -62,5 +62,10 @@ public class Report {
     public Report setStatus(ReportStatus status) {
         this.status = status;
         return this;
+    }
+
+    @Override
+    public int compareTo(Report o) {
+        return this.getId() - o.getId();
     }
 }

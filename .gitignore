@@ -1,5 +1,9 @@
+imgs/
 .idea
-*.iml
 target
 latest.log
 *.json
+*.iml
+.gradle/
+build/
+out/

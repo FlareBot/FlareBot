@@ -21,7 +21,7 @@ public class PermissionsCommand implements Command {
     @Override
     public void onCommand(net.dv8tion.jda.core.entities.User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel).queue();
             return;
         }
         switch (args[0].toLowerCase()) {
@@ -148,7 +148,7 @@ public class PermissionsCommand implements Command {
                     }
                 break;
             default:
-                MessageUtils.sendUsage(this, channel).queue();
+                MessageUtils.getUsage(this, channel).queue();
                 break;
         }
     }

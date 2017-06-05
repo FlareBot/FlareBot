@@ -11,12 +11,15 @@ import net.dv8tion.jda.core.requests.RestAction;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Consumer;
@@ -177,7 +180,7 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static RestAction<Message> sendUsage(Command command, TextChannel channel) {
+    public static RestAction<Message> getUsage(Command command, TextChannel channel) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
@@ -189,23 +192,50 @@ public class MessageUtils {
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
-    public static User getUser(String s) {
+    public static User getUser(String s, String guildId) {
         if (userDiscrim.matcher(s).find()) {
-            return FlareBot.getInstance().getUsers().stream()
-                    .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                    .findFirst().orElse(null);
+            if (guildId.isEmpty()) {
+                return FlareBot.getInstance().getUsers().stream()
+                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                try {
+                    return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                            .map(m -> m.getUser())
+                            .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } catch (NullPointerException ignored) {
+                }
+            }
         } else {
-            User tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
-                    .findFirst().orElse(null);
+            User tmp;
+            if (guildId.isEmpty()) {
+                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                        .map(m -> m.getUser())
+                        .filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            }
             if (tmp != null) return tmp;
             try {
                 Long.parseLong(s.replaceAll("[^0-9]", ""));
-                tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                if (guildId.isEmpty()) {
+                    tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                } else {
+                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
+                }
                 if (tmp != null) return tmp;
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException ignored) {
+            } catch (NullPointerException ignored) {
             }
-            return null;
         }
+        return null;
+    }
+
+    public static User getUser(String s) {
+        return getUser(s, "");
     }
 
     public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, java.util.List<String> footer) {
@@ -288,4 +318,19 @@ public class MessageUtils {
     }
 
 
+    public static EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel) {
+        EmbedBuilder eb = getEmbed(sender);
+        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
+        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+        
+        eb.addField("Report ID", String.valueOf(report.getId()), true);
+        eb.addField("Reporter", getTag(reporter), true);
+        eb.addField("Reported", getTag(reported), true);
+
+        eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), true);
+        eb.addField("Status", report.getStatus().getMessage(), true);
+
+        eb.addField("Message", "```" + report.getMessage() + "```", false);
+        return eb;
+    }
 }

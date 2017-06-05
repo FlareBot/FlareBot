@@ -332,6 +332,8 @@ public class FlareBot {
                             if(player.getPlaylist().isEmpty())
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
                         }
+                    } else {
+                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
                     }
                 }
                 @Override
@@ -380,6 +382,8 @@ public class FlareBot {
                                     .setNickname(c.getSelfMember(), str)
                                     .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
                         }
+                    } else {
+                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
                     }
                 }
             }));
@@ -512,6 +516,7 @@ public class FlareBot {
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
+        registerCommand(new ReportCommand());
         registerCommand(new ShardInfoCommand());
         registerCommand(new SongNickCommand());
 
@@ -823,6 +828,7 @@ public class FlareBot {
             saveSelfAssign();
             manager.saveAutoMod();
             manager.saveLocalisation();
+            manager.saveReports();
         } catch (Exception e) {
             LOGGER.error("Something failed on stop!", e);
         }

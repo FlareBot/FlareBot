@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 
+import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -24,7 +25,7 @@ public class SongNickCommand implements Command {
             SQLController.runSqlTask(conn -> {
                 conn.createStatement().execute("CREATE TABLE IF NOT EXISTS songnick (id BIGINT UNSIGNED PRIMARY KEY)");
                 ResultSet results = conn.createStatement().executeQuery("SELECT * FROM songnick");
-                while(results.next())
+                while (results.next())
                     guilds.add(results.getLong("id"));
             });
         } catch (SQLException e) {
@@ -38,22 +39,23 @@ public class SongNickCommand implements Command {
 
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("true")) {
+        if (args.length == 0) {
+            if (getGuilds().contains(channel.getGuild().getIdLong())) {
                 SQLController.asyncRunSqlTask(conn ->
                         conn.createStatement().execute("INSERT INTO songnick (id) VALUES (" + channel.getGuild().getId() + ")"));
                 guilds.add(channel.getGuild().getIdLong());
-                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Done :-)").build()).queue();
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Enabled changing nickname with song!").setColor(Color.GREEN).build()).queue();
                 return;
-            } else if (args[0].equalsIgnoreCase("false")) {
+            } else {
                 SQLController.asyncRunSqlTask(conn ->
                         conn.createStatement().execute("DELETE FROM songnick WHERE id = " + channel.getGuild().getId()));
                 guilds.remove(channel.getGuild().getIdLong());
-                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Done :-)").build()).queue();
+                channel.getGuild().getController().setNickname(channel.getGuild().getSelfMember(), null).queue();
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Disabled changing nickname with song!").setColor(Color.RED).build()).queue();
                 return;
             }
         }
-        MessageUtils.sendUsage(this, channel).queue();
+        MessageUtils.getUsage(this, channel).queue();
     }
 
     @Override
@@ -68,7 +70,7 @@ public class SongNickCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}songnick true|false` - Turns on/off nickname auto changing to current song names.";
+        return "`{%}songnick` - Toggles nickname auto changing to current song names.";
     }
 
     @Override
@@ -84,4 +86,5 @@ public class SongNickCommand implements Command {
     public static void removeGuild(long l) {
         guilds.remove(l);
     }
+
 }
