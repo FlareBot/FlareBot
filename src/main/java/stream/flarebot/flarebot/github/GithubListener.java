@@ -24,8 +24,7 @@ public class GithubListener implements EventListener<PushEvent> {
                     commit.getUrl() + ")\n Branch `" +
                     e.getRef().substring(e.getRef().lastIndexOf('/') + 1) + "`\n" +
                     "```\n" +
-                    commit.getMessage().substring(0, Math.min(commit.getMessage().length(), 80)) +
-                    (commit.getMessage().length() > 80 ? "..." : "") +
+                    commit.getMessage() +
                     "```", false);
 
             StringBuilder diff = new StringBuilder("```diff\n");
