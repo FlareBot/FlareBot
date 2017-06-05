@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.commands.general;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
+import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -15,6 +16,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReportsCommand implements Command {
 
@@ -105,7 +107,7 @@ public class ReportsCommand implements Command {
                     MessageUtils.getUsage(this, channel).queue();
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
-                if (args.length == 3) {
+                if (args.length >= 3) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.report.status")) {
                         int id;
                         try {
@@ -116,7 +118,7 @@ public class ReportsCommand implements Command {
                         }
                         ReportStatus status;
                         try {
-                            status = ReportStatus.valueOf(args[2].toUpperCase());
+                            status = ReportStatus.valueOf(MessageUtils.getMessage(args, 2).toUpperCase().replace(" ", "_"));
                         } catch (IllegalArgumentException e) {
                             EmbedBuilder errorBuilder = new EmbedBuilder();
                             errorBuilder.setDescription("Invalid status: " + args[2]);
