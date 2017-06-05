@@ -60,6 +60,8 @@ public class ReportsCommand implements Command {
                         } else {
                             channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
                         }
+                    } else {
+                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel);
@@ -83,7 +85,7 @@ public class ReportsCommand implements Command {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
                         channel.sendMessage(MessageUtils.getReportEmbed(sender, report, channel).build()).queue();
                     } else {
-                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this. Or you need to be the creator of the report", channel);
+                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel).queue();
