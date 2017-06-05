@@ -183,7 +183,8 @@ public class MessageUtils {
     public static RestAction<Message> getUsage(Command command, TextChannel channel) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
-        String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
+        String permission = command.getPermission() + "\n" +
+                "**Default permission: **" + command.isDefaultPermission();
         return channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
                 .addField("Permission", permission, false).setColor(Color.red).build());
     }
@@ -322,7 +323,7 @@ public class MessageUtils {
         EmbedBuilder eb = getEmbed(sender);
         User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
         User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
-        
+
         eb.addField("Report ID", String.valueOf(report.getId()), true);
         eb.addField("Reporter", getTag(reporter), true);
         eb.addField("Reported", getTag(reported), true);
