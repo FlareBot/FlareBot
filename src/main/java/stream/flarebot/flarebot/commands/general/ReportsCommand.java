@@ -121,13 +121,13 @@ public class ReportsCommand implements Command {
                             status = ReportStatus.valueOf(MessageUtils.getMessage(args, 2).toUpperCase().replace(" ", "_"));
                         } catch (IllegalArgumentException e) {
                             EmbedBuilder errorBuilder = new EmbedBuilder();
-                            errorBuilder.setDescription("Invalid status: " + args[2]);
-                            errorBuilder.addField("Statuses", "```swift\n" + Arrays.stream(ReportStatus.values()).map(ReportStatus::getMessage).collect(Collectors.joining("\n")) + "```", false);
+                            errorBuilder.setDescription("Invalid status: `" + args[2] + "`");
+                            errorBuilder.addField("Statuses", "**" + Arrays.stream(ReportStatus.values()).map(ReportStatus::getMessage).collect(Collectors.joining("**\n**")) + "**", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
                         ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status);
-                        channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: %d to %s", id, status.getMessage())).build()).queue();
+                        channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage())).build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
