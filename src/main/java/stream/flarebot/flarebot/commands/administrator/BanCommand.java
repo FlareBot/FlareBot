@@ -47,7 +47,7 @@ public class BanCommand implements Command {
                         .setColor(Color.red).build()).queue();
             }
         } else {
-            MessageUtils.sendUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel).queue();
         }
     }
 

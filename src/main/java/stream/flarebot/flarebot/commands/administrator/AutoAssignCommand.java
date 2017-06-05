@@ -22,7 +22,7 @@ public class AutoAssignCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
                 if (flareBot.getAutoAssignRoles().containsKey(channel.getGuild().getId())) {
@@ -104,7 +104,7 @@ public class AutoAssignCommand implements Command {
                         .getAsMention() + " Invalid argument!"), channel);
             }
         } else {
-            MessageUtils.sendUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel).queue();
         }
     }
 

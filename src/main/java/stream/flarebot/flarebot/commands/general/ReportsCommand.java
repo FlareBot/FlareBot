@@ -65,6 +65,7 @@ public class ReportsCommand implements Command {
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel);
+                    MessageUtils.getUsage(this, channel);
                 }
             } else if (args[0].equalsIgnoreCase("view")) {
                 if (args.length == 2) {
@@ -89,6 +90,7 @@ public class ReportsCommand implements Command {
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel).queue();
+                    MessageUtils.getUsage(this, channel).queue();
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length <= 3) {
@@ -121,6 +123,7 @@ public class ReportsCommand implements Command {
                 }
             } else {
                 MessageUtils.sendUsage(this, channel);
+                MessageUtils.getUsage(this, channel).queue();
             }
         }
     }

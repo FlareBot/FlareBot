@@ -180,7 +180,7 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static RestAction<Message> sendUsage(Command command, TextChannel channel) {
+    public static RestAction<Message> getUsage(Command command, TextChannel channel) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
