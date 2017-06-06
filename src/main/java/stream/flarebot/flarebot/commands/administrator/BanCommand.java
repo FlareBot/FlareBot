@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -35,12 +36,16 @@ public class BanCommand implements Command {
                     reason = MessageUtils.getMessage(args, 1);
                 FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId())
                         .postToModLog(channel, user, sender, Punishment.EPunishment.BAN, reason);
-                channel.sendMessage(new EmbedBuilder()
-                        .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
-                        .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
-                                "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null)
-                        .build()).queue();
-                channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7 /*, reason*/).queue();
+                try {
+                    channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7 /*, reason*/).queue();
+                    channel.sendMessage(new EmbedBuilder()
+                            .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
+                            .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
+                                    "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null)
+                            .build()).queue();
+                } catch (PermissionException e) {
+                    MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
+                }
             } else {
                 channel.sendMessage(new EmbedBuilder()
                         .setDescription("We can't ban users! Make sure we have the `Ban Members` permission!")
