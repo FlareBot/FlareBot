@@ -70,7 +70,7 @@ public class AutoModCommand implements Command {
                             .setDescription("Reset the punishments back to default")
                             .build()).queue();
                 } else {
-                    MessageUtils.getUsage(this, channel).queue();
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 //TODO: Walshy - Add this to usage when finished

@@ -28,7 +28,7 @@ public class PlaylistsCommand implements Command {
             if (args[0].equalsIgnoreCase("mark")) {
                 if (FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1 || args.length == 2) {
-                        MessageUtils.getUsage(this, channel).queue();
+                        MessageUtils.getUsage(this, channel, sender).queue();
                     } else if (args.length == 2) {
                         MessageUtils.sendErrorMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) +
                                 "", channel);

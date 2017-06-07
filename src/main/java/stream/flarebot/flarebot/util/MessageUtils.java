@@ -180,12 +180,12 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static RestAction<Message> getUsage(Command command, TextChannel channel) {
+    public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\n" +
                 "**Default permission: **" + command.isDefaultPermission();
-        return channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
+        return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
                 .addField("Permission", permission, false).setColor(Color.red).build());
     }
 
