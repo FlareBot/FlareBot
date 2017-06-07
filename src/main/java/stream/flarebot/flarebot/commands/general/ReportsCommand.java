@@ -44,7 +44,7 @@ public class ReportsCommand implements Command {
                         int end;
 
                         start = reportsLength * (page - 1);
-                        end = reports.size() < reportsLength ? reports.size() : reports.size() - (reportsLength * (pages - page));
+                        end = Math.min(start + reportsLength, reports.size());
                         if (page > pages || page < 0) {
                             MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                         } else {
