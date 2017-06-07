@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
+import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
@@ -21,7 +22,6 @@ import java.io.StringWriter;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -228,8 +228,7 @@ public class MessageUtils {
                     tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
                 }
                 if (tmp != null) return tmp;
-            } catch (NumberFormatException ignored) {
-            } catch (NullPointerException ignored) {
+            } catch (NumberFormatException | NullPointerException ignored) {
             }
         }
         return null;
@@ -239,12 +238,12 @@ public class MessageUtils {
         return getUser(s, "");
     }
 
-    public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, java.util.List<String> footer) {
+    public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, String footer) {
         return makeAsciiTable(headers, table, footer, "");
     }
 
 
-    public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, java.util.List<String> footer, String lang) {
+    public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, String footer, String lang) {
         StringBuilder sb = new StringBuilder();
         int padding = 1;
         int[] widths = new int[headers.size()];
@@ -254,9 +253,6 @@ public class MessageUtils {
         for (int i = 0; i < headers.size(); i++) {
             if (headers.get(i).length() > widths[i]) {
                 widths[i] = headers.get(i).length();
-                if (footer != null) {
-                    widths[i] = Math.max(widths[i], footer.get(i).length());
-                }
             }
         }
         for (java.util.List<String> row : table) {
@@ -281,7 +277,7 @@ public class MessageUtils {
         }
         if (footer != null) {
             sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-            sb.append(String.format(formatLine, footer.toArray()));
+            sb.append(getFooter(footer, padding, widths));
         }
         sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
         sb.append("```");
@@ -294,12 +290,26 @@ public class MessageUtils {
         for (int size : sizes) {
             if (first) {
                 first = false;
-                ret.append(left).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
+                ret.append(left).append(StringUtils.repeat("-", size + padding * 2));
             } else {
-                ret.append(middle).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
+                ret.append(middle).append(StringUtils.repeat("-", size + padding * 2));
             }
         }
         return ret.append(right).append("\n").toString();
+    }
+
+    public static String getFooter(String footer, int padding, int... sizes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("|");
+        int total = 0;
+        for (int i = 0; i < sizes.length; i++) {
+            int size = sizes[i];
+            total += size + (i == sizes.length - 1 ? 0 : 1) + padding * 2;
+        }
+        sb.append(footer);
+        sb.append(StringUtils.repeat(" ", total - footer.length()));
+        sb.append("|\n");
+        return sb.toString();
     }
 
     public static String getMessage(String[] args, int min) {
