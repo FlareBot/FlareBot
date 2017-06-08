@@ -12,7 +12,7 @@ If you need any help with the bot or you think you have found a bug please join 
 If you want to help FlareBot's hosting and development please use [this link](https://www.paypal.me/FlareBot). Thank you!
 
 ## Credits
-* Initially started by [WalshyDev(@Storm#0681)](https://github.com/WalshyDev/) and [ArsenArsen(@Arsen#7525)](https://github.com/ArsenArsen/)
+* Initially started by [WalshyDev(@bwfcwalshy#1284)](https://github.com/WalshyDev/) and [ArsenArsen(@Arsen#7525)](https://github.com/ArsenArsen/)
 * FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
 * Big thanks to EJ Technologies for providing us with open source licenses for [their Java profiler](https://www.ej-technologies.com/products/jprofiler/overview.html). 
 ### Contributors
