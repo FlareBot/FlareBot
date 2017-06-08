@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
@@ -28,7 +29,7 @@ public class ReportCommand implements Command {
 
             ReportManager.getInstance().report(channel.getGuild().getId(), report);
 
-            MessageUtils.sendPM(channel, sender, MessageUtils.getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
+            MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
         } else {
             MessageUtils.getUsage(this, channel, sender).queue();
         }

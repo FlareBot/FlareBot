@@ -24,6 +24,7 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import org.apache.commons.cli.*;
+import org.apache.commons.cli.HelpFormatter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +48,7 @@ import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.ExceptionUtils;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.SQLController;
-import stream.flarebot.flarebot.util.Welcome;
+import stream.flarebot.flarebot.util.*;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -350,7 +348,7 @@ public class FlareBot {
                                 Queue<Track> playlist = player.getPlaylist();
                                 c.sendMessage(MessageUtils.getEmbed()
                                         .addField("Now Playing", SongCommand.getLink(track), false)
-                                        .addField("Duration", SongCommand
+                                        .addField("Duration", GeneralUtils
                                                 .formatDuration(track.getTrack().getDuration()), false)
                                         .addField("Requested by",
                                                 String.format("<@!%s>", track.getMeta()

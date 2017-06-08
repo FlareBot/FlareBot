@@ -7,6 +7,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
@@ -53,7 +54,7 @@ public class ReportsCommand implements Command {
                             if (reports.isEmpty()) {
                                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
                             } else {
-                                channel.sendMessage(getReportsTable(subReports, " Reports Page " + getPageOutOfTotal(page, reports, reportsLength))).queue();
+                                channel.sendMessage(getReportsTable(subReports, " Reports Page " + GeneralUtils.getPageOutOfTotal(page, reports, reportsLength))).queue();
                             }
                         }
                     } else {
@@ -79,7 +80,7 @@ public class ReportsCommand implements Command {
                     }
 
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
-                        channel.sendMessage(MessageUtils.getReportEmbed(sender, report, channel).build()).queue();
+                        channel.sendMessage(GeneralUtils.getReportEmbed(sender, report, channel).build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
                     }
@@ -139,7 +140,7 @@ public class ReportsCommand implements Command {
             row.add(String.valueOf(report.getId()));
             row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
 
-            row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST");
 
             row.add(report.getStatus().getMessage());
 
@@ -170,10 +171,6 @@ public class ReportsCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MODERATION;
-    }
-
-    private String getPageOutOfTotal(int page, List<Report> reports, int reportsSize) {
-        return String.valueOf(page) + "/" + String.valueOf(reports.size() < reportsSize ? 1 : (reports.size() / reportsSize) + (reports.size() % reportsSize != 0 ? 1 : 0));
     }
 
 }

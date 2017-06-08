@@ -9,6 +9,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class ShardInfoCommand implements Command {
         List<List<String>> table = new ArrayList<>();
         for (JDA jda : FlareBot.getInstance().getClients()) {
             List<String> row = new ArrayList<>();
-            row.add(MessageUtils.getShardId(jda));
+            row.add(GeneralUtils.getShardId(jda));
             row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));
             row.add(String.valueOf(jda.getGuilds().size()));
             table.add(row);

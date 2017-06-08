@@ -10,9 +10,6 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-/**
- * Created by william on 06/05/17.
- */
 public class ResumeCommand implements Command {
 
     private PlayerManager musicManager;
