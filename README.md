@@ -15,3 +15,6 @@ If you want to help FlareBot's hosting and development please use [this link](ht
 * Initially started by [WalshyDev(@bwfcwalshy#1284)](https://github.com/WalshyDev/) and [ArsenArsen(@Arsen#7525)](https://github.com/ArsenArsen/)
 * FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz)
 * Big thanks to EJ Technologies for providing us with open source licenses for [their Java profiler](https://www.ej-technologies.com/products/jprofiler/overview.html). 
+### Contributors
+* [BinaryOverload(@BinaryOverload#2382)](https://github.com/binaryoverload/FlareBot)
+* [weeryan17(@weeryan17#1258)](https://github.com/weeryan17/FlareBot)
