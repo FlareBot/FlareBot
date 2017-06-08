@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class MessageUtils {
+    
     public static final String DEBUG_CHANNEL = "226786557862871040";
     private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
 
@@ -55,14 +56,21 @@ public class MessageUtils {
                 .append("\u200B")
                 .build()).complete();
     }
+    
+    public static Message sendException(String s, MessageChannel channel) {
+        return sendException(s, null, channel);
+    }
 
     public static Message sendException(String s, Throwable e, MessageChannel channel) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        String trace = sw.toString();
-        pw.close();
-        return sendErrorMessage(getEmbed().setDescription(s + "\n**Stack trace**: " + hastebin(trace)), channel);
+        String trace = s;
+        if(e != null){
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            trace = sw.toString();
+            pw.close();
+        }
+        return sendErrorMessage(getEmbed().setDescription((e != null ? s + "\n" : "") + "**Stack trace**: " + hastebin(trace)), channel);
     }
 
     public static String hastebin(String trace) {

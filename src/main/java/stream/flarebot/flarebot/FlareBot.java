@@ -27,6 +27,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
+import spark.utils.IOUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
@@ -691,12 +692,8 @@ public class FlareBot {
                     ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git.getAbsolutePath());
                     clone.redirectErrorStream(true);
                     Process p = clone.start();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String out = "";
-                    String line;
-                    if ((line = reader.readLine()) != null) {
-                        out += line + '\n';
-                    }
+                    String out = IOUtils.toString(p.getInputStream());
+                    p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
                         UpdateCommand.UPDATING.set(false);
@@ -706,12 +703,7 @@ public class FlareBot {
                     ProcessBuilder builder = new ProcessBuilder("git", "pull");
                     builder.directory(git);
                     Process p = builder.start();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                    String out = "";
-                    String line;
-                    if ((line = reader.readLine()) != null) {
-                        out += line + '\n';
-                    }
+                    String out = IOUtils.toString(p.getInputStream());
                     p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
@@ -719,15 +711,10 @@ public class FlareBot {
                         return;
                     }
                 }
-                ProcessBuilder maven = new ProcessBuilder("mvn", "clean", "package", "-e", "-U");
+                ProcessBuilder maven = new ProcessBuilder("sh ./gradlew shadowJar");
                 maven.directory(git);
                 Process p = maven.start();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String out = "";
-                String line;
-                if ((line = reader.readLine()) != null) {
-                    out += line + '\n';
-                }
+                String out = IOUtils.toString(p.getInputStream());
                 p.waitFor();
                 if (p.exitValue() != 0) {
                     UpdateCommand.UPDATING.set(false);
@@ -736,7 +723,7 @@ public class FlareBot {
                 }
                 File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8")); // pfft this will go well..
                 Files.copy(current.toPath(), Paths.get(current.getPath().replace(".jar", ".backup.jar")), StandardCopyOption.REPLACE_EXISTING);
-                File built = new File(git, "target" + File.separator + "FlareBot-jar-with-dependencies.jar");
+                File built = new File(git, "build/libs/flarebot-2.7.1-SNAPSHOT-all.jar");
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
