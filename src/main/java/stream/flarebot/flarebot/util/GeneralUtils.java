@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.music.SongCommand;
 import stream.flarebot.flarebot.objects.Report;
 
 import java.text.DecimalFormat;
