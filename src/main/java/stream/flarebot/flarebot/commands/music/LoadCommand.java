@@ -15,7 +15,7 @@ public class LoadCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
             return;
         }
         String name = MessageUtils.getMessage(args, 0);

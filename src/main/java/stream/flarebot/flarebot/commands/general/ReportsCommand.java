@@ -23,13 +23,14 @@ public class ReportsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
         } else {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
                         List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         int page = 1;
+                        final int reportsLength = 15;
                         if (args.length == 2) {
                             try {
                                 page = Integer.valueOf(args[1]);
@@ -38,28 +39,28 @@ public class ReportsCommand implements Command {
                                 return;
                             }
                         }
-                        int pages = reports.size() < 20 ? 1 : (reports.size() / 20) + reports.size() % 20 != 0 ? 1 : 0;
+                        int pages = reports.size() < reportsLength ? 1 : (reports.size() / reportsLength) + (reports.size() % reportsLength != 0 ? 1 : 0);
                         int start;
                         int end;
 
-                        start = 20 * (page - 1);
-                        end = reports.size() < 20 ? reports.size() : (20 * page);
+                        start = reportsLength * (page - 1);
+                        end = Math.min(start + reportsLength, reports.size());
                         if (page > pages || page < 0) {
                             MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                         } else {
-                            reports = reports.subList(start, end);
+                            List<Report> subReports = reports.subList(start, end);
 
                             if (reports.isEmpty()) {
                                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
                             } else {
-                                channel.sendMessage(getReportsTable(channel.getGuild(), reports)).queue();
+                                channel.sendMessage(getReportsTable(subReports, " Reports Page " + getPageOutOfTotal(page, reports, reportsLength))).queue();
                             }
                         }
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
                     }
                 } else {
-                    MessageUtils.getUsage(this, channel);
+                    MessageUtils.getUsage(this, channel, sender);
                 }
             } else if (args[0].equalsIgnoreCase("view")) {
                 if (args.length == 2) {
@@ -83,7 +84,7 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
                     }
                 } else {
-                    MessageUtils.getUsage(this, channel).queue();
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length >= 3) {
@@ -116,16 +117,16 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
                 } else {
-                    MessageUtils.getUsage(this, channel).queue();
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
             } else {
-                MessageUtils.getUsage(this, channel).queue();
+                MessageUtils.getUsage(this, channel, sender).queue();
             }
         }
 
     }
 
-    private String getReportsTable(Guild guild, List<Report> reports) {
+    private String getReportsTable(List<Report> reports, String footer) {
         ArrayList<String> header = new ArrayList<>();
         header.add("Id");
         header.add("Reported");
@@ -145,7 +146,7 @@ public class ReportsCommand implements Command {
             table.add(row);
         }
 
-        return MessageUtils.makeAsciiTable(header, table, null, "swift");
+        return MessageUtils.makeAsciiTable(header, table, footer, "swift");
     }
 
     @Override
@@ -170,4 +171,9 @@ public class ReportsCommand implements Command {
     public CommandType getType() {
         return CommandType.MODERATION;
     }
+
+    private String getPageOutOfTotal(int page, List<Report> reports, int reportsSize) {
+        return String.valueOf(page) + "/" + String.valueOf(reports.size() < reportsSize ? 1 : (reports.size() / reportsSize) + (reports.size() % reportsSize != 0 ? 1 : 0));
+    }
+
 }

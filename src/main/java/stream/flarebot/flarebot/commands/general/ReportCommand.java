@@ -18,7 +18,7 @@ public class ReportCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 2) {
-            User user = MessageUtils.getUser(args[0], channel.getId());
+            User user = MessageUtils.getUser(args[0], channel.getGuild().getId());
             if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user: " + args[0], channel);
                 return;
@@ -30,7 +30,7 @@ public class ReportCommand implements Command {
 
             MessageUtils.sendPM(channel, sender, MessageUtils.getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
         } else {
-            MessageUtils.getUsage(this, channel).queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 

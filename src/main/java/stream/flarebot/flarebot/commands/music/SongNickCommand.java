@@ -55,7 +55,7 @@ public class SongNickCommand implements Command {
                 return;
             }
         }
-        MessageUtils.getUsage(this, channel).queue();
+        MessageUtils.getUsage(this, channel, sender).queue();
     }
 
     @Override
