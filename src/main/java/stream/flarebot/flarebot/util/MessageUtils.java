@@ -52,6 +52,15 @@ public class MessageUtils {
         return len;
     }
 
+    public static Message sendPM(User user, String message) {
+        try {
+            return user.openPrivateChannel().complete()
+                    .sendMessage(message.substring(0, Math.min(message.length(), 1999))).complete();
+        } catch (ErrorResponseException e){
+            return null;
+        }
+    }
+
     public static Message sendPM(MessageChannel channel, User user, String message) {
         try {
             return user.openPrivateChannel().complete()

@@ -28,6 +28,7 @@ import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
@@ -119,7 +120,7 @@ public class Events extends ListenerAdapter {
                 .append(event.getGuild().getSelfMember().getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
-        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
+        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message.toString());
     }
 
     @Override
