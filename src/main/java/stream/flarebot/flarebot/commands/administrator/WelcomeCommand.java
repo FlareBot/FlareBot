@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -10,61 +11,63 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class WelcomeCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 0) {
+        if(args.length == 1){
             MessageUtils.getUsage(this, channel, sender).queue();
-        } else if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("enable")) {
-                if (!guild.getWelcome().isEnabled()) {
-                    guild.getWelcome().setEnabled(true);
-                    channel.sendMessage("Welcomes **enabled**!").queue();
+        } else if(args.length == 2){
+            if(args[1].equalsIgnoreCase("enable")){
+                if(args[0].equalsIgnoreCase("dm")){
+                    if(guild.getWelcome().isDmEnabled()){
+                        guild.getWelcome().setDmEnabled(true);
+                        channel.sendMessage("DM welcomes are now **enabled**").queue();
+                    } else {
+                        MessageUtils.sendErrorMessage("DM welcomes are already **enabled**", channel);
+                    }
+                } else if(args[0].equalsIgnoreCase("guild")){
+                    if(guild.getWelcome().isGuildEnabled()){
+                        guild.getWelcome().setGuildEnabled(true);
+                        channel.sendMessage("Guild welcomes are now **enabled**").queue();
+                    }else {
+                        MessageUtils.sendErrorMessage("Guild welcomes are already **enabled**", channel);
+                    }
                 } else {
-                    channel.sendMessage("Welcomes already **enabled**!").queue();
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
-            } else if (args[0].equalsIgnoreCase("disable")) {
-                if (guild.getWelcome().isEnabled()) {
-                    guild.getWelcome().setEnabled(false);
-                    channel.sendMessage("Welcomes **disabled**!").queue();
+            } else if(args[1].equalsIgnoreCase("disable")){
+                if(args[0].equalsIgnoreCase("dm")){
+                    if(!guild.getWelcome().isDmEnabled()){
+                        guild.getWelcome().setDmEnabled(false);
+                        channel.sendMessage("DM welcomes are now **disabled**").queue();
+                    } else {
+                        MessageUtils.sendErrorMessage("DM welcomes are already **disabled**", channel);
+                    }
+                } else if(args[0].equalsIgnoreCase("guild")){
+                    if(!guild.getWelcome().isGuildEnabled()){
+                        guild.getWelcome().setGuildEnabled(false);
+                        channel.sendMessage("Guild welcomes are now **disabled**").queue();
+                    }else {
+                        MessageUtils.sendErrorMessage("Guild welcomes are already **disabled**", channel);
+                    }
                 } else {
-                    channel.sendMessage("Welcomes already **disabled**!").queue();
-                }
-            } else if (args[0].equalsIgnoreCase("set")) {
-                if (guild.getWelcome() != null) {
-                    guild.getWelcome().setChannelId(channel.getId());
-                    channel.sendMessage("Welcomes set to appear in this channel!").queue();
-                } else {
-                    channel.sendMessage("Welcomes are not enabled!").queue();
-                }
-            } else if (args[0].equalsIgnoreCase("message")) {
-                channel.sendMessage(sender.getAsMention() +
-                        " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild()
-                        .getId()) + "welcome message (message)\n" +
-                        "Known variables are:\n" +
-                        "``%user%`` for the username,\n" +
-                        "``%mention%`` to mention the user, and\n" +
-                        "``%guild%`` for the guild name.\n" +
-                        (guild.getWelcome() == null ? "" : "The current message is: ```md\n"
-                                + guild.getWelcome().getMessage() + "```")).queue();
-            } else {
-                MessageUtils.getUsage(this, channel, sender).queue();
-            }
-        } else if (args.length >= 2) {
-            if (args[0].equalsIgnoreCase("message")) {
-                if (guild.getWelcome() != null) {
-                    String msg = MessageUtils.getMessage(args, 1);
-                    guild.getWelcome().setMessage(msg);
-                    channel.sendMessage("Set welcome message to ```" + msg + "```").queue();
-                } else {
-                    channel.sendMessage("Welcomes are not enabled!").queue();
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
             } else {
                 MessageUtils.getUsage(this, channel, sender).queue();
             }
-        } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+        } else if(args.length == 3){
+            if(args[2].equalsIgnoreCase("list")){
+                EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                List<List<String>> guildBody = new ArrayList<>();
+
+            } else {
+                MessageUtils.getUsage(this, channel, sender).queue();
+            }
         }
     }
 
@@ -80,8 +83,10 @@ public class WelcomeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}welcome <enable/disable>` - Enables or disables welcomes\n"
-                + "`{%}welcome <set/message>` - Sets or views the current welcome message";
+        return "`{%}welcome <dm/guild> <enable/disable> `- Enables/Disables welcome message for dm/guild\n" +
+                "`{%}welcome <dm/guild> message add <message>` - Adds a message to the welcomes\n" +
+                "`{%}welcome <dm/guild> message remove <message id>` - Removes a message from the welcomes\n" +
+                "`{%}welcome <dm/guild> message list [page]` - Lists all the messages and their IDs for welcomes";
     }
 
     @Override
