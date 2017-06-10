@@ -11,11 +11,8 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.mod.Action;
 import stream.flarebot.flarebot.mod.AutoModConfig;
-<<<<<<< HEAD
 import stream.flarebot.flarebot.objects.GuildWrapper;
-=======
 import stream.flarebot.flarebot.util.MessageUtils;
->>>>>>> data-restructure-merge
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
