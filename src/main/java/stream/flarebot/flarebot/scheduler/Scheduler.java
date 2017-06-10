@@ -16,7 +16,8 @@ import java.util.concurrent.TimeUnit;
  * Created by Arsen on 20.9.16..
  */
 public class Scheduler {
-    private static final ScheduledExecutorService timer = Executors.newScheduledThreadPool(10, r -> new Thread(r, "FlareBot Scheduled Task"));
+    private static final ScheduledExecutorService timer = Executors
+            .newScheduledThreadPool(10, r -> new Thread(r, "FlareBot Scheduled Task"));
     private static final Map<String, ScheduledFuture<?>> tasks = new HashMap<>();
 
     static {

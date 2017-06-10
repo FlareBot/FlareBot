@@ -1,17 +1,19 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.User;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Parser;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
@@ -19,69 +21,84 @@ public class PermissionsCommand implements Command {
     @Override
     public void onCommand(net.dv8tion.jda.core.entities.User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage(getDescription()).queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
             return;
         }
         switch (args[0].toLowerCase()) {
-            case "givegroup":
+            case "give":
                 if (args.length < 3) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(getDescription()), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(getDescription()), channel);
                     return;
                 }
                 Member user = Parser.mention(args[1], channel.getGuild());
                 if (user == null) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such user!"), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such user!"), channel);
                     return;
                 }
                 if (!getPermissions(channel).hasGroup(args[2])) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such group!"), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such group!"), channel);
                     return;
                 }
                 Group group = getPermissions(channel).getGroup(args[2]);
                 if (getPermissions(channel).getUser(user).addGroup(group))
                     channel.sendMessage("Success").queue();
                 else
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("User already had that group!"), channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("User already had that group!"), channel);
                 break;
-            case "revokegroup":
+            case "revoke":
                 if (args.length < 3) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(getDescription()), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(getDescription()), channel);
                     return;
                 }
                 Member user2 = Parser.mention(args[1], channel.getGuild());
                 if (user2 == null) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such user!"), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such user!"), channel);
                     return;
                 }
                 if (!getPermissions(channel).hasGroup(args[2])) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such group!"), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such group!"), channel);
                     return;
                 }
                 Group group2 = getPermissions(channel).getGroup(args[2]);
                 if (getPermissions(channel).getUser(user2).removeGroup(group2))
                     channel.sendMessage("Success").queue();
                 else
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("User never had that group!"), channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("User never had that group!"), channel);
                 break;
             case "groups":
                 if (args.length == 1) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("Groups: " + getPermissions(channel).getGroups().keySet().stream()
-                                    .collect(Collectors.joining(", ", "`", "`"))).build()).queue();
+                            .setDescription("Groups: " + getPermissions(channel).getGroups()
+                                    .keySet()
+                                    .stream()
+                                    .collect(Collectors
+                                            .joining(", ", "`", "`")))
+                            .build()).queue();
                     return;
                 }
                 Member iUser = Parser.mention(args[1], channel.getGuild());
                 if (iUser == null) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such user!"), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such user!"), channel);
                     return;
                 }
                 User toList = getPermissions(channel).getUser(iUser);
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("User", iUser.getAsMention(), true)
                         .setDescription("Groups: " + toList.getGroups().stream()
-                                .collect(Collectors.joining(", ", "`", "`"))).build()).queue();
+                                .collect(Collectors
+                                        .joining(", ", "`", "`")))
+                        .build()).queue();
                 break;
-            case "addpermission":
+            case "add":
                 if (args.length < 3) {
                     channel.sendMessage(getDescription()).queue();
                     return;
@@ -90,9 +107,10 @@ public class PermissionsCommand implements Command {
                 if (getPermissions(channel).addPermission(group3.getName(), args[2]))
                     channel.sendMessage("Success").queue();
                 else
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("Group already had that permission"), channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("Group already had that permission"), channel);
                 break;
-            case "removepermission":
+            case "remove":
                 if (args.length < 3) {
                     channel.sendMessage(getDescription()).queue();
                     return;
@@ -101,7 +119,8 @@ public class PermissionsCommand implements Command {
                 if (getPermissions(channel).removePermission(group4.getName(), args[2]))
                     channel.sendMessage("Success").queue();
                 else
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("Group never had that permission"), channel);
+                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("Group never had that permission"), channel);
                 break;
             case "list":
                 if (args.length < 2) {
@@ -109,7 +128,8 @@ public class PermissionsCommand implements Command {
                     return;
                 }
                 if (!getPermissions(channel).hasGroup(args[1])) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such group!"), channel);
+                    MessageUtils
+                            .sendErrorMessage(MessageUtils.getEmbed(sender).setDescription("No such group!"), channel);
                     return;
                 }
                 Group group5 = getPermissions(channel).getGroup(args[1]);
@@ -128,7 +148,7 @@ public class PermissionsCommand implements Command {
                     }
                 break;
             default:
-                channel.sendMessage(getDescription()).queue();
+                MessageUtils.getUsage(this, channel, sender).queue();
                 break;
         }
     }
@@ -145,10 +165,15 @@ public class PermissionsCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "`permissions givegroup` | `revokegroup` `<user> <group>` for user management.\n" +
-                "Or `permissions list` | `addpermission` | `removepermission` `<group> <permission>` for group management.\n" +
-                "`permissions groups <user>` lists groups of a user.\n" +
-                "Better tutorial is found on the support server.";
+        return "Manages server-wide permissions for FlareBot.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}permissions <give/revoke> <user> <group>` - Add/Remove a user from a group\n"
+                + "`{%}permissions <list> <group>` - Lists permissions for a group\n"
+                + "`{%}permissions <add/remove> <group> <permission>` - Add/Remove Permissions From group\n"
+                + "`{%}permissions groups [user]` - List groups [for a user]";
     }
 
     @Override
@@ -159,5 +184,10 @@ public class PermissionsCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MANAGE_PERMISSIONS);
     }
 }

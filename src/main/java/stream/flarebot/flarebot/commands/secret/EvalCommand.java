@@ -1,3 +1,4 @@
+
 package stream.flarebot.flarebot.commands.secret;
 
 import net.dv8tion.jda.core.entities.Member;
@@ -5,9 +6,9 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -66,6 +67,7 @@ public class EvalCommand implements Command {
                             .addField("Code:", "```js\n" + code + "```", false)
                             .addField("Result: ", eResult, false).build()).queue();
                 } catch (Exception e) {
+                    FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .addField("Code:", "```js\n" + code + "```", false)
                             .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
@@ -83,6 +85,11 @@ public class EvalCommand implements Command {
 
     @Override
     public String getDescription() {
+        return "";
+    }
+
+    @Override
+    public String getUsage() {
         return "";
     }
 

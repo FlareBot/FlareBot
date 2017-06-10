@@ -6,3 +6,4 @@ latest.log
 *.iml
 .gradle/
 build/
+out/

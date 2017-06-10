@@ -7,7 +7,6 @@ import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
-import stream.flarebot.flarebot.MessageUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,7 +37,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 }
                 if (throwable != null) {
                     MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getUpdateChannel());
-                } else MessageUtils.sendException(finalMsg, FlareBot.getInstance().getUpdateChannel());
+                } else FlareBot.getInstance().getUpdateChannel().sendMessage(finalMsg).queue();
             });
         }
         return FilterReply.NEUTRAL;

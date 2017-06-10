@@ -1,14 +1,14 @@
 package stream.flarebot.flarebot.commands.music;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.util.SQLController;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -49,14 +49,17 @@ public class MusicAnnounceCommand implements Command {
             if (args[0].equalsIgnoreCase("here")) {
                 announcements.put(channel.getGuild().getId(), channel.getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("Set music announcements to appear in " + channel.getAsMention()).build()).queue();
+                        .setDescription("Set music announcements to appear in " + channel
+                                .getAsMention()).build()).queue();
                 try {
                     SQLController.runSqlTask(conn -> {
-                        PreparedStatement statement = conn.prepareStatement("UPDATE announces SET channelid = ? WHERE guildid = ?");
+                        PreparedStatement statement = conn
+                                .prepareStatement("UPDATE announces SET channelid = ? WHERE guildid = ?");
                         statement.setString(1, channel.getId());
                         statement.setString(2, channel.getGuild().getId());
                         if (statement.executeUpdate() == 0) {
-                            statement = conn.prepareStatement("INSERT INTO announces (guildid, channelid) VALUES (?, ?)");
+                            statement = conn
+                                    .prepareStatement("INSERT INTO announces (guildid, channelid) VALUES (?, ?)");
                             statement.setString(1, channel.getGuild().getId());
                             statement.setString(2, channel.getId());
                             statement.executeUpdate();
@@ -68,7 +71,10 @@ public class MusicAnnounceCommand implements Command {
             } else {
                 announcements.remove(channel.getGuild().getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(String.format("Disabled announcements for `%s`", channel.getGuild().getName())).build()).queue();
+                        .setDescription(String
+                                .format("Disabled announcements for `%s`", channel.getGuild()
+                                        .getName()))
+                        .build()).queue();
                 try {
                     SQLController.runSqlTask(conn -> {
                         PreparedStatement statement = conn.prepareStatement("DELETE FROM announces WHERE guildid = ?");
@@ -79,9 +85,7 @@ public class MusicAnnounceCommand implements Command {
                 }
             }
         } else {
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription("Bad syntax! Must have either `HERE` or `OFF` as your first, and only, argument." +
-                            "\nCase insensitive.").build()).queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 
@@ -92,7 +96,12 @@ public class MusicAnnounceCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Announces a track start in a text channel. Usage: `announce HERE|OFF`";
+        return "Announces a track start in a text channel.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}announce <here|off>` - Sets the music announce channel or turns it off";
     }
 
     @Override

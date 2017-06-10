@@ -1,9 +1,9 @@
 package stream.flarebot.flarebot.commands;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.SQLController;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

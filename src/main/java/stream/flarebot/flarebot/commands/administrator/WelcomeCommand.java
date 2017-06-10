@@ -1,13 +1,14 @@
 package stream.flarebot.flarebot.commands.administrator;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.util.Welcome;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.Welcome;
 
 public class WelcomeCommand implements Command {
 
@@ -20,8 +21,7 @@ public class WelcomeCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage(sender.getAsMention() + " Usage: " +
-                    FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("enable")) {
                 if (flareBot.getWelcomeForGuild(channel.getGuild()) == null) {
@@ -47,16 +47,17 @@ public class WelcomeCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("message")) {
                 channel.sendMessage(sender.getAsMention() +
-                        " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome message (message)\n" +
+                        " To set a new message do " + FlareBot.getPrefixes().get(channel.getGuild()
+                        .getId()) + "welcome message (message)\n" +
                         "Known variables are:\n" +
                         "``%user%`` for the username,\n" +
                         "``%mention%`` to mention the user, and\n" +
                         "``%guild%`` for the guild name.\n" +
-                        (flareBot.getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md\n"
+                        (flareBot
+                                .getWelcomeForGuild(channel.getGuild()) == null ? "" : "The current message is: ```md\n"
                                 + flareBot.getWelcomeForGuild(channel.getGuild()).getMessage() + "```")).queue();
             } else {
-                channel.sendMessage(sender.getAsMention()
-                        + " Usage: " + FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+                MessageUtils.getUsage(this, channel, sender).queue();
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("message")) {
@@ -72,12 +73,10 @@ public class WelcomeCommand implements Command {
                     channel.sendMessage("Welcomes are not enabled!").queue();
                 }
             } else {
-                channel.sendMessage(sender.getAsMention() + " Usage: " +
-                        FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+                MessageUtils.getUsage(this, channel, sender).queue();
             }
         } else {
-            channel.sendMessage(sender.getAsMention() + " Usage: " +
-                    FlareBot.getPrefixes().get(channel.getGuild().getId()) + "welcome <enable/disable/set/message>").queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 
@@ -89,6 +88,12 @@ public class WelcomeCommand implements Command {
     @Override
     public String getDescription() {
         return "Add welcome messages to your server!";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}welcome <enable/disable>` - Enables or disables welcomes\n"
+                + "`{%}welcome <set/message>` - Sets or views the current welcome message";
     }
 
     @Override

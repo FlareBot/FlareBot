@@ -1,19 +1,21 @@
 package stream.flarebot.flarebot.objects;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PollOption {
 
     private String option;
-    private Set<String> votes = ConcurrentHashMap.newKeySet();
+    private int votes;
+    private List<String> voters = new ArrayList<>();
 
     public PollOption(String option) {
         this.option = option;
     }
 
     public void incrementVotes(String userId) {
-        this.votes.add(userId);
+        this.votes++;
+        this.voters.add(userId);
     }
 
     public String getOption() {
@@ -21,6 +23,6 @@ public class PollOption {
     }
 
     public int getVotes() {
-        return this.votes.size();
+        return this.votes;
     }
 }

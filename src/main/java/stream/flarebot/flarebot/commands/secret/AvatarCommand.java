@@ -1,9 +1,11 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import com.mashape.unirest.http.Unirest;
-import net.dv8tion.jda.core.entities.*;
+
+import java.io.IOException;
+import java.net.URL;
 
 public class AvatarCommand implements Command {
     @Override
@@ -13,11 +15,10 @@ public class AvatarCommand implements Command {
                 Message.Attachment attachment = message.getAttachments().get(0);
                 try {
                     sender.getJDA().getSelfUser().getManager().setAvatar(Icon.from(
-                            Unirest.get(attachment.getUrl()).header("User-Agent", "Mozilla/5.0 FlareBot").asBinary().getBody()
+                            new URL(attachment.getUrl()).openStream()
                     )).complete();
-                } catch (Exception e) {
+                } catch (IOException e) {
                     channel.sendMessage("Failed to update avatar!! " + e).queue();
-                    return;
                 }
                 channel.sendMessage("Success!").queue();
             } else {
@@ -26,11 +27,10 @@ public class AvatarCommand implements Command {
         } else {
             try {
                 sender.getJDA().getSelfUser().getManager().setAvatar(Icon.from(
-                        Unirest.get(args[0]).header("User-Agent", "Mozilla/5.0 FlareBot").asBinary().getBody()
+                        new URL(args[0]).openStream()
                 )).complete();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 channel.sendMessage("Failed to update avatar!! " + e).queue();
-                return;
             }
             channel.sendMessage("Success!").queue();
         }
@@ -44,6 +44,11 @@ public class AvatarCommand implements Command {
     @Override
     public String getDescription() {
         return "";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}avatar [user]";
     }
 
     @Override

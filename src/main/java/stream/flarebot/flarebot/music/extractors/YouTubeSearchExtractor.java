@@ -1,8 +1,6 @@
 package stream.flarebot.flarebot.music.extractors;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import com.mashape.unirest.http.Unirest;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
@@ -10,6 +8,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.net.URLEncoder;
 
@@ -39,7 +39,8 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
         }
         if (link == null) {
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
-                    .setDescription(String.format("Could not find any results for `%s`", input)), message);
+                    .setDescription(String
+                            .format("Could not find any results for `%s`", input)), message);
             return;
         }
         super.process(link, player, message, user);

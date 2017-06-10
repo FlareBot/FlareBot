@@ -2,13 +2,13 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,11 +33,11 @@ public class PlaylistCommand implements Command {
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
                     channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "playlist remove (number)"), channel);
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 } else if (args[0].equalsIgnoreCase("here")) {
                     send(channel, channel, member);
                 } else {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("Incorrect usage! " + getDescription()), channel);
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
             } else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("remove")) {
@@ -52,7 +52,9 @@ public class PlaylistCommand implements Command {
                     Queue<Track> queue = manager.getPlayer(channel.getGuild().getId()).getPlaylist();
 
                     if (number < 1 || number > queue.size()) {
-                        MessageUtils.sendErrorMessage("There is no song with that index. Make sure your number is at least 1 and either " + queue.size() + " or below!", channel);
+                        MessageUtils
+                                .sendErrorMessage("There is no song with that index. Make sure your number is at least 1 and either " + queue
+                                        .size() + " or below!", channel);
                         return;
                     }
 
@@ -62,7 +64,8 @@ public class PlaylistCommand implements Command {
                     queue.addAll(playlist);
 
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("Removed number " + number + " from the playlist!").build()).queue();
+                            .setDescription("Removed number " + number + " from the playlist!")
+                            .build()).queue();
                 }
             }
         }
@@ -108,12 +111,19 @@ public class PlaylistCommand implements Command {
         return "playlist";
     }
 
+    // TODO: FIX THIS MONSTROSITY
     @Override
     public String getDescription() {
         return "View the songs currently on your playlist. " +
                 "NOTE: If too many it shows only the amount that can fit. You can use `playlist clear` to remove all songs." +
                 " You can use `playlist remove #` to remove a song under #.\n" +
                 "To make it not send a DM do `playlist here`";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}playlist [option]\n" +
+                "{%}playlist remove <#>";
     }
 
     @Override
