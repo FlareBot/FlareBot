@@ -17,6 +17,7 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -47,6 +48,8 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ExceptionUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 import stream.flarebot.flarebot.web.ApiFactory;
 
@@ -247,7 +250,7 @@ public class FlareBot {
 
     private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
 
-    private List<Command> commands = new CopyOnWriteArrayList<>();
+    private Set<Command> commands = ConcurrentHashMap.newKeySet();
     // Guild ID | List role ID
     private Map<String, CopyOnWriteArrayList<String>> autoAssignRoles;
     private File roleFile;
@@ -289,7 +292,7 @@ public class FlareBot {
                 while (true) {
                     try {
                         clients[0] = new JDABuilder(AccountType.BOT)
-                                .addListener(events, tracker)
+                                .addEventListener(events, tracker)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
@@ -303,7 +306,7 @@ public class FlareBot {
                     while (true) {
                         try {
                             clients[i] = new JDABuilder(AccountType.BOT)
-                                    .addListener(events, tracker)
+                                    .addEventListener(events, tracker)
                                     .useSharding(i, clients.length)
                                     .setToken(tkn)
                                     .setAudioSendFactory(new NativeAudioSendFactory())
@@ -315,9 +318,24 @@ public class FlareBot {
                     }
                 }
             prefixes = new Prefixes();
-            commands = new ArrayList<>();
+            commands = ConcurrentHashMap.newKeySet();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
+                @Override
+                public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
+                    if (SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                        Guild c = getGuildByID(player.getGuildId());
+                        if (c == null) {
+                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                        } else {
+                            if (player.getPlaylist().isEmpty())
+                                c.getController().setNickname(c.getSelfMember(), null).queue();
+                        }
+                    } else {
+                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
+                    }
+                }
+
                 @Override
                 public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
                     if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
@@ -331,13 +349,13 @@ public class FlareBot {
                                 Track track = player.getPlayingTrack();
                                 Queue<Track> playlist = player.getPlaylist();
                                 c.sendMessage(MessageUtils.getEmbed()
-                                        .addField("Now Playing: ", SongCommand.getLink(track), false)
-                                        .addField("Duration: ", SongCommand
-                                                .formatDuration(track), false)
-                                        .addField("Requested by: ",
+                                        .addField("Now Playing", SongCommand.getLink(track), false)
+                                        .addField("Duration", GeneralUtils
+                                                .formatDuration(track.getTrack().getDuration()), false)
+                                        .addField("Requested by",
                                                 String.format("<@!%s>", track.getMeta()
                                                         .get("requester")), false)
-                                        .addField("Next up: ", playlist.isEmpty() ? "Nothing" :
+                                        .addField("Next up", playlist.isEmpty() ? "Nothing" :
                                                 SongCommand.getLink(playlist.peek()), false)
                                         .build()).queue();
                             } else {
@@ -346,6 +364,26 @@ public class FlareBot {
                         } else {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
+                    }
+                    if (SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                        Guild c = getGuildByID(player.getGuildId());
+                        if (c == null) {
+                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                        } else {
+                            Track track = player.getPlayingTrack();
+                            String str = null;
+                            if (track != null) {
+                                str = track.getTrack().getInfo().title;
+                                if (str.length() > 32)
+                                    str = str.substring(0, 32);
+                                str = str.substring(0, str.lastIndexOf(' ') + 1);
+                            } // Even I couldn't make this a one-liner
+                            c.getController()
+                                    .setNickname(c.getSelfMember(), str)
+                                    .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
+                        }
+                    } else {
+                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
                     }
                 }
             }));
@@ -386,6 +424,7 @@ public class FlareBot {
         manager.loadRandomSongs();
         manager.loadProfanity();
         manager.loadAutoMod();
+        manager.loadLocalisation();
 
         loadPolls();
         loadSelfAssign();
@@ -476,6 +515,10 @@ public class FlareBot {
         registerCommand(new SetSeverityCommand());
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
+        registerCommand(new ReportsCommand());
+        registerCommand(new ReportCommand());
+        registerCommand(new ShardInfoCommand());
+        registerCommand(new SongNickCommand());
 
         ApiFactory.bind();
 
@@ -493,6 +536,7 @@ public class FlareBot {
                 try {
                     getPermissions().save();
                     //saveWelcomes();
+                    manager.saveLocalisation();
                 } catch (IOException e) {
                     LOGGER.error("Could not save permissions!", e);
                 }
@@ -775,17 +819,18 @@ public class FlareBot {
 
     protected void stop() {
         LOGGER.info("Saving data.");
-        saveRoles();
-        //saveWelcomes();
-        sendData();
         try {
-            permissions.save();
-        } catch (IOException e) {
-            LOGGER.error("Perms save failed on stop!", e);
+            saveRoles();
+            //saveWelcomes();
+            sendData();
+            savePolls();
+            saveSelfAssign();
+            manager.saveAutoMod();
+            manager.saveLocalisation();
+            manager.saveReports();
+        } catch (Exception e) {
+            LOGGER.error("Something failed on stop!", e);
         }
-        savePolls();
-        saveSelfAssign();
-        manager.saveAutoMod();
     }
 
     private void saveSelfAssign() {
@@ -859,7 +904,7 @@ public class FlareBot {
         this.commands.add(command);
     }
 
-    public List<Command> getCommands() {
+    public Set<Command> getCommands() {
         return this.commands;
     }
 
@@ -1024,18 +1069,6 @@ public class FlareBot {
                 .sum() == clients.length;
     }
 
-    public static String getMessage(String[] args, int min) {
-        return Arrays.stream(args).skip(min).collect(Collectors.joining(" ")).trim();
-    }
-
-    public static String getMessage(String[] args, int min, int max) {
-        String message = "";
-        for (int index = min; index < max; index++) {
-            message += args[index] + " ";
-        }
-        return message.trim();
-    }
-
     public static void reportError(TextChannel channel, String s, Exception e) {
         JsonObject message = new JsonObject();
         message.addProperty("message", s);
@@ -1160,7 +1193,13 @@ public class FlareBot {
     }
 
     public User getUserByID(String id) {
-        return Arrays.stream(clients).map(jda -> jda.getUserById(id))
+        return Arrays.stream(clients).map(jda -> {
+            try {
+                return jda.getUserById(id);
+            } catch (Exception ignored) {
+            }
+            return null;
+        })
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
     }

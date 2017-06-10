@@ -9,10 +9,10 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import javax.security.auth.login.LoginException;
 
@@ -25,7 +25,7 @@ public class ShardRestartCommand implements Command {
                 synchronized (FlareBot.getInstance().getClients()) {
                     FlareBot.getInstance().getClients()[shard].shutdown(false);
                     FlareBot.getInstance().getClients()[shard] = new JDABuilder(AccountType.BOT)
-                            .addListener(FlareBot.getInstance().getEvents())
+                            .addEventListener(FlareBot.getInstance().getEvents())
                             .useSharding(shard, FlareBot.getInstance().getClients().length)
                             .setToken(FlareBot.getToken())
                             .setAudioSendFactory(new NativeAudioSendFactory())

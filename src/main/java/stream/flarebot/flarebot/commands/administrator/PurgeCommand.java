@@ -3,17 +3,14 @@ package stream.flarebot.flarebot.commands.administrator;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PurgeCommand implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();
@@ -34,7 +31,13 @@ public class PurgeCommand implements Command {
                     return;
                 }
             }
-            int count = Integer.parseInt(args[0]) + 1;
+            int count;
+            try {
+                count = Integer.parseInt(args[0]) + 1;
+            } catch (NumberFormatException e) {
+                MessageUtils.sendErrorMessage("The number entered is too high!", channel);
+                return;
+            }
             if (count < 2) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("Can't purge less than 2 messages!").build()).queue();
@@ -87,7 +90,7 @@ public class PurgeCommand implements Command {
                         .queue();
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 
@@ -124,5 +127,10 @@ public class PurgeCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MESSAGE_MANAGE);
     }
 }

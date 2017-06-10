@@ -5,11 +5,10 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 
 import java.awt.*;
@@ -17,7 +16,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class QueryCommand implements Command {
@@ -28,10 +26,10 @@ public class QueryCommand implements Command {
             SQLController.runSqlTask(conn -> {
                 ResultSet set;
                 try {
-                    set = conn.createStatement().executeQuery(FlareBot.getMessage(args, 0));
+                    set = conn.createStatement().executeQuery(MessageUtils.getMessage(args, 0));
                 } catch (SQLException e) {
                     try {
-                        conn.createStatement().execute(FlareBot.getMessage(args, 0));
+                        conn.createStatement().execute(MessageUtils.getMessage(args, 0));
                         channel.sendMessage(new EmbedBuilder().setDescription("Query was executed successfully!")
                                 .setColor(Color.green).build()).queue();
                     } catch (SQLException e1) {
@@ -56,7 +54,7 @@ public class QueryCommand implements Command {
                     }
                     table.add(row);
                 }
-                String output = makeAsciiTable(header, table, null);
+                String output = MessageUtils.makeAsciiTable(header, table, null);
                 if (output.length() < 2000) {
                     channel.sendMessage(output).queue();
                 } else {
@@ -92,61 +90,4 @@ public class QueryCommand implements Command {
         return CommandType.HIDDEN;
     }
 
-    public static String makeAsciiTable(List<String> headers, List<List<String>> table, List<String> footer) {
-        StringBuilder sb = new StringBuilder();
-        int padding = 1;
-        int[] widths = new int[headers.size()];
-        for (int i = 0; i < widths.length; i++) {
-            widths[i] = 0;
-        }
-        for (int i = 0; i < headers.size(); i++) {
-            if (headers.get(i).length() > widths[i]) {
-                widths[i] = headers.get(i).length();
-                if (footer != null) {
-                    widths[i] = Math.max(widths[i], footer.get(i).length());
-                }
-            }
-        }
-        for (List<String> row : table) {
-            for (int i = 0; i < row.size(); i++) {
-                String cell = row.get(i);
-                if (cell.length() > widths[i]) {
-                    widths[i] = cell.length();
-                }
-            }
-        }
-        sb.append("```").append("\n");
-        String formatLine = "|";
-        for (int width : widths) {
-            formatLine += " %-" + width + "s |";
-        }
-        formatLine += "\n";
-        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        sb.append(String.format(formatLine, headers.toArray()));
-        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        for (List<String> row : table) {
-            sb.append(String.format(formatLine, row.toArray()));
-        }
-        if (footer != null) {
-            sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-            sb.append(String.format(formatLine, footer.toArray()));
-        }
-        sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        sb.append("```");
-        return sb.toString();
-    }
-
-    private static String appendSeparatorLine(String left, String middle, String right, int padding, int... sizes) {
-        boolean first = true;
-        StringBuilder ret = new StringBuilder();
-        for (int size : sizes) {
-            if (first) {
-                first = false;
-                ret.append(left).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
-            } else {
-                ret.append(middle).append(String.join("", Collections.nCopies(size + padding * 2, "-")));
-            }
-        }
-        return ret.append(right).append("\n").toString();
-    }
 }

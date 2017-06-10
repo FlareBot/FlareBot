@@ -1,18 +1,20 @@
 package stream.flarebot.flarebot.commands.administrator;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.User;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Parser;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
@@ -20,7 +22,7 @@ public class PermissionsCommand implements Command {
     @Override
     public void onCommand(net.dv8tion.jda.core.entities.User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
             return;
         }
         switch (args[0].toLowerCase()) {
@@ -147,7 +149,7 @@ public class PermissionsCommand implements Command {
                     }
                 break;
             default:
-                channel.sendMessage(getDescription()).queue();
+                MessageUtils.getUsage(this, channel, sender).queue();
                 break;
         }
     }
@@ -183,5 +185,10 @@ public class PermissionsCommand implements Command {
     @Override
     public boolean isDefaultPermission() {
         return false;
+    }
+
+    @Override
+    public EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.of(Permission.MANAGE_PERMISSIONS);
     }
 }
