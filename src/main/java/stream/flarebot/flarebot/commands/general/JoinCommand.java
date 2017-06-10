@@ -77,6 +77,11 @@ public class JoinCommand implements Command {
     }
 
     @Override
+    public String[] getAliases() {
+        return new String[]{"summon"};
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }

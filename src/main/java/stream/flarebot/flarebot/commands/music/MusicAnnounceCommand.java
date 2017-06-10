@@ -5,10 +5,10 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
@@ -86,7 +86,7 @@ public class MusicAnnounceCommand implements Command {
                 }
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 
@@ -102,7 +102,7 @@ public class MusicAnnounceCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}anounce <HERE|OFF>";
+        return "`{%}announce <here|off>` - Sets the music announce channel or turns it off";
     }
 
     @Override

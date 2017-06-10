@@ -11,7 +11,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
 

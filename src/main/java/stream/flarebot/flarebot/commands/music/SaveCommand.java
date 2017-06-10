@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class SaveCommand implements Command {
             return;
         }
 
-        String name = FlareBot.getMessage(args, 0);
+        String name = MessageUtils.getMessage(args, 0);
         if (name.length() > 20) {
             channel.sendMessage("Name must be up to 20 characters!").queue();
             return;

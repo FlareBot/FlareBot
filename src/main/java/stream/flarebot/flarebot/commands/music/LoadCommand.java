@@ -5,21 +5,21 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 public class LoadCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
             return;
         }
-        String name = FlareBot.getMessage(args, 0);
+        String name = MessageUtils.getMessage(args, 0);
 
         channel.sendTyping().complete();
 
@@ -34,12 +34,12 @@ public class LoadCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Loads a playlist. Usage `load NAME`";
+        return "Loads a playlist";
     }
 
     @Override
     public String getUsage() {
-        return "{%)load <playlist>";
+        return "`{%)load <playlist>` - Loads a playlist";
     }
 
     @Override

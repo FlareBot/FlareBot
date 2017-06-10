@@ -28,6 +28,7 @@ import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
@@ -119,7 +120,7 @@ public class Events extends ListenerAdapter {
                 .append(event.getGuild().getSelfMember().getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
-        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message);
+        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message.toString());
     }
 
     @Override
@@ -366,7 +367,11 @@ public class Events extends ListenerAdapter {
                     .getClientCloseFrame().getCloseReason()));
     }
 
-    private boolean handleMissingPermission(Command cmd, GenericGuildMessageEvent e) {
+    private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
+        if (cmd.getDiscordPermission() != null) {
+            if (e.getMember().getPermissions().containsAll(cmd.getDiscordPermission()))
+                return false;
+        }
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())

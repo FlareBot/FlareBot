@@ -4,10 +4,10 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 
 import java.sql.PreparedStatement;
@@ -21,7 +21,7 @@ public class DeleteCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
             return;
         }
         String name = "";
@@ -49,7 +49,7 @@ public class DeleteCommand implements Command {
                             .queue();
                 } else channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription(String
-                                .format("*The playlist %s never existed!", finalName))
+                                .format("*The playlist %s doesn't exist!", finalName))
                         .build()).queue();
             });
         } catch (SQLException e) {
@@ -64,12 +64,12 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Deletes a playlist. Usage `delete NAME`";
+        return "Deletes a playlist.";
     }
 
     @Override
     public String getUsage() {
-        return "{%}delete <playlist>";
+        return "`{%}delete <playlist>` - Deletes a playlist";
     }
 
     @Override

@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.entities.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.net.URLEncoder;
 

@@ -7,11 +7,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
 
@@ -30,11 +30,11 @@ public class SearchCommand implements Command {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();
             } else {
-                String term = FlareBot.getMessage(args, 0);
+                String term = MessageUtils.getMessage(args, 0);
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 

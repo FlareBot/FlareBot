@@ -5,12 +5,12 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
 
@@ -39,7 +39,7 @@ public class ModlogCommand implements Command {
         } else if (args.length == 3) {
 
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 
