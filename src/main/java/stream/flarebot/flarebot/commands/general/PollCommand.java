@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
@@ -14,6 +13,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.objects.PollOption;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
 
@@ -75,7 +75,7 @@ public class PollCommand implements Command {
                         .getPollFromGuild(channel.getGuild()).isOpen()) {
                     MessageUtils.sendErrorMessage("Close current poll, also make this message better", channel);
                 } else {
-                    String question = FlareBot.getMessage(args, 1);
+                    String question = MessageUtils.getMessage(args, 1);
                     manager.getPolls().put(guildId, new Poll(question));
                     channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null).setColor(Color.green)
                             .setAuthor(sender.getName(), null, sender
@@ -111,7 +111,7 @@ public class PollCommand implements Command {
                 if (args[1].equalsIgnoreCase("add")) {
                     if (perms.hasPermission(member, "flarebot.poll.options.add")) {
                         if (args.length >= 3) {
-                            String option = FlareBot.getMessage(args, 2);
+                            String option = MessageUtils.getMessage(args, 2);
                             Poll poll = manager.getPolls().get(channel.getGuild().getId());
                             poll.getPollOptions().add(new PollOption(option));
                             manager.getPolls().put(guildId, poll);

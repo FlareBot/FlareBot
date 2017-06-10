@@ -7,9 +7,9 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
 import java.util.List;
@@ -37,6 +37,7 @@ public class AutoModTracker extends ListenerAdapter {
         }.repeat(60_000, 60_000);
     }
 
+    @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake() || event
                 .getGuild() == null) return;

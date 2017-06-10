@@ -2,11 +2,12 @@ package stream.flarebot.flarebot.commands.administrator;
 
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,7 +23,7 @@ public class AutoAssignCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
                 if (flareBot.getAutoAssignRoles().containsKey(channel.getGuild().getId())) {
@@ -36,8 +37,8 @@ public class AutoAssignCommand implements Command {
                     sb.append("```");
                     channel.sendMessage(sb.toString()).queue();
                 } else {
-                    MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This server has no roles being assigned."), channel);
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("This server has no roles being assigned!").setColor(Color.RED).build(), 5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
@@ -104,7 +105,7 @@ public class AutoAssignCommand implements Command {
                         .getAsMention() + " Invalid argument!"), channel);
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 

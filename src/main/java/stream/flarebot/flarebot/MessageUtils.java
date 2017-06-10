@@ -1,13 +1,14 @@
 package stream.flarebot.flarebot;
 
+import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.*;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.HelpFormatter;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
@@ -17,14 +18,9 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class MessageUtils {
+    
     public static final String DEBUG_CHANNEL = "226786557862871040";
-    private static final Pattern INVITE_REGEX = Pattern
-            .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
-    private static final Pattern LINK_REGEX = Pattern
-            .compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
-    private static final Pattern YOUTUBE_LINK_REGEX = Pattern
-            .compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
-    private static final Pattern userDiscrim = Pattern.compile(".#[0-9]{4}");
+    private static final Pattern INVITE_REGEX = Pattern.compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
 
     public static <T> Consumer<T> noOpConsumer() {
         return t -> {
@@ -34,10 +30,14 @@ public class MessageUtils {
     public static int getLength(EmbedBuilder embed) {
         int len = 0;
         MessageEmbed e = embed.build();
-        if (e.getTitle() != null) len += e.getTitle().length();
-        if (e.getDescription() != null) len += e.getDescription().length();
-        if (e.getAuthor() != null) len += e.getAuthor().getName().length();
-        if (e.getFooter() != null) len += e.getFooter().getText().length();
+        if (e.getTitle() != null)
+            len += e.getTitle().length();
+        if (e.getDescription() != null)
+            len += e.getDescription().length();
+        if (e.getAuthor() != null)
+            len += e.getAuthor().getName().length();
+        if (e.getFooter() != null)
+            len += e.getFooter().getText().length();
         if (e.getFields() != null) {
             for (MessageEmbed.Field f : e.getFields()) {
                 len += f.getName().length() + f.getValue().length();
@@ -47,29 +47,40 @@ public class MessageUtils {
     }
 
     public static Message sendPM(User user, CharSequence message) {
-        return user.openPrivateChannel().complete()
-                .sendMessage(message.toString().substring(0, Math.min(message.length(), 1999))).complete();
+        return user.openPrivateChannel().complete().sendMessage(message.toString().substring(0, Math.min(message
+                .length(), 1999))).complete();
     }
 
     public static Message sendPM(User user, EmbedBuilder message) {
-        return user.openPrivateChannel().complete()
-                .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
+        return user.openPrivateChannel().complete().sendMessage(new MessageBuilder().setEmbed(message.build())
+                .append("\u200B")
+                .build()).complete();
+    }
+    
+    public static Message sendException(String s, MessageChannel channel) {
+        return sendException(s, null, channel);
     }
 
     public static Message sendException(String s, Throwable e, MessageChannel channel) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        String trace = sw.toString();
-        pw.close();
-        return sendErrorMessage(getEmbed().setDescription(s + "\n**Stack trace**: " + hastebin(trace)), channel);
+        String trace = s;
+        if(e != null){
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            trace = sw.toString();
+            pw.close();
+        }
+        return sendErrorMessage(getEmbed().setDescription((e != null ? s + "\n" : "") + "**Stack trace**: " + hastebin(trace)), channel);
     }
 
     public static String hastebin(String trace) {
         try {
             return "https://hastebin.com/" + Unirest.post("https://hastebin.com/documents")
                     .header("User-Agent", "Mozilla/5.0 FlareBot")
-                    .header("Content-Type", "text/plain").body(trace).asJson().getBody()
+                    .header("Content-Type", "text/plain")
+                    .body(trace)
+                    .asJson()
+                    .getBody()
                     .getObject().getString("key");
         } catch (UnirestException e) {
             FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
@@ -88,8 +99,9 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", FlareBot.getInstance().getClients()[0]
-                        .getSelfUser().getEffectiveAvatarUrl());
+                .setAuthor(FlareBot.getInstance().getClients()[0].getSelfUser().getName(),
+                        "https://github.com/FlareBot/FlareBot",
+                        FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl());
     }
 
     public static String getTag(User user) {
@@ -130,22 +142,6 @@ public class MessageUtils {
         return INVITE_REGEX.matcher(message.getRawContent()).find();
     }
 
-    public static boolean hasInvite(String message) {
-        return INVITE_REGEX.matcher(message).find();
-    }
-
-    public static boolean hasLink(Message message) {
-        return LINK_REGEX.matcher(message.getRawContent()).find();
-    }
-
-    public static boolean hasLink(String message) {
-        return LINK_REGEX.matcher(message).find();
-    }
-
-    public static boolean hasYouTubeLink(Message message) {
-        return YOUTUBE_LINK_REGEX.matcher(message.getRawContent()).find();
-    }
-
     public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel) {
         sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
     }
@@ -158,37 +154,5 @@ public class MessageUtils {
                 msg.delete().queue();
             }
         }.delay(delay);
-    }
-
-    public static void sendUsage(Command command, TextChannel channel) {
-        String title = capitalize(command.getCommand()) + " Usage";
-        String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
-        String permission = command.getPermission() + "\nDefault permission: " + command.isDefaultPermission();
-        channel.sendMessage(new EmbedBuilder().setTitle(title, null).addField("Usage", usage, false)
-                .addField("Permission", permission, false).setColor(Color.red).build())
-                .queue();
-    }
-
-    private static String capitalize(String s) {
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-    }
-
-    public static User getUser(String s) {
-        if (userDiscrim.matcher(s).find()) {
-            return FlareBot.getInstance().getUsers().stream()
-                    .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                    .findFirst().orElse(null);
-        } else {
-            User tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
-                    .findFirst().orElse(null);
-            if (tmp != null) return tmp;
-            try {
-                Long.parseLong(s.replaceAll("[^0-9]", ""));
-                tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
-                if (tmp != null) return tmp;
-            } catch (NumberFormatException e) {
-            }
-            return null;
-        }
     }
 }

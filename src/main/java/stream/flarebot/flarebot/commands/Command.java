@@ -1,9 +1,12 @@
 package stream.flarebot.flarebot.commands;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+
+import java.util.EnumSet;
 
 public interface Command {
 
@@ -19,6 +22,10 @@ public interface Command {
 
     default String getPermission() {
         return "flarebot." + getCommand();
+    }
+
+    default EnumSet<Permission> getDiscordPermission() {
+        return EnumSet.noneOf(Permission.class);
     }
 
     default String[] getAliases() {

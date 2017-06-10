@@ -6,13 +6,16 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.mod.Action;
 import stream.flarebot.flarebot.mod.AutoModConfig;
+<<<<<<< HEAD
 import stream.flarebot.flarebot.objects.GuildWrapper;
+=======
+import stream.flarebot.flarebot.util.MessageUtils;
+>>>>>>> data-restructure-merge
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
@@ -71,7 +74,7 @@ public class AutoModCommand implements Command {
                             .setDescription("Reset the punishments back to default")
                             .build()).queue();
                 } else {
-                    MessageUtils.sendUsage(this, channel);
+                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 //TODO: Walshy - Add this to usage when finished
@@ -96,7 +99,7 @@ public class AutoModCommand implements Command {
                 if (args.length >= 4) {
                     Action action = Action.getAction(args[2]);
                     if (action != null && action.canBeWhitelisted()) {
-                        String whitelist = FlareBot.getMessage(args, 3);
+                        String whitelist = MessageUtils.getMessage(args, 3);
 
                         FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).getWhitelist(action)
                                 .add(whitelist);

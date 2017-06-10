@@ -2,7 +2,7 @@ package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.entities.Message;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.HashMap;
 import java.util.Map;

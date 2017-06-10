@@ -5,18 +5,17 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 public class WelcomeCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("enable")) {
                 if (!guild.getWelcome().isEnabled()) {
@@ -50,22 +49,22 @@ public class WelcomeCommand implements Command {
                         (guild.getWelcome() == null ? "" : "The current message is: ```md\n"
                                 + guild.getWelcome().getMessage() + "```")).queue();
             } else {
-                MessageUtils.sendUsage(this, channel);
+                MessageUtils.getUsage(this, channel, sender).queue();
             }
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("message")) {
                 if (guild.getWelcome() != null) {
-                    String msg = FlareBot.getMessage(args, 1);
+                    String msg = MessageUtils.getMessage(args, 1);
                     guild.getWelcome().setMessage(msg);
                     channel.sendMessage("Set welcome message to ```" + msg + "```").queue();
                 } else {
                     channel.sendMessage("Welcomes are not enabled!").queue();
                 }
             } else {
-                MessageUtils.sendUsage(this, channel);
+                MessageUtils.getUsage(this, channel, sender).queue();
             }
         } else {
-            MessageUtils.sendUsage(this, channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 
