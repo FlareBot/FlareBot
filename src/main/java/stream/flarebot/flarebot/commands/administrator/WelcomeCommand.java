@@ -85,11 +85,11 @@ public class WelcomeCommand implements Command {
                         List<List<String>> body = new ArrayList<>();
                         int i = 0;
                         for (String messagesMessage : messagesSub) {
-                            i++;
                             List<String> part = new ArrayList<>();
                             part.add(String.valueOf(i));
                             part.add(messagesMessage);
                             body.add(part);
+                            i++;
                         }
                         List<String> header = new ArrayList<>();
                         header.add("Id");
