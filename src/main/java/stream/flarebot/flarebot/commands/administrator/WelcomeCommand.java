@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -60,11 +61,62 @@ public class WelcomeCommand implements Command {
             } else {
                 MessageUtils.getUsage(this, channel, sender).queue();
             }
-        } else if(args.length == 3){
-            if(args[2].equalsIgnoreCase("list")){
-                EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                List<List<String>> guildBody = new ArrayList<>();
-
+        } else if(args.length >= 3){
+            if(args[1].equalsIgnoreCase("message")){
+                if(args[2].equalsIgnoreCase("list")) {
+                    int page = args[3] == null ? 1 : Integer.valueOf(args[3]);
+                    List<String> messages;
+                    if (args[0].equalsIgnoreCase("dm")) {
+                        messages = guild.getWelcome().getDmMessages();
+                    } else if (args[0].equalsIgnoreCase("guild")) {
+                        messages = guild.getWelcome().getGuildMessages();
+                    } else {
+                        MessageUtils.getUsage(this, channel, sender).queue();
+                        return;
+                    }
+                    int messagesLength = 15;
+                    int pages = messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
+                    int start =  messagesLength * (page - 1);
+                    int end = Math.min(start + messagesLength, messages.size());
+                    if (page > pages || page < 0) {
+                        MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+                    } else {
+                        List<String> messagesSub = messages.subList(start, end);
+                        List<List<String>> body = new ArrayList<>();
+                        int i = 0;
+                        for (String messagesMessage : messagesSub) {
+                            i++;
+                            List<String> part = new ArrayList<>();
+                            part.add(String.valueOf(i));
+                            part.add(messagesMessage);
+                            body.add(part);
+                        }
+                        List<String> header = new ArrayList<>();
+                        header.add("Id");
+                        header.add("Message");
+                        channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Reports Page " + GeneralUtils.getPageOutOfTotal(page, messages, messagesLength))).queue();
+                    }
+                }else if(args[2].equalsIgnoreCase("add")){
+                    String welcomeMessage = MessageUtils.getMessage(args, 4);
+                    if(args[0].equalsIgnoreCase("dm")){
+                        guild.getWelcome().getDmMessages().add(welcomeMessage);
+                    } else if(args[0].equalsIgnoreCase("guild")){
+                        guild.getWelcome().getGuildMessages().add(welcomeMessage);
+                    } else {
+                        MessageUtils.getUsage(this, channel, sender).queue();
+                    }
+                } else if(args[2].equalsIgnoreCase("remove") && args.length == 4){
+                    int id = Integer.valueOf(args[3]);
+                    if(args[0].equalsIgnoreCase("dm")){
+                        guild.getWelcome().getDmMessages().remove(id);
+                    } else if(args[0].equalsIgnoreCase("guild")){
+                        guild.getWelcome().getGuildMessages().remove(id);
+                    }else {
+                        MessageUtils.getUsage(this, channel, sender).queue();
+                    }
+                } else {
+                    MessageUtils.getUsage(this, channel, sender).queue();
+                }
             } else {
                 MessageUtils.getUsage(this, channel, sender).queue();
             }
