@@ -38,6 +38,7 @@ public class EvalCommand implements Command {
             "java.util.streams",
             "java.util",
             "java.text",
+            "java.lang",
             "java.math",
             "java.time",
             "java.io",
