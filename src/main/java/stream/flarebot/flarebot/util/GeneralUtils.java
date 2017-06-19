@@ -86,7 +86,7 @@ public class GeneralUtils {
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, YoutubeAccessException {
         Optional<AudioItem> item = Optional.empty();
         boolean failed = false;
-        for (int i = 0; i <= 3; i++) {
+        for (int i = 0; i <= 2; i++) {
             try {
                 item = Optional.ofNullable(player.resolve(input));
                 failed = false;
@@ -94,10 +94,10 @@ public class GeneralUtils {
                 failed = true;
             }
         }
-        if (!item.isPresent()) {
-            throw new IllegalArgumentException();
-        } else if (failed) {
+        if (failed) {
             throw new YoutubeAccessException();
+        } else if (!item.isPresent()) {
+            throw new IllegalArgumentException();
         }
         return item.get();
     }
