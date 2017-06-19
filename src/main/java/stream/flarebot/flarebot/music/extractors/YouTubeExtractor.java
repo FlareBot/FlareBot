@@ -11,10 +11,14 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.errors.YoutubeAccessException;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class YouTubeExtractor implements Extractor {
@@ -32,18 +36,20 @@ public class YouTubeExtractor implements Extractor {
     public void process(String input, Player player, Message message, User user) throws Exception {
         AudioItem item;
         try {
-            item = player.resolve(input);
-            if (item == null) {
-                MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                        .setDescription("Could not get that video/playlist! Make sure the URL is correct!"), message);
-                return;
-            }
-        } catch (RuntimeException e) {
+            item = GeneralUtils.resolveItem(player, input);
+        } catch (IllegalArgumentException e) {
             MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                    .setDescription("Could not get that video/playlist!")
-                    .addField("YouTube said: ", e.getMessage(), true), message);
+                    .setDescription("Could not get that video/playlist! Make sure the URL is correct!")
+                    .setColor(Color.RED), message);
+            return;
+        } catch (YoutubeAccessException e) {
+            MessageUtils.editMessage(MessageUtils.getEmbed(user)
+                    .setDescription("Youtube could not be reached! Try again in a few minutes!\n" +
+                            "If the error continues, join our support discord: https://discord.gg/TTAUGvZ")
+                    .setColor(Color.RED), message);
             return;
         }
+
         List<AudioTrack> audioTracks = new ArrayList<>();
         String name;
         if (item instanceof AudioPlaylist) {

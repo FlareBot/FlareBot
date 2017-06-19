@@ -1,18 +1,28 @@
 package stream.flarebot.flarebot.util;
 
+import com.arsenarsen.lavaplayerbridge.player.Item;
+import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.errors.YoutubeAccessException;
 import stream.flarebot.flarebot.objects.Report;
 
+import javax.swing.text.html.Option;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.IntStream;
 
 public class GeneralUtils {
 
@@ -72,4 +82,24 @@ public class GeneralUtils {
         String prefix = String.valueOf(get(channel));
         return usage.replaceAll("\\{%\\}", prefix);
     }
+
+    public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, YoutubeAccessException {
+        Optional<AudioItem> item = Optional.empty();
+        boolean failed = false;
+        for (int i = 0; i <= 3l; i++) {
+            try {
+                item = Optional.ofNullable(player.resolve(input));
+                failed = false;
+            } catch (FriendlyException | InterruptedException | ExecutionException e) {
+                failed = true;
+            }
+        }
+        if (!item.isPresent()) {
+            throw new IllegalArgumentException();
+        } else if (failed) {
+            throw new YoutubeAccessException();
+        }
+        return item.get();
+    }
+
 }
