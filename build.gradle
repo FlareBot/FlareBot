@@ -7,12 +7,6 @@ plugins {
 
 import org.apache.tools.ant.filters.ReplaceTokens
 
-processResources {
-    filter ReplaceTokens, tokens: [
-            'version': project.property('version')
-    ]
-}
-
 group = 'stream.flarebot'
 version = '2.7.1-SNAPSHOT'
 
@@ -30,6 +24,7 @@ repositories {
     maven { url "https://repo.arsenarsen.com/content/repositories/snapshots/" }
     maven { url "http://repo.maven.apache.org/maven2" }
 }
+
 dependencies {
     compile(group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.4') {
         exclude(module: 'JDA')
@@ -50,6 +45,12 @@ dependencies {
     compile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
     compile group: 'joda-time', name: 'joda-time', version: '2.8'
     compile group: 'com.sparkjava', name: 'spark-core', version: '2.5.4'
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            'version': project.property('version')
+    ]
 }
 
 compileJava.options.encoding = 'UTF-8'
