@@ -16,6 +16,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
+import java.util.stream.Collectors;
 
 public class SelfAssignCommand implements Command {
 
@@ -43,16 +44,17 @@ public class SelfAssignCommand implements Command {
                             5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
-                StringBuilder sb = new StringBuilder();
                 if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).isEmpty()) {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 5000, channel);
                     return;
                 }
-                sb.append("**Self assignable roles**").append("\n```\n");
-                FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).forEach(role -> sb.append(channel.getGuild().getRoleById(role).getName()).append(" (")
-                        .append(role).append(")\n"));
-                sb.append("```");
-                channel.sendMessage(sb.toString()).queue();
+                String base = "**Self assignable roles**\n```\n";
+                base += FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId())
+                        .stream().filter(roleId -> channel.getGuild().getRoleById(roleId) != null)
+                        .map(roleId -> channel.getGuild().getRoleById(roleId).getName() + " (" + roleId + ")")
+                        .collect(Collectors.joining("\n"));
+                base += "```";
+                channel.sendMessage(base).queue();
             } else {
                 String roleId;
                 try {
