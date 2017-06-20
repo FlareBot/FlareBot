@@ -39,10 +39,10 @@ public class LocalConfig {
             String subpath = subpaths[i];
             if (json.get(subpath) == null) {
                 return null;
-            } else if (this.object.get(subpath) instanceof JSONObject) {
+            } else if (json.get(subpath) instanceof JSONObject) {
                 return getString((JSONObject) this.object.get(subpath), Arrays.stream(subpaths).skip(i + 1).collect(Collectors.joining(".")));
             } else {
-                return (String) this.object.get(subpath);
+                return (String) json.get(subpath);
             }
         }
         return null;
