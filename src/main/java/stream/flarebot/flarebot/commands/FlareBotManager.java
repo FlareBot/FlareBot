@@ -41,7 +41,7 @@ public class FlareBotManager {
     private Map<String, Language.Locales> locale = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
-    private Map<Language.Locales, LocalConfig> configs;
+    private Map<Language.Locales, LocalConfig> configs = new ConcurrentHashMap<>();
 
     private Map<String, GuildWrapper> guilds = new ConcurrentHashMap<>();
 
