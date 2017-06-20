@@ -7,8 +7,8 @@
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="stream.flarebot.flarebot.util.ErrorCatcher"/>
         <filter class="stream.flarebot.flarebot.util.Filter"/>
+        <filter class="stream.flarebot.flarebot.util.ErrorCatcher"/>
         <encoder>
             <pattern>[%d{yyyy.MM.dd HH:mm:ss} %t %-5level] %msg%n</pattern>
         </encoder>

@@ -5,8 +5,11 @@ import ch.qos.logback.core.spi.FilterReply;
 
 public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
     private static final String[] blacklist = {
-            "nulldm;kadsdndnakdndnlasdnadnasdnsdnsdnadadnasddn"
-            // Nothing yet :D
+
+    };
+
+    private static final String[] threadBlacklist = {
+            "lava-daemon-pool"
     };
 
     @Override
@@ -16,6 +19,12 @@ public class Filter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
             msg = "null";
         for (String prefix : blacklist) {
             if (msg.startsWith(prefix)) {
+                return FilterReply.DENY;
+            }
+        }
+        String thread = event.getThreadName();
+        for (String prefix : threadBlacklist) {
+            if (thread.startsWith(prefix)) {
                 return FilterReply.DENY;
             }
         }
