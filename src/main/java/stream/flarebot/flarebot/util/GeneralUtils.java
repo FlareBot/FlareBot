@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.util;
 
-import com.arsenarsen.lavaplayerbridge.player.Item;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -11,18 +10,14 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.errors.YoutubeAccessException;
 import stream.flarebot.flarebot.objects.Report;
 
-import javax.swing.text.html.Option;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.IntStream;
 
 public class GeneralUtils {
 
@@ -83,7 +78,7 @@ public class GeneralUtils {
         return usage.replaceAll("\\{%\\}", prefix);
     }
 
-    public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, YoutubeAccessException {
+    public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
         Optional<AudioItem> item = Optional.empty();
         boolean failed = false;
         for (int i = 0; i <= 2; i++) {
@@ -96,7 +91,7 @@ public class GeneralUtils {
             }
         }
         if (failed) {
-            throw new YoutubeAccessException();
+            throw new IllegalStateException();
         } else if (!item.isPresent()) {
             throw new IllegalArgumentException();
         }
