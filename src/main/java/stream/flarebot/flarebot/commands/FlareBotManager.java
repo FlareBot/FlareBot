@@ -7,6 +7,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
@@ -39,7 +40,7 @@ public class FlareBotManager {
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
     private Map<String, AutoModGuild> autoMod = new ConcurrentHashMap<>();
     private Map<String, Language.Locales> locale = new ConcurrentHashMap<>();
-    private Map<String, String> blockedGuilds = new ConcurrentHashMap<String, String>();
+    private Set<String> blockedGuilds = new ConcurrentHashSet<>();
     private Set<String> profanitySet = new HashSet<>();
     private Map<Language.Locales, LocalConfig> configs;
 
@@ -108,7 +109,7 @@ public class FlareBotManager {
                 conn.createStatement()
                         .execute("CREATE TABLE IF NOT EXISTS reports (id INT NOT NULL PRIMARY KEY, guild_id VARCHAR(20), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), status INT(2))");
                 conn.createStatement()
-                        .execute("CREATE TABLE IF NOT EXISTS guild_disable (guild_id VARCHAR(20), reason TEXT)");
+                        .execute("CREATE TABLE IF NOT EXISTS guild_disable (guild_id VARCHAR(20))");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -303,33 +304,30 @@ public class FlareBotManager {
         }
     }
 
-    public Map<String, String> getBlockedGuilds() {
+    public Set<String> getBlockedGuilds() {
         return blockedGuilds;
     }
 
-    public String getBlockedReason(String guildID) {
-        return blockedGuilds.getOrDefault(guildID, null);
-    }
-
-    public void addBlockedGuild(String guildID, String reason) {
-        blockedGuilds.computeIfAbsent(guildID, a -> reason);
+    public void addBlockedGuild(String guildID) {
+        blockedGuilds.add(guildID);
     }
 
     public void removeBlockedGuild(String guildID) {
-        blockedGuilds.computeIfPresent(guildID, (id, reason) -> null);
+        if (blockedGuilds.contains(guildID)) {
+            blockedGuilds.remove(guildID);
+        }
     }
 
     public boolean isBlockedGuild(String guildID) {
-        return blockedGuilds.containsKey(guildID);
+        return blockedGuilds.contains(guildID);
     }
 
     public void saveBlockedGuilds() {
-        for (Map.Entry<String, String> entry : blockedGuilds.entrySet()) {
+        for (String guildId : blockedGuilds) {
             try {
                 SQLController.runSqlTask(conn -> {
-                    PreparedStatement stat = conn.prepareStatement("INSERT INTO guild_disable (guild_id, reason) VALUES (?, ?)");
-                    stat.setString(1, entry.getKey());
-                    stat.setString(2, entry.getValue());
+                    PreparedStatement stat = conn.prepareStatement("INSERT INTO guild_disable (guild_id) VALUES (?)");
+                    stat.setString(1, guildId);
                     stat.execute();
                 });
             } catch (SQLException e) {
@@ -343,7 +341,7 @@ public class FlareBotManager {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT * FROM guild_disable");
                 while (set.next()) {
-                    blockedGuilds.put(set.getString(1), set.getString(2));
+                    blockedGuilds.add(set.getString(1));
                 }
             });
         } catch (SQLException e) {
