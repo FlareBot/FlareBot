@@ -519,6 +519,7 @@ public class FlareBot {
         registerCommand(new ReportCommand());
         registerCommand(new ShardInfoCommand());
         registerCommand(new SongNickCommand());
+        registerCommand(new GuildCommand());
 
         ApiFactory.bind();
 
