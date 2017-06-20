@@ -15,10 +15,9 @@ import stream.flarebot.flarebot.errors.YoutubeAccessException;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class YouTubeExtractor implements Extractor {
