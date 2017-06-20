@@ -1,21 +1,24 @@
 package stream.flarebot.flarebot.util;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import stream.flarebot.flarebot.FlareBot;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class LocalConfig {
 
     private final Gson gson = FlareBot.GSON;
     private final JsonParser parser = new JsonParser();
 
-    private JsonObject object;
+    private JSONObject object;
 
     public LocalConfig(URL url) {
 
@@ -23,109 +26,41 @@ public class LocalConfig {
             throw new IllegalArgumentException("URL cannot be null!");
 
         try (Reader r = new InputStreamReader(url.openStream())) {
-            JsonElement element = new JsonParser().parse(r);
-            if (element != null && !element.isJsonNull() && element.getAsJsonObject() != null)
-                this.object = element.getAsJsonObject();
-            else
-                this.object = new JsonObject();
+            JSONTokener tokener = new JSONTokener(r);
+            this.object = new JSONObject(tokener);
         } catch (IOException e) {
             FlareBot.LOGGER.error("There was an error reading the config file!", e);
         }
     }
 
-    public JsonElement getElement(String s) {
-        if (this.object.has(s)) {
-            return this.object.get(s);
-        } else {
-            if (s.contains(".")) {
-                String[] split = s.split("\\.");
-                JsonObject element = object.getAsJsonObject();
-                for (String subPath : split) {
-                    if (element.has(subPath)) {
-                        if (element.get(subPath).isJsonObject() && !(split[split.length - 1].equals(subPath))) {
-                            element = element.get(subPath).getAsJsonObject();
-                            continue;
-                        }
-                        return element.get(subPath);
-                    } else {
-                        throw new IllegalArgumentException("The specified member does not exist! Passed path '" + s + "', none-existent path: '" + subPath + "'");
-                    }
-                }
+    public String getString(JSONObject json, String path) {
+        String[] subpaths = path.split("\\.");
+        for (int i = 0; i < subpaths.length; i++) {
+            String subpath = subpaths[i];
+            if (json.get(subpath) == null) {
+                return null;
+            } else if (this.object.get(subpath) instanceof JSONObject) {
+                return getString((JSONObject) this.object.get(subpath), Arrays.stream(subpaths).skip(i + 1).collect(Collectors.joining(".")));
             } else {
-                throw new IllegalArgumentException("The specified member does not exist! Passed path '" + s + "'");
+                return (String) this.object.get(subpath);
             }
         }
         return null;
     }
 
-    public JsonElement getElement(String path, JsonElement jsonElement) {
-        if (this.object.has(path)) {
-            return this.object.get(path);
-        } else {
-            if (path.contains(".")) {
-                String[] split = path.split("\\.");
-                String lastSubPath = path.substring(path.lastIndexOf('.') + 1);
-                JsonObject element = object;
-                for (int i = 0; i < split.length; i++) {
-                    String subPath = split[i];
-                    if (element.has(subPath)) {
-                        if (element.get(subPath).isJsonObject() && !(lastSubPath.equals(subPath))) {
-                            element = element.get(subPath).getAsJsonObject();
-                            continue;
-                        }
-                        return element.get(subPath);
-                    } else {
-                        if (subPath.equals(lastSubPath)) {
-                            element.add(subPath, jsonElement);
-                            return element.get(subPath);
-                        } else {
-                            element.add(subPath, jsonElement);
-                            if (element.get(subPath).isJsonObject())
-                                element = element.get(subPath).getAsJsonObject();
-                        }
-
-                    }
-                }
-                return element;
-            } else {
-                object.add(path, jsonElement);
-                return object.get(path);
-                //throw new IllegalArgumentException("The specified member does not exist! Passed path '" + path + "'");
-            }
-        }
-    }
-
-    public String getString(String s) {
-        return this.getElement(s).getAsString();
-    }
-
-    public int getInt(String s) {
-        return this.getElement(s).getAsInt();
-    }
-
-    public List<String> getStringList(String s) {
-        List<String> list = new ArrayList<>();
-        this.getElement(s).getAsJsonArray().forEach(element -> list.add(element.getAsString()));
-        return list;
-    }
-
-    public JsonArray getArray(String s) {
-        return this.getElement(s).getAsJsonArray();
-    }
-
-    public JsonObject getObject(String s) {
-        return this.getElement(s).getAsJsonObject();
+    public String getString(String path) {
+        return getString(this.object, path);
     }
 
     public boolean exists(String s) {
         try {
-            return getElement(s) != null;
+            return getString(this.object, s) != null;
         } catch (IllegalArgumentException e) {
             return false;
         }
     }
 
-    public JsonObject getJsonObject() {
+    public JSONObject getJsonObject() {
         return object;
     }
 }
