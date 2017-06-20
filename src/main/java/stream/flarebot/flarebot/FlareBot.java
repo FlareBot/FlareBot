@@ -274,6 +274,7 @@ public class FlareBot {
 
     public void init(String tkn) throws InterruptedException, UnirestException {
         token = tkn;
+        manager = new FlareBotManager();
         RestAction.DEFAULT_FAILURE = t -> {
         };
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
@@ -420,7 +421,6 @@ public class FlareBot {
             }
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 
-        manager = new FlareBotManager();
         manager.loadRandomSongs();
         manager.loadProfanity();
         manager.loadAutoMod();
@@ -537,6 +537,7 @@ public class FlareBot {
                     getPermissions().save();
                     //saveWelcomes();
                     manager.saveLocalisation();
+                    manager.saveBlockedGuilds();
                 } catch (IOException e) {
                     LOGGER.error("Could not save permissions!", e);
                 }
