@@ -192,7 +192,6 @@ public class Events extends ListenerAdapter {
         cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
-        if (FlareBotManager.getInstance().isBlockedGuild(event.getGuild().getId())) return;
         if(FlareBot.getPrefixes() == null) return;
         if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
                 && !event.getAuthor().isBot()) {
@@ -247,6 +246,9 @@ public class Events extends ListenerAdapter {
                             }
                             return;
                         }
+                    }
+                    if (FlareBotManager.getInstance().isBlockedGuild(event.getGuild().getId()) && !(cmd.getType() == CommandType.HIDDEN)) {
+                        return;
                     }
                     if (UpdateCommand.UPDATING.get()) {
                         event.getChannel().sendMessage("**Currently updating!**").queue();
