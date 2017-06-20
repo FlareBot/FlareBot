@@ -38,12 +38,12 @@ public class YouTubeExtractor implements Extractor {
         try {
             item = GeneralUtils.resolveItem(player, input);
         } catch (IllegalArgumentException e) {
-            MessageUtils.editMessage(MessageUtils.getEmbed(user)
+            MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                     .setDescription("Could not get that video/playlist! Make sure the URL is correct!")
                     .setColor(Color.RED), message);
             return;
         } catch (YoutubeAccessException e) {
-            MessageUtils.editMessage(MessageUtils.getEmbed(user)
+            MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                     .setDescription("Youtube could not be reached! Try again in a few minutes!\n" +
                             "If the error continues, join our support discord: https://discord.gg/TTAUGvZ")
                     .setColor(Color.RED), message);
