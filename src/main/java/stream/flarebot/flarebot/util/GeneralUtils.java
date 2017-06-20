@@ -90,6 +90,7 @@ public class GeneralUtils {
             try {
                 item = Optional.ofNullable(player.resolve(input));
                 failed = false;
+                break;
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
             }
