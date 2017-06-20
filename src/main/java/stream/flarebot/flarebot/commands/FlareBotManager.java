@@ -39,7 +39,7 @@ public class FlareBotManager {
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
     private Map<String, AutoModGuild> autoMod = new ConcurrentHashMap<>();
     private Map<String, Language.Locales> locale = new ConcurrentHashMap<>();
-
+    private Map<String, String> blockedGuilds = new ConcurrentHashMap<String, String>();
     private Set<String> profanitySet = new HashSet<>();
     private Map<Language.Locales, LocalConfig> configs;
 
@@ -107,6 +107,8 @@ public class FlareBotManager {
                         .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
                 conn.createStatement()
                         .execute("CREATE TABLE IF NOT EXISTS reports (id INT NOT NULL PRIMARY KEY, guild_id VARCHAR(20), time DATETIME, message VARCHAR(500), reporter_id VARCHAR(20), reported_id VARCHAR(20), status INT(2))");
+                conn.createStatement()
+                        .execute("CREATE TABLE IF NOT EXISTS guild_disable (guild_id VARCHAR(20), reason TEXT)");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -300,6 +302,55 @@ public class FlareBotManager {
             }
         }
     }
+
+    public Map<String, String> getBlockedGuilds() {
+        return blockedGuilds;
+    }
+
+    public String getBlockedReason(String guildID) {
+        return blockedGuilds.getOrDefault(guildID, null);
+    }
+
+    public void addBlockedGuild(String guildID, String reason) {
+        blockedGuilds.computeIfAbsent(guildID, a -> reason);
+    }
+
+    public void removeBlockedGuild(String guildID) {
+        blockedGuilds.computeIfPresent(guildID, (id, reason) -> null);
+    }
+
+    public boolean isBlockedGuild(String guildID) {
+        return blockedGuilds.containsKey(guildID);
+    }
+
+    public void saveBlockedGuilds() {
+        for (Map.Entry<String, String> entry : blockedGuilds.entrySet()) {
+            try {
+                SQLController.runSqlTask(conn -> {
+                    PreparedStatement stat = conn.prepareStatement("INSERT INTO guild_disable (guild_id, reason) VALUES (?, ?)");
+                    stat.setString(1, entry.getKey());
+                    stat.setString(2, entry.getValue());
+                    stat.execute();
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void loadBlockedGuilds() {
+        try {
+            SQLController.runSqlTask(conn -> {
+                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM guild_disable");
+                while (set.next()) {
+                    blockedGuilds.put(set.getString(1), set.getString(2));
+                }
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 
 

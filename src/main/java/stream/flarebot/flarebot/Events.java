@@ -71,6 +71,7 @@ public class Events extends ListenerAdapter {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
+        if (FlareBotManager.getInstance().isBlockedGuild(event.getGuild().getId())) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
@@ -191,6 +192,7 @@ public class Events extends ListenerAdapter {
         cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
+        if (FlareBotManager.getInstance().isBlockedGuild(event.getGuild().getId())) return;
         if(FlareBot.getPrefixes() == null) return;
         if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
                 && !event.getAuthor().isBot()) {
