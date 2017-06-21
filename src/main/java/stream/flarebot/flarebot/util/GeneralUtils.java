@@ -81,6 +81,7 @@ public class GeneralUtils {
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
         Optional<AudioItem> item = Optional.empty();
         boolean failed = false;
+        int backoff = 2;
         for (int i = 0; i <= 2; i++) {
             try {
                 item = Optional.ofNullable(player.resolve(input));
@@ -88,6 +89,10 @@ public class GeneralUtils {
                 break;
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
+                try {
+                    Thread.sleep(backoff);
+                } catch (InterruptedException ignored) {}
+                backoff *= 2;
             }
         }
         if (failed) {
