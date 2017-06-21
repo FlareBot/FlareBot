@@ -92,7 +92,7 @@ public class GeneralUtils {
                 try {
                     Thread.sleep(backoff);
                 } catch (InterruptedException ignored) {}
-                backoff *= 2;
+                backoff ^= 2;
             }
         }
         if (failed) {
