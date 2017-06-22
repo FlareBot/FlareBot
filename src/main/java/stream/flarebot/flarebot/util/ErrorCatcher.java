@@ -30,6 +30,9 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 && FlareBot.getInstance().isReady()
                 && event.getLevel() == Level.ERROR) {
             String finalMsg = msg;
+            if (event.getThreadName().startsWith("lava-daemon-pool")) {
+                return FilterReply.NEUTRAL;
+            }
             EXECUTOR.submit(() -> {
                 Throwable throwable = null;
                 if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
