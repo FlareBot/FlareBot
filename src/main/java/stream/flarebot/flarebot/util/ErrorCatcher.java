@@ -25,14 +25,14 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
         String msg = event.getFormattedMessage();
         if (msg == null)
             msg = "null";
-        if (event.getThreadName().startsWith("lava-daemon-pool")){
-            return FilterReply.NEUTRAL;
-        }
         if (event.getMarker() != Markers.NO_ANNOUNCE
                 && FlareBot.getInstance() != null
                 && FlareBot.getInstance().isReady()
                 && event.getLevel() == Level.ERROR) {
             String finalMsg = msg;
+            if (event.getThreadName().startsWith("lava-daemon-pool")) {
+                return FilterReply.NEUTRAL;
+            }
             EXECUTOR.submit(() -> {
                 Throwable throwable = null;
                 if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
