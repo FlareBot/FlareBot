@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -15,7 +14,8 @@ import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
+import java.util.Iterator;
 
 public class SelfAssignCommand implements Command {
 
@@ -43,16 +43,25 @@ public class SelfAssignCommand implements Command {
                             5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
-                StringBuilder sb = new StringBuilder();
                 if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).isEmpty()) {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 5000, channel);
                     return;
                 }
-                sb.append("**Self assignable roles**").append("\n```\n");
-                FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).forEach(role -> sb.append(channel.getGuild().getRoleById(role).getName()).append(" (")
-                        .append(role).append(")\n"));
-                sb.append("```");
-                channel.sendMessage(sb.toString()).queue();
+                String base = "**Self assignable roles**\n```\n";
+                Iterator<String> iter =
+                        FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).iterator();
+                while (iter.hasNext()) {
+                    String roleId = iter.next();
+                    if (roleId.isEmpty()) {
+                        iter.remove();
+                        continue;
+                    }
+                    if (channel.getGuild().getRoleById(roleId) != null)
+                        base += channel.getGuild().getRoleById(roleId).getName() + " (" + roleId + ")\n";
+                    else iter.remove();
+                }
+                base += "```";
+                channel.sendMessage(base).queue();
             } else {
                 String roleId;
                 try {
@@ -157,13 +166,13 @@ public class SelfAssignCommand implements Command {
             if (!member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
                 channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
                 MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild()
-                    .getRoleById(roleId).getName() + "` to yourself!").setColor(Color.green).build()).build(), 30_000, channel);
+                        .getRoleById(roleId).getName() + "` to yourself!").setColor(Color.green).build()).build(), 30_000, channel);
             } else {
                 channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId)).queue();
                 MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild()
-                    .getRoleById(roleId).getName() + "` from yourself!").setColor(Color.orange).build()).build(), 30_000, channel);
+                        .getRoleById(roleId).getName() + "` from yourself!").setColor(Color.orange).build()).build(), 30_000, channel);
             }
-        } catch(PermissionException e) {
+        } catch (PermissionException e) {
             MessageUtils.sendErrorMessage(e.getMessage() + "\nContact a server administrator!", channel);
         }
     }

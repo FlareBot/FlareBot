@@ -18,6 +18,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.json.JSONObject;
@@ -365,6 +366,13 @@ public class Events extends ListenerAdapter {
             FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
                     .getCloseCode(), event
                     .getClientCloseFrame().getCloseReason()));
+    }
+
+    @Override
+    public void onRoleDelete(RoleDeleteEvent event) {
+        if (FlareBotManager.getInstance().getSelfAssignRoles(event.getGuild().getId()).contains(event.getRole().getId())) {
+            FlareBotManager.getInstance().getSelfAssignRoles(event.getGuild().getId()).remove(event.getRole().getId());
+        }
     }
 
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
