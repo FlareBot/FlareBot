@@ -19,106 +19,146 @@ public class WelcomeCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 1){
+        if (args.length == 1) {
             MessageUtils.getUsage(this, channel, sender).queue();
-        } else if(args.length == 2){
-            if(args[1].equalsIgnoreCase("enable")){
-                if(args[0].equalsIgnoreCase("dm")){
-                    if(guild.getWelcome().isDmEnabled()){
+        } else {
+            //New system
+            if(args[0].equalsIgnoreCase("dm")){
+                if (args[1].equalsIgnoreCase("enable")) {
+                    if (guild.getWelcome().isDmEnabled()) {
                         guild.getWelcome().setDmEnabled(true);
                         channel.sendMessage("DM welcomes are now **enabled**").queue();
                     } else {
                         MessageUtils.sendErrorMessage("DM welcomes are already **enabled**", channel);
                     }
-                } else if(args[0].equalsIgnoreCase("guild")){
-                    if(guild.getWelcome().isGuildEnabled()){
-                        guild.getWelcome().setGuildEnabled(true);
-                        channel.sendMessage("Guild welcomes are now **enabled**").queue();
-                    }else {
-                        MessageUtils.sendErrorMessage("Guild welcomes are already **enabled**", channel);
-                    }
-                } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
-                }
-            } else if(args[1].equalsIgnoreCase("disable")){
-                if(args[0].equalsIgnoreCase("dm")){
-                    if(!guild.getWelcome().isDmEnabled()){
+                } else if (args[1].equalsIgnoreCase("disable")) {
+                    if (!guild.getWelcome().isDmEnabled()) {
                         guild.getWelcome().setDmEnabled(false);
                         channel.sendMessage("DM welcomes are now **disabled**").queue();
                     } else {
                         MessageUtils.sendErrorMessage("DM welcomes are already **disabled**", channel);
                     }
-                } else if(args[0].equalsIgnoreCase("guild")){
-                    if(!guild.getWelcome().isGuildEnabled()){
+                }
+            } else if(args[0].equalsIgnoreCase("guild")){
+                if (args[1].equalsIgnoreCase("enable")) {
+                    if (guild.getWelcome().isGuildEnabled()) {
+                        guild.getWelcome().setGuildEnabled(true);
+                        channel.sendMessage("Guild welcomes are now **enabled**").queue();
+                    } else {
+                        MessageUtils.sendErrorMessage("Guild welcomes are already **enabled**", channel);
+                    }
+                } else if (args[1].equalsIgnoreCase("disable")) {
+                    if (!guild.getWelcome().isGuildEnabled()) {
                         guild.getWelcome().setGuildEnabled(false);
                         channel.sendMessage("Guild welcomes are now **disabled**").queue();
-                    }else {
+                    } else {
                         MessageUtils.sendErrorMessage("Guild welcomes are already **disabled**", channel);
                     }
-                } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
                 }
             } else {
                 MessageUtils.getUsage(this, channel, sender).queue();
             }
-        } else if(args.length >= 3){
-            if(args[1].equalsIgnoreCase("message")){
-                if(args[2].equalsIgnoreCase("list")) {
-                    int page = args[3] == null ? 1 : Integer.valueOf(args[3]);
-                    List<String> messages;
+
+            //Old system
+            if (args.length == 2) {
+                if (args[1].equalsIgnoreCase("enable")) {
                     if (args[0].equalsIgnoreCase("dm")) {
-                        messages = guild.getWelcome().getDmMessages();
-                    } else if (args[0].equalsIgnoreCase("guild")) {
-                        messages = guild.getWelcome().getGuildMessages();
-                    } else {
-                        MessageUtils.getUsage(this, channel, sender).queue();
-                        return;
-                    }
-                    int messagesLength = 15;
-                    int pages = messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
-                    int start =  messagesLength * (page - 1);
-                    int end = Math.min(start + messagesLength, messages.size());
-                    if (page > pages || page < 0) {
-                        MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-                    } else {
-                        List<String> messagesSub = messages.subList(start, end);
-                        List<List<String>> body = new ArrayList<>();
-                        int i = 0;
-                        for (String messagesMessage : messagesSub) {
-                            List<String> part = new ArrayList<>();
-                            part.add(String.valueOf(i));
-                            part.add(messagesMessage);
-                            body.add(part);
-                            i++;
+                        if (guild.getWelcome().isDmEnabled()) {
+                            guild.getWelcome().setDmEnabled(true);
+                            channel.sendMessage("DM welcomes are now **enabled**").queue();
+                        } else {
+                            MessageUtils.sendErrorMessage("DM welcomes are already **enabled**", channel);
                         }
-                        List<String> header = new ArrayList<>();
-                        header.add("Id");
-                        header.add("Message");
-                        channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Reports Page " + GeneralUtils.getPageOutOfTotal(page, messages, messagesLength))).queue();
-                    }
-                }else if(args[2].equalsIgnoreCase("add")){
-                    String welcomeMessage = MessageUtils.getMessage(args, 4);
-                    if(args[0].equalsIgnoreCase("dm")){
-                        guild.getWelcome().getDmMessages().add(welcomeMessage);
-                    } else if(args[0].equalsIgnoreCase("guild")){
-                        guild.getWelcome().getGuildMessages().add(welcomeMessage);
+                    } else if (args[0].equalsIgnoreCase("guild")) {
+                        if (guild.getWelcome().isGuildEnabled()) {
+                            guild.getWelcome().setGuildEnabled(true);
+                            channel.sendMessage("Guild welcomes are now **enabled**").queue();
+                        } else {
+                            MessageUtils.sendErrorMessage("Guild welcomes are already **enabled**", channel);
+                        }
                     } else {
                         MessageUtils.getUsage(this, channel, sender).queue();
                     }
-                } else if(args[2].equalsIgnoreCase("remove") && args.length == 4){
-                    int id = Integer.valueOf(args[3]);
-                    if(args[0].equalsIgnoreCase("dm")){
-                        guild.getWelcome().getDmMessages().remove(id);
-                    } else if(args[0].equalsIgnoreCase("guild")){
-                        guild.getWelcome().getGuildMessages().remove(id);
-                    }else {
+                } else if (args[1].equalsIgnoreCase("disable")) {
+                    if (args[0].equalsIgnoreCase("dm")) {
+                        if (!guild.getWelcome().isDmEnabled()) {
+                            guild.getWelcome().setDmEnabled(false);
+                            channel.sendMessage("DM welcomes are now **disabled**").queue();
+                        } else {
+                            MessageUtils.sendErrorMessage("DM welcomes are already **disabled**", channel);
+                        }
+                    } else if (args[0].equalsIgnoreCase("guild")) {
+                        if (!guild.getWelcome().isGuildEnabled()) {
+                            guild.getWelcome().setGuildEnabled(false);
+                            channel.sendMessage("Guild welcomes are now **disabled**").queue();
+                        } else {
+                            MessageUtils.sendErrorMessage("Guild welcomes are already **disabled**", channel);
+                        }
+                    } else {
                         MessageUtils.getUsage(this, channel, sender).queue();
                     }
                 } else {
                     MessageUtils.getUsage(this, channel, sender).queue();
                 }
-            } else {
-                MessageUtils.getUsage(this, channel, sender).queue();
+            } else if (args.length >= 3) {
+                if (args[1].equalsIgnoreCase("message")) {
+                    if (args[2].equalsIgnoreCase("list")) {
+                        int page = args[3] == null ? 1 : Integer.valueOf(args[3]);
+                        List<String> messages;
+                        if (args[0].equalsIgnoreCase("dm")) {
+                            messages = guild.getWelcome().getDmMessages();
+                        } else if (args[0].equalsIgnoreCase("guild")) {
+                            messages = guild.getWelcome().getGuildMessages();
+                        } else {
+                            MessageUtils.getUsage(this, channel, sender).queue();
+                            return;
+                        }
+                        int messagesLength = 15;
+                        int pages = messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
+                        int start = messagesLength * (page - 1);
+                        int end = Math.min(start + messagesLength, messages.size());
+                        if (page > pages || page < 0) {
+                            MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+                        } else {
+                            List<String> messagesSub = messages.subList(start, end);
+                            List<List<String>> body = new ArrayList<>();
+                            int i = 0;
+                            for (String messagesMessage : messagesSub) {
+                                List<String> part = new ArrayList<>();
+                                part.add(String.valueOf(i));
+                                part.add(messagesMessage);
+                                body.add(part);
+                                i++;
+                            }
+                            List<String> header = new ArrayList<>();
+                            header.add("Id");
+                            header.add("Message");
+                            channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Reports Page " + GeneralUtils.getPageOutOfTotal(page, messages, messagesLength))).queue();
+                        }
+                    } else if (args[2].equalsIgnoreCase("add")) {
+                        String welcomeMessage = MessageUtils.getMessage(args, 4);
+                        if (args[0].equalsIgnoreCase("dm")) {
+                            guild.getWelcome().getDmMessages().add(welcomeMessage);
+                        } else if (args[0].equalsIgnoreCase("guild")) {
+                            guild.getWelcome().getGuildMessages().add(welcomeMessage);
+                        } else {
+                            MessageUtils.getUsage(this, channel, sender).queue();
+                        }
+                    } else if (args[2].equalsIgnoreCase("remove") && args.length == 4) {
+                        int id = Integer.valueOf(args[3]);
+                        if (args[0].equalsIgnoreCase("dm")) {
+                            guild.getWelcome().getDmMessages().remove(id);
+                        } else if (args[0].equalsIgnoreCase("guild")) {
+                            guild.getWelcome().getGuildMessages().remove(id);
+                        } else {
+                            MessageUtils.getUsage(this, channel, sender).queue();
+                        }
+                    } else {
+                        MessageUtils.getUsage(this, channel, sender).queue();
+                    }
+                } else {
+                    MessageUtils.getUsage(this, channel, sender).queue();
+                }
             }
         }
     }
