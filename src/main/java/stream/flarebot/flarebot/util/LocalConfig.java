@@ -26,8 +26,7 @@ public class LocalConfig {
             throw new IllegalArgumentException("URL cannot be null!");
 
         try (Reader r = new InputStreamReader(url.openStream())) {
-            JSONTokener tokener = new JSONTokener(r);
-            this.object = new JSONObject(tokener);
+            this.object = new JSONObject(new JSONTokener(r));
         } catch (IOException e) {
             FlareBot.LOGGER.error("There was an error reading the config file!", e);
         }
