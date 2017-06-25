@@ -271,11 +271,7 @@ public class FlareBotManager {
     public String getLang(Language lang, String id) {
         String path = lang.name().toLowerCase().replaceAll("_", ".");
         JSONConfig config = loadLang(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
-        if (config.getString(path).isPresent()) {
-            return config.getString(path).get();
-        } else {
-            return "";
-        }
+        return config.getString(path).isPresent() ? config.getString(path).get() : "";
     }
 
 
