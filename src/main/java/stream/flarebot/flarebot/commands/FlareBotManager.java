@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -15,7 +16,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.objects.Report;
-import stream.flarebot.flarebot.util.LocalConfig;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 import stream.flarebot.flarebot.util.SQLController;
@@ -41,7 +41,7 @@ public class FlareBotManager {
     private Map<String, Language.Locales> locale = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
-    private Map<Language.Locales, LocalConfig> configs = new ConcurrentHashMap<>();
+    private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
 
     private Map<String, GuildWrapper> guilds = new ConcurrentHashMap<>();
 
@@ -264,14 +264,14 @@ public class FlareBotManager {
         }
     }
 
-    public LocalConfig loadLang(Language.Locales l) {
-        return configs.computeIfAbsent(l, locale -> new LocalConfig(getClass().getResource("/langs/" + l.getCode() + ".json")));
+    public JSONConfig loadLang(Language.Locales l) {
+        return configs.computeIfAbsent(l, locale -> new JSONConfig(getClass().getResourceAsStream("/langs/" + l.getCode() + ".json")));
     }
 
     public String getLang(Language lang, String id) {
         String path = lang.name().toLowerCase().replaceAll("_", ".");
-        LocalConfig config = loadLang(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
-        return (String) config.getObject(path);
+        JSONConfig config = loadLang(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
+        return config.getString(path).isPresent() ? config.getString(path).get() : "";
     }
 
 
