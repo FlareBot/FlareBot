@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Locales;
+import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -38,10 +38,10 @@ public class FlareBotManager {
     private Map<String, Poll> polls = new ConcurrentHashMap<>();
     private Map<String, Set<String>> selfAssignRoles = new ConcurrentHashMap<>();
     private Map<String, AutoModGuild> autoMod = new ConcurrentHashMap<>();
-    private Map<String, Locales> locale = new ConcurrentHashMap<>();
+    private Map<String, Language.Locales> locale = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
-    private Map<Locales, JSONConfig> configs = new ConcurrentHashMap<>();
+    private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
 
     private Map<String, GuildWrapper> guilds = new ConcurrentHashMap<>();
 
@@ -238,7 +238,7 @@ public class FlareBotManager {
             SQLController.runSqlTask(conn -> {
                 ResultSet set = conn.createStatement().executeQuery("SELECT guild_id, locale FROM localisation");
                 while (set.next()) {
-                    Locales l = Locales.from(set.getString("locale"));
+                    Language.Locales l = Language.Locales.from(set.getString("locale"));
                     locale.put(set.getString("guild_id"), l);
                 }
             });
@@ -264,12 +264,13 @@ public class FlareBotManager {
         }
     }
 
-    public JSONConfig loadLang(Locales l) {
+    public JSONConfig loadLang(Language.Locales l) {
         return configs.computeIfAbsent(l, locale -> new JSONConfig(getClass().getResourceAsStream("/langs/" + l.getCode() + ".json")));
     }
 
-    public String getLang(String path, String id) {
-        JSONConfig config = loadLang(locale.getOrDefault(id, Locales.ENGLISH_UK));
+    public String getLang(Language lang, String id) {
+        String path = lang.name().toLowerCase().replaceAll("_", ".");
+        JSONConfig config = loadLang(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
         return config.getString(path).isPresent() ? config.getString(path).get() : "";
     }
 
