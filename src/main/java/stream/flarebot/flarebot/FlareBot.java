@@ -665,7 +665,7 @@ public class FlareBot {
         for (Command cmd : commands) {
             JsonObject cmdObj = new JsonObject();
             cmdObj.addProperty("command", cmd.getCommand());
-            cmdObj.addProperty("description", cmd.getDescription());
+            cmdObj.addProperty("description", cmd.getDescription(""));
             cmdObj.addProperty("permission", cmd.getPermission() == null ? "" : cmd.getPermission());
             cmdObj.addProperty("type", cmd.getType().toString());
             JsonArray aliases = new JsonArray();

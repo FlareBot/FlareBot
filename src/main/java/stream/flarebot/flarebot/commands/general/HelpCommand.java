@@ -35,7 +35,7 @@ public class HelpCommand implements Command {
                         .stream().filter(cmd -> FlareBot.getInstance().getPermissions(channel)
                                 .hasPermission(member, cmd.getPermission()))
                         .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
-                                .getDescription() + '\n')
+                                .getDescription(guild.getGuild().getId()) + '\n')
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
                 int page = 0;
@@ -74,7 +74,7 @@ public class HelpCommand implements Command {
                                     .getMember(sender), cmd
                                     .getPermission()))
                     .map(command -> get(guild) + command.getCommand() + " - " + command
-                            .getDescription() + '\n')
+                            .getDescription(guild.getId()) + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
             int page = 0;

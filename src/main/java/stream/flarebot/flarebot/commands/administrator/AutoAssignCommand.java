@@ -44,7 +44,7 @@ public class AutoAssignCommand implements Command {
                     channel.sendMessage(sb.toString()).queue();
                 } else {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(flareBotManager.getLang("autoassign.list.none", guildID))
+                            .setDescription(flareBotManager.getLang("autoassign.no-roles", guildID))
                             .setColor(Color.RED)
                             .build(), 5000, channel);
                 }
@@ -53,7 +53,7 @@ public class AutoAssignCommand implements Command {
                     String passedRole = MessageUtils.getMessage(args, 1);
                     if (!validRole(channel.getGuild(), passedRole)) {
                         MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                                .setDescription(flareBotManager.getLang("autoassign.add.invalid-role", guildID)), channel);
+                                .setDescription(flareBotManager.getLang("general.invalid-role", guildID)), channel);
                         return;
                     }
                     Role role = getRole(channel.getGuild(), passedRole);
@@ -76,8 +76,8 @@ public class AutoAssignCommand implements Command {
                 if (args.length >= 2) {
                     String passedRole = MessageUtils.getMessage(args, 1);
                     if (!validRole(channel.getGuild(), passedRole)) {
-                        MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
-                                .getAsMention() + " That is not a valid role!"), channel);
+                        MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
+                                .setDescription(flareBotManager.getLang("general.invalid-role", guildID)), channel);
                         return;
                     }
                     Role role = getRole(channel.getGuild(), passedRole);
@@ -87,16 +87,15 @@ public class AutoAssignCommand implements Command {
                         if (roles.contains(role.getId())) {
                             roles.remove(role.getId());
                             channel.sendMessage(MessageUtils.getEmbed(sender)
-                                    .setDescription("Removed " + role
-                                            .getName() + " from your auto assigned roles")
+                                    .setDescription(String.format(flareBotManager.getLang("autoassign.remove.success", guildID), role.getName()))
                                     .build()).queue();
                         } else {
                             MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                                    .setDescription("That role is not being auto assigned!"), channel);
+                                    .setDescription(flareBotManager.getLang("autoassign.remove.doesnt-exist", guildID)), channel);
                         }
                     } else {
                         MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
-                                .setDescription("This server has no roles being assigned."), channel);
+                                .setDescription(flareBotManager.getLang("autoassign.no-roles", guildID)), channel);
                     }
                 }
             }
@@ -110,14 +109,13 @@ public class AutoAssignCommand implements Command {
     }
 
     @Override
-    public String getDescription() {
-        return "Auto assign roles to users when they join.";
+    public String getDescription(String guildId) {
+        return flareBotManager.getLang("autoassign.description", guildId);
     }
 
     @Override
-    public String getUsage() {
-        return "`{%}autoassign <add/remove> <role>` - Add or Remove roles from AutoAssign\n"
-                + "`{%}autoassign list` - List roles that are currently AutoAssigned";
+    public String getUsage(String guildId) {
+        return flareBotManager.getLang("autoassign.usage", guildId);
     }
 
     @Override
