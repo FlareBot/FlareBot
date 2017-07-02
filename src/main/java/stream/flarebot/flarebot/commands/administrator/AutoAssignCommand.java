@@ -115,13 +115,14 @@ public class AutoAssignCommand implements Command {
     }
 
     @Override
-    public String getDescription(String guildId) {
-        return flareBotManager.getLang("autoassign.description", guildId);
+    public String getDescription() {
+        return "Auto assign roles to users when they join.";
     }
 
     @Override
-    public String getUsage(String guildId) {
-        return flareBotManager.getLang("autoassign.usage", guildId);
+    public String getUsage() {
+        return "`{%}autoassign <add/remove> <role>` - Add or Remove roles from AutoAssign\n"
+                + "`{%}autoassign list` - List roles that are currently AutoAssigned";
     }
 
     @Override

@@ -187,7 +187,7 @@ public class MessageUtils {
 
     public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
-        String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage(channel.getGuild().getId()));
+        String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\n" +
                 "**Default permission: **" + command.isDefaultPermission();
         return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)

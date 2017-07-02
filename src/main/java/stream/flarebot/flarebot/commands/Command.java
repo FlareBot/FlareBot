@@ -14,9 +14,9 @@ public interface Command {
 
     String getCommand();
 
-    String getDescription(String guildId);
+    String getDescription();
 
-    String getUsage(String guildId);
+    String getUsage();
 
     CommandType getType();
 
