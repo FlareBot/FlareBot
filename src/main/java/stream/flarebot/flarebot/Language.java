@@ -12,60 +12,60 @@ import java.util.Optional;
 public enum Language {
 
     // General
-    GENERAL_INVALIDARGUMENT,
-    GENERAL_USAGE,
-    GENERAL_SUCCESS,
-    GENERAL_USER,
-    GENERAL_UNKNOWN,
-    GENERAL_REQUESTEDBY,
-    GENERAL_PAGE,
+    GENERAL_INVALIDARGUMENT("general.invalid-argument"),
+    GENERAL_USAGE("general.usage"),
+    GENERAL_SUCCESS("general.success"),
+    GENERAL_USER("general.user"),
+    GENERAL_UNKNOWN("general.unknown"),
+    GENERAL_REQUESTEDBY("general.requested-by"),
+    GENERAL_PAGE("general.page"),
     // Auto Assign
-    AUTOASSIGN_CURRENT,
-    AUTOASSIGN_NOROLES,
-    AUTOASSIGN_INVALIDROLE,
-    AUTOASSIGN_ADDASSIGNED,
-    AUTOASSIGN_REMOVEASSIGNED,
-    AUTOASSIGN_ALREADYASSIGNED,
-    AUTOASSIGN_NOTAUTOASSIGNROLE,
-    AUTOASSIGN_DESCRIPTION,
-    AUTOASSIGN_USAGE,
+    AUTOASSIGN_CURRENT("autoassign.current"),
+    AUTOASSIGN_NOROLES("autoassign.nonroles"),
+    AUTOASSIGN_INVALIDROLE("autoassign.invalid-role"),
+    AUTOASSIGN_ADDASSIGNED("autoassign.add.success"),
+    AUTOASSIGN_REMOVEASSIGNED("autoassign.remove.success"),
+    AUTOASSIGN_ALREADYASSIGNED("autoassign.add.exists"),
+    AUTOASSIGN_NOTAUTOASSIGNROLE("autoassign.remove.notexists"),
+    AUTOASSIGN_DESCRIPTION("autoassign.description"),
+    AUTOASSIGN_USAGE("autoassign.usage"),
     // Ban
-    BAN_USERNOTFOUND,
-    BAN_BANHAMMERSTRUCK,
-    BAN_CANTBAN,
-    BAN_DESCRIPTION,
-    BAN_USAGE,
+    BAN_USERNOTFOUND("ban.user-not-found"),
+    BAN_BANHAMMERSTRUCK("ban.ban-hammer-struck"),
+    BAN_CANTBAN("ban.cant-ban-user"),
+    BAN_DESCRIPTION("ban.description"),
+    BAN_USAGE("ban.usage"),
     // Permissions
-    PERMISSIONS_USERNOEXIST,
-    PERMISSIONS_GROUPNOEXIST,
-    PERMISSIONS_USERHADGROUP,
-    PERMISSIONS_USERNEVERHADGROUP,
-    PERMISSIONS_GROUPS,
-    PERMISSIONS_GROUPHADPERM,
-    PERMISSIONS_GROUPNEVERHADPERM,
-    PERMISSIONS_PERMSFORGROUP,
-    PERMISSIONS_COULDNOTSAVE,
-    PERMISSIONS_DESCRIPTION,
-    PERMISSIONS_USAGE,
+    PERMISSIONS_USERNOEXIST("permissions.user-doesnt-exist"),
+    PERMISSIONS_GROUPNOEXIST("permissions.group-doesnt-exist"),
+    PERMISSIONS_USERHASGROUP("permissions.user-has-group"),
+    PERMISSIONS_USERNEVERHADGROUP("permissions.user-doesnt-have-group"),
+    PERMISSIONS_GROUPS("permissions.groups"),
+    PERMISSIONS_GROUPHASPERM("permissions.group-has-perm"),
+    PERMISSIONS_GROUPDOESNTHAVEPERM("permissions.group-doesnt-have-perm"),
+    PERMISSIONS_PERMSFORGROUP("permissions.perms-for-group"),
+    PERMISSIONS_COULDNOTSAVE("permissions.could-not-save"),
+    PERMISSIONS_DESCRIPTION("permissions.description"),
+    PERMISSIONS_USAGE("permissions.usage"),
     // Pin
-    PIN_DESCRIPTION,
-    PIN_USAGE,
+    PIN_DESCRIPTION("pin.description"),
+    PIN_USAGE("pin.usage"),
     // Purge
-    PURGE_COOLDOWN,
-    PURGE_TOOHIGH,
-    PURGE_MIN,
-    PURGE_DELETED,
-    PURGE_FAILED,
-    PURGE_NOPERMS,
-    PURGE_DESCRIPTION,
-    PURGE_USAGE,
+    PURGE_COOLDOWN("purge.cooldown"),
+    PURGE_TOOHIGH("purge.too-high"),
+    PURGE_MIN("purge.min-purge"),
+    PURGE_DELETED("purge.deleted"),
+    PURGE_FAILED("purge.failed"),
+    PURGE_NOPERMS("purge.no-perms"),
+    PURGE_DESCRIPTION("purge.description"),
+    PURGE_USAGE("purge.usage"),
     // Roles
-    ROLES_SERVERROLES,
-    ROLES_DESCRIPTION,
-    ROLES_USAGE,
+    ROLES_SERVERROLES("roles.server-roles"),
+    ROLES_DESCRIPTION("roles.description"),
+    ROLES_USAGE("roles.usage"),
     // Prefix
-    PREFIX_RESET,
-    PREFIX_TOOLONG,
+    PREFIX_RESET("prefix.reset"),
+    PREFIX_TOOLONG("prefix.too-long"),
     PREFIX_SETPREFIX,
     PREFIX_CURRENT,
     PREFIX_DESCRIPTION,
@@ -306,13 +306,19 @@ public enum Language {
 
     ;
 
-    public EmbedBuilder getEmbed(String guildId, Object... args) {
-        return this.getEmbed(Optional.empty(), guildId, args);
+    private final String path;
+
+    Language(String path) {
+        this.path = path;
     }
 
-    public EmbedBuilder getEmbed(Optional<User> user, String guildId, Object... args) {
-        if (user.isPresent())
-            return MessageUtils.getEmbed(user.get()).setDescription(FlareBotManager.getInstance().getLang(this, guildId));
+    public EmbedBuilder getEmbed(String guildId, Object... args) {
+        return this.getEmbed(null, guildId, args);
+    }
+
+    public EmbedBuilder getEmbed(User user, String guildId, Object... args) {
+        if (user != null)
+            return MessageUtils.getEmbed(user).setDescription(FlareBotManager.getInstance().getLang(this, guildId));
         else
             return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(this, guildId));
     }
