@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -35,7 +35,7 @@ public class BanCommand implements Command {
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
-                FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId())
+                guild.getAutoModConfig()
                         .postToModLog(channel, user, sender, Punishment.EPunishment.BAN, reason);
                 try {
                     channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7 /*, reason*/).queue();
