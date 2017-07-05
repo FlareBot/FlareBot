@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.objects;
 
 import net.dv8tion.jda.core.entities.Guild;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
 import java.util.Locale;
@@ -13,14 +14,16 @@ public class GuildWrapper {
     private AutoModGuild autoModGuild;
     private Welcome welcome;
     private Set<Poll> polls;
+    private Set<String> autoAssignRoles;
     private Set<String> selfAssignRoles;
     private Locale locale;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, Set<Poll> polls, Set<String> selfAssignRoles, Locale locale){
+    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, Set<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Locale locale){
         this.guildId = guildId;
         this.autoModGuild = autoModGuild;
         this.welcome = welcome;
         this.polls = polls;
+        this.autoAssignRoles = autoAssignRoles;
         this.selfAssignRoles = selfAssignRoles;
         this.locale = locale;
     }
@@ -29,8 +32,16 @@ public class GuildWrapper {
         return FlareBot.getInstance().getGuildByID(guildId);
     }
 
+    public String getGuildId() {
+        return this.guildId;
+    }
+
     public AutoModGuild getAutoModGuild(){
         return this.autoModGuild;
+    }
+
+    public AutoModConfig getAutoModConfig() {
+        return this.autoModGuild.getConfig();
     }
 
     public Welcome getWelcome(){
@@ -43,6 +54,10 @@ public class GuildWrapper {
 
     public Set<Poll> getPolls(){
         return this.polls;
+    }
+
+    public Set<String> getAutoAssignRoles() {
+        return this.autoAssignRoles;
     }
 
     public Set<String> getSelfAssignRoles(){

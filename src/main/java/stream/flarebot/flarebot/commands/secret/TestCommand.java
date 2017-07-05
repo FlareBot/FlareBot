@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
@@ -15,8 +15,7 @@ public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        AutoModGuild autoMod = FlareBotManager.getInstance().getAutoModGuild(channel.getGuild().getId());
-        sender.openPrivateChannel().complete().sendMessage(FlareBotManager.GSON.toJson(autoMod)).queue();
+        sender.openPrivateChannel().complete().sendMessage(FlareBotManager.GSON.toJson(guild.getAutoModGuild())).queue();
         sender.openPrivateChannel().complete().sendMessage(FlareBot.GSON.toJson(guild)).queue();
     }
 
