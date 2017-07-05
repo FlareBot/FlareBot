@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.objects;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
 import java.util.HashSet;

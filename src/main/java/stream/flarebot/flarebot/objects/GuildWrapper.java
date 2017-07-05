@@ -2,10 +2,10 @@ package stream.flarebot.flarebot.objects;
 
 import net.dv8tion.jda.core.entities.Guild;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
-import java.util.Locale;
 import java.util.Set;
 
 public class GuildWrapper {
