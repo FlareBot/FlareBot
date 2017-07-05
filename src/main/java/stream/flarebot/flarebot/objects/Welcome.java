@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Welcome {
 
-    private static Random random = new Random();
+    private Random random = new Random();
 
     private List<String> dmMessages;
     private List<String> guildMessages;
