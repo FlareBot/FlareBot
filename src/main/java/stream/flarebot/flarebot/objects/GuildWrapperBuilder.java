@@ -10,7 +10,7 @@ import java.util.Set;
 public class GuildWrapperBuilder {
 
     private String guildId;
-    private AutoModGuild autoModGuild = null;
+    private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = null;
     private Set<Poll> polls = new HashSet<>();
     private Set<String> autoAssignRoles = new ConcurrentHashSet<>();
