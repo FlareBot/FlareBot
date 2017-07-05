@@ -30,6 +30,7 @@ public class FlareBotManager {
     private static FlareBotManager instance;
 
     public static final Gson GSON = new GsonBuilder().create();
+    private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
 
     private ExpiringMap<String, GuildWrapper> guilds = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(15));
 
@@ -95,6 +96,16 @@ public class FlareBotManager {
             FlareBot.reportError(channel, "The playlist could not be saved!", e);
             FlareBot.LOGGER.error("Database error!", e);
         }
+    }
+
+    public JSONConfig loadLang(Language.Locales l) {
+        return configs.computeIfAbsent(l, locale -> new JSONConfig(getClass().getResourceAsStream("/langs/" + l.getCode() + ".json")));
+    }
+
+    public String getLang(Language lang, String id) {
+        String path = lang.name().toLowerCase().replaceAll("_", ".");
+        JSONConfig config = loadLang(getGuild(id).getLocale());
+        return config.getString(path).isPresent() ? config.getString(path).get() : "";
     }
 
     public String loadPlaylist(TextChannel channel, User sender, String name) {
