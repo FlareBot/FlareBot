@@ -41,7 +41,7 @@ public class FlareBotManager {
     private Map<String, Language.Locales> locale = new ConcurrentHashMap<>();
 
     private Set<String> profanitySet = new HashSet<>();
-    private Map<Language.Locales, LocalConfig> configs;
+    private Map<Language.Locales, LocalConfig> configs = new ConcurrentHashMap<>();
 
     private Map<String, GuildWrapper> guilds = new ConcurrentHashMap<>();
 
@@ -271,7 +271,7 @@ public class FlareBotManager {
     public String getLang(Language lang, String id) {
         String path = lang.name().toLowerCase().replaceAll("_", ".");
         LocalConfig config = loadLang(locale.getOrDefault(id, Language.Locales.ENGLISH_UK));
-        return config.getString(path);
+        return (String) config.getObject(path);
     }
 
 
