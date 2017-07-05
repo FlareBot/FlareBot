@@ -142,9 +142,13 @@ public class FlareBotManager {
         ApiRequester.request(ApiRoute.LOAD_TIME).setBody(new JSONObject().put("load_time", guilds.getValue(id))).sendAsync();
         if(!guilds.containsKey(id))
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
-                    .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "Time: " + LocalDateTime.now().toString(), false)
+                    .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "\nTime: " + LocalDateTime.now().toString(), false)
                     .build()).queue();
-        //guilds.computeIfAbsent(id, guildId -> new GuildWrapperBuilder(id).build());
+            guilds.computeIfAbsent(id, guildId -> new GuildWrapperBuilder(id).build());
         return guilds.get(id);
+    }
+
+    public ExpiringMap<String, GuildWrapper> getGuilds() {
+        return guilds;
     }
 }
