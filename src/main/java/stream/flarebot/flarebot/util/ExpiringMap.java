@@ -14,12 +14,7 @@ public class ExpiringMap<K, V> {
 
     public ExpiringMap(long expireAfterMS) {
         this.expireAfterMS = expireAfterMS;
-        elem = new TreeMap<>((o1, o2) -> {
-            if (o1 < o2)
-                return 1;
-            else
-                return -1;
-        });
+        elem = new TreeMap<>();
     }
 
     public void purge() {
@@ -80,19 +75,19 @@ public class ExpiringMap<K, V> {
         return -1;
     }
 
-    public static void main(String[] args) {
-        ExpiringMap<Integer, String> test = new ExpiringMap<>(1000);
-        for (int i = 0; i < 1000000; i++) {
-            test.put(i, String.valueOf(i));
+    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+        if (key == null || mappingFunction == null) {
+            throw new NullPointerException();
         }
 
-        //debug
-        while (!test.elem.isEmpty()) {
-            int size = test.elem.size();
-            test.purge();
-            if (size - test.elem.size() > 0) {
-                System.out.println("Removed elements. New size: " + test.elem.size());
-            }
+        for(ConcurrentMap<K, V> map : elem.values()) {
+            if(map.get(key) != null)
+                return map.get(key);
         }
+
+        V val = mappingFunction.apply(key);
+
+        this.put(key, val);
+        return val;
     }
 }
