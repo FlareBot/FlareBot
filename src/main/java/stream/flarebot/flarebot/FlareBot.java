@@ -415,7 +415,6 @@ public class FlareBot {
         /*manager.loadRandomSongs();
         manager.loadProfanity();
         manager.loadAutoMod();
-        manager.loadLocalisation();
 
         loadPolls();
         loadSelfAssign();*/
@@ -510,6 +509,7 @@ public class FlareBot {
         registerCommand(new ReportCommand());
         registerCommand(new ShardInfoCommand());
         registerCommand(new SongNickCommand());
+        registerCommand(new StatsCommand());
 
         ApiFactory.bind();
 
