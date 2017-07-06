@@ -14,7 +14,7 @@ public enum Action {
     INVITE_LINKS(2, true, MessageUtils::hasInvite),
     SPAM(1, false, message -> FlareBot.getInstance().getAutoModTracker()
             .getMessages(message.getGuild().getId(), message.getAuthor().getId())
-            >= FlareBot.getInstance().getManager().getAutoModConfig(message.getGuild().getId())
+            >= FlareBot.getInstance().getManager().getGuild(message.getGuild().getId()).getAutoModConfig()
             .getMaxMessagesPerMinute()),
     LINKS(1, true, message -> MessageUtils.hasLink(message) && !MessageUtils.hasInvite(message)),
     PROFANITY(1, true, message -> FlareBot.getInstance().getManager().getProfanity().stream()

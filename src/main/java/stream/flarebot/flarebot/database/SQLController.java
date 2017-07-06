@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.util;
+package stream.flarebot.flarebot.database;
 
 import stream.flarebot.flarebot.FlareBot;
 import com.mysql.cj.jdbc.MysqlDataSource;
@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SQLController {
 
-    private static final Context context = null;
     private static final MysqlDataSource dataSource;
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     private static final ExecutorService SQL_POOL = Executors.newCachedThreadPool(r -> new Thread(r, "SQL Thread " + COUNTER.incrementAndGet()));

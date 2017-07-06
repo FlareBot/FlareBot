@@ -24,8 +24,8 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.FlareBotManager;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.objects.Welcome;
@@ -40,11 +40,9 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
@@ -54,9 +52,6 @@ public class Events extends ListenerAdapter {
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
-
-    public static final Map<String, AtomicInteger> COMMAND_COUNTER = new ConcurrentHashMap<>();
-    private AtomicInteger i = new AtomicInteger(0);
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -93,8 +88,9 @@ public class Events extends ListenerAdapter {
                 MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
             } else welcome.setGuildEnabled(false);
         }
-        if (flareBot.getAutoAssignRoles().containsKey(event.getGuild().getId())) {
-            List<String> autoAssignRoles = flareBot.getAutoAssignRoles().get(event.getGuild().getId());
+        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
+        if (wrapper.getAutoAssignRoles().contains(event.getGuild().getId())) {
+            Set<String> autoAssignRoles = wrapper.getAutoAssignRoles();
             List<Role> roles = new ArrayList<>();
             for (String s : autoAssignRoles) {
                 Role role = event.getGuild().getRoleById(s);
@@ -146,7 +142,6 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        COMMAND_COUNTER.remove(event.getGuild().getId());
         FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
                 .setColor(new Color(244, 23, 23))
                 .setThumbnail(event.getGuild().getIconUrl())
@@ -258,8 +253,7 @@ public class Events extends ListenerAdapter {
                     }
                     if (handleMissingPermission(cmd, event))
                         return;
-                    COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(), g -> new AtomicInteger())
-                            .incrementAndGet();
+                    flareBot.postToApi("commands", new JSONObject().put("command", command).put("guild", event.getGuild().getId()).put("guildName", event.getGuild().getName()));
                     String[] finalArgs = args;
                     CACHED_POOL.submit(() -> {
                         FlareBot.LOGGER.info(
@@ -299,8 +293,7 @@ public class Events extends ListenerAdapter {
                                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
                             if (handleMissingPermission(cmd, event))
                                 return;
-                            COMMAND_COUNTER.computeIfAbsent(event.getChannel().getGuild().getId(),
-                                    g -> new AtomicInteger()).incrementAndGet();
+                            flareBot.postToApi("commands", new JSONObject().put("command", cmd.getCommand()).put("guild", event.getGuild().getId()));
                             String[] finalArgs = args;
                             CACHED_POOL.submit(() -> {
                                 FlareBot.LOGGER.info(
@@ -375,8 +368,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onRoleDelete(RoleDeleteEvent event) {
-        if (FlareBotManager.getInstance().getSelfAssignRoles(event.getGuild().getId()).contains(event.getRole().getId())) {
-            FlareBotManager.getInstance().getSelfAssignRoles(event.getGuild().getId()).remove(event.getRole().getId());
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
     }
 

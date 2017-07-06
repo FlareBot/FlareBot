@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -43,13 +43,12 @@ public class SelfAssignCommand implements Command {
                             5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
-                if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).isEmpty()) {
+                if (guild.getSelfAssignRoles().isEmpty()) {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 5000, channel);
                     return;
                 }
                 String base = "**Self assignable roles**\n```\n";
-                Iterator<String> iter =
-                        FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).iterator();
+                Iterator<String> iter = guild.getSelfAssignRoles().iterator();
                 while (iter.hasNext()) {
                     String roleId = iter.next();
                     if (roleId.isEmpty()) {
@@ -75,7 +74,7 @@ public class SelfAssignCommand implements Command {
                         roleId = channel.getGuild().getRolesByName(args[0], true).get(0).getId();
                 }
 
-                if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).contains(roleId)) {
+                if (guild.getSelfAssignRoles().contains(roleId)) {
                     handleRole(member, channel, roleId);
                 } else {
                     MessageUtils.sendErrorMessage("You cannot auto-assign that role! Do `" + getPrefix(channel
@@ -102,7 +101,7 @@ public class SelfAssignCommand implements Command {
                     return;
                 }
                 if (channel.getGuild().getRoleById(roleId) != null) {
-                    FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).add(roleId);
+                    guild.getSelfAssignRoles().add(roleId);
                     channel.sendMessage(new EmbedBuilder()
                             .setDescription("Added `" + channel.getGuild().getRoleById(roleId)
                                     .getName() + "` to the self-assign list!").build())
@@ -120,7 +119,7 @@ public class SelfAssignCommand implements Command {
                 }
                 String roleId = args[1];
                 if (channel.getGuild().getRoleById(roleId) != null) {
-                    FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).remove(roleId);
+                    guild.getSelfAssignRoles().remove(roleId);
                     channel.sendMessage(new EmbedBuilder()
                             .setDescription("Removed `" + channel.getGuild().getRoleById(roleId)
                                     .getName() + "` from the self-assign list!").build())
@@ -135,7 +134,7 @@ public class SelfAssignCommand implements Command {
                 } else
                     roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getId();
 
-                if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).contains(roleId)) {
+                if (guild.getSelfAssignRoles().contains(roleId)) {
                     handleRole(member, channel, roleId);
                 } else {
                     MessageUtils.sendErrorMessage("You cannot auto-assign that role! Do `" + getPrefix(channel
@@ -151,7 +150,7 @@ public class SelfAssignCommand implements Command {
             } else
                 roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getId();
 
-            if (FlareBotManager.getInstance().getSelfAssignRoles(channel.getGuild().getId()).contains(roleId)) {
+            if (guild.getSelfAssignRoles().contains(roleId)) {
                 handleRole(member, channel, roleId);
             } else {
                 MessageUtils.sendErrorMessage("You cannot auto-assign that role! Do `" + getPrefix(channel

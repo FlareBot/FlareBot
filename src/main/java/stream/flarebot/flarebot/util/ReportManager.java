@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.util;
 
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 
