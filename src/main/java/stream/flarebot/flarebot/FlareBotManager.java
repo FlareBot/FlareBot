@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ExpiringMap;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 
 import java.awt.*;
