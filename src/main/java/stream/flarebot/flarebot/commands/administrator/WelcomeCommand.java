@@ -17,7 +17,7 @@ public class WelcomeCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 1) {
+        if (args.length == 0) {
             MessageUtils.getUsage(this, channel, sender).queue();
         } else {
             //New system
