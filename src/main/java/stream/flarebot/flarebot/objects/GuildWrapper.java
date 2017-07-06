@@ -2,10 +2,10 @@ package stream.flarebot.flarebot.objects;
 
 import net.dv8tion.jda.core.entities.Guild;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
-import java.util.Locale;
 import java.util.Set;
 
 public class GuildWrapper {
@@ -16,9 +16,9 @@ public class GuildWrapper {
     private Set<Poll> polls;
     private Set<String> autoAssignRoles;
     private Set<String> selfAssignRoles;
-    private Locale locale;
+    private Language.Locales locale;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, Set<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Locale locale){
+    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, Set<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale){
         this.guildId = guildId;
         this.autoModGuild = autoModGuild;
         this.welcome = welcome;
@@ -64,7 +64,7 @@ public class GuildWrapper {
         return this.selfAssignRoles;
     }
 
-    public Locale getLocale(){
+    public Language.Locales getLocale(){
         return this.locale;
     }
 }
