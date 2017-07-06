@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.objects;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
 import java.util.HashSet;
@@ -10,12 +11,12 @@ import java.util.Set;
 public class GuildWrapperBuilder {
 
     private String guildId;
-    private AutoModGuild autoModGuild = null;
+    private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = null;
     private Set<Poll> polls = new HashSet<>();
     private Set<String> autoAssignRoles = new ConcurrentHashSet<>();
     private Set<String> selfAssignRoles = new ConcurrentHashSet<>();
-    private Locale locale = Locale.ENGLISH;
+    private Language.Locales locale = Language.Locales.ENGLISH_UK;
 
     private GuildWrapperBuilder(){}
 
@@ -53,7 +54,7 @@ public class GuildWrapperBuilder {
         return this;
     }
 
-    public GuildWrapperBuilder setLanguage(Locale locale){
+    public GuildWrapperBuilder setLanguage(Language.Locales locale){
         this.locale = locale;
         return this;
     }

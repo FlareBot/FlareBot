@@ -2,23 +2,27 @@ package stream.flarebot.flarebot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.util.ExpiringMap;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.SQLController;
 
-import java.awt.*;
+import java.awt.Color;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class FlareBotManager {
@@ -26,6 +30,7 @@ public class FlareBotManager {
     private static FlareBotManager instance;
 
     public static final Gson GSON = new GsonBuilder().create();
+    private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
 
     private ExpiringMap<String, GuildWrapper> guilds = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(15));
 
@@ -93,6 +98,16 @@ public class FlareBotManager {
         }
     }
 
+    public JSONConfig loadLang(Language.Locales l) {
+        return configs.computeIfAbsent(l, locale -> new JSONConfig(getClass().getResourceAsStream("/langs/" + l.getCode() + ".json")));
+    }
+
+    public String getLang(Language lang, String id) {
+        String path = lang.name().toLowerCase().replaceAll("_", ".");
+        JSONConfig config = loadLang(getGuild(id).getLocale());
+        return config.getString(path).isPresent() ? config.getString(path).get() : "";
+    }
+
     public String loadPlaylist(TextChannel channel, User sender, String name) {
         final String[] list = new String[1];
         try {
@@ -127,9 +142,13 @@ public class FlareBotManager {
         ApiRequester.request(ApiRoute.LOAD_TIME).setBody(new JSONObject().put("load_time", guilds.getValue(id))).sendAsync();
         if(!guilds.containsKey(id))
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
-                    .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "Time: " + LocalDateTime.now().toString(), false)
+                    .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "\nTime: " + LocalDateTime.now().toString(), false)
                     .build()).queue();
-        //guilds.computeIfAbsent(id, guildId -> new GuildWrapperBuilder(id).build());
+            guilds.computeIfAbsent(id, guildId -> new GuildWrapperBuilder(id).build());
         return guilds.get(id);
+    }
+
+    public ExpiringMap<String, GuildWrapper> getGuilds() {
+        return guilds;
     }
 }

@@ -42,34 +42,27 @@ import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.SQLController;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.*;
+import java.awt.Color;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -422,7 +415,6 @@ public class FlareBot {
         /*manager.loadRandomSongs();
         manager.loadProfanity();
         manager.loadAutoMod();
-        manager.loadLocalisation();
 
         loadPolls();
         loadSelfAssign();*/
@@ -517,6 +509,7 @@ public class FlareBot {
         registerCommand(new ReportCommand());
         registerCommand(new ShardInfoCommand());
         registerCommand(new SongNickCommand());
+        registerCommand(new StatsCommand());
 
         ApiFactory.bind();
 
