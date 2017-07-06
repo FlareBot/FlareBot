@@ -1,7 +1,7 @@
 package stream.flarebot.flarebot.web;
 
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.SQLController;
+import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

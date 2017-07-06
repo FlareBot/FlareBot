@@ -9,7 +9,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.SQLController;
+import stream.flarebot.flarebot.database.SQLController;
 
 import java.awt.*;
 import java.sql.ResultSet;
