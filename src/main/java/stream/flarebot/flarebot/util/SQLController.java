@@ -1,7 +1,7 @@
 package stream.flarebot.flarebot.util;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
 import stream.flarebot.flarebot.FlareBot;
+import com.mysql.cj.jdbc.MysqlDataSource;
 
 import javax.naming.Context;
 import java.sql.Connection;
@@ -19,8 +19,7 @@ public class SQLController {
     private static final Context context = null;
     private static final MysqlDataSource dataSource;
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
-    private static final ExecutorService SQL_POOL = Executors
-            .newCachedThreadPool(r -> new Thread(r, "SQL Thread " + COUNTER.incrementAndGet()));
+    private static final ExecutorService SQL_POOL = Executors.newCachedThreadPool(r -> new Thread(r, "SQL Thread " + COUNTER.incrementAndGet()));
 
     static {
         dataSource = new MysqlDataSource();
@@ -28,12 +27,10 @@ public class SQLController {
         dataSource.setDatabaseName("flarebot");
         dataSource.setPort(3306);
         dataSource.setPortNumber(3306);
-        dataSource.setServerName("localhost");
+        dataSource.setServerName("127.0.0.1");
         dataSource.setUser("flare");
-        dataSource.setURL(dataSource
-                .getURL() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
-        dataSource.setUrl(dataSource
-                .getUrl() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
+        dataSource.setURL(dataSource.getURL() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
+        dataSource.setUrl(dataSource.getUrl() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
     }
 
     private static Connection getConnection() throws SQLException {
