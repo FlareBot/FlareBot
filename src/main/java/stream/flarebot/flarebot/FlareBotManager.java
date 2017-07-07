@@ -29,7 +29,6 @@ public class FlareBotManager {
 
     private static FlareBotManager instance;
 
-    public static final Gson GSON = new GsonBuilder().create();
     private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
 
     private ExpiringMap<String, GuildWrapper> guilds = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(15));
