@@ -7,8 +7,8 @@
 <h4 align="center">Growing Discord music bot made with Java lib JDA and formerly Discord4J.</h4>
   <p align="center">
       <a href="https://discord.gg/TTAUGvZ" target="_blank"><img src="https://discordapp.com/api/guilds/226785954537406464/embed.png" alt="Discord"></a>
-    <a href="https://github.com/FlareBot/FlareBot/blob/master" target="_blank"><img src="https://img.shields.io/github/stars/badges/shields.svg?style=social&label=Star" alt="Github Stars"></a>
-    <a href="https://github.com/FlareBot/FlareBot/issues" target="_blank"><img src="https://img.shields.io/github/issues-raw/badges/shields.svg?style=flat-square)" alt="Github Issues"></a>
+    <a href="https://github.com/FlareBot/FlareBot/blob/master" target="_blank"><img src="https://img.shields.io/github/stars/FlareBot/FlareBot.svg?style=social&label=Star" alt="Github Stars"></a>
+    <a href="https://github.com/FlareBot/FlareBot/issues" target="_blank"><img src="https://img.shields.io/github/issues-raw/FlareBot/FlareBot.svg?style=flat-square)" alt="Github Issues"></a>
   </p>
   
 -------------------
@@ -17,7 +17,7 @@
 
 If you need any help with the bot or you think you have found a bug please join our [official Discord server](https://discord.gg/TTAUGvZ)) and report it there
 
-## Contibutoring Corner
+## Contributing Corner
 
 #### **Donations**
 
