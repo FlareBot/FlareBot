@@ -17,7 +17,7 @@
 
 If you need any help with the bot or you think you have found a bug please join our [official Discord server](https://discord.gg/TTAUGvZ)) and report it there
 
-## Contibutoring Corner
+## Contributing Corner
 
 #### **Donations**
 
