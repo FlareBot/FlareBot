@@ -1,17 +1,19 @@
 package stream.flarebot.flarebot.objects;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class Welcome {
-
+    @Expose
     private Random random = new Random();
 
     private List<String> dmMessages;
     private List<String> guildMessages;
-    private boolean dmEnabled;
-    private boolean guildEnabled;
+    private boolean dmEnabled = false;
+    private boolean guildEnabled = false;
     private String channelId;
 
     public Welcome() {
@@ -19,15 +21,6 @@ public class Welcome {
         guildMessages = new ArrayList<>();
         dmMessages.add("Welcome %user% to %guild%");
         guildMessages.add("Welcome %user% to %guild%");
-    }
-
-    public Welcome addMessage(String msg, boolean dm) {
-        if(dm){
-            dmMessages.add(msg);
-        } else {
-            guildMessages.add(msg);
-        }
-        return this;
     }
 
     public Welcome setChannelId(String channelId) {
