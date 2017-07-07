@@ -72,16 +72,21 @@ public class Events extends ListenerAdapter {
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
             if (channel != null) {
                 if (!channel.canTalk()) {
-                    welcome.setEnabled(false);
+                    welcome.setGuildEnabled(false);
                     MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
                             + channel.getAsMention() + " due to this, welcomes have been disabled!");
                 }
-                String msg = welcome.getMessage()
+                String guildMsg = welcome.getRandomGuildMessage()
                         .replace("%user%", event.getMember().getUser().getName())
                         .replace("%guild%", event.getGuild().getName())
                         .replace("%mention%", event.getMember().getUser().getAsMention());
-                channel.sendMessage(msg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
-            } else welcome.setEnabled(false);
+                channel.sendMessage(guildMsg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
+                String dmMsg = welcome.getRandomDmMessage()
+                        .replace("%user%", event.getMember().getUser().getName())
+                        .replace("%guild%", event.getGuild().getName())
+                        .replace("%mention%", event.getMember().getUser().getAsMention());
+                MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+            } else welcome.setGuildEnabled(false);
         }
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
         if (wrapper.getAutoAssignRoles().contains(event.getGuild().getId())) {
