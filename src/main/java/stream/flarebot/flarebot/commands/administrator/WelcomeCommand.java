@@ -138,15 +138,11 @@ public class WelcomeCommand implements Command {
                     }
                 }
             } else if (args[0].equalsIgnoreCase("setchannel")) {
-                if (args.length == 1) {
-                    guild.getWelcome().setChannelId(channel.getId());
-                    EmbedBuilder eb = new EmbedBuilder();
-                    eb.appendDescription("Set welcome channel to " + channel.getAsMention());
-                    eb.setColor(Color.GREEN);
-                    channel.sendMessage(eb.build()).queue();
-                } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
-                }
+                guild.getWelcome().setChannelId(channel.getId());
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.appendDescription("Set welcome channel to " + channel.getAsMention());
+                eb.setColor(Color.GREEN);
+                channel.sendMessage(eb.build()).queue();
             } else {
                 MessageUtils.getUsage(this, channel, sender).queue();
             }
