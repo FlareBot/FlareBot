@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -54,9 +55,12 @@ public class PollCommand implements Command {
                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
                 guild.getPolls().forEach(poll -> {
                     builder.addField("Poll ID: " + guild.getPolls().indexOf(poll)
-                            , "Status: " + poll.
+                            , "Status: " + WordUtils.capitalizeFully(poll.getStatus().name()) + "\n" +
+                                    "Poll Options: " + String.valueOf(poll.getPollOptions().size())
                             , true);
                 });
+                channel.sendMessage(builder.build()).queue();
+                return;
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
