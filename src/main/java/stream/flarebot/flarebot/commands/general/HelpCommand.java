@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public class HelpCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("here")) {
                 sendCommands(channel.getGuild(), sender.openPrivateChannel().complete(), sender);

@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class InfoCommand implements Command {
     }
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             EmbedBuilder bld = MessageUtils.getEmbed(sender)
                     .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
@@ -48,11 +49,7 @@ public class InfoCommand implements Command {
             }
             sender.openPrivateChannel().complete().sendMessage(bld.build()).queue();
         } else {
-            String search = "";
-            for (String arg : args) {
-                search += arg + " ";
-            }
-            search = search.trim();
+            String search = FlareBot.getMessage(args);
 
             for (Content content : Content.values) {
                 if (search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ")
@@ -67,10 +64,6 @@ public class InfoCommand implements Command {
         }
     }
 
-    private static String getMb(long bytes) {
-        return (bytes / 1024 / 1024) + "MB";
-    }
-
     @Override
     public String getCommand() {
         return "info";
@@ -83,7 +76,7 @@ public class InfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}help [section] - Sends info about the bot to your PMs [or about a specific section to the channel]";
+        return "`{%}info [section] - Sends info about the bot.";
     }
 
     @Override
@@ -93,20 +86,6 @@ public class InfoCommand implements Command {
 
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
-        TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients())
-                .flatMap(c -> c.getUsers().stream())
-                .map(ISnowflake::getId)
-                .collect(Collectors.toSet()).size())),
-        VOICE_CONNECTIONS("Voice Connections", () -> String
-                .valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
-        ACTIVE_CHANNELS("Channels Playing Music", () -> String
-                .valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
-        TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),
-        UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
-        MEM_USAGE("Memory Usage", () -> getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
-        MEM_FREE("Memory Free", () -> getMb(Runtime.getRuntime().freeMemory())),
-        VIDEO_THREADS("Video Threads", () -> String.valueOf(VideoThread.VIDEO_THREADS.activeCount())),
-        TOTAL_THREADS("Total Threads", () -> String.valueOf(Thread.getAllStackTraces().size())),
         VERSION("Version", FlareBot.getInstance().getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
@@ -140,12 +119,6 @@ public class InfoCommand implements Command {
         Content(String name, Supplier<String> returns) {
             this.name = name;
             this.returns = returns;
-        }
-
-        Content(String name, Supplier<String> returns, boolean align) {
-            this.name = name;
-            this.returns = returns;
-            this.align = align;
         }
 
         public String getName() {

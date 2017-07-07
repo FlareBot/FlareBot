@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.User;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 public class PermissionsCommand implements Command {
 
     @Override
-    public void onCommand(net.dv8tion.jda.core.entities.User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(net.dv8tion.jda.core.entities.User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             MessageUtils.getUsage(this, channel, sender).queue();
             return;

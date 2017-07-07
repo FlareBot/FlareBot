@@ -6,14 +6,13 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
+import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-
-import java.text.DecimalFormat;
 
 public class SongCommand implements Command {
 
@@ -23,16 +22,14 @@ public class SongCommand implements Command {
         this.manager = bot.getMusicManager();
     }
 
-    private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
-
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             channel.sendMessage(MessageUtils.getEmbed(sender)
                     .addField("Current song", getLink(track), false)
-                    .addField("Amount Played", getProgressBar(track), true)
-                    .addField("Time", String.format("%s / %s", formatDuration(track.getTrack().getPosition()), formatDuration(track.getTrack().getDuration())), false)
+                    .addField("Amount Played", GeneralUtils.getProgressBar(track), true)
+                    .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()), GeneralUtils.formatDuration(track.getTrack().getDuration())), false)
                     .build())
                     .queue();
         } else {
@@ -66,25 +63,6 @@ public class SongCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
-    }
-
-    public static String formatDuration(long duration) {
-        long totalSeconds = duration / 1000;
-        long seconds = totalSeconds % 60;
-        long minutes = (totalSeconds / 60) % 60;
-        long hours = (totalSeconds / 3600);
-        return (hours > 0 ? (hours < 10 ? "0" + hours : hours) + ":" : "")
-                + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
-    }
-
-    public static String getProgressBar(Track track) {
-        float percentage = (100f / track.getTrack().getDuration() * track.getTrack().getPosition());
-        StringBuilder progress = new StringBuilder("[");
-        progress.append(StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)));
-        progress.append("]()");
-        progress.append(StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)));
-        progress.append(" " + percentageFormat.format(percentage) + "%");
-        return progress.toString();
     }
 
 }

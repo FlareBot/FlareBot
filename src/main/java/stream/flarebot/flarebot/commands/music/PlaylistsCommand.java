@@ -8,8 +8,9 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.SQLController;
+import stream.flarebot.flarebot.database.SQLController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 public class PlaylistsCommand implements Command {
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("mark")) {
                 if (FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {

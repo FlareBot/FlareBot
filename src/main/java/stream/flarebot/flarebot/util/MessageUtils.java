@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.util;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
@@ -12,15 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -54,6 +50,15 @@ public class MessageUtils {
             }
         }
         return len;
+    }
+
+    public static Message sendPM(User user, String message) {
+        try {
+            return user.openPrivateChannel().complete()
+                    .sendMessage(message.substring(0, Math.min(message.length(), 1999))).complete();
+        } catch (ErrorResponseException e){
+            return null;
+        }
     }
 
     public static Message sendPM(MessageChannel channel, User user, String message) {
@@ -182,7 +187,7 @@ public class MessageUtils {
 
     public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
-        String usage = HelpFormatter.formatCommandPrefix(channel, command.getUsage());
+        String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
         String permission = command.getPermission() + "\n" +
                 "**Default permission: **" + command.isDefaultPermission();
         return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
@@ -324,24 +329,5 @@ public class MessageUtils {
         return message.trim();
     }
 
-    public static String getShardId(JDA jda) {
-        return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
-    }
 
-
-    public static EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel) {
-        EmbedBuilder eb = getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
-
-        eb.addField("Report ID", String.valueOf(report.getId()), true);
-        eb.addField("Reporter", getTag(reporter), true);
-        eb.addField("Reported", getTag(reported), true);
-
-        eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), true);
-        eb.addField("Status", report.getStatus().getMessage(), true);
-
-        eb.addField("Message", "```" + report.getMessage() + "```", false);
-        return eb;
-    }
 }

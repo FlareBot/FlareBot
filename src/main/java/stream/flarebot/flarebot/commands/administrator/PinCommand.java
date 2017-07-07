@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.EnumSet;
@@ -15,7 +16,7 @@ import java.util.EnumSet;
 public class PinCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && args[0].matches("[0-9]{18,22}")) {
             Message msg = channel.getMessageById(args[0].trim()).complete();
             msg.pin().complete();

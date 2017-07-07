@@ -3,11 +3,12 @@ package stream.flarebot.flarebot.commands.administrator;
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 public class RolesCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         StringBuilder sb = new StringBuilder();
         sb.append("**Server Roles**\n```\n");
         for (Role role : channel.getGuild().getRoles()) {

@@ -8,9 +8,10 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.mod.Action;
 import stream.flarebot.flarebot.mod.AutoModConfig;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
@@ -20,10 +21,10 @@ import java.util.stream.Collectors;
 public class AutoModCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("config")) {
-                AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());
+                AutoModConfig config = guild.getAutoModConfig();
                 EmbedBuilder builder = new EmbedBuilder().setColor(Color.white).addField("Auto Mod Enabled", String
                         .valueOf(config.isEnabled()), true)
                         .addField("Messages per minute", String
@@ -48,7 +49,7 @@ public class AutoModCommand implements Command {
                 channel.sendMessage(builder.build()).queue();
             } else if (args[0].equalsIgnoreCase("punishments")) {
                 StringBuilder sb = new StringBuilder();
-                FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).getPunishments()
+                guild.getAutoModConfig().getPunishments()
                         .forEach((points, punishment) -> {
                             sb.append(points).append(" = ")
                                     .append(punishment.getName());
@@ -65,7 +66,7 @@ public class AutoModCommand implements Command {
                 if (args[1].equalsIgnoreCase("set")) {
 
                 } else if (args[1].equalsIgnoreCase("reset")) {
-                    FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).resetPunishments();
+                    guild.getAutoModConfig().resetPunishments();
                     channel.sendMessage(new EmbedBuilder().setColor(Color.green)
                             .setDescription("Reset the punishments back to default")
                             .build()).queue();
@@ -75,7 +76,7 @@ public class AutoModCommand implements Command {
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 //TODO: Walshy - Add this to usage when finished
                 if (args[1].equalsIgnoreCase("list")) {
-                    AutoModConfig config = FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId());
+                    AutoModConfig config = guild.getAutoModConfig();
                     EmbedBuilder builder = new EmbedBuilder();
                     builder.setColor(Color.white).setTitle("Whitelists", null);
                     config.getWhitelist().keySet().forEach(action -> builder.addField(action.getName(),
@@ -97,7 +98,7 @@ public class AutoModCommand implements Command {
                     if (action != null && action.canBeWhitelisted()) {
                         String whitelist = MessageUtils.getMessage(args, 3);
 
-                        FlareBotManager.getInstance().getAutoModConfig(channel.getGuild().getId()).getWhitelist(action)
+                        guild.getAutoModConfig().getWhitelist(action)
                                 .add(whitelist);
                         channel.sendMessage(new EmbedBuilder().setColor(Color.green)
                                 .setDescription("Added `" + whitelist + "` to the `" + action
