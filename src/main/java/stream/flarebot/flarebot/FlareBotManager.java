@@ -12,7 +12,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.util.ExpiringMap;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.SQLController;
+import stream.flarebot.flarebot.database.SQLController;
 
 import java.awt.Color;
 import java.sql.PreparedStatement;

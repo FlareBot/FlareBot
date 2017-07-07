@@ -3,7 +3,7 @@ package stream.flarebot.flarebot.commands;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.SQLController;
+import stream.flarebot.flarebot.database.SQLController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

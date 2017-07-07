@@ -118,7 +118,12 @@
         <dependency>
             <groupId>com.github.binaryoverload</groupId>
             <artifactId>json-config</artifactId>
-            <version>2.5</version>
+            <version>2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>3.3.0</version>
         </dependency>
     </dependencies>
 

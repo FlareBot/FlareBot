@@ -31,7 +31,7 @@ public class SkipCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
-            channel.sendMessage("I am not streaming!").queue();
+            channel.sendMessage("I am not playing anything!").queue();
             return;
         }
         if (member.getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getChannel()
