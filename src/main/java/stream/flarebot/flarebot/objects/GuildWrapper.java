@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
+import java.util.LinkedList;
 import java.util.Set;
 
 public class GuildWrapper {
@@ -13,12 +14,12 @@ public class GuildWrapper {
     private String guildId;
     private AutoModGuild autoModGuild;
     private Welcome welcome;
-    private Set<Poll> polls;
+    private LinkedList<Poll> polls;
     private Set<String> autoAssignRoles;
     private Set<String> selfAssignRoles;
     private Language.Locales locale;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, Set<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale){
+    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, LinkedList<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale){
         this.guildId = guildId;
         this.autoModGuild = autoModGuild;
         this.welcome = welcome;
@@ -52,7 +53,7 @@ public class GuildWrapper {
         return this.welcome;
     }
 
-    public Set<Poll> getPolls(){
+    public LinkedList<Poll> getPolls(){
         return this.polls;
     }
 

@@ -44,6 +44,10 @@ public class Poll {
         return this.status == PollStatus.CLOSED;
     }
 
+    public PollStatus getStatus() {
+        return this.status;
+    }
+
     public void setStatus(PollStatus status) {
         this.status = status;
         if (status == PollStatus.OPEN) {
