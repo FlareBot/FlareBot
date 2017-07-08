@@ -1,9 +1,8 @@
 package stream.flarebot.flarebot.objects;
 
-import stream.flarebot.flarebot.FlareBot;
 import net.dv8tion.jda.core.EmbedBuilder;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,8 @@ public class Poll {
     private Color pollColor;
     private String pollChannel;
 
-    public Poll(String question) {
+    public Poll(String question, TextChannel channel) {
+        this.pollChannel = channel.getId();
         this.question = question;
         pollOptions = new ArrayList<>();
         endTime = LocalDateTime.now().plusHours(1);
