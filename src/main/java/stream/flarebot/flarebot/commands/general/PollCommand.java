@@ -53,7 +53,7 @@ public class PollCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                guild.getPolls().stream().limit(21).forEach(poll -> {
+                guild.getPolls().stream().limit(12).forEach(poll -> {
                     builder.addField("Poll ID: " + (guild.getPolls().indexOf(poll) + 1)
                             , "Status: " + WordUtils.capitalizeFully(poll.getStatus().name()) + "\n" +
                                     "Poll Options: " + String.valueOf(poll.getPollOptions().size())
