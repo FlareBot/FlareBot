@@ -47,8 +47,9 @@ public class GuildWrapper {
 
     public Welcome getWelcome(){
         if(welcome == null){
-            welcome = new Welcome(getGuild().getPublicChannel().getId());
-            welcome.setEnabled(false);
+            welcome = new Welcome();
+            welcome.setDmEnabled(false);
+            welcome.setGuildEnabled(false);
         }
         return this.welcome;
     }
