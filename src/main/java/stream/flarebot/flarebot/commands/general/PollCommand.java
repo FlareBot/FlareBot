@@ -93,6 +93,38 @@ public class PollCommand implements Command {
                     ).queue();
                     return;
                 }
+            } else if (args[0].equalsIgnoreCase("remove")) {
+                if (guild.getPolls().size() == 0) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("This guild has no polls currently running!")
+                            .setColor(Color.CYAN)
+                            .build()).queue();
+                    return;
+                } else if (args.length == 2) {
+                    int index;
+                    try {
+                        index = Integer.parseInt(args[1]);
+                    } catch (NumberFormatException e) {
+                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                                "Use the poll list command to see the IDs!", channel);
+                        return;
+                    }
+
+                    try {
+                        guild.getPolls().remove(index);
+                    } catch (IndexOutOfBoundsException e) {
+                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                                "Use the poll list command to see the IDs!", channel);
+                        return;
+                    }
+
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("Successfully removed the poll with the ID: " + String.valueOf(index))
+                            .setColor(Color.GREEN)
+                            .build()
+                    ).queue();
+                    return;
+                }
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
