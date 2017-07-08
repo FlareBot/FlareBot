@@ -41,27 +41,29 @@ public class PollCommand implements Command {
             if (args[0].equalsIgnoreCase("create")) {
                 if (args.length >= 2) {
                     String question = MessageUtils.getMessage(args, 1);
-                    Poll poll = new Poll(question);
+                    Poll poll = new Poll(question, channel);
                     guild.getPolls().add(poll);
                     channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null)
                             .setColor(Color.green).setAuthor(sender.getName(), null, sender.getEffectiveAvatarUrl())
                             .setDescription(String.format("Poll with ID %d has been created! Remember to set the close-time and the options for this poll!\n" +
-                                    "To open the poll for people to vote on do `poll open`!", guild.getPolls().indexOf(poll)))
+                                    "To open the poll for people to vote on do `poll open`!", guild.getPolls().indexOf(poll) + 1))
                             .build()
                     ).queue();
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
-                guild.getPolls().forEach(poll -> {
-                    builder.addField("Poll ID: " + guild.getPolls().indexOf(poll)
+                guild.getPolls().stream().limit(21).forEach(poll -> {
+                    builder.addField("Poll ID: " + (guild.getPolls().indexOf(poll) + 1)
                             , "Status: " + WordUtils.capitalizeFully(poll.getStatus().name()) + "\n" +
                                     "Poll Options: " + String.valueOf(poll.getPollOptions().size())
                             , true);
                 });
                 channel.sendMessage(builder.build()).queue();
                 return;
-            } else if (args[0].equalsIgnoreCase("close")) {
+            } else if (args[0].equalsIgnoreCase("close") ||
+                    args[0].equalsIgnoreCase("open") ||
+                    args[0].equalsIgnoreCase("remove")) {
                 if (guild.getPolls().size() == 0) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription("This guild has no polls currently running!")
@@ -71,15 +73,26 @@ public class PollCommand implements Command {
                 } else if (args.length == 2) {
                     int index;
                     try {
-                        index = Integer.parseInt(args[1]);
+                        index = Integer.parseInt(args[1]) - 1;
                     } catch (NumberFormatException e) {
                         MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
                                 "Use the poll list command to see the IDs!", channel);
                         return;
                     }
 
+                    String action = "";
+
                     try {
-                        guild.getPolls().get(index).setStatus(Poll.PollStatus.CLOSED);
+                        if (args[0].equalsIgnoreCase("close")) {
+                            guild.getPolls().get(index).setStatus(Poll.PollStatus.CLOSED);
+                            action = "closed";
+                        } else if (args[0].equalsIgnoreCase("open")) {
+                            guild.getPolls().get(index).setStatus(Poll.PollStatus.OPEN);
+                            action = "opened";
+                        } else {
+                            guild.getPolls().remove(index);
+                            action = "removed";
+                        }
                     } catch (IndexOutOfBoundsException e) {
                         MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
                                 "Use the poll list command to see the IDs!", channel);
@@ -87,44 +100,13 @@ public class PollCommand implements Command {
                     }
 
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("Successfully closed the poll with the ID: " + String.valueOf(index))
+                            .setDescription("Successfully " + action + " the poll with the ID: " + String.valueOf(index))
                             .setColor(Color.GREEN)
                             .build()
                     ).queue();
                     return;
                 }
-            } else if (args[0].equalsIgnoreCase("remove")) {
-                if (guild.getPolls().size() == 0) {
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This guild has no polls currently running!")
-                            .setColor(Color.CYAN)
-                            .build()).queue();
-                    return;
-                } else if (args.length == 2) {
-                    int index;
-                    try {
-                        index = Integer.parseInt(args[1]);
-                    } catch (NumberFormatException e) {
-                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
-                        return;
-                    }
 
-                    try {
-                        guild.getPolls().remove(index);
-                    } catch (IndexOutOfBoundsException e) {
-                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
-                        return;
-                    }
-
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("Successfully removed the poll with the ID: " + String.valueOf(index))
-                            .setColor(Color.GREEN)
-                            .build()
-                    ).queue();
-                    return;
-                }
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
