@@ -100,7 +100,7 @@ public class PollCommand implements Command {
                     }
 
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("Successfully " + action + " the poll with the ID: " + String.valueOf(index))
+                            .setDescription("Successfully " + action + " the poll with the ID: " + String.valueOf(index + 1))
                             .setColor(Color.GREEN)
                             .build()
                     ).queue();
