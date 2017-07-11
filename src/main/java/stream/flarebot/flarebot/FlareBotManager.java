@@ -137,7 +137,7 @@ public class FlareBotManager {
         return new HashSet<>();
     }
 
-    public GuildWrapper getGuild(String id) {
+    public synchronized GuildWrapper getGuild(String id) {
         ApiRequester.request(ApiRoute.LOAD_TIME).setBody(new JSONObject().put("load_time", guilds.getValue(id))).sendAsync();
         if(!guilds.containsKey(id))
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
