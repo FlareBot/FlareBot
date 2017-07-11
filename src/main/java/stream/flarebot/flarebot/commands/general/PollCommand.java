@@ -59,6 +59,13 @@ public class PollCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
+                if (guild.getPolls().size() == 0) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("This guild has no polls currently running!")
+                            .setColor(Color.CYAN)
+                            .build()).queue();
+                    return;
+                }
                 guild.getPolls().stream().limit(12).forEach(poll -> {
                     builder.addField("Poll ID: " + (guild.getPolls().indexOf(poll) + 1)
                             , "Status: " + WordUtils.capitalizeFully(poll.getStatus().name()) + "\n" +
@@ -78,17 +85,10 @@ public class PollCommand implements Command {
                     return;
                 } else if (args.length == 2) {
                     int index;
-                    try {
-                        index = Integer.parseInt(args[1]) - 1;
-                    } catch (NumberFormatException e) {
-                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
-                        return;
-                    }
-
                     String action = "";
 
                     try {
+                        index = Integer.parseInt(args[1]) - 1;
                         if (args[0].equalsIgnoreCase("close")) {
                             if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.close")) {
                                 MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.close` to do this!", channel);
@@ -137,21 +137,9 @@ public class PollCommand implements Command {
             } else if (args[0].equalsIgnoreCase("set")) {
                 // {%}poll set <id> <property> <value>
                 if (args.length == 4) {
-                    int id;
-                    try {
-                        id = Integer.parseInt(args[1]) - 1;
-                    } catch (NumberFormatException e) {
-                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
-                        return;
-                    }
 
-                    Poll poll;
-                    try {
-                        poll = guild.getPolls().get(id);
-                    } catch (IndexOutOfBoundsException e) {
-                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
+                    Poll poll = getPollById(args[1], guild.getPolls(), channel);
+                    if (poll == null) {
                         return;
                     }
 
@@ -178,25 +166,32 @@ public class PollCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("options")) {
                 if (args.length >= 3) {
-                    int id;
-                    try {
-                        id = Integer.parseInt(args[1]) - 1;
-                    } catch (NumberFormatException e) {
-                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
+                    Poll poll = getPollById(args[1], guild.getPolls(), channel);
+                    if (poll == null) {
                         return;
                     }
 
-                    Poll poll;
-                    try {
-                        poll = guild.getPolls().get(id);
-                    } catch (IndexOutOfBoundsException e) {
-                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
-                        return;
-                    }
+                    if (args[2].equalsIgnoreCase("view") && args.length == 4) {
+                        int optionId;
+                        PollOption option;
 
-                    if (args[2].equalsIgnoreCase("add") && args.length >= 4) {
+                        try {
+                            optionId = Integer.parseInt(args[3]) - 1;
+                            option = poll.getPollOptions().get(optionId);
+                        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                            MessageUtils.sendErrorMessage("Please provide a valid poll option ID!\n" +
+                                    "Use the poll option list command to see the IDs!", channel);
+                            return;
+                        }
+
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setDescription("Information for option ID: "+ args[1])
+                                .setColor(Color.CYAN)
+                                .addField("Option", GeneralUtils.truncate(1024, option.getOption(), false), false)
+                                .addField("Votes", String.valueOf(option.getVotes()), false)
+                                .build()).queue();
+                        return;
+                    } else if (args[2].equalsIgnoreCase("add") && args.length >= 4) {
                         String option = MessageUtils.getMessage(args, 3);
                         List<PollOption> options = poll.getPollOptions();
                         if (options.size() >= 20) {
@@ -210,28 +205,22 @@ public class PollCommand implements Command {
                         options.add(new PollOption(option));
                         channel.sendMessage(MessageUtils.getEmbed(sender)
                                 .setColor(Color.GREEN)
-                                .setDescription("Successfully added option: `" + option + "`")
+                                .setDescription("Successfully added option: `" + GeneralUtils.truncate(50, option) + "`")
                                 .build()).queue();
                         return;
                     } else if (args[2].equalsIgnoreCase("remove") && args.length == 4) {
                         int optionId;
-                        try {
-                            optionId = Integer.parseInt(args[1]) - 1;
-                        } catch (NumberFormatException e) {
-                            MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
-                                    "Use the poll list command to see the IDs!", channel);
-                            return;
-                        }
-
                         List<PollOption> options;
                         options = poll.getPollOptions();
                         try {
+                            optionId = Integer.parseInt(args[1]) - 1;
                             options.remove(optionId);
-                        }catch (IndexOutOfBoundsException e) {
-                            MessageUtils.sendErrorMessage("Please provide a valid option ID!\n" +
+                        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                            MessageUtils.sendErrorMessage("Please provide a valid poll option ID!\n" +
                                     "Use the poll option list command to see the IDs!", channel);
                             return;
                         }
+
                         channel.sendMessage(MessageUtils.getEmbed(sender)
                                 .setColor(Color.GREEN)
                                 .setDescription("Successfully removed option with ID: " + (optionId + 1))
@@ -241,23 +230,98 @@ public class PollCommand implements Command {
                         if (poll.getPollOptions().size() == 0) {
                             channel.sendMessage(MessageUtils.getEmbed(sender)
                                     .setColor(Color.CYAN)
-                                    .setDescription("Tjos ").build());
+                                    .setDescription("This poll has no options!").build()).queue();
+                            return;
                         }
-                        StringBuilder builder = new StringBuilder("**Options:**\n```md\n");
+                        StringBuilder builder = new StringBuilder("```md\n");
                         int i = 1;
                         for (PollOption option : poll.getPollOptions()) {
-                            builder.append(String.valueOf(i)).append(". ").append(option.getOption()).append("\n");
+                            builder.append(String.valueOf(i)).append(". \"")
+                                    .append(GeneralUtils.truncate(50, option.getOption()))
+                                    .append("\" - Votes: ")
+                                    .append(option.getVotes())
+                                    .append("\n");
                             i++;
                         }
                         builder.append("```");
-                        channel.sendMessage(builder.toString()).queue();
+                        channel.sendMessage(MessageUtils.getEmbed(sender).addField("Options", builder.toString(), false).build()).queue();
                         return;
                     }
 
                 }
+            } else if (args[0].equalsIgnoreCase("setchannel")) {
+                if (args.length == 2) {
+                    if (args[1].equalsIgnoreCase("all")) {
+                        for (Poll poll : guild.getPolls()) {
+                            poll.setChannel(channel.getId());
+                        }
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setColor(Color.GREEN)
+                                .setDescription("Set this channel to be the announcement channel for all polls!")
+                                .build()).queue();
+                        return;
+                    } else {
+                        Poll poll = getPollById(args[1], guild.getPolls(), channel);
+                        if (poll == null) {
+                            return;
+                        }
+
+                        poll.setChannel(channel.getId());
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setColor(Color.GREEN)
+                                .setDescription("Set this channel to be the announcement channel for poll ID: " + args[0] + "!")
+                                .build()).queue();
+                        return;
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("vote")) {
+                if (args.length == 3) {
+
+                    Poll poll = getPollById(args[1], guild.getPolls(), channel);
+                    if (poll == null) {
+                        return;
+                    }
+
+                    int id;
+                    PollOption option;
+                    try {
+                        id = Integer.parseInt(args[2]) - 1;
+                        option = poll.getPollOptions().get(id);
+                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                        MessageUtils.sendErrorMessage("Please provide a valid poll option ID!\n" +
+                                "Use the poll list command to see the IDs!", channel);
+                        return;
+                    }
+
+                    if (option.getVoters().contains(sender.getId())) {
+                        MessageUtils.sendErrorMessage("You cannot vote twice!", channel);
+                        return;
+                    }
+
+                    option.incrementVotes(sender.getId());
+
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setColor(Color.GREEN)
+                            .setDescription("You voted for option: " + id + "! It now has " + option.getVotes() + " votes!")
+                            .build()).queue();
+                    return;
+                }
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
+    }
+
+    private Poll getPollById(String idText, List<Poll> polls, TextChannel channel) {
+        int id;
+        Poll poll = null;
+        try {
+            id = Integer.parseInt(idText) - 1;
+            poll = polls.get(id);
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                    "Use the poll list command to see the IDs!", channel);
+        }
+        return poll;
     }
 
     @Override
