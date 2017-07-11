@@ -127,7 +127,7 @@ public class GeneralUtils {
     }
 
     public static String truncate(int length, String string, boolean ellipse) {
-        return string.substring(0, Math.min(string.length() - 1, 49)) + (string.length() > length ? "..." : "");
+        return string.substring(0, Math.min(string.length(), length)) + (string.length() > length ? "..." : "");
     }
 
 }
