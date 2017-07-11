@@ -52,6 +52,9 @@ public class Poll {
     }
 
     public void setStatus(PollStatus status) {
+        if (status.equals(this.status)) {
+            throw new IllegalStateException("This poll is already " + status.name().toLowerCase() + "!");
+        }
         this.status = status;
         if (status == PollStatus.OPEN) {
             FlareBot.getInstance().getChannelByID(pollChannel).sendMessage(getPollEmbed("New Poll", "A new poll has been opened!").build()).queue();
