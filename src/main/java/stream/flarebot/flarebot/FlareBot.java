@@ -274,6 +274,7 @@ public class FlareBot {
 
     public void init(String tkn) throws InterruptedException, UnirestException, FileNotFoundException {
         token = tkn;
+        manager = new FlareBotManager();
         RestAction.DEFAULT_FAILURE = t -> {
         };
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
