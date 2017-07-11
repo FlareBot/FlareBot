@@ -3,7 +3,11 @@ package stream.flarebot.flarebot.database;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.PoolingOptions;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Session;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.github.binaryoverload.JSONConfig;
 import stream.flarebot.flarebot.FlareBot;
 
@@ -38,6 +42,23 @@ public class CassandraController {
     public static void runTask(CassandraTask task) {
         task.execute(session);
     }
+
+    public static ResultSet execute(String query) {
+        return session.execute(query);
+    }
+
+    public static ResultSetFuture executeAsync(String query) {
+        return session.executeAsync(query);
+    }
+
+    public static PreparedStatement prepare(String query) {
+        return session.prepare(query);
+    }
+
+    public static ListenableFuture<PreparedStatement> prepareAsync(String query) {
+        return session.prepareAsync(query);
+    }
+
 
     public void close() {
         session.close();
