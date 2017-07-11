@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -21,18 +21,11 @@ public class AutoModTracker extends ListenerAdapter {
 
     private Map<String, ConcurrentHashMap<String, Integer>> spamCounter = new ConcurrentHashMap<>();
 
-    private int i = 0;
-
     public AutoModTracker() {
         new FlarebotTask("AutoModTracker") {
             @Override
             public void run() {
-                i++;
                 spamCounter.forEach((s, map) -> map.clear());
-                if (i == 5) {
-                    i = 0;
-                    FlareBotManager.getInstance().saveAutoMod();
-                }
             }
         }.repeat(60_000, 60_000);
     }
@@ -42,7 +35,7 @@ public class AutoModTracker extends ListenerAdapter {
         if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake() || event
                 .getGuild() == null) return;
         String userId = event.getAuthor().getId();
-        AutoModGuild guild = FlareBotManager.getInstance().getAutoModGuild(event.getGuild().getId());
+        AutoModGuild guild = FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModGuild();
         if (!guild.getConfig().isEnabled()) return;
         ConcurrentHashMap<String, Integer> counter = new ConcurrentHashMap<>();
         if (spamCounter.containsKey(event.getGuild().getId()))

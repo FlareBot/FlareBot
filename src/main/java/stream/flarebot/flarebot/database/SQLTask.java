@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.util;
+package stream.flarebot.flarebot.database;
 
 import java.sql.Connection;
 import java.sql.SQLException;

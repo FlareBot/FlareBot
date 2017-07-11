@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.util;
 
-import com.arsenarsen.lavaplayerbridge.player.Item;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -11,18 +10,14 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.errors.YoutubeAccessException;
 import stream.flarebot.flarebot.objects.Report;
 
-import javax.swing.text.html.Option;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.IntStream;
 
 public class GeneralUtils {
 
@@ -32,7 +27,7 @@ public class GeneralUtils {
         return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
     }
 
-    public static EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel) {
+    public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
         User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
         User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
@@ -67,7 +62,7 @@ public class GeneralUtils {
         progress.append(StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)));
         progress.append("]()");
         progress.append(StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)));
-        progress.append(" " + GeneralUtils.percentageFormat.format(percentage) + "%");
+        progress.append(" ").append(GeneralUtils.percentageFormat.format(percentage)).append("%");
         return progress.toString();
     }
 
@@ -83,9 +78,10 @@ public class GeneralUtils {
         return usage.replaceAll("\\{%\\}", prefix);
     }
 
-    public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, YoutubeAccessException {
+    public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
         Optional<AudioItem> item = Optional.empty();
         boolean failed = false;
+        int backoff = 2;
         for (int i = 0; i <= 2; i++) {
             try {
                 item = Optional.ofNullable(player.resolve(input));
@@ -93,10 +89,14 @@ public class GeneralUtils {
                 break;
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
+                try {
+                    Thread.sleep(backoff);
+                } catch (InterruptedException ignored) {}
+                backoff ^= 2;
             }
         }
         if (failed) {
-            throw new YoutubeAccessException();
+            throw new IllegalStateException();
         } else if (!item.isPresent()) {
             throw new IllegalArgumentException();
         }
