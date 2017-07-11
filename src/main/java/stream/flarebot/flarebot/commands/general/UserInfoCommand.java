@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -15,7 +16,7 @@ public class UserInfoCommand implements Command {
     private FlareBot flareBot = FlareBot.getInstance();
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         User user;
         if (args.length == 0)
             user = sender;
@@ -28,7 +29,7 @@ public class UserInfoCommand implements Command {
         }
         String id = user.getId();
         member = (channel.getGuild().getMember(user) != null ? channel.getGuild().getMember(user) :
-                FlareBot.getInstance().getGuilds().stream().filter(guild -> guild.getMemberById(user.getId()) != null)
+                FlareBot.getInstance().getGuilds().stream().filter(g -> g.getMemberById(user.getId()) != null)
                         .findFirst().orElse(null).getMember(user));
         PlayerCache cache = flareBot.getPlayerCache(id);
         channel.sendMessage(MessageUtils.getEmbed(sender)
@@ -40,7 +41,7 @@ public class UserInfoCommand implements Command {
                         .getDefaultAvatar(sender) + ')', true)
                 .addField("General Info",
                         "Servers: " + FlareBot.getInstance().getGuilds().stream()
-                                .filter(guild -> guild.getMemberById(id) != null)
+                                .filter(g -> g.getMemberById(id) != null)
                                 .count() + " shared\n" +
                                 "Roles: " + (channel.getGuild()
                                 .getMemberById(id) == null ? "The user is not in this server." : channel

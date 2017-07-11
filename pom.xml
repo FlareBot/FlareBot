@@ -37,7 +37,12 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.1.0_206</version>
+            <version>3.1.1_213</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.5</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -75,11 +80,6 @@
             <version>6.0.4</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
             <artifactId>jda-impl</artifactId>
             <version>1.16-SNAPSHOT</version>
@@ -115,6 +115,21 @@
             <artifactId>spark-core</artifactId>
             <version>2.5.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.binaryoverload</groupId>
+            <artifactId>json-config</artifactId>
+            <version>2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.8.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -127,7 +142,7 @@
                 <filtering>true</filtering>
                 <directory>${basedir}/src/main/resources/</directory>
                 <includes>
-                    <include>*</include>
+                    <include>**/*</include>
                 </includes>
             </resource>
         </resources>

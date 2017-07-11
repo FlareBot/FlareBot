@@ -3,13 +3,14 @@ package stream.flarebot.flarebot.commands.secret;
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.io.IOException;
 import java.net.URL;
 
 public class AvatarCommand implements Command {
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             if (!message.getAttachments().isEmpty()) {
                 Message.Attachment attachment = message.getAttachments().get(0);
