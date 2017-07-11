@@ -11,10 +11,12 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Poll;
+import stream.flarebot.flarebot.objects.PollOption;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class PollCommand implements Command {
@@ -84,12 +86,34 @@ public class PollCommand implements Command {
 
                     try {
                         if (args[0].equalsIgnoreCase("close")) {
-                            guild.getPolls().get(index).setStatus(Poll.PollStatus.CLOSED);
+                            if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.close")) {
+                                MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.close` to do this!", channel);
+                                return;
+                            }
+                            try {
+                                guild.getPolls().get(index).setStatus(Poll.PollStatus.CLOSED);
+                            } catch (IllegalStateException e) {
+                                MessageUtils.sendErrorMessage(e.getMessage(), channel);
+                                return;
+                            }
                             action = "closed";
                         } else if (args[0].equalsIgnoreCase("open")) {
-                            guild.getPolls().get(index).setStatus(Poll.PollStatus.OPEN);
+                            if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.open")) {
+                                MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.open` to do this!", channel);
+                                return;
+                            }
+                            try {
+                                guild.getPolls().get(index).setStatus(Poll.PollStatus.OPEN);
+                            } catch (IllegalStateException e) {
+                                MessageUtils.sendErrorMessage(e.getMessage(), channel);
+                                return;
+                            }
                             action = "opened";
                         } else {
+                            if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.remove")) {
+                                MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.remove` to do this!", channel);
+                                return;
+                            }
                             guild.getPolls().remove(index);
                             action = "removed";
                         }
@@ -106,7 +130,123 @@ public class PollCommand implements Command {
                     ).queue();
                     return;
                 }
+            } else if (args[0].equalsIgnoreCase("set")) {
+                // {%}poll set <id> <property> <value>
+                if (args.length == 4) {
+                    int id;
+                    try {
+                        id = Integer.parseInt(args[1]) - 1;
+                    } catch (NumberFormatException e) {
+                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                                "Use the poll list command to see the IDs!", channel);
+                        return;
+                    }
 
+                    Poll poll;
+                    try {
+                        poll = guild.getPolls().get(id);
+                    } catch (IndexOutOfBoundsException e) {
+                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                                "Use the poll list command to see the IDs!", channel);
+                        return;
+                    }
+
+                    if (args[2].equalsIgnoreCase("colour") || args[2].equalsIgnoreCase("color")) {
+                        Color color;
+                        try {
+                            color = Color.decode(args[3]);
+                        } catch (NumberFormatException e) {
+                            try {
+                                color = GeneralUtils.getColor(args[3]);
+                            } catch (IllegalArgumentException ex) {
+                                MessageUtils.sendErrorMessage("That is not a valid color input!", channel);
+                                return;
+                            }
+                        }
+                        channel.sendMessage(new EmbedBuilder().setColor(color)
+                                .setDescription("Changed the color of the poll to `" + GeneralUtils.colourFormat(color) + "`")
+                                .build())
+                                .queue();
+                        poll.setColor(color);
+                        return;
+                    }
+
+                }
+            } else if (args[0].equalsIgnoreCase("options")) {
+                if (args.length >= 3) {
+                    int id;
+                    try {
+                        id = Integer.parseInt(args[1]) - 1;
+                    } catch (NumberFormatException e) {
+                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                                "Use the poll list command to see the IDs!", channel);
+                        return;
+                    }
+
+                    Poll poll;
+                    try {
+                        poll = guild.getPolls().get(id);
+                    } catch (IndexOutOfBoundsException e) {
+                        MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                                "Use the poll list command to see the IDs!", channel);
+                        return;
+                    }
+
+                    if (args[2].equalsIgnoreCase("add") && args.length >= 4) {
+                        String option = MessageUtils.getMessage(args, 3);
+                        List<PollOption> options = poll.getPollOptions();
+                        if (options.size() >= 20) {
+                            MessageUtils.sendErrorMessage("You can only have up to 20 options on one poll!", channel);
+                            return;
+                        }
+                        options.add(new PollOption(option));
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setColor(Color.GREEN)
+                                .setDescription("Successfully added option: `" + option + "`")
+                                .build()).queue();
+                        return;
+                    } else if (args[2].equalsIgnoreCase("remove") && args.length == 4) {
+                        int optionId;
+                        try {
+                            optionId = Integer.parseInt(args[1]) - 1;
+                        } catch (NumberFormatException e) {
+                            MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
+                                    "Use the poll list command to see the IDs!", channel);
+                            return;
+                        }
+
+                        List<PollOption> options;
+                        options = poll.getPollOptions();
+                        try {
+                            options.remove(optionId);
+                        }catch (IndexOutOfBoundsException e) {
+                            MessageUtils.sendErrorMessage("Please provide a valid option ID!\n" +
+                                    "Use the poll option list command to see the IDs!", channel);
+                            return;
+                        }
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setColor(Color.GREEN)
+                                .setDescription("Successfully removed option with ID: " + (optionId + 1))
+                                .build()).queue();
+                        return;
+                    } else if (args[2].equalsIgnoreCase("list")) {
+                        if (poll.getPollOptions().size() == 0) {
+                            channel.sendMessage(MessageUtils.getEmbed(sender)
+                                    .setColor(Color.CYAN)
+                                    .setDescription("Tjos ").build());
+                        }
+                        StringBuilder builder = new StringBuilder("**Options:**\n```md\n");
+                        int i = 1;
+                        for (PollOption option : poll.getPollOptions()) {
+                            builder.append(String.valueOf(i)).append(". ").append(option.getOption()).append("\n");
+                            i++;
+                        }
+                        builder.append("```");
+                        channel.sendMessage(builder.toString()).queue();
+                        return;
+                    }
+
+                }
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
