@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 
+import java.awt.Color;
+import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -101,6 +103,31 @@ public class GeneralUtils {
             throw new IllegalArgumentException();
         }
         return item.get();
+    }
+
+    public static String colourFormat(Color color) {
+        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
+    public static Color getColor(String string) {
+        for (Field f : Color.class.getFields()) {
+            try {
+                if (f.getType() == Color.class && ((f.getModifiers() & java.lang.reflect.Modifier.FINAL) == java.lang.reflect.Modifier.FINAL) && f.getName().equalsIgnoreCase(string)) {
+                    return (Color) f.get(null);
+                }
+            } catch (java.lang.IllegalAccessException e) {
+                // it should never get to here
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    public static String truncate(int length, String string) {
+        return truncate(length, string, true);
+    }
+
+    public static String truncate(int length, String string, boolean ellipse) {
+        return string.substring(0, Math.min(string.length() - 1, 49)) + (string.length() > length ? "..." : "");
     }
 
 }
