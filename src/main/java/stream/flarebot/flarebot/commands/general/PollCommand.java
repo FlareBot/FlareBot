@@ -43,6 +43,10 @@ public class PollCommand implements Command {
             if (args[0].equalsIgnoreCase("create")) {
                 if (args.length >= 2) {
                     String question = MessageUtils.getMessage(args, 1);
+                    if (question.length() > 1024) {
+                        MessageUtils.sendErrorMessage("The question you entered is too long! It has to be 1024 characters or shorter!", channel);
+                        return;
+                    }
                     Poll poll = new Poll(question, channel);
                     guild.getPolls().add(poll);
                     channel.sendMessage(new EmbedBuilder().setTitle("Poll created", null)
@@ -198,7 +202,11 @@ public class PollCommand implements Command {
                         if (options.size() >= 20) {
                             MessageUtils.sendErrorMessage("You can only have up to 20 options on one poll!", channel);
                             return;
+                        } else if (option.length() > 1024) {
+                            MessageUtils.sendErrorMessage("The option you entered is too long! It has to be 1024 characters or shorter!", channel);
+                            return;
                         }
+
                         options.add(new PollOption(option));
                         channel.sendMessage(MessageUtils.getEmbed(sender)
                                 .setColor(Color.GREEN)
