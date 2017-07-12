@@ -29,7 +29,7 @@ public class GeneralUtils {
         return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
     }
 
-    public static EmbedBuilder getReportEmbed(User sender, Report report, TextChannel channel) {
+    public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
         User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
         User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
@@ -64,7 +64,7 @@ public class GeneralUtils {
         progress.append(StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)));
         progress.append("]()");
         progress.append(StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)));
-        progress.append(" " + GeneralUtils.percentageFormat.format(percentage) + "%");
+        progress.append(" ").append(GeneralUtils.percentageFormat.format(percentage)).append("%");
         return progress.toString();
     }
 

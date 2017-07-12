@@ -30,7 +30,7 @@ public class ReportCommand implements Command {
 
             ReportManager.getInstance().report(channel.getGuild().getId(), report);
 
-            MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report, channel).setDescription("Successfully reported the user"));
+            MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {
             MessageUtils.getUsage(this, channel, sender).queue();
         }
