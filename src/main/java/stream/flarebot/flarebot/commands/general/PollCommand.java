@@ -42,6 +42,10 @@ public class PollCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("create")) {
                 if (args.length >= 2) {
+                    if (guild.getPolls().size() >= 12) {
+                        MessageUtils.sendErrorMessage("You cannot have more that 12 polls at any one time!", channel);
+                        return;
+                    }
                     String question = MessageUtils.getMessage(args, 1);
                     if (question.length() > 1024) {
                         MessageUtils.sendErrorMessage("The question you entered is too long! It has to be 1024 characters or shorter!", channel);
@@ -185,7 +189,7 @@ public class PollCommand implements Command {
                         }
 
                         channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setDescription("Information for option ID: "+ args[1])
+                                .setDescription("Information for option ID: " + args[1])
                                 .setColor(Color.CYAN)
                                 .addField("Option", GeneralUtils.truncate(1024, option.getOption(), false), false)
                                 .addField("Votes", String.valueOf(option.getVotes()), false)
@@ -275,21 +279,30 @@ public class PollCommand implements Command {
                     }
                 }
             } else if (args[0].equalsIgnoreCase("vote")) {
-                if (args.length == 3) {
+                if (args.length == 3 || (args.length == 2 && guild.getPolls().size() == 1)) {
 
-                    Poll poll = getPollById(args[1], guild.getPolls(), channel);
-                    if (poll == null) {
-                        return;
+                    Poll poll;
+                    if (args.length == 2) {
+                        poll = guild.getPolls().getFirst();
+                    } else {
+                        poll = getPollById(args[1], guild.getPolls(), channel);
+                        if (poll == null) {
+                            return;
+                        }
                     }
 
                     int id;
                     PollOption option;
                     try {
-                        id = Integer.parseInt(args[2]) - 1;
+                        if (args.length == 2) {
+                            id = Integer.parseInt(args[1]) - 1;
+                        } else {
+                            id = Integer.parseInt(args[2]) - 1;
+                        }
                         option = poll.getPollOptions().get(id);
                     } catch (NumberFormatException | IndexOutOfBoundsException e) {
                         MessageUtils.sendErrorMessage("Please provide a valid poll option ID!\n" +
-                                "Use the poll list command to see the IDs!", channel);
+                                "Use the poll option list command to see the IDs!", channel);
                         return;
                     }
 
@@ -298,14 +311,25 @@ public class PollCommand implements Command {
                         return;
                     }
 
+                    for (PollOption opt : poll.getPollOptions()) {
+                        if (opt.getVoters().contains(sender.getId()) && !opt.equals(option)) {
+                            opt.getVoters().remove(sender.getId());
+                        }
+                    }
+
                     option.incrementVotes(sender.getId());
 
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setColor(Color.GREEN)
-                            .setDescription("You voted for option: " + id + "! It now has " + option.getVotes() + " votes!")
+                            .setDescription("You voted for option ID: " + (id + 1))
+                            .addField("Option", GeneralUtils.truncate(50, option.getOption()), false)
+                            .addField("Votes", "This option has " + String.valueOf(option.getVotes()) + " votes!", false)
                             .build()).queue();
                     return;
                 }
+            } else if (args[0].equalsIgnoreCase("help")) {
+                MessageUtils.getUsage(this, channel, sender).queue();
+                return;
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
@@ -334,10 +358,19 @@ public class PollCommand implements Command {
         return "Create a poll for your community to vote on!";
     }
 
-    //TODO: Finish when poll is fully done
     @Override
     public String getUsage() {
-        return "`{%}poll ";
+        return "`{%}poll` - Shows if there are any polls running or not\n" +
+                "`{%}poll help` - Shows this help message\n" +
+                "`{%}poll create <question>` - Creates a poll with a specified question\n" +
+                "`{%}poll list` - Lists the polls for the server\n\n" +
+                "`{%}poll <close/open/remove> <pollID>` - Closes, opens or removes a poll with the specified ID\n" +
+                "`{%}poll set <pollID> colour <colour>` - Sets a colour for a poll with the specified ID\n\n" +
+                "`{%}poll options <pollID> <view/remove> <optionID>` - Views or Removes a specific option from a poll\n" +
+                "`{%}poll options <pollID> add <option>` - Adds an option to a poll\n" +
+                "`{%}poll options <pollID> list` - Lists all the options for a poll\n\n" +
+                "`{%}poll setchannel <pollID/\"all\">` - Sets the poll announcement channel for all polls or a specific poll\n" +
+                "`{%}poll vote [pollID] <optionID>` - Votes for an option on a poll (Poll ID is only needed if the server has more than 1 poll)";
     }
 
     @Override
