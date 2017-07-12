@@ -84,7 +84,7 @@ public class ReportsCommand implements Command {
                     }
 
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
-                        channel.sendMessage(GeneralUtils.getReportEmbed(sender, report, channel).build()).queue();
+                        channel.sendMessage(GeneralUtils.getReportEmbed(sender, report).build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
                     }

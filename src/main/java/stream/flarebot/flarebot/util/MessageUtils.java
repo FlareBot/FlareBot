@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MessageUtils {
-    public static final String DEBUG_CHANNEL = "226786557862871040";
+
     private static final Pattern INVITE_REGEX = Pattern
             .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
     private static final Pattern LINK_REGEX = Pattern

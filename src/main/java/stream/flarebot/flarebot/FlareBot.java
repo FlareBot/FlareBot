@@ -1,7 +1,6 @@
 package stream.flarebot.flarebot;
 
 import ch.qos.logback.classic.Level;
-import com.arsenarsen.githubwebhooks4j.GithubWebhooks4J;
 import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
 import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
 import com.arsenarsen.githubwebhooks4j.web.Response;
@@ -10,9 +9,6 @@ import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.arsenarsen.lavaplayerbridge.utils.JDAMultiShard;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.HostDistance;
-import com.datastax.driver.core.PoolingOptions;
 import com.google.gson.*;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -21,7 +17,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
@@ -42,7 +37,6 @@ import stream.flarebot.flarebot.commands.automod.SetSeverityCommand;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -106,6 +100,8 @@ public class FlareBot {
     protected CountDownLatch latch;
     private static String statusHook;
     private static String token;
+
+    private static boolean testBot = false;
 
     public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException, FileNotFoundException {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -190,6 +186,12 @@ public class FlareBot {
         statusHook.setRequired(true);
         options.addOption(statusHook);
 
+        Option testBot = new Option("tb", false, "If the bot is a test bot");
+        statusHook.setArgName("testbot");
+        statusHook.setLongOpt("test-hook");
+        testBot.setRequired(false);
+        options.addOption(testBot);
+
         String tkn;
         try {
             CommandLineParser parser = new DefaultParser();
@@ -198,7 +200,7 @@ public class FlareBot {
             passwd = parsed.getOptionValue("sql");
 
             new SQLController();
-            new CassandraController().init();
+            //new CassandraController().init();
 
             if (parsed.hasOption("s"))
                 FlareBot.secret = parsed.getOptionValue("s");
@@ -216,6 +218,8 @@ public class FlareBot {
             }
             if (parsed.hasOption("bl"))
                 FlareBot.botListAuth = parsed.getOptionValue("bl");
+
+            FlareBot.testBot = parsed.hasOption("tb");
             FlareBot.youtubeApi = parsed.getOptionValue("yt");
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
@@ -932,7 +936,7 @@ public class FlareBot {
     }
 
     public TextChannel getUpdateChannel() {
-        return getChannelByID("226786557862871040");
+        return (testBot ? getChannelByID("242297848123621376") : getChannelByID("226786557862871040"));
     }
 
     public TextChannel getGuildLogChannel() {
