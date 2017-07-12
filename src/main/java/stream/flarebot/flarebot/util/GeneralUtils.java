@@ -109,19 +109,6 @@ public class GeneralUtils {
         return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public static Color getColor(String string) {
-        for (Field f : Color.class.getFields()) {
-            try {
-                if (f.getType() == Color.class && ((f.getModifiers() & java.lang.reflect.Modifier.FINAL) == java.lang.reflect.Modifier.FINAL) && f.getName().equalsIgnoreCase(string)) {
-                    return (Color) f.get(null);
-                }
-            } catch (java.lang.IllegalAccessException e) {
-                // it should never get to here
-            }
-        }
-        throw new IllegalArgumentException();
-    }
-
     public static String truncate(int length, String string) {
         return truncate(length, string, true);
     }

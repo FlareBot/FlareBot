@@ -29,10 +29,10 @@ public enum ColorEnum {
         this.b = b;
     }
 
-    public static Optional<Color> getColourByName(int r, int g, int b) {
+    public static Optional<Color> getColorByName(String name) {
         for (ColorEnum colorEnum : ColorEnum.values()) {
-            if (colorEnum.r == r && colorEnum.g == g && colorEnum.b == b ) {
-                return Optional.of(new Color(r, g, b));
+            if (name.equalsIgnoreCase(colorEnum.name().trim())) {
+                return Optional.of(new Color(colorEnum.r, colorEnum.g, colorEnum.b));
             }
         }
         return Optional.empty();

@@ -12,11 +12,13 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Poll;
 import stream.flarebot.flarebot.objects.PollOption;
+import stream.flarebot.flarebot.util.ColorEnum;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class PollCommand implements Command {
@@ -153,8 +155,8 @@ public class PollCommand implements Command {
                             color = Color.decode(args[3]);
                         } catch (NumberFormatException e) {
                             try {
-                                color = GeneralUtils.getColor(args[3]);
-                            } catch (IllegalArgumentException ex) {
+                                color = ColorEnum.getColorByName(args[3]).get();
+                            } catch (NoSuchElementException ex) {
                                 MessageUtils.sendErrorMessage("That is not a valid color input!", channel);
                                 return;
                             }
