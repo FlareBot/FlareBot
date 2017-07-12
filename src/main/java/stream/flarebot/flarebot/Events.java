@@ -29,6 +29,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -37,10 +38,8 @@ import java.io.*;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -49,6 +48,7 @@ public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
+    private HashMap<String, Integer> spamMap = new HashMap<>();
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
@@ -61,6 +61,12 @@ public class Events extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         FlareBot.getInstance().latch.countDown();
+        new Timer().schedule(new TimerTask() { //If you're not ok with this in the ready event just say so.
+            @Override
+            public void run() {
+                spamMap = new HashMap<>(); //According to stack overflow it's better to just create a new hashmap and let the garbage collector get the other one.
+            }
+        }, 1000l, 1000l);
     }
 
     @Override
@@ -218,6 +224,18 @@ public class Events extends ListenerAdapter {
             }
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
+                    if(spamMap.containsKey(event.getGuild().getId())){
+                        int messages = spamMap.get(event.getGuild().getId());
+                        double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
+                        allowed = allowed == 0 ? 1 : allowed;
+                        if(messages > allowed){
+
+                        } else {
+                            spamMap.put(event.getGuild().getId(), messages++);
+                        }
+                    } else {
+
+                    }
                     if (cmd.getType() == CommandType.HIDDEN) {
                         if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
                             try {

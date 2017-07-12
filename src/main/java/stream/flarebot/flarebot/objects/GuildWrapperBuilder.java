@@ -60,6 +60,6 @@ public class GuildWrapperBuilder {
     }
 
     public GuildWrapper build(){
-        return new GuildWrapper(guildId, autoModGuild, welcome, polls, autoAssignRoles, selfAssignRoles, locale);
+        return new GuildWrapper(guildId, autoModGuild, welcome, polls, autoAssignRoles, selfAssignRoles, locale, false, 0l, "");
     }
 }

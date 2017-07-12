@@ -17,8 +17,11 @@ public class GuildWrapper {
     private Set<String> autoAssignRoles;
     private Set<String> selfAssignRoles;
     private Language.Locales locale;
+    private boolean blocked;
+    private long unBlockTime;
+    private String blockReason;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, Set<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale){
+    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, Set<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale, boolean blocked, long unBlockTime, String blockReason){
         this.guildId = guildId;
         this.autoModGuild = autoModGuild;
         this.welcome = welcome;
@@ -26,6 +29,9 @@ public class GuildWrapper {
         this.autoAssignRoles = autoAssignRoles;
         this.selfAssignRoles = selfAssignRoles;
         this.locale = locale;
+        this.blocked = blocked;
+        this.unBlockTime = unBlockTime;
+        this.blockReason = blockReason;
     }
 
     public Guild getGuild(){
@@ -67,5 +73,35 @@ public class GuildWrapper {
 
     public Language.Locales getLocale(){
         return this.locale;
+    }
+
+    public boolean isBlocked() {
+        return this.blocked;
+    }
+
+    public void addBlocked(String reason) {
+        blocked = true;
+        blockReason = reason;
+        unBlockTime = -1; //-1 represents both infinite and unblocked
+    }
+
+    public void addBlocked(String reason, long unBlockTime){
+        blocked = true;
+        blockReason = reason;
+        unBlockTime = unBlockTime;
+    }
+
+    public void revokeBlock(){
+        blocked = false;
+        blockReason = "";
+        unBlockTime = -1; //-1 represents both infinite and unblocked
+    }
+
+    public String getBlockReason(){
+        return blockReason;
+    }
+
+    public long getUnBlockTime(){
+        return unBlockTime;
     }
 }

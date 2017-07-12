@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.FlareBotManager;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -24,7 +24,7 @@ public class GuildCommand implements Command {
                         MessageUtils.sendErrorMessage("Guild already blocked!", channel);
                         return;
                     }
-                    FlareBotManager.getInstance().addBlockedGuild(guild.getGuild().getId());
+                    FlareBotManager.getInstance().addBlockedGuild(guild.getGuild().getId(), "");
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("This guild has been blocked!").build(), 5000, channel);
                     return;
                 } else if (args.length == 2) {
@@ -37,7 +37,7 @@ public class GuildCommand implements Command {
                         MessageUtils.sendErrorMessage("Guild already blocked!", channel);
                         return;
                     }
-                    FlareBotManager.getInstance().addBlockedGuild(guild1.getId());
+                    FlareBotManager.getInstance().addBlockedGuild(guild1.getId(), "");
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("That guild has been blocked!").build(), 5000, channel);
                     return;
                 }

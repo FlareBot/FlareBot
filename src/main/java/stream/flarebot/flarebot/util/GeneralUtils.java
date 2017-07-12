@@ -6,6 +6,8 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
@@ -101,6 +103,16 @@ public class GeneralUtils {
             throw new IllegalArgumentException();
         }
         return item.get();
+    }
+
+    public static int getGuildUserCount(Guild guild){
+        int i = 0;
+        for(Member member: guild.getMembers()){
+            if(!member.getUser().isBot()){
+                i++;
+            }
+        }
+        return i;
     }
 
 }
