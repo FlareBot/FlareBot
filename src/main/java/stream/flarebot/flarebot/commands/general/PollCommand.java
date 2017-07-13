@@ -108,7 +108,7 @@ public class PollCommand implements Command {
                             }
                             action = "closed";
                         } else if (args[0].equalsIgnoreCase("open")) {
-                            if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.open")) {
+                            if (!this.getPermissions(channel).hasPermission(member, "flarebot.poll.open")) {
                                 MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.open` to do this!", channel);
                                 return;
                             }
@@ -120,7 +120,7 @@ public class PollCommand implements Command {
                             }
                             action = "opened";
                         } else {
-                            if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.remove")) {
+                            if (!this.getPermissions(channel).hasPermission(member, "flarebot.poll.remove")) {
                                 MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.remove` to do this!", channel);
                                 return;
                             }
