@@ -44,8 +44,8 @@ public class PollCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("create")) {
                 if (args.length >= 2) {
-                    if (guild.getPolls().size() >= 12) {
-                        MessageUtils.sendErrorMessage("You cannot have more that 12 polls at any one time!", channel);
+                    if (guild.getPolls().size() >= 4) {
+                        MessageUtils.sendErrorMessage("You cannot have more that 4 polls at any one time!", channel);
                         return;
                     }
                     String question = MessageUtils.getMessage(args, 1);
@@ -72,12 +72,12 @@ public class PollCommand implements Command {
                             .build()).queue();
                     return;
                 }
-                guild.getPolls().stream().limit(12).forEach(poll -> {
+                for (Poll poll : guild.getPolls()) {
                     builder.addField("Poll ID: " + (guild.getPolls().indexOf(poll) + 1)
                             , "Status: " + WordUtils.capitalizeFully(poll.getStatus().name()) + "\n" +
                                     "Poll Options: " + String.valueOf(poll.getPollOptions().size())
                             , true);
-                });
+                }
                 channel.sendMessage(builder.build()).queue();
                 return;
             } else if (args[0].equalsIgnoreCase("close") ||
