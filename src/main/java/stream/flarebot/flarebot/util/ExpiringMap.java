@@ -17,6 +17,10 @@ public class ExpiringMap<K, V> {
         elem = new TreeMap<>();
     }
 
+    public void purge() {
+        this.purge(false);
+    }
+
     public void purge(boolean force) {
         long issueMS = System.currentTimeMillis();
         Iterator<Map.Entry<Long, ConcurrentMap<K, V>>> e = elem.entrySet().iterator();
