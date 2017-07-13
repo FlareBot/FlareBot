@@ -27,7 +27,7 @@ public class PollCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             int closedSize = guild.getPolls().stream().filter(Poll::isClosed).collect(Collectors.toList()).size();
-            if (guild.getPolls().size() == 0 || closedSize > 0) {
+            if (guild.getPolls().size() == 0 || (closedSize > 0 && guild.getPolls().size() == closedSize)) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("This guild has no polls currently running!" +
                                 (closedSize > 0 && FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.open")
