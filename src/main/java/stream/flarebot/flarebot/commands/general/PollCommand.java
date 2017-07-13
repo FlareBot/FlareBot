@@ -100,24 +100,16 @@ public class PollCommand implements Command {
                                 MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.close` to do this!", channel);
                                 return;
                             }
-                            try {
-                                guild.getPolls().get(index).setStatus(Poll.PollStatus.CLOSED);
-                            } catch (IllegalStateException e) {
-                                MessageUtils.sendErrorMessage(e.getMessage(), channel);
-                                return;
-                            }
+
+                            guild.getPolls().get(index).setStatus(Poll.PollStatus.CLOSED);
+
                             action = "closed";
                         } else if (args[0].equalsIgnoreCase("open")) {
                             if (!this.getPermissions(channel).hasPermission(member, "flarebot.poll.open")) {
                                 MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.open` to do this!", channel);
                                 return;
                             }
-                            try {
-                                guild.getPolls().get(index).setStatus(Poll.PollStatus.OPEN);
-                            } catch (IllegalStateException e) {
-                                MessageUtils.sendErrorMessage(e.getMessage(), channel);
-                                return;
-                            }
+                            guild.getPolls().get(index).setStatus(Poll.PollStatus.OPEN);
                             action = "opened";
                         } else {
                             if (!this.getPermissions(channel).hasPermission(member, "flarebot.poll.remove")) {
@@ -130,6 +122,9 @@ public class PollCommand implements Command {
                     } catch (IndexOutOfBoundsException e) {
                         MessageUtils.sendErrorMessage("Please provide a valid poll ID!\n" +
                                 "Use the poll list command to see the IDs!", channel);
+                        return;
+                    } catch (IllegalStateException e) {
+                        MessageUtils.sendErrorMessage(e.getMessage(), channel);
                         return;
                     }
 
