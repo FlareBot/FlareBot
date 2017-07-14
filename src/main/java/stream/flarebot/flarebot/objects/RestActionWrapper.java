@@ -9,7 +9,6 @@ public class RestActionWrapper {
     private final Class<? extends Command> origin;
 
     public RestActionWrapper(RestAction action, Class<? extends Command> origin) {
-
         this.action = action;
         this.origin = origin;
     }

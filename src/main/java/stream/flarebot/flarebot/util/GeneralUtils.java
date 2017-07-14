@@ -123,7 +123,7 @@ public class GeneralUtils {
     }
 
     public static User getUser(String s) {
-         return getUser(s, null);
+        return getUser(s, null);
     }
 
     public static User getUser(String s, String guildId) {
@@ -173,9 +173,7 @@ public class GeneralUtils {
                 .findFirst().orElse(null);
         if (role != null) return role;
         try {
-
             role = FlareBot.getInstance().getGuildByID(guildId).getRoleById(Long.parseLong(s.replaceAll("[^0-9]", "")));
-
             if (role != null) return role;
         } catch (NumberFormatException | NullPointerException ignored) {
         }
