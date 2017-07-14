@@ -456,7 +456,7 @@ public class FlareBot {
                     LOGGER.error("Could not save permissions!", e);
                 }
             }
-        }.repeat(TimeUnit.MINUTES.toMillis(5), TimeUnit.MINUTES.toMillis(10));
+        }.repeat(TimeUnit.MINUTES.toMillis(5), TimeUnit.MINUTES.toMillis(1));
 
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
