@@ -130,7 +130,7 @@ public class GeneralUtils {
     }
 
     public static User getUser(String s, String guildId) {
-        if (GeneralUtils.userDiscrim.matcher(s).find()) {
+        if (userDiscrim.matcher(s).find()) {
             if (guildId.isEmpty()) {
                 return FlareBot.getInstance().getUsers().stream()
                         .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
@@ -171,8 +171,7 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId) {
-        Role role;
-        role = FlareBot.getInstance().getGuildByID(guildId).getRoles().stream()
+        Role role = FlareBot.getInstance().getGuildByID(guildId).getRoles().stream()
                 .filter(rolePredicate -> rolePredicate.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
         if (role != null) return role;
