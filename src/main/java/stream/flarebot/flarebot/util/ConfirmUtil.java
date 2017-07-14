@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-public class ConfirmLib {
+public class ConfirmUtil {
 
     private static final ExpiringMap<String, Set<RestActionWrapper>> confirmMap = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(1));
 
@@ -53,7 +53,7 @@ public class ConfirmLib {
     }
 
     public static void clearConfirmMap() {
-        ConfirmLib.clearConfirmMap(false);
+        ConfirmUtil.clearConfirmMap(false);
     }
 
     public static void clearConfirmMap(boolean force) {

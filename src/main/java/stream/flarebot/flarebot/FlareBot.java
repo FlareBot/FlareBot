@@ -45,7 +45,7 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.ConfirmLib;
+import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -569,7 +569,7 @@ public class FlareBot {
 
             @Override
             public void run() {
-                ConfirmLib.clearConfirmMap();
+                ConfirmUtil.clearConfirmMap();
             }
 
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));

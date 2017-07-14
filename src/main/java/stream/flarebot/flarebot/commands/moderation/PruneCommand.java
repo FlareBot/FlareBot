@@ -8,7 +8,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.RestActionWrapper;
-import stream.flarebot.flarebot.util.ConfirmLib;
+import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -41,7 +41,7 @@ public class PruneCommand implements Command {
                                     "To confirm type `{%}prune confirm` within 1 minute!"))
                             .build()).queue();
 
-                    ConfirmLib.pushAction(sender.getId(),
+                    ConfirmUtil.pushAction(sender.getId(),
                             new RestActionWrapper(guild.getGuild().getController()
                                     .prune(amount)
                                     .reason("Pruned by user: " + MessageUtils.getTag(sender)), this.getClass()));
@@ -52,9 +52,9 @@ public class PruneCommand implements Command {
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("confirm")) {
-                if (ConfirmLib.checkExists(sender.getId(), this.getClass())) {
-                    ConfirmLib.get(sender.getId(), this.getClass()).queue();
-                    ConfirmLib.remove(sender.getId(), this.getClass());
+                if (ConfirmUtil.checkExists(sender.getId(), this.getClass())) {
+                    ConfirmUtil.get(sender.getId(), this.getClass()).queue();
+                    ConfirmUtil.remove(sender.getId(), this.getClass());
                 } else {
                     MessageUtils.sendErrorMessage("You haven't got any action to confirm!", channel);
                 }
