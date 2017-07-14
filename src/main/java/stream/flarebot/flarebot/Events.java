@@ -42,6 +42,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
@@ -229,12 +230,16 @@ public class Events extends ListenerAdapter {
                         double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
                         allowed = allowed == 0 ? 1 : allowed;
                         if(messages > allowed){
-
+                            GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
+                            if(!guild.isBlocked()){
+                                event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
+                                guild.addBlocked("Command spam", TimeUnit.MINUTES.toMillis(5l));
+                            }
                         } else {
                             spamMap.put(event.getGuild().getId(), messages++);
                         }
                     } else {
-
+                        spamMap.put(event.getGuild().getId(), 1);
                     }
                     if (cmd.getType() == CommandType.HIDDEN) {
                         if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
@@ -300,6 +305,22 @@ public class Events extends ListenerAdapter {
                 } else {
                     for (String alias : cmd.getAliases()) {
                         if (alias.equalsIgnoreCase(command)) {
+                            if(spamMap.containsKey(event.getGuild().getId())){
+                                int messages = spamMap.get(event.getGuild().getId());
+                                double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
+                                allowed = allowed == 0 ? 1 : allowed;
+                                if(messages > allowed){
+                                    GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
+                                    if(!guild.isBlocked()){
+                                        event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
+                                        guild.addBlocked("Command spam", TimeUnit.MINUTES.toMillis(5l));
+                                    }
+                                } else {
+                                    spamMap.put(event.getGuild().getId(), messages++);
+                                }
+                            } else {
+                                spamMap.put(event.getGuild().getId(), 1);
+                            }
                             if (cmd.getType() == CommandType.HIDDEN) {
                                 if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
                                     return;
