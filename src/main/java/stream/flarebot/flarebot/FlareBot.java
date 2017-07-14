@@ -45,6 +45,7 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.ConfirmLib;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -509,6 +510,7 @@ public class FlareBot {
         registerCommand(new ShardInfoCommand());
         registerCommand(new SongNickCommand());
         registerCommand(new StatsCommand());
+        registerCommand(new PruneCommand());
 
         ApiFactory.bind();
 
@@ -562,6 +564,15 @@ public class FlareBot {
                 sendData();
             }
         }.repeat(10, 30000);
+
+        new FlarebotTask("ClearConfirmMap" + System.currentTimeMillis()) {
+
+            @Override
+            public void run() {
+                ConfirmLib.clearConfirmMap();
+            }
+
+        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
 
         setupUpdate();
 
