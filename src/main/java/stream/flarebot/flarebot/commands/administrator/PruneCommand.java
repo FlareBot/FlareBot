@@ -1,4 +1,8 @@
 package stream.flarebot.flarebot.commands.administrator;
 
-public class PruneCommand {
+import stream.flarebot.flarebot.commands.Command;
+
+public class PruneCommand implements Command {
+
+
 }
