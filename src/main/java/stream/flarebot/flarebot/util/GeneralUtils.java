@@ -172,7 +172,7 @@ public class GeneralUtils {
 
     public static Role getRole(String s, String guildId) {
         Role role = FlareBot.getInstance().getGuildByID(guildId).getRoles().stream()
-                .filter(rolePredicate -> rolePredicate.getName().equalsIgnoreCase(s))
+                .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
         if (role != null) return role;
         try {
