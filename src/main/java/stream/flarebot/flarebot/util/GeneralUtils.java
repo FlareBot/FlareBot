@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
-    private static final Pattern userDiscrim = Pattern.compile(".#[0-9]{4}");
+    private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
