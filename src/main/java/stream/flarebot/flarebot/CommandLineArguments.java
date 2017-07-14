@@ -7,7 +7,7 @@ public enum CommandLineArguments {
     SQL_PW("MySQL login password for user flare at localhost for database FlareBot", "sql", "sql", "password"),
     SECRET("Webhooks secret", "s", "secret", "secret"),
     DBOTS("Discord Bots token", "db", "discord-bots-token", "discord-bots"),
-    BOTLIST("Botlist token", "bt", "botlist", "botlist-token"),
+    BOTLIST("Botlist token", "bl", "botlist", "botlist-token"),
     YTAPI("YouTube search API token", "yt", "yt-api-token", "yt-api-token"),
     WEBSECRET("Website API secret", "websecret", "web-secret", "web-secret"),
     STATUSHOOK("Bot status hook", "statushook", "statushook", "statushook"),
@@ -29,7 +29,7 @@ public enum CommandLineArguments {
     }
 
     public String getValue() {
-        return option.getValue();
+        return parsed.getOptionValue(option.getOpt());
     }
 
     public boolean isSet() {
