@@ -69,12 +69,14 @@ public class PruneCommand implements Command {
 
     @Override
     public String getDescription() {
-        return null;
+        return "Allows server mods to easily prune members from a discord";
     }
 
     @Override
     public String getUsage() {
-        return "";
+        return "`{%}prune server <days>` - Prunes the entire server." +
+                " Only members inactive longer than the specified amount of days will be removed\n" +
+                "`{%}prune confirm` - Confirms a user's actions";
     }
 
     @Override
