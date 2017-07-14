@@ -233,7 +233,7 @@ public class Events extends ListenerAdapter {
                             GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
                             if(!guild.isBlocked()){
                                 event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
-                                guild.addBlocked("Command spam", TimeUnit.MINUTES.toMillis(5l));
+                                guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
                             }
                         } else {
                             spamMap.put(event.getGuild().getId(), messages++);
@@ -313,7 +313,7 @@ public class Events extends ListenerAdapter {
                                     GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
                                     if(!guild.isBlocked()){
                                         event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
-                                        guild.addBlocked("Command spam", TimeUnit.MINUTES.toMillis(5l));
+                                        guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
                                     }
                                 } else {
                                     spamMap.put(event.getGuild().getId(), messages++);
