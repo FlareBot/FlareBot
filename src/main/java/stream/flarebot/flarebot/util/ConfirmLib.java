@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.moderation.PruneCommand;
 import stream.flarebot.flarebot.objects.RestActionWrapper;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +30,10 @@ public class ConfirmLib {
     public static RestAction get(String userID, Class<? extends Command> command) {
         if (confirmMap.containsKey(userID)) {
             Set<RestActionWrapper> wrappers = confirmMap.get(userID);
-            return ((RestActionWrapper) wrappers.stream().filter(wrapper -> wrapper.getOrigin().equals(command)).toArray()[0]).getAction();
+            Optional<RestActionWrapper> wrapper = wrappers.stream().filter(w -> w.getOrigin().equals(command)).findFirst();
+            if (wrapper.isPresent()) {
+                return wrapper.get().getAction();
+            }
         }
         return null;
     }
