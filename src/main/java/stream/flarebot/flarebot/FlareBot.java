@@ -30,7 +30,7 @@ import spark.Spark;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.administrator.*;
+import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.automod.AutoModCommand;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
 import stream.flarebot.flarebot.commands.automod.SetSeverityCommand;
