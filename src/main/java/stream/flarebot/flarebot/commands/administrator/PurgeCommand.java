@@ -78,7 +78,7 @@ public class PurgeCommand implements Command {
                                 public void run() {
                                     s.delete().queue();
                                 }
-                            }.delay(5_000));
+                            }.delay(TimeUnit.SECONDS.toMillis(5)));
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String

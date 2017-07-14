@@ -458,14 +458,16 @@ public class FlareBot {
                     LOGGER.error("Could not save permissions!", e);
                 }
             }
-        }.repeat(300000, 60000);
+        }.repeat(TimeUnit.MINUTES.toMillis(5), TimeUnit.MINUTES.toMillis(10));
+
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
                     setStatus("_help | _invite");
             }
-        }.repeat(10, 32000);
+        }.repeat(10, TimeUnit.SECONDS.toMillis(32));
+
         new FlarebotTask("PostDbotsData" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -474,7 +476,8 @@ public class FlareBot {
                             .format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
-        }.repeat(10, 600000);
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
         new FlarebotTask("PostBotlistData" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -483,14 +486,14 @@ public class FlareBot {
                             .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
-        }.repeat(10, 600000);
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
         new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 sendData();
             }
-        }.repeat(10, 30000);
+        }.repeat(10, TimeUnit.SECONDS.toMillis(30));
 
         setupUpdate();
 

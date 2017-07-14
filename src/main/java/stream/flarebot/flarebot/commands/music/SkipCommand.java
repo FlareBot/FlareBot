@@ -140,7 +140,7 @@ public class SkipCommand implements Command {
                         musicManager.getPlayer(s).skip();
                     votes.remove(s);
                 }
-            }.delay(20000);
+            }.delay(TimeUnit.SECONDS.toMillis(20));
             channel.sendMessage(MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
                     + "** has started!\nUse " + FlareBot.getPrefix(channel.getGuild().getId()) + "skip YES|NO to vote!")

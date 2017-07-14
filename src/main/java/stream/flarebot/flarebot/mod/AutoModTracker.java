@@ -15,6 +15,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class AutoModTracker extends ListenerAdapter {
@@ -27,7 +28,7 @@ public class AutoModTracker extends ListenerAdapter {
             public void run() {
                 spamCounter.forEach((s, map) -> map.clear());
             }
-        }.repeat(60_000, 60_000);
+        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(1));
     }
 
     @Override

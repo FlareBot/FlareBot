@@ -391,7 +391,7 @@ public class Events extends ListenerAdapter {
                     public void run() {
                         delete(msg);
                     }
-                }.delay(5000);
+                }.delay(TimeUnit.SECONDS.toMillis(5));
                 return true;
             }
         }

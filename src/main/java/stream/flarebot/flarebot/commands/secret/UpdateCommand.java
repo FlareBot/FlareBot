@@ -63,7 +63,7 @@ public class UpdateCommand implements Command {
                                 public void run() {
                                     update(true, channel);
                                 }
-                            }.delay(p.toStandardSeconds().getSeconds() * 1000);
+                            }.delay(TimeUnit.SECONDS.toMillis(p.toStandardSeconds().getSeconds()));
                         } catch (IllegalArgumentException e) {
                             channel.sendMessage("That is an invalid time option!").queue();
                             return;
