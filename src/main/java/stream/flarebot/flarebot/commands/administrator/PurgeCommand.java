@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class PurgeCommand implements Command {
     private Map<String, Long> cooldowns = new HashMap<>();

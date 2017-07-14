@@ -49,7 +49,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.*;
+import java.awt.Color;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -61,8 +61,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
