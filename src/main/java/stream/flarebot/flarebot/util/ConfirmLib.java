@@ -1,26 +1,26 @@
 package stream.flarebot.flarebot.util;
 
 import net.dv8tion.jda.core.requests.RestAction;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.moderation.PruneCommand;
 import stream.flarebot.flarebot.objects.RestActionWrapper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ConfirmLib {
 
-    private static final ExpiringMap<String, List<RestActionWrapper>> confirmMap = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(1));
+    private static final ExpiringMap<String, Set<RestActionWrapper>> confirmMap = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(1));
 
     public static void pushAction(String userID, RestActionWrapper action) {
         if (confirmMap.containsKey(userID)) {
-            List<RestActionWrapper> actions = confirmMap.get(userID);
+            Set<RestActionWrapper> actions = confirmMap.get(userID);
             if (actions.stream().filter(wrapper -> wrapper.getOrigin().equals(action.getOrigin())).count() == 0) {
                 actions.add(action);
             }
         } else {
-            ArrayList<RestActionWrapper> actions = new ArrayList<>();
+            Set<RestActionWrapper> actions = new ConcurrentHashSet<>();
             actions.add(action);
             confirmMap.put(userID, actions);
         }
@@ -28,7 +28,7 @@ public class ConfirmLib {
 
     public static RestAction get(String userID, Class<? extends Command> command) {
         if (confirmMap.containsKey(userID)) {
-            List<RestActionWrapper> wrappers = confirmMap.get(userID);
+            Set<RestActionWrapper> wrappers = confirmMap.get(userID);
             return ((RestActionWrapper) wrappers.stream().filter(wrapper -> wrapper.getOrigin().equals(command)).toArray()[0]).getAction();
         }
         return null;
@@ -42,7 +42,7 @@ public class ConfirmLib {
 
     public static boolean checkExists(String userID, Class<? extends Command> command) {
         if (confirmMap.containsKey(userID)) {
-            List<RestActionWrapper> wrappers = confirmMap.get(userID);
+            Set<RestActionWrapper> wrappers = confirmMap.get(userID);
             return wrappers.stream().filter(wrapper -> wrapper.getOrigin().equals(command)).count() > 0;
         }
         return false;
