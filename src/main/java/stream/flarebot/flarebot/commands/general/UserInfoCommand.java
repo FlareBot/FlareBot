@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class UserInfoCommand implements Command {
         if (args.length == 0)
             user = sender;
         else
-            user = MessageUtils.getUser(MessageUtils.getMessage(args, 0));
+            user = GeneralUtils.getUser(MessageUtils.getMessage(args, 0));
 
         if (user == null) {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);

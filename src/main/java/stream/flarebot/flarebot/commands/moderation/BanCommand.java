@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
@@ -23,7 +24,7 @@ public class BanCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (channel.getGuild().getSelfMember().hasPermission(channel, Permission.BAN_MEMBERS)) {
-                User user = MessageUtils.getUser(args[0]);
+                User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
                     channel.sendMessage(new EmbedBuilder()
                             .setDescription("We cannot find that user! Try their ID if you didn't already.")
