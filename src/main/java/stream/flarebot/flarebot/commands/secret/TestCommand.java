@@ -15,7 +15,7 @@ public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        sender.openPrivateChannel().complete().sendMessage(FlareBotManager.GSON.toJson(guild.getAutoModGuild())).queue();
+        sender.openPrivateChannel().complete().sendMessage(FlareBot.GSON.toJson(guild.getAutoModGuild())).queue();
         sender.openPrivateChannel().complete().sendMessage(FlareBot.GSON.toJson(guild)).queue();
     }
 
