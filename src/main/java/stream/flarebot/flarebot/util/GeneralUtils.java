@@ -6,10 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
@@ -126,19 +123,19 @@ public class GeneralUtils {
     }
 
     public static User getUser(String s) {
-         return getUser(s, "");
+         return getUser(s, null);
     }
 
     public static User getUser(String s, String guildId) {
         if (userDiscrim.matcher(s).find()) {
-            if (guildId.isEmpty()) {
+            if (guildId == null || guildId.isEmpty()) {
                 return FlareBot.getInstance().getUsers().stream()
                         .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
                 try {
                     return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
-                            .map(m -> m.getUser())
+                            .map(Member::getUser)
                             .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                             .findFirst().orElse(null);
                 } catch (NullPointerException ignored) {
@@ -146,19 +143,19 @@ public class GeneralUtils {
             }
         } else {
             User tmp;
-            if (guildId.isEmpty()) {
+            if (guildId == null || guildId.isEmpty()) {
                 tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
                 tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
-                        .map(m -> m.getUser())
+                        .map(Member::getUser)
                         .filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             }
             if (tmp != null) return tmp;
             try {
                 Long.parseLong(s.replaceAll("[^0-9]", ""));
-                if (guildId.isEmpty()) {
+                if (guildId == null || guildId.isEmpty()) {
                     tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
                 } else {
                     tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
