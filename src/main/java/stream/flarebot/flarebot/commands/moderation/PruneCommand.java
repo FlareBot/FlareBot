@@ -31,6 +31,7 @@ public class PruneCommand implements Command {
 
                     if (amount == 0) {
                         MessageUtils.sendErrorMessage("The amount of days has to be more that 0!", channel);
+                        return;
                     }
 
                     int userSize = guild.getGuild().getPrunableMemberCount(amount).complete();
@@ -48,6 +49,7 @@ public class PruneCommand implements Command {
 
                 } else {
                     MessageUtils.sendErrorMessage("You need the permission `flarebot.prune.server` to do this!", channel);
+                    return;
                 }
             } else if (args[0].equalsIgnoreCase("confirm")) {
                 if (ConfirmLib.checkExists(sender.getId(), this.getClass())) {
