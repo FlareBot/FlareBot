@@ -21,4 +21,22 @@ public class RestActionWrapper {
     public Class<? extends Command> getOrigin() {
         return origin;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RestActionWrapper wrapper = (RestActionWrapper) o;
+
+        if (!getAction().equals(wrapper.getAction())) return false;
+        return getOrigin().equals(wrapper.getOrigin());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getAction().hashCode();
+        result = 31 * result + getOrigin().hashCode();
+        return result;
+    }
 }
