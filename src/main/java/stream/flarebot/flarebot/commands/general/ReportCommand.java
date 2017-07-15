@@ -20,7 +20,7 @@ public class ReportCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 2) {
-            User user = MessageUtils.getUser(args[0], channel.getGuild().getId());
+            User user = GeneralUtils.getUser(args[0], channel.getGuild().getId());
             if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user: " + args[0], channel);
                 return;

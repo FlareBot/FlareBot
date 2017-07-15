@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.administrator;
+package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
@@ -8,8 +8,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AutoAssignCommand implements Command {
 
