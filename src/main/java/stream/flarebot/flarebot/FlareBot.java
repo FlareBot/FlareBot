@@ -6,7 +6,6 @@ import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
 import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
-import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.arsenarsen.lavaplayerbridge.utils.JDAMultiShard;
 import com.google.gson.*;
@@ -22,7 +21,6 @@ import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
-import org.apache.commons.cli.*;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,7 @@ import spark.Spark;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.administrator.*;
+import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.automod.AutoModCommand;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
 import stream.flarebot.flarebot.commands.automod.SetSeverityCommand;
@@ -45,13 +43,14 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.Color;
+import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -63,6 +62,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -76,9 +77,9 @@ public class FlareBot {
     private static String youtubeApi;
 
     static {
+        new File("latest.log").delete();
         LOGGERS = new ConcurrentHashMap<>();
         LOGGER = getLog(FlareBot.class);
-        new File("latest.log").delete();
     }
 
     private static String botListAuth;
@@ -103,7 +104,7 @@ public class FlareBot {
 
     private static boolean testBot = false;
 
-    public static void main(String[] args) throws ClassNotFoundException, UnknownBindingException, InterruptedException, UnirestException, FileNotFoundException {
+    public static void main(String[] args) throws Exception {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
         SimpleLog.addListener(new SimpleLog.LogListener() {
             @Override
@@ -136,98 +137,27 @@ public class FlareBot {
             }
         });
         Spark.port(8080);
-        Options options = new Options();
 
-        Option token = new Option("t", true, "Bot log in token");
-        token.setArgName("token");
-        token.setLongOpt("token");
-        token.setRequired(true);
-        options.addOption(token);
+        CommandLineArguments.parse(args);
 
-        Option sqlpassword = new Option("sql", true, "MySQL login password for user flare at localhost for database FlareBot");
-        sqlpassword.setArgName("sqlpassword");
-        sqlpassword.setLongOpt("sqlpassword");
-        sqlpassword.setRequired(true);
-        options.addOption(sqlpassword);
+        String tkn = CommandLineArguments.TOKEN.getValue();
+        passwd = CommandLineArguments.SQL_PW.getValue();
 
-        Option secret = new Option("s", true, "Webhooks secret");
-        secret.setArgName("secret");
-        secret.setLongOpt("secret");
-        secret.setRequired(false);
-        options.addOption(secret);
+        new SQLController();
+        //new CassandraController().init();
 
-        Option dBots = new Option("db", true, "Discord Bots token");
-        dBots.setArgName("discord-bots");
-        dBots.setLongOpt("discord-bots-token");
-        dBots.setRequired(false);
-        options.addOption(dBots);
-
-        Option botList = new Option("bl", true, "Botlist token");
-        botList.setArgName("botlist-token");
-        botList.setLongOpt("botlist-token");
-        botList.setRequired(false);
-        options.addOption(botList);
-
-        Option youtubeApi = new Option("yt", true, "YouTube search API token");
-        youtubeApi.setArgName("yt-api-token");
-        youtubeApi.setLongOpt("yt-api-token");
-        youtubeApi.setRequired(true);
-        options.addOption(youtubeApi);
-
-        Option websiteSecret = new Option("websecret", true, "The website secret");
-        websiteSecret.setArgName("web-secret");
-        websiteSecret.setLongOpt("web-secret");
-        websiteSecret.setRequired(false);
-        options.addOption(websiteSecret);
-
-        Option statusHook = new Option("sh", true, "Status webhook");
-        statusHook.setArgName("statushook");
-        statusHook.setLongOpt("status-hook");
-        statusHook.setRequired(true);
-        options.addOption(statusHook);
-
-        Option testBot = new Option("tb", false, "If the bot is a test bot");
-        statusHook.setArgName("testbot");
-        statusHook.setLongOpt("test-hook");
-        testBot.setRequired(false);
-        options.addOption(testBot);
-
-        String tkn;
-        try {
-            CommandLineParser parser = new DefaultParser();
-            CommandLine parsed = parser.parse(options, args);
-            tkn = parsed.getOptionValue("t");
-            passwd = parsed.getOptionValue("sql");
-
-            new SQLController();
-            //new CassandraController().init();
-
-            if (parsed.hasOption("s"))
-                FlareBot.secret = parsed.getOptionValue("s");
-            if (parsed.hasOption("db"))
-                FlareBot.dBotsAuth = parsed.getOptionValue("db");
-            if (parsed.hasOption("web-secret"))
-                FlareBot.webSecret = parsed.getOptionValue("web-secret");
-            if (parsed.hasOption("debug")) {
-                ((ch.qos.logback.classic.Logger) LoggerFactory
-                        .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
-                        .setLevel(Level.DEBUG);
-            }
-            if (parsed.hasOption("sh")) {
-                FlareBot.statusHook = parsed.getOptionValue("sh");
-            }
-            if (parsed.hasOption("bl"))
-                FlareBot.botListAuth = parsed.getOptionValue("bl");
-
-            FlareBot.testBot = parsed.hasOption("tb");
-            FlareBot.youtubeApi = parsed.getOptionValue("yt");
-        } catch (ParseException e) {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter
-                    .printHelp("java -jar FlareBot.jar", "FlareBot", options, "https://github.com/FlareBot/FlareBot", true);
-            e.printStackTrace();
-            return;
+        FlareBot.secret = CommandLineArguments.SECRET.getValue();
+        FlareBot.dBotsAuth = CommandLineArguments.DBOTS.getValue();
+        FlareBot.webSecret = CommandLineArguments.WEBSECRET.getValue();
+        if (CommandLineArguments.DEBUG.isSet()) {
+            ((ch.qos.logback.classic.Logger) LoggerFactory
+                    .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+                    .setLevel(Level.DEBUG);
         }
+        FlareBot.statusHook = CommandLineArguments.STATUSHOOK.getValue();
+        FlareBot.botListAuth = CommandLineArguments.BOTLIST.getValue();
+        FlareBot.testBot = CommandLineArguments.TESTBOT.isSet();
+        FlareBot.youtubeApi = CommandLineArguments.YTAPI.getValue();
 
         if (webSecret == null || webSecret.isEmpty()) apiEnabled = false;
 
@@ -510,6 +440,7 @@ public class FlareBot {
         registerCommand(new ShardInfoCommand());
         registerCommand(new SongNickCommand());
         registerCommand(new StatsCommand());
+        registerCommand(new PruneCommand());
 
         ApiFactory.bind();
 
@@ -564,12 +495,24 @@ public class FlareBot {
             }
         }.repeat(10, 30000);
 
+<<<<<<< HEAD
         new FlarebotTask("spam" + System.currentTimeMillis()){
             @Override
             public void run() {
                 Events.spamMap.clear();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
+=======
+        new FlarebotTask("ClearConfirmMap" + System.currentTimeMillis()) {
+
+            @Override
+            public void run() {
+                ConfirmUtil.clearConfirmMap();
+            }
+
+        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+
+>>>>>>> b99c9a72c4c5340796c7717c6ddf946cb41d2527
         setupUpdate();
 
         Scanner scanner = new Scanner(System.in);
@@ -883,7 +826,7 @@ public class FlareBot {
 
     public static String getMessage(String[] args) {
         String msg = "";
-        for(String arg : args){
+        for (String arg : args) {
             msg += arg + " ";
         }
         return msg.trim();

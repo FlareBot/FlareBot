@@ -6,24 +6,24 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 
+import java.awt.Color;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
+    private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -93,7 +93,8 @@ public class GeneralUtils {
                 failed = true;
                 try {
                     Thread.sleep(backoff);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
                 backoff ^= 2;
             }
         }
@@ -115,4 +116,77 @@ public class GeneralUtils {
         return i;
     }
 
+    public static String colourFormat(Color color) {
+        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
+    public static String truncate(int length, String string) {
+        return truncate(length, string, true);
+    }
+
+    public static String truncate(int length, String string, boolean ellipse) {
+        return string.substring(0, Math.min(string.length(), length)) + (string.length() > length ? "..." : "");
+    }
+
+    public static List<Role> getRole(String string, Guild guild) {
+        return guild.getRolesByName(string, true);
+    }
+
+    public static User getUser(String s) {
+        return getUser(s, null);
+    }
+
+    public static User getUser(String s, String guildId) {
+        if (userDiscrim.matcher(s).find()) {
+            if (guildId == null || guildId.isEmpty()) {
+                return FlareBot.getInstance().getUsers().stream()
+                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                try {
+                    return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                            .map(Member::getUser)
+                            .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } catch (NullPointerException ignored) {
+                }
+            }
+        } else {
+            User tmp;
+            if (guildId == null || guildId.isEmpty()) {
+                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                        .map(Member::getUser)
+                        .filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            }
+            if (tmp != null) return tmp;
+            try {
+                Long.parseLong(s.replaceAll("[^0-9]", ""));
+                if (guildId == null || guildId.isEmpty()) {
+                    tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                } else {
+                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
+                }
+                if (tmp != null) return tmp;
+            } catch (NumberFormatException | NullPointerException ignored) {
+            }
+        }
+        return null;
+    }
+
+    public static Role getRole(String s, String guildId) {
+        Role role = FlareBot.getInstance().getGuildByID(guildId).getRoles().stream()
+                .filter(r -> r.getName().equalsIgnoreCase(s))
+                .findFirst().orElse(null);
+        if (role != null) return role;
+        try {
+            role = FlareBot.getInstance().getGuildByID(guildId).getRoleById(Long.parseLong(s.replaceAll("[^0-9]", "")));
+            if (role != null) return role;
+        } catch (NumberFormatException | NullPointerException ignored) {
+        }
+        return null;
+    }
 }

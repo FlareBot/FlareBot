@@ -4,16 +4,14 @@ import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 public class GuildWrapperBuilder {
 
     private String guildId;
     private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = null;
-    private Set<Poll> polls = new HashSet<>();
+    private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new ConcurrentHashSet<>();
     private Set<String> selfAssignRoles = new ConcurrentHashSet<>();
     private Language.Locales locale = Language.Locales.ENGLISH_UK;
@@ -34,7 +32,7 @@ public class GuildWrapperBuilder {
         return this;
     }
 
-    public GuildWrapperBuilder setPolls(Set<Poll> polls){
+    public GuildWrapperBuilder setPolls(LinkedList<Poll> polls){
         this.polls = polls;
         return this;
     }
