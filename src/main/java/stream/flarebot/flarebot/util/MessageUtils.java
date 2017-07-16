@@ -13,7 +13,7 @@ import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,7 +30,6 @@ public class MessageUtils {
             .compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
     private static final Pattern YOUTUBE_LINK_REGEX = Pattern
             .compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
-    private static final Pattern userDiscrim = Pattern.compile(".#[0-9]{4}");
 
     public static <T> Consumer<T> noOpConsumer() {
         return t -> {
@@ -56,7 +55,7 @@ public class MessageUtils {
         try {
             return user.openPrivateChannel().complete()
                     .sendMessage(message.substring(0, Math.min(message.length(), 1999))).complete();
-        } catch (ErrorResponseException e){
+        } catch (ErrorResponseException e) {
             return null;
         }
     }
@@ -196,51 +195,6 @@ public class MessageUtils {
 
     private static String capitalize(String s) {
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-    }
-
-    public static User getUser(String s, String guildId) {
-        if (userDiscrim.matcher(s).find()) {
-            if (guildId.isEmpty()) {
-                return FlareBot.getInstance().getUsers().stream()
-                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
-            } else {
-                try {
-                    return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
-                            .map(m -> m.getUser())
-                            .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                            .findFirst().orElse(null);
-                } catch (NullPointerException ignored) {
-                }
-            }
-        } else {
-            User tmp;
-            if (guildId.isEmpty()) {
-                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
-            } else {
-                tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
-                        .map(m -> m.getUser())
-                        .filter(user -> user.getName().equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
-            }
-            if (tmp != null) return tmp;
-            try {
-                Long.parseLong(s.replaceAll("[^0-9]", ""));
-                if (guildId.isEmpty()) {
-                    tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
-                } else {
-                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
-                }
-                if (tmp != null) return tmp;
-            } catch (NumberFormatException | NullPointerException ignored) {
-            }
-        }
-        return null;
-    }
-
-    public static User getUser(String s) {
-        return getUser(s, "");
     }
 
     public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, String footer) {

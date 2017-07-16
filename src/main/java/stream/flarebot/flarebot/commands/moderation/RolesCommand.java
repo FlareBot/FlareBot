@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.administrator;
+package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
