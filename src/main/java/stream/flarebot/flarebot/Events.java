@@ -30,6 +30,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ExpiringMap;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -52,7 +53,7 @@ public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
-    private static ConcurrentHashMap<String, Integer> spamMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, Integer> spamMap = new ConcurrentHashMap<>();
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
@@ -65,12 +66,6 @@ public class Events extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         FlareBot.getInstance().latch.countDown();
-        new Timer().schedule(new TimerTask() { //If you're not ok with this in the ready event just say so.
-            @Override
-            public void run() {
-                spamMap.clear();
-            }
-        }, TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
     }
 
     @Override

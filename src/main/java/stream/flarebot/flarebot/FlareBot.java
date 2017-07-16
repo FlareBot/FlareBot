@@ -564,6 +564,12 @@ public class FlareBot {
             }
         }.repeat(10, 30000);
 
+        new FlarebotTask("spam" + System.currentTimeMillis()){
+            @Override
+            public void run() {
+                Events.spamMap.clear();
+            }
+        }.repeat(TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
         setupUpdate();
 
         Scanner scanner = new Scanner(System.in);
