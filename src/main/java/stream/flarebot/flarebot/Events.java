@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -29,6 +30,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.util.ExpiringMap;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -67,14 +69,14 @@ public class Events extends ListenerAdapter {
             public void run() {
                 spamMap = new HashMap<>(); //According to stack overflow it's better to just create a new hashmap and let the garbage collector get the other one.
             }
-        }, 1000l, 1000l);
+        }, TimeUnit.SECONDS.toMillis(1l), TimeUnit.SECONDS.toMillis(1l));
     }
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
-        if (FlareBotManager.getInstance().isBlockedGuild(event.getGuild().getId())) return;
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
@@ -271,7 +273,7 @@ public class Events extends ListenerAdapter {
                             return;
                         }
                     }
-                    if (FlareBotManager.getInstance().isBlockedGuild(event.getGuild().getId()) && !(cmd.getType() == CommandType.HIDDEN)) {
+                    if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
                         return;
                     }
                     if (UpdateCommand.UPDATING.get()) {
