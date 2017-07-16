@@ -51,7 +51,7 @@ public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
-    private HashMap<String, Integer> spamMap = new HashMap<>();
+    private static HashMap<String, Integer> spamMap = new HashMap<>();
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
@@ -69,7 +69,7 @@ public class Events extends ListenerAdapter {
             public void run() {
                 spamMap = new HashMap<>(); //According to stack overflow it's better to just create a new hashmap and let the garbage collector get the other one.
             }
-        }, TimeUnit.SECONDS.toMillis(1l), TimeUnit.SECONDS.toMillis(1l));
+        }, TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
     }
 
     @Override
@@ -229,7 +229,7 @@ public class Events extends ListenerAdapter {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
                     GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
                     if(guild.isBlocked()){
-                        if(System.currentTimeMillis() > guild.getUnBlockTime()){
+                        if(System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1){
                             guild.revokeBlock();
                         }
                     }
@@ -243,7 +243,7 @@ public class Events extends ListenerAdapter {
                                 guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
                             }
                         } else {
-                            spamMap.put(event.getGuild().getId(), messages++);
+                            spamMap.put(event.getGuild().getId(), messages + 1);
                         }
                     } else {
                         spamMap.put(event.getGuild().getId(), 1);
@@ -314,7 +314,7 @@ public class Events extends ListenerAdapter {
                         if (alias.equalsIgnoreCase(command)) {
                             GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
                             if(guild.isBlocked()){
-                                if(System.currentTimeMillis() > guild.getUnBlockTime()){
+                                if(System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1){
                                     guild.revokeBlock();
                                 }
                             }
@@ -328,10 +328,13 @@ public class Events extends ListenerAdapter {
                                         guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
                                     }
                                 } else {
-                                    spamMap.put(event.getGuild().getId(), messages++);
+                                    spamMap.put(event.getGuild().getId(), messages + 1);
                                 }
                             } else {
                                 spamMap.put(event.getGuild().getId(), 1);
+                            }
+                            if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
+                                return;
                             }
                             if (cmd.getType() == CommandType.HIDDEN) {
                                 if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {

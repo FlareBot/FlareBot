@@ -88,7 +88,7 @@ public class GuildWrapper {
     public void addBlocked(String reason, long unBlockTime){
         blocked = true;
         blockReason = reason;
-        unBlockTime = unBlockTime;
+        this.unBlockTime = unBlockTime;
     }
 
     public void revokeBlock(){
