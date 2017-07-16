@@ -20,11 +20,11 @@ public class GuildCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("block")) {
                 if (args.length == 1) {
-                    if (FlareBotManager.getInstance().isBlockedGuild(guild.getGuild().getId())) {
+                    if (guild.isBlocked()) {
                         MessageUtils.sendErrorMessage("Guild already blocked!", channel);
                         return;
                     }
-                    FlareBotManager.getInstance().addBlockedGuild(guild.getGuild().getId(), "");
+                    guild.addBlocked("");
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("This guild has been blocked!").build(), 5000, channel);
                     return;
                 } else if (args.length == 2) {
@@ -33,21 +33,21 @@ public class GuildCommand implements Command {
                         MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
                         return;
                     }
-                    if (FlareBotManager.getInstance().isBlockedGuild(guild1.getId())) {
+                    if (FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked()) {
                         MessageUtils.sendErrorMessage("Guild already blocked!", channel);
                         return;
                     }
-                    FlareBotManager.getInstance().addBlockedGuild(guild1.getId(), "");
+                    FlareBotManager.getInstance().getGuild(guild1.getId()).addBlocked("");
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("That guild has been blocked!").build(), 5000, channel);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("unblock")) {
                 if (args.length == 1) {
-                    if (!FlareBotManager.getInstance().isBlockedGuild(guild.getGuild().getId())) {
+                    if (!guild.isBlocked()) {
                         MessageUtils.sendErrorMessage("Guild not blocked!", channel);
                         return;
                     }
-                    FlareBotManager.getInstance().removeBlockedGuild(guild.getGuild().getId());
+                    guild.revokeBlock();
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription("This guild has been unblocked!").build(), 5000, channel);
                     return;
                 } else if (args.length == 2) {
@@ -56,20 +56,20 @@ public class GuildCommand implements Command {
                         MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
                         return;
                     }
-                    if (!FlareBotManager.getInstance().isBlockedGuild(guild1.getId())) {
+                    if (!FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked()) {
                         MessageUtils.sendErrorMessage("Guild not blocked!", channel);
                         return;
                     }
-                    FlareBotManager.getInstance().removeBlockedGuild(guild1.getId());
+                    FlareBotManager.getInstance().getGuild(guild1.getId()).revokeBlock();
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription("That guild has been unblocked!").build(), 5000, channel);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length == 1) {
                     EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(FlareBotManager.getInstance().isBlockedGuild(guild.getGuild().getId()) ? Color.RED : Color.GREEN);
+                    embedBuilder.setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
                     embedBuilder.setDescription("This guild " +
-                            (FlareBotManager.getInstance().isBlockedGuild(guild.getGuild().getId()) ? "is blocked!" : "is not blocked!"));
+                            (guild.isBlocked() ? "is blocked!" : "is not blocked!"));
                     channel.sendMessage(embedBuilder.build()).queue();
                     return;
                 } else if (args.length == 2) {
@@ -79,9 +79,9 @@ public class GuildCommand implements Command {
                         return;
                     }
                     EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(FlareBotManager.getInstance().isBlockedGuild(guild.getGuild().getId()) ? Color.RED : Color.GREEN);
+                    embedBuilder.setColor(FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? Color.RED : Color.GREEN);
                     embedBuilder.setDescription("That guild " +
-                            (FlareBotManager.getInstance().isBlockedGuild(guild.getGuild().getId()) ? "is blocked!" : "is not blocked!"));
+                            (FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? "is blocked!" : "is not blocked!"));
                     channel.sendMessage(embedBuilder.build()).queue();
                     return;
                 }
