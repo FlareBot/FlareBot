@@ -18,13 +18,16 @@ public class ExpiringMap<K, V> {
     }
 
     public void purge() {
+        this.purge(false);
+    }
+
+    public void purge(boolean force) {
         long issueMS = System.currentTimeMillis();
         Iterator<Map.Entry<Long, ConcurrentMap<K, V>>> e = elem.entrySet().iterator();
         while (e.hasNext()) {
             Map.Entry<Long, ConcurrentMap<K, V>> a = e.next();
-            if (issueMS >= a.getKey()) {
+            if (issueMS >= a.getKey() || force) {
                 e.remove();
-                System.out.println(e);
             }
             else
                 break;
@@ -61,7 +64,7 @@ public class ExpiringMap<K, V> {
 
     public V get(K k) {
         for(ConcurrentMap<K, V> map : elem.values()) {
-            if(map.get(k) != null)
+            if(map.containsKey(k))
                 return map.get(k);
         }
         return null;
@@ -89,5 +92,12 @@ public class ExpiringMap<K, V> {
 
         this.put(key, val);
         return val;
+    }
+
+    public void remove(K k) {
+        for(ConcurrentMap<K, V> map : elem.values()) {
+            if(map.containsKey(k))
+                map.remove(k);
+        }
     }
 }

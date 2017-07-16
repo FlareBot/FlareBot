@@ -25,4 +25,8 @@ public class PollOption {
     public int getVotes() {
         return this.votes;
     }
+
+    public List<String> getVoters() {
+        return voters;
+    }
 }

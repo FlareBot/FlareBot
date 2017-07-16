@@ -34,7 +34,6 @@ public class FlareBotManager {
 
     private static FlareBotManager instance;
 
-    public static final Gson GSON = new GsonBuilder().create();
     private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
     private Map<String, String> blockedGuilds = new ConcurrentHashMap<String, String>();
 
@@ -148,9 +147,7 @@ public class FlareBotManager {
 
     public synchronized GuildWrapper getGuild(String id) {
         //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
-        System.out.println(id);
-        System.out.println(guilds.containsKey(id));
-        if (!guilds.containsKey(id))
+        if(!guilds.containsKey(id))
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
                     .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "\nTime: " + LocalDateTime.now().toString(), false)
                     .build()).queue();
