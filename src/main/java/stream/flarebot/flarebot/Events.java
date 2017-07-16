@@ -42,6 +42,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,7 @@ public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
-    private static HashMap<String, Integer> spamMap = new HashMap<>();
+    private static ConcurrentHashMap<String, Integer> spamMap = new ConcurrentHashMap<>();
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
@@ -67,7 +68,7 @@ public class Events extends ListenerAdapter {
         new Timer().schedule(new TimerTask() { //If you're not ok with this in the ready event just say so.
             @Override
             public void run() {
-                spamMap = new HashMap<>(); //According to stack overflow it's better to just create a new hashmap and let the garbage collector get the other one.
+                spamMap.clear();
             }
         }, TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
     }
