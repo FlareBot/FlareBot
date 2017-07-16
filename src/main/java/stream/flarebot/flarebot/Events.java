@@ -323,7 +323,6 @@ public class Events extends ListenerAdapter {
                                 double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
                                 allowed = allowed == 0 ? 1 : allowed;
                                 if(messages > allowed){
-                                    GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
                                     if(!guild.isBlocked()){
                                         event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
                                         guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
