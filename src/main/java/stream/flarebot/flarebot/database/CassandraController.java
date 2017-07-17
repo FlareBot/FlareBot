@@ -24,7 +24,7 @@ public class CassandraController {
         JSONConfig config = null;
         try {
             File file = new File("config.json");
-            if(!file.exists())
+            if (!file.exists())
                 file.createNewFile();
             config = new JSONConfig("config.json");
         } catch (IOException e) {

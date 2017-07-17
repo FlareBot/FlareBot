@@ -37,7 +37,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.1.1_213</version>
+            <version>3.2.0_226</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -117,8 +117,8 @@
         </dependency>
         <dependency>
             <groupId>com.github.binaryoverload</groupId>
-            <artifactId>json-config</artifactId>
-            <version>2.7</version>
+            <artifactId>JSON-Config</artifactId>
+            <version>2.7.1</version>
         </dependency>
         <dependency>
             <groupId>com.datastax.cassandra</groupId>

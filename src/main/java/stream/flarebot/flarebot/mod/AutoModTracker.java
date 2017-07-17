@@ -11,7 +11,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

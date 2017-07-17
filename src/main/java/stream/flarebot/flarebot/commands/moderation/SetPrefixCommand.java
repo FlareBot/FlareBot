@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.administrator;
+package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
@@ -11,7 +11,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.EnumSet;
 
 public class SetPrefixCommand implements Command {

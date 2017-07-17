@@ -27,28 +27,37 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.*;
-import java.io.*;
+import java.awt.Color;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
+    public static Map<String, Integer> spamMap = new ConcurrentHashMap<>();
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
@@ -67,6 +76,7 @@ public class Events extends ListenerAdapter {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
             TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
@@ -192,7 +202,7 @@ public class Events extends ListenerAdapter {
         cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
-        if(FlareBot.getPrefixes() == null) return;
+        if (FlareBot.getPrefixes() == null) return;
         if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
                 && !event.getAuthor().isBot()) {
             List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
@@ -217,6 +227,27 @@ public class Events extends ListenerAdapter {
             }
             for (Command cmd : flareBot.getCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(command)) {
+                    GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
+                    if (guild.isBlocked()) {
+                        if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
+                            guild.revokeBlock();
+                        }
+                    }
+                    if (spamMap.containsKey(event.getGuild().getId())) {
+                        int messages = spamMap.get(event.getGuild().getId());
+                        double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
+                        allowed = allowed == 0 ? 1 : allowed;
+                        if (messages > allowed) {
+                            if (!guild.isBlocked()) {
+                                event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
+                                guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
+                            }
+                        } else {
+                            spamMap.put(event.getGuild().getId(), messages + 1);
+                        }
+                    } else {
+                        spamMap.put(event.getGuild().getId(), 1);
+                    }
                     if (cmd.getType() == CommandType.HIDDEN) {
                         if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
                             try {
@@ -246,6 +277,9 @@ public class Events extends ListenerAdapter {
                             }
                             return;
                         }
+                    }
+                    if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
+                        return;
                     }
                     if (UpdateCommand.UPDATING.get()) {
                         event.getChannel().sendMessage("**Currently updating!**").queue();
@@ -278,6 +312,30 @@ public class Events extends ListenerAdapter {
                 } else {
                     for (String alias : cmd.getAliases()) {
                         if (alias.equalsIgnoreCase(command)) {
+                            GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
+                            if (guild.isBlocked()) {
+                                if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
+                                    guild.revokeBlock();
+                                }
+                            }
+                            if (spamMap.containsKey(event.getGuild().getId())) {
+                                int messages = spamMap.get(event.getGuild().getId());
+                                double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
+                                allowed = allowed == 0 ? 1 : allowed;
+                                if (messages > allowed) {
+                                    if (!guild.isBlocked()) {
+                                        event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
+                                        guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
+                                    }
+                                } else {
+                                    spamMap.put(event.getGuild().getId(), messages + 1);
+                                }
+                            } else {
+                                spamMap.put(event.getGuild().getId(), 1);
+                            }
+                            if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
+                                return;
+                            }
                             if (cmd.getType() == CommandType.HIDDEN) {
                                 if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
                                     return;
