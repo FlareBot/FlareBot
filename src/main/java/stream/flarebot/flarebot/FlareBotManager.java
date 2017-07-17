@@ -1,25 +1,15 @@
 package stream.flarebot.flarebot;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
-import org.json.JSONObject;
-import stream.flarebot.flarebot.api.ApiRequester;
-import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.api.EmptyCallback;
+import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.util.ExpiringMap;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.database.SQLController;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,6 +53,8 @@ public class FlareBotManager {
                         .execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
                 conn.createStatement()
                         .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
+                conn.createStatement()
+                        .execute("CREATE TABLE IF NOT EXISTS guild_disable (guild_id VARCHAR(20), reason TEXT)");
             });
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Database error!", e);
@@ -144,8 +136,7 @@ public class FlareBotManager {
 
     public synchronized GuildWrapper getGuild(String id) {
         //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
-
-        if(!guilds.containsKey(id))
+        if (!guilds.containsKey(id))
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
                     .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "\nTime: " + LocalDateTime.now().toString(), false)
                     .build()).queue();
@@ -156,4 +147,5 @@ public class FlareBotManager {
     public ExpiringMap<String, GuildWrapper> getGuilds() {
         return guilds;
     }
+
 }

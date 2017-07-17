@@ -1,7 +1,11 @@
 package stream.flarebot.flarebot.api;
 
 import stream.flarebot.flarebot.FlareBot;
-import static stream.flarebot.flarebot.api.Method.*;
+
+import static stream.flarebot.flarebot.api.Method.GET;
+import static stream.flarebot.flarebot.api.Method.PATCH;
+import static stream.flarebot.flarebot.api.Method.POST;
+import static stream.flarebot.flarebot.api.Method.PUT;
 
 public enum ApiRoute {
 
@@ -21,16 +25,17 @@ public enum ApiRoute {
 
     private Method method;
     private String route;
-    ApiRoute(Method method, String route){
+
+    ApiRoute(Method method, String route) {
         this.method = method;
         this.route = route;
     }
 
-    public Method getMethod(){
+    public Method getMethod() {
         return this.method;
     }
 
-    public String getRoute(){
+    public String getRoute() {
         return this.route;
     }
 
