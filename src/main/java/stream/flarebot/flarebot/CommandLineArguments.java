@@ -10,7 +10,7 @@ public enum CommandLineArguments {
     BOTLIST("Botlist token", "bl", "botlist", "botlist-token"),
     YTAPI("YouTube search API token", "yt", "yt-api-token", "yt-api-token"),
     WEBSECRET("Website API secret", "websecret", "web-secret", "web-secret"),
-    STATUSHOOK("Bot status hook", "statushook", "statushook", "statushook"),
+    STATUSHOOK("Bot status hook", "sh", "statushook", "statushook"),
     TESTBOT("Is this a test bot?", "tb", "testbot", null),
     DEBUG("Debug", "debug", "debug", null);
 
