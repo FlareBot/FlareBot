@@ -83,7 +83,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.*;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -103,8 +103,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -556,25 +554,25 @@ public class FlareBot {
 
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));
 
-    setupUpdate();
+        setupUpdate();
 
-    Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
         try
 
-    {
-        if (scanner.next().equalsIgnoreCase("exit")) {
-            quit(false);
-        } else if (scanner.next().equalsIgnoreCase("update")) {
-            quit(true);
+        {
+            if (scanner.next().equalsIgnoreCase("exit")) {
+                quit(false);
+            } else if (scanner.next().equalsIgnoreCase("update")) {
+                quit(true);
+            }
+        } catch (
+                NoSuchElementException ignored)
+
+        {
         }
-    } catch(
-    NoSuchElementException ignored)
 
-    {
     }
-
-}
 
     private void postToBotlist(String auth, String url) {
         for (JDA client : clients) {

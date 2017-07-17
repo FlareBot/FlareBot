@@ -2,7 +2,10 @@ package stream.flarebot.flarebot.api;
 
 import stream.flarebot.flarebot.FlareBot;
 
-import static stream.flarebot.flarebot.api.Method.*;
+import static stream.flarebot.flarebot.api.Method.GET;
+import static stream.flarebot.flarebot.api.Method.PATCH;
+import static stream.flarebot.flarebot.api.Method.POST;
+import static stream.flarebot.flarebot.api.Method.PUT;
 
 public enum ApiRoute {
 

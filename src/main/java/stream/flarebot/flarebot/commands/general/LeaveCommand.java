@@ -9,7 +9,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class LeaveCommand implements Command {
 

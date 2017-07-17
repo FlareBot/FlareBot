@@ -13,7 +13,7 @@ import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
