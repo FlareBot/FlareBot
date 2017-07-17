@@ -1,8 +1,9 @@
 package stream.flarebot.flarebot.database;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
 import stream.flarebot.flarebot.FlareBot;
+import com.mysql.cj.jdbc.MysqlDataSource;
 
+import javax.naming.Context;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;

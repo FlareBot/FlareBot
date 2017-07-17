@@ -25,7 +25,6 @@ public class FlareBotManager {
     private static FlareBotManager instance;
 
     private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
-    private Map<String, String> blockedGuilds = new ConcurrentHashMap<String, String>();
 
     private ExpiringMap<String, GuildWrapper> guilds = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(15));
 

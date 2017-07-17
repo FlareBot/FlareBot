@@ -45,6 +45,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +57,7 @@ public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
-    public static ConcurrentHashMap<String, Integer> spamMap = new ConcurrentHashMap<>();
+    public static Map<String, Integer> spamMap = new ConcurrentHashMap<>();
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
