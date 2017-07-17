@@ -17,7 +17,11 @@ public class LogsCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
-            channel.sendFile(new File("latest.log"), new MessageBuilder().append('\u200B').build()).queue();
+            try {
+                channel.sendFile(new File("latest.log"), new MessageBuilder().append('\u200B').build()).queue();
+            } catch (IOException e) {
+                FlareBot.LOGGER.error("Could not send logs", e);
+            }
         }
     }
 
