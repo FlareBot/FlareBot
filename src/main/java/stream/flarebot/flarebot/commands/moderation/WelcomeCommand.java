@@ -121,7 +121,7 @@ public class WelcomeCommand implements Command {
                                     MessageUtils.getUsage(this, channel, sender).queue();
                                     return;
                                 }
-                            } else if(!args[2].equalsIgnoreCase("add")) {
+                            } else if (!args[2].equalsIgnoreCase("add")) {
                                 MessageUtils.getUsage(this, channel, sender).queue();
                                 return;
                             }

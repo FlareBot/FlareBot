@@ -16,7 +16,7 @@ import stream.flarebot.flarebot.util.ColorEnum;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;

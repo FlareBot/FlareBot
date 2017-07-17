@@ -6,12 +6,16 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 
-import java.awt.Color;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -106,10 +110,10 @@ public class GeneralUtils {
         return item.get();
     }
 
-    public static int getGuildUserCount(Guild guild){
+    public static int getGuildUserCount(Guild guild) {
         int i = 0;
-        for(Member member: guild.getMembers()){
-            if(!member.getUser().isBot()){
+        for (Member member : guild.getMembers()) {
+            if (!member.getUser().isBot()) {
                 i++;
             }
         }

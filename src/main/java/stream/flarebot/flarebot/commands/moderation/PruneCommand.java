@@ -12,7 +12,7 @@ import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class PruneCommand implements Command {
 

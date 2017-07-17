@@ -1,6 +1,6 @@
 package stream.flarebot.flarebot.util;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Optional;
 
 public enum ColorEnum {

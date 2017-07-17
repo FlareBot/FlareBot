@@ -39,7 +39,7 @@ public class ConfirmUtil {
     }
 
     public static void removeUser(String userID) {
-        if(confirmMap.containsKey(userID)) {
+        if (confirmMap.containsKey(userID)) {
             confirmMap.remove(userID);
         }
     }

@@ -30,7 +30,7 @@ public class GithubListener implements EventListener<PushEvent> {
             StringBuilder diff = new StringBuilder("```diff\n");
 
             if (commit.getAdded().length > 0) {
-                String[] added = Arrays.copyOfRange(commit.getAdded(), Math.max(commit.getAdded().length - 6, 0), commit.getAdded().length );
+                String[] added = Arrays.copyOfRange(commit.getAdded(), Math.max(commit.getAdded().length - 6, 0), commit.getAdded().length);
                 for (String filePath : added) {
                     String file = filePath.substring(filePath.lastIndexOf("/") + 1);
                     diff.append("+ ").append(file).append("\n");

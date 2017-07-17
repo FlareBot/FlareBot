@@ -1,14 +1,14 @@
 package stream.flarebot.flarebot.web;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.database.SQLController;
-import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.database.SQLController;
+import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 
 import java.sql.PreparedStatement;
 import java.util.Arrays;

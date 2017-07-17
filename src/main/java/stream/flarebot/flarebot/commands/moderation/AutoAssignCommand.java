@@ -1,6 +1,11 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -46,7 +51,7 @@ public class AutoAssignCommand implements Command {
             passedRole = passedRole.trim();
             if (args[0].equalsIgnoreCase("add")) {
                 Role role = getRole(channel.getGuild(), passedRole);
-                if(role == null){
+                if (role == null) {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                             .getAsMention() + " That is not a valid role!"), channel);
                     return;
@@ -63,18 +68,18 @@ public class AutoAssignCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 Role role = getRole(channel.getGuild(), passedRole);
-                if(role == null) {
+                if (role == null) {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                             .getAsMention() + " That is not a valid role!"), channel);
                     return;
                 }
-                if(guild.getAutoAssignRoles().isEmpty()){
+                if (guild.getAutoAssignRoles().isEmpty()) {
 
-                if (guild.getAutoAssignRoles().contains(role.getId())) {
-                    guild.getAutoAssignRoles().remove(role.getId());
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("Removed " + role.getName() + " from your auto assigned roles")
-                            .build()).queue();
+                    if (guild.getAutoAssignRoles().contains(role.getId())) {
+                        guild.getAutoAssignRoles().remove(role.getId());
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setDescription("Removed " + role.getName() + " from your auto assigned roles")
+                                .build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
                                 .setDescription("That role is not being auto assigned!"), channel);
