@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateCommand implements Command {
@@ -63,7 +64,7 @@ public class UpdateCommand implements Command {
                                 public void run() {
                                     update(true, channel);
                                 }
-                            }.delay(p.toStandardSeconds().getSeconds() * 1000);
+                            }.delay(TimeUnit.SECONDS.toMillis(p.toStandardSeconds().getSeconds()));
                         } catch (IllegalArgumentException e) {
                             channel.sendMessage("That is an invalid time option!").queue();
                             return;
