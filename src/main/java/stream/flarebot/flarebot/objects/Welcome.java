@@ -36,19 +36,19 @@ public class Welcome {
         return this.dmMessages;
     }
 
-    public List<String> getGuildMessages(){
+    public List<String> getGuildMessages() {
         return this.guildMessages;
     }
 
-    public String getRandomDmMessage(){
+    public String getRandomDmMessage() {
         return dmMessages.get(random.nextInt(dmMessages.size()));
     }
 
-    public String getRandomGuildMessage(){
+    public String getRandomGuildMessage() {
         return guildMessages.get(random.nextInt(guildMessages.size()));
     }
 
-    public boolean isDmEnabled(){
+    public boolean isDmEnabled() {
         return this.dmEnabled;
     }
 
@@ -56,11 +56,11 @@ public class Welcome {
         return guildEnabled;
     }
 
-    public void setDmEnabled(boolean enabled){
+    public void setDmEnabled(boolean enabled) {
         this.dmEnabled = enabled;
     }
 
-    public void setGuildEnabled(boolean enabled){
+    public void setGuildEnabled(boolean enabled) {
         this.guildEnabled = enabled;
     }
 }

@@ -28,8 +28,7 @@ public class ExpiringMap<K, V> {
             Map.Entry<Long, ConcurrentMap<K, V>> a = e.next();
             if (issueMS >= a.getKey() || force) {
                 e.remove();
-            }
-            else
+            } else
                 break;
         }
     }
@@ -47,32 +46,32 @@ public class ExpiringMap<K, V> {
     }
 
     public boolean containsKey(K k) {
-        for(ConcurrentMap<K, V> map : elem.values()) {
-            if(map.containsKey(k))
+        for (ConcurrentMap<K, V> map : elem.values()) {
+            if (map.containsKey(k))
                 return true;
         }
         return false;
     }
 
     public boolean containsValue(V v) {
-        for(ConcurrentMap<K, V> map : elem.values()) {
-            if(map.containsValue(v))
+        for (ConcurrentMap<K, V> map : elem.values()) {
+            if (map.containsValue(v))
                 return true;
         }
         return false;
     }
 
     public V get(K k) {
-        for(ConcurrentMap<K, V> map : elem.values()) {
-            if(map.containsKey(k))
+        for (ConcurrentMap<K, V> map : elem.values()) {
+            if (map.containsKey(k))
                 return map.get(k);
         }
         return null;
     }
 
     public long getValue(K k) {
-        for(Long l : elem.keySet()){
-            if(elem.get(l).get(k) != null)
+        for (Long l : elem.keySet()) {
+            if (elem.get(l).get(k) != null)
                 return l;
         }
         return -1;
@@ -83,8 +82,8 @@ public class ExpiringMap<K, V> {
             throw new NullPointerException();
         }
 
-        for(ConcurrentMap<K, V> map : elem.values()) {
-            if(map.get(key) != null)
+        for (ConcurrentMap<K, V> map : elem.values()) {
+            if (map.get(key) != null)
                 return map.get(key);
         }
 
@@ -95,8 +94,8 @@ public class ExpiringMap<K, V> {
     }
 
     public void remove(K k) {
-        for(ConcurrentMap<K, V> map : elem.values()) {
-            if(map.containsKey(k))
+        for (ConcurrentMap<K, V> map : elem.values()) {
+            if (map.containsKey(k))
                 map.remove(k);
         }
     }

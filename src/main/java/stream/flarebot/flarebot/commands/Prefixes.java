@@ -21,16 +21,16 @@ public class Prefixes {
                 conn.createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS prefixes (" +
                         "   guildid VARCHAR(20) PRIMARY KEY," +
                         "   prefix CHAR(1)" +
-                    ");");
-                    ResultSet set = conn.createStatement().executeQuery("SELECT * FROM prefixes;");
-                    while (set.next()) {
-                        prefixes.put(set.getString("guildid"), set.getString("prefix").charAt(0));
-                    }
-                });
-            } catch (SQLException e) {
-                FlareBot.LOGGER.error("Could not load prefixes!", e);
-            }
+                        ");");
+                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM prefixes;");
+                while (set.next()) {
+                    prefixes.put(set.getString("guildid"), set.getString("prefix").charAt(0));
+                }
+            });
+        } catch (SQLException e) {
+            FlareBot.LOGGER.error("Could not load prefixes!", e);
         }
+    }
 
     public char get(String guildId) {
         if (guildId == null)

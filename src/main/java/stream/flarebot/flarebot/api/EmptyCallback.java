@@ -8,5 +8,6 @@ import java.io.IOException;
 public class EmptyCallback implements Callback {
 
     @Override
-    public void onResponse(Call call, Response response) throws IOException {}
+    public void onResponse(Call call, Response response) throws IOException {
+    }
 }
