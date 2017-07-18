@@ -8,7 +8,14 @@ import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.arsenarsen.lavaplayerbridge.utils.JDAMultiShard;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
@@ -16,8 +23,19 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import net.dv8tion.jda.core.*;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
@@ -28,13 +46,28 @@ import spark.Spark;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.automod.AutoModCommand;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
 import stream.flarebot.flarebot.commands.automod.SetSeverityCommand;
 import stream.flarebot.flarebot.commands.general.*;
+import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
+import stream.flarebot.flarebot.commands.moderation.BanCommand;
+import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
+import stream.flarebot.flarebot.commands.moderation.PinCommand;
+import stream.flarebot.flarebot.commands.moderation.PruneCommand;
+import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
+import stream.flarebot.flarebot.commands.moderation.RolesCommand;
+import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.secret.AvatarCommand;
+import stream.flarebot.flarebot.commands.secret.EvalCommand;
+import stream.flarebot.flarebot.commands.secret.LogsCommand;
+import stream.flarebot.flarebot.commands.secret.QueryCommand;
+import stream.flarebot.flarebot.commands.secret.QuitCommand;
+import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.TestCommand;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -50,8 +83,16 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.*;
-import java.io.*;
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -62,9 +103,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class FlareBot {
@@ -204,6 +247,7 @@ public class FlareBot {
 
     public void init(String tkn) throws InterruptedException, UnirestException, FileNotFoundException {
         token = tkn;
+        manager = new FlareBotManager();
         RestAction.DEFAULT_FAILURE = t -> {
         };
         clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
@@ -460,14 +504,16 @@ public class FlareBot {
                     LOGGER.error("Could not save permissions!", e);
                 }
             }
-        }.repeat(300000, 60000);
+        }.repeat(TimeUnit.MINUTES.toMillis(5), TimeUnit.MINUTES.toMillis(1));
+
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
                     setStatus("_help | _invite");
             }
-        }.repeat(10, 32000);
+        }.repeat(10, TimeUnit.SECONDS.toMillis(32));
+
         new FlarebotTask("PostDbotsData" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -476,7 +522,8 @@ public class FlareBot {
                             .format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
-        }.repeat(10, 600000);
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
         new FlarebotTask("PostBotlistData" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -485,14 +532,21 @@ public class FlareBot {
                             .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
-        }.repeat(10, 600000);
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
         new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 sendData();
             }
-        }.repeat(10, 30000);
+        }.repeat(10, TimeUnit.SECONDS.toMillis(30));
+
+        new FlarebotTask("spam" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                Events.spamMap.clear();
+            }
+        }.repeat(TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
 
         new FlarebotTask("ClearConfirmMap" + System.currentTimeMillis()) {
 
@@ -507,14 +561,20 @@ public class FlareBot {
 
         Scanner scanner = new Scanner(System.in);
 
-        try {
+        try
+
+        {
             if (scanner.next().equalsIgnoreCase("exit")) {
                 quit(false);
             } else if (scanner.next().equalsIgnoreCase("update")) {
                 quit(true);
             }
-        } catch (NoSuchElementException ignored) {
+        } catch (
+                NoSuchElementException ignored)
+
+        {
         }
+
     }
 
     private void postToBotlist(String auth, String url) {

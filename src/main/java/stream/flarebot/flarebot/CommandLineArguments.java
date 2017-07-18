@@ -1,6 +1,11 @@
 package stream.flarebot.flarebot;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 public enum CommandLineArguments {
     TOKEN("Log in token", "t", "token", "token"),
@@ -10,7 +15,7 @@ public enum CommandLineArguments {
     BOTLIST("Botlist token", "bl", "botlist", "botlist-token"),
     YTAPI("YouTube search API token", "yt", "yt-api-token", "yt-api-token"),
     WEBSECRET("Website API secret", "websecret", "web-secret", "web-secret"),
-    STATUSHOOK("Bot status hook", "statushook", "statushook", "statushook"),
+    STATUSHOOK("Bot status hook", "sh", "statushook", "statushook"),
     TESTBOT("Is this a test bot?", "tb", "testbot", null),
     DEBUG("Debug", "debug", "debug", null);
 
