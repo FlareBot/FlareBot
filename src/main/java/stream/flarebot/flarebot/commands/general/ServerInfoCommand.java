@@ -80,7 +80,7 @@ public class ServerInfoCommand implements Command {
                 "**Verification Level:** " +
                 getVerificationString(guild.getVerificationLevel()), true);
         eb.setFooter("ID: " + guild.getId(), null);
-        eb.setColor(Color.BLUE);
+        eb.setColor(Color.CYAN);
         channel.sendMessage(eb.build()).queue();
     }
 
