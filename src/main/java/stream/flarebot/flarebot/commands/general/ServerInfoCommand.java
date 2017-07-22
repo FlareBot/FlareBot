@@ -48,7 +48,7 @@ public class ServerInfoCommand implements Command {
                 "**Owner:** " +
                 guild.getOwner().getUser().getName() +  "#" + guild.getOwner().getUser().getDiscriminator(), true);
         String afk = guild.getAfkChannel() == null ? "" :
-                "*AFK:*\n" +
+                "**AFK:**\n" +
                         "Channel: " +
                         guild.getAfkChannel().getName() + "\n" +
                         "\n" +
