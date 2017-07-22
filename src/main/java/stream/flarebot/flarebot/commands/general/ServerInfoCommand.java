@@ -86,27 +86,13 @@ public class ServerInfoCommand implements Command {
 
     private String getVerificationString(Guild.VerificationLevel level){
         switch (level){
-
-            case NONE: {
-                return "None";
-            }
-            case LOW: {
-                return "Low";
-            }
-            case MEDIUM: {
-                return "Medium";
-            }
-            case HIGH: {
+            case HIGH:
                 return "(\u256F\u00B0\u25A1\u00B0\uFF09\u256F\uFE35 \u253B\u2501\u253B"; //(╯°□°）╯︵ ┻━┻
-            }
-            case VERY_HIGH: {
+            case VERY_HIGH:
                 return "\u253B\u2501\u253B\u5F61 \u30FD(\u0CA0\u76CA\u0CA0)\u30CE\u5F61\u253B\u2501\u253B"; //┻━┻彡 ヽ(ಠ益ಠ)ノ彡┻━┻
-            }
-            case UNKNOWN: {
-                return "Unknown";
-            }
+            default:
+                return level.toString().charAt(0) + level.toString().substring(1).toLowerCase();
         }
-        return "Unknown";
     }
 
     @Override
