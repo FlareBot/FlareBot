@@ -214,10 +214,10 @@ public class GeneralUtils {
     }
 
     public static Response post(String url, MediaType type, String body) throws IOException {
-        Request.Builder request = new Request.Builder().url("https://hastebin.com/documents");
+        Request.Builder request = new Request.Builder().url(url);
         RequestBody requestBody = RequestBody.create(type, body);
         request = request.post(requestBody);
-        return FlareBot.getOkHttpClient().newCall(request.build()).execute();
+        return post(request);
     }
 
     public static Response post(Request.Builder builder) throws IOException {

@@ -101,10 +101,7 @@ public class MessageUtils {
             Response response = GeneralUtils.post("https://hastebin.com/documents", MediaType.parse("text/plain"), trace);
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
-            String responseData = response.body().string();
-            JSONObject jsonObject = new JSONObject(responseData);
-
-            return "https://hastebin.com/" + jsonObject.getString("key");
+            return "https://hastebin.com/" + new JSONObject(response.body().string()).getString("key");
         } catch (IOException | JSONException e) {
             FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
             return null;

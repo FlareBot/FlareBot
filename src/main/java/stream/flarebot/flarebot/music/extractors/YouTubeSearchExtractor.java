@@ -24,8 +24,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
                         "?q=%s&part=snippet&key=%s&type=video,playlist",
                 URLEncoder.encode(input, "UTF-8"), FlareBot.getYoutubeKey()));
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-        String jsonString = response.body().string();
-        JSONArray results = new JSONObject(jsonString).getJSONArray("items");
+        JSONArray results = new JSONObject(response.body().string()).getJSONArray("items");
         String link = null;
         for (Object res : results) {
             if (res instanceof JSONObject) {
