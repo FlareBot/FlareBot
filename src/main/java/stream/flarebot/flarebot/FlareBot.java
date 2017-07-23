@@ -258,12 +258,11 @@ public class FlareBot {
         manager = new FlareBotManager();
         RestAction.DEFAULT_FAILURE = t -> {
         };
-        clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
-                .header("Authorization", "Bot " + tkn)
-                .asJson()
-                .getBody()
-                .getObject()
-                .getInt("shards")];
+        try {
+            clients = new JDA[GeneralUtils.getShards(tkn)];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         latch = new CountDownLatch(1);

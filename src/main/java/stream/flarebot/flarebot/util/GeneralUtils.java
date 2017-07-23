@@ -199,6 +199,14 @@ public class GeneralUtils {
         }
         return null;
     }
+
+    public static Response postToUrl(String url, MediaType type, String body) throws IOException {
+        Request.Builder request = new Request.Builder().url("https://hastebin.com/documents");
+        RequestBody requestBody = RequestBody.create(type, body);
+        request = request.post(requestBody);
+        return FlareBot.getOkHttpClient().newCall(request.build()).execute();
+    }
+
     public static int getShards(String token) throws IOException {
         Request.Builder request = new Request.Builder()
                 .url("https://discordapp.com/api/gateway/bot")
