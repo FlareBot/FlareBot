@@ -6,7 +6,7 @@ import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 
 public class GuildWrapper {
@@ -14,23 +14,21 @@ public class GuildWrapper {
     private String guildId;
     private AutoModGuild autoModGuild;
     private Welcome welcome;
-    private List<Poll> polls;
+    private LinkedList<Poll> polls;
     private Set<String> autoAssignRoles;
     private Set<String> selfAssignRoles;
-    private List<Report> reports;
     private Language.Locales locale;
     private boolean blocked;
     private long unBlockTime;
     private String blockReason;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, List<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, List<Report> reports, Language.Locales locale, boolean blocked, long unBlockTime, String blockReason) {
+    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, LinkedList<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale, boolean blocked, long unBlockTime, String blockReason) {
         this.guildId = guildId;
         this.autoModGuild = autoModGuild;
         this.welcome = welcome;
         this.polls = polls;
         this.autoAssignRoles = autoAssignRoles;
         this.selfAssignRoles = selfAssignRoles;
-        this.reports = reports;
         this.locale = locale;
         this.blocked = blocked;
         this.unBlockTime = unBlockTime;
@@ -62,7 +60,7 @@ public class GuildWrapper {
         return this.welcome;
     }
 
-    public List<Poll> getPolls() {
+    public LinkedList<Poll> getPolls() {
         return this.polls;
     }
 
@@ -83,21 +81,21 @@ public class GuildWrapper {
     }
 
     public void addBlocked(String reason) {
-        this.blocked = true;
-        this.blockReason = reason;
-        this.unBlockTime = -1; //-1 represents both infinite and unblocked
+        blocked = true;
+        blockReason = reason;
+        unBlockTime = -1; //-1 represents both infinite and unblocked
     }
 
     public void addBlocked(String reason, long unBlockTime) {
-        this.blocked = true;
-        this.blockReason = reason;
+        blocked = true;
+        blockReason = reason;
         this.unBlockTime = unBlockTime;
     }
 
     public void revokeBlock() {
-        this.blocked = false;
-        this.blockReason = "";
-        this.unBlockTime = -1; //-1 represents both infinite and unblocked
+        blocked = false;
+        blockReason = "";
+        unBlockTime = -1; //-1 represents both infinite and unblocked
     }
 
     public String getBlockReason() {
@@ -106,13 +104,5 @@ public class GuildWrapper {
 
     public long getUnBlockTime() {
         return unBlockTime;
-    }
-
-    public List<Report> getReports() {
-        return reports;
-    }
-
-    public void setReports(List<Report> reports) {
-        this.reports = reports;
     }
 }

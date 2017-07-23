@@ -31,7 +31,7 @@ public class ReportCommand implements Command {
                 return;
             }
 
-            Report report = new Report(channel.getGuild().getId(), ReportManager.getInstance().getLastId(guild.getGuildId()), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
+            Report report = new Report(channel.getGuild().getId(), ReportManager.getInstance().getLastId(), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
             List<Message> messages = channel.getHistory()
                     .retrievePast(100)

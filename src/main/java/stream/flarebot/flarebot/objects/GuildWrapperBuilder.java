@@ -4,10 +4,7 @@ import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 public class GuildWrapperBuilder {
@@ -15,10 +12,9 @@ public class GuildWrapperBuilder {
     private String guildId;
     private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = null;
-    private List<Poll> polls = Collections.synchronizedList(new ArrayList<>());
+    private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new ConcurrentHashSet<>();
     private Set<String> selfAssignRoles = new ConcurrentHashSet<>();
-    private List<Report> reports = Collections.synchronizedList(new ArrayList<>());
     private Language.Locales locale = Language.Locales.ENGLISH_UK;
 
     private GuildWrapperBuilder() {
@@ -63,12 +59,7 @@ public class GuildWrapperBuilder {
         return this;
     }
 
-    public GuildWrapperBuilder setReports(List<Report> reports){
-        this.reports = reports;
-        return this;
-    }
-
     public GuildWrapper build() {
-        return new GuildWrapper(guildId, autoModGuild, welcome, polls, autoAssignRoles, selfAssignRoles, reports, locale, false, 0l, "");
+        return new GuildWrapper(guildId, autoModGuild, welcome, polls, autoAssignRoles, selfAssignRoles, locale, false, 0l, "");
     }
 }
