@@ -44,7 +44,7 @@ public class GeneralUtils {
 
         @Override
         public void onResponse(Call call, Response response) throws IOException {
-            FlareBot.LOGGER.info("Reponse for " + call.request().method() + " request to " + call.request().url());
+            FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
         }
     };
 
