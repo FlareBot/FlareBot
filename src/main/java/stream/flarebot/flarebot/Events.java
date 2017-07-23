@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot;
 
-import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -411,11 +410,7 @@ public class Events extends ListenerAdapter {
                         event.getOldStatus(), event.getStatus(),
                         event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
                                 : null)).toString());
-        try {
-            GeneralUtils.post(request.post(body));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        GeneralUtils.postAsync(request.post(body));
     }
 
     @Override

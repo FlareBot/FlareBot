@@ -11,6 +11,8 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -34,6 +36,17 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final Callback defaultCallback = new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+            FlareBot.LOGGER.error("Error for " + call.request().method() + " request to " + call.request().url(), e);
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            FlareBot.LOGGER.info("Reponse for " + call.request().method() + " request to " + call.request().url());
+        }
+    };
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -217,6 +230,10 @@ public class GeneralUtils {
 
     public static Response get(Request.Builder builder) throws IOException {
         return FlareBot.getOkHttpClient().newCall(builder.get().build()).execute();
+    }
+
+    public static void postAsync(Request.Builder builder) {
+        FlareBot.getOkHttpClient().newCall(builder.build()).enqueue(defaultCallback);
     }
 
     public static int getShards(String token) throws IOException {
