@@ -11,11 +11,17 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -193,4 +199,15 @@ public class GeneralUtils {
         }
         return null;
     }
+    public static int getShards(String token) throws IOException {
+        Request.Builder request = new Request.Builder()
+                .url("https://discordapp.com/api/gateway/bot")
+                .header("Authorization", "Bot " + token);
+        request = request.get();
+        Response response = FlareBot.getOkHttpClient().newCall(request.build()).execute();
+        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+        String jsonString = response.body().string();
+        return new JSONObject(jsonString).getInt("shards");
+    }
+
 }

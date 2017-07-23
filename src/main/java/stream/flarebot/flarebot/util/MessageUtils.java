@@ -103,10 +103,7 @@ public class MessageUtils {
 
     public static String hastebin(String trace) {
         try {
-            Request.Builder request = new Request.Builder().url("https://hastebin.com/documents");
-            RequestBody body = RequestBody.create(MediaType.parse("text/plain"), trace);
-            request = request.post(body);
-            Response response = FlareBot.getOkHttpClient().newCall(request.build()).execute();
+            Response response = GeneralUtils.postToUrl("https://hastebin.com/documents", MediaType.parse("text/plain"), trace);
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             String responseData = response.body().string();
