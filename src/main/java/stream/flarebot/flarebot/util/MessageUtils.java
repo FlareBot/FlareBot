@@ -11,7 +11,14 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
@@ -19,6 +26,7 @@ import stream.flarebot.flarebot.scheduler.FlarebotTask;
 
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -95,11 +103,17 @@ public class MessageUtils {
 
     public static String hastebin(String trace) {
         try {
-            return "https://hastebin.com/" + Unirest.post("https://hastebin.com/documents")
-                    .header("User-Agent", "Mozilla/5.0 FlareBot")
-                    .header("Content-Type", "text/plain").body(trace).asJson().getBody()
-                    .getObject().getString("key");
-        } catch (UnirestException e) {
+            Request.Builder request = new Request.Builder().url("https://hastebin.com/documents");
+            RequestBody body = RequestBody.create(MediaType.parse("text/plain"), trace);
+            request = request.post(body);
+            Response response = FlareBot.getOkHttpClient().newCall(request.build()).execute();
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            String responseData = response.body().string();
+            JSONObject jsonObject = new JSONObject(responseData);
+
+            return "https://hastebin.com/" + jsonObject.getString("key");
+        } catch (IOException | JSONException e) {
             FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
             return null;
         }

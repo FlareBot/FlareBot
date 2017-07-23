@@ -39,6 +39,8 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,6 +147,8 @@ public class FlareBot {
     private static String statusHook;
     private static String token;
 
+    private static OkHttpClient client = new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
+
     private static boolean testBot = false;
 
     public static void main(String[] args) throws Exception {
@@ -214,6 +218,10 @@ public class FlareBot {
 
     public static String getToken() {
         return token;
+    }
+
+    public static OkHttpClient getOkHttpClient() {
+        return client;
     }
 
     public Events getEvents() {
