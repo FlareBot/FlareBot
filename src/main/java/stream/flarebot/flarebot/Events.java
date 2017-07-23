@@ -21,6 +21,9 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -402,14 +405,17 @@ public class Events extends ListenerAdapter {
     @Override
     public void onStatusChange(StatusChangeEvent event) {
         if (sd) return;
-        Unirest.post(FlareBot.getStatusHook())
-                .header("Content-Type", "application/json")
-                .body(new JSONObject()
-                        .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
-                                event.getOldStatus(), event.getStatus(),
-                                event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
-                                        : null)))
-                .asStringAsync();
+        Request.Builder request = new Request.Builder().url(FlareBot.getStatusHook());
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), new JSONObject()
+                .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
+                        event.getOldStatus(), event.getStatus(),
+                        event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
+                                : null)).toString());
+        try {
+            GeneralUtils.post(request.post(body));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

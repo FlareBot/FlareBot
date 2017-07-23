@@ -731,6 +731,7 @@ public class FlareBot {
         return message[0];
     }
 
+    @Deprecated
     public void postToApi(String endpoint, JSONObject body) {
         Unirest.post(OLD_FLAREBOT_API + endpoint).body(body).asJsonAsync();
     }

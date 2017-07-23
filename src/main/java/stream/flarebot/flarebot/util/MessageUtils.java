@@ -1,7 +1,5 @@
 package stream.flarebot.flarebot.util;
 
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -12,10 +10,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,7 +98,7 @@ public class MessageUtils {
 
     public static String hastebin(String trace) {
         try {
-            Response response = GeneralUtils.postToUrl("https://hastebin.com/documents", MediaType.parse("text/plain"), trace);
+            Response response = GeneralUtils.post("https://hastebin.com/documents", MediaType.parse("text/plain"), trace);
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             String responseData = response.body().string();

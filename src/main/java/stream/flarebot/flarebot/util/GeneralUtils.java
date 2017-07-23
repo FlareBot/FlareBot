@@ -200,19 +200,30 @@ public class GeneralUtils {
         return null;
     }
 
-    public static Response postToUrl(String url, MediaType type, String body) throws IOException {
+    public static Response post(String url, MediaType type, String body) throws IOException {
         Request.Builder request = new Request.Builder().url("https://hastebin.com/documents");
         RequestBody requestBody = RequestBody.create(type, body);
         request = request.post(requestBody);
         return FlareBot.getOkHttpClient().newCall(request.build()).execute();
     }
 
+    public static Response post(Request.Builder builder) throws IOException {
+        return FlareBot.getOkHttpClient().newCall(builder.build()).execute();
+    }
+
+    public static Response get(String url) throws IOException {
+        return get(new Request.Builder().url(url));
+    }
+
+    public static Response get(Request.Builder builder) throws IOException {
+        return FlareBot.getOkHttpClient().newCall(builder.get().build()).execute();
+    }
+
     public static int getShards(String token) throws IOException {
         Request.Builder request = new Request.Builder()
                 .url("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + token);
-        request = request.get();
-        Response response = FlareBot.getOkHttpClient().newCall(request.build()).execute();
+        Response response = get(request);
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
         String jsonString = response.body().string();
         return new JSONObject(jsonString).getInt("shards");

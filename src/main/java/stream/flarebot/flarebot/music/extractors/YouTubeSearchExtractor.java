@@ -1,16 +1,18 @@
 package stream.flarebot.flarebot.music.extractors;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
-import com.mashape.unirest.http.Unirest;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 
 public class YouTubeSearchExtractor extends YouTubeExtractor {
@@ -18,10 +20,12 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
 
     @Override
     public void process(String input, Player player, Message message, User user) throws Exception {
-        JSONArray results = Unirest.get(String.format("https://www.googleapis.com/youtube/v3/search" +
+        Response response = GeneralUtils.get(String.format("https://www.googleapis.com/youtube/v3/search" +
                         "?q=%s&part=snippet&key=%s&type=video,playlist",
-                URLEncoder.encode(input, "UTF-8"), FlareBot.getYoutubeKey())).asJson().getBody()
-                .getObject().getJSONArray("items");
+                URLEncoder.encode(input, "UTF-8"), FlareBot.getYoutubeKey()));
+        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+        String jsonString = response.body().string();
+        JSONArray results = new JSONObject(jsonString).getJSONArray("items");
         String link = null;
         for (Object res : results) {
             if (res instanceof JSONObject) {
