@@ -11,7 +11,6 @@ import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.ReportManager;
 
 import java.sql.Timestamp;
 
@@ -26,9 +25,9 @@ public class ReportCommand implements Command {
                 return;
             }
 
-            Report report = new Report(channel.getGuild().getId(), ReportManager.getInstance().getLastId(guild.getGuildId()), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
+            Report report = new Report(channel.getGuild().getId(), guild.getLastReportId(guild.getGuildId()), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
-            ReportManager.getInstance().report(channel.getGuild().getId(), report);
+            guild.report(report);
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {
