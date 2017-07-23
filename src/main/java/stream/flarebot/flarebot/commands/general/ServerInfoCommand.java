@@ -69,7 +69,7 @@ public class ServerInfoCommand implements Command {
                 guild.getVoiceChannels().stream().filter(voiceChannel -> voiceChannel.getMembers().size() > 0).count() + "\n" +
                 "\n" + afk, true);
         eb.addField("Misc info", "**Creation time:** " +
-                guild.getCreationTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST\n" +
+                guild.getCreationTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " UTC\n" +
                 "\n" +
                 "**Roles:** " +
                 guild.getRoles().size() + "\n" +
