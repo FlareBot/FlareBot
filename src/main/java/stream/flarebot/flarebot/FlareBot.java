@@ -40,7 +40,10 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.ConnectionPool;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -525,7 +528,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
-                    postToBotlist(FlareBot.dBotsAuth, String
+                    postToBotList(FlareBot.dBotsAuth, String
                             .format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
@@ -535,7 +538,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
-                    postToBotlist(FlareBot.botListAuth, String
+                    postToBotList(FlareBot.botListAuth, String
                             .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
@@ -584,28 +587,29 @@ public class FlareBot {
 
     }
 
-    private void postToBotlist(String auth, String url) {
+    private void postToBotList(String auth, String url) {
         for (JDA client : clients) {
             if (clients.length == 1) {
-                Unirest.post(url)
-                        .header("Authorization", auth)
-                        .header("User-Agent", "Mozilla/5.0 FlareBot")
-                        .header("Content-Type", "application/json")
-                        .body(new JSONObject()
-                                .put("server_count", client.getGuilds().size()))
-                        .asStringAsync();
+                Request.Builder request = new Request.Builder()
+                        .url(url)
+                        .addHeader("Authorization", auth)
+                        .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
+                RequestBody body = RequestBody.create(MediaType.parse("application/json"),
+                        new JSONObject().put("server_count", client.getGuilds().size()).toString());
+                GeneralUtils.postAsync(request.post(body));
                 return;
             }
             try {
-                Unirest.post(url)
-                        .header("Authorization", auth)
-                        .header("User-Agent", "Mozilla/5.0 FlareBot")
-                        .header("Content-Type", "application/json")
-                        .body(new JSONObject()
+                Request.Builder request = new Request.Builder()
+                        .url(url)
+                        .addHeader("Authorization", auth)
+                        .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
+                RequestBody body = RequestBody.create(MediaType.parse("application/json"),
+                        (new JSONObject()
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
-                                .put("shard_count", client.getShardInfo().getShardTotal()))
-                        .asStringAsync();
+                                .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
+                GeneralUtils.postAsync(request.post(body));
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
