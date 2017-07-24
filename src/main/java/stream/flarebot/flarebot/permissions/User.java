@@ -8,15 +8,9 @@ import java.util.Set;
 
 public class User {
     private final HashSet<String> groups = new HashSet<>();
-    protected String userID;
 
-    User(Member user) {
-        userID = user.getUser().getId();
+    User() {
         groups.add("Default");
-    }
-
-    public String getUserID() {
-        return userID;
     }
 
     public Set<String> getGroups() {
@@ -31,21 +25,5 @@ public class User {
 
     public boolean removeGroup(Group group) {
         return groups.remove(group.getName());
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof User)) {
-            return false;
-        }
-        User otherUser = (User) other;
-        return otherUser.getUserID().equals(getUserID());
-    }
-
-    @Override
-    public int hashCode() {
-        int result = groups.hashCode();
-        result = 31 * result + userID.hashCode();
-        return result;
     }
 }

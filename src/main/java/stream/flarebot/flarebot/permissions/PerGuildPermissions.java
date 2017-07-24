@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PerGuildPermissions {
 
     private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Member, User> users = new ConcurrentHashMap<>();
 
     public PerGuildPermissions() {
         if (!hasGroup("Default")) {
@@ -32,6 +32,8 @@ public class PerGuildPermissions {
         if (user.isOwner())
             return true;
         if (user.getPermissions().contains(Permission.ADMINISTRATOR))
+            return true;
+        if(isContributor(user.getUser()))
             return true;
         PermissionNode node = new PermissionNode(permission);
         return getUser(user).getGroups().stream()
@@ -55,11 +57,11 @@ public class PerGuildPermissions {
     }
 
     public User getUser(Member user) {
-        return users.computeIfAbsent(user.getUser().getId(), key -> new User(user));
+        return users.computeIfAbsent(user, key -> new User());
     }
 
     public Group getGroup(String group) {
-        return groups.computeIfAbsent(group, key -> new Group(group));
+        return groups.get(group);
     }
 
     public boolean deleteGroup(String group) {
