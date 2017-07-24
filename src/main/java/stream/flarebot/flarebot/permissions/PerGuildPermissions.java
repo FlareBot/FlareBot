@@ -57,8 +57,17 @@ public class PerGuildPermissions {
         return groups.get(group);
     }
 
-    public boolean deleteGroup(String group) {
-        return groups.remove(group) != null;
+    public boolean addGroup(String group){
+        if(groups.containsKey(group)){
+            return false;
+        } else {
+            groups.put(group, new Group(group));
+            return true;
+        }
+    }
+
+    public void deleteGroup(String group) {
+        groups.remove(group);
     }
 
     public boolean hasGroup(String group) {

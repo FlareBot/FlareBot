@@ -8,6 +8,7 @@ import java.util.Set;
 public class Group {
     private final Set<String> permissions = new ConcurrentHashSet<>();
     private String name;
+    private String roleId;
 
     private Group() {
     }
@@ -31,5 +32,13 @@ public class Group {
 
     public boolean removePermission(String permission){
         return permissions.remove(permission);
+    }
+
+    public void linkRole(String roleId){
+        this.roleId = roleId;
+    }
+
+    public String getRoleId() {
+        return roleId;
     }
 }
