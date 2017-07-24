@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.time.OffsetDateTime;
+import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -86,7 +87,7 @@ public class PurgeCommand implements Command {
                                 public void run() {
                                     s.delete().queue();
                                 }
-                            }.delay(5_000));
+                            }.delay(TimeUnit.SECONDS.toMillis(5)));
                 } catch (Exception e) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String
