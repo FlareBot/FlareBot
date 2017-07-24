@@ -8,6 +8,8 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Group;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.EnumSet;
@@ -17,8 +19,72 @@ public class PermissionsCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length <= 2){
-            MessageUtils.getUsage(this, channel, sender).queue();
+            return;
+        } else {
+            if(args[0].equals("group")){
+                String groupString = args[1];
+                if(args[2].equals("add")){
+                    if(args.length == 4) {
+                        Group group = getPermissions(channel).getGroup(groupString);
+                        if (group == null) {
+                            MessageUtils.sendErrorMessage("That group doesn't exist!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                            return;
+                        } else {
+
+                        }
+                        return;
+                    }
+                } else if(args[2].equals("remove")){
+                    if(args.length == 4) {
+                        Group group = getPermissions(channel).getGroup(groupString);
+                        if (group == null) {
+                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
+                            return;
+                        } else {
+
+                        }
+                        return;
+                    }
+                } else if(args[2].equals("create")){
+
+                } else if(args[2].equals("delete")){
+
+                } else if(args[2].equals("link")){
+                    if(args.length == 4) {
+                        Group group = getPermissions(channel).getGroup(groupString);
+                        if (group == null) {
+                            MessageUtils.sendErrorMessage("That group doesn't exist!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                            return;
+                        } else {
+
+                        }
+                        return;
+                    }
+                } else if(args[2].equals("list")){
+                    if(args.length == 4) {
+                        Group group = getPermissions(channel).getGroup(groupString);
+                        if (group == null) {
+                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
+                            return;
+                        } else {
+
+                        }
+                        return;
+                    }
+                } else {
+                    MessageUtils.getUsage(this, channel, sender).queue();
+                }
+            } else if(args[0].equals("user")){
+                String userString = args[1];
+                User user = GeneralUtils.getUser(userString, guild.getGuildId());
+                if(user == null){
+                    MessageUtils.sendErrorMessage("That user doesn't exist!!", channel);
+                }
+            } else {
+                return;
+            }
         }
+        MessageUtils.getUsage(this, channel, sender).queue();
     }
     //I'm going to save this for now just in case
     /*@Override

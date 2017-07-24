@@ -19,8 +19,9 @@ public class PerGuildPermissions {
         if (!hasGroup("Default")) {
             for (Command command : FlareBot.getInstance().getCommands()) {
                 if (command.isDefaultPermission()) {
-                    groups.put("Default", new Group("Default"));
-                    addPermission("Default", command.getPermission());
+                    Group defaults = new Group("Default");
+                    groups.put("Default", defaults);
+                    defaults.addPermission(command.getPermission());
                 }
             }
         }
@@ -46,18 +47,6 @@ public class PerGuildPermissions {
                 getUser(user).getPermissions().stream()
                 .map(PermissionNode::new)
                 .anyMatch(e -> e.test(node));
-    }
-
-    public boolean addPermission(String group, String permission) {
-        return getGroup(group).getPermissions().add(permission);
-    }
-
-    public boolean removePermission(String group, String permission) {
-        boolean had = getGroup(group).getPermissions().remove(permission);
-        if (getGroup(group).getPermissions().size() == 0) {
-            groups.remove(group);
-        }
-        return had;
     }
 
     public User getUser(Member user) {
