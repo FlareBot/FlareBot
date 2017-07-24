@@ -484,6 +484,7 @@ public class FlareBot {
         registerCommand(new SongNickCommand());
         registerCommand(new StatsCommand());
         registerCommand(new PruneCommand());
+        registerCommand(new ServerInfoCommand());
 
         ApiFactory.bind();
 
