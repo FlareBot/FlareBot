@@ -595,7 +595,7 @@ public class FlareBot {
                         .url(url)
                         .addHeader("Authorization", auth)
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
-                RequestBody body = RequestBody.create(MediaType.parse("application/json"),
+                RequestBody body = RequestBody.create(WebUtils.BodyTypes.APPLICATION_JSON.getType(),
                         new JSONObject().put("server_count", client.getGuilds().size()).toString());
                 WebUtils.postAsync(request.post(body));
                 return;
@@ -605,7 +605,7 @@ public class FlareBot {
                         .url(url)
                         .addHeader("Authorization", auth)
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
-                RequestBody body = RequestBody.create(MediaType.parse("application/json"),
+                RequestBody body = RequestBody.create(WebUtils.BodyTypes.APPLICATION_JSON.getType(),
                         (new JSONObject()
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())

@@ -406,7 +406,7 @@ public class Events extends ListenerAdapter {
     public void onStatusChange(StatusChangeEvent event) {
         if (sd) return;
         Request.Builder request = new Request.Builder().url(FlareBot.getStatusHook());
-        RequestBody body = RequestBody.create(MediaType.parse("application/json"), new JSONObject()
+        RequestBody body = RequestBody.create(WebUtils.BodyTypes.APPLICATION_JSON.getType(), new JSONObject()
                 .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
                         event.getOldStatus(), event.getStatus(),
                         event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
