@@ -8,7 +8,6 @@ import java.util.Map;
 
 public class PrivateChannelPermission extends PerGuildPermissions {
     public PrivateChannelPermission(MessageChannel guild) {
-        super.id = guild.getId();
     }
 
     @Override
@@ -24,11 +23,6 @@ public class PrivateChannelPermission extends PerGuildPermissions {
     @Override
     public boolean deleteGroup(String group) {
         return true;
-    }
-
-    @Override
-    public String getGuildID() {
-        return super.getGuildID();
     }
 
     @Override

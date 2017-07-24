@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
@@ -37,8 +38,8 @@ public interface Command {
         return new String[]{};
     }
 
-    default PerGuildPermissions getPermissions(MessageChannel chan) {
-        return FlareBot.getInstance().getPermissions(chan);
+    default PerGuildPermissions getPermissions(TextChannel chan) {
+        return FlareBotManager.getInstance().getGuild(chan.getGuild().getId()).getPermissions();
     }
 
     default boolean isDefaultPermission() {

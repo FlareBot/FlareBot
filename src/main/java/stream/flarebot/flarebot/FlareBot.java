@@ -74,7 +74,6 @@ import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
@@ -127,7 +126,6 @@ public class FlareBot {
 
     private static String botListAuth;
     private static String dBotsAuth;
-    private Permissions permissions;
     private FlareBotManager manager;
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
@@ -235,14 +233,6 @@ public class FlareBot {
 
     public static Prefixes getPrefixes() {
         return prefixes;
-    }
-
-    public Permissions getPermissions() {
-        return permissions;
-    }
-
-    public PerGuildPermissions getPermissions(MessageChannel channel) {
-        return this.permissions.getPermissions(channel);
     }
 
     public void init(String tkn) throws InterruptedException, UnirestException, FileNotFoundException {
@@ -361,7 +351,6 @@ public class FlareBot {
                     }
                 }
             }));
-            loadPerms();
             try {
                 new WebhooksBuilder()
                         .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
@@ -399,7 +388,7 @@ public class FlareBot {
         run();
     }
 
-    private void loadPerms() {
+    /*private void loadPerms() {
         if (PERMS_FILE.exists()) {
             try {
                 permissions = GSON.fromJson(new FileReader(PERMS_FILE), Permissions.class);
@@ -433,7 +422,7 @@ public class FlareBot {
 
         }
     }
-
+*/
     protected void run() {
         registerCommand(new HelpCommand());
         registerCommand(new SearchCommand(this));
@@ -495,7 +484,7 @@ public class FlareBot {
 
         sendCommands();
         sendPrefixes();
-
+        /*
         new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -506,7 +495,7 @@ public class FlareBot {
                 }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(5), TimeUnit.MINUTES.toMillis(1));
-
+*/
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -802,7 +791,6 @@ public class FlareBot {
     protected void stop() {
         LOGGER.info("Saving data.");
         try {
-            permissions.save();
             sendData();
         } catch (Exception e) {
             LOGGER.error("Something failed on stop!", e);

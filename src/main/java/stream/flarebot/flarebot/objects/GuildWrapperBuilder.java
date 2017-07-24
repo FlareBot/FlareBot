@@ -3,6 +3,8 @@ package stream.flarebot.flarebot.objects;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.permissions.PermissionNode;
 
 import java.util.LinkedList;
 import java.util.Set;
@@ -16,6 +18,7 @@ public class GuildWrapperBuilder {
     private Set<String> autoAssignRoles = new ConcurrentHashSet<>();
     private Set<String> selfAssignRoles = new ConcurrentHashSet<>();
     private Language.Locales locale = Language.Locales.ENGLISH_UK;
+    private PerGuildPermissions permissions;
 
     private GuildWrapperBuilder() {
     }
@@ -59,7 +62,12 @@ public class GuildWrapperBuilder {
         return this;
     }
 
+    public GuildWrapperBuilder setPermissions(PerGuildPermissions permissions){
+        this.permissions = permissions;
+        return this;
+    }
+
     public GuildWrapper build() {
-        return new GuildWrapper(guildId, autoModGuild, welcome, polls, autoAssignRoles, selfAssignRoles, locale, false, 0l, "");
+        return new GuildWrapper(guildId, autoModGuild, welcome, permissions, polls, autoAssignRoles, selfAssignRoles, locale, false, 0l, "");
     }
 }

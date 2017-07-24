@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 
 public class PrivateChannelUser extends User {
     public PrivateChannelUser(Member u) {
-        super(u);
+        super();
     }
 
     @Override
