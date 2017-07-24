@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.EnumSet;
 
@@ -15,7 +16,9 @@ public class PermissionsCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-
+        if (args.length <= 2){
+            MessageUtils.getUsage(this, channel, sender).queue();
+        }
     }
     //I'm going to save this for now just in case
     /*@Override

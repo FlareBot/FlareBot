@@ -19,6 +19,7 @@ public class PerGuildPermissions {
         if (!hasGroup("Default")) {
             for (Command command : FlareBot.getInstance().getCommands()) {
                 if (command.isDefaultPermission()) {
+                    groups.put("Default", new Group("Default"));
                     addPermission("Default", command.getPermission());
                 }
             }

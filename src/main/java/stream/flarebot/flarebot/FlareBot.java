@@ -143,7 +143,7 @@ public class FlareBot {
     private static String statusHook;
     private static String token;
 
-    private static boolean testBot = false;
+    public static boolean testBot = false;
 
     public static void main(String[] args) throws Exception {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
