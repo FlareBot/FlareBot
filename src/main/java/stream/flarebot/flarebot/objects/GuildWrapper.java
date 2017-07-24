@@ -5,6 +5,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
 import java.util.LinkedList;
 import java.util.Set;
@@ -14,6 +15,7 @@ public class GuildWrapper {
     private String guildId;
     private AutoModGuild autoModGuild;
     private Welcome welcome;
+    private PerGuildPermissions permissions;
     private LinkedList<Poll> polls;
     private Set<String> autoAssignRoles;
     private Set<String> selfAssignRoles;
@@ -22,7 +24,7 @@ public class GuildWrapper {
     private long unBlockTime;
     private String blockReason;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, LinkedList<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale, boolean blocked, long unBlockTime, String blockReason) {
+    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, PerGuildPermissions permissions, LinkedList<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale, boolean blocked, long unBlockTime, String blockReason) {
         this.guildId = guildId;
         this.autoModGuild = autoModGuild;
         this.welcome = welcome;
@@ -33,6 +35,7 @@ public class GuildWrapper {
         this.blocked = blocked;
         this.unBlockTime = unBlockTime;
         this.blockReason = blockReason;
+        this.permissions = permissions;
     }
 
     public Guild getGuild() {
@@ -58,6 +61,13 @@ public class GuildWrapper {
             welcome.setGuildEnabled(false);
         }
         return this.welcome;
+    }
+
+    public PerGuildPermissions getPermissions(){
+        if(permissions == null){
+            permissions = new PerGuildPermissions();
+        }
+        return permissions;
     }
 
     public LinkedList<Poll> getPolls() {

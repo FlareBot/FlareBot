@@ -14,13 +14,8 @@ public class PerGuildPermissions {
 
     private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
-    protected String id;
 
-    protected PerGuildPermissions() {
-    }
-
-    public PerGuildPermissions(String id) {
-        this.id = id;
+    public PerGuildPermissions() {
         if (!hasGroup("Default")) {
             for (Command command : FlareBot.getInstance().getCommands()) {
                 if (command.isDefaultPermission()) {
@@ -81,33 +76,11 @@ public class PerGuildPermissions {
         return groups;
     }
 
-    /**
-     * Gets the associated guilds ID
-     *
-     * @return The ID to get
-     */
-    public String getGuildID() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof PerGuildPermissions)) {
-            return false;
-        }
-        PerGuildPermissions otherGuild = (PerGuildPermissions) other;
-        return otherGuild.getGuildID().equals(getGuildID());
-    }
-
     public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
         return user.getId().equals("158310004187725824") || user.getId().equals("155954930191040513");
     }
 
-    @Override
-    public int hashCode() {
-        int result = groups.hashCode();
-        result = 31 * result + users.hashCode();
-        result = 31 * result + (id != null ? id.hashCode() : 0);
-        return result;
+    public boolean isContributor(net.dv8tion.jda.core.entities.User user){
+        return user.getId().equals("215644829969809421") || user.getId().equals("203894491784937472");
     }
 }
