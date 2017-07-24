@@ -1,6 +1,10 @@
 package stream.flarebot.flarebot.objects;
 
+import net.dv8tion.jda.core.entities.Message;
+
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Represents an individual report
@@ -14,6 +18,7 @@ public class Report implements Comparable<Report> {
     private String reportedId;
     private Timestamp time;
     private ReportStatus status;
+    private List<Message> messages = new CopyOnWriteArrayList<>();
 
     public Report(String guildId, int id, String message, String reporterId, String reportedId, Timestamp time, ReportStatus status) {
 
@@ -59,6 +64,14 @@ public class Report implements Comparable<Report> {
     public Report setStatus(ReportStatus status) {
         this.status = status;
         return this;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 
     @Override

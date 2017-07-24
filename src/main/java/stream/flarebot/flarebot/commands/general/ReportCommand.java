@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.general;
 
+import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,6 +14,10 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReportCommand implements Command {
 
@@ -26,6 +31,14 @@ public class ReportCommand implements Command {
             }
 
             Report report = new Report(channel.getGuild().getId(), guild.getLastReportId(guild.getGuildId()), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
+
+            List<Message> messages = channel.getHistory().retrievePast(100)
+                    .complete()
+                    .stream()
+                    .filter(m -> m.getAuthor().equals(user))
+                    .collect(Collectors.toList());
+
+            report.setMessages(messages.subList(0, Math.min(10, messages.size() - 1)));
 
             guild.report(report);
 
