@@ -13,6 +13,9 @@ import java.io.IOException;
 
 public class WebUtils {
 
+    public static MediaType PLAIN_TEXT = MediaType.parse("plain/text");
+    public static MediaType APPLICATION_JSON = MediaType.parse("application/json");
+
     private static final Callback defaultCallback = new Callback() {
         @Override
         public void onFailure(Call call, IOException e) {
@@ -56,26 +59,6 @@ public class WebUtils {
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
         String jsonString = response.body().string();
         return new JSONObject(jsonString).getInt("shards");
-    }
-
-
-    public enum BodyTypes {
-        PLAIN_TEXT("plain/text"),
-        APPLICATION_JSON("application/json");
-
-        private String type;
-
-        BodyTypes(String type) {
-            this.type = type;
-        }
-
-        public MediaType getType(){
-            return MediaType.parse(getRawType());
-        }
-
-        public String getRawType() {
-            return this.type;
-        }
     }
 
 }

@@ -98,7 +98,7 @@ public class MessageUtils {
 
     public static String hastebin(String trace) {
         try {
-            Response response = WebUtils.post("https://hastebin.com/documents", WebUtils.BodyTypes.APPLICATION_JSON.getType(), trace);
+            Response response = WebUtils.post("https://hastebin.com/documents", WebUtils.APPLICATION_JSON, trace);
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             return "https://hastebin.com/" + new JSONObject(response.body().string()).getString("key");
