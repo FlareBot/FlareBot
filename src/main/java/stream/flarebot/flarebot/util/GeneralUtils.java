@@ -11,19 +11,11 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.Report;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -36,17 +28,7 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
-    private static final Callback defaultCallback = new Callback() {
-        @Override
-        public void onFailure(Call call, IOException e) {
-            FlareBot.LOGGER.error("Error for " + call.request().method() + " request to " + call.request().url(), e);
-        }
 
-        @Override
-        public void onResponse(Call call, Response response) throws IOException {
-            FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
-        }
-    };
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -91,7 +73,7 @@ public class GeneralUtils {
         return progress.toString();
     }
 
-    private static char get(TextChannel channel) {
+    private static char getPrefix(TextChannel channel) {
         if (channel.getGuild() != null) {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
@@ -99,7 +81,7 @@ public class GeneralUtils {
     }
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
-        String prefix = String.valueOf(get(channel));
+        String prefix = String.valueOf(getPrefix(channel));
         return usage.replaceAll("\\{%\\}", prefix);
     }
 
@@ -211,39 +193,6 @@ public class GeneralUtils {
         } catch (NumberFormatException | NullPointerException ignored) {
         }
         return null;
-    }
-
-    public static Response post(String url, MediaType type, String body) throws IOException {
-        Request.Builder request = new Request.Builder().url(url);
-        RequestBody requestBody = RequestBody.create(type, body);
-        request = request.post(requestBody);
-        return post(request);
-    }
-
-    public static Response post(Request.Builder builder) throws IOException {
-        return FlareBot.getOkHttpClient().newCall(builder.build()).execute();
-    }
-
-    public static Response get(String url) throws IOException {
-        return get(new Request.Builder().url(url));
-    }
-
-    public static Response get(Request.Builder builder) throws IOException {
-        return FlareBot.getOkHttpClient().newCall(builder.get().build()).execute();
-    }
-
-    public static void postAsync(Request.Builder builder) {
-        FlareBot.getOkHttpClient().newCall(builder.build()).enqueue(defaultCallback);
-    }
-
-    public static int getShards(String token) throws IOException {
-        Request.Builder request = new Request.Builder()
-                .url("https://discordapp.com/api/gateway/bot")
-                .header("Authorization", "Bot " + token);
-        Response response = get(request);
-        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-        String jsonString = response.body().string();
-        return new JSONObject(jsonString).getInt("shards");
     }
 
 }

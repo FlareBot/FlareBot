@@ -9,18 +9,17 @@ import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.WebUtils;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 
 public class YouTubeSearchExtractor extends YouTubeExtractor {
-    public static final String SEARCH_URL = "https://www.youtube.com/results?search_query=";
 
     @Override
     public void process(String input, Player player, Message message, User user) throws Exception {
-        Response response = GeneralUtils.get(String.format("https://www.googleapis.com/youtube/v3/search" +
+        Response response = WebUtils.get(String.format("https://www.googleapis.com/youtube/v3/search" +
                         "?q=%s&part=snippet&key=%s&type=video,playlist",
                 URLEncoder.encode(input, "UTF-8"), FlareBot.getYoutubeKey()));
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);

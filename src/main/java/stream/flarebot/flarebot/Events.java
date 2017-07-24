@@ -33,6 +33,7 @@ import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.WebUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
@@ -410,7 +411,7 @@ public class Events extends ListenerAdapter {
                         event.getOldStatus(), event.getStatus(),
                         event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
                                 : null)).toString());
-        GeneralUtils.postAsync(request.post(body));
+        WebUtils.postAsync(request.post(body));
     }
 
     @Override

@@ -85,6 +85,7 @@ import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -262,7 +263,7 @@ public class FlareBot {
         RestAction.DEFAULT_FAILURE = t -> {
         };
         try {
-            clients = new JDA[GeneralUtils.getShards(tkn)];
+            clients = new JDA[WebUtils.getShards(tkn)];
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -596,7 +597,7 @@ public class FlareBot {
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
                 RequestBody body = RequestBody.create(MediaType.parse("application/json"),
                         new JSONObject().put("server_count", client.getGuilds().size()).toString());
-                GeneralUtils.postAsync(request.post(body));
+                WebUtils.postAsync(request.post(body));
                 return;
             }
             try {
@@ -609,7 +610,7 @@ public class FlareBot {
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
-                GeneralUtils.postAsync(request.post(body));
+                WebUtils.postAsync(request.post(body));
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
