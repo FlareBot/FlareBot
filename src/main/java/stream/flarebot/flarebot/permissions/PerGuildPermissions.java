@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public class PerGuildPermissions {
 
@@ -40,6 +41,9 @@ public class PerGuildPermissions {
                 .map(this::getGroup)
                 .map(Group::getPermissions)
                 .flatMap(Collection::stream)
+                .map(PermissionNode::new)
+                .anyMatch(e -> e.test(node)) ||
+                getUser(user).getPermissions().stream()
                 .map(PermissionNode::new)
                 .anyMatch(e -> e.test(node));
     }

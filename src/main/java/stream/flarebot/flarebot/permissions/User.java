@@ -2,20 +2,22 @@ package stream.flarebot.flarebot.permissions;
 
 
 import net.dv8tion.jda.core.entities.Member;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class User {
-    private final HashSet<String> groups = new HashSet<>();
+    private final Set<String> groups = new ConcurrentHashSet<>();
+    private final Set<String> permissions = new ConcurrentHashSet<>();
 
     User() {
         groups.add("Default");
     }
 
     public Set<String> getGroups() {
-        Set<String> groups = new HashSet<>();
-        groups.addAll(this.groups);
         return groups;
     }
 
@@ -25,5 +27,9 @@ public class User {
 
     public boolean removeGroup(Group group) {
         return groups.remove(group.getName());
+    }
+
+    public Set<String> getPermissions(){
+        return permissions;
     }
 }
