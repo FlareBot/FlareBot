@@ -1,12 +1,7 @@
 package stream.flarebot.flarebot.permissions;
 
-
-import net.dv8tion.jda.core.entities.Member;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class User {

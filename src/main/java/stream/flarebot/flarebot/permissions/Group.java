@@ -2,9 +2,7 @@ package stream.flarebot.flarebot.permissions;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
-import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 
 public class Group {
