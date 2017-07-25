@@ -2,14 +2,11 @@ package stream.flarebot.flarebot.objects;
 
 import net.dv8tion.jda.core.entities.Guild;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class GuildWrapper {
@@ -118,27 +115,4 @@ public class GuildWrapper {
     public void setReports(List<Report> reports) {
         this.reports = reports;
     }
-
-    public Report getReport(int id) {
-        List<Report> reports = getReports();
-        try {
-            return reports.get(id - 1);
-        } catch (NoSuchElementException e) {
-            return null;
-        }
-    }
-
-    public void report( Report report) {
-        reports.add(report);
-    }
-
-    public int getLastReportId(String guildID) {
-        if (!reports.isEmpty()) {
-            Collections.sort(reports);
-            return reports.get(reports.size() - 1).getId() + 1;
-        } else {
-            return 1;
-        }
-    }
-
 }

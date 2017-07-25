@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.ReportManager;
 
 import java.awt.Color;
 import java.time.ZoneOffset;
@@ -32,7 +33,7 @@ public class ReportsCommand implements Command {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
                     if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
-                        List<Report> reports = guild.getReports();
+                        List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         int page = 1;
                         final int reportsLength = 15;
                         if (args.length == 2) {
@@ -76,7 +77,7 @@ public class ReportsCommand implements Command {
                         return;
                     }
 
-                    Report report = guild.getReport(id);
+                    Report report = ReportManager.getInstance().getReport(channel.getGuild().getId(), id);
                     if (report == null) {
                         MessageUtils.sendErrorMessage("That report doesn't exist.", channel);
                         return;
@@ -110,10 +111,10 @@ public class ReportsCommand implements Command {
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
-                        if (guild.getReport(id).getStatus().equals(status)) {
+                        if (ReportManager.getInstance().getReport(channel.getGuild().getId(), id).getStatus().equals(status)) {
                             channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("Current status is: **" + status.getMessage() + "**").build()).queue();
                         } else {
-                            guild.getReport(id).setStatus(status);
+                            ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status);
                             channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage())).build()).queue();
 
                         }
