@@ -33,13 +33,14 @@ public class ReportCommand implements Command {
 
             Report report = new Report(channel.getGuild().getId(), ReportManager.getInstance().getLastId(guild.getGuildId()), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
-            report.setMessages(messages.subList(0, Math.min(10, messages.size() - 1)));
-
+            List<Message> messages = channel.getHistory()
+                    .retrievePast(100)
+                    .complete()
+                    .stream()
                     .filter(m -> m.getAuthor().equals(user))
                     .collect(Collectors.toList());
-                    .stream()
-                    .complete()
-            List<Message> messages = channel.getHistory().retrievePast(100)
+            report.setMessages(messages.subList(0, Math.min(10, messages.size() - 1)));
+
             ReportManager.getInstance().report(channel.getGuild().getId(), report);
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
