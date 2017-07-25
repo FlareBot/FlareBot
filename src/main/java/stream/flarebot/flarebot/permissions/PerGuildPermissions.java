@@ -6,8 +6,11 @@ import net.dv8tion.jda.core.entities.Role;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,7 +43,7 @@ public class PerGuildPermissions {
         if(isContributor(user.getUser()))
             return true;
         PermissionNode node = new PermissionNode(permission);
-        return getUser(user).getGroups().stream()
+        boolean userPerm = getUser(user).getGroups().stream()
                 .map(this::getGroup)
                 .map(Group::getPermissions)
                 .flatMap(Collection::stream)
@@ -49,6 +52,19 @@ public class PerGuildPermissions {
                 getUser(user).getPermissions().stream()
                 .map(PermissionNode::new)
                 .anyMatch(e -> e.test(node));
+        boolean rolePerm = false;
+        for(Role role: user.getRoles()){
+            if(!rolePerm) {
+                for (Group group : getListGroups()) {
+                    if (group.getRoleId().equals(role.getId())) {
+                        rolePerm = group.getPermissions().stream()
+                                .map(PermissionNode::new)
+                                .anyMatch(e -> e.test(node));
+                    }
+                }
+            }
+        }
+        return userPerm || rolePerm;
     }
 
     public User getUser(Member user) {
@@ -78,6 +94,10 @@ public class PerGuildPermissions {
 
     public Map<String, Group> getGroups() {
         return groups;
+    }
+
+    public List<Group> getListGroups(){
+        return new ArrayList<>(groups.values());
     }
 
     public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
