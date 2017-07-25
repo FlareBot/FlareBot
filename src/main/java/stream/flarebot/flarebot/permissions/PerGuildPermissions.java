@@ -43,28 +43,20 @@ public class PerGuildPermissions {
         if(isContributor(user.getUser()))
             return true;
         PermissionNode node = new PermissionNode(permission);
-        boolean userPerm = getUser(user).getGroups().stream()
-                .map(this::getGroup)
-                .map(Group::getPermissions)
-                .flatMap(Collection::stream)
-                .map(PermissionNode::new)
-                .anyMatch(e -> e.test(node)) ||
-                getUser(user).getPermissions().stream()
-                .map(PermissionNode::new)
-                .anyMatch(e -> e.test(node));
-        boolean rolePerm = false;
-        for(Role role: user.getRoles()){
-            if(!rolePerm) {
-                for (Group group : getListGroups()) {
-                    if (group.getRoleId().equals(role.getId())) {
-                        rolePerm = group.getPermissions().stream()
-                                .map(PermissionNode::new)
-                                .anyMatch(e -> e.test(node));
+        for(Group g: getListGroups()) {
+            if (g.getPermissions().contains(node.getNode())) {
+                if (getUser(user).getGroups().contains(g)) {
+                    return true;
+                } else {
+                    for(Role role: user.getRoles()){
+                        if(g.getRoleId().equals(role.getId())){
+                            return true;
+                        }
                     }
                 }
             }
         }
-        return userPerm || rolePerm;
+        return false;
     }
 
     public User getUser(Member user) {
