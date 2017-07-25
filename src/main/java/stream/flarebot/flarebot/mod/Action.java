@@ -31,7 +31,7 @@ public enum Action {
                 return true;
             if (word.chars().mapToObj(i -> (char) i)
                     .collect(Collectors.groupingBy(Object::toString, Collectors.counting())).values().stream()
-                    .filter(amt -> amt > 3).count() > 0)
+                    .filter(amt -> amt > 5).count() > 0)
                 return true;
         }
         return false;
@@ -41,7 +41,7 @@ public enum Action {
             .filter(Character::isUpperCase).count() > 0 && ((double) message.getContent().replaceAll("[^a-zA-Z0-9]", "")
             .chars().filter(Character::isUpperCase)
             .count()
-            / message.getContent().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 > 30);
+            / message.getContent().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 >= 40);
 
     public static Action[] values = values();
 

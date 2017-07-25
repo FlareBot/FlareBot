@@ -72,7 +72,7 @@ public class GeneralUtils {
         return progress.toString();
     }
 
-    private static char get(TextChannel channel) {
+    private static char getPrefix(TextChannel channel) {
         if (channel.getGuild() != null) {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
@@ -80,7 +80,7 @@ public class GeneralUtils {
     }
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
-        String prefix = String.valueOf(get(channel));
+        String prefix = String.valueOf(getPrefix(channel));
         return usage.replaceAll("\\{%\\}", prefix);
     }
 
@@ -193,4 +193,5 @@ public class GeneralUtils {
         }
         return null;
     }
+
 }
