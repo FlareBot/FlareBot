@@ -33,7 +33,6 @@ public class PerGuildPermissions {
 
     public boolean hasPermission(Member user, String permission) {
         // So we can go into servers and figure out any issues they have.
-        updateRoles(user);
         if (isCreator(user.getUser()))
             return true;
         if (user.isOwner())
@@ -100,14 +99,4 @@ public class PerGuildPermissions {
         return user.getId().equals("215644829969809421") || user.getId().equals("203894491784937472");
     }
 
-    public void updateRoles(Member member){ //need to figure out how to account for role removal later
-        User user = getUser(member);
-        for(Role role: member.getRoles()){
-            getGroups().forEach((k,v) -> {
-                if(role.getId().equals(v.getRoleId())){
-                    user.addGroup(v);
-                }
-            });
-        }
-    }
 }
