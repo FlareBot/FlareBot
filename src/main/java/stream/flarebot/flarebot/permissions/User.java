@@ -27,4 +27,12 @@ public class User {
     public Set<String> getPermissions(){
         return permissions;
     }
+
+    public boolean addPermission(String permission){
+        return permissions.add(permission);
+    }
+
+    public boolean removePermission(String permission){
+        return permissions.remove(permission);
+    }
 }

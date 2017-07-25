@@ -17,16 +17,13 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 public class PermissionsCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length <= 2){
-            return;
-        } else {
+        if (args.length > 2){
             if(args[0].equals("group")){
                 String groupString = args[1];
                 if(args[2].equals("add")){
@@ -39,7 +36,7 @@ public class PermissionsCommand implements Command {
                             if(group.addPermission(args[3])){
                                 EmbedBuilder eb = MessageUtils.getEmbed(sender);
                                 eb.setDescription("Successfully added the permission `" + args[3] + "` from the group `" + groupString + "`");
-                                eb.setColor(Color.CYAN);
+                                eb.setColor(Color.GREEN);
                                 channel.sendMessage(eb.build()).queue();
                                 return;
                             } else {
@@ -58,7 +55,7 @@ public class PermissionsCommand implements Command {
                             if(group.removePermission(args[3])){
                                 EmbedBuilder eb = MessageUtils.getEmbed(sender);
                                 eb.setDescription("Successfully removed the permission `" + args[3] + "` from the group `" + groupString + "`");
-                                eb.setColor(Color.CYAN);
+                                eb.setColor(Color.GREEN);
                                 channel.sendMessage(eb.build()).queue();
                                 return;
                             } else {
@@ -100,7 +97,7 @@ public class PermissionsCommand implements Command {
                                 group.linkRole(role.getId());
                                 EmbedBuilder eb = MessageUtils.getEmbed(sender);
                                 eb.appendDescription("Successfully link the group `" + groupString + "` to the role `" + role.getName() + "`");
-                                eb.setColor(Color.CYAN);
+                                eb.setColor(Color.GREEN);
                                 channel.sendMessage(eb.build()).queue();
                                 return;
                             } else {
@@ -117,14 +114,15 @@ public class PermissionsCommand implements Command {
                             return;
                         } else {
                             int page = args.length == 4 ? Integer.valueOf(args[3]) : 1;
-                            Set perms = group.getPermissions();
-                            String list = getPermsList(perms, page);
+                            Set<String> perms = group.getPermissions();
+                            String list = getStringList(perms, page);
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
                             eb.addField("Perms", list, false);
                             eb.addField("Current page", String.valueOf(page),true);
                             int pageSize = 20;
                             int pages = perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
                             eb.addField("Pages", String.valueOf(pages), true);
+                            eb.setColor(Color.CYAN);
                             channel.sendMessage(eb.build()).queue();
                             return;
                         }
@@ -135,18 +133,112 @@ public class PermissionsCommand implements Command {
             } else if(args[0].equals("user")){
                 String userString = args[1];
                 User user = GeneralUtils.getUser(userString, guild.getGuildId());
-                if(user == null){
+                if (user == null) {
                     MessageUtils.sendErrorMessage("That user doesn't exist!!", channel);
                     return;
                 }
-            } else {
-                return;
+                stream.flarebot.flarebot.permissions.User permUser = getPermissions(channel).getUser(guild.getGuild().getMember(user));
+                if(args[2].equals("group")){
+                    if(args.length >= 4){
+                        if(args[3].equals("add")){
+                            if(args.length == 5){
+                                String groupString = args[4];
+                                Group group = getPermissions(channel).getGroup(groupString);
+                                if(group == null){
+                                    MessageUtils.sendErrorMessage("That group doesn't exists!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                                    return;
+                                }
+                                permUser.addGroup(group);
+                                EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                                eb.appendDescription("Successfully added the group `" + groupString + "` to " + user.getAsMention());
+                                eb.setColor(Color.GREEN);
+                                channel.sendMessage(eb.build()).queue();
+                                return;
+                            }
+                        } else if(args[3].equals("remove")){
+                            if(args.length == 5){
+                                String groupString = args[4];
+                                Group group = getPermissions(channel).getGroup(groupString);
+                                if(group == null){
+                                    MessageUtils.sendErrorMessage("That group doesn't exists!!", channel);
+                                    return;
+                                }
+                                if(permUser.removeGroup(group)) {
+                                    EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                                    eb.appendDescription("Successfully removed the group `" + groupString + "` from " + user.getAsMention());
+                                    eb.setColor(Color.GREEN);
+                                    channel.sendMessage(eb.build()).queue();
+                                    return;
+                                } else {
+                                    MessageUtils.sendErrorMessage("The user doesn't have that group!!", channel);
+                                    return;
+                                }
+                            }
+                        } else if(args[3].equals("list")){
+                            int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
+                            Set<String> groups = permUser.getGroups();
+                            String list = getStringList(groups, page);
+                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                            eb.addField("Perms", list, false);
+                            eb.addField("Current page", String.valueOf(page),true);
+                            int pageSize = 20;
+                            int pages = groups.size() < pageSize ? 1 : (groups.size() / pageSize) + (groups.size() % pageSize != 0 ? 1 : 0);
+                            eb.addField("Pages", String.valueOf(pages), true);
+                            eb.setColor(Color.CYAN);
+                            channel.sendMessage(eb.build()).queue();
+                            return;
+                        }
+                    }
+                } else if(args[2].equals("permission")) {
+                    if(args.length >= 4){
+                        if(args[3].equals("add")){
+                            if(args.length == 5){
+                                if(permUser.addPermission(args[4])){
+                                        EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                                        eb.appendDescription("Successfully added the permission `" + args[4] + "` to " + user.getAsMention());
+                                        eb.setColor(Color.GREEN);
+                                        channel.sendMessage(eb.build()).queue();
+                                        return;
+                                    } else {
+                                        MessageUtils.sendErrorMessage("The user doesn't have that permission!!", channel);
+                                        return;
+                                }
+                            }
+                        } else if(args[3].equals("remove")){
+                            if(args.length == 5){
+                                if(permUser.removePermission(args[4])){
+                                    EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                                    eb.appendDescription("Successfully removed the permission `" + args[4] + "` from " + user.getAsMention());
+                                    eb.setColor(Color.GREEN);
+                                    channel.sendMessage(eb.build()).queue();
+                                    return;
+                                } else {
+                                    MessageUtils.sendErrorMessage("The user allready has that permission!!", channel);
+                                    return;
+                                }
+                            }
+                        } else if(args[3].equals("list")){
+                            int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
+                            Set<String> perms = permUser.getPermissions();
+                            String list = getStringList(perms, page);
+                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                            eb.addField("Perms", list, false);
+                            eb.addField("Current page", String.valueOf(page),true);
+                            int pageSize = 20;
+                            int pages = perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
+                            eb.addField("Pages", String.valueOf(pages), true);
+                            eb.setColor(Color.CYAN);
+                            channel.sendMessage(eb.build()).queue();
+                            return;
+                        }
+                    }
+                }
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
     }
 
-    public String getPermsList(Set<String> perms, int page){
+    private String getStringList(Set<String> perms, int page){
         int pageSize = 20;
         int pages = perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
         int start;
