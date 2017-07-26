@@ -299,6 +299,7 @@ public class PermissionsCommand implements Command {
                 "`create` - creates a group\n" +
                 "`delete` - deletes the group\n" +
                 "`link <role>` - links the group to a discord role\n" +
+                "`unlink` - unlinks it from a role\n" +
                 "`list [page]` - lists the permissions this group has\n" +
                 "\n" +
                 "**`{%}permissions user <user>` - All usage in this section starts with this**\n" +
