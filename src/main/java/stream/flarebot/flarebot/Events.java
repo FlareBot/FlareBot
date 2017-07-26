@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -221,6 +222,7 @@ public class Events extends ListenerAdapter {
                 }
             }
             String message = event.getMessage().getRawContent();
+            message = message.replaceAll("`", "'");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
