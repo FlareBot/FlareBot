@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PerGuildPermissions {
 
     private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Member, User> users = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
     public PerGuildPermissions() {
         if (!hasGroup("Default")) {
             Group defaults = new Group("Default");
@@ -57,7 +57,7 @@ public class PerGuildPermissions {
     }
 
     public User getUser(Member user) {
-        return users.computeIfAbsent(user, key -> new User());
+        return users.computeIfAbsent(user.getUser().getId(), key -> new User());
     }
 
     public Group getGroup(String group) {
