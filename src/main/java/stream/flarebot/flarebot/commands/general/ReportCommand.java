@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.general;
 
-import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -15,8 +14,6 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
