@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -37,7 +38,7 @@ public class HelpCommand implements Command {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()
-                        .stream().filter(cmd -> FlareBot.getInstance().getPermissions(channel)
+                        .stream().filter(cmd -> getPermissions(channel)
                                 .hasPermission(member, cmd.getPermission()))
                         .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
                                 .getDescription() + '\n')
@@ -73,8 +74,9 @@ public class HelpCommand implements Command {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
-                    .stream().filter(cmd -> cmd.getPermission() != null && FlareBot.getInstance()
-                            .getPermissions(channel)
+                    .stream().filter(cmd -> cmd.getPermission() != null &&
+                                    FlareBotManager.getInstance().getGuild(guild.getId())
+                            .getPermissions()
                             .hasPermission(guild
                                     .getMember(sender), cmd
                                     .getPermission()))

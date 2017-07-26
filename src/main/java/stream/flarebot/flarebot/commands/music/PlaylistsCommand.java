@@ -27,7 +27,7 @@ public class PlaylistsCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("mark")) {
-                if (FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
+                if (getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1 || args.length == 2) {
                         MessageUtils.getUsage(this, channel, sender).queue();
                     } else if (args.length == 2) {

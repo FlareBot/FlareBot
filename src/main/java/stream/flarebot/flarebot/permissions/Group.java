@@ -1,12 +1,14 @@
 package stream.flarebot.flarebot.permissions;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
+
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 
 public class Group {
-    final ConcurrentSkipListSet<String> permissions = new ConcurrentSkipListSet<>();
+    private final Set<String> permissions = new ConcurrentHashSet<>();
     private String name;
+    private String roleId;
 
     private Group() {
     }
@@ -24,19 +26,19 @@ public class Group {
         return name;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof Group)) {
-            return false;
-        }
-        Group otherGroup = (Group) other;
-        return otherGroup.getName().equals(getName());
+    public boolean addPermission(String permission){
+        return permissions.add(permission);
     }
 
-    @Override
-    public int hashCode() {
-        int result = permissions.hashCode();
-        result = 31 * result + name.hashCode();
-        return result;
+    public boolean removePermission(String permission){
+        return permissions.remove(permission);
+    }
+
+    public void linkRole(String roleId){
+        this.roleId = roleId;
+    }
+
+    public String getRoleId() {
+        return roleId;
     }
 }

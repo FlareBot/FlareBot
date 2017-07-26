@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -64,7 +65,7 @@ public class AutoModConfig {
         punishments.put(10, new Punishment(Punishment.EPunishment.BAN));
     }
 
-    public void postToModLog(TextChannel channel, User user, Action action) {
+    public void postToModLog(TextChannel channel, User user, Action action, Message message) {
         if (isEnabled()) {
             if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild()
                     .getTextChannelById(getModLogChannel()) != null) {
@@ -75,7 +76,9 @@ public class AutoModConfig {
                                         .getAsMention() + " has been automatically deleted in " + channel
                                         .getAsMention() + " and has been given " + getActions()
                                         .get(action) + " points.")
-                                .addField("Reason", action.getName(), true).setColor(Color.white)
+                                .addField("Reason", action.getName(), true)
+                                .addField("Message", message.getContent(), true)
+                                .setColor(Color.white)
                                 .build()).queue();
             }
         }

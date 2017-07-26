@@ -252,7 +252,7 @@ public class Events extends ListenerAdapter {
                         spamMap.put(event.getGuild().getId(), 1);
                     }
                     if (cmd.getType() == CommandType.HIDDEN) {
-                        if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
+                        if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot() && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
                             try {
                                 File dir = new File("imgs");
                                 if (!dir.exists())

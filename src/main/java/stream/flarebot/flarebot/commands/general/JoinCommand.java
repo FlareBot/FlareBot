@@ -30,8 +30,7 @@ public class JoinCommand implements Command {
                     .equals(member
                             .getVoiceState()
                             .getAudioChannel()
-                            .getId()) && !FlareBot
-                    .getInstance().getPermissions(channel).hasPermission(member, "flarebot.join.other")) {
+                            .getId()) && !getPermissions(channel).hasPermission(member, "flarebot.join.other")) {
                 channel.sendMessage(new EmbedBuilder().setColor(Color.red)
                         .setDescription("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!")
                         .build()).queue();

@@ -32,7 +32,7 @@ public class ReportsCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
-                    if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.list")) {
+                    if (getPermissions(channel).hasPermission(member, "flarebot.reports.list")) {
                         List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
                         int page = 1;
                         final int reportsLength = 15;
@@ -83,7 +83,7 @@ public class ReportsCommand implements Command {
                         return;
                     }
 
-                    if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
+                    if (getPermissions(channel).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
                         channel.sendMessage(GeneralUtils.getReportEmbed(sender, report).build()).queue();
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
@@ -93,7 +93,7 @@ public class ReportsCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length >= 3) {
-                    if (getPermissions(message.getChannel()).hasPermission(member, "flarebot.report.status")) {
+                    if (getPermissions(channel).hasPermission(member, "flarebot.report.status")) {
                         int id;
                         try {
                             id = Integer.valueOf(args[1]);

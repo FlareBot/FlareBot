@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -28,7 +29,7 @@ public class PurgeCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && args[0].matches("\\d+")) {
-            if (!FlareBot.getInstance().getPermissions(channel).isCreator(sender)) {
+            if (!FlareBotManager.getInstance().getGuild(channel.getId()).getPermissions().isCreator(sender)) {
                 long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - calmitdood < cooldown) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
