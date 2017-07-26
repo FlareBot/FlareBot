@@ -8,19 +8,58 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
+
+import java.awt.Color;
+import java.util.List;
 
 public class RolesCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("**Server Roles**\n```\n");
-        for (Role role : channel.getGuild().getRoles()) {
-            sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
-        }
-        sb.append("```");
+        if (args.length <= 1) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("**Server Roles**\n```json\n");
+            List<Role> roles = channel.getGuild().getRoles();
+            int pageSize = 20;
+            int pages = roles.size() < pageSize ? 1 : (roles.size() / pageSize) + (roles.size() % pageSize != 0 ? 1 : 0);
+            int start;
+            int end;
+            int page = 1;
+            if (args.length == 1) {
+                try {
+                    page = Integer.valueOf(args[0]);
+                } catch (NumberFormatException e) {
+                    MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
+                    return;
+                }
+            }
+            start = pageSize * (page - 1);
+            end = Math.min(start + pageSize, roles.size());
+            if (page > pages || page < 0) {
+                MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+            } else {
+                List<Role> subRoles = roles.subList(start, end);
+                if (roles.isEmpty()) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("There are no roles in this guild!").build()).queue();
+                } else {
+                    for (Role role : subRoles) {
+                        if (role.getId().equals(guild.getGuildId())) {
+                            continue;
+                        }
+                        sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
+                    }
+                }
+            }
 
-        channel.sendMessage(sb.toString()).queue();
+            sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
+
+            channel.sendMessage(sb.toString()).queue();
+        } else {
+            MessageUtils.getUsage(this, channel, sender).queue();
+        }
     }
 
     @Override
@@ -35,7 +74,7 @@ public class RolesCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}roles` - Gets the roles for the current server";
+        return "`{%}roles [page]` - Gets the roles for the current server";
     }
 
     @Override

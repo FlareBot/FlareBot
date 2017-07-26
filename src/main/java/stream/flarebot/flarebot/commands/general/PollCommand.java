@@ -30,7 +30,7 @@ public class PollCommand implements Command {
             if (guild.getPolls().size() == 0 || (closedSize > 0 && guild.getPolls().size() == closedSize)) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("This guild has no polls currently running!" +
-                                (closedSize > 0 && FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.open")
+                                (closedSize > 0 && getPermissions(channel).hasPermission(member, "flarebot.poll.open")
                                         ? String.format("\nThis guild has %d closed " + (guild.getPolls().size() == 1 ? "poll" : "polls"), closedSize) : ""))
                         .setColor(Color.CYAN)
                         .build()).queue();
@@ -96,7 +96,7 @@ public class PollCommand implements Command {
                     try {
                         index = Integer.parseInt(args[1]) - 1;
                         if (args[0].equalsIgnoreCase("close")) {
-                            if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.close")) {
+                            if (!getPermissions(channel).hasPermission(member, "flarebot.poll.close")) {
                                 MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.close` to do this!", channel);
                                 return;
                             }
@@ -276,11 +276,11 @@ public class PollCommand implements Command {
                     }
                 }
             } else if (args[0].equalsIgnoreCase("vote")) {
-                if (args.length == 3 || (args.length == 2 && guild.getPolls().size() == 1)) {
+                if ((args.length == 3 && guild.getPolls().size() >= 1) || (args.length == 2 && guild.getPolls().size() == 1)) {
 
                     Poll poll;
                     if (args.length == 2) {
-                        poll = guild.getPolls().getFirst();
+                        poll = guild.getPolls().get(0);
                     } else {
                         poll = getPollById(args[1], guild.getPolls(), channel);
                         if (poll == null) {
@@ -321,6 +321,12 @@ public class PollCommand implements Command {
                             .setDescription("You voted for option ID: " + (id + 1))
                             .addField("Option", GeneralUtils.truncate(50, option.getOption()), false)
                             .addField("Votes", "This option has " + String.valueOf(option.getVotes()) + " votes!", false)
+                            .build()).queue();
+                    return;
+                } else if (guild.getPolls().size() == 0) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("This guild has no polls currently running!")
+                            .setColor(Color.CYAN)
                             .build()).queue();
                     return;
                 }

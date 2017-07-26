@@ -22,6 +22,10 @@ public class Punishment {
         return punishment.name().charAt(0) + punishment.name().substring(1).toLowerCase().replaceAll("_", " ");
     }
 
+    public EPunishment getPunishment() {
+        return punishment;
+    }
+
     public enum EPunishment {
         PURGE,
         TEMP_MUTE,

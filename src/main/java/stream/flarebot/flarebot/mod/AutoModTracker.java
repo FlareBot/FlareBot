@@ -63,8 +63,13 @@ public class AutoModTracker extends ListenerAdapter {
                             continue outer;
                 }
 
-                guild.addPoints(userId, guild.getConfig().getActions().get(action));
-                sendMessage(event.getChannel(), event.getAuthor(), action, guild, guild.getConfig());
+                String resp = guild.addPoints(event.getGuild(), userId, guild.getConfig().getActions().get(action));
+                if(resp == null)
+                    sendMessage(event.getChannel(), event.getAuthor(), action, event.getMessage(), guild, guild.getConfig());
+                else{
+                    MessageUtils.sendErrorMessage(resp, event.getChannel());
+                    event.getGuild().getOwner().getUser().openPrivateChannel().complete().sendMessage(resp);
+                }
 
                 if (action == Action.SPAM) {
                     spamCounter.get(event.getGuild().getId()).put(userId, 0);
@@ -90,7 +95,7 @@ public class AutoModTracker extends ListenerAdapter {
         return getSpamCounter(guild).getOrDefault(userId, 0);
     }
 
-    public void sendMessage(TextChannel channel, User user, Action action, AutoModGuild guild, AutoModConfig config) {
+    public void sendMessage(TextChannel channel, User user, Action action, Message message, AutoModGuild guild, AutoModConfig config) {
         MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
                 .setDescription(user.getAsMention()
                         + " Your message contained content not allowed on this server! Due to this you have been given " + config
@@ -101,6 +106,6 @@ public class AutoModTracker extends ListenerAdapter {
                 .addField("New Point Total", String.valueOf(guild
                         .getPointsForUser(user.getId())), true)
                 .setColor(Color.white).build(), 10_000, channel);
-        config.postToModLog(channel, user, action);
+        config.postToModLog(channel, user, action, message);
     }
 }
