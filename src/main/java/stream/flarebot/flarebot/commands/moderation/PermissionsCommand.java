@@ -120,6 +120,7 @@ public class PermissionsCommand implements Command {
                             eb.appendDescription("Successfully unlinked the role");
                             eb.setColor(Color.GREEN);
                             channel.sendMessage(eb.build()).queue();
+                            return;
                         }
                     }
                 } else if(args[2].equals("list")){
