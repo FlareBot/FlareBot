@@ -276,11 +276,11 @@ public class PollCommand implements Command {
                     }
                 }
             } else if (args[0].equalsIgnoreCase("vote")) {
-                if (args.length == 3 || (args.length == 2 && guild.getPolls().size() == 1)) {
+                if ((args.length == 3 && guild.getPolls().size() >= 1) || (args.length == 2 && guild.getPolls().size() == 1)) {
 
                     Poll poll;
                     if (args.length == 2) {
-                        poll = guild.getPolls().getFirst();
+                        poll = guild.getPolls().get(0);
                     } else {
                         poll = getPollById(args[1], guild.getPolls(), channel);
                         if (poll == null) {
@@ -321,6 +321,12 @@ public class PollCommand implements Command {
                             .setDescription("You voted for option ID: " + (id + 1))
                             .addField("Option", GeneralUtils.truncate(50, option.getOption()), false)
                             .addField("Votes", "This option has " + String.valueOf(option.getVotes()) + " votes!", false)
+                            .build()).queue();
+                    return;
+                } else if (guild.getPolls().size() == 0) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setDescription("This guild has no polls currently running!")
+                            .setColor(Color.CYAN)
                             .build()).queue();
                     return;
                 }
