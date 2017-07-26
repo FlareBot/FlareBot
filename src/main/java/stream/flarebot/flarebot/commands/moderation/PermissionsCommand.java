@@ -40,7 +40,7 @@ public class PermissionsCommand implements Command {
                                 channel.sendMessage(eb.build()).queue();
                                 return;
                             } else {
-                                MessageUtils.sendErrorMessage("Couldn't add the permission (it probably already exist)", channel);
+                                MessageUtils.sendErrorMessage("Couldn't add the permission (it probably already exists)", channel);
                                 return;
                             }
                         }
@@ -96,7 +96,7 @@ public class PermissionsCommand implements Command {
                             if(role != null) {
                                 group.linkRole(role.getId());
                                 EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                                eb.appendDescription("Successfully link the group `" + groupString + "` to the role `" + role.getName() + "`");
+                                eb.appendDescription("Successfully linked the group `" + groupString + "` to the role `" + role.getName() + "`");
                                 eb.setColor(Color.GREEN);
                                 channel.sendMessage(eb.build()).queue();
                                 return;
@@ -213,7 +213,7 @@ public class PermissionsCommand implements Command {
                                     channel.sendMessage(eb.build()).queue();
                                     return;
                                 } else {
-                                    MessageUtils.sendErrorMessage("The user allready has that permission!!", channel);
+                                    MessageUtils.sendErrorMessage("The user already has that permission!!", channel);
                                     return;
                                 }
                             }
