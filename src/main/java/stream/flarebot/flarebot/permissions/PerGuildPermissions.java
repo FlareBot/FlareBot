@@ -21,10 +21,10 @@ public class PerGuildPermissions {
 
     public PerGuildPermissions() {
         if (!hasGroup("Default")) {
+            Group defaults = new Group("Default");
+            groups.put("Default", defaults);
             for (Command command : FlareBot.getInstance().getCommands()) {
                 if (command.isDefaultPermission()) {
-                    Group defaults = new Group("Default");
-                    groups.put("Default", defaults);
                     defaults.addPermission(command.getPermission());
                 }
             }
@@ -47,9 +47,11 @@ public class PerGuildPermissions {
                 if (getUser(user).getGroups().contains(g)) {
                     return true;
                 } else {
-                    for(Role role: user.getRoles()){
-                        if(g.getRoleId().equals(role.getId())){
-                            return true;
+                    for(Role role: user.getRoles()) {
+                        if (g.getRoleId() != null) {
+                            if (g.getRoleId().equals(role.getId())) {
+                                return true;
+                            }
                         }
                     }
                 }
