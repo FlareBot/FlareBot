@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.entities.Message;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.HashMap;
@@ -59,7 +60,7 @@ public enum Action {
     }
 
     public boolean check(Message message) {
-        if (!FlareBot.getInstance().getPermissions(message.getTextChannel())
+        if (!FlareBotManager.getInstance().getGuild(message.getTextChannel().getGuild().getId()).getPermissions()
                 .hasPermission(message.getGuild().getMember(message.getAuthor()), "flarebot.automod.bypass"))
             return this.check.test(message);
         else

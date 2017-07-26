@@ -7,6 +7,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 
@@ -15,15 +16,14 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum DataSetters {
-    ADDPERMISSION((request, response) -> FlareBot.getInstance()
-            .getPermissions(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")))
-            .addPermission(request.queryParams("group"), request.queryParams("permission")),
+    ADDPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())
+            .getPermissions().getGroup(request.queryParams("group")).addPermission(request.queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),
-    REMOVEPERMISSION((request, response) -> FlareBot.getInstance()
-            .getPermissions(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")))
-            .removePermission(request.queryParams("group"), request.queryParams("permission")),
+    REMOVEPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())
+            .getPermissions().getGroup(request.queryParams("group"))
+            .removePermission(request.queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),

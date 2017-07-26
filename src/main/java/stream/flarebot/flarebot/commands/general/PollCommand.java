@@ -30,7 +30,7 @@ public class PollCommand implements Command {
             if (guild.getPolls().size() == 0 || (closedSize > 0 && guild.getPolls().size() == closedSize)) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("This guild has no polls currently running!" +
-                                (closedSize > 0 && FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.open")
+                                (closedSize > 0 && getPermissions(channel).hasPermission(member, "flarebot.poll.open")
                                         ? String.format("\nThis guild has %d closed " + (guild.getPolls().size() == 1 ? "poll" : "polls"), closedSize) : ""))
                         .setColor(Color.CYAN)
                         .build()).queue();
@@ -96,7 +96,7 @@ public class PollCommand implements Command {
                     try {
                         index = Integer.parseInt(args[1]) - 1;
                         if (args[0].equalsIgnoreCase("close")) {
-                            if (!FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.poll.close")) {
+                            if (!getPermissions(channel).hasPermission(member, "flarebot.poll.close")) {
                                 MessageUtils.sendErrorMessage("You need the permission `flarebot.poll.close` to do this!", channel);
                                 return;
                             }
