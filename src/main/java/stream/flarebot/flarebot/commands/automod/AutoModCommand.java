@@ -21,7 +21,10 @@ public class AutoModCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 1) {
+        if(args.length == 0) {
+            MessageUtils.getUsage(this, channel, sender).queue();
+            return;
+        }else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("config")) {
                 AutoModConfig config = guild.getAutoModConfig();
                 EmbedBuilder builder = new EmbedBuilder().setColor(Color.white).addField("Auto Mod Enabled", String
@@ -130,8 +133,8 @@ public class AutoModCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}automod <config/punishments> - View config/punishments for a server\n"
-                + "{%}automod <punishments> <set/reset> - Set or reset punishments\n"
+        return "{%}automod config- View config/punishments for a server\n"
+                + "{%}automod <punishments> [set/reset] - View punishments. set or reset punishments with the optional argument\n"
                 + "{%}automod <whitelist> <list/add/remove>\n"
                 //TODO: Walshy - See above
                 + "{%}automod";

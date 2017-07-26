@@ -24,7 +24,7 @@ public class SelfAssignCommand implements Command {
             MessageUtils.getUsage(this, channel, sender).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("add")) {
-                if (FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.selfassign.admin")) {
+                if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
                     MessageUtils.getUsage(this, channel, sender).queue();
                 } else {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
@@ -33,7 +33,7 @@ public class SelfAssignCommand implements Command {
                             5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
-                if (FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.selfassign.admin")) {
+                if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
                     MessageUtils.getUsage(this, channel, sender).queue();
                 } else {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
@@ -83,7 +83,7 @@ public class SelfAssignCommand implements Command {
             }
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("add")) {
-                if (!FlareBot.getInstance().getPermissions(channel)
+                if (!guild.getPermissions()
                         .hasPermission(member, "flarebot.selfassign.admin")) {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
                                     .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
@@ -108,7 +108,7 @@ public class SelfAssignCommand implements Command {
                 } else
                     MessageUtils.sendErrorMessage("That role does not exist!", channel);
             } else if (args[0].equalsIgnoreCase("remove")) {
-                if (!FlareBot.getInstance().getPermissions(channel)
+                if (!guild.getPermissions()
                         .hasPermission(member, "flarebot.selfassign.admin")) {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
                                     .setDescription("You need `flarebot.selfassign.admin` in order to do this!")

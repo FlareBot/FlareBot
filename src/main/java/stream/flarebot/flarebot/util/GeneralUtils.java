@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -46,6 +47,17 @@ public class GeneralUtils {
         eb.addField("Status", report.getStatus().getMessage(), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
+        StringBuilder builder = new StringBuilder("The last 10 messages by the reported user: ```md\n");
+        int index = 1;
+        for (Message m : report.getMessages()) {
+            builder.append(index)
+                    .append(". ")
+                    .append(GeneralUtils.truncate(100, m.getContent()))
+                    .append("\n");
+            index++;
+        }
+        builder.append("```");
+        eb.addField("Messages from reported user", builder.toString(), false);
         return eb;
     }
 
@@ -72,7 +84,7 @@ public class GeneralUtils {
         return progress.toString();
     }
 
-    private static char get(TextChannel channel) {
+    private static char getPrefix(TextChannel channel) {
         if (channel.getGuild() != null) {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
@@ -80,7 +92,7 @@ public class GeneralUtils {
     }
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
-        String prefix = String.valueOf(get(channel));
+        String prefix = String.valueOf(getPrefix(channel));
         return usage.replaceAll("\\{%\\}", prefix);
     }
 
@@ -193,4 +205,5 @@ public class GeneralUtils {
         }
         return null;
     }
+
 }

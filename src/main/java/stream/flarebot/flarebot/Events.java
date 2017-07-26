@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot;
 
-import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -21,6 +20,9 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -31,6 +33,7 @@ import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.WebUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
@@ -249,7 +252,7 @@ public class Events extends ListenerAdapter {
                         spamMap.put(event.getGuild().getId(), 1);
                     }
                     if (cmd.getType() == CommandType.HIDDEN) {
-                        if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
+                        if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot() && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
                             try {
                                 File dir = new File("imgs");
                                 if (!dir.exists())
@@ -402,14 +405,13 @@ public class Events extends ListenerAdapter {
     @Override
     public void onStatusChange(StatusChangeEvent event) {
         if (sd) return;
-        Unirest.post(FlareBot.getStatusHook())
-                .header("Content-Type", "application/json")
-                .body(new JSONObject()
-                        .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
-                                event.getOldStatus(), event.getStatus(),
-                                event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
-                                        : null)))
-                .asStringAsync();
+        Request.Builder request = new Request.Builder().url(FlareBot.getStatusHook());
+        RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON, new JSONObject()
+                .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
+                        event.getOldStatus(), event.getStatus(),
+                        event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
+                                : null)).toString());
+        WebUtils.postAsync(request.post(body));
     }
 
     @Override

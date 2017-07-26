@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.entities.Message;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public enum Action {
                 return true;
             if (word.chars().mapToObj(i -> (char) i)
                     .collect(Collectors.groupingBy(Object::toString, Collectors.counting())).values().stream()
-                    .filter(amt -> amt > 3).count() > 0)
+                    .filter(amt -> amt > 5).count() > 0)
                 return true;
         }
         return false;
@@ -40,7 +41,7 @@ public enum Action {
             .filter(Character::isUpperCase).count() > 0 && ((double) message.getContent().replaceAll("[^a-zA-Z0-9]", "")
             .chars().filter(Character::isUpperCase)
             .count()
-            / message.getContent().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 > 30);
+            / message.getContent().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 >= 40);
 
     public static Action[] values = values();
 
@@ -59,7 +60,7 @@ public enum Action {
     }
 
     public boolean check(Message message) {
-        if (!FlareBot.getInstance().getPermissions(message.getTextChannel())
+        if (!FlareBotManager.getInstance().getGuild(message.getTextChannel().getGuild().getId()).getPermissions()
                 .hasPermission(message.getGuild().getMember(message.getAuthor()), "flarebot.automod.bypass"))
             return this.check.test(message);
         else

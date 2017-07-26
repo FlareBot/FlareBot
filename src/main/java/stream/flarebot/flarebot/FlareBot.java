@@ -39,6 +39,11 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
+import okhttp3.ConnectionPool;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,12 +79,12 @@ import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.permissions.Permissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -127,7 +132,6 @@ public class FlareBot {
 
     private static String botListAuth;
     private static String dBotsAuth;
-    private Permissions permissions;
     private FlareBotManager manager;
     @SuppressWarnings("FieldCanBeLocal")
     public static final File PERMS_FILE = new File("perms.json");
@@ -146,6 +150,8 @@ public class FlareBot {
     private static String token;
 
     private static boolean testBot = false;
+
+    private static OkHttpClient client = new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
 
     public static void main(String[] args) throws Exception {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -216,6 +222,10 @@ public class FlareBot {
         return token;
     }
 
+    public static OkHttpClient getOkHttpClient() {
+        return client;
+    }
+
     public Events getEvents() {
         return events;
     }
@@ -237,25 +247,16 @@ public class FlareBot {
         return prefixes;
     }
 
-    public Permissions getPermissions() {
-        return permissions;
-    }
-
-    public PerGuildPermissions getPermissions(MessageChannel channel) {
-        return this.permissions.getPermissions(channel);
-    }
-
     public void init(String tkn) throws InterruptedException, UnirestException, FileNotFoundException {
         token = tkn;
         manager = new FlareBotManager();
         RestAction.DEFAULT_FAILURE = t -> {
         };
-        clients = new JDA[Unirest.get("https://discordapp.com/api/gateway/bot")
-                .header("Authorization", "Bot " + tkn)
-                .asJson()
-                .getBody()
-                .getObject()
-                .getInt("shards")];
+        try {
+            clients = new JDA[WebUtils.getShards(tkn)];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         latch = new CountDownLatch(1);
@@ -361,7 +362,6 @@ public class FlareBot {
                     }
                 }
             }));
-            loadPerms();
             try {
                 new WebhooksBuilder()
                         .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
@@ -399,7 +399,7 @@ public class FlareBot {
         run();
     }
 
-    private void loadPerms() {
+    /*private void loadPerms() {
         if (PERMS_FILE.exists()) {
             try {
                 permissions = GSON.fromJson(new FileReader(PERMS_FILE), Permissions.class);
@@ -433,7 +433,7 @@ public class FlareBot {
 
         }
     }
-
+*/
     protected void run() {
         registerCommand(new HelpCommand());
         registerCommand(new SearchCommand(this));
@@ -495,7 +495,7 @@ public class FlareBot {
 
         sendCommands();
         sendPrefixes();
-
+        /*
         new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -506,7 +506,7 @@ public class FlareBot {
                 }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(5), TimeUnit.MINUTES.toMillis(1));
-
+*/
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -519,7 +519,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
-                    postToBotlist(FlareBot.dBotsAuth, String
+                    postToBotList(FlareBot.dBotsAuth, String
                             .format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
@@ -529,7 +529,7 @@ public class FlareBot {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
-                    postToBotlist(FlareBot.botListAuth, String
+                    postToBotList(FlareBot.botListAuth, String
                             .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
@@ -578,28 +578,29 @@ public class FlareBot {
 
     }
 
-    private void postToBotlist(String auth, String url) {
+    private void postToBotList(String auth, String url) {
         for (JDA client : clients) {
             if (clients.length == 1) {
-                Unirest.post(url)
-                        .header("Authorization", auth)
-                        .header("User-Agent", "Mozilla/5.0 FlareBot")
-                        .header("Content-Type", "application/json")
-                        .body(new JSONObject()
-                                .put("server_count", client.getGuilds().size()))
-                        .asStringAsync();
+                Request.Builder request = new Request.Builder()
+                        .url(url)
+                        .addHeader("Authorization", auth)
+                        .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
+                RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON,
+                        new JSONObject().put("server_count", client.getGuilds().size()).toString());
+                WebUtils.postAsync(request.post(body));
                 return;
             }
             try {
-                Unirest.post(url)
-                        .header("Authorization", auth)
-                        .header("User-Agent", "Mozilla/5.0 FlareBot")
-                        .header("Content-Type", "application/json")
-                        .body(new JSONObject()
+                Request.Builder request = new Request.Builder()
+                        .url(url)
+                        .addHeader("Authorization", auth)
+                        .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
+                RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON,
+                        (new JSONObject()
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
-                                .put("shard_count", client.getShardInfo().getShardTotal()))
-                        .asStringAsync();
+                                .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
+                WebUtils.postAsync(request.post(body));
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
@@ -725,6 +726,7 @@ public class FlareBot {
         return message[0];
     }
 
+    @Deprecated
     public void postToApi(String endpoint, JSONObject body) {
         Unirest.post(OLD_FLAREBOT_API + endpoint).body(body).asJsonAsync();
     }
@@ -802,7 +804,6 @@ public class FlareBot {
     protected void stop() {
         LOGGER.info("Saving data.");
         try {
-            permissions.save();
             sendData();
         } catch (Exception e) {
             LOGGER.error("Something failed on stop!", e);
@@ -1055,5 +1056,9 @@ public class FlareBot {
     private TextChannel getModLogChannel(String guildId) {
         return (this.getManager().getGuild(guildId).getAutoModGuild().getConfig().isEnabled()
                 ? getChannelByID(getManager().getGuild(guildId).getAutoModConfig().getModLogChannel()) : null);
+    }
+
+    public boolean isTestBot(){
+        return testBot;
     }
 }
