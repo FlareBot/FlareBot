@@ -15,6 +15,7 @@ public class PerGuildPermissions {
 
     private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+
     public PerGuildPermissions() {
         if (!hasGroup("Default")) {
             Group defaults = new Group("Default");
