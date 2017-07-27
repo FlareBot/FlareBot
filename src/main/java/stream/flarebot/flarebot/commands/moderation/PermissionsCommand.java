@@ -73,7 +73,7 @@ public class PermissionsCommand implements Command {
                             channel.sendMessage(eb.build()).queue();
                             return;
                         } else {
-                            MessageUtils.sendErrorMessage("That group allready exists!!", channel);
+                            MessageUtils.sendErrorMessage("That group already exists!!", channel);
                             return;
                         }
                     }
@@ -115,12 +115,18 @@ public class PermissionsCommand implements Command {
                             MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
                             return;
                         } else {
-                            group.linkRole("");
-                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            eb.appendDescription("Successfully unlinked the role");
-                            eb.setColor(Color.GREEN);
-                            channel.sendMessage(eb.build()).queue();
-                            return;
+                            Role role = guild.getGuild().getRoleById(group.getRoleId());
+                            if(role == null){
+                                MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
+                                return;
+                            } else {
+                                group.linkRole(null);
+                                EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                                eb.appendDescription("Successfully unlinked the role " + role.getName() + " from the group " + group.getName());
+                                eb.setColor(Color.GREEN);
+                                channel.sendMessage(eb.build()).queue();
+                                return;
+                            }
                         }
                     }
                 } else if(args[2].equals("list")){
