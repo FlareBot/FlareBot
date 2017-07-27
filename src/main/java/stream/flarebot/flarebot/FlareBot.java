@@ -298,10 +298,10 @@ public class FlareBot {
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                            manager.getGuild(player.getGuildId()).setSongnickEnabled(false);
                         } else {
                             if (player.getPlaylist().isEmpty())
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
@@ -340,10 +340,10 @@ public class FlareBot {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
                     }
-                    if (SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                            manager.getGuild(player.getGuildId()).setSongnickEnabled(false);
                         } else {
                             Track track = player.getPlayingTrack();
                             String str = null;
