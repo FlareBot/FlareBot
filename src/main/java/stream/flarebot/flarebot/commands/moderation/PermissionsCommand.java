@@ -127,8 +127,6 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     }
-                } else {
-                    return;
                 }
             } else if(args[0].equals("user")){
                 String userString = args[1];

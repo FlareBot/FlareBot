@@ -20,7 +20,6 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
@@ -221,6 +220,7 @@ public class Events extends ListenerAdapter {
                 }
             }
             String message = event.getMessage().getRawContent();
+            message = message.replaceAll("`", "'");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {

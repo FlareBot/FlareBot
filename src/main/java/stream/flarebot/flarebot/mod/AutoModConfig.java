@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AutoModConfig {
 
     //TODO: Disable by default. Enabled for testing
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     private String modLogChannel;
     private Map<Action, Integer> actions = new ConcurrentHashMap<>();
