@@ -35,7 +35,7 @@ public class PermissionsCommand implements Command {
                         } else {
                             if(group.addPermission(args[3])){
                                 EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                                eb.setDescription("Successfully added the permission `" + args[3] + "` from the group `" + groupString + "`");
+                                eb.setDescription("Successfully added the permission `" + args[3] + "` to the group `" + groupString + "`");
                                 eb.setColor(Color.GREEN);
                                 channel.sendMessage(eb.build()).queue();
                                 return;
@@ -65,25 +65,27 @@ public class PermissionsCommand implements Command {
                         }
                     }
                 } else if(args[2].equals("create")){
-                    if(getPermissions(channel).addGroup(groupString)){
-                        EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                        eb.setDescription("Successfully created group: `" + groupString + "`");
-                        eb.setColor(Color.GREEN);
-                        channel.sendMessage(eb.build()).queue();
-                        return;
-                    } else {
-                        MessageUtils.sendErrorMessage("That group allready exists!!", channel);
-                        return;
+                    if(args.length == 3) {
+                        if (getPermissions(channel).addGroup(groupString)) {
+                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                            eb.setDescription("Successfully created group: `" + groupString + "`");
+                            eb.setColor(Color.GREEN);
+                            channel.sendMessage(eb.build()).queue();
+                            return;
+                        } else {
+                            MessageUtils.sendErrorMessage("That group already exists!!", channel);
+                            return;
+                        }
                     }
                 } else if(args[2].equals("delete")){
-                    if(args.length == 4) {
+                    if(args.length == 3) {
                         if (getPermissions(channel).getGroup(groupString) == null) {
                             MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
                             return;
                         } else {
                             getPermissions(channel).deleteGroup(groupString);
+                            return;
                         }
-                        return;
                     }
                 } else if(args[2].equals("link")){
                     if(args.length == 4) {
@@ -102,6 +104,27 @@ public class PermissionsCommand implements Command {
                                 return;
                             } else {
                                 MessageUtils.sendErrorMessage("That role doesn't exist!", channel);
+                                return;
+                            }
+                        }
+                    }
+                } else if(args[2].equals("unlink")) {
+                    if(args.length == 3){
+                        Group group = getPermissions(channel).getGroup(groupString);
+                        if (group == null) {
+                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
+                            return;
+                        } else {
+                            Role role = guild.getGuild().getRoleById(group.getRoleId());
+                            if(role == null){
+                                MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
+                                return;
+                            } else {
+                                group.linkRole(null);
+                                EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                                eb.appendDescription("Successfully unlinked the role " + role.getName() + " from the group " + group.getName());
+                                eb.setColor(Color.GREEN);
+                                channel.sendMessage(eb.build()).queue();
                                 return;
                             }
                         }
@@ -127,8 +150,6 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     }
-                } else {
-                    return;
                 }
             } else if(args[0].equals("user")){
                 String userString = args[1];
@@ -284,6 +305,7 @@ public class PermissionsCommand implements Command {
                 "`create` - creates a group\n" +
                 "`delete` - deletes the group\n" +
                 "`link <role>` - links the group to a discord role\n" +
+                "`unlink` - unlinks it from a role\n" +
                 "`list [page]` - lists the permissions this group has\n" +
                 "\n" +
                 "**`{%}permissions user <user>` - All usage in this section starts with this**\n" +

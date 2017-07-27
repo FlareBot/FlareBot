@@ -473,9 +473,9 @@ public class FlareBot {
         registerCommand(new ShardRestartCommand());
         registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
-        registerCommand(new AutoModCommand());
-        registerCommand(new ModlogCommand());
-        registerCommand(new SetSeverityCommand());
+        //registerCommand(new AutoModCommand());
+        //registerCommand(new ModlogCommand());
+        //registerCommand(new SetSeverityCommand());
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
