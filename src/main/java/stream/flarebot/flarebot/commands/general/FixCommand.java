@@ -18,7 +18,6 @@ import java.util.Iterator;
 
 public class FixCommand implements Command {
 
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         for (Member member1 : guild.getGuild().getMembers()) {
