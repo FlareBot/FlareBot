@@ -342,7 +342,7 @@ public class PermissionsCommand implements Command {
                 "`link <role>` - links the group to a discord role\n" +
                 "`unlink` - unlinks it from a role\n" +
                 "`list [page]` - lists the permissions this group has\n" +
-                "`massadd <role>` - puts everyone with the giving role into the group (works with @everyone and @here)\n" +
+                "`massadd <@everyone/@here/role>` - puts everyone with the giving role into the group\n" +
                 "\n" +
                 "**`{%}permissions user <user>` - All usage in this section starts with this**\n" +
                 "`group add <group>` - adds a group to this user\n" +
