@@ -21,10 +21,14 @@ public class GuildWrapper {
     private Set<String> selfAssignRoles;
     private Language.Locales locale;
     private boolean blocked;
+    private boolean songnick;
     private long unBlockTime;
     private String blockReason;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome, PerGuildPermissions permissions, LinkedList<Poll> polls, Set<String> autoAssignRoles, Set<String> selfAssignRoles, Language.Locales locale, boolean blocked, long unBlockTime, String blockReason) {
+    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome,
+                        PerGuildPermissions permissions, LinkedList<Poll> polls, Set<String> autoAssignRoles,
+                        Set<String> selfAssignRoles, Language.Locales locale, boolean blocked,
+                        boolean songnick, long unBlockTime, String blockReason) {
         this.guildId = guildId;
         this.autoModGuild = autoModGuild;
         this.welcome = welcome;
@@ -36,6 +40,7 @@ public class GuildWrapper {
         this.unBlockTime = unBlockTime;
         this.blockReason = blockReason;
         this.permissions = permissions;
+        this.songnick = songnick;
     }
 
     public Guild getGuild() {
@@ -114,5 +119,13 @@ public class GuildWrapper {
 
     public long getUnBlockTime() {
         return unBlockTime;
+    }
+
+    public boolean isSongnickEnabled() {
+        return songnick;
+    }
+
+    public void setSongnickEnabled(boolean songnick) {
+        this.songnick = songnick;
     }
 }
