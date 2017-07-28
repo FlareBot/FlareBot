@@ -17,6 +17,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 public class PermissionsCommand implements Command {
@@ -146,6 +147,40 @@ public class PermissionsCommand implements Command {
                             int pages = perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
                             eb.addField("Pages", String.valueOf(pages), true);
                             eb.setColor(Color.CYAN);
+                            channel.sendMessage(eb.build()).queue();
+                            return;
+                        }
+                    }
+                } else if(args[2].equals("massadd")){
+                    if(args.length == 4) {
+                        Group group = getPermissions(channel).getGroup(groupString);
+                        if (group == null) {
+                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
+                            return;
+                        } else {
+                            List<Member> roleMembers;
+                            String roleName = "";
+                            if(args[3].equals("@everyone")){
+                                roleMembers = guild.getGuild().getMembers();
+                                roleName = "everyone";
+                            } else if(args[3].equals("@here")){
+                                roleMembers = channel.getMembers();
+                                roleName = "here";
+                            } else {
+                                Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
+                                if(role != null) {
+                                    roleMembers = guild.getGuild().getMembersWithRoles(role);
+                                } else {
+                                    MessageUtils.sendErrorMessage("That role doesn't exist!!", channel);
+                                    return;
+                                }
+                            }
+                            for(Member user: roleMembers){
+                                getPermissions(channel).getUser(user).addGroup(group);
+                            }
+                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                            eb.appendDescription("Successfully added the group `" + groupString + "` to everyone in the role @" + roleName);
+                            eb.setColor(Color.GREEN);
                             channel.sendMessage(eb.build()).queue();
                             return;
                         }
@@ -307,6 +342,7 @@ public class PermissionsCommand implements Command {
                 "`link <role>` - links the group to a discord role\n" +
                 "`unlink` - unlinks it from a role\n" +
                 "`list [page]` - lists the permissions this group has\n" +
+                "`massadd <role>` - puts everyone with the giving role into the group (works with @everyone and @here)\n" +
                 "\n" +
                 "**`{%}permissions user <user>` - All usage in this section starts with this**\n" +
                 "`group add <group>` - adds a group to this user\n" +
