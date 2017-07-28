@@ -73,6 +73,7 @@ import stream.flarebot.flarebot.commands.secret.QuitCommand;
 import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
 import stream.flarebot.flarebot.commands.secret.TestCommand;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -138,7 +139,7 @@ public class FlareBot {
     private static String webSecret;
     private static boolean apiEnabled = true;
 
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson GSON = new GsonBuilder().create();
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
     public static final String OLD_FLAREBOT_API = "https://flarebot.stream/api/";
@@ -193,7 +194,7 @@ public class FlareBot {
         passwd = CommandLineArguments.SQL_PW.getValue();
 
         new SQLController();
-        //new CassandraController().init();
+        new CassandraController().init();
 
         FlareBot.secret = CommandLineArguments.SECRET.getValue();
         FlareBot.dBotsAuth = CommandLineArguments.DBOTS.getValue();
