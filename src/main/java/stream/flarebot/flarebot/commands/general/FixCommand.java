@@ -36,20 +36,17 @@ public class FixCommand implements Command {
         }
         if (guild.isSongnickEnabled()) {
             Player player = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId());
-            if (player.getPlaylist().isEmpty()) {
-                guild.getGuild().getController().setNickname(guild.getGuild().getSelfMember(), null).queue();
-            } else if (player.getPlayingTrack() != null) {
-                String str = null;
-                if (player.getPlayingTrack() != null) {
-                    str = player.getPlayingTrack().getTrack().getInfo().title;
-                    if (str.length() > 32)
-                        str = str.substring(0, 32);
-                    str = str.substring(0, str.lastIndexOf(' ') + 1);
-                } // Even I couldn't make this a one-liner
-                guild.getGuild().getController()
-                        .setNickname(guild.getGuild().getSelfMember(), str)
-                        .queue();
+            String nickname = null;
+            if (player.getPlayingTrack() != null) {
+                nickname = player.getPlayingTrack().getTrack().getInfo().title;
+                if (nickname.length() > 32) {
+                    nickname = nickname.substring(0, 32);
+                }
+                nickname = nickname.substring(0, nickname.lastIndexOf(' ') + 1);
             }
+            guild.getGuild().getController()
+                    .setNickname(guild.getGuild().getSelfMember(), nickname)
+                    .queue();
         } else {
             guild.getGuild().getController().setNickname(guild.getGuild().getSelfMember(), null).queue();
         }
