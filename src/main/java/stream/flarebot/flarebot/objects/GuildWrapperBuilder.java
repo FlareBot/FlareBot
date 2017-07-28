@@ -19,6 +19,8 @@ public class GuildWrapperBuilder {
     private Set<String> selfAssignRoles = new ConcurrentHashSet<>();
     private Language.Locales locale = Language.Locales.ENGLISH_UK;
     private PerGuildPermissions permissions;
+    private boolean blocked;
+    private boolean songnick;
 
     private GuildWrapperBuilder() {
     }
@@ -67,7 +69,17 @@ public class GuildWrapperBuilder {
         return this;
     }
 
+    public GuildWrapperBuilder setBlocked(boolean blocked){
+        this.blocked = blocked;
+        return this;
+    }
+
+    public GuildWrapperBuilder setSongnick(boolean songnick) {
+        this.songnick = songnick;
+        return this;
+    }
+
     public GuildWrapper build() {
-        return new GuildWrapper(guildId, autoModGuild, welcome, permissions, polls, autoAssignRoles, selfAssignRoles, locale, false, 0l, "");
+        return new GuildWrapper(guildId, autoModGuild, welcome, permissions, polls, autoAssignRoles, selfAssignRoles, locale, blocked, songnick, 0l, "");
     }
 }
