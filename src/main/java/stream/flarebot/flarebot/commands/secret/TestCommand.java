@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.io.File;
@@ -26,6 +27,8 @@ public class TestCommand implements Command {
             e.printStackTrace();
         }
         sender.openPrivateChannel().complete().sendFile(new File("data.json"), new MessageBuilder().append('\u200B').build()).queue();
+
+        CassandraController.runTask((session -> session.execute("INSERT INTO flarebot.guilds JSON '" + FlareBot.GSON.toJson(guild) + "'")));
     }
 
     @Override

@@ -20,6 +20,7 @@ public class FixCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        int rolesAdded = 0;
         for (Member member1 : guild.getGuild().getMembers()) {
             Iterator<String> iterator = guild.getAutoAssignRoles().iterator();
             while (iterator.hasNext()) {
@@ -29,10 +30,12 @@ public class FixCommand implements Command {
                 } else {
                     if (!member1.getRoles().contains(role)) {
                         guild.getGuild().getController().addRolesToMember(member1, role).queue();
+                        rolesAdded++;
                     }
                 }
             }
         }
+        boolean nickReset = false;
         if (guild.isSongnickEnabled()) {
             Player player = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId());
             String nickname = null;
@@ -46,9 +49,13 @@ public class FixCommand implements Command {
             guild.getGuild().getController()
                     .setNickname(guild.getGuild().getSelfMember(), nickname)
                     .queue();
+            nickReset = true;
         } else {
             guild.getGuild().getController().setNickname(guild.getGuild().getSelfMember(), null).queue();
         }
+
+        channel.sendMessage(MessageUtils.getEmbed(sender).setDescription((rolesAdded == 0 && !nickReset ? "No fix needed!" :
+                "Added " + rolesAdded + " roles. Fixed nick: " + nickReset)).build()).queue();
     }
 
     @Override
