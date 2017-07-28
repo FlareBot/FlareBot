@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -19,7 +20,7 @@ public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        try {
+        /*try {
             PrintWriter out = new PrintWriter("data.json");
             out.println(FlareBot.GSON.toJson(guild));
             out.close();
@@ -28,7 +29,59 @@ public class TestCommand implements Command {
         }
         sender.openPrivateChannel().complete().sendFile(new File("data.json"), new MessageBuilder().append('\u200B').build()).queue();
 
-        CassandraController.runTask((session -> session.execute("INSERT INTO flarebot.guilds JSON '" + FlareBot.GSON.toJson(guild) + "'")));
+        CassandraController.runTask((session -> session.execute("INSERT INTO flarebot.guilds JSON '" + FlareBot.GSON.toJson(guild) + "'")));*/
+
+        long a = System.currentTimeMillis();
+        long finalA = a;
+        channel.sendMessage("Test command\n**Header**\nSub info\nBlah blah\n\nRequested by " + sender.getName() + "#" + sender.getDiscriminator())
+                .complete();
+        System.out.println("Sent in " + (System.currentTimeMillis() - finalA) + "ms");
+
+        a = System.currentTimeMillis();
+        channel.sendMessage(new EmbedBuilder().setTitle("Test command", null).addField("Sub info", "Blah blah", true)
+                .setFooter("Requested by " + sender.getName() + "#" + sender.getDiscriminator(), null).build())
+                .complete();
+        System.out.println("Sent in " + (System.currentTimeMillis() - a) + "ms");
+
+        a = System.currentTimeMillis();
+        channel.sendMessage(new EmbedBuilder().setTitle("Test command", null).setAuthor("Test command", null, FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl())
+                .addField("Sub info", "Blah blah", true)
+                .setThumbnail(FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl())
+                .setFooter("Requested by " + sender.getName() + "#" + sender.getDiscriminator(), sender.getEffectiveAvatarUrl()).build())
+                .complete();
+        System.out.println("Sent in " + (System.currentTimeMillis() - a) + "ms");
+
+        /*long a = System.currentTimeMillis();
+        channel.sendMessage(new EmbedBuilder().setTitle("Test command", null).setAuthor("Test command", null, null)
+                .addField("Sub info", "Blah blah", true)
+                .setFooter("Requested by " + sender.getName() + "#" + sender.getDiscriminator(), null).build())
+                .complete();
+        System.out.println("Sent in " + (System.currentTimeMillis() - finalA) + "ms");
+
+        a = System.currentTimeMillis();
+        long finalA1 = a;
+        channel.sendMessage(new EmbedBuilder().setTitle("Test command", null).setAuthor("Test command", null, FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl())
+                .addField("Sub info", "Blah blah", true)
+                .setThumbnail(FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl())
+                .setFooter("Requested by " + sender.getName() + "#" + sender.getDiscriminator(), null).build())
+                .complete();
+        System.out.println("Sent in " + (System.currentTimeMillis() - finalA1) + "ms");
+
+        a = System.currentTimeMillis();
+        long finalA2 = a;
+        channel.sendMessage(new EmbedBuilder().setTitle("Test command", null).setAuthor("Test command", null, FlareBot.getInstance().getClients()[0].getSelfUser().getEffectiveAvatarUrl())
+                .addField("Sub info", "Blah blah", true)
+                .setFooter("Requested by " + sender.getName() + "#" + sender.getDiscriminator(), sender.getEffectiveAvatarUrl()).build())
+                .complete();
+        System.out.println("Sent in " + (System.currentTimeMillis() - finalA2) + "ms");
+
+        a = System.currentTimeMillis();
+        long finalA3 = a;
+        channel.sendMessage(new EmbedBuilder().setTitle("Test command", null).setAuthor("Test command", null, null)
+                .addField("Sub info", "Blah blah", true)
+                .setFooter("Requested by " + sender.getName() + "#" + sender.getDiscriminator(), sender.getEffectiveAvatarUrl()).build())
+                .complete();
+        System.out.println("Sent in " + (System.currentTimeMillis() - finalA3) + "ms");*/
     }
 
     @Override

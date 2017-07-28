@@ -51,4 +51,9 @@ public class SongNickCommand implements Command {
     public String getPermission() {
         return "flarebot.songnick";
     }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
+    }
 }

@@ -134,8 +134,6 @@ public class FlareBot {
     private static String botListAuth;
     private static String dBotsAuth;
     private FlareBotManager manager;
-    @SuppressWarnings("FieldCanBeLocal")
-    public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
     private static boolean apiEnabled = true;
 
@@ -549,7 +547,7 @@ public class FlareBot {
             public void run() {
                 Events.spamMap.clear();
             }
-        }.repeat(TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
+        }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
 
         new FlarebotTask("ClearConfirmMap" + System.currentTimeMillis()) {
 
