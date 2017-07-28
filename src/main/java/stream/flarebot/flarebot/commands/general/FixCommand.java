@@ -77,4 +77,9 @@ public class FixCommand implements Command {
     public CommandType getType() {
         return CommandType.GENERAL;
     }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
+    }
 }

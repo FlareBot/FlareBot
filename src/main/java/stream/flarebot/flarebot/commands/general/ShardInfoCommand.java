@@ -28,7 +28,7 @@ public class ShardInfoCommand implements Command {
         List<List<String>> table = new ArrayList<>();
         for (JDA jda : FlareBot.getInstance().getClients()) {
             List<String> row = new ArrayList<>();
-            row.add(GeneralUtils.getShardId(jda));
+            row.add(GeneralUtils.getShardId(jda) + (GeneralUtils.getShardIdAsInt(channel.getJDA()) == GeneralUtils.getShardIdAsInt(jda) ? " (You)" : ""));
             row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));
             row.add(String.valueOf(jda.getGuilds().size()));
             table.add(row);
