@@ -48,18 +48,21 @@ public class AutoModGuild {
                             muteUser(guild, guild.getMemberById(userId));
                         else
                             return "Unable to mute user! (ID: " + userId + ") I do not have the 'Manage Roles' permission!";
+                        break;
                     case TEMP_MUTE:
                     case BAN:
                         if(guild.getSelfMember().hasPermission(Permission.BAN_MEMBERS))
-                            guild.getController().ban(userId, 30, "AutoMod punishment - " + userPoints.get(userId) + " points.");
+                            guild.getController().ban(userId, 30, "AutoMod punishment - " + userPoints.get(userId) + " points.").queue();
                         else
                             return "Unable to ban user! (ID: " + userId + ") I do not have the 'Ban Members' permission!";
+                        break;
                     case TEMP_BAN:
                     case KICK:
                         if(guild.getSelfMember().hasPermission(Permission.KICK_MEMBERS))
-                            guild.getController().kick(userId, "AutoMod punishment - " + userPoints.get(userId) + " points.");
+                            guild.getController().kick(userId, "AutoMod punishment - " + userPoints.get(userId) + " points.").queue();
                         else
                             return "Unable to kick user! (ID: " + userId + ") I do not have the 'Kick Members' permission!";
+                        break;
                     case PURGE:
 
                 }

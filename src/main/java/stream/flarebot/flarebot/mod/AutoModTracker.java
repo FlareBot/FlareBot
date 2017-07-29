@@ -35,6 +35,14 @@ public class AutoModTracker extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake() || event
                 .getGuild() == null) return;
+        String message = event.getMessage().getRawContent();
+        // 218ns performance :thumbsup:
+        String command = message.substring(1);
+        int index = message.indexOf(' ');
+        if (index > 0)
+            command = command.substring(0, index - 1);
+        if(FlareBot.getInstance().getCommand(command) != null) return;
+
         String userId = event.getAuthor().getId();
         AutoModGuild guild = FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModGuild();
         if (!guild.getConfig().isEnabled()) return;
@@ -64,11 +72,12 @@ public class AutoModTracker extends ListenerAdapter {
                 }
 
                 String resp = guild.addPoints(event.getGuild(), userId, guild.getConfig().getActions().get(action));
-                if(resp == null)
-                    sendMessage(event.getChannel(), event.getAuthor(), action, event.getMessage(), guild, guild.getConfig());
-                else{
+                if(resp == null) {
+                    if(event.getChannel().canTalk())
+                        sendMessage(event.getChannel(), event.getAuthor(), action, event.getMessage(), guild, guild.getConfig());
+                }else{
                     MessageUtils.sendErrorMessage(resp, event.getChannel());
-                    event.getGuild().getOwner().getUser().openPrivateChannel().complete().sendMessage(resp);
+                    event.getGuild().getOwner().getUser().openPrivateChannel().complete().sendMessage(resp).queue();
                 }
 
                 if (action == Action.SPAM) {
@@ -76,7 +85,7 @@ public class AutoModTracker extends ListenerAdapter {
                     List<Message> messageList = event.getChannel().getHistory()
                             .retrievePast(guild.getConfig().getMaxMessagesPerMinute() * 2)
                             .complete();
-                    event.getChannel().deleteMessages(messageList.stream().filter(message -> message.getAuthor().getId()
+                    event.getChannel().deleteMessages(messageList.stream().filter(msg -> msg.getAuthor().getId()
                             .equals(userId))
                             .limit(guild.getConfig().getMaxMessagesPerMinute())
                             .collect(Collectors.toList())).queue();

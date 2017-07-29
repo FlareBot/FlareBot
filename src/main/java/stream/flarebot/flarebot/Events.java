@@ -226,19 +226,9 @@ public class Events extends ListenerAdapter {
                 command = command.substring(0, message.indexOf(" ") - 1);
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
-            for (Command cmd : flareBot.getCommands()) {
-                if (cmd.getCommand().equalsIgnoreCase(command)) {
-                    handleCommand(event, cmd, command, args);
-                    break;
-                } else {
-                    for (String alias : cmd.getAliases()) {
-                        if (alias.equalsIgnoreCase(command)) {
-                            handleCommand(event, cmd, command, args);
-                            break;
-                        }
-                    }
-                }
-            }
+            Command cmd = flareBot.getCommand(command);
+            if(cmd != null)
+                handleCommand(event, cmd, command, args);
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
                     && !event.getAuthor().isBot()) {
