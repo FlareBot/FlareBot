@@ -137,11 +137,11 @@ public class AutoModCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}automod enable/disable - Enable or disable automod for your server!"
+        return "{%}automod enable/disable - Enable or disable automod for your server!\n"
                 + "{%}automod config - View config/punishments for a server\n"
                 + "{%}automod punishments [reset] - View punishments. Reset punishments with the optional argument\n"
-                + "{%}automod punishments set <punishment> <points> [duration]\n - Description"
-                + "{%}automod whitelist list/add/remove [whitelist item]\n - Description"
+                + "{%}automod punishments set <punishment> <points> [duration] - Description\n"
+                + "{%}automod whitelist list/add/remove [whitelist item] - Description\n"
                 //TODO: Walshy - See above
                 + "{%}automod";
     }

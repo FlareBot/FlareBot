@@ -275,7 +275,7 @@ public class FlareBot {
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            manager.getGuild(player.getGuildId()).setSongnickEnabled(false);
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         } else {
                             if (player.getPlaylist().isEmpty())
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
@@ -317,7 +317,7 @@ public class FlareBot {
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            manager.getGuild(player.getGuildId()).setSongnickEnabled(false);
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         } else {
                             Track track = player.getPlayingTrack();
                             String str = null;

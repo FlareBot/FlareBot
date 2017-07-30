@@ -18,6 +18,8 @@ public class AutoModConfig {
     private boolean enabled = false;
 
     private String modLogChannel;
+    //TODO: Implement this
+    private boolean showMessageInModlog;
     private Map<Action, Integer> actions = new ConcurrentHashMap<>();
     private Map<Action, ConcurrentHashSet<String>> whitelist = new ConcurrentHashMap<>();
     private Map<Integer, Punishment> punishments = new ConcurrentHashMap<>();
