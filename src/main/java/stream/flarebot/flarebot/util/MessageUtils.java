@@ -193,10 +193,13 @@ public class MessageUtils {
     public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        String permission = command.getPermission() + "\n" +
-                "**Default permission: **" + command.isDefaultPermission();
-        return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                .addField("Permission", permission, false).setColor(Color.red).build());
+        if(command.getPermission() != null)
+            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .addField("Permission", command.getPermission() + "\n" +
+                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build());
+        else
+            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .setColor(Color.red).build());
     }
 
     private static String capitalize(String s) {

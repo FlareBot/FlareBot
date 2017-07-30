@@ -78,7 +78,7 @@ public class GuildCommand implements Command {
     public String getUsage() {
         return "`{%}guild block [guildID] [reason]` - Blocks this guild [or another guild]\n" +
                 "`{%}guild unblock [guildID]` - Unblocks this guild [or another guild]\n" +
-                "`{%}guild status <guildID>` - Shows the status of this guild [or another guild]";
+                "`{%}guild status [guildID]` - Shows the status of this guild [or another guild]";
     }
 
     @Override
