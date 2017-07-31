@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.util.Map;
@@ -78,19 +79,6 @@ public class AutoModGuild {
     }
 
     public void muteUser(Guild guild, Member member) {
-        Role mutedRole = GeneralUtils.getRole("Muted", guild).isEmpty() ? null : GeneralUtils.getRole("Muted", guild).get(0);
-        if(mutedRole == null){
-            try {
-                mutedRole = guild.getController().createRole().setName("Muted").submit().get();
-                if(!guild.getSelfMember().getRoles().isEmpty())
-                    guild.getController().modifyRolePositions().selectPosition(mutedRole)
-                        .moveTo(guild.getSelfMember().getRoles().get(0).getPosition()-1).queue();
-                Role finalMutedRole = mutedRole;
-                guild.getTextChannels().forEach(channel -> channel.createPermissionOverride(finalMutedRole).setDeny(Permission.MESSAGE_WRITE).queue());
-            } catch (InterruptedException | ExecutionException e) {
-                FlareBot.LOGGER.error("Error creating role!", e);
-            }
-        }
-        guild.getController().addRolesToMember(member, mutedRole).queue();
+        guild.getController().addRolesToMember(member, FlareBotManager.getInstance().getGuild(guild.getId()).getMutedRole()).queue();
     }
 }

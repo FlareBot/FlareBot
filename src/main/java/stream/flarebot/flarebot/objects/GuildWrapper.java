@@ -1,15 +1,19 @@
 package stream.flarebot.flarebot.objects;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Role;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class GuildWrapper {
 
@@ -25,6 +29,7 @@ public class GuildWrapper {
     private boolean songnick = false;
     private long unBlockTime = -1;
     private String blockReason = null;
+    private String mutedRoleID = null;
 
     protected GuildWrapper(String guildId) {
         this.guildId = guildId;
@@ -146,5 +151,31 @@ public class GuildWrapper {
 
     public void setSongnick(boolean songnick) {
         this.songnick = songnick;
+    }
+
+    public Role getMutedRole(){
+        if(mutedRoleID == null){
+            Role mutedRole = GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
+            if(mutedRole == null){
+                try {
+                    mutedRole = getGuild().getController().createRole().setName("Muted").submit().get();
+                    if(!getGuild().getSelfMember().getRoles().isEmpty())
+                        getGuild().getController().modifyRolePositions().selectPosition(mutedRole)
+                                .moveTo(getGuild().getSelfMember().getRoles().get(0).getPosition()-1).queue();
+                    Role finalMutedRole = mutedRole;
+                    getGuild().getTextChannels().forEach(channel -> channel.createPermissionOverride(finalMutedRole).setDeny(Permission.MESSAGE_WRITE).queue());
+                    mutedRoleID = mutedRole.getId();
+                    return mutedRole;
+                } catch (InterruptedException | ExecutionException e) {
+                    FlareBot.LOGGER.error("Error creating role!", e);
+                    return null;
+                }
+            } else {
+                mutedRoleID = mutedRole.getId();
+                return mutedRole;
+            }
+        } else {
+            return getGuild().getRoleById(mutedRoleID);
+        }
     }
 }
