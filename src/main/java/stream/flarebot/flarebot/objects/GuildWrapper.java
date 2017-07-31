@@ -7,40 +7,27 @@ import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
 public class GuildWrapper {
 
     private String guildId;
-    private AutoModGuild autoModGuild;
-    private Welcome welcome;
-    private PerGuildPermissions permissions;
-    private LinkedList<Poll> polls;
-    private Set<String> autoAssignRoles;
-    private Set<String> selfAssignRoles;
-    private Language.Locales locale;
-    private boolean blocked;
-    private boolean songnick;
-    private long unBlockTime;
-    private String blockReason;
+    private AutoModGuild autoModGuild = new AutoModGuild();
+    private Welcome welcome = new Welcome();
+    private PerGuildPermissions permissions = new PerGuildPermissions();
+    private LinkedList<Poll> polls = new LinkedList<>();
+    private Set<String> autoAssignRoles = new HashSet<>();
+    private Set<String> selfAssignRoles = new HashSet<>();
+    private Language.Locales locale = Language.Locales.ENGLISH_UK;
+    private boolean blocked = false;
+    private boolean songnick = false;
+    private long unBlockTime = -1;
+    private String blockReason = null;
 
-    public GuildWrapper(String guildId, AutoModGuild autoModGuild, Welcome welcome,
-                        PerGuildPermissions permissions, LinkedList<Poll> polls, Set<String> autoAssignRoles,
-                        Set<String> selfAssignRoles, Language.Locales locale, boolean blocked,
-                        boolean songnick, long unBlockTime, String blockReason) {
+    protected GuildWrapper(String guildId) {
         this.guildId = guildId;
-        this.autoModGuild = autoModGuild;
-        this.welcome = welcome;
-        this.polls = polls;
-        this.autoAssignRoles = autoAssignRoles;
-        this.selfAssignRoles = selfAssignRoles;
-        this.locale = locale;
-        this.blocked = blocked;
-        this.unBlockTime = unBlockTime;
-        this.blockReason = blockReason;
-        this.permissions = permissions;
-        this.songnick = songnick;
     }
 
     public Guild getGuild() {
@@ -55,8 +42,12 @@ public class GuildWrapper {
         return this.autoModGuild;
     }
 
+    protected void setAutoModGuild(AutoModGuild autoModGuild) {
+        this.autoModGuild = autoModGuild;
+    }
+
     public AutoModConfig getAutoModConfig() {
-        return this.autoModGuild.getConfig();
+        return (this.autoModGuild == null ? null : this.autoModGuild.getConfig());
     }
 
     public Welcome getWelcome() {
@@ -68,6 +59,10 @@ public class GuildWrapper {
         return this.welcome;
     }
 
+    protected void setWelcome(Welcome welcome) {
+        this.welcome = welcome;
+    }
+
     public PerGuildPermissions getPermissions(){
         if(permissions == null){
             permissions = new PerGuildPermissions();
@@ -75,24 +70,48 @@ public class GuildWrapper {
         return permissions;
     }
 
+    protected void setPermissions(PerGuildPermissions permissions) {
+        this.permissions = permissions;
+    }
+
     public LinkedList<Poll> getPolls() {
         return this.polls;
+    }
+
+    protected void setPolls(LinkedList<Poll> polls) {
+        this.polls = polls;
     }
 
     public Set<String> getAutoAssignRoles() {
         return this.autoAssignRoles;
     }
 
+    protected void setAutoAssignRoles(Set<String> roles) {
+        this.autoAssignRoles = roles;
+    }
+
     public Set<String> getSelfAssignRoles() {
         return this.selfAssignRoles;
+    }
+
+    protected void setSelfAssignRoles(Set<String> roles) {
+        this.selfAssignRoles = roles;
     }
 
     public Language.Locales getLocale() {
         return this.locale;
     }
 
+    protected void setLocale(Language.Locales locale) {
+        this.locale = locale;
+    }
+
     public boolean isBlocked() {
         return this.blocked;
+    }
+
+    protected void setBlocked(boolean blocked) {
+        this.blocked = blocked;
     }
 
     public void addBlocked(String reason) {
@@ -125,7 +144,7 @@ public class GuildWrapper {
         return songnick;
     }
 
-    public void setSongnickEnabled(boolean songnick) {
+    public void setSongnick(boolean songnick) {
         this.songnick = songnick;
     }
 }

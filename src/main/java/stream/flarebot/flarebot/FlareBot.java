@@ -275,7 +275,7 @@ public class FlareBot {
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            manager.getGuild(player.getGuildId()).setSongnickEnabled(false);
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         } else {
                             if (player.getPlaylist().isEmpty())
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
@@ -317,7 +317,7 @@ public class FlareBot {
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            manager.getGuild(player.getGuildId()).setSongnickEnabled(false);
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         } else {
                             Track track = player.getPlayingTrack();
                             String str = null;
@@ -427,6 +427,7 @@ public class FlareBot {
         registerCommand(new PruneCommand());
         registerCommand(new ServerInfoCommand());
         registerCommand(new FixCommand());
+        registerCommand(new GuildCommand());
 
         ApiFactory.bind();
 
@@ -965,11 +966,6 @@ public class FlareBot {
             default:
                 return "th";
         }
-    }
-
-    private TextChannel getModLogChannel(String guildId) {
-        return (this.getManager().getGuild(guildId).getAutoModGuild().getConfig().isEnabled()
-                ? getChannelByID(getManager().getGuild(guildId).getAutoModConfig().getModLogChannel()) : null);
     }
 
     public boolean isTestBot(){
