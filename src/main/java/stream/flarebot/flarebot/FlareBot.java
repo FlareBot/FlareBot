@@ -61,6 +61,7 @@ import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.TempManager;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
@@ -488,6 +489,20 @@ public class FlareBot {
             }
 
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+
+        new FlarebotTask("ClearTemp" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                TempManager.executeAtCurrent();
+            }
+        }.repeat(0, 1000);
+
+        new FlarebotTask("ClearTemp" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                TempManager.executeInPast();
+            }
+        }.repeat(0, TimeUnit.MINUTES.toMillis(10));
 
         setupUpdate();
     }
