@@ -34,7 +34,7 @@ public class MessageUtils {
     private static final Pattern INVITE_REGEX = Pattern
             .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
     private static final Pattern LINK_REGEX = Pattern
-            .compile("((http(s)?://)?(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
+            .compile("((http(s)?://)(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
     private static final Pattern YOUTUBE_LINK_REGEX = Pattern
             .compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
 
@@ -72,17 +72,16 @@ public class MessageUtils {
             return user.openPrivateChannel().complete()
                     .sendMessage(message.substring(0, Math.min(message.length(), 1999))).complete();
         } catch (ErrorResponseException e) {
-            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", message, false).setColor(Color.RED), channel);
+            channel.sendMessage(message).queue();
             return null;
         }
     }
 
     public static Message sendPM(MessageChannel channel, User user, EmbedBuilder message) {
         try {
-            return user.openPrivateChannel().complete()
-                    .sendMessage(new MessageBuilder().setEmbed(message.build()).append("\u200B").build()).complete();
+            return user.openPrivateChannel().complete().sendMessage(message.build()).complete();
         } catch (ErrorResponseException e) {
-            MessageUtils.sendErrorMessage(getEmbed(user).setDescription("Could not send you a PM!").addField("Message", message.build().getDescription(), false).setColor(Color.RED), channel);
+            channel.sendMessage(message.build()).queue();
             return null;
         }
     }
@@ -194,10 +193,13 @@ public class MessageUtils {
     public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        String permission = command.getPermission() + "\n" +
-                "**Default permission: **" + command.isDefaultPermission();
-        return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                .addField("Permission", permission, false).setColor(Color.red).build());
+        if(command.getPermission() != null)
+            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .addField("Permission", command.getPermission() + "\n" +
+                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build());
+        else
+            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .setColor(Color.red).build());
     }
 
     private static String capitalize(String s) {

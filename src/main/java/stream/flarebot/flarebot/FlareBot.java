@@ -12,10 +12,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
@@ -32,7 +30,6 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.ISnowflake;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -40,7 +37,6 @@ import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.ConnectionPool;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -48,37 +44,18 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.automod.AutoModCommand;
-import stream.flarebot.flarebot.commands.automod.ModlogCommand;
-import stream.flarebot.flarebot.commands.automod.SetSeverityCommand;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
-import stream.flarebot.flarebot.commands.moderation.BanCommand;
-import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
-import stream.flarebot.flarebot.commands.moderation.PinCommand;
-import stream.flarebot.flarebot.commands.moderation.PruneCommand;
-import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
-import stream.flarebot.flarebot.commands.moderation.RolesCommand;
-import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
-import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
+import stream.flarebot.flarebot.commands.automod.*;
+import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.secret.AvatarCommand;
-import stream.flarebot.flarebot.commands.secret.EvalCommand;
-import stream.flarebot.flarebot.commands.secret.LogsCommand;
-import stream.flarebot.flarebot.commands.secret.QueryCommand;
-import stream.flarebot.flarebot.commands.secret.QuitCommand;
-import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
-import stream.flarebot.flarebot.commands.secret.TestCommand;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
@@ -93,7 +70,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -133,12 +109,10 @@ public class FlareBot {
     private static String botListAuth;
     private static String dBotsAuth;
     private FlareBotManager manager;
-    @SuppressWarnings("FieldCanBeLocal")
-    public static final File PERMS_FILE = new File("perms.json");
     private static String webSecret;
     private static boolean apiEnabled = true;
 
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson GSON = new GsonBuilder().create();
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
     public static final String OLD_FLAREBOT_API = "https://flarebot.stream/api/";
@@ -193,7 +167,7 @@ public class FlareBot {
         passwd = CommandLineArguments.SQL_PW.getValue();
 
         new SQLController();
-        //new CassandraController().init();
+        new CassandraController().init();
 
         FlareBot.secret = CommandLineArguments.SECRET.getValue();
         FlareBot.dBotsAuth = CommandLineArguments.DBOTS.getValue();
@@ -298,10 +272,10 @@ public class FlareBot {
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         } else {
                             if (player.getPlaylist().isEmpty())
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
@@ -340,10 +314,10 @@ public class FlareBot {
                             MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
                         }
                     }
-                    if (SongNickCommand.getGuilds().contains(Long.parseLong(player.getGuildId()))) {
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
-                            SongNickCommand.removeGuild(Long.parseLong(player.getGuildId()));
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         } else {
                             Track track = player.getPlayingTrack();
                             String str = null;
@@ -399,41 +373,6 @@ public class FlareBot {
         run();
     }
 
-    /*private void loadPerms() {
-        if (PERMS_FILE.exists()) {
-            try {
-                permissions = GSON.fromJson(new FileReader(PERMS_FILE), Permissions.class);
-                if (permissions == null) {
-                    permissions = new Permissions();
-                    try {
-                        permissions.save();
-                    } catch (IOException e1) {
-                        LOGGER.error("Could not create PERMS_FILE!", e1);
-                    }
-                }
-            } catch (JsonIOException | JsonSyntaxException e) {
-                LOGGER.error("Could not parse permissions! Ignoring and making new.");
-                permissions = new Permissions();
-                try {
-                    permissions.save();
-                } catch (IOException e1) {
-                    LOGGER.error("Could not create PERMS_FILE!", e1);
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                PERMS_FILE.createNewFile();
-                permissions = new Permissions();
-                permissions.save();
-            } catch (IOException e) {
-                LOGGER.error("Could not create PERMS_FILE!", e);
-            }
-
-        }
-    }
-*/
     protected void run() {
         registerCommand(new HelpCommand());
         registerCommand(new SearchCommand(this));
@@ -473,9 +412,11 @@ public class FlareBot {
         registerCommand(new ShardRestartCommand());
         registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
-        //registerCommand(new AutoModCommand());
-        //registerCommand(new ModlogCommand());
-        //registerCommand(new SetSeverityCommand());
+
+        registerCommand(new AutoModCommand());
+        registerCommand(new ModlogCommand());
+        registerCommand(new WarningsCommand());
+
         registerCommand(new TestCommand());
         registerCommand(new BanCommand());
         registerCommand(new ReportsCommand());
@@ -485,6 +426,8 @@ public class FlareBot {
         registerCommand(new StatsCommand());
         registerCommand(new PruneCommand());
         registerCommand(new ServerInfoCommand());
+        registerCommand(new FixCommand());
+        registerCommand(new GuildCommand());
 
         ApiFactory.bind();
 
@@ -494,19 +437,7 @@ public class FlareBot {
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
         sendCommands();
-        sendPrefixes();
-        /*
-        new FlarebotTask("AutoSave" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                try {
-                    getPermissions().save();
-                } catch (IOException e) {
-                    LOGGER.error("Could not save permissions!", e);
-                }
-            }
-        }.repeat(TimeUnit.MINUTES.toMillis(5), TimeUnit.MINUTES.toMillis(1));
-*/
+
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -547,7 +478,7 @@ public class FlareBot {
             public void run() {
                 Events.spamMap.clear();
             }
-        }.repeat(TimeUnit.SECONDS.toMillis(3l), TimeUnit.SECONDS.toMillis(3l));
+        }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
 
         new FlarebotTask("ClearConfirmMap" + System.currentTimeMillis()) {
 
@@ -559,23 +490,6 @@ public class FlareBot {
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));
 
         setupUpdate();
-
-        Scanner scanner = new Scanner(System.in);
-
-        try
-
-        {
-            if (scanner.next().equalsIgnoreCase("exit")) {
-                quit(false);
-            } else if (scanner.next().equalsIgnoreCase("update")) {
-                quit(true);
-            }
-        } catch (
-                NoSuchElementException ignored)
-
-        {
-        }
-
     }
 
     private void postToBotList(String auth, String url) {
@@ -653,18 +567,6 @@ public class FlareBot {
         }
 
         postToApi("updateCommands", "commands", array);
-    }
-
-    private void sendPrefixes() {
-        JsonArray array = new JsonArray();
-        for (Guild guild : getGuilds()) {
-            JsonObject object = new JsonObject();
-            object.addProperty("guildId", guild.getId());
-            object.addProperty("prefix", prefixes.getPrefixes().getOrDefault(guild.getId(), FlareBot.COMMAND_CHAR));
-            array.add(object);
-        }
-
-        postToApi("updatePrefixes", "prefixes", array);
     }
 
     private static volatile int api = 0;
@@ -814,6 +716,16 @@ public class FlareBot {
         this.commands.add(command);
     }
 
+    public Command getCommand(String s) {
+        for(Command cmd : getCommands()) {
+            if(cmd.getCommand().equalsIgnoreCase(s))
+                return cmd;
+            for(String alias : cmd.getAliases())
+                if(alias.equalsIgnoreCase(s)) return cmd;
+        }
+        return null;
+    }
+
     public Set<Command> getCommands() {
         return this.commands;
     }
@@ -853,8 +765,11 @@ public class FlareBot {
     }
 
     public String getInvite() {
-        return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=372337664",
-                clients[0].getSelfUser().getId());
+        return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=%s",
+                clients[0].getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
+                        Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
+                        Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS,
+                        Permission.VIEW_AUDIT_LOGS));
     }
 
     public static char getPrefix(String id) {
@@ -1051,11 +966,6 @@ public class FlareBot {
             default:
                 return "th";
         }
-    }
-
-    private TextChannel getModLogChannel(String guildId) {
-        return (this.getManager().getGuild(guildId).getAutoModGuild().getConfig().isEnabled()
-                ? getChannelByID(getManager().getGuild(guildId).getAutoModConfig().getModLogChannel()) : null);
     }
 
     public boolean isTestBot(){

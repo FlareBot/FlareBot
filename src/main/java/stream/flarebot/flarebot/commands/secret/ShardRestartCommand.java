@@ -58,11 +58,6 @@ public class ShardRestartCommand implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return null;
-    }
-
-    @Override
     public boolean isDefaultPermission() {
         return false;
     }

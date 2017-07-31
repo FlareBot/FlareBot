@@ -31,7 +31,11 @@ public class GeneralUtils {
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
 
     public static String getShardId(JDA jda) {
-        return jda.getShardInfo() == null ? "0" : String.valueOf(jda.getShardInfo().getShardId() + 1);
+        return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
+    }
+
+    public static int getShardIdAsInt(JDA jda) {
+        return jda.getShardInfo() == null ? 1 : jda.getShardInfo().getShardId() + 1;
     }
 
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
@@ -76,12 +80,10 @@ public class GeneralUtils {
 
     public static String getProgressBar(Track track) {
         float percentage = (100f / track.getTrack().getDuration() * track.getTrack().getPosition());
-        StringBuilder progress = new StringBuilder("[");
-        progress.append(StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)));
-        progress.append("]()");
-        progress.append(StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)));
-        progress.append(" ").append(GeneralUtils.percentageFormat.format(percentage)).append("%");
-        return progress.toString();
+        return "[" + StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)) +
+                "]()" +
+                StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)) +
+                " " + GeneralUtils.percentageFormat.format(percentage) + "%";
     }
 
     private static char getPrefix(TextChannel channel) {
@@ -205,5 +207,4 @@ public class GeneralUtils {
         }
         return null;
     }
-
 }
