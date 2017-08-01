@@ -14,6 +14,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 
 import java.awt.Color;
@@ -212,7 +214,11 @@ public class GeneralUtils {
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
-            return FlareBot.getInstance().getCommand(command, false) != null;
+            for (Command c : FlareBot.getInstance().getCommands()) {
+                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.HIDDEN) {
+                    return true;
+                }
+            }
         }
         return false;
     }
