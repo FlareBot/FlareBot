@@ -207,4 +207,13 @@ public class GeneralUtils {
         }
         return null;
     }
+
+    public static boolean validPerm(String perm) {
+        if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
+            perm = perm.substring(perm.indexOf(".") + 1);
+            String command = perm.split("\\.")[0];
+            return FlareBot.getInstance().getCommand(command, false) != null;
+        }
+        return false;
+    }
 }
