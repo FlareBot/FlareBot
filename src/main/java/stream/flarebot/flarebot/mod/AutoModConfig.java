@@ -1,10 +1,12 @@
 package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import stream.flarebot.flarebot.FlareBot;
 
 import java.awt.Color;
 import java.util.Map;
@@ -16,6 +18,8 @@ public class AutoModConfig {
     private boolean enabled = false;
 
     private String modLogChannel;
+    //TODO: Implement this
+    private boolean showMessageInModlog;
     private Map<Action, Integer> actions = new ConcurrentHashMap<>();
     private Map<Action, ConcurrentHashSet<String>> whitelist = new ConcurrentHashMap<>();
     private Map<Integer, Punishment> punishments = new ConcurrentHashMap<>();
@@ -29,8 +33,12 @@ public class AutoModConfig {
         this.enabled = enabled;
     }
 
-    public String getModLogChannel() {
+    public String getModLog() {
         return this.modLogChannel;
+    }
+
+    public TextChannel getModLogChannel() {
+        return FlareBot.getInstance().getChannelByID(modLogChannel);
     }
 
     public void setModLogChannel(String modLogChannel) {
@@ -65,11 +73,14 @@ public class AutoModConfig {
         punishments.put(10, new Punishment(Punishment.EPunishment.BAN));
     }
 
+    public boolean hasModLog() {
+        return modLogChannel != null && !modLogChannel.isEmpty() && getModLogChannel() != null;
+    }
+
     public void postToModLog(TextChannel channel, User user, Action action, Message message) {
         if (isEnabled()) {
-            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild()
-                    .getTextChannelById(getModLogChannel()) != null) {
-                channel.getGuild().getTextChannelById(getModLogChannel())
+            if (hasModLog()) {
+                getModLogChannel()
                         .sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
                                 .setDescription("Message sent by "
                                         + user
@@ -84,37 +95,20 @@ public class AutoModConfig {
         }
     }
 
-    public void postToModLog(TextChannel channel, User user, User responsible, Punishment.EPunishment action, String reason) {
+    public void postToModLog(User user, User responsible, Punishment punishment, String reason) {
         if (isEnabled()) {
-            if (getModLogChannel() != null && !getModLogChannel().isEmpty() && channel.getGuild()
-                    .getTextChannelById(getModLogChannel()) != null) {
-                String desc = "";
-                switch (action) {
-                    case PURGE:
-                        desc = user.getName() + " has been purged by " + responsible.getName();
-                        break;
-                    case TEMP_MUTE:
-                        desc = user.getName() + " has been temporarily muted by " + responsible.getName();
-                        break;
-                    case MUTE:
-                        desc = user.getName() + " has been muted by " + responsible.getName();
-                        break;
-                    case KICK:
-                        desc = user.getName() + " has been kicked by " + responsible.getName();
-                        break;
-                    case TEMP_BAN:
-                        desc = user.getName() + " has been temporarily banned by " + responsible.getName();
-                        break;
-                    case BAN:
-                        desc = user.getName() + " has been banned by " + responsible.getName();
-                        break;
-                }
-
-                channel.getGuild().getTextChannelById(getModLogChannel())
-                        .sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
-                                .setDescription(desc + "\nReason: " + reason)
+            if (hasModLog()) {
+                getModLogChannel()
+                        .sendMessage(new EmbedBuilder().setTitle("FlareBot ModLog", null)
+                                .setDescription(punishment.getPunishmentMessage(user, responsible))
                                 .setColor(Color.white).build()).queue();
             }
         }
+    }
+
+    public void postAutoModAction(Punishment punishment, User user) {
+        getModLogChannel().sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
+                        .setDescription(punishment.getPunishmentMessage(user, null))
+                        .setColor(Color.white).build()).queue();
     }
 }

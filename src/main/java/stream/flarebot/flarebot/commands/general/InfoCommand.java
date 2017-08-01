@@ -47,7 +47,7 @@ public class InfoCommand implements Command {
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
-            sender.openPrivateChannel().complete().sendMessage(bld.build()).queue();
+            channel.sendMessage(bld.build()).queue();
         } else {
             String search = FlareBot.getMessage(args);
 

@@ -59,7 +59,7 @@ public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
-    public static Map<String, Integer> spamMap = new ConcurrentHashMap<>();
+    protected static Map<String, Integer> spamMap = new ConcurrentHashMap<>();
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
@@ -125,16 +125,14 @@ public class Events extends ListenerAdapter {
                     "**Could not auto assign a role!**\n" + e1.getMessage());
             return;
         }
-        StringBuilder message = new StringBuilder();
-
-        message.append("**Hello!\nI am here to tell you that I could not give the role(s) ```\n");
-        message.append(roles.stream().map(Role::getName).collect(Collectors.joining("\n")))
-                .append("\n``` to one of your new users!\n");
-        message.append("Please move one of the following roles so they are higher up than any of the above: \n```")
-                .append(event.getGuild().getSelfMember().getRoles().stream()
+        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "**Hello!\nI am here to tell you that I could not give the role(s) ```\n" +
+                roles.stream().map(Role::getName).collect(Collectors.joining("\n")) +
+                "\n``` to one of your new users!\n" +
+                "Please move one of the following roles so they are higher up than any of the above: \n```" +
+                event.getGuild().getSelfMember().getRoles().stream()
                         .map(Role::getName)
-                        .collect(Collectors.joining("\n"))).append("``` in your server's role tab!**");
-        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), message.toString());
+                        .collect(Collectors.joining("\n")) +
+                "``` in your server's role tab!**");
     }
 
     @Override
@@ -204,6 +202,7 @@ public class Events extends ListenerAdapter {
         cache.setLastMessage(LocalDateTime.from(event.getMessage().getCreationTime()));
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
+
         if (FlareBot.getPrefixes() == null) return;
         if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
                 && !event.getAuthor().isBot()) {
@@ -225,163 +224,11 @@ public class Events extends ListenerAdapter {
             String[] args = new String[0];
             if (message.contains(" ")) {
                 command = command.substring(0, message.indexOf(" ") - 1);
-
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
-            for (Command cmd : flareBot.getCommands()) {
-                if (cmd.getCommand().equalsIgnoreCase(command)) {
-                    GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
-                    if (guild.isBlocked()) {
-                        if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
-                            guild.revokeBlock();
-                        }
-                    }
-                    if (spamMap.containsKey(event.getGuild().getId())) {
-                        int messages = spamMap.get(event.getGuild().getId());
-                        double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
-                        allowed = allowed == 0 ? 1 : allowed;
-                        if (messages > allowed) {
-                            if (!guild.isBlocked()) {
-                                event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
-                                guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
-                            }
-                        } else {
-                            spamMap.put(event.getGuild().getId(), messages + 1);
-                        }
-                    } else {
-                        spamMap.put(event.getGuild().getId(), 1);
-                    }
-                    if (cmd.getType() == CommandType.HIDDEN) {
-                        if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot() && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
-                            try {
-                                File dir = new File("imgs");
-                                if (!dir.exists())
-                                    dir.mkdir();
-                                File trap = new File("imgs" + File.separator + "trap.jpg");
-                                if (!trap.exists()) {
-                                    trap.createNewFile();
-                                    URL url = new URL("https://cdn.discordapp.com/attachments/242297848123621376/293873454678147073/trap.jpg");
-                                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-                                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
-                                    InputStream is = conn.getInputStream();
-                                    OutputStream os = new FileOutputStream(trap);
-                                    byte[] b = new byte[2048];
-                                    int length;
-                                    while ((length = is.read(b)) != -1) {
-                                        os.write(b, 0, length);
-                                    }
-                                    is.close();
-                                    os.close();
-                                }
-                                event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null)
-                                        .queue();
-                            } catch (IOException e) {
-                                FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
-                            }
-                            return;
-                        }
-                    }
-                    if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
-                        return;
-                    }
-                    if (UpdateCommand.UPDATING.get()) {
-                        event.getChannel().sendMessage("**Currently updating!**").queue();
-                        return;
-                    }
-                    if (handleMissingPermission(cmd, event))
-                        return;
-                    flareBot.postToApi("commands", new JSONObject().put("command", command).put("guild", event.getGuild().getId()).put("guildName", event.getGuild().getName()));
-                    String[] finalArgs = args;
-                    CACHED_POOL.submit(() -> {
-                        FlareBot.LOGGER.info(
-                                "Dispatching command '" + cmd.getCommand() + "' " + Arrays
-                                        .toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
-                                        event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
-                        try {
-                            cmd.onCommand(event.getAuthor(), flareBot.getManager().getGuild(event.getGuild().getId()), event.getChannel(), event.getMessage(), finalArgs, event
-                                    .getMember());
-                        } catch (Exception ex) {
-                            MessageUtils
-                                    .sendException("**There was an internal error trying to execute your command**", ex, event
-                                            .getChannel());
-                            FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                    + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
-                                    event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
-                        }
-                        if (cmd.deleteMessage())
-                            delete(event.getMessage());
-                    });
-                    return;
-                } else {
-                    for (String alias : cmd.getAliases()) {
-                        if (alias.equalsIgnoreCase(command)) {
-                            GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
-                            if (guild.isBlocked()) {
-                                if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
-                                    guild.revokeBlock();
-                                }
-                            }
-                            if (spamMap.containsKey(event.getGuild().getId())) {
-                                int messages = spamMap.get(event.getGuild().getId());
-                                double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
-                                allowed = allowed == 0 ? 1 : allowed;
-                                if (messages > allowed) {
-                                    if (!guild.isBlocked()) {
-                                        event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
-                                        guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5l));
-                                    }
-                                } else {
-                                    spamMap.put(event.getGuild().getId(), messages + 1);
-                                }
-                            } else {
-                                spamMap.put(event.getGuild().getId(), 1);
-                            }
-                            if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
-                                return;
-                            }
-                            if (cmd.getType() == CommandType.HIDDEN) {
-                                if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor())) {
-                                    return;
-                                }
-                            }
-                            if (UpdateCommand.UPDATING.get()) {
-                                event.getChannel().sendMessage("**Currently updating!**").queue();
-                                return;
-                            }
-                            FlareBot.LOGGER.info(
-                                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays
-                                            .toString(args) + " in " + event.getChannel() + "! Sender: " +
-                                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
-                            if (handleMissingPermission(cmd, event))
-                                return;
-                            flareBot.postToApi("commands", new JSONObject().put("command", cmd.getCommand()).put("guild", event.getGuild().getId()));
-                            String[] finalArgs = args;
-                            CACHED_POOL.submit(() -> {
-                                FlareBot.LOGGER.info(
-                                        "Dispatching command '" + cmd.getCommand() + "' " + Arrays
-                                                .toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
-                                                event.getAuthor().getName() + '#' + event.getAuthor()
-                                                .getDiscriminator());
-                                try {
-                                    cmd.onCommand(event.getAuthor(), flareBot.getManager().getGuild(event.getGuild().getId()), event.getChannel(), event
-                                            .getMessage(), finalArgs, event.getMember());
-                                } catch (Exception ex) {
-                                    FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
-                                            + Arrays.toString(finalArgs) + " in " + event.getChannel() + "! Sender: " +
-                                            event.getAuthor().getName() + '#' + event.getAuthor()
-                                            .getDiscriminator(), ex);
-                                    MessageUtils
-                                            .sendException("**There was an internal error trying to execute your command**", ex, event
-                                                    .getChannel());
-                                }
-                                if (cmd.deleteMessage())
-                                    delete(event.getMessage());
-                            });
-                            return;
-                        }
-                    }
-                }
-            }
+            Command cmd = flareBot.getCommand(command);
+            if(cmd != null)
+                handleCommand(event, cmd, command, args);
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
                     && !event.getAuthor().isBot()) {
@@ -433,6 +280,79 @@ public class Events extends ListenerAdapter {
         }
     }
 
+    private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String command, String[] args) {
+        GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
+        if (guild.isBlocked()) {
+            if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
+                guild.revokeBlock();
+            }
+        }
+        handleSpamDetection(event, guild);
+        if (cmd.getType() == CommandType.HIDDEN) {
+            if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot()
+                    && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
+                try {
+                    File dir = new File("imgs");
+                    if (!dir.exists())
+                        dir.mkdir();
+                    File trap = new File("imgs" + File.separator + "trap.jpg");
+                    if (!trap.exists()) {
+                        trap.createNewFile();
+                        URL url = new URL("https://cdn.discordapp.com/attachments/242297848123621376/293873454678147073/trap.jpg");
+                        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+                        InputStream is = conn.getInputStream();
+                        OutputStream os = new FileOutputStream(trap);
+                        byte[] b = new byte[2048];
+                        int length;
+                        while ((length = is.read(b)) != -1) {
+                            os.write(b, 0, length);
+                        }
+                        is.close();
+                        os.close();
+                    }
+                    event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null)
+                            .queue();
+                } catch (IOException e) {
+                    FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
+                }
+                return;
+            }
+        }
+        if (guild.isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
+            return;
+        }
+        if (UpdateCommand.UPDATING.get()) {
+            event.getChannel().sendMessage("**Currently updating!**").queue();
+            return;
+        }
+        if (handleMissingPermission(cmd, event))
+            return;
+
+        // TODO: Replace with new API endpoints.
+        flareBot.postToApi("commands", new JSONObject().put("command", command).put("guild", event.getGuild().getId()).put("guildName", event.getGuild().getName()));
+
+        CACHED_POOL.submit(() -> {
+            FlareBot.LOGGER.info(
+                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays
+                            .toString(args) + " in " + event.getChannel() + "! Sender: " +
+                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
+            try {
+                cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
+                        .getMember());
+            } catch (Exception ex) {
+                MessageUtils
+                        .sendException("**There was an internal error trying to execute your command**", ex, event
+                                .getChannel());
+                FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
+                        + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
+                        event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
+            }
+            if (cmd.deleteMessage())
+                delete(event.getMessage());
+        });
+    }
+
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
         if (cmd.getDiscordPermission() != null) {
             if (e.getMember().getPermissions().containsAll(cmd.getDiscordPermission()))
@@ -466,5 +386,24 @@ public class Events extends ListenerAdapter {
 
     private String getGuildId(GenericGuildMessageEvent e) {
         return e.getChannel().getGuild() != null ? e.getChannel().getGuild().getId() : null;
+    }
+
+    private void handleSpamDetection(GuildMessageReceivedEvent event, GuildWrapper guild) {
+        if (spamMap.containsKey(event.getGuild().getId())) {
+            int messages = spamMap.get(event.getGuild().getId());
+            double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
+            allowed = allowed == 0 ? 1 : allowed;
+            if (messages > allowed) {
+                if (!guild.isBlocked()) {
+                    event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription(
+                            "We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
+                    guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
+                }
+            } else {
+                spamMap.put(event.getGuild().getId(), messages + 1);
+            }
+        } else {
+            spamMap.put(event.getGuild().getId(), 1);
+        }
     }
 }

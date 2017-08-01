@@ -31,14 +31,12 @@ public class BanCommand implements Command {
                             .setColor(Color.red).build()).queue();
                     return;
                 }
-                // TODO: When reasons are out for JDA add them here!!!
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
-                guild.getAutoModConfig()
-                        .postToModLog(channel, user, sender, Punishment.EPunishment.BAN, reason);
+                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                 try {
-                    channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7 /*, reason*/).queue();
+                    channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7, reason).queue();
                     channel.sendMessage(new EmbedBuilder()
                             .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
                             .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?

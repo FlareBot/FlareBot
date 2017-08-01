@@ -32,13 +32,9 @@ public class AutoModCommand implements Command {
                         .addField("Messages per minute", String
                                 .valueOf(config.getMaxMessagesPerMinute()), true)
                         .addField("Mod Log Channel", (config
-                                .getModLogChannel() != null && channel.getGuild()
-                                .getTextChannelById(config
-                                        .getModLogChannel()) != null ? channel
-                                .getGuild()
-                                .getTextChannelById(config.getModLogChannel())
+                                .hasModLog() ? config.getModLogChannel()
                                 .getAsMention() + " (" + config
-                                .getModLogChannel() + ")" : "Not Set"), true);
+                                .getModLog() + ")" : "Not Set"), true);
                 StringBuilder sb = new StringBuilder();
                 config.getPunishments().forEach((points, punishment) -> sb.append(points).append(" points = ")
                         .append(punishment.getName())
@@ -62,6 +58,14 @@ public class AutoModCommand implements Command {
                         });
                 channel.sendMessage(new EmbedBuilder().setTitle("Guild Punishments", null).setDescription(sb.toString())
                         .build()).queue();
+            }else if(args[0].equalsIgnoreCase("enable")) {
+                guild.getAutoModConfig().setEnabled(true);
+                channel.sendMessage(new EmbedBuilder().setColor(Color.green).setTitle("Enabled AutoMod", null).setDescription("Successfully enabled automod! " +
+                        "Check the configuration with `" + getPrefix(channel.getGuild()) + "automod config`").build()).queue();
+            }else if(args[0].equalsIgnoreCase("disable")) {
+                guild.getAutoModConfig().setEnabled(false);
+                channel.sendMessage(new EmbedBuilder().setColor(Color.orange).setTitle("Disabled AutoMod", null).setDescription("Successfully disabled automod! " +
+                        "I will no longer be the guardian bot to your server.").build()).queue();
             }
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("punishments")) {
@@ -133,9 +137,11 @@ public class AutoModCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}automod config- View config/punishments for a server\n"
-                + "{%}automod <punishments> [set/reset] - View punishments. set or reset punishments with the optional argument\n"
-                + "{%}automod <whitelist> <list/add/remove>\n"
+        return "{%}automod enable/disable - Enable or disable automod for your server!\n"
+                + "{%}automod config - View config/punishments for a server\n"
+                + "{%}automod punishments [reset] - View punishments. Reset punishments with the optional argument\n"
+                + "{%}automod punishments set <punishment> <points> [duration] - Description\n"
+                + "{%}automod whitelist list/add/remove [whitelist item] - Description\n"
                 //TODO: Walshy - See above
                 + "{%}automod";
     }
