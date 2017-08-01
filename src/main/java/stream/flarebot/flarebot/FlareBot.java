@@ -717,11 +717,19 @@ public class FlareBot {
     }
 
     public Command getCommand(String s) {
+        return getCommand(s, true);
+    }
+
+    public Command getCommand(String s, boolean withAlias) {
         for(Command cmd : getCommands()) {
+            if (cmd.getType() == CommandType.HIDDEN)
+                continue;
             if(cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
-            for(String alias : cmd.getAliases())
-                if(alias.equalsIgnoreCase(s)) return cmd;
+            else if (withAlias) {
+                for (String alias : cmd.getAliases())
+                    if (alias.equalsIgnoreCase(s)) return cmd;
+            }
         }
         return null;
     }
