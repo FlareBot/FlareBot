@@ -55,4 +55,8 @@ public class TempManager {
         }
     }
 
+    public static Map<Integer, List<RestAction>> getScheduledActions(){
+        return scheduledActions;
+    }
+
 }

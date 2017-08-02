@@ -49,7 +49,6 @@ public class EvalCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender)) {
             String imports = IMPORTS.stream().map(s -> "Packages." + s).collect(Collectors.joining(", ", "var imports = new JavaImporter(", ");\n"));
             ScriptEngine engine = manager.getEngineByName("nashorn");
             engine.put("channel", channel);
@@ -74,9 +73,6 @@ public class EvalCommand implements Command {
                             .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
                 }
             });
-        } else {
-            message.addReaction("\u274C").queue();
-        }
     }
 
     @Override
