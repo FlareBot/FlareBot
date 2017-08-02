@@ -13,11 +13,11 @@ public class TempManager {
     private static Map<Integer, List<RestAction>> scheduledActions = new ConcurrentHashMap<>();
 
     public static synchronized void executeAtCurrent() {
-        int time = Math.round(System.currentTimeMillis() / 1000);
+        int time = (int)(System.currentTimeMillis() / 1000);
         if (scheduledActions.get(time) != null) {
             Iterator<RestAction> actions = scheduledActions.get(time).iterator();
             while (actions.hasNext()) {
-                actions.next().queue();
+                actions.next().complete();
                 actions.remove();
             }
             if (scheduledActions.get(time).isEmpty()) {
@@ -27,14 +27,14 @@ public class TempManager {
     }
 
     public static synchronized void executeInPast() {
-        int time = Math.round(System.currentTimeMillis() / 1000);
+        int time = (int)(System.currentTimeMillis() / 1000);
         Iterator<Map.Entry<Integer, List<RestAction>>> iterator = scheduledActions.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, List<RestAction>> entry = iterator.next();
             if (entry.getKey() <= time) {
                 Iterator<RestAction> actions = entry.getValue().iterator();
                 while (actions.hasNext()) {
-                    actions.next().queue();
+                    actions.next().complete();
                     actions.remove();
                 }
                 if (entry.getValue().isEmpty()) {
@@ -45,7 +45,7 @@ public class TempManager {
     }
 
     public static synchronized void add(RestAction action, Long timeToExecute) {
-        int time = Math.round(timeToExecute / 1000);
+        int time = (int)(timeToExecute / 1000);
         if (scheduledActions.get(time) != null) {
             scheduledActions.get(time).add(action);
         } else {

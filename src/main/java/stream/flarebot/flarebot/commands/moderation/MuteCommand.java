@@ -35,6 +35,10 @@ public class MuteCommand implements Command {
                 try {
                     if(key.equals("s")){
                         mills = TimeUnit.SECONDS.toMillis(Long.parseLong(length));
+                        if (mills < 2000) {
+                            MessageUtils.sendErrorMessage("You cannot mute for shorter than 2 seconds!", channel);
+                            return;
+                        }
                         eb.appendDescription("Muted " + user.getAsMention() + " for " + Long.parseLong(length) + " seconds");
                     } else if(key.equals("m")){
                         mills = TimeUnit.MINUTES.toMillis(Long.parseLong(length));
