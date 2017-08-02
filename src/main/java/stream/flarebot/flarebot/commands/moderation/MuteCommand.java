@@ -54,8 +54,7 @@ public class MuteCommand implements Command {
                     return;
                 }
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-                TempManager.add(guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()), mills);
-                TempManager.executeAtCurrent();
+                TempManager.add(guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()), System.currentTimeMillis() + mills);
                 eb.setColor(Color.CYAN);
                 channel.sendMessage(eb.build()).queue();
             } else {
