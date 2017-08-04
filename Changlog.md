@@ -5,8 +5,9 @@
  - Ability to create a pin without a previous message existing.
  - Ability for commands to have discord permissions associated with them. **Not yet implemented**
  - The `report` and `reports` command to allow users in a guild to report users which moderators can then view and take action against the person who was reported.
- - Added `summon` as an alias to `join` command.
- - Added `gtfo`, `getout` and `banish` as aliases for `leave` command.
+ - Added `summon` as an alias to the `join` command.
+ - Added `gtfo`, `getout` and `banish` as aliases for the `leave` command.
+ - Added `playing` as an alias to the `song` command.
  - The `shardinfo` command to show information on all FlareBot's shards.
  - Welcome messages can now be used in user's DMs as well as in a welcome channel.
  - `prune` command to prune guild members for being in-active for a certain amount of days. This command asks twice to make sure this isn't run by accident.
@@ -24,7 +25,7 @@
  - We now use OkHTTP instead of UniRest which should give us better performance overall.
  - HUGE change to the permissions command to allow per-user permissions and also sem-validation permissions that are entered. The user experience for the command has been improved a lot.
  - The permissions command now supports mass adding roles and `@everyone` and `@here` to permission groups.
- - 
+ - The `play` command now makes the bot join the voice channel if it isn't in any other channel.
 
 ## Fixed
  - Stopped Auto assign throwing an error if a role is deleted.
