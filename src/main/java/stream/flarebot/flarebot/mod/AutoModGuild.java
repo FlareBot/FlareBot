@@ -79,6 +79,6 @@ public class AutoModGuild {
     }
 
     public void muteUser(Guild guild, Member member) {
-        guild.getController().addRolesToMember(member, FlareBotManager.getInstance().getGuild(guild.getId()).getMutedRole()).queue();
+        guild.getController().addRolesToMember(member, FlareBotManager.getInstance().getGuild(guild.getId()).getMutedRole()).complete();
     }
 }

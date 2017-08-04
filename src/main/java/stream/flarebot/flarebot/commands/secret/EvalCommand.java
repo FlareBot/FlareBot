@@ -39,6 +39,7 @@ public class EvalCommand implements Command {
             "net.dv8tion.jda.core.entities",
             "java.util.streams",
             "java.util",
+            "java.lang",
             "java.text",
             "java.math",
             "java.time",
@@ -52,7 +53,7 @@ public class EvalCommand implements Command {
             String imports = IMPORTS.stream().map(s -> "Packages." + s).collect(Collectors.joining(", ", "var imports = new JavaImporter(", ");\n"));
             ScriptEngine engine = manager.getEngineByName("nashorn");
             engine.put("channel", channel);
-            engine.put("guild", channel.getGuild());
+            engine.put("guild", guild);
             engine.put("message", message);
             engine.put("jda", sender.getJDA());
             engine.put("sender", sender);
