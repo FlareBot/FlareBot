@@ -47,19 +47,19 @@ public class MuteCommand implements Command {
                 long days = hours / 24;
                 String time = days + " days " + hours % 24 + " hours " + minutes % 60 + " minutes " + seconds % 60 + " seconds.";
                 eb.appendDescription("Muted " + user.getAsMention() + " for " + time);
-                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-                FlareBot.LOGGER.info("START");
-                RestAction ra = guild.getGuild().getController().removeSingleRoleFromMember(
-                        guild.getGuild().getMember(user), guild.getMutedRole());
-                new RestActionTask(ra, "Unmute Member: " + user.getName()).delay(mills);
-                eb.setColor(Color.CYAN);
-                channel.sendMessage(eb.build()).queue();
+                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user), v -> {
+                    new RestActionTask(guild.getGuild().getController().removeSingleRoleFromMember(
+                            guild.getGuild().getMember(user), guild.getMutedRole()), "Unmute Member: " + user.getName()).delay(mills);
+                    eb.setColor(Color.CYAN);
+                    channel.sendMessage(eb.build()).queue();
+                });
             } else {
-                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.appendDescription("Muted " + user.getAsMention());
-                eb.setColor(Color.CYAN);
-                channel.sendMessage(eb.build()).queue();
+                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user), v -> {
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.appendDescription("Muted " + user.getAsMention());
+                    eb.setColor(Color.CYAN);
+                    channel.sendMessage(eb.build()).queue();
+                });
             }
         }
     }
