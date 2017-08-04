@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 public class AutoModGuild {
 
@@ -52,7 +53,7 @@ public class AutoModGuild {
                     case TEMP_MUTE:
                     case MUTE:
                         if(guild.getSelfMember().hasPermission(Permission.MANAGE_ROLES))
-                            muteUser(guild, guild.getMemberById(userId));
+                            muteUser(guild, guild.getMemberById(userId), v -> {});
                         else
                             return "Unable to mute user! (ID: " + userId + ") I do not have the 'Manage Roles' permission!";
                         break;
@@ -78,7 +79,7 @@ public class AutoModGuild {
         return null;
     }
 
-    public void muteUser(Guild guild, Member member) {
-        guild.getController().addRolesToMember(member, FlareBotManager.getInstance().getGuild(guild.getId()).getMutedRole()).complete();
+    public void muteUser(Guild guild, Member member, Consumer<Void> c) {
+        guild.getController().addRolesToMember(member, FlareBotManager.getInstance().getGuild(guild.getId()).getMutedRole()).queue(c);
     }
 }
