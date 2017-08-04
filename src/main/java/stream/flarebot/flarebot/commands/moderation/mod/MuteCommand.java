@@ -5,15 +5,17 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.requests.RestAction;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.scheduler.RestActionTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.TempManager;
 
 import java.awt.Color;
 
@@ -46,7 +48,10 @@ public class MuteCommand implements Command {
                 String time = days + " days " + hours % 24 + " hours " + minutes % 60 + " minutes " + seconds % 60 + " seconds.";
                 eb.appendDescription("Muted " + user.getAsMention() + " for " + time);
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-                TempManager.add(guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()), System.currentTimeMillis() + mills);
+                FlareBot.LOGGER.info("START");
+                RestAction ra = guild.getGuild().getController().removeSingleRoleFromMember(
+                        guild.getGuild().getMember(user), guild.getMutedRole());
+                new RestActionTask(ra, "Unmute Member: " + user.getName()).delay(mills);
                 eb.setColor(Color.CYAN);
                 channel.sendMessage(eb.build()).queue();
             } else {

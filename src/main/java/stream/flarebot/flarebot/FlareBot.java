@@ -44,15 +44,35 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
-import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.commands.automod.AutoModCommand;
+import stream.flarebot.flarebot.commands.automod.ModlogCommand;
+import stream.flarebot.flarebot.commands.automod.WarningsCommand;
 import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.automod.*;
-import stream.flarebot.flarebot.commands.moderation.*;
+import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
+import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
+import stream.flarebot.flarebot.commands.moderation.PinCommand;
+import stream.flarebot.flarebot.commands.moderation.PruneCommand;
+import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
+import stream.flarebot.flarebot.commands.moderation.ReportsCommand;
+import stream.flarebot.flarebot.commands.moderation.RolesCommand;
+import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.secret.AvatarCommand;
+import stream.flarebot.flarebot.commands.secret.EvalCommand;
+import stream.flarebot.flarebot.commands.secret.GuildCommand;
+import stream.flarebot.flarebot.commands.secret.LogsCommand;
+import stream.flarebot.flarebot.commands.secret.QueryCommand;
+import stream.flarebot.flarebot.commands.secret.QuitCommand;
+import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.TestCommand;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.github.GithubListener;
@@ -64,7 +84,6 @@ import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.TempManager;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
@@ -87,7 +106,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -496,20 +522,6 @@ public class FlareBot {
             }
 
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));
-
-        new FlarebotTask("ClearTemp" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                TempManager.executeAtCurrent();
-            }
-        }.repeat(0, 1000);
-
-        new FlarebotTask("ClearTemp" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                TempManager.executeInPast();
-            }
-        }.repeat(0, TimeUnit.MINUTES.toMillis(10));
 
         setupUpdate();
     }
