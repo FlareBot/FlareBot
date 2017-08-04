@@ -48,6 +48,9 @@ public class MuteCommand implements Command {
                 String time = days + " days " + hours % 24 + " hours " + minutes % 60 + " minutes " + seconds % 60 + " seconds.";
                 eb.appendDescription("Muted " + user.getAsMention() + " for " + time);
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
+                while (!guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())){
+                    //nothing!
+                }
                 FlareBot.LOGGER.info("START");
                 RestAction ra = guild.getGuild().getController().removeSingleRoleFromMember(
                         guild.getGuild().getMember(user), guild.getMutedRole());
