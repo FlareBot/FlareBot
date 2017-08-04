@@ -1,10 +1,13 @@
-package stream.flarebot.flarebot.commands.moderation;
+package stream.flarebot.flarebot.commands.moderation.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -13,7 +16,6 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.TempManager;
 
 import java.awt.Color;
-import java.util.concurrent.TimeUnit;
 
 public class MuteCommand implements Command {
     @Override
@@ -27,36 +29,22 @@ public class MuteCommand implements Command {
                 return;
             }
             if(args.length >= 2){
-                String time = args[1];
-                String length = time.substring(0, time.length() - 1);
-                String key = time.substring(time.length() - 1);
                 long mills;
                 EmbedBuilder eb = new EmbedBuilder();
-                try {
-                    if(key.equals("s")){
-                        mills = TimeUnit.SECONDS.toMillis(Long.parseLong(length));
-                        if (mills < 2000) {
-                            MessageUtils.sendErrorMessage("You cannot mute for shorter than 2 seconds!", channel);
-                            return;
-                        }
-                        eb.appendDescription("Muted " + user.getAsMention() + " for " + Long.parseLong(length) + " seconds");
-                    } else if(key.equals("m")){
-                        mills = TimeUnit.MINUTES.toMillis(Long.parseLong(length));
-                        eb.appendDescription("Muted " + user.getAsMention() + " for " + Long.parseLong(length) + " minutes");
-                    } else if(key.equals("h")){
-                        mills = TimeUnit.HOURS.toMillis(Long.parseLong(length));
-                        eb.appendDescription("Muted " + user.getAsMention() + " for " + Long.parseLong(length) + " hours");
-                    } else if(key.equals("d")){
-                        mills = TimeUnit.DAYS.toMillis(Long.parseLong(length));
-                        eb.appendDescription("Muted " + user.getAsMention() + " for " + Long.parseLong(length) + " days");
-                    } else {
-                        MessageUtils.getUsage(this, channel, sender).queue();
-                        return;
-                    }
-                } catch (NumberFormatException e){
-                    MessageUtils.getUsage(this, channel, sender).queue();
-                    return;
-                }
+                PeriodFormatter formatter = new PeriodFormatterBuilder()
+                        .appendDays().appendSuffix("d")
+                        .appendHours().appendSuffix("h")
+                        .appendMinutes().appendSuffix("m")
+                        .appendSeconds().appendSuffix("s")
+                        .toFormatter();
+                Period period = formatter.parsePeriod(args[1]);
+                mills = period.toStandardSeconds().getSeconds() * 1000;
+                long seconds = mills / 1000;
+                long minutes = seconds / 60;
+                long hours = minutes / 60;
+                long days = hours / 24;
+                String time = days + " days " + hours % 24 + " hours " + minutes % 60 + " minutes " + seconds % 60 + " seconds.";
+                eb.appendDescription("Muted " + user.getAsMention() + " for " + time);
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
                 TempManager.add(guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()), System.currentTimeMillis() + mills);
                 eb.setColor(Color.CYAN);
@@ -83,7 +71,7 @@ public class MuteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "";
+        return "`{%}mute <user> [time]` - mutes a user for an optional amount of time";
     }
 
     @Override

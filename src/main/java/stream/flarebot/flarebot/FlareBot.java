@@ -48,6 +48,9 @@ import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.automod.*;
 import stream.flarebot.flarebot.commands.moderation.*;
+import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.CassandraController;
@@ -422,6 +425,7 @@ public class FlareBot {
 
         registerCommand(new BanCommand());
         registerCommand(new MuteCommand());
+        registerCommand(new UnmuteCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
