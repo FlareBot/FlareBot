@@ -62,6 +62,7 @@ import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
 import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.TempBanCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.AvatarCommand;
@@ -452,6 +453,7 @@ public class FlareBot {
         registerCommand(new BanCommand());
         registerCommand(new MuteCommand());
         registerCommand(new UnmuteCommand());
+        registerCommand(new TempBanCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());

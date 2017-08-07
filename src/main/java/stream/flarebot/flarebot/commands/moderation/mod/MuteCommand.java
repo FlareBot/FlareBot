@@ -12,6 +12,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.RestActionTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -47,11 +48,11 @@ public class MuteCommand implements Command {
                 long days = hours / 24;
                 String time = days + " days " + hours % 24 + " hours " + minutes % 60 + " minutes " + seconds % 60 + " seconds.";
                 eb.appendDescription("Muted " + user.getAsMention() + " for " + time);
+                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
                 while (!guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())){
                     //nothing!
                 }
-                FlareBot.LOGGER.info("START");
                 RestAction ra = guild.getGuild().getController().removeSingleRoleFromMember(
                         guild.getGuild().getMember(user), guild.getMutedRole());
                 new RestActionTask(ra, "Unmute Member: " + user.getName()).delay(mills);
@@ -59,6 +60,7 @@ public class MuteCommand implements Command {
                 channel.sendMessage(eb.build()).queue();
             } else {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
+                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.appendDescription("Muted " + user.getAsMention());
                 eb.setColor(Color.CYAN);
