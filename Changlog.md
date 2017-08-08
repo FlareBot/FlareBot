@@ -38,4 +38,4 @@
 
 
 ## Deprecated
- - The search command is being phased out in favour of the `play` command instead.
+ - The search command is being phased out in favour of the `play` command. The `search` command will be repurposed in a future update.
