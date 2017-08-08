@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.datatransfer.FlavorEvent;
 import java.util.Iterator;
 
 public class FixCommand implements Command {
@@ -54,7 +55,9 @@ public class FixCommand implements Command {
             guild.getGuild().getController().setNickname(guild.getGuild().getSelfMember(), null).queue();
         }
 
-        channel.sendMessage(MessageUtils.getEmbed(sender).setDescription((rolesAdded == 0 && !nickReset ? "No fix needed!" :
+        channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(
+                (rolesAdded == 0 && !nickReset ? "No fix needed!\n" +
+                        "If you are still having issues, please join our support server here: " + FlareBot.INVITE_URL :
                 "Added " + rolesAdded + " roles. Fixed nick: " + nickReset)).build()).queue();
     }
 

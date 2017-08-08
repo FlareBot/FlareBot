@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.Region;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -29,10 +30,43 @@ public class PlayCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length > 0) {
-            if(channel.getGuild().getRegion() == Region.EU_WEST || channel.getGuild().getRegion() == Region.VIP_EU_WEST){
-                if(LocalDateTime.now().getHour() == 0 && LocalDateTime.now().getMinute() == 0 && LocalDateTime.now().getSecond() == 0){
+            if (channel.getGuild().getRegion() == Region.EU_WEST || channel.getGuild().getRegion() == Region.VIP_EU_WEST) {
+                if (LocalDateTime.now().getHour() == 0 && LocalDateTime.now().getMinute() == 0 && LocalDateTime.now().getSecond() == 0) {
                     channel.sendMessage(new EmbedBuilder().setTitle("Jesus Quist", null).setDescription("It's quite late to be listening to music! You should be asleep! " +
                             ":zzz: :night_with_stars:").setColor(Color.blue).build()).queue();
+                }
+            }
+            if (member.getVoiceState().inVoiceChannel()) {
+                if (channel.getGuild().getAudioManager().isAttemptingToConnect()) {
+                    MessageUtils.sendErrorMessage("Currently connecting to a voice channel! Try again soon!", channel);
+                    return;
+                }
+                if (channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel() &&
+                        !(channel.getGuild().getSelfMember().getVoiceState().getAudioChannel().getId()
+                                .equals(member.getVoiceState().getAudioChannel().getId()))) {
+                    MessageUtils.sendErrorMessage("I cannot join your channel! I am already in a channel!", channel);
+                    return;
+                }
+                if (channel.getGuild().getSelfMember()
+                        .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
+                        channel.getGuild().getSelfMember()
+                                .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
+                    if (member.getVoiceState().getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
+                            .getMembers().size()
+                            >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
+                            .hasPermission(member
+                                    .getVoiceState()
+                                    .getChannel(), Permission.MANAGE_CHANNEL)) {
+                        MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
+                                "bypass it!", channel);
+                        return;
+                    }
+                    channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+                } else {
+                    MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
+                            .hasPermission(member.getVoiceState()
+                                    .getChannel(), Permission.VOICE_CONNECT) ?
+                            "connect" : "speak") + " in your voice channel!", channel);
                 }
             }
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
