@@ -3,15 +3,19 @@ package stream.flarebot.flarebot.objects;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.requests.RestAction;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -30,6 +34,7 @@ public class GuildWrapper {
     private long unBlockTime = -1;
     private String blockReason = null;
     private String mutedRoleID = null;
+    private Map<String, Map<Punishment.EPunishment, Long>> punishments = new HashMap<>();
 
     protected GuildWrapper(String guildId) {
         this.guildId = guildId;
@@ -175,7 +180,13 @@ public class GuildWrapper {
                 return mutedRole;
             }
         } else {
-            return getGuild().getRoleById(mutedRoleID);
+            Role mutedRole = getGuild().getRoleById(mutedRoleID);
+            if(mutedRole == null){
+                mutedRoleID= null;
+                return getMutedRole();
+            } else {
+                return mutedRole;
+            }
         }
     }
 }
