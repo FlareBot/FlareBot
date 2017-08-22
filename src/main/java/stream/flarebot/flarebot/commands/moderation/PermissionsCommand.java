@@ -34,6 +34,11 @@ public class PermissionsCommand implements Command {
                             MessageUtils.sendErrorMessage("That group doesn't exist!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
                             return;
                         } else {
+                            if (!GeneralUtils.validPerm(args[3])) {
+                                MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
+                                        "**Example:** `flarebot.play`", channel);
+                                return;
+                            }
                             if(group.addPermission(args[3])){
                                 EmbedBuilder eb = MessageUtils.getEmbed(sender);
                                 eb.setDescription("Successfully added the permission `" + args[3] + "` to the group `" + groupString + "`");
@@ -249,6 +254,11 @@ public class PermissionsCommand implements Command {
                     if(args.length >= 4){
                         if(args[3].equals("add")){
                             if(args.length == 5){
+                                if (!GeneralUtils.validPerm(args[4])) {
+                                    MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
+                                            "**Example:** `flarebot.play`", channel);
+                                    return;
+                                }
                                 if(permUser.addPermission(args[4])){
                                         EmbedBuilder eb = MessageUtils.getEmbed(sender);
                                         eb.appendDescription("Successfully added the permission `" + args[4] + "` to " + user.getAsMention());

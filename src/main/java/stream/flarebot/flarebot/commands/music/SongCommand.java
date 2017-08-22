@@ -66,6 +66,11 @@ public class SongCommand implements Command {
     }
 
     @Override
+    public String[] getAliases() {
+        return new String[]{"playing"};
+    }
+
+    @Override
     public String getUsage() {
         return "{%}song";
     }
