@@ -81,8 +81,8 @@ public class Events extends ListenerAdapter {
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
-            TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
-            if (channel != null) {
+            if(welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null){
+                TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
                 if (!channel.canTalk()) {
                     welcome.setGuildEnabled(false);
                     MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "

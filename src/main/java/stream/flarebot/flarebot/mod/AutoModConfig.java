@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.FlareBot;
 
 import java.awt.Color;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AutoModConfig {
@@ -24,6 +25,12 @@ public class AutoModConfig {
     private Map<Action, ConcurrentHashSet<String>> whitelist = new ConcurrentHashMap<>();
     private Map<Integer, Punishment> punishments = new ConcurrentHashMap<>();
     private int maxMessagesPerMinute = 10;
+
+    private Set<Option> options = new ConcurrentHashSet<>();
+
+    public AutoModConfig() {
+        options.add(new Option("caps-percentage", "Maximum percentage of the message can be capitalized", 40));
+    }
 
     public boolean isEnabled() {
         return this.enabled;
@@ -110,5 +117,11 @@ public class AutoModConfig {
         getModLogChannel().sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
                         .setDescription(punishment.getPunishmentMessage(user, null))
                         .setColor(Color.white).build()).queue();
+    }
+
+    public Option getOption(String s) {
+        for(Option option : options)
+            if(option.getKey().equals(s)) return option;
+        return null;
     }
 }

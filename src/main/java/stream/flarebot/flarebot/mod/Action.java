@@ -7,21 +7,22 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public enum Action {
 
-    INVITE_LINKS(2, true, MessageUtils::hasInvite),
-    SPAM(1, false, message -> FlareBot.getInstance().getAutoModTracker()
+    INVITE_LINKS(2, true, (message, config) -> MessageUtils.hasInvite(message)),
+    SPAM(1, false, (message, config) -> FlareBot.getInstance().getAutoModTracker()
             .getMessages(message.getGuild().getId(), message.getAuthor().getId())
             >= FlareBot.getInstance().getManager().getGuild(message.getGuild().getId()).getAutoModConfig()
             .getMaxMessagesPerMinute()),
-    LINKS(1, true, message -> MessageUtils.hasLink(message) && !MessageUtils.hasInvite(message)),
-    PROFANITY(1, true, message -> FlareBot.getInstance().getManager().getProfanity().stream()
+    LINKS(1, true, (message, config) -> MessageUtils.hasLink(message) && !MessageUtils.hasInvite(message)),
+    PROFANITY(1, true, (message, config) -> FlareBot.getInstance().getManager().getProfanity().stream()
             .filter(word -> message.getContent().toLowerCase().contains(word))
             .count() > 0),
-    DUPLICATED_CHARACTERS_OR_WORDS(1, true, message -> {
+    DUPLICATED_CHARACTERS_OR_WORDS(1, true, (message, config) -> {
         Map<String, Integer> words = new HashMap<>();
         for (String word : message.getContent().toLowerCase().split(" ")) {
             if (MessageUtils.hasInvite(word) || MessageUtils.hasLink(word)) continue;
@@ -36,20 +37,21 @@ public enum Action {
         }
         return false;
     }),
-    TOO_MANY_CAPS(1, false, message -> message.getContent().replaceAll("[^a-zA-Z0-9]", "").length() > 4 && message
+    TOO_MANY_CAPS(1, false, (message, config) -> message.getContent().replaceAll("[^a-zA-Z0-9]", "").length() > 4 && message
             .getContent().replaceAll("[^a-zA-Z0-9]", "").chars()
             .filter(Character::isUpperCase).count() > 0 && ((double) message.getContent().replaceAll("[^a-zA-Z0-9]", "")
             .chars().filter(Character::isUpperCase)
             .count()
-            / message.getContent().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 >= 40);
+            / message.getContent().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 >= config.getOption("cap-percentage").intValue());
+    //MASS_MENTION(5, false, (message, config) -> message.getMentionedUsers().size() >= config.getOption("mass_mention.max-user-mentions") || message.getMentionedRoles().size() >= 3);
 
     public static Action[] values = values();
 
     private int points;
     private boolean canBeWhitelisted;
-    private Predicate<Message> check;
+    private BiPredicate<Message, AutoModConfig> check;
 
-    Action(int points, boolean canBeWhitelisted, Predicate<Message> check) {
+    Action(int points, boolean canBeWhitelisted, BiPredicate<Message, AutoModConfig> check) {
         this.points = points;
         this.canBeWhitelisted = canBeWhitelisted;
         this.check = check;
@@ -59,10 +61,10 @@ public enum Action {
         return this.points;
     }
 
-    public boolean check(Message message) {
+    public boolean check(Message message, AutoModConfig config) {
         if (!FlareBotManager.getInstance().getGuild(message.getTextChannel().getGuild().getId()).getPermissions()
                 .hasPermission(message.getGuild().getMember(message.getAuthor()), "flarebot.automod.bypass"))
-            return this.check.test(message);
+            return this.check.test(message, config);
         else
             return false;
     }

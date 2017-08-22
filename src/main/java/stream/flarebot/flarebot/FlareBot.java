@@ -428,10 +428,11 @@ public class FlareBot {
         registerCommand(new ServerInfoCommand());
         registerCommand(new FixCommand());
         registerCommand(new GuildCommand());
+        registerCommand(new RepeatCommand());
 
         ApiFactory.bind();
 
-        manager.executeCreations();
+        //manager.executeCreations();
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
