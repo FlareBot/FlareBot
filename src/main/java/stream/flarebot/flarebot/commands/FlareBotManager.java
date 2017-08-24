@@ -119,11 +119,9 @@ public class FlareBotManager {
         final String[] list = new String[1];
         try {
             SQLController.runSqlTask(connection -> {
-                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE (playlist_name = ? AND guild = ?) " +
-                        "OR (playlist_name=? AND scope = 'global')");
+                PreparedStatement exists = connection.prepareStatement("SELECT list FROM playlist WHERE (playlist_name = ? AND (guild = ? OR scope = 'global'))");
                 exists.setString(1, name);
                 exists.setString(2, channel.getGuild().getId());
-                exists.setString(3, channel.getGuild().getId());
                 exists.execute();
                 ResultSet set = exists.getResultSet();
                 if (set.next()) {

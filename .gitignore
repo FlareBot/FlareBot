@@ -3,3 +3,6 @@ imgs/
 target
 latest.log
 *.json
+*.iml
+.gradle/
+build/

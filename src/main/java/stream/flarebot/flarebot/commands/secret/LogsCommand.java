@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.entities.User;
 
 import java.io.File;
 
-public class LogsCommands implements Command {
+public class LogsCommand implements Command {
     @Override
     public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
