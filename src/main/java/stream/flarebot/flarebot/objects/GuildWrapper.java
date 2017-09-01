@@ -73,8 +73,8 @@ public class GuildWrapper {
         this.welcome = welcome;
     }
 
-    public PerGuildPermissions getPermissions(){
-        if(permissions == null){
+    public PerGuildPermissions getPermissions() {
+        if (permissions == null) {
             permissions = new PerGuildPermissions();
         }
         return permissions;
@@ -158,15 +158,15 @@ public class GuildWrapper {
         this.songnick = songnick;
     }
 
-    public Role getMutedRole(){
-        if(mutedRoleID == null){
+    public Role getMutedRole() {
+        if (mutedRoleID == null) {
             Role mutedRole = GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
-            if(mutedRole == null){
+            if (mutedRole == null) {
                 try {
                     mutedRole = getGuild().getController().createRole().setName("Muted").submit().get();
-                    if(!getGuild().getSelfMember().getRoles().isEmpty())
+                    if (!getGuild().getSelfMember().getRoles().isEmpty())
                         getGuild().getController().modifyRolePositions().selectPosition(mutedRole)
-                                .moveTo(getGuild().getSelfMember().getRoles().get(0).getPosition()-1).queue();
+                                .moveTo(getGuild().getSelfMember().getRoles().get(0).getPosition() - 1).queue();
                     Role finalMutedRole = mutedRole;
                     getGuild().getTextChannels().forEach(channel -> channel.createPermissionOverride(finalMutedRole).setDeny(Permission.MESSAGE_WRITE).queue());
                     mutedRoleID = mutedRole.getId();
@@ -181,8 +181,8 @@ public class GuildWrapper {
             }
         } else {
             Role mutedRole = getGuild().getRoleById(mutedRoleID);
-            if(mutedRole == null){
-                mutedRoleID= null;
+            if (mutedRole == null) {
+                mutedRoleID = null;
                 return getMutedRole();
             } else {
                 return mutedRole;
