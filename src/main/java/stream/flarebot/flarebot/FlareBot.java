@@ -167,7 +167,7 @@ public class FlareBot {
         String tkn = CommandLineArguments.TOKEN.getValue();
         passwd = CommandLineArguments.SQL_PW.getValue();
 
-        new SQLController();
+        //new SQLController();
         new CassandraController().init();
 
         FlareBot.secret = CommandLineArguments.SECRET.getValue();
@@ -366,6 +366,7 @@ public class FlareBot {
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 
         manager = new FlareBotManager();
+        manager.executeCreations();
 
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
