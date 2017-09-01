@@ -24,10 +24,10 @@ public class MusicAnnounceCommand implements Command {
     //TODO: Do
     static {
         CassandraController.runTask(session -> {
-            session.execute("CREATE TABLE IF NOT EXISTS announces (" +
+            session.execute("CREATE TABLE IF NOT EXISTS flarebot.announces (" +
                     "guild_id varchar PRIMARY KEY," +
                     "channel_id varchar)");
-            ResultSet set = session.execute("SELECT * FROM announces");
+            ResultSet set = session.execute("SELECT * FROM flarebot.announces");
             Row row;
             while ((row = set.one()) != null) {
                 announcements.put(row.getString("guild_id"), row.getString("channel_id"));
@@ -47,9 +47,9 @@ public class MusicAnnounceCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("Set music announcements to appear in " + channel
                                 .getAsMention()).build()).queue();
-                CassandraController.runTask(session -> session.executeAsync(session.prepare("UPDATE announces SET " +
+                CassandraController.runTask(session -> session.executeAsync(session.prepare("UPDATE flarebot.announces SET " +
                         "channel_id = ? WHERE guild_id = ?").bind()
-                        .setString(1, channel.getId()).setString(2, channel.getGuild().getId())));
+                        .setString(0, channel.getId()).setString(1, channel.getGuild().getId())));
             } else {
                 announcements.remove(channel.getGuild().getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
@@ -57,8 +57,8 @@ public class MusicAnnounceCommand implements Command {
                                 .format("Disabled announcements for `%s`", channel.getGuild()
                                         .getName()))
                         .build()).queue();
-                CassandraController.runTask(session -> session.executeAsync(session.prepare("DELETE FROM announces " +
-                        "WHERE guild_id = ?").bind().setString(1, channel.getGuild().getId())));
+                CassandraController.runTask(session -> session.executeAsync(session.prepare("DELETE FROM flarebot.announces " +
+                        "WHERE guild_id = ?").bind().setString(0, channel.getGuild().getId())));
             }
         } else {
             MessageUtils.getUsage(this, channel, sender).queue();
