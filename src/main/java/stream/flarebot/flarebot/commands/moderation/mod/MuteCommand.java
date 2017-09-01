@@ -61,6 +61,11 @@ public class MuteCommand implements Command {
 //                eb.setColor(Color.CYAN);
 //                channel.sendMessage(eb.build()).queue();
 //            } else {
+
+            if (guild.getMutedRole() == null) {
+                MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
+                return;
+            }
             guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
             guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
             EmbedBuilder eb = new EmbedBuilder();

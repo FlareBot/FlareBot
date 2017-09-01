@@ -25,6 +25,10 @@ public class UnmuteCommand implements Command {
                 MessageUtils.sendErrorMessage("Invalid user!!", channel);
                 return;
             }
+            if (guild.getMutedRole() == null) {
+                MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
+                return;
+            }
             if (guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())) {
                 guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()).queue();
                 EmbedBuilder eb = new EmbedBuilder();
