@@ -56,10 +56,6 @@ public class FlareBotManager {
     }
 
     public void savePlaylist(TextChannel channel, String owner, String name, List<String> songs) {
-        if(name.length() > 64) {
-            MessageUtils.sendErrorMessage("Make sure playlist names are 64 characters or less!", channel);
-            return;
-        }
         CassandraController.runTask(session -> {
             PreparedStatement exists = session
                     .prepare("SELECT * FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
@@ -73,7 +69,7 @@ public class FlareBotManager {
                     .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, owner).setList(3, songs)
                     .setString(4, "local").setInt(5, 0));
             channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner))
-                    .setDescription("Successfully saved the playlist " + MessageUtils.escapeMarkdown(name)).build()).queue();
+                    .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
         });
     }
 

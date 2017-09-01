@@ -24,17 +24,21 @@ public class DeleteCommand implements Command {
         String name = MessageUtils.getMessage(args, 0);
         CassandraController.runTask(session -> {
             ResultSet set = session.execute(session
-                    .prepare("DELETE FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?").bind()
-                    .setString(0, name).setString(1, channel.getGuild().getId()));
-            if (set.one() != null) {
+                    .prepare("SELECT playlist_name FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?")
+                    .bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            if(set.one() != null) {
+                session.execute(session
+                        .prepare("DELETE FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?").bind()
+                        .setString(0, name).setString(1, channel.getGuild().getId()));
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription(String
-                                .format("Removed the playlist %s*", name)).setColor(Color.green)
+                                .format("Removed the playlist '%s'", name)).setColor(Color.green)
                         .build()).queue();
-            } else channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription(String
-                            .format("The playlist %s doesn't exist!", name)).setColor(Color.red)
-                    .build()).queue();
+            }else{
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(
+                        String.format("The playlist '%s' does not exist!", name)).setColor(Color.red)
+                .build()).queue();
+            }
         });
     }
 
