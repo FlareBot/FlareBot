@@ -27,7 +27,7 @@ public class MusicAnnounceCommand implements Command {
             session.execute("CREATE TABLE IF NOT EXISTS announces (" +
                     "guild_id varchar PRIMARY KEY," +
                     "channel_id varchar)");
-            ResultSet set = session.executeA("SELECT * FROM announces");
+            ResultSet set = session.execute("SELECT * FROM announces");
             Row row;
             while ((row = set.one()) != null) {
                 announcements.put(row.getString("guild_id"), row.getString("channel_id"));
