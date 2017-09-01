@@ -31,41 +31,42 @@ public class MuteCommand implements Command {
                 MessageUtils.sendErrorMessage("Invalid user!!", channel);
                 return;
             }
-            if(args.length >= 2){
-                long mills;
-                EmbedBuilder eb = new EmbedBuilder();
-                PeriodFormatter formatter = new PeriodFormatterBuilder()
-                        .appendDays().appendSuffix("d")
-                        .appendHours().appendSuffix("h")
-                        .appendMinutes().appendSuffix("m")
-                        .appendSeconds().appendSuffix("s")
-                        .toFormatter();
-                Period period = formatter.parsePeriod(args[1]);
-                mills = period.toStandardSeconds().getSeconds() * 1000;
-                long seconds = mills / 1000;
-                long minutes = seconds / 60;
-                long hours = minutes / 60;
-                long days = hours / 24;
-                String time = days + " days " + hours % 24 + " hours " + minutes % 60 + " minutes " + seconds % 60 + " seconds.";
-                eb.appendDescription("Muted " + user.getAsMention() + " for " + time);
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
-                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-                while (!guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())){
+            // NOT FOR v4
+//            if(args.length >= 2){
+//                long mills;
+//                EmbedBuilder eb = new EmbedBuilder();
+//                PeriodFormatter formatter = new PeriodFormatterBuilder()
+//                        .appendDays().appendSuffix("d")
+//                        .appendHours().appendSuffix("h")
+//                        .appendMinutes().appendSuffix("m")
+//                        .appendSeconds().appendSuffix("s")
+//                        .toFormatter();
+//                Period period = formatter.parsePeriod(args[1]);
+//                mills = period.toStandardSeconds().getSeconds() * 1000;
+//                long seconds = mills / 1000;
+//                long minutes = seconds / 60;
+//                long hours = minutes / 60;
+//                long days = hours / 24;
+//                String time = days + " days " + hours % 24 + " hours " + minutes % 60 + " minutes " + seconds % 60 + " seconds.";
+//                eb.appendDescription("Muted " + user.getAsMention() + " for " + time);
+//                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
+//                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
+//                while (!guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())){
                     //nothing!
-                }
-                RestAction ra = guild.getGuild().getController().removeSingleRoleFromMember(
-                        guild.getGuild().getMember(user), guild.getMutedRole());
-                new RestActionTask(ra, "Unmute Member: " + user.getName()).delay(mills);
-                eb.setColor(Color.CYAN);
-                channel.sendMessage(eb.build()).queue();
-            } else {
+//                }
+//                RestAction ra = guild.getGuild().getController().removeSingleRoleFromMember(
+//                        guild.getGuild().getMember(user), guild.getMutedRole());
+//                new RestActionTask(ra, "Unmute Member: " + user.getName()).delay(mills);
+//                eb.setColor(Color.CYAN);
+//                channel.sendMessage(eb.build()).queue();
+//            } else {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
                 guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.appendDescription("Muted " + user.getAsMention());
                 eb.setColor(Color.CYAN);
                 channel.sendMessage(eb.build()).queue();
-            }
+//            }
         }
     }
 
@@ -81,7 +82,7 @@ public class MuteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}mute <user> [time]` - mutes a user for an optional amount of time";
+        return "`{%}mute <user>` - Mutes a user";
     }
 
     @Override

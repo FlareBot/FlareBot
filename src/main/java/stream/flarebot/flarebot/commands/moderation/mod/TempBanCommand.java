@@ -22,6 +22,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 
+// THIS IS NOT FOR v4
 public class TempBanCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {

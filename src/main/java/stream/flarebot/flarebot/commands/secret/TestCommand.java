@@ -28,8 +28,6 @@ public class TestCommand implements Command {
         }
         sender.openPrivateChannel().complete().sendFile(new File("data.json"), new MessageBuilder().append('\u200B').build()).queue();
 
-        CassandraController.runTask((session -> session.execute("INSERT INTO flarebot.guilds JSON '" + FlareBot.GSON.toJson(guild) + "'")));
-
         //
         // Testing plain message, embed and embed with images
         //

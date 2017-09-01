@@ -446,16 +446,16 @@ public class FlareBot {
         registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
 
-        registerCommand(new AutoModCommand());
-        registerCommand(new ModlogCommand());
-        registerCommand(new WarningsCommand());
+//        registerCommand(new AutoModCommand());
+//        registerCommand(new ModlogCommand());
+//        registerCommand(new WarningsCommand());
 
         registerCommand(new TestCommand());
 
         registerCommand(new BanCommand());
         registerCommand(new MuteCommand());
         registerCommand(new UnmuteCommand());
-        registerCommand(new TempBanCommand());
+//        registerCommand(new TempBanCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
