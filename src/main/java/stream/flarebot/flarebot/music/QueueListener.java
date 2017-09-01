@@ -18,7 +18,7 @@ public class QueueListener implements QueueHook {
     public void execute(Player player, Item item) {
         List<Track> tracks = new ArrayList<>();
         if (item instanceof Playlist) {
-            ((Playlist) item).getPlaylist().forEach(tracks::add);
+            tracks.addAll(((Playlist) item).getPlaylist());
         } else {
             tracks.add((Track) item);
         }

@@ -51,7 +51,6 @@ import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -167,7 +166,6 @@ public class FlareBot {
         String tkn = CommandLineArguments.TOKEN.getValue();
         passwd = CommandLineArguments.SQL_PW.getValue();
 
-        //new SQLController();
         new CassandraController().init();
 
         FlareBot.secret = CommandLineArguments.SECRET.getValue();

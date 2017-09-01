@@ -66,10 +66,9 @@ public class YouTubeExtractor implements Extractor {
             name = track.getInfo().title;
         }
         if (name != null) {
-            List<Track> tracks = audioTracks.stream().map(Track::new).map(track -> {
+            List<Track> tracks = audioTracks.stream().map(Track::new).peek(track -> {
                 track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
-                return track;
             }).collect(Collectors.toList());
             if (tracks.size() > 1) { // Double `if` https://giphy.com/gifs/ng1xAzwIkDgfm
                 Playlist p = new Playlist(tracks);

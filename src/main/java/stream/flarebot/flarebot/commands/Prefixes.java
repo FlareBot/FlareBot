@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.database.SQLController;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ public class Prefixes {
             ResultSet set = session.execute("SELECT * FROM flarebot.prefixes;");
             List<Row> rows = set.all();
             for(Row row : rows){
-                prefixes.put(row.getString("guildid"), row.getString("prefix").charAt(0));
+                prefixes.put(row.getString("guild_id"), row.getString("prefix").charAt(0));
             }
         });
     }
@@ -39,13 +38,13 @@ public class Prefixes {
     public void set(String guildId, char character) {
         if (character == FlareBot.COMMAND_CHAR) {
             prefixes.remove(guildId);
-            CassandraController.execute("DELETE FROM flarebot.prefixes WHERE guildid = ?");
+            CassandraController.execute("DELETE FROM flarebot.prefixes WHERE guild_id = '" + guildId + "'");
             update(guildId, character);
             return;
         }
         prefixes.put(guildId, character);
-        CassandraController.runTask(session -> session.execute(session.prepare("UPDATE prefixes SET prefix = ? WHERE guildid = ?").bind()
-        .setString(1, String.valueOf(character)).setString(2, guildId)));
+        CassandraController.runTask(session -> session.execute(session.prepare("UPDATE flarebot.prefixes SET prefix = ? WHERE guild_id = ?").bind()
+            .setString(0, String.valueOf(character)).setString(1, guildId)));
         update(guildId, character);
     }
 
@@ -56,6 +55,7 @@ public class Prefixes {
         guildObj.addProperty("prefix", prefix);
         array.add(guildObj);
 
+        //TODO: Move to new API
         FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
     }
 
