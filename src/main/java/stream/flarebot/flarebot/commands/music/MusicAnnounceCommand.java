@@ -19,10 +19,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class MusicAnnounceCommand implements Command {
+
     private static final Pattern ARGS_PATTERN = Pattern.compile("(here)|(off)", Pattern.CASE_INSENSITIVE);
     private static Map<String, String> announcements = new ConcurrentHashMap<>();
 
-    static {
+    //TODO: Do
+    /*static {
         try {
             SQLController.runSqlTask(conn -> {
                 conn.createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS announces (" +
@@ -38,7 +40,7 @@ public class MusicAnnounceCommand implements Command {
         } catch (SQLException e) {
             FlareBot.LOGGER.error("Could not load song announces!!", e);
         }
-    }
+    }*/
 
     public static Map<String, String> getAnnouncements() {
         return announcements;

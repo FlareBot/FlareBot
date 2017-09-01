@@ -38,6 +38,8 @@ public class MessageUtils {
     private static final Pattern YOUTUBE_LINK_REGEX = Pattern
             .compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
 
+    private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
+
     public static <T> Consumer<T> noOpConsumer() {
         return t -> {
         };
@@ -285,12 +287,14 @@ public class MessageUtils {
     }
 
     public static String getMessage(String[] args, int min, int max) {
-        String message = "";
+        StringBuilder message = new StringBuilder();
         for (int index = min; index < max; index++) {
-            message += args[index] + " ";
+            message.append(args[index]).append(" ");
         }
-        return message.trim();
+        return message.toString().trim();
     }
 
-
+    public static String escapeMarkdown(String s) {
+        return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
+    }
 }

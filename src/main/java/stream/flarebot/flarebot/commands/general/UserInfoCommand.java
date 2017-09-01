@@ -92,4 +92,9 @@ public class UserInfoCommand implements Command {
     public CommandType getType() {
         return CommandType.GENERAL;
     }
+
+    @Override
+    public String[] getAliases() {
+        return new String[] {"stalk"};
+    }
 }

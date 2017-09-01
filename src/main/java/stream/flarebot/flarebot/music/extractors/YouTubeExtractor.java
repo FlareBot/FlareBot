@@ -57,11 +57,11 @@ public class YouTubeExtractor implements Extractor {
             name = audioPlaylist.getName();
         } else {
             AudioTrack track = (AudioTrack) item;
-            if (track.getInfo().length == 0 || track.getInfo().isStream) {
+            /*if (track.getInfo().length == 0 || track.getInfo().isStream) {
                 EmbedBuilder builder = MessageUtils.getEmbed(user).setDescription("Cannot queue a livestream!");
                 MessageUtils.editMessage("", builder, message);
                 return;
-            }
+            }*/
             audioTracks.add(track);
             name = track.getInfo().title;
         }

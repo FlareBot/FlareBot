@@ -34,7 +34,7 @@ public class AutoModTracker extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake() || event
-                .getGuild() == null) return;
+                .getGuild() == null || event.getMessage().getRawContent().isEmpty()) return;
         String message = event.getMessage().getRawContent();
         // 218ns performance :thumbsup:
         String command = message.substring(1);
@@ -55,7 +55,7 @@ public class AutoModTracker extends ListenerAdapter {
 
         outer:
         for (Action action : Action.values) {
-            if (action.check(event.getMessage())) {
+            if (action.check(event.getMessage(), guild.getConfig())) {
                 if (action == Action.LINKS) {
                     if (event.getMessage().getContent()
                             .startsWith(FlareBot.getPrefix(event.getGuild().getId()) + "search")) {

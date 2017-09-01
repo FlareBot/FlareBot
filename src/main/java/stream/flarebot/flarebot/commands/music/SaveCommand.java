@@ -46,8 +46,7 @@ public class SaveCommand implements Command {
                 .map(track -> track
                         .getTrack()
                         .getIdentifier())
-                .collect(Collectors
-                        .joining(",")));
+                .collect(Collectors.toList()));
     }
 
     @Override

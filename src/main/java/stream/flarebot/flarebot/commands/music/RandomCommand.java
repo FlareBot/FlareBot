@@ -54,4 +54,9 @@ public class RandomCommand implements Command {
     public CommandType getType() {
         return CommandType.MUSIC;
     }
+
+    @Override
+    public String[] getAliases() {
+        return new String[] {"SHOWMEWHATYOUGOT"};
+    }
 }
