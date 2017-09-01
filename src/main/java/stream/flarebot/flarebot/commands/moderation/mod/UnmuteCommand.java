@@ -17,15 +17,15 @@ public class UnmuteCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length != 1){
+        if (args.length != 1) {
             MessageUtils.getUsage(this, channel, sender).queue();
         } else {
             User user = GeneralUtils.getUser(args[0], guild.getGuildId());
-            if(user == null){
+            if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user!!", channel);
                 return;
             }
-            if(guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())) {
+            if (guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())) {
                 guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()).queue();
                 EmbedBuilder eb = new EmbedBuilder();
                 eb.appendDescription("Unmuted " + user.getAsMention());

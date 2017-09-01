@@ -24,6 +24,7 @@ import java.awt.Color;
 
 // THIS IS NOT FOR v4
 public class TempBanCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 2) {
@@ -46,7 +47,7 @@ public class TempBanCommand implements Command {
                             .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
                                     "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null)
                             .build()).queue();
-                    while(!guild.getGuild().getBans().complete().contains(user)){
+                    while (!guild.getGuild().getBans().complete().contains(user)) {
                         //Nothing!!
                     }
                     PeriodFormatter formatter = new PeriodFormatterBuilder()

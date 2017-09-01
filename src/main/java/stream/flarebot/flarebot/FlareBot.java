@@ -47,9 +47,6 @@ import spark.Spark;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.automod.AutoModCommand;
-import stream.flarebot.flarebot.commands.automod.ModlogCommand;
-import stream.flarebot.flarebot.commands.automod.WarningsCommand;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
 import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
@@ -62,7 +59,6 @@ import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
 import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.TempBanCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.AvatarCommand;
@@ -75,7 +71,6 @@ import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
 import stream.flarebot.flarebot.commands.secret.TestCommand;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -756,11 +751,11 @@ public class FlareBot {
     }
 
     public Command getCommand(String s) {
-        for(Command cmd : getCommands()) {
-            if(cmd.getCommand().equalsIgnoreCase(s))
+        for (Command cmd : getCommands()) {
+            if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
-            for(String alias : cmd.getAliases())
-                if(alias.equalsIgnoreCase(s)) return cmd;
+            for (String alias : cmd.getAliases())
+                if (alias.equalsIgnoreCase(s)) return cmd;
         }
         return null;
     }
@@ -1007,7 +1002,7 @@ public class FlareBot {
         }
     }
 
-    public boolean isTestBot(){
+    public boolean isTestBot() {
         return testBot;
     }
 }

@@ -21,13 +21,14 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 
 public class MuteCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 0){
+        if (args.length == 0) {
             MessageUtils.getUsage(this, channel, sender).queue();
         } else {
             User user = GeneralUtils.getUser(args[0], guild.getGuildId());
-            if(user == null){
+            if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user!!", channel);
                 return;
             }
@@ -52,7 +53,7 @@ public class MuteCommand implements Command {
 //                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
 //                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
 //                while (!guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())){
-                    //nothing!
+            //nothing!
 //                }
 //                RestAction ra = guild.getGuild().getController().removeSingleRoleFromMember(
 //                        guild.getGuild().getMember(user), guild.getMutedRole());
@@ -60,12 +61,12 @@ public class MuteCommand implements Command {
 //                eb.setColor(Color.CYAN);
 //                channel.sendMessage(eb.build()).queue();
 //            } else {
-                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.appendDescription("Muted " + user.getAsMention());
-                eb.setColor(Color.CYAN);
-                channel.sendMessage(eb.build()).queue();
+            guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
+            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.appendDescription("Muted " + user.getAsMention());
+            eb.setColor(Color.CYAN);
+            channel.sendMessage(eb.build()).queue();
 //            }
         }
     }

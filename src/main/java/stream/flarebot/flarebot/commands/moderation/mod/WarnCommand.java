@@ -11,13 +11,14 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class WarnCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 0){
+        if (args.length == 0) {
             MessageUtils.getUsage(this, channel, sender).queue();
         } else {
             User user = GeneralUtils.getUser(args[0]);
-            if(user == null){
+            if (user == null) {
                 MessageUtils.sendErrorMessage("We couldn't find that user!!", channel);
                 return;
             }
@@ -27,7 +28,7 @@ public class WarnCommand implements Command {
 
     @Override
     public String getCommand() {
-        return null;
+        return "warn";
     }
 
     @Override
