@@ -16,6 +16,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.util.ArrayList;
 
 public class SavedPlaylistExtractor implements Extractor {
+
     @Override
     public Class<? extends AudioSourceManager> getSourceManagerClass() {
         return YoutubeAudioSourceManager.class;
@@ -23,8 +24,7 @@ public class SavedPlaylistExtractor implements Extractor {
 
     @Override
     public void process(String input, Player player, Message message, User user) throws Exception {
-        String name = input.substring(0, input.indexOf('\u200B'));
-        input = input.substring(input.indexOf('\u200B') + 1);
+        input = input.substring(input.indexOf('\u200B') + 1).replaceAll("\\[? ?]?", "");
         int i = 0;
         ArrayList<Track> playlist = new ArrayList<>();
         for (String s : input.split(",")) {
@@ -60,7 +60,7 @@ public class SavedPlaylistExtractor implements Extractor {
 
     @Override
     public boolean valid(String input) {
-        return input.matches(".+\u200B([^,]{11},)*[^,]{11}");
+        return input.matches(".+\u200B\\[(.{11}(, )?)+]");
     }
 
     @Override

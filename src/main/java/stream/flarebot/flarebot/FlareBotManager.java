@@ -2,11 +2,11 @@ package stream.flarebot.flarebot;
 
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.util.ExpiringMap;
@@ -14,10 +14,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -45,13 +42,17 @@ public class FlareBotManager {
                 "PRIMARY KEY(guild_id, last_retrieved)) " +
                 "WITH CLUSTERING ORDER BY (last_retrieved DESC)");
         CassandraController.executeAsync("CREATE TABLE IF NOT EXISTS flarebot.playlist (" +
-                  "playlist_name varchar, " +
-                  "guild_id varchar, " +
-                  "owner varchar, " +
-                  "songs list<varchar>, " +
-                  "scope varchar, " +
-                  "PRIMARY KEY(playlist_name, guild_id))");
-        //TODO: Cluster order the playlists with most plays.
+                "playlist_name varchar, " +
+                "guild_id varchar, " +
+                "owner varchar, " +
+                "songs list<varchar>, " +
+                "scope varchar, " +
+                "times_played int, " +
+                "PRIMARY KEY(playlist_name, guild_id))");
+
+                // Can't seem to cluster this because times_played is a bitch to have as a primary key.
+                //"PRIMARY KEY((playlist_name, guild_id), times_played)) " +
+                //"WITH CLUSTERING ORDER BY (times_played DESC)");
     }
 
     public void savePlaylist(TextChannel channel, String owner, String name, List<String> songs) {
@@ -67,10 +68,10 @@ public class FlareBotManager {
                 channel.sendMessage("That name is already taken!").queue();
                 return;
             }
-            session.execute(session.prepare("INSERT INTO flarebot.playlist (playlist_name, guild_id, owner, songs, scope) " +
-                            "VALUES (?, ?, ?, ?, ?)").bind()
+            session.execute(session.prepare("INSERT INTO flarebot.playlist (playlist_name, guild_id, owner, songs, " +
+                    "scope, times_played) VALUES (?, ?, ?, ?, ?, ?)").bind()
                     .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, owner).setList(3, songs)
-                    .setString(4, "local"));
+                    .setString(4, "local").setInt(5, 0));
             channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner))
                     .setDescription("Successfully saved the playlist " + MessageUtils.escapeMarkdown(name)).build()).queue();
         });
@@ -86,22 +87,23 @@ public class FlareBotManager {
         return config.getString(path).isPresent() ? config.getString(path).get() : "";
     }
 
-    public String loadPlaylist(TextChannel channel, User sender, String name) {
-        final String[] list = new String[1];
+    public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {
+        final ArrayList<String> list = new ArrayList<>();
         CassandraController.runTask(session -> {
-            //TODO: Can't seem to do (stuff) AND (stuff) anymore :/ find an alternative.
             ResultSet set = session.execute(session
-                    .prepare("SELECT songs FROM flarebot.playlist WHERE ((playlist_name = ? AND guild_id = ?) " +
-                            "OR (playlist_name = ? AND scope = 'global'))").bind()
-            .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, channel.getGuild().getId()));
+                    .prepare("SELECT songs FROM flarebot.playlist WHERE playlist_name = ?").bind()
+            .setString(0, name));
 
-            if (set.one() != null) {
-                list[0] = set.one().getString("songs");
+            //Row row = set.one();
+            //System.out.println(row);
+            Row row = set.one();
+            if (row != null) {
+                list.addAll(row.getList("songs", String.class));
             } else
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription("*That playlist does not exist!*").build()).queue();
         });
-        return list[0];
+        return list;
     }
 
     public Set<String> getProfanity() {
