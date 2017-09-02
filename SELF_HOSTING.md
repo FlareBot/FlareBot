@@ -1,9 +1,9 @@
 # Self Hosting
 By following this guide you agree to:
-* Not use our logos
-* Only use the bot for private use
-* Do not hog the support server
-* Claiming the source code of the bot
+* Not to use our logos or names.
+* Only use the bot for private use.
+* Not to use the support server as support for your version of the bot.
+* Not claim the source code of FlareBot as your own
 
 Self hosting is actually pretty easy. The software currently only supports UNIX-Like due to others not having sane methods of obtaining CPU stats through Java.  
 The following requirements must be met:
