@@ -10,9 +10,8 @@ The following requirements must be met:
 2. Replace all occurances of `158310004187725824` with your Discord ID
 3. Replace all occurances of `226786557862871040` with your error channel ID
 4. Replace everything in ` public String postToApi(String action, String property, JsonElement data)`  with `return "";` in `src/main/java/stream/flarebot/flarebot/FlareBot.java`
-5. Empty the entire `private void postToBotlist(String auth, String url)` function in `src/main/java/stream/flarebot/flarebot/FlareBot.java`
-6. Run `mvn clean package`
-7. Copy target/\*-dependencies.jar into .
+5. Run `mvn clean package`
+6. Copy target/\*-dependencies.jar into .
 
 The following is an example config file (`config.json`):
 ```json
