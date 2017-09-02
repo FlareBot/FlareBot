@@ -7,7 +7,7 @@ By following this guide you agree to:
 
 Self hosting is actually pretty easy. The software currently only supports UNIX-Like due to others not having sane methods of obtaining CPU stats through Java.  
 The following requirements must be met:
-* Cassandra (with `cassandra.username`, `cassandra.password`, set and `cassandra.nodes` set optionally to an array of IPs as strings
+* Cassandra (With appropriate details set in the `config.json` as shown below)
 * UNIX-Like OS
 
 ## Build instructions:
@@ -16,9 +16,8 @@ The following requirements must be met:
 2. Replace all occurances of `158310004187725824` with your Discord ID
 3. Replace all occurances of `226786557862871040` with your error channel ID
 4. Replace everything in ` public String postToApi(String action, String property, JsonElement data)`  with `return "";` in `src/main/java/stream/flarebot/flarebot/FlareBot.java`
-5. Empty the entire `private void postToBotlist(String auth, String url)` function in `src/main/java/stream/flarebot/flarebot/FlareBot.java`
-6. Run `mvn clean package`
-7. Copy target/\*-dependencies.jar into .
+5. Run `mvn clean package`
+6. Copy target/\*-dependencies.jar into .
 
 The following is an example config file (`config.json`):
 ```json
@@ -45,7 +44,7 @@ Group=YOUR GROUP
 
 Type=simple
 WorkingDirectory=YOUR WORKING DIRECTORY
-ExecStart=/usr/bin/java -Djna.nosys=true -jar FlareBot-jar-with-dependencies.jar -t <Token> -s <GitHub Webhook Secret> -db something -sql <SQL Password> -yt <YouTube API Token> -websecret whatever -bl whatever -sh <status webhook>
+ExecStart=/usr/bin/java -Djna.nosys=true -jar FlareBot-jar-with-dependencies.jar -t <Token> -s <GitHub Webhook Secret> -sql <SQL Password> -yt <YouTube API Token> -sh <status webhook>
 TimeoutStopSec=120
 KillMode=process
 Restart=on-success
