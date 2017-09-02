@@ -1,4 +1,10 @@
 # Self Hosting
+By following this guide you agree to:
+* Not use our logos
+* Only use the bot for private use
+* Do not hog the support server
+* Claiming the source code of the bot
+
 Self hosting is actually pretty easy. The software currently only supports UNIX-Like due to others not having sane methods of obtaining CPU stats through Java.  
 The following requirements must be met:
 * Cassandra (with `cassandra.username`, `cassandra.password`, set and `cassandra.nodes` set optionally to an array of IPs as strings
