@@ -1,7 +1,7 @@
 # Self Hosting
 Self hosting is actually pretty easy. The software currently only supports UNIX-Like due to others not having sane methods of obtaining CPU stats through Java.  
 The following requirements must be met:
-* Cassandra (with `cassandra.username`, `cassandra.password`, set and `cassandra.nodes` set optionally to an array of IPs as strings
+* Cassandra (With appropriate details set in the `config.json` as shown below)
 * UNIX-Like OS
 
 ## Build instructions:
@@ -39,7 +39,7 @@ Group=YOUR GROUP
 
 Type=simple
 WorkingDirectory=YOUR WORKING DIRECTORY
-ExecStart=/usr/bin/java -Djna.nosys=true -jar FlareBot-jar-with-dependencies.jar -t <Token> -s <GitHub Webhook Secret> -db something -sql <SQL Password> -yt <YouTube API Token> -websecret whatever -bl whatever -sh <status webhook>
+ExecStart=/usr/bin/java -Djna.nosys=true -jar FlareBot-jar-with-dependencies.jar -t <Token> -s <GitHub Webhook Secret> -sql <SQL Password> -yt <YouTube API Token> -sh <status webhook>
 TimeoutStopSec=120
 KillMode=process
 Restart=on-success
