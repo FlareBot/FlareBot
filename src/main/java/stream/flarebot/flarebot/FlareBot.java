@@ -44,12 +44,32 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
-import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.automod.*;
-import stream.flarebot.flarebot.commands.moderation.*;
+import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
+import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
+import stream.flarebot.flarebot.commands.moderation.PinCommand;
+import stream.flarebot.flarebot.commands.moderation.PruneCommand;
+import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
+import stream.flarebot.flarebot.commands.moderation.ReportsCommand;
+import stream.flarebot.flarebot.commands.moderation.RolesCommand;
+import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.secret.AvatarCommand;
+import stream.flarebot.flarebot.commands.secret.EvalCommand;
+import stream.flarebot.flarebot.commands.secret.GuildCommand;
+import stream.flarebot.flarebot.commands.secret.LogsCommand;
+import stream.flarebot.flarebot.commands.secret.QueryCommand;
+import stream.flarebot.flarebot.commands.secret.QuitCommand;
+import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.TestCommand;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -82,7 +102,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -413,12 +440,17 @@ public class FlareBot {
         registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
 
-        registerCommand(new AutoModCommand());
-        registerCommand(new ModlogCommand());
-        registerCommand(new WarningsCommand());
+//        registerCommand(new AutoModCommand());
+//        registerCommand(new ModlogCommand());
+//        registerCommand(new WarningsCommand());
 
         registerCommand(new TestCommand());
+
         registerCommand(new BanCommand());
+        registerCommand(new MuteCommand());
+        registerCommand(new UnmuteCommand());
+//        registerCommand(new TempBanCommand());
+
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
         registerCommand(new ShardInfoCommand());
@@ -718,11 +750,11 @@ public class FlareBot {
     }
 
     public Command getCommand(String s) {
-        for(Command cmd : getCommands()) {
-            if(cmd.getCommand().equalsIgnoreCase(s))
+        for (Command cmd : getCommands()) {
+            if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
-            for(String alias : cmd.getAliases())
-                if(alias.equalsIgnoreCase(s)) return cmd;
+            for (String alias : cmd.getAliases())
+                if (alias.equalsIgnoreCase(s)) return cmd;
         }
         return null;
     }
@@ -969,7 +1001,7 @@ public class FlareBot {
         }
     }
 
-    public boolean isTestBot(){
+    public boolean isTestBot() {
         return testBot;
     }
 }

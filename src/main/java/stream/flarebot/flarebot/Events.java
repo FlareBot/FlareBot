@@ -251,8 +251,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onStatusChange(StatusChangeEvent event) {
-        if(FlareBot.getInstance().isTestBot()) return;
         if (sd) return;
+        if (FlareBot.getStatusHook() == null) return;;
         Request.Builder request = new Request.Builder().url(FlareBot.getStatusHook());
         RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON, new JSONObject()
                 .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",

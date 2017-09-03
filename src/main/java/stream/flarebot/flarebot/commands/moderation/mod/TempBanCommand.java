@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.moderation;
+package stream.flarebot.flarebot.commands.moderation.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -7,22 +7,27 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.requests.RestAction;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.scheduler.RestActionTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
-import java.util.EnumSet;
 
-public class BanCommand implements Command {
+// THIS IS NOT FOR v4
+public class TempBanCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length >= 1) {
+        if (args.length >= 2) {
             if (channel.getGuild().getSelfMember().hasPermission(channel, Permission.BAN_MEMBERS)) {
                 User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
@@ -32,8 +37,8 @@ public class BanCommand implements Command {
                     return;
                 }
                 String reason = null;
-                if (args.length >= 2)
-                    reason = MessageUtils.getMessage(args, 1);
+                if (args.length >= 3)
+                    reason = MessageUtils.getMessage(args, 2);
                 guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                 try {
                     channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7, reason).queue();
@@ -42,6 +47,19 @@ public class BanCommand implements Command {
                             .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
                                     "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null)
                             .build()).queue();
+                    while (!guild.getGuild().getBans().complete().contains(user)) {
+                        //Nothing!!
+                    }
+                    PeriodFormatter formatter = new PeriodFormatterBuilder()
+                            .appendDays().appendSuffix("d")
+                            .appendHours().appendSuffix("h")
+                            .appendMinutes().appendSuffix("m")
+                            .appendSeconds().appendSuffix("s")
+                            .toFormatter();
+                    Period period = formatter.parsePeriod(args[1]);
+                    long mills = period.toStandardSeconds().getSeconds() * 1000;
+                    RestAction action = guild.getGuild().getController().unban(user);
+                    new RestActionTask(action, "Unban user: " + user.getName()).delay(mills);
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
@@ -57,26 +75,21 @@ public class BanCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "ban";
+        return "tempban";
     }
 
     @Override
     public String getDescription() {
-        return "Ban a user";
+        return "Temp bans a user";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}ban <user> <reason>` - Ban a user with a reason";
+        return "`{%}tempban <user> <time> [reason]` - Temp bans a user.";
     }
 
     @Override
     public CommandType getType() {
         return CommandType.MODERATION;
-    }
-
-    @Override
-    public EnumSet<Permission> getDiscordPermission() {
-        return EnumSet.of(Permission.BAN_MEMBERS);
     }
 }

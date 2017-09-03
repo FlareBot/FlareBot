@@ -38,7 +38,7 @@ public class CassandraController {
     public static void runTask(CassandraTask task) {
         try {
             task.execute(session);
-        }catch(QueryExecutionException | QueryValidationException e) {
+        } catch (QueryExecutionException | QueryValidationException e) {
             FlareBot.LOGGER.error("Failed to execute Cassandra query", e);
         }
     }
