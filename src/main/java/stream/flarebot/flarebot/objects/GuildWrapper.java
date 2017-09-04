@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.mod.AutoModGuild;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.ReportManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ public class GuildWrapper {
     private String blockReason = null;
     private String mutedRoleID = null;
     private Map<String, Map<Punishment.EPunishment, Long>> punishments = new HashMap<>();
+    private ReportManager reportManager;
 
     protected GuildWrapper(String guildId) {
         this.guildId = guildId;
@@ -188,5 +190,13 @@ public class GuildWrapper {
                 return mutedRole;
             }
         }
+    }
+
+    public ReportManager getReportManager() {
+        return reportManager;
+    }
+
+    public void setReportManager(ReportManager reportManager) {
+        this.reportManager = reportManager;
     }
 }

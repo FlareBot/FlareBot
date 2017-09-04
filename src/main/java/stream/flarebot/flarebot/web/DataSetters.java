@@ -8,7 +8,6 @@ import spark.Response;
 import spark.Route;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.database.SQLController;
 import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 
 import java.sql.PreparedStatement;
@@ -26,7 +25,9 @@ public enum DataSetters {
             .removePermission(request.queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
-            new Require("permission")),
+            new Require("permission"));
+    //TODO Fix this because i have no clue what's going on here or how to fix it.
+    /*
     MONTHLYPLAYLIST((request, response) -> {
         MonthlyPlaylist playlist = FlareBot.GSON.fromJson(request.body(), MonthlyPlaylist.class);
         SQLController.runSqlTask(connection -> {
@@ -53,6 +54,7 @@ public enum DataSetters {
     },
             new BodyRequire(e -> e.isJsonPrimitive() && ((JsonPrimitive) e).isString(), "name"),
             new BodyRequire(JsonElement::isJsonArray, "playlist"));
+            */
 
     private Route consumer;
     private Require[] requires;

@@ -38,7 +38,7 @@ public class ReportCommand implements Command {
                     .collect(Collectors.toList());
             report.setMessages(messages.subList(0, Math.min(10, messages.size() - 1)));
 
-            ReportManager.getInstance().report(channel.getGuild().getId(), report);
+            guild.getReportManager().report(report);
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {
