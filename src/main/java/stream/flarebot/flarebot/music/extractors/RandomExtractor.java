@@ -17,7 +17,6 @@ public class RandomExtractor implements Extractor {
         return YoutubeAudioSourceManager.class;
     }
 
-    @SuppressWarnings("Duplicates") // I don't give a damn
     @Override
     public void process(String input, Player player, Message message, User user) throws Exception {
         int i = 0;

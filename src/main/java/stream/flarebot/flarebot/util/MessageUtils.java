@@ -38,6 +38,8 @@ public class MessageUtils {
     private static final Pattern YOUTUBE_LINK_REGEX = Pattern
             .compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
 
+    private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
+
     public static <T> Consumer<T> noOpConsumer() {
         return t -> {
         };
@@ -193,10 +195,13 @@ public class MessageUtils {
     public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        String permission = command.getPermission() + "\n" +
-                "**Default permission: **" + command.isDefaultPermission();
-        return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                .addField("Permission", permission, false).setColor(Color.red).build());
+        if(command.getPermission() != null)
+            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .addField("Permission", command.getPermission() + "\n" +
+                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build());
+        else
+            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .setColor(Color.red).build());
     }
 
     private static String capitalize(String s) {
@@ -282,12 +287,14 @@ public class MessageUtils {
     }
 
     public static String getMessage(String[] args, int min, int max) {
-        String message = "";
+        StringBuilder message = new StringBuilder();
         for (int index = min; index < max; index++) {
-            message += args[index] + " ";
+            message.append(args[index]).append(" ");
         }
-        return message.trim();
+        return message.toString().trim();
     }
 
-
+    public static String escapeMarkdown(String s) {
+        return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
+    }
 }

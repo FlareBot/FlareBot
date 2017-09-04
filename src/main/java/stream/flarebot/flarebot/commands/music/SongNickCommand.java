@@ -16,12 +16,12 @@ public class SongNickCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (guild.isSongnickEnabled()) {
-            guild.setSongnickEnabled(false);
+            guild.setSongnick(false);
             channel.getGuild().getController().setNickname(channel.getGuild().getSelfMember(), null).queue();
             channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Disabled changing nickname with song!").setColor(Color.RED).build()).queue();
             return;
         } else {
-            guild.setSongnickEnabled(true);
+            guild.setSongnick(true);
             channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Enabled changing nickname with song!").setColor(Color.GREEN).build()).queue();
             return;
         }

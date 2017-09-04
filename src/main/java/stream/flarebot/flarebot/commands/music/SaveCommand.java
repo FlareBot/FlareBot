@@ -26,7 +26,7 @@ public class SaveCommand implements Command {
 
         String name = MessageUtils.getMessage(args, 0);
         if (name.length() > 20) {
-            channel.sendMessage("Name must be up to 20 characters!").queue();
+            channel.sendMessage("Name can only be a maximum of 20 characters!").queue();
             return;
         }
         if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
@@ -46,8 +46,7 @@ public class SaveCommand implements Command {
                 .map(track -> track
                         .getTrack()
                         .getIdentifier())
-                .collect(Collectors
-                        .joining(",")));
+                .collect(Collectors.toList()));
     }
 
     @Override

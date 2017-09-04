@@ -27,7 +27,7 @@ public interface Command {
     CommandType getType();
 
     default String getPermission() {
-        return "flarebot." + getCommand();
+        return getType() == CommandType.HIDDEN ? null : "flarebot." + getCommand();
     }
 
     default EnumSet<Permission> getDiscordPermission() {

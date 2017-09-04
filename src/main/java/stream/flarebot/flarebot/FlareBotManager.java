@@ -1,22 +1,20 @@
 package stream.flarebot.flarebot;
 
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.database.SQLController;
+import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.util.ExpiringMap;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -37,61 +35,42 @@ public class FlareBotManager {
     }
 
     public void executeCreations() {
-        try {
-            SQLController.runSqlTask(conn -> {
-                conn.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  playlist_name  VARCHAR(60),\n" +
-                        "  guild VARCHAR(20),\n" +
-                        "  owner VARCHAR(20),\n" +
-                        "  list  TEXT,\n" +
-                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(playlist_name, guild)\n" +
-                        ")");
-                conn.createStatement()
-                        .execute("CREATE TABLE IF NOT EXISTS selfassign (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, roles TEXT)");
-                conn.createStatement()
-                        .execute("CREATE TABLE IF NOT EXISTS automod (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, automod_data TEXT)");
-                conn.createStatement()
-                        .execute("CREATE TABLE IF NOT EXISTS localisation (guild_id VARCHAR(20) PRIMARY KEY NOT NULL, locale TEXT)");
-                conn.createStatement()
-                        .execute("CREATE TABLE IF NOT EXISTS guild_disable (guild_id VARCHAR(20), reason TEXT)");
-            });
-        } catch (SQLException e) {
-            FlareBot.LOGGER.error("Database error!", e);
-        }
+        CassandraController.executeAsync("CREATE TABLE IF NOT EXISTS flarebot.guild_data (" +
+                "guild_id varchar, " +
+                "data text, " +
+                "last_retrieved timestamp, " +
+                "PRIMARY KEY(guild_id, last_retrieved)) " +
+                "WITH CLUSTERING ORDER BY (last_retrieved DESC)");
+        CassandraController.executeAsync("CREATE TABLE IF NOT EXISTS flarebot.playlist (" +
+                "playlist_name varchar, " +
+                "guild_id varchar, " +
+                "owner varchar, " +
+                "songs list<varchar>, " +
+                "scope varchar, " +
+                "times_played int, " +
+                "PRIMARY KEY(playlist_name, guild_id))");
+
+                // Can't seem to cluster this because times_played is a bitch to have as a primary key.
+                //"PRIMARY KEY((playlist_name, guild_id), times_played)) " +
+                //"WITH CLUSTERING ORDER BY (times_played DESC)");
     }
 
-    public void savePlaylist(TextChannel channel, String owner, String name, String list) {
-        try {
-            SQLController.runSqlTask(connection -> {
-                PreparedStatement exists = connection
-                        .prepareStatement("SELECT * FROM playlist WHERE playlist_name = ? AND guild = ?");
-                exists.setString(1, name);
-                exists.setString(2, channel.getGuild().getId());
-                exists.execute();
-                if (exists.getResultSet().isBeforeFirst()) {
-                    channel.sendMessage("That name is already taken!").queue();
-                    return;
-                }
-                PreparedStatement statement = connection
-                        .prepareStatement("INSERT INTO playlist (playlist_name, guild, owner, list) VALUES (" +
-                                "   ?," +
-                                "   ?," +
-                                "   ?," +
-                                "   ?" +
-                                ")");
-                statement.setString(1, name);
-                statement.setString(2, channel.getGuild().getId());
-                statement.setString(3, owner);
-                statement.setString(4, list);
-                statement.executeUpdate();
-                channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner))
-                        .setDescription("Success!").build()).queue();
-            });
-        } catch (SQLException e) {
-            FlareBot.reportError(channel, "The playlist could not be saved!", e);
-            FlareBot.LOGGER.error("Database error!", e);
-        }
+    public void savePlaylist(TextChannel channel, String owner, String name, List<String> songs) {
+        CassandraController.runTask(session -> {
+            PreparedStatement exists = session
+                    .prepare("SELECT * FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
+            ResultSet set = session.execute(exists.bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            if (set.one() != null) {
+                channel.sendMessage("That name is already taken!").queue();
+                return;
+            }
+            session.execute(session.prepare("INSERT INTO flarebot.playlist (playlist_name, guild_id, owner, songs, " +
+                    "scope, times_played) VALUES (?, ?, ?, ?, ?, ?)").bind()
+                    .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, owner).setList(3, songs)
+                    .setString(4, "local").setInt(5, 0));
+            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner))
+                    .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
+        });
     }
 
     public JSONConfig loadLang(Language.Locales l) {
@@ -104,29 +83,23 @@ public class FlareBotManager {
         return config.getString(path).isPresent() ? config.getString(path).get() : "";
     }
 
-    public String loadPlaylist(TextChannel channel, User sender, String name) {
-        final String[] list = new String[1];
-        try {
-            SQLController.runSqlTask(connection -> {
-                PreparedStatement exists = connection
-                        .prepareStatement("SELECT list FROM playlist WHERE (playlist_name = ? AND guild = ?) " +
-                                "OR (playlist_name=? AND scope = 'global')");
-                exists.setString(1, name);
-                exists.setString(2, channel.getGuild().getId());
-                exists.setString(3, channel.getGuild().getId());
-                exists.execute();
-                ResultSet set = exists.getResultSet();
-                if (set.next()) {
-                    list[0] = set.getString("list");
-                } else
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("*That playlist does not exist!*").build()).queue();
-            });
-        } catch (SQLException e) {
-            FlareBot.reportError(channel, "Unable to load the playlist!", e);
-            FlareBot.LOGGER.error("Database error!", e);
-        }
-        return list[0];
+    public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {
+        final ArrayList<String> list = new ArrayList<>();
+        CassandraController.runTask(session -> {
+            ResultSet set = session.execute(session
+                    .prepare("SELECT songs FROM flarebot.playlist WHERE playlist_name = ?").bind()
+            .setString(0, name));
+
+            //Row row = set.one();
+            //System.out.println(row);
+            Row row = set.one();
+            if (row != null) {
+                list.addAll(row.getList("songs", String.class));
+            } else
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription("*That playlist does not exist!*").build()).queue();
+        });
+        return list;
     }
 
     public Set<String> getProfanity() {
@@ -140,7 +113,13 @@ public class FlareBotManager {
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
                     .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "\nTime: " + LocalDateTime.now().toString(), false)
                     .build()).queue();
-        guilds.computeIfAbsent(id, guildId -> new GuildWrapperBuilder(id).build());
+        guilds.computeIfAbsent(id, guildId -> {
+            ResultSet set = CassandraController.execute("SELECT data FROM flarebot.guild_data WHERE guild_id = '" + guildId + "'");
+            if(set.one() != null)
+                return FlareBot.GSON.fromJson(set.one().getString("data"), GuildWrapper.class);
+            else
+                return new GuildWrapperBuilder(id).build();
+        });
         return guilds.get(id);
     }
 

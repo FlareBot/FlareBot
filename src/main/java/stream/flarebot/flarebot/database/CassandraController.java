@@ -1,12 +1,8 @@
 package stream.flarebot.flarebot.database;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.HostDistance;
-import com.datastax.driver.core.PoolingOptions;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.ResultSetFuture;
-import com.datastax.driver.core.Session;
+import com.datastax.driver.core.*;
+import com.datastax.driver.core.exceptions.QueryExecutionException;
+import com.datastax.driver.core.exceptions.QueryValidationException;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.github.binaryoverload.JSONConfig;
 import stream.flarebot.flarebot.FlareBot;
@@ -40,7 +36,11 @@ public class CassandraController {
     }
 
     public static void runTask(CassandraTask task) {
-        task.execute(session);
+        try {
+            task.execute(session);
+        } catch (QueryExecutionException | QueryValidationException e) {
+            FlareBot.LOGGER.error("Failed to execute Cassandra query", e);
+        }
     }
 
     public static ResultSet execute(String query) {

@@ -25,7 +25,7 @@ public class SQLController {
         dataSource.setDatabaseName("flarebot");
         dataSource.setPort(3306);
         dataSource.setPortNumber(3306);
-        dataSource.setServerName("127.0.0.1");
+        dataSource.setServerName("192.168.254.100");
         dataSource.setUser("flare");
         dataSource.setURL(dataSource.getURL() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");
         dataSource.setUrl(dataSource.getUrl() + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false");

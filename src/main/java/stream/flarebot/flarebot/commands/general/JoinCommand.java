@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 
@@ -19,7 +20,7 @@ public class JoinCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (member.getVoiceState().inVoiceChannel()) {
             if (channel.getGuild().getAudioManager().isAttemptingToConnect()) {
-                channel.sendMessage("Currently connecting to a voice channel! Try again soon!").queue();
+                MessageUtils.sendErrorMessage("Currently connecting to a voice channel! Try again soon!", channel);
                 return;
             }
             if (channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel() && !channel.getGuild()
@@ -31,9 +32,7 @@ public class JoinCommand implements Command {
                             .getVoiceState()
                             .getAudioChannel()
                             .getId()) && !getPermissions(channel).hasPermission(member, "flarebot.join.other")) {
-                channel.sendMessage(new EmbedBuilder().setColor(Color.red)
-                        .setDescription("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!")
-                        .build()).queue();
+                MessageUtils.sendErrorMessage("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!", channel);
                 return;
             }
             if (channel.getGuild().getSelfMember()
@@ -46,17 +45,17 @@ public class JoinCommand implements Command {
                         .hasPermission(member
                                 .getVoiceState()
                                 .getChannel(), Permission.MANAGE_CHANNEL)) {
-                    channel.sendMessage(new EmbedBuilder()
-                            .setDescription("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
-                                    "bypass it!").setColor(Color.red).build()).queue();
+                    MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
+                            "bypass it!", channel);
                     return;
                 }
                 channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            } else
-                channel.sendMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
+            } else {
+                MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
                         .hasPermission(member.getVoiceState()
                                 .getChannel(), Permission.VOICE_CONNECT) ?
-                        "connect" : "speak") + " in your voice channel!").queue();
+                        "connect" : "speak") + " in your voice channel!", channel);
+            }
         }
     }
 

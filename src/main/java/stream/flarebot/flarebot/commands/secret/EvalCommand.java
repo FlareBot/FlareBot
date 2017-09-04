@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class EvalCommand implements Command {
+
     private ScriptEngineManager manager = new ScriptEngineManager();
     private static final ThreadGroup EVALS = new ThreadGroup("EvalCommand Thread Pool");
     private static final ExecutorService POOL = Executors.newCachedThreadPool(r -> new Thread(EVALS, r,
@@ -38,6 +39,7 @@ public class EvalCommand implements Command {
             "net.dv8tion.jda.core.entities",
             "java.util.streams",
             "java.util",
+            "java.lang",
             "java.text",
             "java.math",
             "java.time",
@@ -48,11 +50,10 @@ public class EvalCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender)) {
             String imports = IMPORTS.stream().map(s -> "Packages." + s).collect(Collectors.joining(", ", "var imports = new JavaImporter(", ");\n"));
             ScriptEngine engine = manager.getEngineByName("nashorn");
             engine.put("channel", channel);
-            engine.put("guild", channel.getGuild());
+            engine.put("guild", guild);
             engine.put("message", message);
             engine.put("jda", sender.getJDA());
             engine.put("sender", sender);
@@ -73,9 +74,6 @@ public class EvalCommand implements Command {
                             .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
                 }
             });
-        } else {
-            message.addReaction("\u274C").queue();
-        }
     }
 
     @Override

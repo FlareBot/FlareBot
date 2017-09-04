@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
@@ -17,6 +18,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -70,6 +72,20 @@ public class Events extends ListenerAdapter {
     }
 
     @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        if (!event.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD)) return;
+        event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+            MessageReaction reaction = message.getReactions().stream().filter(r -> r.getEmote().getName().equals(event.getReactionEmote().getName())).findFirst().orElse(null);
+            if (reaction != null) {
+                if (reaction.getCount() == 5) {
+                    message.pin().complete();
+                    event.getChannel().getHistory().retrievePast(1).complete().get(0).delete().queue();
+                }
+            }
+        });
+    }
+
+    @Override
     public void onReady(ReadyEvent event) {
         FlareBot.getInstance().latch.countDown();
     }
@@ -81,8 +97,8 @@ public class Events extends ListenerAdapter {
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
-            TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
-            if (channel != null) {
+            if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
+                TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
                 if (!channel.canTalk()) {
                     welcome.setGuildEnabled(false);
                     MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
@@ -227,7 +243,7 @@ public class Events extends ListenerAdapter {
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
             Command cmd = flareBot.getCommand(command);
-            if(cmd != null)
+            if (cmd != null)
                 handleCommand(event, cmd, command, args);
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
@@ -252,6 +268,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onStatusChange(StatusChangeEvent event) {
         if (sd) return;
+        if (FlareBot.getStatusHook() == null) return;
         Request.Builder request = new Request.Builder().url(FlareBot.getStatusHook());
         RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON, new JSONObject()
                 .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",

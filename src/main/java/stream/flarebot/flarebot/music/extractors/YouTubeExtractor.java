@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -43,7 +44,7 @@ public class YouTubeExtractor implements Extractor {
         } catch (IllegalStateException e) {
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                     .setDescription("Youtube could not be reached! Try again in a few minutes!\n" +
-                            "If the error continues, join our support discord: https://discord.gg/TTAUGvZ")
+                            "If the error continues, join our support discord: " + FlareBot.INVITE_URL)
                     .setColor(Color.RED), message);
             return;
         }
@@ -56,19 +57,18 @@ public class YouTubeExtractor implements Extractor {
             name = audioPlaylist.getName();
         } else {
             AudioTrack track = (AudioTrack) item;
-            if (track.getInfo().length == 0 || track.getInfo().isStream) {
+            /*if (track.getInfo().length == 0 || track.getInfo().isStream) {
                 EmbedBuilder builder = MessageUtils.getEmbed(user).setDescription("Cannot queue a livestream!");
                 MessageUtils.editMessage("", builder, message);
                 return;
-            }
+            }*/
             audioTracks.add(track);
             name = track.getInfo().title;
         }
         if (name != null) {
-            List<Track> tracks = audioTracks.stream().map(Track::new).map(track -> {
+            List<Track> tracks = audioTracks.stream().map(Track::new).peek(track -> {
                 track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
-                return track;
             }).collect(Collectors.toList());
             if (tracks.size() > 1) { // Double `if` https://giphy.com/gifs/ng1xAzwIkDgfm
                 Playlist p = new Playlist(tracks);

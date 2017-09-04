@@ -14,6 +14,8 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.util.concurrent.TimeUnit;
+
 public class SongCommand implements Command {
 
     private PlayerManager manager;
@@ -26,10 +28,18 @@ public class SongCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
-            channel.sendMessage(MessageUtils.getEmbed(sender)
+            if(track.getTrack().getInfo().isStream)
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .addField("Current song", getLink(track), false)
+                        .addField("Amount Played", "Issa livestream ;)", false)
+                        .build())
+                        .queue();
+            else
+                channel.sendMessage(MessageUtils.getEmbed(sender)
                     .addField("Current song", getLink(track), false)
                     .addField("Amount Played", GeneralUtils.getProgressBar(track), true)
-                    .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()), GeneralUtils.formatDuration(track.getTrack().getDuration())), false)
+                    .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()),
+                            GeneralUtils.formatDuration(track.getTrack().getDuration())), false)
                     .build())
                     .queue();
         } else {
@@ -53,6 +63,11 @@ public class SongCommand implements Command {
     @Override
     public String getDescription() {
         return "Get the current song playing.";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"playing"};
     }
 
     @Override
