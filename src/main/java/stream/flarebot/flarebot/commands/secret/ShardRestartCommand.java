@@ -23,7 +23,7 @@ public class ShardRestartCommand implements Command {
             int shard = Integer.parseInt(args[0]);
             try {
                 synchronized (FlareBot.getInstance().getClients()) {
-                    FlareBot.getInstance().getClients()[shard].shutdown(false);
+                    FlareBot.getInstance().getClients()[shard].shutdown();
                     FlareBot.getInstance().getClients()[shard] = new JDABuilder(AccountType.BOT)
                             .addEventListener(FlareBot.getInstance().getEvents())
                             .useSharding(shard, FlareBot.getInstance().getClients().length)
