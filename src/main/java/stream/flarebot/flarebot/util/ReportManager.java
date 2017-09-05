@@ -8,7 +8,7 @@ import java.util.List;
 
 public final class ReportManager {
 
-    private ReportManager() {
+    public ReportManager() {
     }
 
     private List<Report> reports = new ArrayList<>();
@@ -19,7 +19,7 @@ public final class ReportManager {
     }
 
     public Report getReport(int id) {
-        return reports.get(id);
+        return reports.get(id - 1);
     }
 
     public void report(Report report) {

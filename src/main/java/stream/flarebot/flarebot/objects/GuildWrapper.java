@@ -36,7 +36,7 @@ public class GuildWrapper {
     private String blockReason = null;
     private String mutedRoleID = null;
     private Map<String, Map<Punishment.EPunishment, Long>> punishments = new HashMap<>();
-    private ReportManager reportManager;
+    private ReportManager reportManager = new ReportManager();
 
     protected GuildWrapper(String guildId) {
         this.guildId = guildId;
