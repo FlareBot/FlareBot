@@ -33,7 +33,7 @@ public class ReportsCommand implements Command {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
                     if (getPermissions(channel).hasPermission(member, "flarebot.reports.list")) {
-                        List<Report> reports = ReportManager.getInstance().getGuildReports(channel.getGuild().getId());
+                        List<Report> reports = guild.getReportManager().getReports();
                         int page = 1;
                         final int reportsLength = 15;
                         if (args.length == 2) {
@@ -77,7 +77,7 @@ public class ReportsCommand implements Command {
                         return;
                     }
 
-                    Report report = ReportManager.getInstance().getReport(channel.getGuild().getId(), id);
+                    Report report = guild.getReportManager().getReport(id);
                     if (report == null) {
                         MessageUtils.sendErrorMessage("That report doesn't exist.", channel);
                         return;
@@ -111,10 +111,10 @@ public class ReportsCommand implements Command {
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
-                        if (ReportManager.getInstance().getReport(channel.getGuild().getId(), id).getStatus().equals(status)) {
+                        if (guild.getReportManager().getReport(id).getStatus().equals(status)) {
                             channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("Current status is: **" + status.getMessage() + "**").build()).queue();
                         } else {
-                            ReportManager.getInstance().getReport(channel.getGuild().getId(), id).setStatus(status);
+                            guild.getReportManager().getReport(id).setStatus(status);
                             channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage())).build()).queue();
 
                         }

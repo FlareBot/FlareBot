@@ -53,14 +53,11 @@ public class GeneralUtils {
         eb.addField("Status", report.getStatus().getMessage(), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
-        StringBuilder builder = new StringBuilder("The last 10 messages by the reported user: ```md\n");
-        int index = 1;
+        StringBuilder builder = new StringBuilder("The last 10 messages by the reported user: ```\n");
         for (Message m : report.getMessages()) {
-            builder.append(index)
-                    .append(". ")
+            builder.append("[" + m.getCreationTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
                     .append(GeneralUtils.truncate(100, m.getContent()))
                     .append("\n");
-            index++;
         }
         builder.append("```");
         eb.addField("Messages from reported user", builder.toString(), false);
