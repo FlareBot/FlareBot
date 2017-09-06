@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +53,7 @@ public class WarningsCommand implements Command {
             eb.setTitle("Warnings for " + user.getName());
             eb.addField("Warning count", String.valueOf(warnings.size()), true);
             eb.addField("Warnings", "```md\n" + sb.toString() + "```", false);
+            eb.setColor(Color.CYAN);
             channel.sendMessage(eb.build()).queue();
         }
     }
