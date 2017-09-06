@@ -28,7 +28,6 @@ public enum DataSetters {
             new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
             new Require("group"),
             new Require("permission")),
-    //TODO Fix this because i have no clue what's going on here or how to fix it.
     MONTHLYPLAYLIST((request, response) -> {
         MonthlyPlaylist playlist = FlareBot.GSON.fromJson(request.body(), MonthlyPlaylist.class);
         CassandraController.runTask(session -> {
