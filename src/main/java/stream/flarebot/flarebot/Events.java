@@ -73,7 +73,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if(!event.getGuild().getSelfMember().hasPermission((TextChannel)event.getChannel(), Permission.MESSAGE_READ)) return;
+        if(!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
         if (!event.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD)) return;
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
             MessageReaction reaction = message.getReactions().stream().filter(r -> r.getEmote().getName().equals(event.getReactionEmote().getName())).findFirst().orElse(null);

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WarningsCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
