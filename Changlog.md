@@ -15,6 +15,9 @@
  - `serverinfo` command which shows information about a guild. Example [here](https://user-images.githubusercontent.com/10491247/28494542-870addf0-6ef7-11e7-825f-b117984d5fbf.PNG)
  - `fix` command to fix issues that are usually caused by downtime or other issues. **The scope of this is limited and does not remove the need to contact staff about issues!**
  - Feature for us to block your guild from using FlareBot. This will happen if you spam or abuse our system and can/will happen at Walshy's discretion.
+ - Added a beta test pin feature - if a post in the official guild gets 5 pin reactions that post will be pinned. This is a test and will be adapted on before we released it as a feature to everyone.
+ - Added `repeat` command, this will play the current song again.
+ - Easter eggs! Gotta find 'em all!
 
 ## Changed
  - All commands *should* now accept names and mentions for users instead of just mentions.
@@ -26,16 +29,17 @@
  - HUGE change to the permissions command to allow per-user permissions and also sem-validation permissions that are entered. The user experience for the command has been improved a lot.
  - The permissions command now supports mass adding roles and `@everyone` and `@here` to permission groups.
  - The `play` command now makes the bot join the voice channel if it isn't in any other channel.
+ - Our entire backend data management, this doesn't mean much to you but means a lot to us!
+ - Enabled livestreams! You can now queue a livestream normally and we have improved how it is displayed in the song command
 
 ## Fixed
  - Stopped Auto assign throwing an error if a role is deleted.
  - Stoppped people purging ridulous amounts of messages *cough cough*. This will relieve peoples tendencies to purge whole channels and make our error feed less full.
- - `invite` command no longer throws an error if it can't PM the user. It will instead send a  message where the command was sent.
+ - `invite` command no longer throws an error if it can't PM the user. It will instead send the message where the command was sent.
  - Duplicate spaces in commands are now ignored.
  - GitHub webhook (FlareBot's guild only) now doesn't error on huge merges by only showing the last 5 commits.
  - YouTube errors are now handled a lot better (and don't spam us anymore) by trying 3 times and on fail sending an error message to the user.
- - Escape out ` to stop people breaking stuff ;)
-
+ - Escape out \` to stop people breaking stuff ;)
 
 ## Deprecated
  - The search command is being phased out in favour of the `play` command. The `search` command will be repurposed in a future update.
