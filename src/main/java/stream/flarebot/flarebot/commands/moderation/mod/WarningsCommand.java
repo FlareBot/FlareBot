@@ -45,8 +45,8 @@ public class WarningsCommand implements Command {
             StringBuilder sb = new StringBuilder();
             List<String> warnings = guild.getUserWarnings(user);
             int i = 1;
-            for(String warning: warnings){
-                sb.append(i + ". " +warning + "\n");
+            for (String warning : warnings) {
+                sb.append(i + ". " + warning + "\n");
                 i++;
             }
             EmbedBuilder eb = new EmbedBuilder();
