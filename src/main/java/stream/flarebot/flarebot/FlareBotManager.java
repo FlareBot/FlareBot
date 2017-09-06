@@ -121,7 +121,7 @@ public class FlareBotManager {
             long millis = total / 1000000;
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
                     .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "\nTime: " + LocalDateTime.now().toString(), false)
-                    .addField("Load time", mills + "ms (" + total + "ns)", false)
+                    .addField("Load time", millis + "ms (" + total + "ns)", false)
                     .build()).queue();
             return wrapper;
         });
