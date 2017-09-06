@@ -213,4 +213,8 @@ public class GuildWrapper {
         warningsList.add(reason);
         warnings.put(user.getId(), warningsList);
     }
+
+    public Map<String, List<String>> getWarningsMap(){
+        return warnings;
+    }
 }
