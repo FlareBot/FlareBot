@@ -60,6 +60,7 @@ import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.WarnCommand;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.AvatarCommand;
 import stream.flarebot.flarebot.commands.secret.EvalCommand;
@@ -439,6 +440,7 @@ public class FlareBot {
         registerCommand(new ShardRestartCommand());
         registerCommand(new QueryCommand());
         registerCommand(new SelfAssignCommand());
+        registerCommand(new WarnCommand());
 
 //        registerCommand(new AutoModCommand());
 //        registerCommand(new ModlogCommand());

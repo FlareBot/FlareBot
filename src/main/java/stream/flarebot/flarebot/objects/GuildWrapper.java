@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.objects;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
@@ -13,11 +14,14 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 public class GuildWrapper {
@@ -35,8 +39,8 @@ public class GuildWrapper {
     private long unBlockTime = -1;
     private String blockReason = null;
     private String mutedRoleID = null;
-    private Map<String, Map<Punishment.EPunishment, Long>> punishments = new HashMap<>();
     private ReportManager reportManager = new ReportManager();
+    private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
 
     protected GuildWrapper(String guildId) {
         this.guildId = guildId;
@@ -198,5 +202,15 @@ public class GuildWrapper {
 
     public void setReportManager(ReportManager reportManager) {
         this.reportManager = reportManager;
+    }
+
+    public List<String> getUserWarnings(User user){
+        return warnings.get(user.getId());
+    }
+
+    public void addWarning(User user, String reason){
+        List<String> warningsList = warnings.getOrDefault(user.getId(), new ArrayList<>());
+        warningsList.add(reason);
+        warnings.put(user.getId(), warningsList);
     }
 }

@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.database;
 
 import com.datastax.driver.core.*;
+import com.datastax.driver.core.exceptions.CodecNotFoundException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,9 +39,13 @@ public class CassandraController {
     public static void runTask(CassandraTask task) {
         try {
             task.execute(session);
-        } catch (QueryExecutionException | QueryValidationException e) {
+        } catch (QueryExecutionException | QueryValidationException | CodecNotFoundException e) {
             FlareBot.LOGGER.error("Failed to execute Cassandra query", e);
         }
+    }
+
+    public static void runUnsafeTask(CassandraTask task) throws QueryExecutionException, QueryValidationException, CodecNotFoundException {
+        task.execute(session);
     }
 
     public static ResultSet execute(String query) {
