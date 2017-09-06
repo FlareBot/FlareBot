@@ -37,9 +37,9 @@ public final class ReportManager {
 
     public int getLastId() {
         if (!getReports().isEmpty()) {
-            return reports.get(reports.size() - 1).getId() + 1;
+            return reports.size();
         } else {
-            return 1;
+            return 0;
         }
     }
 }

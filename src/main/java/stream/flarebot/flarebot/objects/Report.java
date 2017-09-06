@@ -11,7 +11,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Report implements Comparable<Report> {
 
-    private String guildId;
     private int id;
     private String message;
     private String reporterId;
@@ -20,9 +19,8 @@ public class Report implements Comparable<Report> {
     private ReportStatus status;
     private List<Message> messages = new CopyOnWriteArrayList<>();
 
-    public Report(String guildId, int id, String message, String reporterId, String reportedId, Timestamp time, ReportStatus status) {
+    public Report(int id, String message, String reporterId, String reportedId, Timestamp time, ReportStatus status) {
 
-        this.guildId = guildId;
         this.id = id;
         this.message = message;
         this.time = time;
@@ -35,10 +33,6 @@ public class Report implements Comparable<Report> {
 
     public int getId() {
         return id;
-    }
-
-    public String getGuildId() {
-        return guildId;
     }
 
     public String getMessage() {

@@ -28,14 +28,14 @@ public class QueryCommand implements Command {
             List<List<String>> table = new ArrayList<>();
             int columnsCount = set.getColumnDefinitions().size();
             for (int i = 0; i < columnsCount; i++) {
-                header.add(set.getColumnDefinitions().getName(i + 1));
+                header.add(set.getColumnDefinitions().getName(i));
             }
             Iterator<Row> setIT = set.iterator();
             while (setIT.hasNext()) {
                 Row setRow = setIT.next();
                 List<String> row = new ArrayList<>();
                 for (int i = 0; i < columnsCount; i++) {
-                    String s = String.valueOf(setRow.getString(i + 1)).trim();
+                    String s = String.valueOf(setRow.getString(i)).trim();
                     row.add(s.substring(0, Math.min(30, s.length())));
                 }
                 table.add(row);
