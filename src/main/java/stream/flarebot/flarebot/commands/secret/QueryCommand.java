@@ -2,7 +2,7 @@ package stream.flarebot.flarebot.commands.secret;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.exceptions.CodecNotFoundException;
+import com.datastax.driver.core.Token;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -39,11 +39,10 @@ public class QueryCommand implements Command {
                     Row setRow = setIT.next();
                     List<String> row = new ArrayList<>();
                     for (int i = 0; i < columnsCount; i++) {
-                        String s = String.valueOf(setRow.getString(i)).trim();
-                        row.add(s.substring(0, Math.min(30, s.length())));
+                        String value = setRow.getObject(i).toString();
+                        row.add(value.substring(0, Math.min(30, value.length())));
                     }
                     table.add(row);
-                    setIT.remove();
                 }
                 String output = MessageUtils.makeAsciiTable(header, table, null);
                 if (output.length() < 2000) {
@@ -55,7 +54,7 @@ public class QueryCommand implements Command {
                             .setColor(Color.red).build()).queue();
                 }
             });
-        } catch (QueryExecutionException | QueryValidationException | CodecNotFoundException e) {
+        } catch (QueryExecutionException | QueryValidationException e) {
             EmbedBuilder eb = new EmbedBuilder();
             eb.setTitle("Failed to execute query");
             eb.addField("Error", "```\n" + e.getMessage() + "\n```", false);

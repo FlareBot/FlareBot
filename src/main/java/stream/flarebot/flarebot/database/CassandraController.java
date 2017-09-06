@@ -39,12 +39,12 @@ public class CassandraController {
     public static void runTask(CassandraTask task) {
         try {
             task.execute(session);
-        } catch (QueryExecutionException | QueryValidationException | CodecNotFoundException e) {
+        } catch (QueryExecutionException | QueryValidationException e) {
             FlareBot.LOGGER.error("Failed to execute Cassandra query", e);
         }
     }
 
-    public static void runUnsafeTask(CassandraTask task) throws QueryExecutionException, QueryValidationException, CodecNotFoundException {
+    public static void runUnsafeTask(CassandraTask task) throws QueryExecutionException, QueryValidationException {
         task.execute(session);
     }
 
