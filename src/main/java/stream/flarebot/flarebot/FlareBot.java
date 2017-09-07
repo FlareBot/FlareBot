@@ -208,7 +208,7 @@ public class FlareBot {
 
         boolean good = true;
         for (String req : required) {
-            if(config.getString(req) != null) {
+            if (config.getString(req) != null) {
                 if (!config.getString(req).isPresent()) {
                     good = false;
                     LOGGER.error("Missing required json " + req);
@@ -242,17 +242,17 @@ public class FlareBot {
         }
 
         new CassandraController().init();
-        if(config.getString("mysc.hook").isPresent()) {
+        if (config.getString("mysc.hook").isPresent()) {
             FlareBot.secret = config.getString("mysc.hook").get();
         }
-        if(config.getString("botlists.discordBots").isPresent()) {
+        if (config.getString("botlists.discordBots").isPresent()) {
             FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
         }
-        if(config.getString("mysc.web").isPresent()) {
+        if (config.getString("mysc.web").isPresent()) {
             FlareBot.webSecret = config.getString("mysc.web").get();
         }
         FlareBot.statusHook = config.getString("bot.statusHook").get();
-        if(config.getString("botlists.botlist").isPresent()) {
+        if (config.getString("botlists.botlist").isPresent()) {
             FlareBot.botListAuth = config.getString("botlists.botlist").get();
         }
         FlareBot.youtubeApi = config.getString("mysc.yt").get();
@@ -263,10 +263,10 @@ public class FlareBot {
             while (it.hasNext()) {
                 JsonElement em = it.next();
                 if (em.getAsString() != null) {
-                    if(em.getAsString().equals("tb")){
+                    if (em.getAsString().equals("tb")) {
                         FlareBot.testBot = true;
                     }
-                    if(em.getAsString().equals("debug")){
+                    if (em.getAsString().equals("debug")) {
                         ((ch.qos.logback.classic.Logger) LoggerFactory
                                 .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
                                 .setLevel(Level.DEBUG);
