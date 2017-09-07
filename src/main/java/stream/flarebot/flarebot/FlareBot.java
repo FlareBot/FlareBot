@@ -193,9 +193,14 @@ public class FlareBot {
             File file = new File("config.json");
             if (!file.exists())
                 file.createNewFile();
-            config = new JSONConfig("config.json");
+            try {
+                config = new JSONConfig("config.json");
+            } catch (NullPointerException e) {
+                FlareBot.LOGGER.error("Invalid JSON!", e);
+                System.exit(1);
+            }
         } catch (IOException e) {
-            FlareBot.LOGGER.error("Unable to create config.json!");
+            FlareBot.LOGGER.error("Unable to create config.json!", e);
             System.exit(1);
         }
 
