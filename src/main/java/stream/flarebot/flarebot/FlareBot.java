@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -104,14 +105,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -126,8 +120,12 @@ public class FlareBot {
     public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
 
     private static FlareBot instance;
-    public static String passwd;
     private static String youtubeApi;
+
+    private static String user;
+    private static String pass;
+
+    private static List<String> nodes;
 
     static {
         new File("latest.log").delete();
@@ -190,25 +188,92 @@ public class FlareBot {
         });
         Spark.port(8080);
 
-        CommandLineArguments.parse(args);
+        JSONConfig config = null;
+        try {
+            File file = new File("config.json");
+            if (!file.exists())
+                file.createNewFile();
+            config = new JSONConfig("config.json");
+        } catch (IOException e) {
+            FlareBot.LOGGER.error("Unable to create config.json!");
+            System.exit(1);
+        }
 
-        String tkn = CommandLineArguments.TOKEN.getValue();
-        passwd = CommandLineArguments.SQL_PW.getValue();
+        List<String> required = new ArrayList<>();
+        required.add("bot.token");
+        required.add("bot.statusHook");
+        required.add("cassandra.username");
+        required.add("cassandra.password");
+        required.add("mysc.yt");
+
+        boolean good = true;
+        for (String req : required) {
+            if(config.getString(req) != null) {
+                if (!config.getString(req).isPresent()) {
+                    good = false;
+                    LOGGER.error("Missing required json " + req);
+                }
+            } else {
+                good = false;
+                LOGGER.error("Missing required json " + req);
+            }
+        }
+
+        if (!good) {
+            LOGGER.error("One or more of the required JSON objects where missing. Exiting to prevent problems");
+            System.exit(1);
+        }
+
+        String tkn = config.getString("bot.token").get();
+
+        FlareBot.user = config.getString("cassandra.username").get();
+        FlareBot.pass = config.getString("cassandra.password").get();
+
+        if (config.getArray("cassandra.nodes").isPresent()) {
+            Iterator<JsonElement> it = config.getArray("cassandra.nodes").get().iterator();
+            List<String> ips = new ArrayList<>();
+            while (it.hasNext()) {
+                JsonElement em = it.next();
+                if (em.getAsString() != null) {
+                    ips.add(em.getAsString());
+                }
+            }
+            FlareBot.nodes = ips;
+        }
 
         new CassandraController().init();
-
-        FlareBot.secret = CommandLineArguments.SECRET.getValue();
-        FlareBot.dBotsAuth = CommandLineArguments.DBOTS.getValue();
-        FlareBot.webSecret = CommandLineArguments.WEBSECRET.getValue();
-        if (CommandLineArguments.DEBUG.isSet()) {
-            ((ch.qos.logback.classic.Logger) LoggerFactory
-                    .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
-                    .setLevel(Level.DEBUG);
+        if(config.getString("mysc.hook").isPresent()) {
+            FlareBot.secret = config.getString("mysc.hook").get();
         }
-        FlareBot.statusHook = CommandLineArguments.STATUSHOOK.getValue();
-        FlareBot.botListAuth = CommandLineArguments.BOTLIST.getValue();
-        FlareBot.testBot = CommandLineArguments.TESTBOT.isSet();
-        FlareBot.youtubeApi = CommandLineArguments.YTAPI.getValue();
+        if(config.getString("botlists.discordBots").isPresent()) {
+            FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
+        }
+        if(config.getString("mysc.web").isPresent()) {
+            FlareBot.webSecret = config.getString("mysc.web").get();
+        }
+        FlareBot.statusHook = config.getString("bot.statusHook").get();
+        if(config.getString("botlists.botlist").isPresent()) {
+            FlareBot.botListAuth = config.getString("botlists.botlist").get();
+        }
+        FlareBot.youtubeApi = config.getString("mysc.yt").get();
+
+        if (config.getArray("options").isPresent()) {
+            Iterator<JsonElement> it = config.getArray("options").get().iterator();
+            List<String> options = new ArrayList<>();
+            while (it.hasNext()) {
+                JsonElement em = it.next();
+                if (em.getAsString() != null) {
+                    if(em.getAsString().equals("tb")){
+                        FlareBot.testBot = true;
+                    }
+                    if(em.getAsString().equals("debug")){
+                        ((ch.qos.logback.classic.Logger) LoggerFactory
+                                .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+                                .setLevel(Level.DEBUG);
+                    }
+                }
+            }
+        }
 
         if (webSecret == null || webSecret.isEmpty()) apiEnabled = false;
 
@@ -226,6 +291,18 @@ public class FlareBot {
 
     public static OkHttpClient getOkHttpClient() {
         return client;
+    }
+
+    public static String getUser() {
+        return user;
+    }
+
+    public static String getPass() {
+        return pass;
+    }
+
+    public static List<String> getNodes() {
+        return nodes;
     }
 
     public Events getEvents() {

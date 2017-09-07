@@ -18,20 +18,14 @@ public class CassandraController {
     private static Session session;
 
     public void init() {
-        JSONConfig config = null;
-        try {
-            File file = new File("config.json");
-            if (!file.exists())
-                file.createNewFile();
-            config = new JSONConfig("config.json");
-        } catch (IOException e) {
-            FlareBot.LOGGER.error("Unable to create config.json!");
-            System.exit(1);
-        }
         Cluster.Builder builder = Cluster.builder().withClusterName("FlareBot Nodes")
-                .withCredentials(config.getString("cassandra.username").get(), config.getString("cassandra.password").get())
+                .withCredentials(FlareBot.getUser(), FlareBot.getPass())
                 .withPoolingOptions(new PoolingOptions().setConnectionsPerHost(HostDistance.LOCAL, 2, 4).setConnectionsPerHost(HostDistance.REMOTE, 2, 4));
-        config.getArray("cassandra.nodes").ifPresent(array -> array.forEach(ip -> builder.addContactPoint(ip.getAsString())));
+        if(FlareBot.getNodes() != null){
+            for(String node: FlareBot.getNodes()){
+                builder.addContactPoint(node);
+            }
+        }
         cluster = builder.build();
         session = cluster.connect();
     }
