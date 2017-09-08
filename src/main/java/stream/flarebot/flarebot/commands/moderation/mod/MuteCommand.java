@@ -67,7 +67,7 @@ public class MuteCommand implements Command {
                 return;
             }
             guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), "");
+            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.MUTE), "");
             EmbedBuilder eb = new EmbedBuilder();
             eb.appendDescription("Muted " + user.getAsMention());
             eb.setColor(Color.CYAN);
