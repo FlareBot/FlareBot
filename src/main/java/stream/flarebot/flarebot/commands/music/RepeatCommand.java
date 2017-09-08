@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.music;
 
-import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -13,7 +12,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 

@@ -1,15 +1,17 @@
 package stream.flarebot.flarebot.database;
 
-import com.datastax.driver.core.*;
-import com.datastax.driver.core.exceptions.CodecNotFoundException;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.HostDistance;
+import com.datastax.driver.core.PoolingOptions;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.ResultSetFuture;
+import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.github.binaryoverload.JSONConfig;
 import stream.flarebot.flarebot.FlareBot;
-
-import java.io.File;
-import java.io.IOException;
 
 public class CassandraController {
 

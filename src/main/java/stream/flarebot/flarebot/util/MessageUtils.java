@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
-import okhttp3.MediaType;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;

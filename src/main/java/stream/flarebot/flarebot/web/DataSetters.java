@@ -11,10 +11,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 
-import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public enum DataSetters {
     ADDPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())

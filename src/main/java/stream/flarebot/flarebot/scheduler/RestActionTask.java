@@ -1,7 +1,6 @@
 package stream.flarebot.flarebot.scheduler;
 
 import net.dv8tion.jda.core.requests.RestAction;
-import stream.flarebot.flarebot.FlareBot;
 
 public class RestActionTask implements Runnable {
 

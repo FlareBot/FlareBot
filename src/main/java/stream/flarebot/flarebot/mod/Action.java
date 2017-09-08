@@ -8,7 +8,6 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public enum Action {

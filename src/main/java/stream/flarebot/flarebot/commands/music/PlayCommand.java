@@ -15,9 +15,8 @@ import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 
 public class PlayCommand implements Command {
 
