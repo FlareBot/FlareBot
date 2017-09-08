@@ -2,6 +2,9 @@ package stream.flarebot.flarebot.commands.secret;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Token;
+import com.datastax.driver.core.exceptions.QueryExecutionException;
+import com.datastax.driver.core.exceptions.QueryValidationException;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -22,35 +25,41 @@ public class QueryCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        CassandraController.runTask(conn -> {
-            ResultSet set = conn.execute(MessageUtils.getMessage(args, 0));
-            List<String> header = new ArrayList<>();
-            List<List<String>> table = new ArrayList<>();
-            int columnsCount = set.getColumnDefinitions().size();
-            for (int i = 0; i < columnsCount; i++) {
-                header.add(set.getColumnDefinitions().getName(i));
-            }
-            Iterator<Row> setIT = set.iterator();
-            while (setIT.hasNext()) {
-                Row setRow = setIT.next();
-                List<String> row = new ArrayList<>();
+        try {
+            CassandraController.runUnsafeTask(conn -> {
+                ResultSet set = conn.execute(MessageUtils.getMessage(args, 0));
+                List<String> header = new ArrayList<>();
+                List<List<String>> table = new ArrayList<>();
+                int columnsCount = set.getColumnDefinitions().size();
                 for (int i = 0; i < columnsCount; i++) {
-                    String s = String.valueOf(setRow.getString(i)).trim();
-                    row.add(s.substring(0, Math.min(30, s.length())));
+                    header.add(set.getColumnDefinitions().getName(i));
                 }
-                table.add(row);
-                setIT.remove();
-            }
-            String output = MessageUtils.makeAsciiTable(header, table, null);
-            if (output.length() < 2000) {
-                channel.sendMessage(output).queue();
-            } else {
-                channel.sendMessage(new EmbedBuilder()
-                        .setDescription("The query result set was very large, it has been posted to hastebin [here](" + MessageUtils
-                                .hastebin(output) + ")")
-                        .setColor(Color.red).build()).queue();
-            }
-        });
+                Iterator<Row> setIT = set.iterator();
+                while (setIT.hasNext()) {
+                    Row setRow = setIT.next();
+                    List<String> row = new ArrayList<>();
+                    for (int i = 0; i < columnsCount; i++) {
+                        String value = setRow.getObject(i).toString();
+                        row.add(value.substring(0, Math.min(30, value.length())));
+                    }
+                    table.add(row);
+                }
+                String output = MessageUtils.makeAsciiTable(header, table, null);
+                if (output.length() < 2000) {
+                    channel.sendMessage(output).queue();
+                } else {
+                    channel.sendMessage(new EmbedBuilder()
+                            .setDescription("The query result set was very large, it has been posted to hastebin [here](" + MessageUtils
+                                    .hastebin(output) + ")")
+                            .setColor(Color.red).build()).queue();
+                }
+            });
+        } catch (QueryExecutionException | QueryValidationException e) {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setTitle("Failed to execute query");
+            eb.addField("Error", "```\n" + e.getMessage() + "\n```", false);
+            channel.sendMessage(eb.build()).queue();
+        }
     }
 
     @Override

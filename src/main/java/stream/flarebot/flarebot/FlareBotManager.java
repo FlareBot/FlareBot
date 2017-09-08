@@ -109,16 +109,21 @@ public class FlareBotManager {
 
     public synchronized GuildWrapper getGuild(String id) {
         //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
-        if (!guilds.containsKey(id))
+        guilds.computeIfAbsent(id, guildId -> {
+            long start = System.nanoTime();
+            ResultSet set = CassandraController.execute("SELECT data FROM flarebot.guild_data WHERE guild_id = '" + guildId + "'");
+            GuildWrapper wrapper;
+            if(set.one() != null)
+                wrapper = FlareBot.GSON.fromJson(set.one().getString("data"), GuildWrapper.class);
+            else
+                wrapper = new GuildWrapperBuilder(id).build();
+            long total = (System.nanoTime() - start);
+            long millis = total / 1000000;
             FlareBot.getInstance().getChannelByID("242297848123621376").sendMessage(MessageUtils.getEmbed().setColor(Color.MAGENTA).setTitle("Guild loaded!", null)
                     .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis() + "\nTime: " + LocalDateTime.now().toString(), false)
+                    .addField("Load time", millis + "ms (" + total + "ns)", false)
                     .build()).queue();
-        guilds.computeIfAbsent(id, guildId -> {
-            ResultSet set = CassandraController.execute("SELECT data FROM flarebot.guild_data WHERE guild_id = '" + guildId + "'");
-            if(set.one() != null)
-                return FlareBot.GSON.fromJson(set.one().getString("data"), GuildWrapper.class);
-            else
-                return new GuildWrapperBuilder(id).build();
+            return wrapper;
         });
         return guilds.get(id);
     }
