@@ -17,17 +17,7 @@ public class CassandraController {
     // Cassandra sessions should be kept open, these handle the pooling per node internally.
     private static Session session;
 
-    public void init() {
-        JSONConfig config = null;
-        try {
-            File file = new File("config.json");
-            if (!file.exists())
-                file.createNewFile();
-            config = new JSONConfig("config.json");
-        } catch (IOException e) {
-            FlareBot.LOGGER.error("Unable to create config.json!");
-            System.exit(1);
-        }
+    public void init(JSONConfig config) {
         Cluster.Builder builder = Cluster.builder().withClusterName("FlareBot Nodes")
                 .withCredentials(config.getString("cassandra.username").get(), config.getString("cassandra.password").get())
                 .withPoolingOptions(new PoolingOptions().setConnectionsPerHost(HostDistance.LOCAL, 2, 4).setConnectionsPerHost(HostDistance.REMOTE, 2, 4));
