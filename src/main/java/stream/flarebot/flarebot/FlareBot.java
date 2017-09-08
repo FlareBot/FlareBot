@@ -64,6 +64,7 @@ import stream.flarebot.flarebot.commands.moderation.mod.WarnCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.WarningsCommand;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.AvatarCommand;
+import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
 import stream.flarebot.flarebot.commands.secret.EvalCommand;
 import stream.flarebot.flarebot.commands.secret.GuildCommand;
 import stream.flarebot.flarebot.commands.secret.LogsCommand;
@@ -404,11 +405,11 @@ public class FlareBot {
 
     protected void run() {
         registerCommand(new HelpCommand());
-        registerCommand(new SearchCommand(this));
+        registerCommand(new SearchCommand());
         registerCommand(new JoinCommand());
         registerCommand(new LeaveCommand());
         registerCommand(new InfoCommand());
-        registerCommand(new ResumeCommand(this));
+        registerCommand(new ResumeCommand());
         registerCommand(new PlayCommand(this));
         registerCommand(new PauseCommand(this));
         registerCommand(new StopCommand(this));
@@ -465,6 +466,7 @@ public class FlareBot {
         registerCommand(new FixCommand());
         registerCommand(new GuildCommand());
         registerCommand(new RepeatCommand());
+        registerCommand(new DisableCommandCommand());
 
         ApiFactory.bind();
 
@@ -805,8 +807,8 @@ public class FlareBot {
         return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=%s",
                 clients[0].getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
                         Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
-                        Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS,
-                        Permission.VIEW_AUDIT_LOGS));
+                        Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
+                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS));
     }
 
     public static char getPrefix(String id) {
@@ -829,11 +831,11 @@ public class FlareBot {
     }
 
     public static String getMessage(String[] args) {
-        String msg = "";
+        StringBuilder msg = new StringBuilder();
         for (String arg : args) {
-            msg += arg + " ";
+            msg.append(arg).append(" ");
         }
-        return msg.trim();
+        return msg.toString().trim();
     }
 
     public static String getMessage(String[] args, int min) {
@@ -841,11 +843,11 @@ public class FlareBot {
     }
 
     public static String getMessage(String[] args, int min, int max) {
-        String message = "";
+        StringBuilder message = new StringBuilder();
         for (int index = min; index < max; index++) {
-            message += args[index] + " ";
+            message.append(args[index]).append(" ");
         }
-        return message.trim();
+        return message.toString().trim();
     }
 
     public static void reportError(TextChannel channel, String s, Exception e) {

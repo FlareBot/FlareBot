@@ -23,6 +23,8 @@ public class FlareBotManager {
     private static FlareBotManager instance;
 
     private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
+    // Command - reason
+    private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
 
     private ExpiringMap<String, GuildWrapper> guilds = new ExpiringMap<>(TimeUnit.MINUTES.toMillis(15));
 
@@ -90,8 +92,6 @@ public class FlareBotManager {
                     .prepare("SELECT songs FROM flarebot.playlist WHERE playlist_name = ?").bind()
             .setString(0, name));
 
-            //Row row = set.one();
-            //System.out.println(row);
             Row row = set.one();
             if (row != null) {
                 list.addAll(row.getList("songs", String.class));
@@ -132,4 +132,20 @@ public class FlareBotManager {
         return guilds;
     }
 
+    public boolean isCommandDisabled(String command) {
+        return disabledCommands.containsKey(command);
+    }
+
+    public String getDisabledCommandReason(String command) {
+        return this.disabledCommands.get(command);
+    }
+
+    public boolean toggleCommand(String command, String reason) {
+        return disabledCommands.containsKey(command) ? disabledCommands.remove(command) != null :
+                disabledCommands.put(command, reason) != null;
+    }
+
+    public Map<String, String> getDisabledCommands() {
+        return disabledCommands;
+    }
 }

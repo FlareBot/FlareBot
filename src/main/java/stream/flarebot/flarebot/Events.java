@@ -347,6 +347,12 @@ public class Events extends ListenerAdapter {
         if (handleMissingPermission(cmd, event))
             return;
 
+        if(flareBot.getManager().isCommandDisabled(cmd.getCommand())) {
+            event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor()).setColor(Color.red)
+                    .setDescription(flareBot.getManager().getDisabledCommandReason(cmd.getCommand())).build()).queue();
+            return;
+        }
+
         // TODO: Replace with new API endpoints.
         flareBot.postToApi("commands", new JSONObject().put("command", command).put("guild", event.getGuild().getId()).put("guildName", event.getGuild().getName()));
 

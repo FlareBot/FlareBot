@@ -57,14 +57,20 @@ public class EvalCommand implements Command {
             engine.put("message", message);
             engine.put("jda", sender.getJDA());
             engine.put("sender", sender);
-            String code = Arrays.stream(args).collect(Collectors.joining(" "));
+            String code;
+            boolean silent = args.length > 0 && args[0].equalsIgnoreCase("-s");
+            if(silent)
+                code = FlareBot.getMessage(args, 1);
+            else
+                code = Arrays.stream(args).collect(Collectors.joining(" "));
             POOL.submit(() -> {
                 try {
                     String eResult = String.valueOf(engine.eval(imports + "with (imports) {\n" + code + "\n}"));
                     if (("```js\n" + eResult + "\n```").length() > 1048) {
                         eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
                     } else eResult = "```js\n" + eResult + "\n```";
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                    if(!silent)
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
                             .addField("Code:", "```js\n" + code + "```", false)
                             .addField("Result: ", eResult, false).build()).queue();
                 } catch (Exception e) {
