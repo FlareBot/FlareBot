@@ -85,43 +85,35 @@ public class AutoModConfig {
     }
 
     public void postToModLog(TextChannel channel, User user, Action action, Message message) {
-        if (isEnabled()) {
-            if (hasModLog()) {
-                getModLogChannel()
-                        .sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
-                                .setDescription("Message sent by "
-                                        + user
-                                        .getAsMention() + " has been automatically deleted in " + channel
-                                        .getAsMention() + " and has been given " + getActions()
-                                        .get(action) + " points.")
-                                .addField("Reason", action.getName(), true)
-                                .addField("Message", message.getContent(), true)
-                                .setColor(Color.white)
-                                .build()).queue();
-            }
+        if (hasModLog()) {
+            getModLogChannel()
+                    .sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
+                            .setDescription("Message sent by "
+                                    + user
+                                    .getAsMention() + " has been automatically deleted in " + channel
+                                    .getAsMention() + " and has been given " + getActions()
+                                    .get(action) + " points.")
+                            .addField("Reason", action.getName(), true)
+                            .addField("Message", message.getContent(), true)
+                            .setColor(Color.white)
+                            .build()).queue();
         }
     }
 
     public void postToModLog(User user, User responsible, Punishment punishment, String reason) {
-        if (isEnabled()) {
-            if (hasModLog()) {
-                getModLogChannel()
-                        .sendMessage(new EmbedBuilder().setTitle("FlareBot ModLog", null)
-                                .setDescription(punishment.getPunishmentMessage(user, responsible))
-                                .setColor(Color.white).build()).queue();
-            }
+        if (hasModLog()) {
+            getModLogChannel()
+                    .sendMessage(punishment.getPunishmentEmbed(user, responsible)).queue();
         }
     }
 
     public void postAutoModAction(Punishment punishment, User user) {
-        getModLogChannel().sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
-                        .setDescription(punishment.getPunishmentMessage(user, null))
-                        .setColor(Color.white).build()).queue();
+        getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, null)).queue();
     }
 
     public Option getOption(String s) {
-        for(Option option : options)
-            if(option.getKey().equals(s)) return option;
+        for (Option option : options)
+            if (option.getKey().equals(s)) return option;
         return null;
     }
 }

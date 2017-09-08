@@ -48,6 +48,7 @@ import spark.Spark;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.commands.automod.ModlogCommand;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
 import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
@@ -495,7 +496,7 @@ public class FlareBot {
         registerCommand(new WarningsCommand());
 
 //        registerCommand(new AutoModCommand());
-//        registerCommand(new ModlogCommand());
+        registerCommand(new ModlogCommand());
 //        registerCommand(new WarningsCommand());
 
         registerCommand(new TestCommand());
