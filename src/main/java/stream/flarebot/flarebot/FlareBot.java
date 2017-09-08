@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -104,14 +105,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -126,7 +120,6 @@ public class FlareBot {
     public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
 
     private static FlareBot instance;
-    public static String passwd;
     private static String youtubeApi;
 
     static {
@@ -190,25 +183,82 @@ public class FlareBot {
         });
         Spark.port(8080);
 
-        CommandLineArguments.parse(args);
-
-        String tkn = CommandLineArguments.TOKEN.getValue();
-        passwd = CommandLineArguments.SQL_PW.getValue();
-
-        new CassandraController().init();
-
-        FlareBot.secret = CommandLineArguments.SECRET.getValue();
-        FlareBot.dBotsAuth = CommandLineArguments.DBOTS.getValue();
-        FlareBot.webSecret = CommandLineArguments.WEBSECRET.getValue();
-        if (CommandLineArguments.DEBUG.isSet()) {
-            ((ch.qos.logback.classic.Logger) LoggerFactory
-                    .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
-                    .setLevel(Level.DEBUG);
+        JSONConfig config = null;
+        try {
+            File file = new File("config.json");
+            if (!file.exists())
+                file.createNewFile();
+            try {
+                config = new JSONConfig("config.json");
+            } catch (NullPointerException e) {
+                LOGGER.error("Invalid JSON!", e);
+                System.exit(1);
+            }
+        } catch (IOException e) {
+            LOGGER.error("Unable to create config.json!", e);
+            System.exit(1);
         }
-        FlareBot.statusHook = CommandLineArguments.STATUSHOOK.getValue();
-        FlareBot.botListAuth = CommandLineArguments.BOTLIST.getValue();
-        FlareBot.testBot = CommandLineArguments.TESTBOT.isSet();
-        FlareBot.youtubeApi = CommandLineArguments.YTAPI.getValue();
+
+        List<String> required = new ArrayList<>();
+        required.add("bot.token");
+        required.add("bot.statusHook");
+        required.add("cassandra.username");
+        required.add("cassandra.password");
+        required.add("misc.yt");
+
+        boolean good = true;
+        for (String req : required) {
+            if (config.getString(req) != null) {
+                if (!config.getString(req).isPresent()) {
+                    good = false;
+                    LOGGER.error("Missing required json " + req);
+                }
+            } else {
+                good = false;
+                LOGGER.error("Missing required json " + req);
+            }
+        }
+
+        if (!good) {
+            LOGGER.error("One or more of the required JSON objects where missing. Exiting to prevent problems");
+            System.exit(1);
+        }
+
+        String tkn = config.getString("bot.token").get();
+
+        new CassandraController().init(config);
+        if (config.getString("misc.hook").isPresent()) {
+            FlareBot.secret = config.getString("misc.hook").get();
+        }
+        if (config.getString("botlists.discordBots").isPresent()) {
+            FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
+        }
+        if (config.getString("misc.web").isPresent()) {
+            FlareBot.webSecret = config.getString("misc.web").get();
+        }
+        FlareBot.statusHook = config.getString("bot.statusHook").get();
+        if (config.getString("botlists.botlist").isPresent()) {
+            FlareBot.botListAuth = config.getString("botlists.botlist").get();
+        }
+        FlareBot.youtubeApi = config.getString("misc.yt").get();
+
+        if (config.getArray("options").isPresent()) {
+            Iterator<JsonElement> it = config.getArray("options").get().iterator();
+            List<String> options = new ArrayList<>();
+            while (it.hasNext()) {
+                JsonElement em = it.next();
+                if (em.getAsString() != null) {
+                    if (em.getAsString().equals("tb")) {
+                        FlareBot.testBot = true;
+                    }
+                    if (em.getAsString().equals("debug")) {
+                        ((ch.qos.logback.classic.Logger) LoggerFactory
+                                .getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME))
+                                .setLevel(Level.DEBUG);
+                    }
+                }
+            }
+        }
 
         if (webSecret == null || webSecret.isEmpty()) apiEnabled = false;
 
