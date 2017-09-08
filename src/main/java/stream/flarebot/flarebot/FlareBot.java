@@ -123,11 +123,6 @@ public class FlareBot {
     private static FlareBot instance;
     private static String youtubeApi;
 
-    private static String user;
-    private static String pass;
-
-    private static List<String> nodes;
-
     static {
         new File("latest.log").delete();
         LOGGERS = new ConcurrentHashMap<>();
@@ -197,11 +192,11 @@ public class FlareBot {
             try {
                 config = new JSONConfig("config.json");
             } catch (NullPointerException e) {
-                FlareBot.LOGGER.error("Invalid JSON!", e);
+                LOGGER.error("Invalid JSON!", e);
                 System.exit(1);
             }
         } catch (IOException e) {
-            FlareBot.LOGGER.error("Unable to create config.json!", e);
+            LOGGER.error("Unable to create config.json!", e);
             System.exit(1);
         }
 
@@ -210,7 +205,7 @@ public class FlareBot {
         required.add("bot.statusHook");
         required.add("cassandra.username");
         required.add("cassandra.password");
-        required.add("mysc.yt");
+        required.add("misc.yt");
 
         boolean good = true;
         for (String req : required) {
@@ -232,36 +227,21 @@ public class FlareBot {
 
         String tkn = config.getString("bot.token").get();
 
-        FlareBot.user = config.getString("cassandra.username").get();
-        FlareBot.pass = config.getString("cassandra.password").get();
-
-        if (config.getArray("cassandra.nodes").isPresent()) {
-            Iterator<JsonElement> it = config.getArray("cassandra.nodes").get().iterator();
-            List<String> ips = new ArrayList<>();
-            while (it.hasNext()) {
-                JsonElement em = it.next();
-                if (em.getAsString() != null) {
-                    ips.add(em.getAsString());
-                }
-            }
-            FlareBot.nodes = ips;
-        }
-
-        new CassandraController().init();
-        if (config.getString("mysc.hook").isPresent()) {
-            FlareBot.secret = config.getString("mysc.hook").get();
+        new CassandraController().init(config);
+        if (config.getString("misc.hook").isPresent()) {
+            FlareBot.secret = config.getString("misc.hook").get();
         }
         if (config.getString("botlists.discordBots").isPresent()) {
             FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
         }
-        if (config.getString("mysc.web").isPresent()) {
-            FlareBot.webSecret = config.getString("mysc.web").get();
+        if (config.getString("misc.web").isPresent()) {
+            FlareBot.webSecret = config.getString("misc.web").get();
         }
         FlareBot.statusHook = config.getString("bot.statusHook").get();
         if (config.getString("botlists.botlist").isPresent()) {
             FlareBot.botListAuth = config.getString("botlists.botlist").get();
         }
-        FlareBot.youtubeApi = config.getString("mysc.yt").get();
+        FlareBot.youtubeApi = config.getString("misc.yt").get();
 
         if (config.getArray("options").isPresent()) {
             Iterator<JsonElement> it = config.getArray("options").get().iterator();
@@ -297,18 +277,6 @@ public class FlareBot {
 
     public static OkHttpClient getOkHttpClient() {
         return client;
-    }
-
-    public static String getUser() {
-        return user;
-    }
-
-    public static String getPass() {
-        return pass;
-    }
-
-    public static List<String> getNodes() {
-        return nodes;
     }
 
     public Events getEvents() {
