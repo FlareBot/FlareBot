@@ -17,15 +17,11 @@ public class CassandraController {
     // Cassandra sessions should be kept open, these handle the pooling per node internally.
     private static Session session;
 
-    public void init() {
+    public void init(JSONConfig config) {
         Cluster.Builder builder = Cluster.builder().withClusterName("FlareBot Nodes")
-                .withCredentials(FlareBot.getUser(), FlareBot.getPass())
+                .withCredentials(config.getString("cassandra.username").get(), config.getString("cassandra.password").get())
                 .withPoolingOptions(new PoolingOptions().setConnectionsPerHost(HostDistance.LOCAL, 2, 4).setConnectionsPerHost(HostDistance.REMOTE, 2, 4));
-        if(FlareBot.getNodes() != null){
-            for(String node: FlareBot.getNodes()){
-                builder.addContactPoint(node);
-            }
-        }
+        config.getArray("cassandra.nodes").ifPresent(array -> array.forEach(ip -> builder.addContactPoint(ip.getAsString())));
         cluster = builder.build();
         session = cluster.connect();
     }
