@@ -122,8 +122,6 @@ public class FlareBot {
     private static FlareBot instance;
     private static String youtubeApi;
 
-    private static List<String> nodes;
-
     static {
         new File("latest.log").delete();
         LOGGERS = new ConcurrentHashMap<>();
@@ -228,18 +226,6 @@ public class FlareBot {
 
         String tkn = config.getString("bot.token").get();
 
-        if (config.getArray("cassandra.nodes").isPresent()) {
-            Iterator<JsonElement> it = config.getArray("cassandra.nodes").get().iterator();
-            List<String> ips = new ArrayList<>();
-            while (it.hasNext()) {
-                JsonElement em = it.next();
-                if (em.getAsString() != null) {
-                    ips.add(em.getAsString());
-                }
-            }
-            FlareBot.nodes = ips;
-        }
-
         new CassandraController().init(config);
         if (config.getString("misc.hook").isPresent()) {
             FlareBot.secret = config.getString("misc.hook").get();
@@ -290,10 +276,6 @@ public class FlareBot {
 
     public static OkHttpClient getOkHttpClient() {
         return client;
-    }
-
-    public static List<String> getNodes() {
-        return nodes;
     }
 
     public Events getEvents() {
