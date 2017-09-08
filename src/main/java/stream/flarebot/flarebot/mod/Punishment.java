@@ -36,41 +36,27 @@ public class Punishment {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("FlareBot ModLog");
         eb.setColor(Color.WHITE);
+        eb.addField("User", "`" + user.getName() + "#" + user.getDiscriminator() + "`", true);
+        eb.addField("User ID", "`" + user.getId() + "`", true);
+        if(responsible != null)
+            eb.addField("Responsible", responsible.getAsMention(), true);
         switch (punishment) {
             case PURGE:
-                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
-                if(responsible != null)
-                    eb.addField("Responsible", responsible.getAsMention(), true);
                 eb.addField("Action", "Purge", true);
                 break;
             case TEMP_MUTE:
-                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
-                if(responsible != null)
-                    eb.addField("Responsible", responsible.getAsMention(), true);
                 eb.addField("Action", "Temp Mute", true);
                 break;
             case MUTE:
-                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
-                if(responsible != null)
-                    eb.addField("Responsible", responsible.getAsMention(), true);
                 eb.addField("Action", "Mute", true);
                 break;
             case KICK:
-                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
-                if(responsible != null)
-                    eb.addField("Responsible", responsible.getAsMention(), true);
                 eb.addField("Action", "Kick", true);
                 break;
             case TEMP_BAN:
-                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
-                if(responsible != null)
-                    eb.addField("Responsible", responsible.getAsMention(), true);
                 eb.addField("Action", "Temp Ban", true);
                 break;
             case BAN:
-                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
-                if(responsible != null)
-                    eb.addField("Responsible", responsible.getAsMention(), true);
                 eb.addField("Action", "Ban", true);
                 break;
         }
