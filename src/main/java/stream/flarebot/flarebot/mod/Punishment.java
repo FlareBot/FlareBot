@@ -1,6 +1,10 @@
 package stream.flarebot.flarebot.mod;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
+
+import java.awt.Color;
 
 public class Punishment {
 
@@ -28,29 +32,49 @@ public class Punishment {
         return punishment;
     }
 
-    public String getPunishmentMessage(User user, User responsible) {
-        String msg = "";
+    public MessageEmbed getPunishmentEmbed(User user, User responsible) {
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("FlareBot ModLog");
+        eb.setColor(Color.WHITE);
         switch (punishment) {
             case PURGE:
-                msg = user.getAsMention() + " has been purged" + (responsible != null ? " by " + responsible.getAsMention() : ".");
+                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
+                if(responsible != null)
+                    eb.addField("Responsible", responsible.getAsMention(), true);
+                eb.addField("Action", "Purge", true);
                 break;
             case TEMP_MUTE:
-                msg = user.getName() + " has been temporarily muted" + (responsible != null ? " by " + responsible.getAsMention() : ".");
+                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
+                if(responsible != null)
+                    eb.addField("Responsible", responsible.getAsMention(), true);
+                eb.addField("Action", "Temp Mute", true);
                 break;
             case MUTE:
-                msg = user.getName() + " has been muted by" + (responsible != null ? " by " + responsible.getAsMention() : ".");
+                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
+                if(responsible != null)
+                    eb.addField("Responsible", responsible.getAsMention(), true);
+                eb.addField("Action", "Mute", true);
                 break;
             case KICK:
-                msg = user.getName() + " has been kicked by" + (responsible != null ? " by " + responsible.getAsMention() : ".");
+                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
+                if(responsible != null)
+                    eb.addField("Responsible", responsible.getAsMention(), true);
+                eb.addField("Action", "Kick", true);
                 break;
             case TEMP_BAN:
-                msg = user.getName() + " has been temporarily banned by" + (responsible != null ? " by " + responsible.getAsMention() : ".");
+                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
+                if(responsible != null)
+                    eb.addField("Responsible", responsible.getAsMention(), true);
+                eb.addField("Action", "Temp Ban", true);
                 break;
             case BAN:
-                msg = user.getName() + " has been banned by" + (responsible != null ? " by " + responsible.getAsMention() : ".");
+                eb.addField("User", "`" + user.getName() + "(" + user.getId() + ")`", true);
+                if(responsible != null)
+                    eb.addField("Responsible", responsible.getAsMention(), true);
+                eb.addField("Action", "Ban", true);
                 break;
         }
-        return msg;
+        return eb.build();
     }
 
     public enum EPunishment {
