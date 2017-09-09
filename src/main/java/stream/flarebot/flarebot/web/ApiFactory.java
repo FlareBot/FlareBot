@@ -1,12 +1,13 @@
 package stream.flarebot.flarebot.web;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.ExceptionUtils;
 import com.google.gson.JsonObject;
 import spark.Spark;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.ExceptionUtils;
 
 @SuppressWarnings("Duplicates")
 public class ApiFactory {
+
     public static void bind() {
         Spark.get("/data/:provider", (request, response) -> {
             response.header("Content-Type", "application/json");

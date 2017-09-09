@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.music.extractors;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Playlist;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import stream.flarebot.flarebot.MessageUtils;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
@@ -12,7 +11,11 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,18 +35,21 @@ public class YouTubeExtractor implements Extractor {
     public void process(String input, Player player, Message message, User user) throws Exception {
         AudioItem item;
         try {
-            item = player.resolve(input);
-            if (item == null) {
-                MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                        .setDescription("Could not get that video/playlist! Make sure the URL is correct!"), message);
-                return;
-            }
-        } catch (RuntimeException e) {
-            MessageUtils.editMessage(MessageUtils.getEmbed(user)
-                    .setDescription("Could not get that video/playlist!")
-                    .addField("YouTube said: ", e.getMessage(), true), message);
+            item = GeneralUtils.resolveItem(player, input);
+        } catch (IllegalArgumentException e) {
+            MessageUtils.editMessage("", MessageUtils.getEmbed(user)
+                    .setDescription("Could not get that video/playlist! Make sure the URL is correct!")
+                    .setColor(Color.RED), message);
+            return;
+        } catch (IllegalStateException e) {
+            MessageUtils.editMessage("", MessageUtils.getEmbed(user)
+                    .setDescription("Youtube could not be reached! Try again in a few minutes!\n" +
+                            "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
+                            "Error Message: " + e.getMessage())
+                    .setColor(Color.RED), message);
             return;
         }
+
         List<AudioTrack> audioTracks = new ArrayList<>();
         String name;
         if (item instanceof AudioPlaylist) {
@@ -52,19 +58,18 @@ public class YouTubeExtractor implements Extractor {
             name = audioPlaylist.getName();
         } else {
             AudioTrack track = (AudioTrack) item;
-            if (track.getInfo().length == 0 || track.getInfo().isStream) {
+            /*if (track.getInfo().length == 0 || track.getInfo().isStream) {
                 EmbedBuilder builder = MessageUtils.getEmbed(user).setDescription("Cannot queue a livestream!");
                 MessageUtils.editMessage("", builder, message);
                 return;
-            }
+            }*/
             audioTracks.add(track);
             name = track.getInfo().title;
         }
         if (name != null) {
-            List<Track> tracks = audioTracks.stream().map(Track::new).map(track -> {
+            List<Track> tracks = audioTracks.stream().map(Track::new).peek(track -> {
                 track.getMeta().put("requester", user.getId());
                 track.getMeta().put("guildId", player.getGuildId());
-                return track;
             }).collect(Collectors.toList());
             if (tracks.size() > 1) { // Double `if` https://giphy.com/gifs/ng1xAzwIkDgfm
                 Playlist p = new Playlist(tracks);
@@ -73,7 +78,8 @@ public class YouTubeExtractor implements Extractor {
                 player.queue(tracks.get(0));
             }
             EmbedBuilder builder = MessageUtils.getEmbed(user);
-            builder.setDescription(String.format("%s added the %s [`%s`](%s)", user.getAsMention(), audioTracks.size() == 1 ? "song" : "playlist",
+            builder.setDescription(String.format("%s added the %s [`%s`](%s)", user.getAsMention(), audioTracks
+                            .size() == 1 ? "song" : "playlist",
                     name, input));
             if (audioTracks.size() > 1)
                 builder.addField("Song count:", String.valueOf(audioTracks.size()), true);

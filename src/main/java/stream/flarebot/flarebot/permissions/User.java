@@ -1,27 +1,18 @@
 package stream.flarebot.flarebot.permissions;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
 
-import net.dv8tion.jda.core.entities.Member;
-
-import java.util.HashSet;
 import java.util.Set;
 
 public class User {
-    private final HashSet<String> groups = new HashSet<>();
-    protected String userID;
+    private final Set<String> groups = new ConcurrentHashSet<>();
+    private final Set<String> permissions = new ConcurrentHashSet<>();
 
-    User(Member user) {
-        userID = user.getUser().getId();
+    User() {
         groups.add("Default");
     }
 
-    public String getUserID() {
-        return userID;
-    }
-
     public Set<String> getGroups() {
-        Set<String> groups = new HashSet<>();
-        groups.addAll(this.groups);
         return groups;
     }
 
@@ -33,19 +24,15 @@ public class User {
         return groups.remove(group.getName());
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof User)) {
-            return false;
-        }
-        User otherUser = (User) other;
-        return otherUser.getUserID().equals(getUserID());
+    public Set<String> getPermissions(){
+        return permissions;
     }
 
-    @Override
-    public int hashCode() {
-        int result = groups.hashCode();
-        result = 31 * result + userID.hashCode();
-        return result;
+    public boolean addPermission(String permission){
+        return permissions.add(permission);
+    }
+
+    public boolean removePermission(String permission){
+        return permissions.remove(permission);
     }
 }

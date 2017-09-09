@@ -9,7 +9,7 @@ public abstract class FlarebotTask implements Runnable {
 
     private String taskName;
 
-    private FlarebotTask() {
+    protected FlarebotTask() {
     }
 
     public FlarebotTask(String taskName) {
