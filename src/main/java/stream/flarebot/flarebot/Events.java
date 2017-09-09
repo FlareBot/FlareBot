@@ -125,7 +125,7 @@ public class Events extends ListenerAdapter {
             } else welcome.setGuildEnabled(false);
         }
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
-        if (wrapper.getAutoAssignRoles().contains(event.getGuild().getId())) {
+        if (!wrapper.getAutoAssignRoles().isEmpty()) {
             Set<String> autoAssignRoles = wrapper.getAutoAssignRoles();
             List<Role> roles = new ArrayList<>();
             for (String s : autoAssignRoles) {

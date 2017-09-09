@@ -336,13 +336,13 @@ public class FlareBot {
 
         latch = new CountDownLatch(1);
         events = new Events(this);
-        tracker = new AutoModTracker();
+        //tracker = new AutoModTracker();
         try {
             if (clients.length == 1) {
                 while (true) {
                     try {
                         clients[0] = new JDABuilder(AccountType.BOT)
-                                .addEventListener(events, tracker)
+                                .addEventListener(events/*, tracker*/)
                                 .setToken(tkn)
                                 .setAudioSendFactory(new NativeAudioSendFactory())
                                 .buildAsync();
@@ -356,7 +356,7 @@ public class FlareBot {
                     while (true) {
                         try {
                             clients[i] = new JDABuilder(AccountType.BOT)
-                                    .addEventListener(events, tracker)
+                                    .addEventListener(events/*, tracker*/)
                                     .useSharding(i, clients.length)
                                     .setToken(tkn)
                                     .setAudioSendFactory(new NativeAudioSendFactory())

@@ -22,7 +22,7 @@ public class AutoAssignCommand implements Command {
             MessageUtils.getUsage(this, channel, sender).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
-                if (guild.getAutoAssignRoles().contains(channel.getGuild().getId())) {
+                if (!guild.getAutoAssignRoles().isEmpty()) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("**Currently Auto Assigned Roles**\n```\n");
                     guild.getAutoAssignRoles().stream()
@@ -44,13 +44,13 @@ public class AutoAssignCommand implements Command {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                         .getAsMention() + " Invalid argument!"), channel);
             }
-        } else if (args.length >= 2) {
-            String passedRole = "";
+        } else {
+            StringBuilder passedRole = new StringBuilder();
             for (int i = 1; i < args.length; i++)
-                passedRole += args[i] + ' ';
-            passedRole = passedRole.trim();
+                passedRole.append(args[i]).append(' ');
+            passedRole = new StringBuilder(passedRole.toString().trim());
             if (args[0].equalsIgnoreCase("add")) {
-                Role role = getRole(channel.getGuild(), passedRole);
+                Role role = getRole(channel.getGuild(), passedRole.toString());
                 if (role == null) {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                             .getAsMention() + " That is not a valid role!"), channel);
@@ -67,7 +67,7 @@ public class AutoAssignCommand implements Command {
                             .getName() + " is already being assigned!"), channel);
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
-                Role role = getRole(channel.getGuild(), passedRole);
+                Role role = getRole(channel.getGuild(), passedRole.toString());
                 if (role == null) {
                     MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                             .getAsMention() + " That is not a valid role!"), channel);
@@ -92,8 +92,6 @@ public class AutoAssignCommand implements Command {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                         .getAsMention() + " Invalid argument!"), channel);
             }
-        } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
         }
     }
 

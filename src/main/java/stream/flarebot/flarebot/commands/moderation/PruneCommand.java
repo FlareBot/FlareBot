@@ -33,6 +33,10 @@ public class PruneCommand implements Command {
                     MessageUtils.sendErrorMessage("The amount of days has to be more that 0!", channel);
                     return;
                 }
+                if(amount > 30) {
+                    MessageUtils.sendErrorMessage("You can only prune a maximum of 30 days!", channel);
+                    return;
+                }
 
                 int userSize = guild.getGuild().getPrunableMemberCount(amount).complete();
                 channel.sendMessage(MessageUtils.getEmbed(sender)

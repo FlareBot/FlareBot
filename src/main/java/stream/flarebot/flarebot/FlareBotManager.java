@@ -40,6 +40,8 @@ public class FlareBotManager {
     private final long GUILD_EXPIRE = TimeUnit.MINUTES.toMillis(15);
     private final long INACTIVITY_CHECK = TimeUnit.MINUTES.toMillis(2);
 
+    private PreparedStatement saveGuildStatement;
+
     public FlareBotManager() {
         instance = this;
     }
@@ -94,18 +96,22 @@ public class FlareBotManager {
     }
 
     // Do not use this method!
-    protected void saveGuild(String guildId, GuildWrapper guildWrapper, long last_retrieved, boolean unload) {
-        CassandraController.runTask(session -> session.executeAsync(session.prepare("UPDATE flarebot.guild_data SET " +
-                "last_retrieved = ?, data = ? WHERE guild_id = ?").bind()
-                .setTimestamp(0, new Date(last_retrieved)).setString(1, FlareBot.GSON.toJson(guildWrapper))
-                .setString(2, guildId)));
-        FlareBot.LOGGER.info("Guild " + guildId + "'s data got saved! Last retrieved: " + last_retrieved
-                + " (" + new Date(last_retrieved) + ")");
+    protected void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved, boolean unload) {
+        long last_r = (last_retrieved == -1 ? System.currentTimeMillis() : last_retrieved);
+        CassandraController.runTask(session -> {
+            if(saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE flarebot.guild_data SET " +
+                    "last_retrieved = ?, data = ? WHERE guild_id = ?");
+            session.executeAsync(saveGuildStatement.bind()
+                    .setTimestamp(0, new Date(last_r))
+                    .setString(1, FlareBot.GSON.toJson(guildWrapper)).setString(2, guildId));
+        });
+        FlareBot.LOGGER.info("Guild " + guildId + "'s data got saved! Last retrieved: " + last_r
+                + " (" + new Date(last_r) + ")");
         if(unload)
             FlareBot.getInstance().getChannelByID(FlareBot.GUILD_LOG).sendMessage(MessageUtils.getEmbed()
                     .setColor(Color.MAGENTA).setTitle("Guild unloaded!", null)
                     .setDescription("Guild " + guildId + " unloaded!").addField("Time", "Millis: " + System.currentTimeMillis()
-                            + "\nTime: " + LocalDateTime.now().toString() + "\nLast retrieved: " + last_retrieved, false)
+                            + "\nTime: " + LocalDateTime.now().toString() + "\nLast retrieved: " + last_r, false)
                     .build()).queue();
     }
 
