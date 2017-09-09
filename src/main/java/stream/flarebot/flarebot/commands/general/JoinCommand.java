@@ -1,37 +1,38 @@
 package stream.flarebot.flarebot.commands.general;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-
-import java.awt.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 public class JoinCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (member.getVoiceState().inVoiceChannel()) {
             if (channel.getGuild().getAudioManager().isAttemptingToConnect()) {
-                channel.sendMessage("Currently connecting to a voice channel! Try again soon!").queue();
+                MessageUtils.sendErrorMessage("Currently connecting to a voice channel! Try again soon!", channel);
                 return;
             }
-            if (channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel() &&
-                    !channel.getGuild().getSelfMember().getVoiceState().equals(member.getVoiceState()) &&
-                    !FlareBot.getInstance().getPermissions(channel).hasPermission(member, "flarebot.join.other")) {
-                channel.sendMessage(new EmbedBuilder().setColor(Color.red).setDescription("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!")
-                        .build()).queue();
+            if (channel.getGuild().getSelfMember().getVoiceState().inVoiceChannel() && !channel.getGuild()
+                    .getSelfMember()
+                    .getVoiceState()
+                    .getAudioChannel()
+                    .getId()
+                    .equals(member
+                            .getVoiceState()
+                            .getAudioChannel()
+                            .getId()) && !getPermissions(channel).hasPermission(member, "flarebot.join.other")) {
+                MessageUtils.sendErrorMessage("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!", channel);
                 return;
             }
-            try {
-                channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            } catch (Exception e) {
-                channel.sendMessage("Error: `" + e.getMessage() + "`").queue();
-            }
+            GeneralUtils.joinChannel(channel, member);
         }
     }
 
@@ -43,6 +44,16 @@ public class JoinCommand implements Command {
     @Override
     public String getDescription() {
         return "Tell me to join your voice channel.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}join` - Joins FlareBot to join your active voice channel";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"summon"};
     }
 
     @Override
