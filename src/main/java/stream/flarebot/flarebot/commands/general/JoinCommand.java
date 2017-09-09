@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class JoinCommand implements Command {
@@ -31,27 +32,7 @@ public class JoinCommand implements Command {
                 MessageUtils.sendErrorMessage("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!", channel);
                 return;
             }
-            if (channel.getGuild().getSelfMember()
-                    .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
-                    channel.getGuild().getSelfMember()
-                            .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
-                if (member.getVoiceState().getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
-                        .getMembers().size()
-                        >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
-                        .hasPermission(member
-                                .getVoiceState()
-                                .getChannel(), Permission.MANAGE_CHANNEL)) {
-                    MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
-                            "bypass it!", channel);
-                    return;
-                }
-                channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            } else {
-                MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
-                        .hasPermission(member.getVoiceState()
-                                .getChannel(), Permission.VOICE_CONNECT) ?
-                        "connect" : "speak") + " in your voice channel!", channel);
-            }
+            GeneralUtils.joinChannel(channel, member);
         }
     }
 

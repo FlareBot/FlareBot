@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.moderation;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import net.dv8tion.jda.core.entities.Member;
@@ -75,7 +75,7 @@ public class FixCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.MODERATION;
     }
 
     @Override

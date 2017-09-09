@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -13,10 +14,10 @@ public class RandomCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length != 1) {
-            //loadSongs(25, channel, sender);
-            MessageUtils.sendErrorMessage("This is currently disabled!", channel);
-            //TODO: Change this so that it grabs from the top songs and uses them instead.
+        MessageUtils.sendErrorMessage("This is currently disabled!", channel);
+        return;
+        /*if (args.length != 1) {
+            loadSongs(25, channel, sender);
         } else {
             int amount;
             try {
@@ -26,7 +27,7 @@ public class RandomCommand implements Command {
                 return;
             }
             loadSongs(amount, channel, sender);
-        }
+        }*/
     }
 
     private void loadSongs(int amount, TextChannel channel, User sender) {

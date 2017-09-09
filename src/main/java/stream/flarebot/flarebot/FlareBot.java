@@ -49,7 +49,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
-import stream.flarebot.flarebot.commands.general.FixCommand;
+import stream.flarebot.flarebot.commands.moderation.FixCommand;
 import stream.flarebot.flarebot.commands.general.HelpCommand;
 import stream.flarebot.flarebot.commands.general.InfoCommand;
 import stream.flarebot.flarebot.commands.general.InviteCommand;
@@ -160,6 +160,7 @@ public class FlareBot {
     public static final Gson GSON = new GsonBuilder().create();
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
+    public static final String GUILD_LOG = "260401007685664768";
     public static final String OLD_FLAREBOT_API = "https://flarebot.stream/api/";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
 
@@ -224,7 +225,6 @@ public class FlareBot {
 
         List<String> required = new ArrayList<>();
         required.add("bot.token");
-        required.add("bot.statusHook");
         required.add("cassandra.username");
         required.add("cassandra.password");
         required.add("misc.yt");
@@ -259,7 +259,8 @@ public class FlareBot {
         if (config.getString("misc.web").isPresent()) {
             FlareBot.webSecret = config.getString("misc.web").get();
         }
-        FlareBot.statusHook = config.getString("bot.statusHook").get();
+        if(config.getString("bot.statusHook").isPresent())
+            FlareBot.statusHook = config.getString("bot.statusHook").get();
         if (config.getString("botlists.botlist").isPresent()) {
             FlareBot.botListAuth = config.getString("botlists.botlist").get();
         }
@@ -267,7 +268,6 @@ public class FlareBot {
 
         if (config.getArray("options").isPresent()) {
             Iterator<JsonElement> it = config.getArray("options").get().iterator();
-            List<String> options = new ArrayList<>();
             while (it.hasNext()) {
                 JsonElement em = it.next();
                 if (em.getAsString() != null) {
@@ -519,7 +519,6 @@ public class FlareBot {
 
 //        registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
-//        registerCommand(new WarningsCommand());
 
         registerCommand(new TestCommand());
 
@@ -816,10 +815,9 @@ public class FlareBot {
 
     protected void stop() {
         LOGGER.info("Saving data.");
-        try {
-            sendData();
-        } catch (Exception e) {
-            LOGGER.error("Something failed on stop!", e);
+        sendData();
+        for(String s : manager.getGuilds().keySet()) {
+            manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s), false);
         }
     }
 
@@ -1051,6 +1049,16 @@ public class FlareBot {
         })
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
+    }
+
+    // Keep consistent with the naming of JDA.
+    public User getUserById(long id) {
+        return Arrays.stream(clients).map(jda -> {
+            try {
+                return jda.getUserById(id);
+            } catch (Exception ignored) { }
+            return null;
+        }).filter(Objects::nonNull) .findFirst().orElse(null);
     }
 
     public DateTimeFormatter getTimeFormatter() {

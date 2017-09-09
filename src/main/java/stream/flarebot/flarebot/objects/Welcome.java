@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Welcome {
-    @Expose
+
+    @Expose(serialize = false, deserialize = false)
     private Random random = new Random();
 
     private List<String> dmMessages;

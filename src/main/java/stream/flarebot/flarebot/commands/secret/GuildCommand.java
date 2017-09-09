@@ -27,7 +27,7 @@ public class GuildCommand implements Command {
                     handleBlock(channel, channel.getGuild().getId(), null);
                 } else if (args.length == 2) {
                     handleBlock(channel, args[1], null);
-                }else if(args.length >= 3) {
+                } else {
                     handleBlock(channel, args[1], FlareBot.getMessage(args, 2));
                 }
             } else if (args[0].equalsIgnoreCase("unblock")) {

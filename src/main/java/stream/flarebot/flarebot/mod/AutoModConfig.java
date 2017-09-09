@@ -101,13 +101,12 @@ public class AutoModConfig {
 
     public void postToModLog(User user, User responsible, Punishment punishment, String reason) {
         if (hasModLog()) {
-            getModLogChannel()
-                    .sendMessage(punishment.getPunishmentEmbed(user, responsible)).queue();
+            getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, responsible, reason)).queue();
         }
     }
 
     public void postAutoModAction(Punishment punishment, User user) {
-        getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, null)).queue();
+        getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, null, null)).queue();
     }
 
     public Option getOption(String s) {

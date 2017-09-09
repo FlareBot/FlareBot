@@ -98,23 +98,30 @@ public class Events extends ListenerAdapter {
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
-            if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
-                TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
-                if (!channel.canTalk()) {
-                    welcome.setGuildEnabled(false);
-                    MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
-                            + channel.getAsMention() + " due to this, welcomes have been disabled!");
+            if ((welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null)
+                    || welcome.isDmEnabled()) {
+                if(welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
+                    TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
+                    if (!channel.canTalk()) {
+                        welcome.setGuildEnabled(false);
+                        MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
+                                + channel.getAsMention() + " due to this, welcomes have been disabled!");
+                    }
+                    if (welcome.isGuildEnabled()) {
+                        String guildMsg = welcome.getRandomGuildMessage()
+                                .replace("%user%", event.getMember().getUser().getName())
+                                .replace("%guild%", event.getGuild().getName())
+                                .replace("%mention%", event.getMember().getUser().getAsMention());
+                        channel.sendMessage(guildMsg).queue();
+                    }
                 }
-                String guildMsg = welcome.getRandomGuildMessage()
-                        .replace("%user%", event.getMember().getUser().getName())
-                        .replace("%guild%", event.getGuild().getName())
-                        .replace("%mention%", event.getMember().getUser().getAsMention());
-                channel.sendMessage(guildMsg).queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
-                String dmMsg = welcome.getRandomDmMessage()
-                        .replace("%user%", event.getMember().getUser().getName())
-                        .replace("%guild%", event.getGuild().getName())
-                        .replace("%mention%", event.getMember().getUser().getAsMention());
-                MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+                if(welcome.isDmEnabled()) {
+                    String dmMsg = welcome.getRandomDmMessage()
+                            .replace("%user%", event.getMember().getUser().getName())
+                            .replace("%guild%", event.getGuild().getName())
+                            .replace("%mention%", event.getMember().getUser().getAsMention());
+                    MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+                }
             } else welcome.setGuildEnabled(false);
         }
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());

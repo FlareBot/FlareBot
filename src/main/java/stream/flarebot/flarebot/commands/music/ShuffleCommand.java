@@ -45,6 +45,6 @@ public class ShuffleCommand implements Command {
 
     @Override
     public boolean isDefaultPermission() {
-        return false;
+        return true;
     }
 }

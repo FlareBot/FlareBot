@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.Punishment;
@@ -61,7 +62,8 @@ public class MuteCommand implements Command {
                 return;
             }
             guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.MUTE), "");
+            String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
+            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.MUTE), reason);
             EmbedBuilder eb = new EmbedBuilder();
             eb.appendDescription("Muted " + user.getAsMention());
             eb.setColor(Color.CYAN);

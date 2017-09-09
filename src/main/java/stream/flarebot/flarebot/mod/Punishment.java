@@ -32,7 +32,7 @@ public class Punishment {
         return punishment;
     }
 
-    public MessageEmbed getPunishmentEmbed(User user, User responsible) {
+    public MessageEmbed getPunishmentEmbed(User user, User responsible, String reason) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("FlareBot ModLog");
         eb.setColor(Color.WHITE);
@@ -40,26 +40,28 @@ public class Punishment {
         eb.addField("User ID", "`" + user.getId() + "`", true);
         if(responsible != null)
             eb.addField("Responsible", responsible.getAsMention(), true);
+        String action = null;
         switch (punishment) {
             case PURGE:
-                eb.addField("Action", "Purge", true);
+                action = "Purge";
                 break;
             case TEMP_MUTE:
-                eb.addField("Action", "Temp Mute", true);
+                action = "Temp Mute";
                 break;
             case MUTE:
-                eb.addField("Action", "Mute", true);
+                action = "Mute";
                 break;
             case KICK:
-                eb.addField("Action", "Kick", true);
+                action = "Kick";
                 break;
             case TEMP_BAN:
-                eb.addField("Action", "Temp Ban", true);
+                action = "Temp Ban";
                 break;
             case BAN:
-                eb.addField("Action", "Ban", true);
+                action = "Ban";
                 break;
         }
+        eb.addField("Action", action, true).addField("Reason", (reason != null ? reason : "No reason given!"), true);
         return eb.build();
     }
 

@@ -80,9 +80,4 @@ public class RolesCommand implements Command {
     public CommandType getType() {
         return CommandType.MODERATION;
     }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return true;
-    }
 }

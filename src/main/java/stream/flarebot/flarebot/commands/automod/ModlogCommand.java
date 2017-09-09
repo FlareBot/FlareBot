@@ -25,7 +25,8 @@ public class ModlogCommand implements Command {
                 channel.sendMessage(new EmbedBuilder().setColor(Color.green)
                         .setDescription("The modlog channel has been changed to " + channel
                                 .getAsMention()).build()).queue();
-            } else if (args[0].equalsIgnoreCase("config")) {
+            }
+            /*} else if (args[0].equalsIgnoreCase("config")) {
             } else if (args[0].equalsIgnoreCase("set")) {
 
             } else {
@@ -33,7 +34,7 @@ public class ModlogCommand implements Command {
             }
         } else if (args.length == 2) {
 
-        } else if (args.length == 3) {
+        } else if (args.length == 3) {*/
 
         } else {
             MessageUtils.getUsage(this, channel, sender).queue();
@@ -47,14 +48,14 @@ public class ModlogCommand implements Command {
 
     @Override
     public String getDescription() {
-        return null;
+        return "Set the channel where mod events can be logged.";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}modlog setchannel` - Set the modlog to be displayed in this channel.\n"
-                + "`{%}modlog config` - View the config of the modlog.\n"
-                + "`{%}modlog set <configOption> <value>` - Set config options";
+        return "`{%}modlog setchannel` - Set the modlog to be displayed in this channel.\n";
+                /*+ "`{%}modlog config` - View the config of the modlog.\n"
+                + "`{%}modlog set <configOption> <value>` - Set config options";*/
     }
 
     @Override

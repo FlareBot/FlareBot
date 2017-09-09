@@ -26,7 +26,7 @@ public class WelcomeCommand implements Command {
             if (args[0].equalsIgnoreCase("dm")) {
                 if (args[1].equalsIgnoreCase("enable")) {
                     if (args.length == 2) {
-                        if (guild.getWelcome().isDmEnabled()) {
+                        if (!guild.getWelcome().isDmEnabled()) {
                             guild.getWelcome().setDmEnabled(true);
                             channel.sendMessage("DM welcomes are now **enabled**").queue();
                         } else {
@@ -37,7 +37,7 @@ public class WelcomeCommand implements Command {
                     }
                 } else if (args[1].equalsIgnoreCase("disable")) {
                     if (args.length == 2) {
-                        if (!guild.getWelcome().isDmEnabled()) {
+                        if (guild.getWelcome().isDmEnabled()) {
                             guild.getWelcome().setDmEnabled(false);
                             channel.sendMessage("DM welcomes are now **disabled**").queue();
                         } else {
@@ -84,7 +84,7 @@ public class WelcomeCommand implements Command {
             } else if (args[0].equalsIgnoreCase("guild")) {
                 if (args[1].equalsIgnoreCase("enable")) {
                     if (args.length == 2) {
-                        if (guild.getWelcome().isGuildEnabled()) {
+                        if (!guild.getWelcome().isGuildEnabled()) {
                             guild.getWelcome().setGuildEnabled(true);
                             channel.sendMessage("Guild welcomes are now **enabled**").queue();
                         } else {
@@ -95,7 +95,7 @@ public class WelcomeCommand implements Command {
                     }
                 } else if (args[1].equalsIgnoreCase("disable")) {
                     if (args.length == 2) {
-                        if (!guild.getWelcome().isGuildEnabled()) {
+                        if (guild.getWelcome().isGuildEnabled()) {
                             guild.getWelcome().setGuildEnabled(false);
                             channel.sendMessage("Guild welcomes are now **disabled**").queue();
                         } else {
@@ -186,6 +186,7 @@ public class WelcomeCommand implements Command {
     private int messagesLength = 15;
 
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
+        System.out.println("a");
         int pages = messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
         int start = messagesLength * (page - 1);
         int end = Math.min(start + messagesLength, messages.size());
@@ -205,7 +206,8 @@ public class WelcomeCommand implements Command {
             List<String> header = new ArrayList<>();
             header.add("Id");
             header.add("Message");
-            channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Messages Page " + GeneralUtils.getPageOutOfTotal(page, messages, messagesLength))).queue();
+            channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Messages Page " + GeneralUtils
+                    .getPageOutOfTotal(page, messages, messagesLength))).queue();
         }
     }
 }

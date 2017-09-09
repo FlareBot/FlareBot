@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -94,7 +95,7 @@ public class GeneralUtils {
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
         String prefix = String.valueOf(getPrefix(channel));
-        return usage.replaceAll("\\{%\\}", prefix);
+        return usage.replaceAll("\\{%}", prefix);
     }
 
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
@@ -181,11 +182,11 @@ public class GeneralUtils {
             }
             if (tmp != null) return tmp;
             try {
-                Long.parseLong(s.replaceAll("[^0-9]", ""));
+                long l = Long.parseLong(s.replaceAll("[^0-9]", ""));
                 if (guildId == null || guildId.isEmpty()) {
-                    tmp = FlareBot.getInstance().getUserByID(s.replaceAll("[^0-9]", ""));
+                    tmp = FlareBot.getInstance().getUserById(l);
                 } else {
-                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(s.replaceAll("[^0-9]", "")).getUser();
+                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l).getUser();
                 }
                 if (tmp != null) return tmp;
             } catch (NumberFormatException | NullPointerException ignored) {
@@ -218,5 +219,29 @@ public class GeneralUtils {
             }
         }
         return false;
+    }
+
+    public static void joinChannel(TextChannel channel, Member member) {
+        if (channel.getGuild().getSelfMember()
+                .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
+                channel.getGuild().getSelfMember()
+                        .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
+            if (member.getVoiceState().getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
+                    .getMembers().size()
+                    >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
+                    .hasPermission(member
+                            .getVoiceState()
+                            .getChannel(), Permission.MANAGE_CHANNEL)) {
+                MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
+                        "bypass it!", channel);
+                return;
+            }
+            channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+        } else {
+            MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
+                    .hasPermission(member.getVoiceState()
+                            .getChannel(), Permission.VOICE_CONNECT) ?
+                    "connect" : "speak") + " in your voice channel!", channel);
+        }
     }
 }
