@@ -58,9 +58,6 @@ public class ServerInfoCommand implements Command {
                 "Total: " +
                 guild.getRoles().size() + "\n" +
                 "\n" +
-                "Default: " +
-                "#" + guild.getTextChannelById(guild.getId()).getName() + "\n" +
-                "\n" +
                 "**Voice**\n" +
                 "Total: " +
                 guild.getVoiceChannels().size() + "\n" +
