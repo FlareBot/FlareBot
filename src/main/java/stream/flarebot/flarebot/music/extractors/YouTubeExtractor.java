@@ -44,7 +44,8 @@ public class YouTubeExtractor implements Extractor {
         } catch (IllegalStateException e) {
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                     .setDescription("Youtube could not be reached! Try again in a few minutes!\n" +
-                            "If the error continues, join our support discord: " + FlareBot.INVITE_URL)
+                            "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
+                            "Error Message: " + e.getMessage())
                     .setColor(Color.RED), message);
             return;
         }

@@ -146,4 +146,12 @@ public class ExpiringMap<K, V> {
             }
         }
     }
+
+    public int size() {
+        int size = 0;
+        for(Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
+            size += pair.getKey().size();
+        }
+        return size;
+    }
 }
