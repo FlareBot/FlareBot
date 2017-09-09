@@ -373,7 +373,7 @@ public class FlareBot {
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled() && canChangeNick(player.getGuildId())) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
@@ -382,7 +382,10 @@ public class FlareBot {
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
                         }
                     } else {
-                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
+                        if(!canChangeNick(player.getGuildId())) {
+                            MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
+                                    "FlareBot can't change it's nickname so SongNick has been disabled!");
+                        }
                     }
                 }
 
@@ -417,8 +420,12 @@ public class FlareBot {
                     }
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
-                        if (c == null) {
+                        if (c == null || !canChangeNick(player.getGuildId())) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
+                            if(!canChangeNick(player.getGuildId())) {
+                                MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
+                                        "FlareBot can't change it's nickname so SongNick has been disabled!");
+                            }
                         } else {
                             Track track = player.getPlayingTrack();
                             String str = null;
@@ -473,6 +480,14 @@ public class FlareBot {
 
         latch.await();
         run();
+    }
+
+    private boolean canChangeNick(String guildId) {
+        if(getGuildByID(guildId) != null) {
+            return getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                    getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
+        }else
+            return false;
     }
 
     protected void run() {
@@ -878,7 +893,7 @@ public class FlareBot {
                 clients[0].getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
                         Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
                         Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
-                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS));
+                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE));
     }
 
     public static char getPrefix(String id) {
