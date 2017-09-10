@@ -439,8 +439,6 @@ public class FlareBot {
                                     .setNickname(c.getSelfMember(), str)
                                     .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
                         }
-                    } else {
-                        getGuildByID(player.getGuildId()).getController().setNickname(getGuildByID(player.getGuildId()).getSelfMember(), null).queue();
                     }
                 }
             }));
