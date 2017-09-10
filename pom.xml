@@ -92,11 +92,11 @@
             <artifactId>okhttp</artifactId>
             <version>3.8.1</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.neovisionaries</groupId>
             <artifactId>nv-websocket-client</artifactId>
             <version>1.30</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
