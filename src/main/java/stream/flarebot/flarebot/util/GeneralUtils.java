@@ -209,6 +209,7 @@ public class GeneralUtils {
     }
 
     public static boolean validPerm(String perm) {
+        if(perm.equals("*") || perm.equals("flarebot.*")) return true;
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
