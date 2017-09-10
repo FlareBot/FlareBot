@@ -40,10 +40,13 @@ public class FlareBotManager {
     private final long GUILD_EXPIRE = TimeUnit.MINUTES.toMillis(15);
     private final long INACTIVITY_CHECK = TimeUnit.MINUTES.toMillis(2);
 
+    private final String GUILD_DATA_TABLE;
+
     private PreparedStatement saveGuildStatement;
 
     public FlareBotManager() {
         instance = this;
+        GUILD_DATA_TABLE = (FlareBot.getInstance().isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
     }
 
     public static FlareBotManager getInstance() {
@@ -52,7 +55,7 @@ public class FlareBotManager {
 
     public void executeCreations() {
         // Note to self: Figure out a way to order this but where I can still update the damn last_retrieved key
-        CassandraController.executeAsync("CREATE TABLE IF NOT EXISTS flarebot.guild_data (" +
+        CassandraController.executeAsync("CREATE TABLE IF NOT EXISTS " + GUILD_DATA_TABLE + " (" +
                 "guild_id varchar, " +
                 "data text, " +
                 "last_retrieved timestamp, " +
@@ -99,8 +102,8 @@ public class FlareBotManager {
     protected void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved, boolean unload) {
         long last_r = (last_retrieved == -1 ? System.currentTimeMillis() : last_retrieved);
         CassandraController.runTask(session -> {
-            if(saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE flarebot.guild_data SET " +
-                    "last_retrieved = ?, data = ? WHERE guild_id = ?");
+            if(saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE " + GUILD_DATA_TABLE
+                    + "SET last_retrieved = ?, data = ? WHERE guild_id = ?");
             session.executeAsync(saveGuildStatement.bind()
                     .setTimestamp(0, new Date(last_r))
                     .setString(1, FlareBot.GSON.toJson(guildWrapper)).setString(2, guildId));
@@ -169,7 +172,7 @@ public class FlareBotManager {
         //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
         guilds.computeIfAbsent(id, guildId -> {
             long start = System.nanoTime();
-            ResultSet set = CassandraController.execute("SELECT data FROM flarebot.guild_data WHERE guild_id = '"
+            ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
                     + guildId + "'");
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
