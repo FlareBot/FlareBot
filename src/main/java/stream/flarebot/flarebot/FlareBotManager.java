@@ -103,7 +103,7 @@ public class FlareBotManager {
         long last_r = (last_retrieved == -1 ? System.currentTimeMillis() : last_retrieved);
         CassandraController.runTask(session -> {
             if(saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE " + GUILD_DATA_TABLE
-                    + "SET last_retrieved = ?, data = ? WHERE guild_id = ?");
+                    + " SET last_retrieved = ?, data = ? WHERE guild_id = ?");
             session.executeAsync(saveGuildStatement.bind()
                     .setTimestamp(0, new Date(last_r))
                     .setString(1, FlareBot.GSON.toJson(guildWrapper)).setString(2, guildId));
