@@ -35,7 +35,7 @@ public class ReportCommand implements Command {
                     .stream()
                     .filter(m -> m.getAuthor().equals(user))
                     .collect(Collectors.toList());
-            report.setMessages(messages.subList(0, Math.min(10, messages.size() - 1)));
+            report.setMessages(messages.subList(0, Math.min(5, messages.size() - 1)));
 
             guild.getReportManager().report(report);
 
