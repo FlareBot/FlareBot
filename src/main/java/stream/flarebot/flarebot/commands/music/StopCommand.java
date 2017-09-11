@@ -1,13 +1,14 @@
 package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 
 public class StopCommand implements Command {
 
@@ -18,7 +19,7 @@ public class StopCommand implements Command {
     }
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         musicManager.getPlayer(channel.getGuild().getId()).stop();
     }
 
@@ -30,6 +31,11 @@ public class StopCommand implements Command {
     @Override
     public String getDescription() {
         return "Stops your playlist.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "{%}stop";
     }
 
     @Override
