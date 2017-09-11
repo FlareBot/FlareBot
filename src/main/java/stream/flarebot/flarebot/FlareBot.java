@@ -772,6 +772,7 @@ public class FlareBot {
                     if ((line = reader.readLine()) != null) {
                         out += line + '\n';
                     }
+                    p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
                         UpdateCommand.UPDATING.set(false);
