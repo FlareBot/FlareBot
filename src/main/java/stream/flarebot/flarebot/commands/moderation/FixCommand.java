@@ -24,7 +24,20 @@ public class FixCommand implements Command {
             }
             return;
         }
-        //todo: ask for confirmation
+        channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setColor(Color.RED)
+                            .setDescription(GeneralUtils.formatCommandPrefix(channel, 
+                                "Are you sure you want to fix any potential autoassign roles "
+                                    + "and FlareBot's nickname if songnick is enabled?"
+                                    + "\nWe assign roles to users without any so be aware that if you allow "
+                                    + "the removal of your autoassign roles they may be added back to users."))
+                    .build()).queue();
+
+                ConfirmUtil.pushAction(sender.getId(),
+                        new RunnableWrapper(this::fix), this.getClass()));
+    }
+    
+    private void fix() {
         int rolesAdded = 0;
         for (Member member1 : guild.getGuild().getMembers()) {
             if (member1.getRoles().size() > 0) continue;
