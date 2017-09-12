@@ -7,12 +7,13 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.objects.RestActionWrapper;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.objects.RestActionRunnable;
+import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class PruneCommand implements Command {
 
@@ -33,7 +34,7 @@ public class PruneCommand implements Command {
                     MessageUtils.sendErrorMessage("The amount of days has to be more that 0!", channel);
                     return;
                 }
-                if(amount > 30) {
+                if (amount > 30) {
                     MessageUtils.sendErrorMessage("You can only prune a maximum of 30 days!", channel);
                     return;
                 }
@@ -46,13 +47,14 @@ public class PruneCommand implements Command {
                         .build()).queue();
 
                 ConfirmUtil.pushAction(sender.getId(),
-                        new RestActionWrapper(guild.getGuild().getController()
-                                .prune(amount)
-                                .reason("Pruned by user: " + MessageUtils.getTag(sender)), this.getClass()));
+                        new RunnableWrapper(
+                                new RestActionRunnable(guild.getGuild().getController()
+                                        .prune(amount)
+                                        .reason("Pruned by user: " + MessageUtils.getTag(sender))), this.getClass()));
                 return;
             } else if (args[0].equalsIgnoreCase("confirm")) {
                 if (ConfirmUtil.checkExists(sender.getId(), this.getClass())) {
-                    ConfirmUtil.get(sender.getId(), this.getClass()).queue();
+                    ConfirmUtil.run(sender.getId(), this.getClass());
                     ConfirmUtil.remove(sender.getId(), this.getClass());
                 } else {
                     MessageUtils.sendErrorMessage("You haven't got any action to confirm!", channel);
