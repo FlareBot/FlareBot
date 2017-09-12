@@ -76,8 +76,7 @@ public class AutoAssignCommand implements Command {
                             .getAsMention() + " That is not a valid role!"), channel);
                     return;
                 }
-                if (guild.getAutoAssignRoles().isEmpty()) {
-
+                if (!guild.getAutoAssignRoles().isEmpty()) {
                     if (guild.getAutoAssignRoles().contains(role.getId())) {
                         guild.getAutoAssignRoles().remove(role.getId());
                         channel.sendMessage(MessageUtils.getEmbed(sender)
