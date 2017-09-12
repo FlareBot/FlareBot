@@ -18,8 +18,19 @@ public class FixCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        if(args.length == 1 && args[0].equalsIgnoreCase("confirm")) {
+            if (ConfirmUtil.checkExists(sender.getId(), this.getClass())) {
+                ConfirmUtil.get(sender.getId(), this.getClass()).queue();
+                ConfirmUtil.remove(sender.getId(), this.getClass());
+            } else {
+                MessageUtils.sendErrorMessage("You haven't got any action to confirm!", channel);
+            }
+            return;
+        }
+        //todo: ask for confirmation
         int rolesAdded = 0;
         for (Member member1 : guild.getGuild().getMembers()) {
+            if(member1.getRoles().size() > 0) continue;
             Iterator<String> iterator = guild.getAutoAssignRoles().iterator();
             while (iterator.hasNext()) {
                 Role role = guild.getGuild().getRoleById(iterator.next());
