@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.moderation;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -10,9 +11,13 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class AutoAssignCommand implements Command {
 
@@ -22,18 +27,7 @@ public class AutoAssignCommand implements Command {
             MessageUtils.getUsage(this, channel, sender).queue();
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
-                if (!guild.getAutoAssignRoles().isEmpty()) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("**Currently Auto Assigned Roles**\n```\n");
-                    guild.getAutoAssignRoles().stream()
-                            .filter(role -> getRole(channel.getGuild(), role) != null)
-                            .forEach(role -> sb.append(getRole(channel.getGuild(), role).getName()).append("\n"));
-                    sb.append("```");
-                    channel.sendMessage(sb.toString()).queue();
-                } else {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This server has no roles being assigned!").setColor(Color.RED).build(), 5000, channel);
-                }
+                listRoles(guild, 1, channel, sender);
             } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
                         .setDescription(sender
@@ -44,6 +38,15 @@ public class AutoAssignCommand implements Command {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                         .getAsMention() + " Invalid argument!"), channel);
             }
+        } else if(args.length == 2 && args[0].equalsIgnoreCase("list")) {
+            int page;
+            try {
+                page = Integer.valueOf(args[1]);
+            } catch (NumberFormatException e) {
+                MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
+                return;
+            }
+            listRoles(guild, page, channel, sender);
         } else {
             StringBuilder passedRole = new StringBuilder();
             for (int i = 1; i < args.length; i++)
@@ -73,8 +76,7 @@ public class AutoAssignCommand implements Command {
                             .getAsMention() + " That is not a valid role!"), channel);
                     return;
                 }
-                if (guild.getAutoAssignRoles().isEmpty()) {
-
+                if (!guild.getAutoAssignRoles().isEmpty()) {
                     if (guild.getAutoAssignRoles().contains(role.getId())) {
                         guild.getAutoAssignRoles().remove(role.getId());
                         channel.sendMessage(MessageUtils.getEmbed(sender)
@@ -133,5 +135,40 @@ public class AutoAssignCommand implements Command {
                 return iRole;
         }
         return null;
+    }
+
+    private void listRoles(GuildWrapper wrapper, int page, TextChannel channel, User sender) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("**Autoassign List**\n```json\n");
+        List<String> roles = new ArrayList<>(wrapper.getAutoAssignRoles());
+        int pageSize = 20;
+        int pages = roles.size() < pageSize ? 1 : (roles.size() / pageSize) + (roles.size() % pageSize != 0 ? 1 : 0);
+        int start;
+        int end;
+        start = pageSize * (page - 1);
+        end = Math.min(start + pageSize, roles.size());
+        if (page > pages || page < 0) {
+            MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+            return;
+        } else {
+            List<String> subRoles = roles.subList(start, end);
+            if (roles.isEmpty()) {
+                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN)
+                        .setDescription("There are no role being autoassigned in this guild!").build()).queue();
+                return;
+            } else {
+                for (String role : subRoles) {
+                    if(wrapper.getGuild().getRoleById(role) == null) {
+                        wrapper.getAutoAssignRoles().remove(role);
+                        continue;
+                    }
+                    sb.append(wrapper.getGuild().getRoleById(role).getName()).append(" (").append(role).append(")\n");
+                }
+            }
+        }
+
+        sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
+
+        channel.sendMessage(new EmbedBuilder().setDescription(sb.toString()).setColor(Color.cyan).build()).queue();
     }
 }

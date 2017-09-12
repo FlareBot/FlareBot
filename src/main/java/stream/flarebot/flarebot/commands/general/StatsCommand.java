@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
@@ -80,6 +81,7 @@ public class StatsCommand implements Command {
         ACTIVE_CHANNELS("Channels Playing Music", () -> String
                 .valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
         TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),
+        LOADED_GUILDS("Loaded Guilds", () -> String.valueOf(FlareBotManager.getInstance().getGuilds().size())),
         UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
         MEM_USAGE("Memory Usage", () -> getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
         MEM_FREE("Memory Free", () -> getMb(Runtime.getRuntime().freeMemory())),

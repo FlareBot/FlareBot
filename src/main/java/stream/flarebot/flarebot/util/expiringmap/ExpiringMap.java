@@ -36,7 +36,7 @@ public class ExpiringMap<K, V> {
         this.purge(false);
     }
 
-    public void purge(boolean force) {
+    public synchronized void purge(boolean force) {
         long issueMS = System.currentTimeMillis();
         Iterator<Map.Entry<Long, Pair<ConcurrentMap<K, V>, Long>>> e = elem.entrySet().iterator();
         while (e.hasNext()) {
