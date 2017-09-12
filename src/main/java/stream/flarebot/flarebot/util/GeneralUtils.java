@@ -247,7 +247,7 @@ public class GeneralUtils {
     }
     
     public Emote getEmoteById(long l) {
-        return FlareBot.instance.getGuilds().stream().map(g -> g.getEmoteById(l))
+        return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
             .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
     }
 }
