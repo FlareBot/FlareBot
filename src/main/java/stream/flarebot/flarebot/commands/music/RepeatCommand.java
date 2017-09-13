@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 import java.util.Queue;
@@ -21,12 +22,16 @@ public class RepeatCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId());
-        Queue<Track> queue = new ConcurrentLinkedQueue<>();
-        queue.add(player.getPlayingTrack().makeClone());
-        queue.addAll(player.getPlaylist());
-        player.getPlaylist().clear();
-        player.getPlaylist().addAll(queue);
-        channel.sendMessage(new EmbedBuilder().setColor(Color.green).setDescription("The player will now repeat the current track!").build()).queue();
+        if (player.getPlayingTrack() == null) {
+            MessageUtils.sendErrorMessage("Can't repeat when their is no song to repeat!", channel);
+        } else {
+            Queue<Track> queue = new ConcurrentLinkedQueue<>();
+            queue.add(player.getPlayingTrack().makeClone());
+            queue.addAll(player.getPlaylist());
+            player.getPlaylist().clear();
+            player.getPlaylist().addAll(queue);
+            channel.sendMessage(new EmbedBuilder().setColor(Color.green).setDescription("The player will now repeat the current track!").build()).queue();
+        }
     }
 
     @Override

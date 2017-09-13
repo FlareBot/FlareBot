@@ -49,7 +49,7 @@ public class GeneralUtils {
         eb.addField("Status", report.getStatus().getMessage(), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
-        StringBuilder builder = new StringBuilder("The last 10 messages by the reported user: ```\n");
+        StringBuilder builder = new StringBuilder("The last 5 messages by the reported user: ```\n");
         for (Message m : report.getMessages()) {
             builder.append("[" + m.getCreationTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
                     .append(GeneralUtils.truncate(100, m.getContent()))
@@ -204,6 +204,7 @@ public class GeneralUtils {
     }
 
     public static boolean validPerm(String perm) {
+        if(perm.equals("*") || perm.equals("flarebot.*")) return true;
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
@@ -239,11 +240,15 @@ public class GeneralUtils {
                     "connect" : "speak") + " in your voice channel!", channel);
         }
     }
-
+  
     public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
         List<T> list = new ArrayList<>(strings);
         Collections.sort(list, Comparable::compareTo);
         return list;
     }
-
+    
+    public static Emote getEmoteById(long l) {
+        return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
+            .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
+    }
 }

@@ -39,18 +39,14 @@ public class PerGuildPermissions {
         if(isContributor(user.getUser()))
             return true;
         PermissionNode node = new PermissionNode(permission);
-        for(Group g : getListGroups()) {
-            if (g.getPermissions().contains(node.getNode())) {
-                if (getUser(user).getGroups().contains(g.getName())) {
+        for(Group g : getUser(user).getGroups()) {
+            for(String s : g.getPermissions()) {
+                if(new PermissionNode(s).test(node))
                     return true;
-                } else {
-                    for(Role role: user.getRoles()) {
-                        if (g.getRoleId() != null) {
-                            if (g.getRoleId().equals(role.getId())) {
-                                return true;
-                            }
-                        }
-                    }
+            }
+            if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
+                if(user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()) {
+                    return true;
                 }
             }
         }
