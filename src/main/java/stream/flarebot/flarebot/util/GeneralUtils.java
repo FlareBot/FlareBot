@@ -245,4 +245,9 @@ public class GeneralUtils {
                     "connect" : "speak") + " in your voice channel!", channel);
         }
     }
+    
+    public static Emote getEmoteById(long l) {
+        return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
+            .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
+    }
 }
