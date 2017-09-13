@@ -7,24 +7,19 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 
-import java.awt.Color;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
@@ -244,4 +239,11 @@ public class GeneralUtils {
                     "connect" : "speak") + " in your voice channel!", channel);
         }
     }
+
+    public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
+        List<T> list = new ArrayList<>(strings);
+        Collections.sort(list, Comparable::compareTo);
+        return list;
+    }
+
 }
