@@ -2,7 +2,11 @@ package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -12,6 +16,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -140,7 +145,9 @@ public class PermissionsCommand implements Command {
                         } else {
                             int page = args.length == 4 ? Integer.valueOf(args[3]) : 1;
                             Set<String> perms = group.getPermissions();
-                            String list = getStringList(perms, page);
+                            List<String> permList = GeneralUtils.orderList(perms);
+
+                            String list = getStringList(permList, page);
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
                             eb.addField("Perms", list, false);
                             eb.addField("Current page", String.valueOf(page), true);
@@ -236,9 +243,11 @@ public class PermissionsCommand implements Command {
                         } else if (args[3].equals("list")) {
                             int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
                             Set<String> groups = permUser.getGroups();
-                            String list = getStringList(groups, page);
+                            List<String> groupList = GeneralUtils.orderList(groups);
+
+                            String list = getStringList(groupList, page);
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            eb.addField("Perms", list, false);
+                            eb.addField("Grou", list, false);
                             eb.addField("Current page", String.valueOf(page), true);
                             int pageSize = 20;
                             int pages =
@@ -285,7 +294,9 @@ public class PermissionsCommand implements Command {
                         } else if (args[3].equals("list")) {
                             int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
                             Set<String> perms = permUser.getPermissions();
-                            String list = getStringList(perms, page);
+                            List<String> permList = GeneralUtils.orderList(perms);
+
+                            String list = getStringList(permList, page);
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
                             eb.addField("Perms", list, false);
                             eb.addField("Current page", String.valueOf(page), true);
@@ -300,7 +311,7 @@ public class PermissionsCommand implements Command {
                     }
                 }
             }
-        } else if (args.length == 1 && args[0].equalsIgnoreCase("groups")) {
+        } else if (args.length >= 1 && args[0].equalsIgnoreCase("groups")) {
             if (this.getPermissions(channel).getListGroups().isEmpty()) {
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setColor(Color.BLUE)
@@ -308,9 +319,11 @@ public class PermissionsCommand implements Command {
                         .build()).queue();
                 return;
             } else {
-                int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
+                int page = args.length == 2 ? Integer.valueOf(args[4]) : 1;
                 Set<String> groups = this.getPermissions(channel).getGroups().keySet();
-                String list = getStringList(groups, page);
+                List<String> groupList = GeneralUtils.orderList(groups);
+
+                String list = getStringList(groupList, page);
                 EmbedBuilder eb = MessageUtils.getEmbed(sender);
                 eb.addField("Groups", list, false);
                 eb.addField("Current page", String.valueOf(page), true);
@@ -326,7 +339,7 @@ public class PermissionsCommand implements Command {
         MessageUtils.getUsage(this, channel, sender).queue();
     }
 
-    private String getStringList(Set<String> perms, int page) {
+    private String getStringList(Collection<String> perms, int page) {
         int pageSize = 20;
         int pages = perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
         int start;
