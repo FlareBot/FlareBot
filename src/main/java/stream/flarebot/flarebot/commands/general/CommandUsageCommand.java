@@ -15,7 +15,6 @@ public class CommandUsageCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendErrorMessage("You noob! Can't even use the usage command!!", channel);
             MessageUtils.getUsage(this, channel, sender).queue();
         } else {
             Command c = FlareBot.getInstance().getCommand(args[0]);
