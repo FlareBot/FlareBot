@@ -382,7 +382,8 @@ public class PermissionsCommand implements Command {
                 "`group list [page]` - lists the groups this user is in\n" +
                 "`permissions add <perm>` - adds a permissions to this user\n" +
                 "`permissions remove <perm>` - removes a permission from this user\n" +
-                "`permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)";
+                "`permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)\n\n" +
+                "`permissions groups` - Lists all the groups in a server";
     }
 
     @Override
