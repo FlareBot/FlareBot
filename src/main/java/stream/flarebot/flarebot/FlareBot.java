@@ -8,12 +8,7 @@ import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.arsenarsen.lavaplayerbridge.utils.JDAMultiShard;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
@@ -22,18 +17,8 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import io.github.binaryoverload.JSONConfig;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.ISnowflake;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.*;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
@@ -49,67 +34,23 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
-import stream.flarebot.flarebot.commands.moderation.FixCommand;
-import stream.flarebot.flarebot.commands.general.HelpCommand;
-import stream.flarebot.flarebot.commands.general.InfoCommand;
-import stream.flarebot.flarebot.commands.general.InviteCommand;
-import stream.flarebot.flarebot.commands.general.JoinCommand;
-import stream.flarebot.flarebot.commands.general.LeaveCommand;
-import stream.flarebot.flarebot.commands.general.PollCommand;
-import stream.flarebot.flarebot.commands.general.ReportCommand;
-import stream.flarebot.flarebot.commands.general.SelfAssignCommand;
-import stream.flarebot.flarebot.commands.general.ServerInfoCommand;
-import stream.flarebot.flarebot.commands.general.ShardInfoCommand;
-import stream.flarebot.flarebot.commands.general.StatsCommand;
-import stream.flarebot.flarebot.commands.general.UserInfoCommand;
-import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
-import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
-import stream.flarebot.flarebot.commands.moderation.PinCommand;
-import stream.flarebot.flarebot.commands.moderation.PruneCommand;
-import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
-import stream.flarebot.flarebot.commands.moderation.ReportsCommand;
-import stream.flarebot.flarebot.commands.moderation.RolesCommand;
-import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
-import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.WarnCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.WarningsCommand;
+import stream.flarebot.flarebot.commands.general.*;
+import stream.flarebot.flarebot.commands.moderation.*;
+import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.secret.AvatarCommand;
-import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
-import stream.flarebot.flarebot.commands.secret.EvalCommand;
-import stream.flarebot.flarebot.commands.secret.GuildCommand;
-import stream.flarebot.flarebot.commands.secret.LogsCommand;
-import stream.flarebot.flarebot.commands.secret.QueryCommand;
-import stream.flarebot.flarebot.commands.secret.QuitCommand;
-import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
-import stream.flarebot.flarebot.commands.secret.TestCommand;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
-import stream.flarebot.flarebot.util.ConfirmUtil;
-import stream.flarebot.flarebot.util.ExceptionUtils;
-import stream.flarebot.flarebot.util.GeneralUtils;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.*;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.awt.*;
+import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -119,21 +60,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
 import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class FlareBot {
@@ -171,7 +101,8 @@ public class FlareBot {
 
     private static boolean testBot = false;
 
-    private static OkHttpClient client = new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
+    private static OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
 
     public static void main(String[] args) throws Exception {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -259,7 +190,7 @@ public class FlareBot {
         if (config.getString("misc.web").isPresent()) {
             FlareBot.webSecret = config.getString("misc.web").get();
         }
-        if(config.getString("bot.statusHook").isPresent())
+        if (config.getString("bot.statusHook").isPresent())
             FlareBot.statusHook = config.getString("bot.statusHook").get();
         if (config.getString("botlists.botlist").isPresent()) {
             FlareBot.botListAuth = config.getString("botlists.botlist").get();
@@ -516,6 +447,7 @@ public class FlareBot {
         registerCommand(new SelfAssignCommand());
         registerCommand(new WarnCommand());
         registerCommand(new WarningsCommand());
+        registerCommand(new CommandUsageCommand());
 
 //        registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
@@ -749,8 +681,9 @@ public class FlareBot {
             try {
                 File git = new File("FlareBot" + File.separator);
                 if (!(git.exists() && git.isDirectory())) {
-                    ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git
-                            .getAbsolutePath());
+                    ProcessBuilder clone =
+                            new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git
+                                    .getAbsolutePath());
                     clone.redirectErrorStream(true);
                     Process p = clone.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -816,7 +749,7 @@ public class FlareBot {
     protected void stop() {
         LOGGER.info("Saving data.");
         sendData();
-        for(String s : manager.getGuilds().keySet()) {
+        for (String s : manager.getGuilds().keySet()) {
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s), false);
         }
     }
@@ -1056,9 +989,10 @@ public class FlareBot {
         return Arrays.stream(clients).map(jda -> {
             try {
                 return jda.getUserById(id);
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+            }
             return null;
-        }).filter(Objects::nonNull) .findFirst().orElse(null);
+        }).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     public DateTimeFormatter getTimeFormatter() {
