@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -15,26 +16,34 @@ public class CommandUsageCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             MessageUtils.sendErrorMessage("You noob! Can't even use the usage command!!", channel);
+            MessageUtils.getUsage(this, channel, sender).queue();
+        } else {
+            Command c = FlareBot.getInstance().getCommand(args[0]);
+            if (c == null) {
+                MessageUtils.sendErrorMessage("That is not a command!", channel);
+            } else {
+                MessageUtils.getUsage(c, channel, sender).queue();
+            }
         }
     }
 
     @Override
     public String getCommand() {
-        return null;
+        return "usage";
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "Allows you to view usages for other commands";
     }
 
     @Override
     public String getUsage() {
-        return "{%}commandusage";
+        return "{%}usage <command name>";
     }
 
     @Override
     public CommandType getType() {
-        return null;
+        return CommandType.GENERAL;
     }
 }
