@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.permissions;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 
@@ -36,16 +35,17 @@ public class PerGuildPermissions {
             return true;
         if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
-        if(isContributor(user.getUser()))
+        if (isContributor(user.getUser()))
             return true;
         PermissionNode node = new PermissionNode(permission);
-        for(Group g : getUser(user).getGroups()) {
-            for(String s : g.getPermissions()) {
-                if(new PermissionNode(s).test(node))
+        for (String g : getUser(user).getGroups()) {
+            Group group = getGroup(g);
+            for (String s : group.getPermissions()) {
+                if (new PermissionNode(s).test(node))
                     return true;
             }
-            if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
-                if(user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()) {
+            if (group.getRoleId() != null && user.getGuild().getRoleById(group.getRoleId()) != null) {
+                if (user.getRoles().contains(user.getGuild().getRoleById(group.getRoleId()))) {
                     return true;
                 }
             }
@@ -61,8 +61,8 @@ public class PerGuildPermissions {
         return groups.get(group);
     }
 
-    public boolean addGroup(String group){
-        if(groups.containsKey(group)){
+    public boolean addGroup(String group) {
+        if (groups.containsKey(group)) {
             return false;
         } else {
             groups.put(group, new Group(group));
@@ -82,7 +82,7 @@ public class PerGuildPermissions {
         return groups;
     }
 
-    public List<Group> getListGroups(){
+    public List<Group> getListGroups() {
         return new ArrayList<>(groups.values());
     }
 
@@ -90,7 +90,7 @@ public class PerGuildPermissions {
         return user.getId().equals("158310004187725824");
     }
 
-    public boolean isContributor(net.dv8tion.jda.core.entities.User user){
+    public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
         return user.getId().equals("215644829969809421") || user.getId().equals("203894491784937472");
     }
 

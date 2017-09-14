@@ -49,7 +49,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
-import stream.flarebot.flarebot.commands.moderation.FixCommand;
+import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
 import stream.flarebot.flarebot.commands.general.HelpCommand;
 import stream.flarebot.flarebot.commands.general.InfoCommand;
 import stream.flarebot.flarebot.commands.general.InviteCommand;
@@ -63,6 +63,7 @@ import stream.flarebot.flarebot.commands.general.ShardInfoCommand;
 import stream.flarebot.flarebot.commands.general.StatsCommand;
 import stream.flarebot.flarebot.commands.general.UserInfoCommand;
 import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
+import stream.flarebot.flarebot.commands.moderation.FixCommand;
 import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
 import stream.flarebot.flarebot.commands.moderation.PinCommand;
 import stream.flarebot.flarebot.commands.moderation.PruneCommand;
@@ -171,7 +172,8 @@ public class FlareBot {
 
     private static boolean testBot = false;
 
-    private static OkHttpClient client = new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
+    private static OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
 
     public static void main(String[] args) throws Exception {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -259,7 +261,7 @@ public class FlareBot {
         if (config.getString("misc.web").isPresent()) {
             FlareBot.webSecret = config.getString("misc.web").get();
         }
-        if(config.getString("bot.statusHook").isPresent())
+        if (config.getString("bot.statusHook").isPresent())
             FlareBot.statusHook = config.getString("bot.statusHook").get();
         if (config.getString("botlists.botlist").isPresent()) {
             FlareBot.botListAuth = config.getString("botlists.botlist").get();
@@ -529,6 +531,7 @@ public class FlareBot {
         registerCommand(new SelfAssignCommand());
         registerCommand(new WarnCommand());
         registerCommand(new WarningsCommand());
+        registerCommand(new CommandUsageCommand());
 
 //        registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
@@ -762,8 +765,9 @@ public class FlareBot {
             try {
                 File git = new File("FlareBot" + File.separator);
                 if (!(git.exists() && git.isDirectory())) {
-                    ProcessBuilder clone = new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git
-                            .getAbsolutePath());
+                    ProcessBuilder clone =
+                            new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git
+                                    .getAbsolutePath());
                     clone.redirectErrorStream(true);
                     Process p = clone.start();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -830,7 +834,7 @@ public class FlareBot {
     protected void stop() {
         LOGGER.info("Saving data.");
         sendData();
-        for(String s : manager.getGuilds().keySet()) {
+        for (String s : manager.getGuilds().keySet()) {
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s), false);
         }
     }
@@ -1070,9 +1074,10 @@ public class FlareBot {
         return Arrays.stream(clients).map(jda -> {
             try {
                 return jda.getUserById(id);
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+            }
             return null;
-        }).filter(Objects::nonNull) .findFirst().orElse(null);
+        }).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     public DateTimeFormatter getTimeFormatter() {
