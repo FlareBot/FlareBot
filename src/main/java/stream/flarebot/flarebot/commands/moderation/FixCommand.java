@@ -15,7 +15,7 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Iterator;
 
 public class FixCommand implements Command {

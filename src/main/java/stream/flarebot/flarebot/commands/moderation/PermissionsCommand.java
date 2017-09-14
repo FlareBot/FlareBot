@@ -14,7 +14,7 @@ import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;

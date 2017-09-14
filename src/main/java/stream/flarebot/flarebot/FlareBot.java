@@ -102,7 +102,7 @@ import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.*;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;

@@ -86,7 +86,7 @@ public class DisableCommandCommand implements Command {
     }
 
     private String getEmote(boolean b) {
-                // tick - enabled (true)
+        // tick - enabled (true)
         return (b ? GeneralUtils.getEmoteById(355776056092917761L).getAsMention()
                 // cross - disabled (false)
                 : GeneralUtils.getEmoteById(355776081384570881L).getAsMention());
