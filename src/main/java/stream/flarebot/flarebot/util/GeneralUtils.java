@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -23,7 +24,11 @@ import java.awt.Color;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -244,6 +249,12 @@ public class GeneralUtils {
                             .getChannel(), Permission.VOICE_CONNECT) ?
                     "connect" : "speak") + " in your voice channel!", channel);
         }
+    }
+  
+    public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
+        List<T> list = new ArrayList<>(strings);
+        Collections.sort(list, Comparable::compareTo);
+        return list;
     }
     
     public static Emote getEmoteById(long l) {
