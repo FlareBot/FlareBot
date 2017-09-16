@@ -107,6 +107,7 @@ public class GeneralUtils {
         Optional<AudioItem> item = Optional.empty();
         boolean failed = false;
         int backoff = 2;
+        Throwable cause = null;
         for (int i = 0; i <= 2; i++) {
             try {
                 item = Optional.ofNullable(player.resolve(input));
@@ -114,6 +115,8 @@ public class GeneralUtils {
                 break;
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
+                cause = e;
+                FlareBot.LOGGER.error("Cannot get video '" + input + "'", e);
                 try {
                     Thread.sleep(backoff);
                 } catch (InterruptedException ignored) {
@@ -122,7 +125,7 @@ public class GeneralUtils {
             }
         }
         if (failed) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(cause.getMessage(), cause);
         } else if (!item.isPresent()) {
             throw new IllegalArgumentException();
         }

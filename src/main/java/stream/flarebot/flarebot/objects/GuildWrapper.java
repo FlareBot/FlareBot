@@ -39,6 +39,9 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
 
+    // oooo special!
+    private boolean betaAccess = false;
+
     protected GuildWrapper(String guildId) {
         this.guildId = guildId;
     }
@@ -167,6 +170,8 @@ public class GuildWrapper {
         if (mutedRoleID == null) {
             Role mutedRole = GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
             if (mutedRole == null) {
+                if(!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES))
+                    return null;
                 try {
                     mutedRole = getGuild().getController().createRole().setName("Muted").submit().get();
                     if (!getGuild().getSelfMember().getRoles().isEmpty())
