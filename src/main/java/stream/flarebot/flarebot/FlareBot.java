@@ -840,7 +840,7 @@ public class FlareBot {
         for(ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
         for(JDA client : clients)
-            client.removeEventListener(jdaEvents);
+            client.removeEventListener(events); //todo: Make a replacement for the array
         sendData();
         for (String s : manager.getGuilds().keySet()) {
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s), false);
