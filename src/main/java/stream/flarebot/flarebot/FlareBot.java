@@ -331,8 +331,6 @@ public class FlareBot {
     private static Prefixes prefixes;
     private AutoModTracker tracker;
 
-    private EventListener[] jdaEvents = new EventListener[] {events/*, tracker*/};
-
     public static Prefixes getPrefixes() {
         return prefixes;
     }
@@ -349,30 +347,24 @@ public class FlareBot {
             e.printStackTrace();
         }
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-        System.out.println("a");
 
         latch = new CountDownLatch(1);
         events = new Events(this);
         //tracker = new AutoModTracker();
         LOGGER.info("Starting builders");
         try {
-            System.out.println("b");
             JDABuilder builder = new JDABuilder(AccountType.BOT)
                     .addEventListener(events)
                     .setToken(tkn)
                     .setAudioSendFactory(new NativeAudioSendFactory());
-            System.out.println(builder);
-            System.out.println(clients.length);
             if (clients.length == 1) {
                 clients[0] = builder.buildAsync();
-                System.out.println("Built shard 0");
                 Thread.sleep(5000);
             } else {
                 builder = builder.setReconnectQueue(new SessionReconnectQueue());
                 System.out.println(builder);
                 for (int i = 0; i < clients.length; i++) {
                     clients[i] = builder.useSharding(i, clients.length).buildAsync();
-                    System.out.println("Logged in shard " + i);
                     Thread.sleep(5000); // 5 second backoff
                 }
             }
@@ -469,7 +461,6 @@ public class FlareBot {
             }
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
-            System.out.println("Could not log in! " + e.getMessage());
             Thread.sleep(500);
             System.exit(1);
             return;
