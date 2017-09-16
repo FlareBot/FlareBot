@@ -344,7 +344,7 @@ public class FlareBot {
             JDABuilder builder = new JDABuilder(AccountType.BOT)
                     .addEventListener(events/*, tracker*/)
                     .setToken(tkn)
-                    .setAudioSendFactory(new NativeAudioSendFactory())
+                    .setAudioSendFactory(new NativeAudioSendFactory());
             if (clients.length == 1) {
                 clients[0] = builder.buildAsync();
                 Thread.sleep(5000);
