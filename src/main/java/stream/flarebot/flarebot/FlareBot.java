@@ -35,6 +35,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.core.utils.SimpleLog;
@@ -296,7 +297,11 @@ public class FlareBot {
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         Thread.currentThread()
                 .setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
-        (instance = new FlareBot()).init(tkn);
+        try {
+            (instance = new FlareBot()).init(tkn);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public static final char COMMAND_CHAR = '_';
@@ -326,13 +331,14 @@ public class FlareBot {
     private static Prefixes prefixes;
     private AutoModTracker tracker;
 
-    private Object[] jdaEvents = new Object[] {events/*, tracker*/};
+    private EventListener[] jdaEvents = new EventListener[] {events/*, tracker*/};
 
     public static Prefixes getPrefixes() {
         return prefixes;
     }
 
     public void init(String tkn) throws InterruptedException, UnirestException, FileNotFoundException {
+        LOGGER.info("Starting init!");
         token = tkn;
         manager = new FlareBotManager();
         RestAction.DEFAULT_FAILURE = t -> {
@@ -343,22 +349,30 @@ public class FlareBot {
             e.printStackTrace();
         }
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+        System.out.println("a");
 
         latch = new CountDownLatch(1);
         events = new Events(this);
         //tracker = new AutoModTracker();
+        LOGGER.info("Starting builders");
         try {
+            System.out.println("b");
             JDABuilder builder = new JDABuilder(AccountType.BOT)
-                    .addEventListener(jdaEvents)
+                    .addEventListener(events)
                     .setToken(tkn)
                     .setAudioSendFactory(new NativeAudioSendFactory());
+            System.out.println(builder);
+            System.out.println(clients.length);
             if (clients.length == 1) {
                 clients[0] = builder.buildAsync();
+                System.out.println("Built shard 0");
                 Thread.sleep(5000);
             } else {
                 builder = builder.setReconnectQueue(new SessionReconnectQueue());
+                System.out.println(builder);
                 for (int i = 0; i < clients.length; i++) {
                     clients[i] = builder.useSharding(i, clients.length).buildAsync();
+                    System.out.println("Logged in shard " + i);
                     Thread.sleep(5000); // 5 second backoff
                 }
             }
@@ -455,6 +469,7 @@ public class FlareBot {
             }
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
+            System.out.println("Could not log in! " + e.getMessage());
             Thread.sleep(500);
             System.exit(1);
             return;
