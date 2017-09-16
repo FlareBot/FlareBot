@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -45,7 +46,9 @@ public class YouTubeExtractor implements Extractor {
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                     .setDescription("Youtube could not be reached! Try again in a few minutes!\n" +
                             "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
-                            "Error Message: " + e.getMessage())
+                            "Input: " + input + "\n" +
+                            "Error Message: " + e.getMessage() + "\n" +
+                            "Stacktrace: " + MessageUtils.hastebin(ExceptionUtils.getStackTrace(e)))
                     .setColor(Color.RED), message);
             return;
         }
