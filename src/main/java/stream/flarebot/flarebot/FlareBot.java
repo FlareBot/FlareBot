@@ -385,7 +385,7 @@ public class FlareBot {
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
                         }
                     } else {
-                        if(!canChangeNick(player.getGuildId())) {
+                        if (!canChangeNick(player.getGuildId())) {
                             MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                     "FlareBot can't change it's nickname so SongNick has been disabled!");
                         }
@@ -425,7 +425,7 @@ public class FlareBot {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null || !canChangeNick(player.getGuildId())) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
-                            if(!canChangeNick(player.getGuildId())) {
+                            if (!canChangeNick(player.getGuildId())) {
                                 MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                         "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
@@ -484,10 +484,10 @@ public class FlareBot {
     }
 
     private boolean canChangeNick(String guildId) {
-        if(getGuildByID(guildId) != null) {
+        if (getGuildByID(guildId) != null) {
             return getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
                     getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
-        }else
+        } else
             return false;
     }
 
