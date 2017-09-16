@@ -86,7 +86,10 @@ public class FlareBotManager {
         new FlarebotTask() {
             @Override
             public void run() {
-                guilds.purge();
+                if(!FlareBot.EXITING.get())
+                    guilds.purge();
+                else
+                    cancel();
             }
         }.repeat(30_000, 30_000);
     }
@@ -102,7 +105,7 @@ public class FlareBotManager {
                     .setString(1, FlareBot.GSON.toJson(guildWrapper)).setString(2, guildId));
         });
         FlareBot.LOGGER.info("Guild " + guildId + "'s data got saved! Last retrieved: " + last_r
-                + " (" + new Date(last_r) + ")");
+                + " (" + new Date(last_r) + ") - " + guilds.size() + " currently loaded.");
         if (unload)
             FlareBot.getInstance().getChannelByID(FlareBot.GUILD_LOG).sendMessage(MessageUtils.getEmbed()
                     .setColor(Color.MAGENTA).setTitle("Guild unloaded!", null)

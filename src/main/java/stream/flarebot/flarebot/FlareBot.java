@@ -95,6 +95,7 @@ import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -135,7 +136,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class FlareBot {
@@ -165,6 +168,8 @@ public class FlareBot {
     public static final String GUILD_LOG = "260401007685664768";
     public static final String OLD_FLAREBOT_API = "https://flarebot.stream/api/";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
+
+    public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     protected CountDownLatch latch;
@@ -321,6 +326,8 @@ public class FlareBot {
     private static Prefixes prefixes;
     private AutoModTracker tracker;
 
+    private Object[] jdaEvents = new Object[] {events/*, tracker*/};
+
     public static Prefixes getPrefixes() {
         return prefixes;
     }
@@ -342,7 +349,7 @@ public class FlareBot {
         //tracker = new AutoModTracker();
         try {
             JDABuilder builder = new JDABuilder(AccountType.BOT)
-                    .addEventListener(events/*, tracker*/)
+                    .addEventListener(jdaEvents)
                     .setToken(tkn)
                     .setAudioSendFactory(new NativeAudioSendFactory());
             if (clients.length == 1) {
@@ -823,10 +830,16 @@ public class FlareBot {
 
     protected void stop() {
         LOGGER.info("Saving data.");
+        EXITING.set(true);
+        for(ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
+            scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
+        for(JDA client : clients)
+            client.removeEventListener(jdaEvents);
         sendData();
         for (String s : manager.getGuilds().keySet()) {
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s), false);
         }
+        LOGGER.info("Finished saving!");
     }
 
     private void registerCommand(Command command) {
