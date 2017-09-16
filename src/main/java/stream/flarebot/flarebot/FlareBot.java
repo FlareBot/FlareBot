@@ -36,6 +36,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
@@ -340,35 +341,20 @@ public class FlareBot {
         events = new Events(this);
         //tracker = new AutoModTracker();
         try {
+            JDABuilder builder = new JDABuilder(AccountType.BOT)
+                    .addEventListener(events/*, tracker*/)
+                    .setToken(tkn)
+                    .setAudioSendFactory(new NativeAudioSendFactory())
             if (clients.length == 1) {
-                while (true) {
-                    try {
-                        clients[0] = new JDABuilder(AccountType.BOT)
-                                .addEventListener(events/*, tracker*/)
-                                .setToken(tkn)
-                                .setAudioSendFactory(new NativeAudioSendFactory())
-                                .buildAsync();
-                        break;
-                    } catch (RateLimitedException e) {
-                        Thread.sleep(e.getRetryAfter());
-                    }
-                }
-            } else
+                clients[0] = builder.buildAsync();
+                Thread.sleep(5000);
+            } else {
+                builder = builder.setReconnectQueue(new SessionReconnectQueue());
                 for (int i = 0; i < clients.length; i++) {
-                    while (true) {
-                        try {
-                            clients[i] = new JDABuilder(AccountType.BOT)
-                                    .addEventListener(events/*, tracker*/)
-                                    .useSharding(i, clients.length)
-                                    .setToken(tkn)
-                                    .setAudioSendFactory(new NativeAudioSendFactory())
-                                    .buildAsync();
-                            break;
-                        } catch (RateLimitedException e) {
-                            Thread.sleep(e.getRetryAfter());
-                        }
-                    }
+                    clients[i] = builder.useSharding(i, clients.length).buildAsync();
+                    Thread.sleep(5000); // 5 second backoff
                 }
+            }
             prefixes = new Prefixes();
             commands = ConcurrentHashMap.newKeySet();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
@@ -765,6 +751,7 @@ public class FlareBot {
             try {
                 File git = new File("FlareBot" + File.separator);
                 if (!(git.exists() && git.isDirectory())) {
+                    LOGGER.info("Cloning git!");
                     ProcessBuilder clone =
                             new ProcessBuilder("git", "clone", "https://github.com/FlareBot/FlareBot.git", git
                                     .getAbsolutePath());
@@ -783,6 +770,7 @@ public class FlareBot {
                         return;
                     }
                 } else {
+                    LOGGER.info("Pulling git!");
                     ProcessBuilder builder = new ProcessBuilder("git", "pull");
                     builder.directory(git);
                     Process p = builder.start();
@@ -799,6 +787,7 @@ public class FlareBot {
                         return;
                     }
                 }
+                LOGGER.info("Building!");
                 ProcessBuilder maven = new ProcessBuilder("mvn", "clean", "package", "-e", "-U");
                 maven.directory(git);
                 Process p = maven.start();
@@ -814,6 +803,7 @@ public class FlareBot {
                     LOGGER.error("Could not update! Log:** {} **", MessageUtils.hastebin(out));
                     return;
                 }
+                LOGGER.info("Replacing jar!");
                 File current = new File(URLDecoder.decode(getClass().getProtectionDomain().getCodeSource().getLocation()
                         .getPath(), "UTF-8")); // pfft this will go well..
                 Files.copy(current.toPath(), Paths
