@@ -207,7 +207,7 @@ public class Events extends ListenerAdapter {
         } else {
             if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
                 if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
-                    FlareBot.getInstance().getUpdateChannel()
+                    FlareBot.getInstance().getImportantLogChannel()
                             .sendMessage("I am now updating, there are no voice channels active!").queue();
                     UpdateCommand.update(true, null);
                 }
@@ -316,31 +316,8 @@ public class Events extends ListenerAdapter {
         if (cmd.getType() == CommandType.HIDDEN) {
             if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot()
                     && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
-                try {
-                    File dir = new File("imgs");
-                    if (!dir.exists())
-                        dir.mkdir();
-                    File trap = new File("imgs" + File.separator + "trap.jpg");
-                    if (!trap.exists()) {
-                        trap.createNewFile();
-                        URL url = new URL("https://cdn.discordapp.com/attachments/242297848123621376/293873454678147073/trap.jpg");
-                        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
-                        InputStream is = conn.getInputStream();
-                        OutputStream os = new FileOutputStream(trap);
-                        byte[] b = new byte[2048];
-                        int length;
-                        while ((length = is.read(b)) != -1) {
-                            os.write(b, 0, length);
-                        }
-                        is.close();
-                        os.close();
-                    }
-                    event.getAuthor().openPrivateChannel().complete().sendFile(trap, "trap.jpg", null)
-                            .queue();
-                } catch (IOException e) {
-                    FlareBot.LOGGER.error("Unable to save 'It's a trap' Easter Egg :(", e);
-                }
+                GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
+                FlareBot.getInstance().logEG("It's a trap", guild.getGuild(), event.getAuthor());
                 return;
             }
         }

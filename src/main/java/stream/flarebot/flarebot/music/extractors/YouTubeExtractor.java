@@ -19,10 +19,13 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class YouTubeExtractor implements Extractor {
-    public static final String YOUTUBE_URL = "https://www.youtube.com";
+
+    private Random random = new Random();
+
     public static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=";
     public static final String WATCH_URL = "https://www.youtube.com/watch?v=";
     public static final String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:(?:www\\.)|(?:m\\.))?(?:youtube\\.com))/(?:(?:watch\\?v=([^?&\\n]+)(?:&(?:[^?&\\n]+=(?:[^?&\\n]+)))*)|(?:playlist\\?list=([^&?]+))(?:&[^&]*=[^&]+)?))|(?:youtu\\.be/(.*)))";
@@ -68,6 +71,10 @@ public class YouTubeExtractor implements Extractor {
             }*/
             audioTracks.add(track);
             name = track.getInfo().title;
+            if(track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000)+1) == 1000){
+                GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", message.getAuthor());
+                FlareBot.getInstance().logEG("You can't rick roll me!", message.getGuild(), message.getAuthor());
+            }
         }
         if (name != null) {
             List<Track> tracks = audioTracks.stream().map(Track::new).peek(track -> {

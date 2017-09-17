@@ -11,6 +11,6 @@ public interface Callback extends okhttp3.Callback {
     @Override
     default void onFailure(Call call, IOException e) {
         MessageUtils.sendException("Error on API call! URL: " + call.request().url() + "\nBody: "
-                + (call.request().body() != null), e, FlareBot.getInstance().getUpdateChannel());
+                + (call.request().body() != null), e, FlareBot.getInstance().getErrorLogChannel());
     }
 }

@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class FlareBotManager {
@@ -28,6 +29,8 @@ public class FlareBotManager {
     private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
     // Command - reason
     private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
+
+    private List<Long> loadTimes = new CopyOnWriteArrayList<>();
 
     private ExpiringMap<String, GuildWrapper> guilds;
     private final long GUILD_EXPIRE = TimeUnit.MINUTES.toMillis(15);
@@ -75,11 +78,11 @@ public class FlareBotManager {
             public void run(String guildId, GuildWrapper guildWrapper, long expired, long last_retrieved) {
                 //ApiRequester.requestAsync(ApiRoute.UNLOAD, );
                 if ((System.currentTimeMillis() - INACTIVITY_CHECK) > guilds.getLastRetrieved(guildId))
-                    saveGuild(guildId, guildWrapper, last_retrieved, true);
+                    saveGuild(guildId, guildWrapper, last_retrieved);
                 else {
                     setCancelled(true);
                     guilds.resetTime(guildId);
-                    saveGuild(guildId, guildWrapper, last_retrieved, false);
+                    saveGuild(guildId, guildWrapper, last_retrieved);
                 }
             }
         });
@@ -95,7 +98,7 @@ public class FlareBotManager {
     }
 
     // Do not use this method!
-    protected void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved, boolean unload) {
+    protected void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved) {
         long last_r = (last_retrieved == -1 ? System.currentTimeMillis() : last_retrieved);
         CassandraController.runTask(session -> {
             if (saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE " + GUILD_DATA_TABLE
@@ -104,14 +107,8 @@ public class FlareBotManager {
                     .setTimestamp(0, new Date(last_r))
                     .setString(1, FlareBot.GSON.toJson(guildWrapper)).setString(2, guildId));
         });
-        FlareBot.LOGGER.info("Guild " + guildId + "'s data got saved! Last retrieved: " + last_r
+        FlareBot.LOGGER.debug("Guild " + guildId + "'s data got saved! Last retrieved: " + last_r
                 + " (" + new Date(last_r) + ") - " + guilds.size() + " currently loaded.");
-        if (unload)
-            FlareBot.getInstance().getChannelByID(FlareBot.GUILD_LOG).sendMessage(MessageUtils.getEmbed()
-                    .setColor(Color.MAGENTA).setTitle("Guild unloaded!", null)
-                    .setDescription("Guild " + guildId + " unloaded!").addField("Time", "Millis: " + System.currentTimeMillis()
-                            + "\nTime: " + LocalDateTime.now().toString() + "\nLast retrieved: " + last_r, false)
-                    .build()).queue();
     }
 
     public void savePlaylist(TextChannel channel, String owner, String name, List<String> songs) {
@@ -167,7 +164,7 @@ public class FlareBotManager {
     public synchronized GuildWrapper getGuild(String id) {
         //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
         guilds.computeIfAbsent(id, guildId -> {
-            long start = System.nanoTime();
+            long start = System.currentTimeMillis();
             ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
                     + guildId + "'");
             GuildWrapper wrapper;
@@ -176,14 +173,16 @@ public class FlareBotManager {
                 wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
             else
                 wrapper = new GuildWrapperBuilder(id).build();
-            long total = (System.nanoTime() - start);
-            long millis = total / 1000000;
-            FlareBot.getInstance().getChannelByID(FlareBot.GUILD_LOG).sendMessage(MessageUtils.getEmbed()
-                    .setColor(new Color(166, 0, 255)).setTitle("Guild loaded!", null)
-                    .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis()
-                            + "\nTime: " + LocalDateTime.now().toString(), false)
-                    .addField("Load time", millis + "ms (" + total + "ns)", false)
-                    .build()).queue();
+            long total = (System.currentTimeMillis() - start);
+            loadTimes.add(total);
+            if(total >= 100) {
+                FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
+                        .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)
+                        .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis()
+                                + "\nTime: " + LocalDateTime.now().toString(), false)
+                        .addField("Load time", total + "ms", false)
+                        .build()).queue();
+            }
             return wrapper;
         });
         return guilds.get(id);
@@ -208,5 +207,9 @@ public class FlareBotManager {
 
     public Map<String, String> getDisabledCommands() {
         return disabledCommands;
+    }
+
+    public List<Long> getLoadTimes() {
+        return this.loadTimes;
     }
 }

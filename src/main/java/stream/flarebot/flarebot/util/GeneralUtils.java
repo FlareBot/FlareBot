@@ -14,13 +14,21 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -263,5 +271,40 @@ public class GeneralUtils {
     public static Emote getEmoteById(long l) {
         return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
             .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
+    }
+
+    /**
+     * This will download and cache the image if not found already!
+     * @param fileUrl Url to download the image from.
+     * @param fileName Name of the image file.
+     * @param user User to send the image to.
+     */
+    public static void sendImage(String fileUrl, String fileName, User user) {
+        try {
+            File dir = new File("imgs");
+            if (!dir.exists())
+                dir.mkdir();
+            File trap = new File("imgs" + File.separator + fileName);
+            if (!trap.exists()) {
+                trap.createNewFile();
+                URL url = new URL(fileUrl);
+                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+                InputStream is = conn.getInputStream();
+                OutputStream os = new FileOutputStream(trap);
+                byte[] b = new byte[2048];
+                int length;
+                while ((length = is.read(b)) != -1) {
+                    os.write(b, 0, length);
+                }
+                is.close();
+                os.close();
+            }
+            user.openPrivateChannel().complete().sendFile(trap, fileName, null)
+                    .queue();
+        } catch (IOException | ErrorResponseException e) {
+            FlareBot.LOGGER.error("Unable to send image", e);
+        }
+        return;
     }
 }

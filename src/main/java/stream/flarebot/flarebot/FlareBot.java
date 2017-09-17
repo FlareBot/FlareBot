@@ -837,13 +837,16 @@ public class FlareBot {
     protected void stop() {
         LOGGER.info("Saving data.");
         EXITING.set(true);
+        getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
+                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
+        .queue();
         for(ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
         for(JDA client : clients)
             client.removeEventListener(events); //todo: Make a replacement for the array
         sendData();
         for (String s : manager.getGuilds().keySet()) {
-            manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s), false);
+            manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
         }
         LOGGER.info("Finished saving!");
     }
@@ -988,12 +991,27 @@ public class FlareBot {
                 .trim();
     }
 
-    public TextChannel getUpdateChannel() {
+    public TextChannel getErrorLogChannel() {
         return (testBot ? getChannelByID("242297848123621376") : getChannelByID("226786557862871040"));
     }
 
     public TextChannel getGuildLogChannel() {
         return getChannelByID("260401007685664768");
+    }
+
+    public TextChannel getEGLogChannel() {
+        return getChannelByID("358950369642151937");
+    }
+
+    public void logEG(String eg, Guild guild, User user) {
+        getEGLogChannel().sendMessage(new EmbedBuilder().setTitle("Found `" + eg + "`")
+                .addField("Guild", guild.getId() + " (`" + guild.getName() + "`", true)
+                .addField("User", user.getAsMention() + "(`" + user.getName() + "#" + user.getDiscriminator() + "`)", true)
+                .build()).queue();
+    }
+
+    public TextChannel getImportantLogChannel() {
+        return getChannelByID("358978253966278657");
     }
 
     public static String getYoutubeKey() {
