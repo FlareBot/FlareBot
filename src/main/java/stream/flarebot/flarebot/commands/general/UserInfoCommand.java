@@ -25,8 +25,15 @@ public class UserInfoCommand implements Command {
         User user;
         if (args.length == 0)
             user = sender;
-        else
-            user = GeneralUtils.getUser(MessageUtils.getMessage(args, 0));
+        else {
+            if (getPermissions(channel).hasPermission(member, "flarebot.userinfo.other"))
+                user = GeneralUtils.getUser(MessageUtils.getMessage(args, 0));
+            else {
+                MessageUtils.sendErrorMessage("You need the `flarebot.userinfo.other` permission to userinfo other users!",
+                        channel);
+                return;
+            }
+        }
 
         if (user == null) {
             MessageUtils.sendErrorMessage("We cannot find that user!", channel);
