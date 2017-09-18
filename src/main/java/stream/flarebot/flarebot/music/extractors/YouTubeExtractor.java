@@ -12,16 +12,20 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class YouTubeExtractor implements Extractor {
-    public static final String YOUTUBE_URL = "https://www.youtube.com";
+
+    private Random random = new Random();
+
     public static final String PLAYLIST_URL = "https://www.youtube.com/playlist?list=";
     public static final String WATCH_URL = "https://www.youtube.com/watch?v=";
     public static final String ANY_YT_URL = "(?:https?://)?(?:(?:(?:(?:(?:www\\.)|(?:m\\.))?(?:youtube\\.com))/(?:(?:watch\\?v=([^?&\\n]+)(?:&(?:[^?&\\n]+=(?:[^?&\\n]+)))*)|(?:playlist\\?list=([^&?]+))(?:&[^&]*=[^&]+)?))|(?:youtu\\.be/(.*)))";
@@ -43,9 +47,11 @@ public class YouTubeExtractor implements Extractor {
             return;
         } catch (IllegalStateException e) {
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
-                    .setDescription("Youtube could not be reached! Try again in a few minutes!\n" +
+                    .setDescription("There was a problem with that video!\n" +
                             "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
-                            "Error Message: " + e.getMessage())
+                            "Input: " + input + "\n" +
+                            "Error Message: " + e.getMessage() + "\n" +
+                            "Stacktrace: " + MessageUtils.hastebin(ExceptionUtils.getStackTrace(e)))
                     .setColor(Color.RED), message);
             return;
         }
@@ -65,6 +71,10 @@ public class YouTubeExtractor implements Extractor {
             }*/
             audioTracks.add(track);
             name = track.getInfo().title;
+            if(track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000)+1) == 1000){
+                GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", message.getAuthor());
+                FlareBot.getInstance().logEG("You can't rick roll me!", message.getGuild(), message.getAuthor());
+            }
         }
         if (name != null) {
             List<Track> tracks = audioTracks.stream().map(Track::new).peek(track -> {

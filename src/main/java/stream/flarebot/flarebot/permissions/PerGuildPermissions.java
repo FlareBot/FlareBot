@@ -23,6 +23,7 @@ public class PerGuildPermissions {
                     defaults.addPermission(command.getPermission());
                 }
             }
+            defaults.addPermission("flarebot.userinfo.other");
             groups.put("Default", defaults);
         }
     }
@@ -38,14 +39,11 @@ public class PerGuildPermissions {
         if (isContributor(user.getUser()))
             return true;
         PermissionNode node = new PermissionNode(permission);
-        for (String g : getUser(user).getGroups()) {
-            Group group = getGroup(g);
-            for (String s : group.getPermissions()) {
-                if (new PermissionNode(s).test(node))
-                    return true;
-            }
-            if (group.getRoleId() != null && user.getGuild().getRoleById(group.getRoleId()) != null) {
-                if (user.getRoles().contains(user.getGuild().getRoleById(group.getRoleId()))) {
+        for (Group g : getGroups().values()) {
+            if(!g.hasPermission(node)) continue;
+            if(getUser(user).getGroups().contains(g.getName())) return true;
+            if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
+                if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {
                     return true;
                 }
             }

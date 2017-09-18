@@ -55,4 +55,8 @@ public class Scheduler {
         }
         return false;
     }
+
+    public static Map<String, ScheduledFuture<?>> getTasks() {
+        return tasks;
+    }
 }
