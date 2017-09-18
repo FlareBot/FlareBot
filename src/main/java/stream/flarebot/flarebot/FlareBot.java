@@ -1006,7 +1006,7 @@ public class FlareBot {
     public void logEG(String eg, Guild guild, User user) {
         getEGLogChannel().sendMessage(new EmbedBuilder().setTitle("Found `" + eg + "`")
                 .addField("Guild", guild.getId() + " (`" + guild.getName() + "`)", true)
-                .addField("User", user.getAsMention() + "(`" + user.getName() + "#" + user.getDiscriminator() + "`)", true)
+                .addField("User", user.getAsMention() + " (`" + user.getName() + "#" + user.getDiscriminator() + "`)", true)
                 .setTimestamp(LocalDateTime.now(Clock.systemUTC()))
                 .build()).queue();
     }
