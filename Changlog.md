@@ -17,6 +17,8 @@
  - Feature for us to block your guild from using FlareBot. This will happen if you spam or abuse our system and can/will happen at Walshy's discretion.
  - Added a beta test pin feature - if a post in the official guild gets 5 pin reactions that post will be pinned. This is a test and will be adapted on before we released it as a feature to everyone.
  - Added `repeat` command, this will play the current song again.
+ - Added multiple modertion commands - `ban`, `forceban`, `kick` and `mute`. 
+ 
  - Easter eggs! Gotta find 'em all!
 
 ## Changed
@@ -31,6 +33,7 @@
  - The `play` command now makes the bot join the voice channel if it isn't in any other channel.
  - Our entire backend data management, this doesn't mean much to you but means a lot to us!
  - Enabled livestreams! You can now queue a livestream normally and we have improved how it is displayed in the song command
+ - Internal logging
 
 ## Fixed
  - Stopped Auto assign throwing an error if a role is deleted.
