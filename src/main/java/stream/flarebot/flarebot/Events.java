@@ -36,14 +36,7 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -73,10 +66,11 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if(!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
+        if (!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
         if (!event.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD)) return;
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
-            MessageReaction reaction = message.getReactions().stream().filter(r -> r.getEmote().getName().equals(event.getReactionEmote().getName())).findFirst().orElse(null);
+            MessageReaction reaction =
+                    message.getReactions().stream().filter(r -> r.getEmote().getName().equals(event.getReactionEmote().getName())).findFirst().orElse(null);
             if (reaction != null) {
                 if (reaction.getCount() == 5) {
                     message.pin().complete();
@@ -100,7 +94,7 @@ public class Events extends ListenerAdapter {
             Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
             if ((welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
-                if(welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
+                if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
                     TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
                     if (!channel.canTalk()) {
                         welcome.setGuildEnabled(false);
@@ -115,7 +109,7 @@ public class Events extends ListenerAdapter {
                         channel.sendMessage(guildMsg).queue();
                     }
                 }
-                if(welcome.isDmEnabled()) {
+                if (welcome.isDmEnabled()) {
                     String dmMsg = welcome.getRandomDmMessage()
                             .replace("%user%", event.getMember().getUser().getName())
                             .replace("%guild%", event.getGuild().getName())
@@ -204,17 +198,17 @@ public class Events extends ListenerAdapter {
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
             }
+            if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
+                FlareBot.getInstance().getImportantLogChannel()
+                        .sendMessage("I am now updating, there are no voice channels active!").queue();
+                UpdateCommand.update(true, null);
+            }
         } else {
             if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
-                if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
-                    FlareBot.getInstance().getImportantLogChannel()
-                            .sendMessage("I am now updating, there are no voice channels active!").queue();
-                    UpdateCommand.update(true, null);
-                }
                 return;
             }
-            if (event.getChannelLeft().getMembers().contains(event.getGuild().getMember(event.getJDA().getSelfUser()))
-                    && event.getChannelLeft().getMembers().size() < 2) {
+            if (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
+                    .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size()) {
                 event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
             }
         }
@@ -321,17 +315,15 @@ public class Events extends ListenerAdapter {
                 return;
             }
         }
-        if (guild.isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) {
-            return;
-        }
+        if (guild.isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) return;
+        if (handleMissingPermission(cmd, event)) return;
+        if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) return;
         if (UpdateCommand.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
         }
-        if (handleMissingPermission(cmd, event))
-            return;
 
-        if(flareBot.getManager().isCommandDisabled(cmd.getCommand())) {
+        if (flareBot.getManager().isCommandDisabled(cmd.getCommand())) {
             event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor()).setColor(Color.red)
                     .setDescription(flareBot.getManager().getDisabledCommandReason(cmd.getCommand())).build()).queue();
             return;
@@ -363,7 +355,7 @@ public class Events extends ListenerAdapter {
 
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
         if (cmd.getDiscordPermission() != null) {
-            if(!cmd.getDiscordPermission().isEmpty())
+            if (!cmd.getDiscordPermission().isEmpty())
                 if (e.getMember().getPermissions().containsAll(cmd.getDiscordPermission()))
                     return false;
         }

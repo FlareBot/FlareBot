@@ -34,8 +34,6 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
-import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.core.utils.SimpleLog;
@@ -52,6 +50,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
 import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
+import stream.flarebot.flarebot.commands.general.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.HelpCommand;
 import stream.flarebot.flarebot.commands.general.InfoCommand;
 import stream.flarebot.flarebot.commands.general.InviteCommand;
@@ -119,6 +118,7 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -299,7 +299,7 @@ public class FlareBot {
                 .setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         try {
             (instance = new FlareBot()).init(tkn);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -383,7 +383,7 @@ public class FlareBot {
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
                         }
                     } else {
-                        if(!canChangeNick(player.getGuildId())) {
+                        if (!canChangeNick(player.getGuildId())) {
                             MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                     "FlareBot can't change it's nickname so SongNick has been disabled!");
                         }
@@ -423,7 +423,7 @@ public class FlareBot {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null || !canChangeNick(player.getGuildId())) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
-                            if(!canChangeNick(player.getGuildId())) {
+                            if (!canChangeNick(player.getGuildId())) {
                                 MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                         "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
@@ -482,10 +482,10 @@ public class FlareBot {
     }
 
     private boolean canChangeNick(String guildId) {
-        if(getGuildByID(guildId) != null) {
+        if (getGuildByID(guildId) != null) {
             return getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
                     getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
-        }else
+        } else
             return false;
     }
 
@@ -531,6 +531,7 @@ public class FlareBot {
         registerCommand(new WarnCommand());
         registerCommand(new WarningsCommand());
         registerCommand(new CommandUsageCommand());
+        registerCommand(new CurrencyCommand());
 
 //        registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
@@ -839,10 +840,10 @@ public class FlareBot {
         EXITING.set(true);
         getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
                 .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
-        .queue();
-        for(ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
+                .queue();
+        for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
-        for(JDA client : clients)
+        for (JDA client : clients)
             client.removeEventListener(events); //todo: Make a replacement for the array
         sendData();
         for (String s : manager.getGuilds().keySet()) {

@@ -8,11 +8,20 @@ import java.io.IOException;
 
 public class CurrencyConversionUtil {
 
+    public static boolean normalEndpointAvailable() {
+        return WebUtils.pingHost(CurrencyApiRoutes.NormalApi.LATEST_ALL.getCompiledUrl(), 300);
+    }
+
+    public static boolean cryptoEndpintAvailable() {
+        return WebUtils.pingHost(CurrencyApiRoutes.CrytoApi.LIST_CURRENCIES.getCompiledUrl(), 300);
+    }
+
     public static boolean isValidCurrency(String currency) throws IOException {
         return isValidCurrency(currency, false);
     }
 
     public static boolean isValidCurrency(String currency, boolean nonCrypto) throws IOException {
+        if (!normalEndpointAvailable()) return isValidCurrency(currency) && !nonCrypto;
         Response res = WebUtils.get(CurrencyApiRoutes.NormalApi.LATEST_ALL.getCompiledUrl());
         if (!res.isSuccessful() || res.body() == null) {
             return isValidCrytoCurrency(currency) && !nonCrypto;
@@ -26,6 +35,7 @@ public class CurrencyConversionUtil {
     }
 
     public static Boolean isValidCrytoCurrency(String currency) throws IOException {
+        if (!cryptoEndpintAvailable()) return false;
         Response res = WebUtils.get(CurrencyApiRoutes.CrytoApi.BASIC_TICKER.getCompiledUrl("usd", currency));
         if (!res.isSuccessful() || res.body() == null) throw new IOException();
 

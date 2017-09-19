@@ -144,7 +144,12 @@ public class MessageUtils {
     }
 
     public static Message sendErrorMessage(String message, MessageChannel channel) {
-        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.red).setDescription(message).build())
+        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.RED).setDescription(message).build())
+                .complete();
+    }
+
+    public static Message sendWarningMessage(String message, MessageChannel channel) {
+        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.YELLOW).setDescription(message).build())
                 .complete();
     }
 
@@ -194,7 +199,7 @@ public class MessageUtils {
     public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        if(command.getPermission() != null)
+        if (command.getPermission() != null)
             return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
                     .addField("Permission", command.getPermission() + "\n" +
                             "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build());
@@ -296,4 +301,6 @@ public class MessageUtils {
     public static String escapeMarkdown(String s) {
         return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
     }
+
+
 }
