@@ -70,7 +70,8 @@ public class WelcomeCommand implements Command {
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 4);
                                 guild.getWelcome().getDmMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
+                                channel.sendMessage("Added welcome message `"
+                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
                             } else {
                                 MessageUtils.getUsage(this, channel, sender).queue();
                             }
@@ -126,7 +127,8 @@ public class WelcomeCommand implements Command {
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 3);
                                 guild.getWelcome().getGuildMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
+                                channel.sendMessage("Added welcome message `"
+                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
                             } else {
                                 MessageUtils.getUsage(this, channel, sender).queue();
                             }
@@ -199,7 +201,7 @@ public class WelcomeCommand implements Command {
             for (String messagesMessage : messagesSub) {
                 List<String> part = new ArrayList<>();
                 part.add(String.valueOf(i));
-                part.add(messagesMessage);
+                part.add(MessageUtils.escapeMarkdown(messagesMessage));
                 body.add(part);
                 i++;
             }

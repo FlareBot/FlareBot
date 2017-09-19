@@ -243,8 +243,6 @@ public class Events extends ListenerAdapter {
                 }
             }
             String message = event.getMessage().getRawContent();
-            //message = message.replaceAll("`", "'");
-            message = MessageUtils.escapeMarkdown(message);
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
