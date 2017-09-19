@@ -36,7 +36,7 @@ public class LogsCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.HIDDEN;
+        return CommandType.SECRET;
     }
 
     @Override

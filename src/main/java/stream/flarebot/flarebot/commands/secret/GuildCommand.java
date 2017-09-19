@@ -83,7 +83,7 @@ public class GuildCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.HIDDEN;
+        return CommandType.SECRET;
     }
 
     private void handleBlock(TextChannel channel, String guildId, String reason) {
