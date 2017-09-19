@@ -22,7 +22,7 @@ import java.util.Random;
 public class ConvertCommand implements Command {
 
     private Random random = new Random();
-    
+
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.#################");
 
     @Override
