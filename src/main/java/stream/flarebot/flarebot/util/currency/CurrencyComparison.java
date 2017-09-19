@@ -7,8 +7,8 @@ public class CurrencyComparison {
     private final Double rate;
 
     public CurrencyComparison(String base, String to, Double rate) {
-        this.base = base;
-        this.to = to;
+        this.base = base.toUpperCase();
+        this.to = to.toUpperCase();
         this.rate = rate;
     }
 

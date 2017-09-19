@@ -16,15 +16,18 @@ import stream.flarebot.flarebot.util.currency.CurrencyConversionUtil;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.Random;
 
 public class CurrencyCommand implements Command {
+
+    private Random random = new Random();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (args.length == 1) {
                 MessageUtils.sendErrorMessage("You must specify a target currency!", channel);
-            } else if (args.length == 2 || args.length == 3) {
+            } else if (args.length == 2) {
                 if (!CurrencyConversionUtil.normalEndpointAvailable()) {
                     MessageUtils.sendWarningMessage("The normal currencies API is not available! Results may not be complete!", channel);
                 }
@@ -39,26 +42,24 @@ public class CurrencyCommand implements Command {
                     if (!CurrencyConversionUtil.isValidCurrency(to))
                         MessageUtils.sendErrorMessage("The currency `" + to + "` is not valid!", channel);
 
-                    CurrencyComparison comparison = CurrencyConversionUtil.getCurrencyComparison(from, to);
-                    if (args.length == 2) {
-                        channel.sendMessage(getCurrencyRatesEmbed(sender, comparison)).queue();
-                    } else {
-                        Double amount;
-                        try {
-                            amount = Double.parseDouble(args[2]);
-                        } catch (NumberFormatException e) {
-                            MessageUtils.sendErrorMessage("That is not a valid amount!", channel);
-                            return;
+                    CurrencyComparison comparison;
+                    if (from.equalsIgnoreCase(to)) {
+                        if ((random.nextInt(100) + 1) == 100) {
+                            channel.sendMessage("I had hoped you didn't need me for that...").complete();
+                            FlareBot.getInstance().logEG("Convert a currency to itself...", guild.getGuild(), sender);
                         }
-                        channel.sendMessage(getCurrencyConversionEmbed(sender, comparison, amount)).queue();
+                        comparison = new CurrencyComparison(from, to, (double) 1);
+                    } else {
+                        comparison = CurrencyConversionUtil.getCurrencyComparison(from, to);
                     }
+
+                    channel.sendMessage(getCurrencyRatesEmbed(sender, comparison)).queue();
+
                     return;
                 } catch (IOException e) {
                     MessageUtils.sendException("There was an error completing your request! \n" +
                             "Please join the support guild: " + FlareBot.INVITE_URL, e, channel);
                 }
-            } else if (args.length == 3) {
-
             }
         }
         MessageUtils.getUsage(this, channel, sender).queue();
@@ -71,7 +72,7 @@ public class CurrencyCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Allows currency conversion and viewing of currency conversion rates.";
+        return "Allows viewing of currency conversion rates.";
     }
 
     @Override
@@ -95,17 +96,9 @@ public class CurrencyCommand implements Command {
                 .setDescription("Currency Conversion Rates")
                 .addField("From", c.getBase(), true)
                 .addField("To", c.getTo(), true)
-                .addField("Rate", String.valueOf(c.getRate()), false);
+                .addField("Rate", ConvertCommand.DECIMAL_FORMAT.format(c.getRate()), false);
         return builder.build();
     }
 
-    private MessageEmbed getCurrencyConversionEmbed(User sender, CurrencyComparison c, Double from) {
-        EmbedBuilder builder = MessageUtils.getEmbed(sender);
-        builder.setColor(Color.CYAN)
-                .setDescription("Currency Conversion")
-                .addField(c.getBase(), String.valueOf(from), true)
-                .addField(c.getTo(), String.valueOf(from * c.getRate()), true);
-        return builder.build();
-    }
 
 }
