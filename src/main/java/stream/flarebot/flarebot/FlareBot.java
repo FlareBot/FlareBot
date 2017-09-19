@@ -34,6 +34,8 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.core.utils.SimpleLog;
@@ -61,6 +63,8 @@ import stream.flarebot.flarebot.commands.moderation.RolesCommand;
 import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
 import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.ForceBanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.KickCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
 import stream.flarebot.flarebot.commands.moderation.mod.WarnCommand;
@@ -526,6 +530,8 @@ public class FlareBot {
 
         registerCommand(new TestCommand());
 
+        registerCommand(new KickCommand());
+        registerCommand(new ForceBanCommand());
         registerCommand(new BanCommand());
         registerCommand(new MuteCommand());
         registerCommand(new UnmuteCommand());
@@ -1093,6 +1099,16 @@ public class FlareBot {
             try {
                 return jda.getUserById(id);
             } catch (Exception ignored) {
+            }
+            return null;
+        }).filter(Objects::nonNull).findFirst().orElse(null);
+    }
+
+    public User retrieveUserById(long id) {
+        return Arrays.stream(clients).map(jda -> {
+            try {
+                return jda.retrieveUserById(id).complete();
+            } catch (ErrorResponseException ex) {
             }
             return null;
         }).filter(Objects::nonNull).findFirst().orElse(null);

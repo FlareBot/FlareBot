@@ -171,6 +171,14 @@ public class GeneralUtils {
     }
 
     public static User getUser(String s, String guildId) {
+        return getUser(s, guildId, false);
+    }
+
+    public static User getUser(String s, boolean forceGet) {
+        return getUser(s, null, forceGet);
+    }
+
+    public static User getUser(String s, String guildId, boolean forceGet) {
         if (userDiscrim.matcher(s).find()) {
             if (guildId == null || guildId.isEmpty()) {
                 return FlareBot.getInstance().getUsers().stream()
@@ -204,7 +212,11 @@ public class GeneralUtils {
                 } else {
                     tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l).getUser();
                 }
-                if (tmp != null) return tmp;
+                if (tmp != null) {
+                    return tmp;
+                } else if (forceGet) {
+                    return FlareBot.getInstance().retrieveUserById(l);
+                }
             } catch (NumberFormatException | NullPointerException ignored) {
             }
         }
@@ -225,7 +237,7 @@ public class GeneralUtils {
     }
 
     public static boolean validPerm(String perm) {
-        if(perm.equals("*") || perm.equals("flarebot.*")) return true;
+        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
@@ -261,16 +273,16 @@ public class GeneralUtils {
                     "connect" : "speak") + " in your voice channel!", channel);
         }
     }
-  
+
     public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
         List<T> list = new ArrayList<>(strings);
         Collections.sort(list, Comparable::compareTo);
         return list;
     }
-    
+
     public static Emote getEmoteById(long l) {
         return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
-            .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
+                .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
     }
 
     /**
