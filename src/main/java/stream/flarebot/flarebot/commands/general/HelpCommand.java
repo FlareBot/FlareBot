@@ -23,10 +23,6 @@ public class HelpCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("here")) {
-                sendCommands(channel.getGuild(), sender.openPrivateChannel().complete(), sender);
-                return;
-            }
             CommandType type;
             try {
                 type = CommandType.valueOf(args[0].toUpperCase());

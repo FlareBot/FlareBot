@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.objects;
+package stream.flarebot.flarebot.util.objects;
 
 import net.dv8tion.jda.core.requests.RestAction;
 import stream.flarebot.flarebot.commands.Command;

@@ -44,7 +44,7 @@ public class PlaylistCommand implements Command {
                 } else {
                     MessageUtils.getUsage(this, channel, sender).queue();
                 }
-            } else if (args.length == 2) {
+            } else {
                 if (args[0].equalsIgnoreCase("remove")) {
                     int number;
                     try {
@@ -77,7 +77,9 @@ public class PlaylistCommand implements Command {
     }
 
     private void send(MessageChannel mchannel, TextChannel channel, Member sender) {
-        if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()) {
+        Track currentTrack = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
+        if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
+                || currentTrack != null) {
             List<String> songs = new ArrayList<>();
             int i = 1;
             StringBuilder sb = new StringBuilder();
@@ -96,6 +98,10 @@ public class PlaylistCommand implements Command {
             }
             songs.add(sb.toString());
             EmbedBuilder builder = MessageUtils.getEmbed(sender.getUser());
+            builder.addField("Current Song", String.format("[`%s`](%s) | Requested by <@!%s>\n",
+                    currentTrack.getTrack().getInfo().title,
+                    YouTubeExtractor.WATCH_URL + currentTrack.getTrack().getIdentifier(),
+                    currentTrack.getMeta().get("requester")), false);
             i = 1;
             for (String s : songs) {
                 int page = i++;
@@ -105,7 +111,10 @@ public class PlaylistCommand implements Command {
                     break;
                 builder.addField("Page " + page, s, false);
             }
-            mchannel.sendMessage(builder.build()).queue();
+            if((i-1) == 1)
+                channel.sendMessage(builder.build()).queue();
+            else
+                mchannel.sendMessage(builder.build()).queue();
         } else {
             MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);
         }

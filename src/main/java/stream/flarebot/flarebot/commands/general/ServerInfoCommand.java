@@ -56,10 +56,7 @@ public class ServerInfoCommand implements Command {
                         FlareBot.getInstance().formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
         eb.addField("Channels", "**Text**\n" +
                 "Total: " +
-                guild.getRoles().size() + "\n" +
-                "\n" +
-                "Default: " +
-                "#" + guild.getTextChannelById(guild.getId()).getName() + "\n" +
+                guild.getTextChannels().size() + "\n" +
                 "\n" +
                 "**Voice**\n" +
                 "Total: " +

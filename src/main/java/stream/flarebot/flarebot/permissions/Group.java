@@ -34,6 +34,18 @@ public class Group {
         return permissions.remove(permission);
     }
 
+    public boolean hasPermission(String permission) {
+        return hasPermission(new PermissionNode(permission));
+    }
+
+    public boolean hasPermission(PermissionNode node) {
+        for(String s : permissions) {
+            if (new PermissionNode(s).test(node))
+                return true;
+        }
+        return false;
+    }
+
     public void linkRole(String roleId){
         this.roleId = roleId;
     }

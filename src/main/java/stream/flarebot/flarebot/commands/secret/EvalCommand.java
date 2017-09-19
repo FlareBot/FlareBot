@@ -41,6 +41,7 @@ public class EvalCommand implements Command {
             "java.util",
             "java.lang",
             "java.text",
+            "java.lang",
             "java.math",
             "java.time",
             "java.io",

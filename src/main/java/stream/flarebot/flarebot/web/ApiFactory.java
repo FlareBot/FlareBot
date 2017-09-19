@@ -7,6 +7,7 @@ import stream.flarebot.flarebot.util.ExceptionUtils;
 
 @SuppressWarnings("Duplicates")
 public class ApiFactory {
+
     public static void bind() {
         Spark.get("/data/:provider", (request, response) -> {
             response.header("Content-Type", "application/json");

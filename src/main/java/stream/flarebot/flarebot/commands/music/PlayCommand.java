@@ -34,6 +34,7 @@ public class PlayCommand implements Command {
                 if (LocalDateTime.now().getHour() == 0 && LocalDateTime.now().getMinute() == 0 && LocalDateTime.now().getSecond() == 0) {
                     channel.sendMessage(new EmbedBuilder().setTitle("Jesus Quist", null).setDescription("It's quite late to be listening to music! You should be asleep! " +
                             ":zzz: :night_with_stars:").setColor(Color.blue).build()).queue();
+                    FlareBot.getInstance().logEG("Jesus Quist - Late night", guild.getGuild(), sender);
                 }
             }
             if (member.getVoiceState().inVoiceChannel()) {

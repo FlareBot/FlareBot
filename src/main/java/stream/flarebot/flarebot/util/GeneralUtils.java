@@ -7,23 +7,36 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -54,7 +67,7 @@ public class GeneralUtils {
         eb.addField("Status", report.getStatus().getMessage(), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
-        StringBuilder builder = new StringBuilder("The last 10 messages by the reported user: ```\n");
+        StringBuilder builder = new StringBuilder("The last 5 messages by the reported user: ```\n");
         for (Message m : report.getMessages()) {
             builder.append("[" + m.getCreationTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
                     .append(GeneralUtils.truncate(100, m.getContent()))
@@ -102,6 +115,7 @@ public class GeneralUtils {
         Optional<AudioItem> item = Optional.empty();
         boolean failed = false;
         int backoff = 2;
+        Throwable cause = null;
         for (int i = 0; i <= 2; i++) {
             try {
                 item = Optional.ofNullable(player.resolve(input));
@@ -109,6 +123,8 @@ public class GeneralUtils {
                 break;
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
+                cause = e;
+                FlareBot.LOGGER.error("Cannot get video '" + input + "'", e);
                 try {
                     Thread.sleep(backoff);
                 } catch (InterruptedException ignored) {
@@ -117,7 +133,7 @@ public class GeneralUtils {
             }
         }
         if (failed) {
-            throw new IllegalStateException();
+            throw new IllegalStateException(cause.getMessage(), cause);
         } else if (!item.isPresent()) {
             throw new IllegalArgumentException();
         }
@@ -155,6 +171,14 @@ public class GeneralUtils {
     }
 
     public static User getUser(String s, String guildId) {
+        return getUser(s, guildId, false);
+    }
+
+    public static User getUser(String s, boolean forceGet) {
+        return getUser(s, null, forceGet);
+    }
+
+    public static User getUser(String s, String guildId, boolean forceGet) {
         if (userDiscrim.matcher(s).find()) {
             if (guildId == null || guildId.isEmpty()) {
                 return FlareBot.getInstance().getUsers().stream()
@@ -188,7 +212,11 @@ public class GeneralUtils {
                 } else {
                     tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l).getUser();
                 }
-                if (tmp != null) return tmp;
+                if (tmp != null) {
+                    return tmp;
+                } else if (forceGet) {
+                    return FlareBot.getInstance().retrieveUserById(l);
+                }
             } catch (NumberFormatException | NullPointerException ignored) {
             }
         }
@@ -209,6 +237,7 @@ public class GeneralUtils {
     }
 
     public static boolean validPerm(String perm) {
+        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
@@ -243,5 +272,51 @@ public class GeneralUtils {
                             .getChannel(), Permission.VOICE_CONNECT) ?
                     "connect" : "speak") + " in your voice channel!", channel);
         }
+    }
+
+    public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
+        List<T> list = new ArrayList<>(strings);
+        Collections.sort(list, Comparable::compareTo);
+        return list;
+    }
+
+    public static Emote getEmoteById(long l) {
+        return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
+                .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
+    }
+
+    /**
+     * This will download and cache the image if not found already!
+     * @param fileUrl Url to download the image from.
+     * @param fileName Name of the image file.
+     * @param user User to send the image to.
+     */
+    public static void sendImage(String fileUrl, String fileName, User user) {
+        try {
+            File dir = new File("imgs");
+            if (!dir.exists())
+                dir.mkdir();
+            File trap = new File("imgs" + File.separator + fileName);
+            if (!trap.exists()) {
+                trap.createNewFile();
+                URL url = new URL(fileUrl);
+                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+                InputStream is = conn.getInputStream();
+                OutputStream os = new FileOutputStream(trap);
+                byte[] b = new byte[2048];
+                int length;
+                while ((length = is.read(b)) != -1) {
+                    os.write(b, 0, length);
+                }
+                is.close();
+                os.close();
+            }
+            user.openPrivateChannel().complete().sendFile(trap, fileName, null)
+                    .queue();
+        } catch (IOException | ErrorResponseException e) {
+            FlareBot.LOGGER.error("Unable to send image", e);
+        }
+        return;
     }
 }

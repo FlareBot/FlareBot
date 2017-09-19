@@ -1,12 +1,8 @@
-package stream.flarebot.flarebot.util.expiringmap;
+package stream.flarebot.flarebot.util.objects.expiringmap;
 
 import stream.flarebot.flarebot.util.Pair;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -22,7 +18,9 @@ public class ExpiringMap<K, V> {
         this.expireAfterMS = expireAfterMS;
         elem = new TreeMap<>();
         this.expiredEvent = new ExpiredEvent<K, V>() {
-            public void run(K k, V v, long expired, long last_retrieved) {}
+            @Override
+            public void run(K k, V v, long expired, long last_retrieved) {
+            }
         };
     }
 
@@ -36,13 +34,13 @@ public class ExpiringMap<K, V> {
         this.purge(false);
     }
 
-    public void purge(boolean force) {
+    public synchronized void purge(boolean force) {
         long issueMS = System.currentTimeMillis();
         Iterator<Map.Entry<Long, Pair<ConcurrentMap<K, V>, Long>>> e = elem.entrySet().iterator();
         while (e.hasNext()) {
             Map.Entry<Long, Pair<ConcurrentMap<K, V>, Long>> a = e.next();
             if (issueMS >= a.getKey() || force) {
-                if(expiredEvent != null) {
+                if (expiredEvent != null) {
                     for (K k : a.getValue().getKey().keySet()) {
                         expiredEvent.run(k, a.getValue().getKey().get(k), a.getKey(), a.getValue().getValue());
                     }
@@ -124,26 +122,34 @@ public class ExpiringMap<K, V> {
 
     public Set<K> keySet() {
         Set<K> set = new HashSet<>();
-        for(long l : this.elem.keySet()) {
+        for (long l : this.elem.keySet()) {
             set.addAll(this.elem.get(l).getKey().keySet());
         }
         return set;
     }
 
     public long getLastRetrieved(K k) {
-        for(Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
-            if(pair.getKey().equals(k))
+        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
+            if (pair.getKey().equals(k))
                 return pair.getValue();
         }
         return -1;
     }
 
     public void resetTime(K k) {
-        for(long l : this.elem.keySet()) {
-            if(this.elem.get(l).getKey().containsKey(k)) {
+        for (long l : this.elem.keySet()) {
+            if (this.elem.get(l).getKey().containsKey(k)) {
                 this.elem.put(System.currentTimeMillis() + expireAfterMS, this.elem.get(l));
                 this.elem.remove(l);
             }
         }
+    }
+
+    public int size() {
+        int size = 0;
+        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
+            size += pair.getKey().size();
+        }
+        return size;
     }
 }
