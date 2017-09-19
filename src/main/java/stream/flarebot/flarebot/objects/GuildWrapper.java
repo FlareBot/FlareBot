@@ -230,4 +230,8 @@ public class GuildWrapper {
     public void setBetaAccess(boolean betaAccess) {
         this.betaAccess = betaAccess;
     }
+
+    public boolean getBetaAccess() {
+        return betaAccess;
+    }
 }

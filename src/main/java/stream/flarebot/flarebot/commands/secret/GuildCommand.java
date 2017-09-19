@@ -61,10 +61,10 @@ public class GuildCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
-                    guild.setBetaAccess(true);
+                    guild.setBetaAccess(!guild.getBetaAccess());
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setColor(Color.GREEN)
-                            .setDescription("This guild has successfully been given beta access!")
+                            .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
+                            .setDescription("This guild has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
                             .build()).queue();
                     return;
                 } else if (args.length == 2) {
@@ -73,10 +73,10 @@ public class GuildCommand implements Command {
                         MessageUtils.sendErrorMessage("That guild does not exist!", channel);
                         return;
                     } else {
-                        guildWrapper.setBetaAccess(true);
+                        guildWrapper.setBetaAccess(!guild.getBetaAccess());
                         channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(Color.GREEN)
-                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been given beta access!")
+                                .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
+                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
                                 .build()).queue();
                         return;
                     }
