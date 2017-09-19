@@ -49,6 +49,10 @@ public interface Command {
         return true;
     }
 
+    default boolean isBetaTesterCommand() {
+        return false;
+    }
+
     default char getPrefix(Guild guild) {
         return FlareBot.getPrefix(guild.getId());
     }

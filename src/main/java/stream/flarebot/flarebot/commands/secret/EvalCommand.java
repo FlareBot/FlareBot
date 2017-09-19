@@ -33,6 +33,8 @@ public class EvalCommand implements Command {
             "stream.flarebot.flarebot.permissions",
             "stream.flarebot.flarebot.commands",
             "stream.flarebot.flarebot.music.extractors",
+            "stream.flarebot.flarebot.util.currency",
+            "stream.flarebot.flarebot.util.objects",
             "net.dv8tion.jda.core",
             "net.dv8tion.jda.core.managers",
             "net.dv8tion.jda.core.entities.impl",
@@ -51,36 +53,37 @@ public class EvalCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-            String imports = IMPORTS.stream().map(s -> "Packages." + s).collect(Collectors.joining(", ", "var imports = new JavaImporter(", ");\n"));
-            ScriptEngine engine = manager.getEngineByName("nashorn");
-            engine.put("channel", channel);
-            engine.put("guild", guild);
-            engine.put("message", message);
-            engine.put("jda", sender.getJDA());
-            engine.put("sender", sender);
-            String code;
-            boolean silent = args.length > 0 && args[0].equalsIgnoreCase("-s");
-            if(silent)
-                code = FlareBot.getMessage(args, 1);
-            else
-                code = Arrays.stream(args).collect(Collectors.joining(" "));
-            POOL.submit(() -> {
-                try {
-                    String eResult = String.valueOf(engine.eval(imports + "with (imports) {\n" + code + "\n}"));
-                    if (("```js\n" + eResult + "\n```").length() > 1048) {
-                        eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
-                    } else eResult = "```js\n" + eResult + "\n```";
-                    if(!silent)
-                        channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .addField("Code:", "```js\n" + code + "```", false)
-                            .addField("Result: ", eResult, false).build()).queue();
-                } catch (Exception e) {
-                    FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
+        String imports =
+                IMPORTS.stream().map(s -> "Packages." + s).collect(Collectors.joining(", ", "var imports = new JavaImporter(", ");\n"));
+        ScriptEngine engine = manager.getEngineByName("nashorn");
+        engine.put("channel", channel);
+        engine.put("guild", guild);
+        engine.put("message", message);
+        engine.put("jda", sender.getJDA());
+        engine.put("sender", sender);
+        String code;
+        boolean silent = args.length > 0 && args[0].equalsIgnoreCase("-s");
+        if (silent)
+            code = FlareBot.getMessage(args, 1);
+        else
+            code = Arrays.stream(args).collect(Collectors.joining(" "));
+        POOL.submit(() -> {
+            try {
+                String eResult = String.valueOf(engine.eval(imports + "with (imports) {\n" + code + "\n}"));
+                if (("```js\n" + eResult + "\n```").length() > 1048) {
+                    eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
+                } else eResult = "```js\n" + eResult + "\n```";
+                if (!silent)
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .addField("Code:", "```js\n" + code + "```", false)
-                            .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
-                }
-            });
+                            .addField("Result: ", eResult, false).build()).queue();
+            } catch (Exception e) {
+                FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .addField("Code:", "```js\n" + code + "```", false)
+                        .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
+            }
+        });
     }
 
     @Override

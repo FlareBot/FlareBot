@@ -59,6 +59,28 @@ public class GuildCommand implements Command {
                     channel.sendMessage(embedBuilder.build()).queue();
                     return;
                 }
+            } else if (args[0].equalsIgnoreCase("beta")) {
+                if (args.length == 1) {
+                    guild.setBetaAccess(!guild.getBetaAccess());
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
+                            .setDescription("This guild has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                            .build()).queue();
+                    return;
+                } else if (args.length == 2) {
+                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[0]);
+                    if (guildWrapper == null) {
+                        MessageUtils.sendErrorMessage("That guild does not exist!", channel);
+                        return;
+                    } else {
+                        guildWrapper.setBetaAccess(!guild.getBetaAccess());
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
+                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                                .build()).queue();
+                        return;
+                    }
+                }
             }
             MessageUtils.getUsage(this, channel, sender).queue();
         }
@@ -78,7 +100,8 @@ public class GuildCommand implements Command {
     public String getUsage() {
         return "`{%}guild block [guildID] [reason]` - Blocks this guild [or another guild]\n" +
                 "`{%}guild unblock [guildID]` - Unblocks this guild [or another guild]\n" +
-                "`{%}guild status [guildID]` - Shows the status of this guild [or another guild]";
+                "`{%}guild status [guildID]` - Shows the status of this guild [or another guild]\n" +
+                "`{%}guild beta [guildID]` - Gives beta access to this guild [or another guild]";
     }
 
     @Override
