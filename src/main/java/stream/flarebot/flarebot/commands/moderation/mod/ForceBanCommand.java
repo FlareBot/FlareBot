@@ -18,17 +18,17 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 import java.util.EnumSet;
 
-public class BanCommand implements Command {
+public class ForceBanCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (channel.getGuild().getSelfMember().hasPermission(channel, Permission.BAN_MEMBERS)) {
-                User user = GeneralUtils.getUser(args[0]);
+                User user = GeneralUtils.getUser(args[0], true);
                 if (user == null) {
                     channel.sendMessage(new EmbedBuilder()
-                            .setDescription("We cannot find that user! Try their ID if you didn't already.")
-                            .setColor(Color.red).build()).queue();
+                            .setDescription("We cannot find that user!")
+                            .setColor(Color.RED).build()).queue();
                     return;
                 }
                 String reason = null;
@@ -36,7 +36,7 @@ public class BanCommand implements Command {
                     reason = MessageUtils.getMessage(args, 1);
                 guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                 try {
-                    channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7, reason).queue();
+                    channel.getGuild().getController().ban(user, 7, reason).queue();
                     channel.sendMessage(new EmbedBuilder()
                             .setColor(Color.GREEN)
                             .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
@@ -58,12 +58,12 @@ public class BanCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "ban";
+        return "forceban";
     }
 
     @Override
     public String getDescription() {
-        return "Bans a user";
+        return "Bans a user that is potentially not on the server.";
     }
 
     @Override
