@@ -49,20 +49,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
-import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
-import stream.flarebot.flarebot.commands.general.CurrencyCommand;
-import stream.flarebot.flarebot.commands.general.HelpCommand;
-import stream.flarebot.flarebot.commands.general.InfoCommand;
-import stream.flarebot.flarebot.commands.general.InviteCommand;
-import stream.flarebot.flarebot.commands.general.JoinCommand;
-import stream.flarebot.flarebot.commands.general.LeaveCommand;
-import stream.flarebot.flarebot.commands.general.PollCommand;
-import stream.flarebot.flarebot.commands.general.ReportCommand;
-import stream.flarebot.flarebot.commands.general.SelfAssignCommand;
-import stream.flarebot.flarebot.commands.general.ServerInfoCommand;
-import stream.flarebot.flarebot.commands.general.ShardInfoCommand;
-import stream.flarebot.flarebot.commands.general.StatsCommand;
-import stream.flarebot.flarebot.commands.general.UserInfoCommand;
+import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
 import stream.flarebot.flarebot.commands.moderation.FixCommand;
 import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
@@ -532,6 +519,7 @@ public class FlareBot {
         registerCommand(new WarningsCommand());
         registerCommand(new CommandUsageCommand());
         registerCommand(new CurrencyCommand());
+        registerCommand(new ConvertCommand());
 
 //        registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
@@ -997,11 +985,11 @@ public class FlareBot {
     }
 
     public TextChannel getGuildLogChannel() {
-        return getChannelByID("260401007685664768");
+        return testBot ? getChannelByID("242297848123621376") : getChannelByID("260401007685664768");
     }
 
     public TextChannel getEGLogChannel() {
-        return getChannelByID("358950369642151937");
+        return testBot ? getChannelByID("242297848123621376") : getChannelByID("358950369642151937");
     }
 
     public void logEG(String eg, Guild guild, User user) {
@@ -1013,8 +1001,9 @@ public class FlareBot {
     }
 
     public TextChannel getImportantLogChannel() {
-        return getChannelByID("358978253966278657");
+        return testBot ? getChannelByID("242297848123621376") : getChannelByID("358978253966278657");
     }
+
 
     public static String getYoutubeKey() {
         return youtubeApi;
