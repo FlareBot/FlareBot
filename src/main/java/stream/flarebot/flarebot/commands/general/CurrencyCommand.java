@@ -77,7 +77,7 @@ public class CurrencyCommand implements Command {
 
     @Override
     public String getUsage() {
-        return null;
+        return "`{%}currency <from> <to>` - Displays the currency conversion rates for two currencies";
     }
 
     @Override

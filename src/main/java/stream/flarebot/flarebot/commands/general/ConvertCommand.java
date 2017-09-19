@@ -83,7 +83,7 @@ public class ConvertCommand implements Command {
 
     @Override
     public String getUsage() {
-        return null;
+        return "`{%}convert <amount> <from> <to>` - Converts an amount of one currency to another";
     }
 
     @Override
