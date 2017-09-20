@@ -282,7 +282,7 @@ public class GeneralUtils {
 
     public static Emote getEmoteById(long l) {
         return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
-                .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
+                .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     /**
@@ -319,4 +319,13 @@ public class GeneralUtils {
         }
         return;
     }
+
+    public static boolean canChangeNick(String guildId) {
+        if (FlareBot.getInstance().getGuildByID(guildId) != null) {
+            return FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                    FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
+        } else
+            return false;
+    }
+
 }

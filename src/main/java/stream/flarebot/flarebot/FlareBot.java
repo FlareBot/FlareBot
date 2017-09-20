@@ -124,6 +124,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -169,9 +170,10 @@ public class FlareBot {
     public static final Gson GSON = new GsonBuilder().create();
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
-    public static final String GUILD_LOG = "260401007685664768";
     public static final String OLD_FLAREBOT_API = "https://flarebot.stream/api/";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
+
+    public static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
 
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
@@ -481,14 +483,6 @@ public class FlareBot {
 
         latch.await();
         run();
-    }
-
-    private boolean canChangeNick(String guildId) {
-        if (getGuildByID(guildId) != null) {
-            return getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                    getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
-        } else
-            return false;
     }
 
     protected void run() {
@@ -996,15 +990,15 @@ public class FlareBot {
     }
 
     public TextChannel getErrorLogChannel() {
-        return (testBot ? getChannelByID("242297848123621376") : getChannelByID("226786557862871040"));
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("226786557862871040"));
     }
 
     public TextChannel getGuildLogChannel() {
-        return getChannelByID("260401007685664768");
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("260401007685664768"));
     }
 
     public TextChannel getEGLogChannel() {
-        return getChannelByID("358950369642151937");
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
     }
 
     public void logEG(String eg, Guild guild, User user) {
@@ -1016,7 +1010,7 @@ public class FlareBot {
     }
 
     public TextChannel getImportantLogChannel() {
-        return getChannelByID("358978253966278657");
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358978253966278657"));
     }
 
     public static String getYoutubeKey() {
@@ -1127,6 +1121,7 @@ public class FlareBot {
     }
 
     public String formatTime(LocalDateTime dateTime) {
+        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
         return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
                 .format(timeFormat) + " UTC";
     }
