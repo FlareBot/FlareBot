@@ -378,7 +378,7 @@ public class FlareBot {
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled() && canChangeNick(player.getGuildId())) {
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled() && GeneralUtils.canChangeNick(player.getGuildId())) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
@@ -387,7 +387,7 @@ public class FlareBot {
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
                         }
                     } else {
-                        if (!canChangeNick(player.getGuildId())) {
+                        if (!GeneralUtils.canChangeNick(player.getGuildId())) {
                             MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                     "FlareBot can't change it's nickname so SongNick has been disabled!");
                         }
@@ -425,9 +425,9 @@ public class FlareBot {
                     }
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
-                        if (c == null || !canChangeNick(player.getGuildId())) {
+                        if (c == null || !GeneralUtils.canChangeNick(player.getGuildId())) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
-                            if (!canChangeNick(player.getGuildId())) {
+                            if (!GeneralUtils.canChangeNick(player.getGuildId())) {
                                 MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                         "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
