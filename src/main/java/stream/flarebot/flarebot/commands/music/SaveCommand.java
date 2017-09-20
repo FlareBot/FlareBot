@@ -11,6 +11,8 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
@@ -20,33 +22,47 @@ public class SaveCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "save [NAME]").queue();
+            MessageUtils.getUsage(this, channel, sender).queue();
             return;
         }
 
         String name = MessageUtils.getMessage(args, 0);
         if (name.length() > 20) {
-            channel.sendMessage("Name can only be a maximum of 20 characters!").queue();
+            MessageUtils.sendErrorMessage("Name can only be a maximum of 20 characters!", channel);
             return;
         }
         if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
-            channel.sendMessage("Your playlist is empty!").queue();
+            MessageUtils.sendErrorMessage("Your playlist is empty!", channel);
             return;
         }
-        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId())
+        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId())
                 .getPlaylist();
-        if (playlist.isEmpty()) {
-            channel.sendMessage("Your playlist is empty!").queue();
-            return;
-        }
+        Track currentlyPlaying =
+                FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
 
         channel.sendTyping().complete();
 
-        FlareBot.getInstance().getManager().savePlaylist(channel, sender.getId(), name, playlist.stream()
+        List<String> tracks = new ArrayList<>();
+        tracks.addAll(playlist.stream()
                 .map(track -> track
                         .getTrack()
                         .getIdentifier())
                 .collect(Collectors.toList()));
+        if (currentlyPlaying != null) {
+            tracks.add(currentlyPlaying.getTrack().getIdentifier());
+        }
+
+        if (tracks.isEmpty()) {
+            MessageUtils.sendErrorMessage("Your playlist is empty!", channel);
+            return;
+        }
+
+        FlareBot.getInstance().getManager().savePlaylist(this,
+                channel,
+                sender.getId(),
+                this.getPermissions(channel).hasPermission(member, "flarebot.playlist.save.overwrite"),
+                name,
+                tracks);
     }
 
     @Override
