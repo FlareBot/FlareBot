@@ -188,7 +188,6 @@ public class WelcomeCommand implements Command {
     private int messagesLength = 15;
 
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
-        System.out.println("a");
         int pages = messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
         int start = messagesLength * (page - 1);
         int end = Math.min(start + messagesLength, messages.size());

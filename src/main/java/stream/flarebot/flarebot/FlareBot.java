@@ -365,7 +365,6 @@ public class FlareBot {
                 Thread.sleep(5000);
             } else {
                 builder = builder.setReconnectQueue(new SessionReconnectQueue());
-                System.out.println(builder);
                 for (int i = 0; i < clients.length; i++) {
                     clients[i] = builder.useSharding(i, clients.length).buildAsync();
                     Thread.sleep(5000); // 5 second backoff
