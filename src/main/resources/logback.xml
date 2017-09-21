@@ -20,4 +20,5 @@
     <logger name="org.apache" level="NONE"/>
     <logger name="com.sedmelluq.*" level="INFO"/>
     <logger name="httpclient" level="NONE"/>
+    <logger name="stream.flarebot.flarebot.FlareBot" level="DEBUG"/>
 </configuration>

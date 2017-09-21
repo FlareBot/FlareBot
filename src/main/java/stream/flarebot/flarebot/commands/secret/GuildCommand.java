@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands.secret;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -14,6 +15,9 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 
 public class GuildCommand implements Command {
 
@@ -59,6 +63,19 @@ public class GuildCommand implements Command {
                     channel.sendMessage(embedBuilder.build()).queue();
                     return;
                 }
+            }else if(args[0].equalsIgnoreCase("data")) {
+                GuildWrapper wrapper = guild;
+                if(args.length == 2)
+                    wrapper = FlareBotManager.getInstance().getGuild(args[1]);
+                try {
+                    PrintWriter out = new PrintWriter("data.json");
+                    out.println(FlareBot.GSON.toJson(wrapper));
+                    out.close();
+                } catch (FileNotFoundException e) {
+                    FlareBot.LOGGER.error("Failed to write data", e);
+                }
+                sender.openPrivateChannel().complete().sendFile(new File("data.json"), new MessageBuilder()
+                        .append('\u200B').build()).queue();
             }
             MessageUtils.getUsage(this, channel, sender).queue();
         }
@@ -78,7 +95,8 @@ public class GuildCommand implements Command {
     public String getUsage() {
         return "`{%}guild block [guildID] [reason]` - Blocks this guild [or another guild]\n" +
                 "`{%}guild unblock [guildID]` - Unblocks this guild [or another guild]\n" +
-                "`{%}guild status [guildID]` - Shows the status of this guild [or another guild]";
+                "`{%}guild status [guildID]` - Shows the status of this guild [or another guild]\n" +
+                "`{%}guild data [guildID] - Gets the JSON data for the current guild [or another guild]";
     }
 
     @Override

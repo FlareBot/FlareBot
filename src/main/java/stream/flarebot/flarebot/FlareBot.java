@@ -172,6 +172,7 @@ public class FlareBot {
     public static final String OFFICIAL_GUILD = "226785954537406464";
     public static final String OLD_FLAREBOT_API = "https://flarebot.stream/api/";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
+    //public static final String FLAREBOT_API = "http://localhost:8880/";
 
     public static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
 
@@ -559,7 +560,7 @@ public class FlareBot {
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        sendCommands();
+        //sendCommands();
 
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
@@ -659,7 +660,7 @@ public class FlareBot {
     private JsonParser parser = new JsonParser();
 
     private void sendData() {
-        JsonObject data = new JsonObject();
+        /*JsonObject data = new JsonObject();
         data.addProperty("guilds", getGuilds().size());
         data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
         data.addProperty("text_channels", getChannels().size());
@@ -671,7 +672,7 @@ public class FlareBot {
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("uptime", getUptime());
 
-        postToApi("postData", "data", data);
+        postToApi("postData", "data", data);*/
     }
 
     private void sendCommands() {
@@ -730,7 +731,7 @@ public class FlareBot {
                 JsonObject obj = parser.parse(br.readLine()).getAsJsonObject();
                 int code = obj.get("code").getAsInt();
 
-                if (code % 100 == 0) {
+                if (code % 100 == 0 && code != 500) {
                     message[0] = obj.get("message").getAsString();
                 } else {
                     LOGGER.error("Error updating site! " + obj.get("error").getAsString());
@@ -806,6 +807,7 @@ public class FlareBot {
                 String out = "";
                 String line;
                 if ((line = reader.readLine()) != null) {
+                    System.out.println(line);
                     out += line + '\n';
                 }
                 p.waitFor();

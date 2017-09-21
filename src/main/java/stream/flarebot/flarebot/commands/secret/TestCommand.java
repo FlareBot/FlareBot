@@ -1,11 +1,16 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import okhttp3.Response;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -18,14 +23,21 @@ public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        try {
-            PrintWriter out = new PrintWriter("data.json");
-            out.println(FlareBot.GSON.toJson(guild));
-            out.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        JsonArray array = new JsonArray();
+        for (Command cmd : FlareBot.getInstance().getCommands()) {
+            JsonObject cmdObj = new JsonObject();
+            cmdObj.addProperty("command", cmd.getCommand());
+            cmdObj.addProperty("description", cmd.getDescription());
+            cmdObj.addProperty("permission", cmd.getPermission() == null ? "" : cmd.getPermission());
+            cmdObj.addProperty("type", cmd.getType().toString());
+            JsonArray aliases = new JsonArray();
+            for (String s : cmd.getAliases())
+                aliases.add(s);
+            cmdObj.add("aliases", aliases);
+            array.add(cmdObj);
         }
-        sender.openPrivateChannel().complete().sendFile(new File("data.json"), new MessageBuilder().append('\u200B').build()).queue();
+        Response res = ApiRequester.request(ApiRoute.COMMANDS, array);
+        channel.sendMessage(res.code() + "\n" + res.message()).queue();
 
         //
         // Testing plain message, embed and embed with images

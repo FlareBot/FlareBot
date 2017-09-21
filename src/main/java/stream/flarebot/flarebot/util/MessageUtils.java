@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.util;
 
-import com.sun.istack.internal.NotNull;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
