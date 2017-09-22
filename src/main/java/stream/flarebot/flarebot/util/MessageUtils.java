@@ -152,6 +152,16 @@ public class MessageUtils {
                 .complete();
     }
 
+    public static Message sendSuccessMessage(String message, TextChannel channel) {
+        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.YELLOW).setDescription(message).build())
+                .complete();
+    }
+
+    public static Message sendInfoMessage(String message, TextChannel channel) {
+        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.YELLOW).setDescription(message).build())
+                .complete();
+    }
+
     public static void editMessage(EmbedBuilder embed, Message message) {
         editMessage(message.getRawContent(), embed, message);
     }
