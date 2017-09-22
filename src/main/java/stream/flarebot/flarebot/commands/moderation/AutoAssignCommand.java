@@ -17,14 +17,13 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class AutoAssignCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
                 listRoles(guild, 1, channel, sender);
@@ -38,7 +37,7 @@ public class AutoAssignCommand implements Command {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                         .getAsMention() + " Invalid argument!"), channel);
             }
-        } else if(args.length == 2 && args[0].equalsIgnoreCase("list")) {
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("list")) {
             int page;
             try {
                 page = Integer.valueOf(args[1]);
@@ -158,7 +157,7 @@ public class AutoAssignCommand implements Command {
                 return;
             } else {
                 for (String role : subRoles) {
-                    if(wrapper.getGuild().getRoleById(role) == null) {
+                    if (wrapper.getGuild().getRoleById(role) == null) {
                         wrapper.getAutoAssignRoles().remove(role);
                         continue;
                     }

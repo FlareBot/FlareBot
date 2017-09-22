@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import net.dv8tion.jda.core.requests.RestAction;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -196,16 +195,17 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
+    public static void sendUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        if (command.getPermission() != null)
-            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+        if (command.getPermission() != null) {
+            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
                     .addField("Permission", command.getPermission() + "\n" +
-                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build());
-        else
-            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .setColor(Color.red).build());
+                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build()).queue();
+        } else {
+            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .setColor(Color.red).build()).queue();
+        }
     }
 
     private static String capitalize(String s) {

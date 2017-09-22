@@ -52,7 +52,7 @@ public class ForceBanCommand implements Command {
                         .setColor(Color.red).build()).queue();
             }
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

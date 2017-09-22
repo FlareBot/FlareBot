@@ -13,7 +13,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RestActionRunnable;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class PruneCommand implements Command {
 
@@ -62,7 +62,7 @@ public class PruneCommand implements Command {
                 return;
             }
         }
-        MessageUtils.getUsage(this, channel, sender).queue();
+        MessageUtils.sendUsage(this, channel, sender);
     }
 
     @Override

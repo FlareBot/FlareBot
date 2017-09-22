@@ -20,11 +20,11 @@ public class SelfAssignCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("add")) {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 } else {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
                                     .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
@@ -33,7 +33,7 @@ public class SelfAssignCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 } else {
                     MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
                                     .setDescription("You need `flarebot.selfassign.admin` in order to do this!")

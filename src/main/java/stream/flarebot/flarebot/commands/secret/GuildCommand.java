@@ -20,7 +20,7 @@ public class GuildCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             if (args[0].equalsIgnoreCase("block")) {
                 if (args.length == 1) {
@@ -82,7 +82,7 @@ public class GuildCommand implements Command {
                     }
                 }
             }
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

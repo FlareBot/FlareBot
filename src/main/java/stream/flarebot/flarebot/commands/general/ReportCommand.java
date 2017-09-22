@@ -27,7 +27,8 @@ public class ReportCommand implements Command {
                 return;
             }
 
-            Report report = new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
+            Report report =
+                    new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
             List<Message> messages = channel.getHistory()
                     .retrievePast(100)
@@ -35,14 +36,14 @@ public class ReportCommand implements Command {
                     .stream()
                     .filter(m -> m.getAuthor().equals(user))
                     .collect(Collectors.toList());
-            if(messages.size() > 0)
+            if (messages.size() > 0)
                 report.setMessages(messages.subList(0, Math.min(5, messages.size() - 1)));
 
             guild.getReportManager().report(report);
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

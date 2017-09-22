@@ -18,7 +18,7 @@ public class WarnCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             User user = GeneralUtils.getUser(args[0]);
             if (user == null) {

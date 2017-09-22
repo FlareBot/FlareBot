@@ -26,7 +26,7 @@ public class SearchCommand implements Command {
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

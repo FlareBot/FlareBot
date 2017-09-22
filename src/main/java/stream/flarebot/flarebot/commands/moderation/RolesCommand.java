@@ -26,7 +26,8 @@ public class RolesCommand implements Command {
             List<Role> roles = new ArrayList<>(channel.getGuild().getRoles());
             roles.remove(channel.getGuild().getRoleById(channel.getGuild().getId()));
             int pageSize = 20;
-            int pages = roles.size() < pageSize ? 1 : (roles.size() / pageSize) + (roles.size() % pageSize != 0 ? 1 : 0);
+            int pages =
+                    roles.size() < pageSize ? 1 : (roles.size() / pageSize) + (roles.size() % pageSize != 0 ? 1 : 0);
             int start;
             int end;
             int page = 1;
@@ -64,7 +65,7 @@ public class RolesCommand implements Command {
 
             channel.sendMessage(new EmbedBuilder().setDescription(sb.toString()).setColor(Color.cyan).build()).queue();
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

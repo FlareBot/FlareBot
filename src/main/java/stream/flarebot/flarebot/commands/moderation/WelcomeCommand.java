@@ -20,7 +20,7 @@ public class WelcomeCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             //New system
             if (args[0].equalsIgnoreCase("dm")) {
@@ -41,7 +41,7 @@ public class WelcomeCommand implements Command {
                                 MessageUtils.sendErrorMessage("DM welcomes are already **disabled**", channel);
                             }
                         } else {
-                            MessageUtils.getUsage(this, channel, sender).queue();
+                            MessageUtils.sendUsage(this, channel, sender);
                         }
                     } else if (args[1].equalsIgnoreCase("message")) {
                         if (args.length >= 3) {
@@ -59,11 +59,11 @@ public class WelcomeCommand implements Command {
                                         channel.sendMessage("Removed welcome message `" + welcome + "`").queue();
                                         return;
                                     } else {
-                                        MessageUtils.getUsage(this, channel, sender).queue();
+                                        MessageUtils.sendUsage(this, channel, sender);
                                         return;
                                     }
                                 } else {
-                                    MessageUtils.getUsage(this, channel, sender).queue();
+                                    MessageUtils.sendUsage(this, channel, sender);
                                     return;
                                 }
                             }
@@ -72,14 +72,14 @@ public class WelcomeCommand implements Command {
                                 guild.getWelcome().getDmMessages().add(welcomeMessage);
                                 channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
                             } else {
-                                MessageUtils.getUsage(this, channel, sender).queue();
+                                MessageUtils.sendUsage(this, channel, sender);
                             }
                         } else {
-                            MessageUtils.getUsage(this, channel, sender).queue();
+                            MessageUtils.sendUsage(this, channel, sender);
                         }
                     }
                 } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 }
             } else if (args[0].equalsIgnoreCase("guild")) {
                 if (args.length >= 2) {
@@ -115,11 +115,11 @@ public class WelcomeCommand implements Command {
                                         channel.sendMessage("Removed welcome message `" + welcome + "`").queue();
                                         return;
                                     } else {
-                                        MessageUtils.getUsage(this, channel, sender).queue();
+                                        MessageUtils.sendUsage(this, channel, sender);
                                         return;
                                     }
                                 } else if (!args[2].equalsIgnoreCase("add")) {
-                                    MessageUtils.getUsage(this, channel, sender).queue();
+                                    MessageUtils.sendUsage(this, channel, sender);
                                     return;
                                 }
                             }
@@ -128,14 +128,14 @@ public class WelcomeCommand implements Command {
                                 guild.getWelcome().getGuildMessages().add(welcomeMessage);
                                 channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
                             } else {
-                                MessageUtils.getUsage(this, channel, sender).queue();
+                                MessageUtils.sendUsage(this, channel, sender);
                             }
                         } else {
-                            MessageUtils.getUsage(this, channel, sender).queue();
+                            MessageUtils.sendUsage(this, channel, sender);
                         }
                     }
                 } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 }
             } else if (args[0].equalsIgnoreCase("setchannel")) {
                 guild.getWelcome().setChannelId(channel.getId());
@@ -144,7 +144,7 @@ public class WelcomeCommand implements Command {
                 eb.setColor(Color.GREEN);
                 channel.sendMessage(eb.build()).queue();
             } else {
-                MessageUtils.getUsage(this, channel, sender).queue();
+                MessageUtils.sendUsage(this, channel, sender);
             }
         }
     }
@@ -187,7 +187,8 @@ public class WelcomeCommand implements Command {
 
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
         System.out.println("a");
-        int pages = messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
+        int pages =
+                messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
         int start = messagesLength * (page - 1);
         int end = Math.min(start + messagesLength, messages.size());
         if (page > pages || page < 0) {

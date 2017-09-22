@@ -62,7 +62,7 @@ public class CurrencyCommand implements Command {
                 }
             }
         }
-        MessageUtils.getUsage(this, channel, sender).queue();
+        MessageUtils.sendUsage(this, channel, sender);
     }
 
     @Override

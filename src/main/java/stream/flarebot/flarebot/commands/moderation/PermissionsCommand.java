@@ -336,7 +336,7 @@ public class PermissionsCommand implements Command {
                 return;
             }
         }
-        MessageUtils.getUsage(this, channel, sender).queue();
+        MessageUtils.sendUsage(this, channel, sender);
     }
 
     private String getStringList(Collection<String> perms, int page) {
