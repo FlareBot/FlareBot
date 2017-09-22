@@ -70,12 +70,12 @@ public class SeekCommand implements Command {
 
     @Override
     public String getDescription() {
-        return null;
+        return "Allows users to skip to a certain point in a video";
     }
 
     @Override
     public String getUsage() {
-        return "";
+        return "`{%}seek <time>` - Seeks to a specific time in the currently playing video";
     }
 
     @Override
