@@ -35,9 +35,7 @@ public class DeleteCommand implements Command {
                                 .format("Removed the playlist '%s'", name)).setColor(Color.green)
                         .build()).queue();
             } else {
-                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(
-                        String.format("The playlist '%s' does not exist!", name)).setColor(Color.red)
-                        .build()).queue();
+                MessageUtils.sendErrorMessage(String.format("The playlist '%s' does not exist!", name), channel, sender);
             }
         });
     }

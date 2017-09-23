@@ -11,11 +11,9 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ConfirmUtil;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
-import java.awt.Color;
 import java.util.Iterator;
 
 public class FixCommand implements Command {
@@ -31,14 +29,10 @@ public class FixCommand implements Command {
             }
             return;
         }
-        channel.sendMessage(MessageUtils.getEmbed(sender)
-                .setColor(Color.RED)
-                .setDescription(GeneralUtils.formatCommandPrefix(channel,
-                        "Are you sure you want to fix any potential autoassign roles "
-                                + "and FlareBot's nickname if songnick is enabled?"
-                                + "\nWe assign roles to users without any so be aware that if you allow "
-                                + "the removal of your autoassign roles they may be added back to users."))
-                .build()).queue();
+        MessageUtils.sendErrorMessage("Are you sure you want to fix any potential autoassign roles "
+                + "and FlareBot's nickname if songnick is enabled?"
+                + "\nWe assign roles to users without any roles so be aware that if you allow "
+                + "the removal of your autoassign roles they may be added back to users.", channel, sender);
 
         ConfirmUtil.pushAction(sender.getId(),
                 new RunnableWrapper(new Runnable() {

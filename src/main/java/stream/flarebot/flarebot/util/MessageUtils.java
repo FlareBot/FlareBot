@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -139,27 +140,60 @@ public class MessageUtils {
     }
 
     public static Message sendErrorMessage(EmbedBuilder builder, MessageChannel channel) {
-        return channel.sendMessage(builder.setColor(Color.red).build()).complete();
+        return channel.sendMessage(builder.setColor(Color.RED).build()).complete();
     }
 
-    public static Message sendErrorMessage(String message, MessageChannel channel) {
-        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.RED).setDescription(message).build())
-                .complete();
+    public static Message sendMessage(MessageEmbed embed, TextChannel channel) {
+        return channel.sendMessage(embed).complete();
     }
 
-    public static Message sendWarningMessage(String message, MessageChannel channel) {
-        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.YELLOW).setDescription(message).build())
-                .complete();
+    public static Message sendMessage(MessageType type, String message, TextChannel channel, User sender) {
+        return sendMessage(getEmbed(sender).setColor(type.getColor()).setDescription(message).setTimestamp(LocalDate.now()).build(), channel);
+    }
+
+    public static Message sendMessage(MessageType type, String message, TextChannel channel) {
+        EmbedBuilder builder = getEmbed().setTimestamp(LocalDate.now());
+        return sendMessage(builder.setDescription(message).build(), channel);
+    }
+
+    public static Message sendMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.NEUTRAL, message, channel);
+    }
+
+    public static Message sendMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.NEUTRAL, message, channel);
+    }
+
+    public static Message sendErrorMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.ERROR, message, channel);
+    }
+
+    public static Message sendErrorMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.ERROR, message, channel);
+    }
+
+    public static Message sendWarningMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.WARNING, message, channel);
+    }
+
+    public static Message sendWarningMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.WARNING, message, channel);
     }
 
     public static Message sendSuccessMessage(String message, TextChannel channel) {
-        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.YELLOW).setDescription(message).build())
-                .complete();
+        return sendMessage(MessageType.SUCCESS, message, channel);
+    }
+
+    public static Message sendSuccessMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.SUCCESS, message, channel);
     }
 
     public static Message sendInfoMessage(String message, TextChannel channel) {
-        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.YELLOW).setDescription(message).build())
-                .complete();
+        return sendMessage(MessageType.INFO, message, channel);
+    }
+
+    public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.INFO, message, channel);
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {
@@ -195,6 +229,15 @@ public class MessageUtils {
         sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
     }
 
+    public static void autoDeleteMessage(Message message, long delay) {
+        new FlarebotTask("AutoDeleteTask") {
+            @Override
+            public void run() {
+                message.delete().queue();
+            }
+        }.delay(delay);
+    }
+
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
         Message msg = channel.sendMessage(message).complete();
         new FlarebotTask("AutoDeleteTask") {
@@ -211,10 +254,10 @@ public class MessageUtils {
         if (command.getPermission() != null) {
             channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
                     .addField("Permission", command.getPermission() + "\n" +
-                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build()).queue();
+                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED).build()).queue();
         } else {
             channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .setColor(Color.red).build()).queue();
+                    .setColor(Color.RED).build()).queue();
         }
     }
 

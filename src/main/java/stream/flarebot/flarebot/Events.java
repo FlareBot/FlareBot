@@ -324,8 +324,7 @@ public class Events extends ListenerAdapter {
         }
 
         if (flareBot.getManager().isCommandDisabled(cmd.getCommand())) {
-            event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor()).setColor(Color.red)
-                    .setDescription(flareBot.getManager().getDisabledCommandReason(cmd.getCommand())).build()).queue();
+            MessageUtils.sendErrorMessage(flareBot.getManager().getDisabledCommandReason(cmd.getCommand()), event.getChannel(), event.getAuthor());
             return;
         }
 
@@ -396,8 +395,7 @@ public class Events extends ListenerAdapter {
             allowed = allowed == 0 ? 1 : allowed;
             if (messages > allowed) {
                 if (!guild.isBlocked()) {
-                    event.getChannel().sendMessage(new EmbedBuilder().setColor(Color.RED).appendDescription(
-                            "We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.").build()).queue();
+                    MessageUtils.sendErrorMessage("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.", event.getChannel());
                     guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
                 }
             } else {

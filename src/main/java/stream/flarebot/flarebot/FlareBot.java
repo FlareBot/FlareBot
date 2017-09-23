@@ -94,7 +94,6 @@ import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -950,9 +949,7 @@ public class FlareBot {
         message.addProperty("message", s);
         message.addProperty("exception", ExceptionUtils.getStackTrace(e));
         String id = instance.postToApi("postReport", "error", message);
-        channel.sendMessage(new EmbedBuilder().setColor(Color.red)
-                .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id)
-                .build()).queue();
+        MessageUtils.sendErrorMessage(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id, channel);
     }
 
     public static String getStatusHook() {

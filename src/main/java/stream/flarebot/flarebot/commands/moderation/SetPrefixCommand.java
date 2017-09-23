@@ -30,10 +30,7 @@ public class SetPrefixCommand implements Command {
                         .setDescription(String.format("Set the prefix to `%s`", args[0])).build())
                         .queue();
             } else {
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("Cannot set the prefix to be more that one character long!")
-                        .setColor(Color.RED)
-                        .build()).queue();
+                MessageUtils.sendErrorMessage("Cannot set the prefix to be more that one character long!", channel, sender);
                 return;
             }
         } else {

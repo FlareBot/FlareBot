@@ -26,9 +26,7 @@ public class BanCommand implements Command {
             if (channel.getGuild().getSelfMember().hasPermission(channel, Permission.BAN_MEMBERS)) {
                 User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
-                    channel.sendMessage(new EmbedBuilder()
-                            .setDescription("We cannot find that user! Try their ID if you didn't already.")
-                            .setColor(Color.red).build()).queue();
+                    MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
                     return;
                 }
                 String reason = null;
@@ -47,9 +45,7 @@ public class BanCommand implements Command {
                     MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
             } else {
-                channel.sendMessage(new EmbedBuilder()
-                        .setDescription("We can't ban users! Make sure we have the `Ban Members` permission!")
-                        .setColor(Color.red).build()).queue();
+                MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel, sender);
             }
         } else {
             MessageUtils.sendUsage(this, channel, sender);
