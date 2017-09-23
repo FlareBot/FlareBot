@@ -87,7 +87,6 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
-import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -430,7 +429,7 @@ public class FlareBot {
                             } // Even I couldn't make this a one-liner
                             c.getController()
                                     .setNickname(c.getSelfMember(), str)
-                                    .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
+                                    .queue();
                         }
                     }
                 }
@@ -942,7 +941,7 @@ public class FlareBot {
     public static void reportError(TextChannel channel, String s, Exception e) {
         JsonObject message = new JsonObject();
         message.addProperty("message", s);
-        message.addProperty("exception", ExceptionUtils.getStackTrace(e));
+        message.addProperty("exception", GeneralUtils.getStackTrace(e));
         String id = instance.postToApi("postReport", "error", message);
         channel.sendMessage(new EmbedBuilder().setColor(Color.red)
                 .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id)
