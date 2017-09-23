@@ -957,12 +957,13 @@ public class FlareBot {
         return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
     }
 
-    public void logEG(String eg, Guild guild, User user) {
-        getEGLogChannel().sendMessage(new EmbedBuilder().setTitle("Found `" + eg + "`")
+    public void logEG(String eg, Command command, Guild guild, User user) {
+        EmbedBuilder builder = new EmbedBuilder().setTitle("Found `" + eg + "`")
                 .addField("Guild", guild.getId() + " (`" + guild.getName() + "`) ", true)
                 .addField("User", user.getAsMention() + " (`" + user.getName() + "#" + user.getDiscriminator() + "`)", true)
-                .setTimestamp(LocalDateTime.now(Clock.systemUTC()))
-                .build()).queue();
+                .setTimestamp(LocalDateTime.now(Clock.systemUTC()));
+        if (command != null) builder.addField("Command", command.getCommand(), true);
+        getEGLogChannel().sendMessage(builder.build()).queue();
     }
 
     public TextChannel getImportantLogChannel() {
