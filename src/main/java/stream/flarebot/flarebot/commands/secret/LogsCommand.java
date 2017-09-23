@@ -11,7 +11,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.io.File;
 
-public class LogsCommand implements Command  {
+public class LogsCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
