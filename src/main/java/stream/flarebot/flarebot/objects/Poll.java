@@ -86,7 +86,7 @@ public class Poll {
     public EmbedBuilder getClosedPollEmbed(String title, String description) {
         List<PollOption> orderedOptions = new ArrayList<>(getPollOptions());
         orderedOptions.sort((o1, o2) -> o2.getVotes() - o1.getVotes());
-        EmbedBuilder builder = new EmbedBuilder().setColor(Color.red).setTitle("Poll Closed", null)
+        EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Poll Closed", null)
                 .setDescription("The poll has been closed!\nHere are the results: ");
         orderedOptions.forEach(option -> builder.addField(option.getOption(), "Final votes: " + option.getVotes(), false));
         builder.addBlankField(false)

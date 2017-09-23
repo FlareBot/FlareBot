@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -11,7 +10,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +18,7 @@ public class WelcomeCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             //New system
             if (args[0].equalsIgnoreCase("dm")) {
@@ -41,7 +39,7 @@ public class WelcomeCommand implements Command {
                                 MessageUtils.sendErrorMessage("DM welcomes are already **disabled**", channel);
                             }
                         } else {
-                            MessageUtils.getUsage(this, channel, sender).queue();
+                            MessageUtils.sendUsage(this, channel, sender);
                         }
                     } else if (args[1].equalsIgnoreCase("message")) {
                         if (args.length >= 3) {
@@ -59,27 +57,28 @@ public class WelcomeCommand implements Command {
                                         channel.sendMessage("Removed welcome message `" + welcome + "`").queue();
                                         return;
                                     } else {
-                                        MessageUtils.getUsage(this, channel, sender).queue();
+                                        MessageUtils.sendUsage(this, channel, sender);
                                         return;
                                     }
                                 } else {
-                                    MessageUtils.getUsage(this, channel, sender).queue();
+                                    MessageUtils.sendUsage(this, channel, sender);
                                     return;
                                 }
                             }
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 4);
                                 guild.getWelcome().getDmMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
+                                channel.sendMessage("Added welcome message `"
+                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
                             } else {
-                                MessageUtils.getUsage(this, channel, sender).queue();
+                                MessageUtils.sendUsage(this, channel, sender);
                             }
                         } else {
-                            MessageUtils.getUsage(this, channel, sender).queue();
+                            MessageUtils.sendUsage(this, channel, sender);
                         }
                     }
                 } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 }
             } else if (args[0].equalsIgnoreCase("guild")) {
                 if (args.length >= 2) {
@@ -115,36 +114,34 @@ public class WelcomeCommand implements Command {
                                         channel.sendMessage("Removed welcome message `" + welcome + "`").queue();
                                         return;
                                     } else {
-                                        MessageUtils.getUsage(this, channel, sender).queue();
+                                        MessageUtils.sendUsage(this, channel, sender);
                                         return;
                                     }
                                 } else if (!args[2].equalsIgnoreCase("add")) {
-                                    MessageUtils.getUsage(this, channel, sender).queue();
+                                    MessageUtils.sendUsage(this, channel, sender);
                                     return;
                                 }
                             }
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 3);
                                 guild.getWelcome().getGuildMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
+                                channel.sendMessage("Added welcome message `"
+                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
                             } else {
-                                MessageUtils.getUsage(this, channel, sender).queue();
+                                MessageUtils.sendUsage(this, channel, sender);
                             }
                         } else {
-                            MessageUtils.getUsage(this, channel, sender).queue();
+                            MessageUtils.sendUsage(this, channel, sender);
                         }
                     }
                 } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 }
             } else if (args[0].equalsIgnoreCase("setchannel")) {
                 guild.getWelcome().setChannelId(channel.getId());
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.appendDescription("Set welcome channel to " + channel.getAsMention());
-                eb.setColor(Color.GREEN);
-                channel.sendMessage(eb.build()).queue();
+                MessageUtils.sendSuccessMessage("Set welcome channel to " + channel.getAsMention(), channel, sender);
             } else {
-                MessageUtils.getUsage(this, channel, sender).queue();
+                MessageUtils.sendUsage(this, channel, sender);
             }
         }
     }
@@ -186,8 +183,8 @@ public class WelcomeCommand implements Command {
     private int messagesLength = 15;
 
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
-        System.out.println("a");
-        int pages = messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
+        int pages =
+                messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
         int start = messagesLength * (page - 1);
         int end = Math.min(start + messagesLength, messages.size());
         if (page > pages || page < 0) {
@@ -199,7 +196,7 @@ public class WelcomeCommand implements Command {
             for (String messagesMessage : messagesSub) {
                 List<String> part = new ArrayList<>();
                 part.add(String.valueOf(i));
-                part.add(messagesMessage);
+                part.add(MessageUtils.escapeMarkdown(messagesMessage));
                 body.add(part);
                 i++;
             }

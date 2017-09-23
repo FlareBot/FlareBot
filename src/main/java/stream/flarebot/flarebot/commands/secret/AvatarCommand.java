@@ -58,7 +58,7 @@ public class AvatarCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.HIDDEN;
+        return CommandType.SECRET;
     }
 
     @Override

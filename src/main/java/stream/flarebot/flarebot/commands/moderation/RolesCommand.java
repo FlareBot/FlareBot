@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
@@ -12,7 +11,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +24,8 @@ public class RolesCommand implements Command {
             List<Role> roles = new ArrayList<>(channel.getGuild().getRoles());
             roles.remove(channel.getGuild().getRoleById(channel.getGuild().getId()));
             int pageSize = 20;
-            int pages = roles.size() < pageSize ? 1 : (roles.size() / pageSize) + (roles.size() % pageSize != 0 ? 1 : 0);
+            int pages =
+                    roles.size() < pageSize ? 1 : (roles.size() / pageSize) + (roles.size() % pageSize != 0 ? 1 : 0);
             int start;
             int end;
             int page = 1;
@@ -40,15 +39,13 @@ public class RolesCommand implements Command {
             }
             start = pageSize * (page - 1);
             end = Math.min(start + pageSize, roles.size());
-            System.out.println(start + " - " + end);
             if (page > pages || page < 0) {
                 MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                 return;
             } else {
                 List<Role> subRoles = roles.subList(start, end);
                 if (roles.isEmpty()) {
-                    channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN)
-                            .setDescription("There are no roles in this guild!").build()).queue();
+                    MessageUtils.sendInfoMessage("There are no roles in this guild!", channel, sender);
                     return;
                 } else {
                     for (Role role : subRoles) {
@@ -61,10 +58,9 @@ public class RolesCommand implements Command {
             }
 
             sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
-
-            channel.sendMessage(new EmbedBuilder().setDescription(sb.toString()).setColor(Color.cyan).build()).queue();
+            MessageUtils.sendInfoMessage(sb.toString(), channel, sender);
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

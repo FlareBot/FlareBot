@@ -3,7 +3,7 @@ package stream.flarebot.flarebot.web;
 import com.google.gson.JsonObject;
 import spark.Spark;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.ExceptionUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 @SuppressWarnings("Duplicates")
 public class ApiFactory {
@@ -25,7 +25,7 @@ public class ApiFactory {
             } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
-                error.addProperty("error", ExceptionUtils.getStackTrace(e));
+                error.addProperty("error", GeneralUtils.getStackTrace(e));
                 FlareBot.LOGGER.error("Error on API!", e);
                 return error.toString();
             }
@@ -46,7 +46,7 @@ public class ApiFactory {
             } catch (Exception e) {
                 response.status(500);
                 JsonObject error = new JsonObject();
-                error.addProperty("error", ExceptionUtils.getStackTrace(e));
+                error.addProperty("error", GeneralUtils.getStackTrace(e));
                 FlareBot.LOGGER.error("Error on API!", e);
                 return error.toString();
             }

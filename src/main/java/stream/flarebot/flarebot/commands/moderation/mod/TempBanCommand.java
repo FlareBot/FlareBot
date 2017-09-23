@@ -20,8 +20,6 @@ import stream.flarebot.flarebot.scheduler.RestActionTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
-
 // THIS IS NOT FOR v4
 public class TempBanCommand implements Command {
 
@@ -31,9 +29,7 @@ public class TempBanCommand implements Command {
             if (channel.getGuild().getSelfMember().hasPermission(channel, Permission.BAN_MEMBERS)) {
                 User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
-                    channel.sendMessage(new EmbedBuilder()
-                            .setDescription("We cannot find that user! Try their ID if you didn't already.")
-                            .setColor(Color.red).build()).queue();
+                    MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
                     return;
                 }
                 String reason = null;
@@ -64,12 +60,10 @@ public class TempBanCommand implements Command {
                     MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
             } else {
-                channel.sendMessage(new EmbedBuilder()
-                        .setDescription("We can't ban users! Make sure we have the `Ban Members` permission!")
-                        .setColor(Color.red).build()).queue();
+                MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel, sender);
             }
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

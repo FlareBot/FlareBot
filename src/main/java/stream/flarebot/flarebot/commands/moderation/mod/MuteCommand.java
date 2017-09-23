@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation.mod;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,14 +12,12 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
-
 public class MuteCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             User user = GeneralUtils.getUser(args[0], guild.getGuildId());
             if (user == null) {
@@ -64,10 +61,7 @@ public class MuteCommand implements Command {
             guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
             String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
             guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.MUTE), reason);
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.appendDescription("Muted " + user.getAsMention());
-            eb.setColor(Color.CYAN);
-            channel.sendMessage(eb.build()).queue();
+            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention(), channel, sender);
 //            }
         }
     }

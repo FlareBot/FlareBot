@@ -16,7 +16,10 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
@@ -28,6 +31,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
@@ -124,7 +129,10 @@ public class GeneralUtils {
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
                 cause = e;
-                FlareBot.LOGGER.error("Cannot get video '" + input + "'", e);
+                if (e.getMessage().contains("Vevo")) {
+                    throw new IllegalStateException(Jsoup.clean(cause.getMessage(), Whitelist.none()), cause);
+                }
+                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Cannot get video '" + input + "'");
                 try {
                     Thread.sleep(backoff);
                 } catch (InterruptedException ignored) {
@@ -133,7 +141,7 @@ public class GeneralUtils {
             }
         }
         if (failed) {
-            throw new IllegalStateException(cause.getMessage(), cause);
+            throw new IllegalStateException(Jsoup.clean(cause.getMessage(), Whitelist.none()), cause);
         } else if (!item.isPresent()) {
             throw new IllegalArgumentException();
         }
@@ -242,7 +250,7 @@ public class GeneralUtils {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
             for (Command c : FlareBot.getInstance().getCommands()) {
-                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.HIDDEN) {
+                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
                     return true;
                 }
             }
@@ -282,14 +290,15 @@ public class GeneralUtils {
 
     public static Emote getEmoteById(long l) {
         return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
-                .filter(e -> Objects.nonNull(e)).findFirst().orElse(null);
+                .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     /**
      * This will download and cache the image if not found already!
-     * @param fileUrl Url to download the image from.
+     *
+     * @param fileUrl  Url to download the image from.
      * @param fileName Name of the image file.
-     * @param user User to send the image to.
+     * @param user     User to send the image to.
      */
     public static void sendImage(String fileUrl, String fileName, User user) {
         try {
@@ -318,5 +327,21 @@ public class GeneralUtils {
             FlareBot.LOGGER.error("Unable to send image", e);
         }
         return;
+    }
+
+    public static boolean canChangeNick(String guildId) {
+        if (FlareBot.getInstance().getGuildByID(guildId) != null) {
+            return FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                    FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
+        } else
+            return false;
+    }
+
+    public static String getStackTrace(Throwable e) {
+        StringWriter writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        e.printStackTrace(printWriter);
+        printWriter.close();
+        return writer.toString();
     }
 }

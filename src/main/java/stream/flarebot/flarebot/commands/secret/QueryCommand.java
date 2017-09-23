@@ -15,7 +15,6 @@ import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -47,10 +46,8 @@ public class QueryCommand implements Command {
                 if (output.length() < 2000) {
                     channel.sendMessage(output).queue();
                 } else {
-                    channel.sendMessage(new EmbedBuilder()
-                            .setDescription("The query result set was very large, it has been posted to hastebin [here](" + MessageUtils
-                                    .hastebin(output) + ")")
-                            .setColor(Color.red).build()).queue();
+                    MessageUtils.sendErrorMessage("The query result set was very large, it has been posted to hastebin [here](" + MessageUtils
+                            .hastebin(output) + ")", channel, sender);
                 }
             });
         } catch (QueryExecutionException | QueryValidationException e) {
@@ -78,7 +75,7 @@ public class QueryCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.HIDDEN;
+        return CommandType.SECRET;
     }
 
 }
