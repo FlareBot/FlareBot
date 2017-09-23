@@ -16,7 +16,10 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
@@ -124,7 +127,10 @@ public class GeneralUtils {
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
                 cause = e;
-                FlareBot.LOGGER.error("Cannot get video '" + input + "'", e);
+                if (e.getMessage().contains("Vevo")) {
+                    throw new IllegalStateException(Jsoup.clean(cause.getMessage(), Whitelist.none()), cause);
+                }
+                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Cannot get video '" + input + "'");
                 try {
                     Thread.sleep(backoff);
                 } catch (InterruptedException ignored) {
@@ -133,7 +139,7 @@ public class GeneralUtils {
             }
         }
         if (failed) {
-            throw new IllegalStateException(cause.getMessage(), cause);
+            throw new IllegalStateException(Jsoup.clean(cause.getMessage(), Whitelist.none()), cause);
         } else if (!item.isPresent()) {
             throw new IllegalArgumentException();
         }
@@ -287,9 +293,10 @@ public class GeneralUtils {
 
     /**
      * This will download and cache the image if not found already!
-     * @param fileUrl Url to download the image from.
+     *
+     * @param fileUrl  Url to download the image from.
      * @param fileName Name of the image file.
-     * @param user User to send the image to.
+     * @param user     User to send the image to.
      */
     public static void sendImage(String fileUrl, String fileName, User user) {
         try {

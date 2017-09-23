@@ -46,6 +46,13 @@ public class YouTubeExtractor implements Extractor {
                     .setColor(Color.RED), message);
             return;
         } catch (IllegalStateException e) {
+            if (e.getMessage().contains("Vevo")) {
+                MessageUtils.editMessage("", MessageUtils.getEmbed(user)
+                        .setDescription("We are blocked from playing this video as it is from Vevo! " +
+                                "Sorry for any inconvience.")
+                        .setColor(Color.RED), message);
+                return;
+            }
             MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                     .setDescription("There was a problem with that video!\n" +
                             "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
@@ -71,7 +78,7 @@ public class YouTubeExtractor implements Extractor {
             }*/
             audioTracks.add(track);
             name = track.getInfo().title;
-            if(track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000)+1) == 1000){
+            if (track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000) + 1) == 1000) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", message.getAuthor());
                 FlareBot.getInstance().logEG("You can't rick roll me!", message.getGuild(), message.getAuthor());
             }
