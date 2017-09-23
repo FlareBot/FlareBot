@@ -310,7 +310,7 @@ public class Events extends ListenerAdapter {
             if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot()
                     && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
-                FlareBot.getInstance().logEG("It's a trap", guild.getGuild(), event.getAuthor());
+                FlareBot.getInstance().logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
                 return;
             }
         }

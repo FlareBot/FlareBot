@@ -46,7 +46,7 @@ public class ConvertCommand implements Command {
                 if (from.equalsIgnoreCase(to)) {
                     if ((random.nextInt(100) + 1) == 100) {
                         channel.sendMessage("I had hoped you didn't need me for that...").complete();
-                        FlareBot.getInstance().logEG("Convert a currency to itself...", guild.getGuild(), sender);
+                        FlareBot.getInstance().logEG("Convert a currency to itself...", this, guild.getGuild(), sender);
                     }
                     comparison = new CurrencyComparison(from, to, (double) 1);
                 } else {
