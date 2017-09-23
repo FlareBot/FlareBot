@@ -37,7 +37,6 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
-import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -174,37 +173,6 @@ public class FlareBot {
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
 
     public static void main(String[] args) throws Exception {
-        SimpleLog.LEVEL = SimpleLog.Level.OFF;
-        SimpleLog.addListener(new SimpleLog.LogListener() {
-            @Override
-            public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
-                switch (logLevel) {
-                    case ALL:
-                    case INFO:
-                        getLog(log.name).info(String.valueOf(message));
-                        break;
-                    case FATAL:
-                        getLog(log.name).error(String.valueOf(message));
-                        break;
-                    case WARNING:
-                        getLog(log.name).warn(String.valueOf(message));
-                        break;
-                    case DEBUG:
-                        getLog(log.name).debug(String.valueOf(message));
-                        break;
-                    case TRACE:
-                        getLog(log.name).trace(String.valueOf(message));
-                        break;
-                    case OFF:
-                        break;
-                }
-            }
-
-            @Override
-            public void onError(SimpleLog log, Throwable err) {
-
-            }
-        });
         Spark.port(8080);
 
         JSONConfig config = null;

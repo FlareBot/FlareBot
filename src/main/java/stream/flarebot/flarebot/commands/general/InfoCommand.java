@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -43,7 +44,8 @@ public class InfoCommand implements Command {
         if (args.length == 0) {
             EmbedBuilder bld = MessageUtils.getEmbed(sender)
                     .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
-            bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " info");
+            bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " info")
+                    .setColor(Color.CYAN);
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
@@ -91,12 +93,13 @@ public class InfoCommand implements Command {
         GIT("Git Revision", (git != null ? git : "Unknown")),
         SUPPORT_SERVER("Support Server", "[`Discord`](http://discord.me/flarebot)"),
         DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/FlareBot/)"),
-        PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),
+        //        PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),
         WEBSITE("Website", "[`FlareBot`](http://flarebot.stream/)"),
         TWITTER("Twitter", "[`Twitter`](https://twitter.com/DiscordFlareBot)"),
         INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite())),
         EMPTY("\u200B", "\u200B", false),
-        MADE_BY("Made By", "bwfcwalshy#1284 and Arsen#7525"),
+        MADE_BY("Originally Made By", "Walshy#9060 and Arsen#7525"),
+        CONTRIBUTORS("Maintainers", "Walshy#9060, BinaryOverload#2382 and weeryan17#1258"),
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)");
 
         private String name;
