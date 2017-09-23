@@ -4,9 +4,11 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -14,8 +16,11 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
 public class SelfAssignCommand implements Command {
+
+    private final int LEVENSHTEIN_DISTANCE = 8;
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -40,7 +45,7 @@ public class SelfAssignCommand implements Command {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("There are no self-assignable roles!", channel, sender), 5000, channel);
                     return;
                 }
-                String base = "**Self assignable roles**\n```\n";
+                StringBuilder base = new StringBuilder("**Self assignable roles**\n```\n");
                 Iterator<String> iter = guild.getSelfAssignRoles().iterator();
                 while (iter.hasNext()) {
                     String roleId = iter.next();
@@ -49,28 +54,24 @@ public class SelfAssignCommand implements Command {
                         continue;
                     }
                     if (channel.getGuild().getRoleById(roleId) != null)
-                        base += channel.getGuild().getRoleById(roleId).getName() + " (" + roleId + ")\n";
+                        base.append(channel.getGuild().getRoleById(roleId).getName()).append(" (").append(roleId).append(")\n");
                     else iter.remove();
                 }
-                base += "```";
-                channel.sendMessage(base).queue();
+                base.append("```");
+                channel.sendMessage(base.toString()).queue();
             } else {
-                String roleId;
+                long roleId;
                 try {
-                    Long.parseLong(args[0]);
-                    roleId = args[0];
+                    roleId = Long.parseLong(args[0]);
                 } catch (NumberFormatException e) {
-                    if (channel.getGuild().getRolesByName(args[0], true).isEmpty()) {
-                        MessageUtils.sendErrorMessage("That role does not exist!", channel);
-                        return;
-                    } else
-                        roleId = channel.getGuild().getRolesByName(args[0], true).get(0).getId();
+                    if (handleRoleName(args[0], guild, channel) == null) return;
+                    roleId = channel.getGuild().getRolesByName(args[0], true).get(0).getIdLong();
                 }
 
-                if (guild.getSelfAssignRoles().contains(roleId)) {
+                if (guild.getSelfAssignRoles().contains(String.valueOf(roleId))) {
                     handleRole(member, channel, roleId);
                 } else {
-                    MessageUtils.sendErrorMessage("You cannot auto-assign that role! Do `" + getPrefix(channel
+                    MessageUtils.sendErrorMessage("You cannot self-assign that role! Do `" + getPrefix(channel
                                     .getGuild()) + "selfassign list` to see what you can assign to yourself!",
                             channel);
                 }
@@ -84,15 +85,15 @@ public class SelfAssignCommand implements Command {
                     return;
                 }
 
-                String roleId = args[1];
+                long roleId;
                 try {
-                    Long.parseLong(roleId);
+                    roleId = Long.parseLong(args[1]);
                 } catch (NumberFormatException e) {
                     MessageUtils.sendErrorMessage("Make sure to use the role ID!", channel);
                     return;
                 }
                 if (channel.getGuild().getRoleById(roleId) != null) {
-                    guild.getSelfAssignRoles().add(roleId);
+                    guild.getSelfAssignRoles().add(String.valueOf(roleId));
                     channel.sendMessage(new EmbedBuilder()
                             .setDescription("Added `" + channel.getGuild().getRoleById(roleId)
                                     .getName() + "` to the self-assign list!").build())
@@ -116,53 +117,68 @@ public class SelfAssignCommand implements Command {
                 } else
                     MessageUtils.sendErrorMessage("That role does not exist!", channel);
             } else {
-                String roleId;
-                if (channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).isEmpty()) {
-                    MessageUtils.sendErrorMessage("That role does not exist!", channel);
-                    return;
-                } else
-                    roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getId();
+                if (handleRoleName(MessageUtils.getMessage(args, 0), guild, channel) == null) return;
+                long roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getIdLong();
 
-                if (guild.getSelfAssignRoles().contains(roleId)) {
+                // TODO: Move these to Long
+                if (guild.getSelfAssignRoles().contains(String.valueOf(roleId))) {
                     handleRole(member, channel, roleId);
                 } else {
-                    MessageUtils.sendErrorMessage("You cannot auto-assign that role! Do `" + getPrefix(channel
+                    MessageUtils.sendErrorMessage("You cannot self-assign that role! Do `" + getPrefix(channel
                                     .getGuild()) + "selfassign list` to see what you can assign to yourself!",
                             channel);
                 }
             }
         } else {
-            String roleId;
-            if (channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).isEmpty()) {
-                MessageUtils.sendErrorMessage("That role does not exist!", channel);
-                return;
-            } else
-                roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getId();
+            if (handleRoleName(MessageUtils.getMessage(args, 0), guild, channel) == null) return;
+            long roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getIdLong();
 
-            if (guild.getSelfAssignRoles().contains(roleId)) {
+            // TODO: Move these to Long
+            if (guild.getSelfAssignRoles().contains(String.valueOf(roleId))) {
                 handleRole(member, channel, roleId);
             } else {
-                MessageUtils.sendErrorMessage("You cannot auto-assign that role! Do `" + getPrefix(channel
+                MessageUtils.sendErrorMessage("You cannot self-assign that role! Do `" + getPrefix(channel
                                 .getGuild()) + "selfassign list` to see what you can assign to yourself!",
                         channel);
             }
         }
     }
 
-    private void handleRole(Member member, TextChannel channel, String roleId) {
+    private void handleRole(Member member, TextChannel channel, long roleId) {
         try {
             if (!member.getRoles().contains(channel.getGuild().getRoleById(roleId))) {
                 channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
-                MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild()
+                MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention())
+                        .setEmbed(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild()
                         .getRoleById(roleId).getName() + "` to yourself!").setColor(Color.green).build()).build(), 30_000, channel);
             } else {
                 channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId)).queue();
-                MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention()).setEmbed(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild()
+                MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention())
+                        .setEmbed(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild()
                         .getRoleById(roleId).getName() + "` from yourself!").setColor(Color.orange).build()).build(), 30_000, channel);
             }
         } catch (PermissionException e) {
             MessageUtils.sendErrorMessage(e.getMessage() + "\nContact a server administrator!", channel);
         }
+    }
+
+    private Role handleRoleName(String message, GuildWrapper guild, TextChannel channel) {
+        if (guild.getGuild().getRolesByName(message, true).isEmpty()) {
+            String closest = null;
+            int distance = LEVENSHTEIN_DISTANCE;
+            for (Role role : guild.getGuild().getRoles().stream().filter(role -> guild.getSelfAssignRoles()
+                    .contains(role.getId())).collect(Collectors.toList())) {
+                int currentDistance = StringUtils.getLevenshteinDistance(role.getName(), message);
+                if (currentDistance < distance) {
+                    distance = currentDistance;
+                    closest = role.getName();
+                }
+            }
+            MessageUtils.sendErrorMessage("That role does not exist! "
+                    + (closest != null ? "Maybe you mean `" + closest + "`" : ""), channel);
+            return null;
+        }else
+            return guild.getGuild().getRolesByName(message, true).get(0);
     }
 
     @Override

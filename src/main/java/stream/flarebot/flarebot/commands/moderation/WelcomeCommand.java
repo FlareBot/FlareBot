@@ -68,7 +68,8 @@ public class WelcomeCommand implements Command {
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 4);
                                 guild.getWelcome().getDmMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
+                                channel.sendMessage("Added welcome message `"
+                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
                             } else {
                                 MessageUtils.sendUsage(this, channel, sender);
                             }
@@ -124,7 +125,8 @@ public class WelcomeCommand implements Command {
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 3);
                                 guild.getWelcome().getGuildMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `" + welcomeMessage + "`").queue();
+                                channel.sendMessage("Added welcome message `"
+                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
                             } else {
                                 MessageUtils.sendUsage(this, channel, sender);
                             }
@@ -181,7 +183,6 @@ public class WelcomeCommand implements Command {
     private int messagesLength = 15;
 
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
-        System.out.println("a");
         int pages =
                 messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
         int start = messagesLength * (page - 1);
@@ -195,7 +196,7 @@ public class WelcomeCommand implements Command {
             for (String messagesMessage : messagesSub) {
                 List<String> part = new ArrayList<>();
                 part.add(String.valueOf(i));
-                part.add(messagesMessage);
+                part.add(MessageUtils.escapeMarkdown(messagesMessage));
                 body.add(part);
                 i++;
             }

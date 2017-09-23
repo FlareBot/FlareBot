@@ -75,7 +75,7 @@ public class QueryCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.HIDDEN;
+        return CommandType.SECRET;
     }
 
 }
