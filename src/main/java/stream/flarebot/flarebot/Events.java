@@ -314,7 +314,7 @@ public class Events extends ListenerAdapter {
                 return;
             }
         }
-        if (guild.isBlocked() && !(cmd.getType() == CommandType.HIDDEN)) return;
+        if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
         if (handleMissingPermission(cmd, event)) return;
         if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) return;
         if (UpdateCommand.UPDATING.get()) {
