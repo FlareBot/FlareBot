@@ -112,6 +112,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -157,9 +158,11 @@ public class FlareBot {
     public static final Gson GSON = new GsonBuilder().create();
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
-    public static final String GUILD_LOG = "260401007685664768";
     public static final String OLD_FLAREBOT_API = "https://flarebot.stream/api/";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
+    //public static final String FLAREBOT_API = "http://localhost:8880/";
+
+    public static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
 
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
@@ -353,7 +356,6 @@ public class FlareBot {
                 Thread.sleep(5000);
             } else {
                 builder = builder.setReconnectQueue(new SessionReconnectQueue());
-                System.out.println(builder);
                 for (int i = 0; i < clients.length; i++) {
                     clients[i] = builder.useSharding(i, clients.length).buildAsync();
                     Thread.sleep(5000); // 5 second backoff
@@ -365,7 +367,7 @@ public class FlareBot {
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled() && canChangeNick(player.getGuildId())) {
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled() && GeneralUtils.canChangeNick(player.getGuildId())) {
                         Guild c = getGuildByID(player.getGuildId());
                         if (c == null) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
@@ -374,7 +376,7 @@ public class FlareBot {
                                 c.getController().setNickname(c.getSelfMember(), null).queue();
                         }
                     } else {
-                        if (!canChangeNick(player.getGuildId())) {
+                        if (!GeneralUtils.canChangeNick(player.getGuildId())) {
                             MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                     "FlareBot can't change it's nickname so SongNick has been disabled!");
                         }
@@ -412,9 +414,9 @@ public class FlareBot {
                     }
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         Guild c = getGuildByID(player.getGuildId());
-                        if (c == null || !canChangeNick(player.getGuildId())) {
+                        if (c == null || !GeneralUtils.canChangeNick(player.getGuildId())) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
-                            if (!canChangeNick(player.getGuildId())) {
+                            if (!GeneralUtils.canChangeNick(player.getGuildId())) {
                                 MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                         "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
@@ -470,14 +472,6 @@ public class FlareBot {
 
         latch.await();
         run();
-    }
-
-    private boolean canChangeNick(String guildId) {
-        if (getGuildByID(guildId) != null) {
-            return getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                    getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
-        } else
-            return false;
     }
 
     protected void run() {
@@ -556,7 +550,7 @@ public class FlareBot {
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        sendCommands();
+        //sendCommands();
 
         new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
@@ -656,7 +650,7 @@ public class FlareBot {
     private JsonParser parser = new JsonParser();
 
     private void sendData() {
-        JsonObject data = new JsonObject();
+        /*JsonObject data = new JsonObject();
         data.addProperty("guilds", getGuilds().size());
         data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
         data.addProperty("text_channels", getChannels().size());
@@ -668,7 +662,7 @@ public class FlareBot {
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("uptime", getUptime());
 
-        postToApi("postData", "data", data);
+        postToApi("postData", "data", data);*/
     }
 
     private void sendCommands() {
@@ -727,7 +721,7 @@ public class FlareBot {
                 JsonObject obj = parser.parse(br.readLine()).getAsJsonObject();
                 int code = obj.get("code").getAsInt();
 
-                if (code % 100 == 0) {
+                if (code % 100 == 0 && code != 500) {
                     message[0] = obj.get("message").getAsString();
                 } else {
                     LOGGER.error("Error updating site! " + obj.get("error").getAsString());
@@ -803,6 +797,7 @@ public class FlareBot {
                 String out = "";
                 String line;
                 if ((line = reader.readLine()) != null) {
+                    System.out.println(line);
                     out += line + '\n';
                 }
                 p.waitFor();
@@ -987,15 +982,15 @@ public class FlareBot {
     }
 
     public TextChannel getErrorLogChannel() {
-        return (testBot ? getChannelByID("242297848123621376") : getChannelByID("226786557862871040"));
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("226786557862871040"));
     }
 
     public TextChannel getGuildLogChannel() {
-        return testBot ? getChannelByID("242297848123621376") : getChannelByID("260401007685664768");
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("260401007685664768"));
     }
 
     public TextChannel getEGLogChannel() {
-        return testBot ? getChannelByID("242297848123621376") : getChannelByID("358950369642151937");
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
     }
 
     public void logEG(String eg, Guild guild, User user) {
@@ -1007,7 +1002,7 @@ public class FlareBot {
     }
 
     public TextChannel getImportantLogChannel() {
-        return testBot ? getChannelByID("242297848123621376") : getChannelByID("358978253966278657");
+        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358978253966278657"));
     }
 
 
@@ -1119,6 +1114,7 @@ public class FlareBot {
     }
 
     public String formatTime(LocalDateTime dateTime) {
+        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
         return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
                 .format(timeFormat) + " UTC";
     }

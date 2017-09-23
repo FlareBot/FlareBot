@@ -100,8 +100,13 @@ public class MessageUtils {
         try {
             Response response = WebUtils.post("https://hastebin.com/documents", WebUtils.APPLICATION_JSON, trace);
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
-            return "https://hastebin.com/" + new JSONObject(response.body().string()).getString("key");
+            if(response.body() != null) {
+                String key = new JSONObject(response.body().string()).getString("key");
+                return "https://hastebin.com/" + key;
+            } else {
+                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Hastebin is down");
+                return null;
+            }
         } catch (IOException | JSONException e) {
             FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
             return null;

@@ -40,7 +40,6 @@ public class RolesCommand implements Command {
             }
             start = pageSize * (page - 1);
             end = Math.min(start + pageSize, roles.size());
-            System.out.println(start + " - " + end);
             if (page > pages || page < 0) {
                 MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                 return;

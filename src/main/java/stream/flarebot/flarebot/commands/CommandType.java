@@ -9,7 +9,7 @@ public enum CommandType {
     GENERAL,
     MODERATION,
     MUSIC,
-    HIDDEN;
+    SECRET;
 
     public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();

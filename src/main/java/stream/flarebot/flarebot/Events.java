@@ -237,7 +237,6 @@ public class Events extends ListenerAdapter {
                 }
             }
             String message = event.getMessage().getRawContent();
-            message = message.replaceAll("`", "'");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
@@ -307,7 +306,7 @@ public class Events extends ListenerAdapter {
             }
         }
         handleSpamDetection(event, guild);
-        if (cmd.getType() == CommandType.HIDDEN) {
+        if (cmd.getType() == CommandType.SECRET) {
             if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot()
                     && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
