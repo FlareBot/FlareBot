@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -14,7 +13,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -152,8 +150,7 @@ public class AutoAssignCommand implements Command {
         } else {
             List<String> subRoles = roles.subList(start, end);
             if (roles.isEmpty()) {
-                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN)
-                        .setDescription("There are no role being autoassigned in this guild!").build()).queue();
+                MessageUtils.sendInfoMessage("There are no role being autoassigned in this guild!", channel, sender);
                 return;
             } else {
                 for (String role : subRoles) {
@@ -167,7 +164,6 @@ public class AutoAssignCommand implements Command {
         }
 
         sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
-
-        channel.sendMessage(new EmbedBuilder().setDescription(sb.toString()).setColor(Color.cyan).build()).queue();
+        MessageUtils.sendInfoMessage(sb.toString(), channel, sender);
     }
 }

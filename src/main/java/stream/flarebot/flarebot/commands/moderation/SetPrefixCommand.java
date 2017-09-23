@@ -11,7 +11,6 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.EnumSet;
 
 public class SetPrefixCommand implements Command {
@@ -20,10 +19,7 @@ public class SetPrefixCommand implements Command {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reset")) {
                 FlareBot.getPrefixes().set(channel.getGuild().getId(), '_');
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setColor(Color.CYAN)
-                        .setDescription("Reset the prefix back to `_`!").build())
-                        .queue();
+                MessageUtils.sendInfoMessage("Reset the prefix back to `_`!", channel, sender);
             } else if (args[0].length() == 1) {
                 FlareBot.getPrefixes().set(channel.getGuild().getId(), args[0].charAt(0));
                 channel.sendMessage(MessageUtils.getEmbed(sender)

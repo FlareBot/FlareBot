@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -11,7 +10,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,10 +137,7 @@ public class WelcomeCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("setchannel")) {
                 guild.getWelcome().setChannelId(channel.getId());
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.appendDescription("Set welcome channel to " + channel.getAsMention());
-                eb.setColor(Color.GREEN);
-                channel.sendMessage(eb.build()).queue();
+                MessageUtils.sendSuccessMessage("Set welcome channel to " + channel.getAsMention(), channel, sender);
             } else {
                 MessageUtils.sendUsage(this, channel, sender);
             }

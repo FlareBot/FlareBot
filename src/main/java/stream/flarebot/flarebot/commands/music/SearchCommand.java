@@ -17,7 +17,7 @@ public class SearchCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        channel.sendMessage(new EmbedBuilder().setColor(Color.YELLOW).setDescription("This is deprecated! Please use _play instead!").build()).queue();
+        MessageUtils.sendWarningMessage("This is deprecated! Please use _play instead!", channel, sender);
         if (args.length > 0) {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();

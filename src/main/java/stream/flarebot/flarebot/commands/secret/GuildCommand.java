@@ -135,7 +135,6 @@ public class GuildCommand implements Command {
             return;
         }
         FlareBotManager.getInstance().getGuild(guild1.getId()).revokeBlock();
-        MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed().setColor(Color.GREEN).setDescription("Guild has been unblocked!").build(), 5000, channel);
-        return;
+        MessageUtils.autoDeleteMessage(MessageUtils.sendSuccessMessage("Guild has been unblocked!", channel), 5000);
     }
 }

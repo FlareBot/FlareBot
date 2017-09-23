@@ -27,17 +27,11 @@ public class PollCommand implements Command {
         if (args.length == 0) {
             int closedSize = guild.getPolls().stream().filter(Poll::isClosed).collect(Collectors.toList()).size();
             if (guild.getPolls().size() == 0 || (closedSize > 0 && guild.getPolls().size() == closedSize)) {
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("This guild has no polls currently running!" +
-                                (closedSize > 0 && getPermissions(channel).hasPermission(member, "flarebot.poll.open")
-                                        ? String.format("\nThis guild has %d closed " + (guild.getPolls().size() == 1 ? "poll" : "polls"), closedSize) : ""))
-                        .setColor(Color.CYAN)
-                        .build()).queue();
+                MessageUtils.sendInfoMessage("This guild has no polls currently running!" +
+                        (closedSize > 0 && getPermissions(channel).hasPermission(member, "flarebot.poll.open")
+                                ? String.format("\nThis guild has %d closed " + (guild.getPolls().size() == 1 ? "poll" : "polls"), closedSize) : ""), channel, sender);
             } else {
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(String.format("This guild has %d " + (guild.getPolls().size() == 1 ? "poll" : "polls"), guild.getPolls().size()))
-                        .setColor(Color.CYAN)
-                        .build()).queue();
+                MessageUtils.sendInfoMessage(String.format("This guild has %d " + (guild.getPolls().size() == 1 ? "poll" : "polls"), guild.getPolls().size()), channel, sender);
             }
             return;
         } else {
@@ -65,10 +59,7 @@ public class PollCommand implements Command {
             } else if (args[0].equalsIgnoreCase("list")) {
                 EmbedBuilder builder = MessageUtils.getEmbed(sender);
                 if (guild.getPolls().size() == 0) {
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This guild has no polls currently running!")
-                            .setColor(Color.CYAN)
-                            .build()).queue();
+                    MessageUtils.sendInfoMessage("This guild has no polls currently running!", channel, sender);
                     return;
                 }
                 for (Poll poll : guild.getPolls()) {
@@ -83,10 +74,7 @@ public class PollCommand implements Command {
                     args[0].equalsIgnoreCase("open") ||
                     args[0].equalsIgnoreCase("remove")) {
                 if (guild.getPolls().size() == 0) {
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This guild has no polls currently running!")
-                            .setColor(Color.CYAN)
-                            .build()).queue();
+                    MessageUtils.sendInfoMessage("This guild has no polls currently running!", channel, sender);
                     return;
                 } else if (args.length == 2) {
                     int index;
@@ -127,11 +115,7 @@ public class PollCommand implements Command {
                         return;
                     }
 
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("Successfully " + action + " the poll with the ID: " + String.valueOf(index + 1))
-                            .setColor(Color.GREEN)
-                            .build()
-                    ).queue();
+                    MessageUtils.sendSuccessMessage("Successfully " + action + " the poll with the ID: " + String.valueOf(index + 1), channel, sender);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("set")) {
@@ -203,10 +187,7 @@ public class PollCommand implements Command {
                         }
 
                         options.add(new PollOption(option));
-                        channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(Color.GREEN)
-                                .setDescription("Successfully added option: `" + GeneralUtils.truncate(50, option) + "`")
-                                .build()).queue();
+                        MessageUtils.sendSuccessMessage("Successfully added option: `" + GeneralUtils.truncate(50, option) + "`", channel, sender);
                         return;
                     } else if (args[2].equalsIgnoreCase("remove") && args.length == 4) {
                         int optionId;
@@ -221,16 +202,11 @@ public class PollCommand implements Command {
                             return;
                         }
 
-                        channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(Color.GREEN)
-                                .setDescription("Successfully removed option with ID: " + (optionId + 1))
-                                .build()).queue();
+                        MessageUtils.sendSuccessMessage("Successfully removed option with ID: " + (optionId + 1), channel, sender);
                         return;
                     } else if (args[2].equalsIgnoreCase("list")) {
                         if (poll.getPollOptions().size() == 0) {
-                            channel.sendMessage(MessageUtils.getEmbed(sender)
-                                    .setColor(Color.CYAN)
-                                    .setDescription("This poll has no options!").build()).queue();
+                            MessageUtils.sendInfoMessage("This poll has no options!", channel, sender);
                             return;
                         }
                         StringBuilder builder = new StringBuilder("```md\n");
@@ -255,10 +231,7 @@ public class PollCommand implements Command {
                         for (Poll poll : guild.getPolls()) {
                             poll.setChannel(channel.getId());
                         }
-                        channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(Color.GREEN)
-                                .setDescription("Set this channel to be the announcement channel for all polls!")
-                                .build()).queue();
+                        MessageUtils.sendSuccessMessage("Set this channel to be the announcement channel for all polls!", channel, sender);
                         return;
                     } else {
                         Poll poll = getPollById(args[1], guild.getPolls(), channel);
@@ -267,10 +240,7 @@ public class PollCommand implements Command {
                         }
 
                         poll.setChannel(channel.getId());
-                        channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(Color.GREEN)
-                                .setDescription("Set this channel to be the announcement channel for poll ID: " + args[0] + "!")
-                                .build()).queue();
+                        MessageUtils.sendSuccessMessage("Set this channel to be the announcement channel for poll ID: " + args[0] + "!", channel, sender);
                         return;
                     }
                 }
@@ -316,17 +286,13 @@ public class PollCommand implements Command {
                     option.incrementVotes(sender.getId());
 
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setColor(Color.GREEN)
                             .setDescription("You voted for option ID: " + (id + 1))
                             .addField("Option", GeneralUtils.truncate(50, option.getOption()), false)
                             .addField("Votes", "This option has " + String.valueOf(option.getVotes()) + " votes!", false)
                             .build()).queue();
                     return;
                 } else if (guild.getPolls().size() == 0) {
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription("This guild has no polls currently running!")
-                            .setColor(Color.CYAN)
-                            .build()).queue();
+                    MessageUtils.sendInfoMessage("This guild has no polls currently running!", channel, sender);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("help")) {

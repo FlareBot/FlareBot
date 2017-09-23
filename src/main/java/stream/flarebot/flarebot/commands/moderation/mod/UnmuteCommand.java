@@ -31,10 +31,7 @@ public class UnmuteCommand implements Command {
             }
             if (guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())) {
                 guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()).queue();
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.appendDescription("Unmuted " + user.getAsMention());
-                eb.setColor(Color.CYAN);
-                channel.sendMessage(eb.build()).queue();
+                MessageUtils.sendSuccessMessage("Unmuted " + user.getAsMention(), channel, sender);
             } else {
                 MessageUtils.sendErrorMessage("That user isn't muted!!", channel);
             }

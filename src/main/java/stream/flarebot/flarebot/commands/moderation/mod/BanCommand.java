@@ -39,7 +39,7 @@ public class BanCommand implements Command {
                             .setColor(Color.GREEN)
                             .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
                             .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
-                                    "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null)
+                                    "https://cdn.discordapp.com/attachments/229704246004547585/361184232128905216/Webp.net-resizeimage.png" : null)
                             .build()).queue();
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);

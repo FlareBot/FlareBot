@@ -14,7 +14,6 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ public class ReportsCommand implements Command {
                             List<Report> subReports = reports.subList(start, end);
 
                             if (reports.isEmpty()) {
-                                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("No Reports for this guild!").build()).queue();
+                                MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
                             } else {
                                 channel.sendMessage(getReportsTable(subReports, " Reports Page " + GeneralUtils.getPageOutOfTotal(page, reports, reportsLength))).queue();
                             }
@@ -113,11 +112,10 @@ public class ReportsCommand implements Command {
                             return;
                         }
                         if (guild.getReportManager().getReport(id).getStatus().equals(status)) {
-                            channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN).setDescription("Current status is: **" + status.getMessage() + "**").build()).queue();
+                            MessageUtils.sendInfoMessage("Current status is: **" + status.getMessage() + "**", channel, sender);
                         } else {
                             guild.getReportManager().getReport(id).setStatus(status);
-                            channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.GREEN).setDescription(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage())).build()).queue();
-
+                            MessageUtils.sendSuccessMessage(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage()), channel, sender);
                         }
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
