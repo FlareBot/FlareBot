@@ -47,7 +47,7 @@ public class GuildCommand implements Command {
                     embedBuilder.setDescription("This guild " +
                             (guild.isBlocked() ? "is blocked!" : "is not blocked!"))
                             .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    MessageUtils.sendMessage(embedBuilder.build(), channel);
+                    channel.sendMessage(embedBuilder.build()).queue();
                     return;
                 } else if (args.length == 2) {
                     Guild guild1 = FlareBot.getInstance().getGuildByID(args[1]);
@@ -60,7 +60,7 @@ public class GuildCommand implements Command {
                     embedBuilder.setDescription("That guild " +
                             (FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? "is blocked!" : "is not blocked!"))
                             .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    MessageUtils.sendMessage(embedBuilder.build(), channel);
+                    channel.sendMessage(embedBuilder.build()).queue();
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("beta")) {
