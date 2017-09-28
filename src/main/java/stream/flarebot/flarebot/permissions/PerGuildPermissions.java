@@ -41,8 +41,8 @@ public class PerGuildPermissions {
             return true;
         PermissionNode node = new PermissionNode(permission);
         for (Group g : getGroups().values()) {
-            if(!g.hasPermission(node)) continue;
-            if(getUser(user).getGroups().contains(g.getName())) return true;
+            if (!g.hasPermission(node)) continue;
+            if (getUser(user).getGroups().contains(g.getName())) return true;
             if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
                 if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {
                     return true;
@@ -86,7 +86,7 @@ public class PerGuildPermissions {
     }
 
     public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
-        return user.getId().equals("158310004187725824");
+        return user.getId().equals("158310004187725824") || user.getId().equals("203894491784937472");
     }
 
     public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
