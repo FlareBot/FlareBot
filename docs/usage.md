@@ -6,7 +6,7 @@ FlareBot is a Discord bot that plays music and handles basic server admin tasks.
 
 We're assuming that you have a Discord server already; if not, spin one up before proceeding.
 
-Once your server is ready, navigate go the [FlareBot homepage](https://flarebot.stream/). Click **Invite**.
+Once your server is ready, go the [FlareBot homepage](https://flarebot.stream/). Click **Invite**.
 
 ![](media/flarebot-homepage.png)
 
@@ -40,11 +40,11 @@ Set the name and channel type, and click **Create Channel** to proceed.
 
 ![](media/create-voice-channel.png)
 
-At this point, you can begin using FlareBot. You can see a list of commands available to you by running **_help**. You can also see the list on the [FlareBot site](https://flarebot.stream/). There are three categories of commands: **General**, **Moderation**, and **Music**.
+At this point, you can begin using FlareBot. You can see a list of commands available to you by running **_help**. You can also see the list on the [FlareBot site](https://flarebot.stream/#commands). There are three categories of commands: **General**, **Moderation**, and **Music**.
 
 ![](media/help.png)
 
-As an example, let's create a playlist that includes Of Monsters and Men's *Wolves Without Teeth* and Dolly Parton's **Jolene**. We can do so with the following two commands:
+As an example, let's create a playlist that includes Of Monsters and Men's *Wolves Without Teeth* and Dolly Parton's *Jolene*. We can do so with the following two commands:
 
 * `_play wolves without teeth`
 * `_play jolene dolly parton`
