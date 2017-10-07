@@ -71,7 +71,7 @@ public class ConvertCommand implements Command {
                 MessageUtils.sendException("There was an error completing your request! \n" +
                         "Please join the support guild: " + FlareBot.INVITE_URL, e, channel);
             }
-        }
+        }q
         MessageUtils.sendUsage(this, channel, sender);
     }
 

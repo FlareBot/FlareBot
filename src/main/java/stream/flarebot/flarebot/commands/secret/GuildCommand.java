@@ -56,6 +56,29 @@ public class GuildCommand implements Command {
                 embedBuilder.setTitle(g.getName(), null).addField("Beta", String.valueOf(wrapper.getBetaAccess()), true)
                     .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
                 channel.sendMessage(embedBuilder.build()).queue();
+            
+              } else if (args[0].equalsIgnoreCase("beta")) {
+                if (args.length == 1) {
+                    guild.setBetaAccess(!guild.getBetaAccess());
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
+                            .setDescription("This guild has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                            .build()).queue();
+                    return;
+                } else if (args.length == 2) {
+                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[1]);
+                    if (guildWrapper == null) {
+                        MessageUtils.sendErrorMessage("That guild does not exist!", channel);
+                        return;
+                    } else {
+                        guildWrapper.setBetaAccess(!guildWrapper.getBetaAccess());
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setColor(guildWrapper.getBetaAccess() ? Color.GREEN : Color.RED)
+                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guildWrapper.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                                .build()).queue();
+                        return;
+                    }
+                }
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
                     guild.setBetaAccess(!guild.getBetaAccess());

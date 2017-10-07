@@ -90,8 +90,7 @@ public class PerGuildPermissions {
     }
 
     public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return user.getId().equals("215644829969809421") || user.getId().equals("203894491784937472") ||
-                user.getId().equals("186002153066725378");
+        return user.getId().equals("215644829969809421");
     }
 
 }
