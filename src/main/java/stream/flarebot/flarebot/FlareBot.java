@@ -560,10 +560,9 @@ public class FlareBot {
                 if (FlareBot.botListAuth != null) {
                     WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON, 
                     new JSONObject()
-                        .put("key", config.carbon)
-                        .put("servercount", guilds)
-                        .put("shardcount", shardCount)
-                        .put("shardid", shardId)
+                        .put("key", FlareBot.carbonAuth)
+                        .put("servercount", getGuilds().size())
+                        .put("shardcount", clients.length)
                         .toString());
                 }
             }
