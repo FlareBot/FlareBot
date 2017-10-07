@@ -1,4 +1,4 @@
-# Flarebot
+# FlareBot
 
 FlareBot is a Discord bot that plays music and handles basic server admin tasks. Here's how to get up and running.
 
@@ -6,9 +6,9 @@ FlareBot is a Discord bot that plays music and handles basic server admin tasks.
 
 We're assuming that you have a Discord server already; if not, spin one up before proceeding.
 
-Once your server is ready, go the [FlareBot homepage](https://flarebot.stream/). Click **Invite**.
+Once your server is ready, go the [FlareBot homepage](https://FlareBot.stream/). Click **Invite**.
 
-![](media/flarebot-homepage.png)
+![](media/FlareBot-homepage.png)
 
 If you aren't already logged in to your Discord account, do so now.
 
@@ -18,7 +18,7 @@ Select the server for which you want FlareBot added.
 Set the permissions you want granted to FlareBot.
 Click **Authorize**.
 
-![](media/authorize-flarebot.png)
+![](media/authorize-FlareBot.png)
 
 Prove that you're not a robot.
 
@@ -40,7 +40,7 @@ Set the name and channel type, and click **Create Channel** to proceed.
 
 ![](media/create-voice-channel.png)
 
-At this point, you can begin using FlareBot. You can see a list of commands available to you by running **_help**. You can also see the list on the [FlareBot site](https://flarebot.stream/#commands). There are three categories of commands: **General**, **Moderation**, and **Music**.
+At this point, you can begin using FlareBot. You can see a list of commands available to you by running **_help**. You can also see the list on the [FlareBot site](https://FlareBot.stream/#commands). There are three categories of commands: **General**, **Moderation**, and **Music**.
 
 ![](media/help.png)
 
@@ -55,7 +55,7 @@ Now we can play our songs. We'll click on the voice channel we want to use (in t
 
 FlareBot will join the channel you indicated.
 
-![](media/flarebot-joined.png)
+![](media/FlareBot-joined.png)
 
 FlareBot will begin playing music (if there are songs in the playlist).
 
