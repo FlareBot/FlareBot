@@ -39,7 +39,8 @@ public class Punishment {
         eb.addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true);
         if(responsible != null)
             eb.addField("Responsible moderator", responsible.getAsMention(), true);
-        eb.addField("Reason", (reason != null ? reason : "No reason given!"), true);
+        if(responsible != null || reason != null)
+            eb.addField("Reason", (reason != null ? reason : "No reason given!"), true);
         return eb.build();
     }
 
@@ -47,6 +48,7 @@ public class Punishment {
         PURGE,
         TEMP_MUTE,
         MUTE,
+        UNMUTE,
         KICK,
         TEMP_BAN,
         BAN
