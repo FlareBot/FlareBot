@@ -565,7 +565,7 @@ public class FlareBot {
                         .put("servercount", getGuilds().size())
                         .put("shardcount", clients.length)
                         .toString());
-                    } catch(IOException) {
+                    } catch(IOException e) {
                         LOGGER.error("Failed to update carbon!", e);
                     }
                 }
