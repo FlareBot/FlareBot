@@ -53,8 +53,8 @@ public class GuildCommand implements Command {
                     
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
                         .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
-                embedBuilder.setTitle(g.getName(), null).addField("Beta", wrapper.getBetaAccess(), true)
-                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + guild.getBlockedReason() + "`)" : "", true);
+                embedBuilder.setTitle(g.getName(), null).addField("Beta", String.valueOf(wrapper.getBetaAccess()), true)
+                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
                 channel.sendMessage(embedBuilder.build()).queue();
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
@@ -65,15 +65,15 @@ public class GuildCommand implements Command {
                             .build()).queue();
                     return;
                 } else if (args.length == 2) {
-                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[0]);
+                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[1]);
                     if (guildWrapper == null) {
                         MessageUtils.sendErrorMessage("That guild does not exist!", channel);
                         return;
                     } else {
-                        guildWrapper.setBetaAccess(!guild.getBetaAccess());
+                        guildWrapper.setBetaAccess(!guildWrapper.getBetaAccess());
                         channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
-                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                                .setColor(guildWrapper.getBetaAccess() ? Color.GREEN : Color.RED)
+                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guildWrapper.getBetaAccess() ? "given" : "removed from") + " beta access!")
                                 .build()).queue();
                         return;
                     }

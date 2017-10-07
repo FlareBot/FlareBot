@@ -82,6 +82,11 @@ public class TagsCommand implements Command {
     }
 
     @Override
+    public String[] getAliases() {
+        return new String[] {"tag"};
+    }
+    
+    @Override
     public boolean isBetaTesterCommand() {
         return true;
     }

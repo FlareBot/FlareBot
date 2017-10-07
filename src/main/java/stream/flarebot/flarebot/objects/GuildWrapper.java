@@ -203,6 +203,7 @@ public class GuildWrapper {
     }
 
     public ReportManager getReportManager() {
+        if(reportManager == null) reportManager = new ReportManager();
         return reportManager;
     }
 
