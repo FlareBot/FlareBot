@@ -147,6 +147,8 @@ public class FlareBot {
 
     private static String botListAuth;
     private static String dBotsAuth;
+    private static String carbonAuth;
+    
     private FlareBotManager manager;
     private static String webSecret;
     private static boolean apiEnabled = true;
@@ -221,16 +223,20 @@ public class FlareBot {
         if (config.getString("misc.hook").isPresent()) {
             FlareBot.secret = config.getString("misc.hook").get();
         }
-        if (config.getString("botlists.discordBots").isPresent()) {
-            FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
-        }
         if (config.getString("misc.web").isPresent()) {
             FlareBot.webSecret = config.getString("misc.web").get();
         }
-        if (config.getString("bot.statusHook").isPresent())
+        if (config.getString("bot.statusHook").isPresent()) {
             FlareBot.statusHook = config.getString("bot.statusHook").get();
+        }
         if (config.getString("botlists.botlist").isPresent()) {
             FlareBot.botListAuth = config.getString("botlists.botlist").get();
+        }
+        if (config.getString("botlists.discordBots").isPresent()) {
+            FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
+        }
+        if (config.getString("botlists.carbon").isPresent()) {
+            FlareBot.carbonAuth = config.getString("botlists.carbonAuth").get();
         }
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
@@ -544,6 +550,21 @@ public class FlareBot {
                 if (FlareBot.botListAuth != null) {
                     postToBotList(FlareBot.botListAuth, String
                             .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+        
+        new FlarebotTask("PostCarbonData" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                if (FlareBot.botListAuth != null) {
+                    WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON, 
+                    new JSONObject()
+                        .put("key", config.carbon)
+                        .put("servercount", guilds)
+                        .put("shardcount", shardCount)
+                        .put("shardid", shardId)
+                        .toString());
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
