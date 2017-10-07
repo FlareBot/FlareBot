@@ -56,8 +56,7 @@ public class GuildCommand implements Command {
                 embedBuilder.setTitle(g.getName(), null).addField("Beta", String.valueOf(wrapper.getBetaAccess()), true)
                     .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
                 channel.sendMessage(embedBuilder.build()).queue();
-            
-              } else if (args[0].equalsIgnoreCase("beta")) {
+            } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
                     guild.setBetaAccess(!guild.getBetaAccess());
                     channel.sendMessage(MessageUtils.getEmbed(sender)
