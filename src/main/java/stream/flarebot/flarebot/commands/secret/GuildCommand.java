@@ -79,28 +79,6 @@ public class GuildCommand implements Command {
                         return;
                     }
                 }
-            } else if (args[0].equalsIgnoreCase("beta")) {
-                if (args.length == 1) {
-                    guild.setBetaAccess(!guild.getBetaAccess());
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
-                            .setDescription("This guild has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
-                            .build()).queue();
-                    return;
-                } else if (args.length == 2) {
-                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[1]);
-                    if (guildWrapper == null) {
-                        MessageUtils.sendErrorMessage("That guild does not exist!", channel);
-                        return;
-                    } else {
-                        guildWrapper.setBetaAccess(!guildWrapper.getBetaAccess());
-                        channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(guildWrapper.getBetaAccess() ? Color.GREEN : Color.RED)
-                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guildWrapper.getBetaAccess() ? "given" : "removed from") + " beta access!")
-                                .build()).queue();
-                        return;
-                    }
-                }
             } else if (args[0].equalsIgnoreCase("data")) {
                 GuildWrapper wrapper = guild;
                 if (args.length == 2)
