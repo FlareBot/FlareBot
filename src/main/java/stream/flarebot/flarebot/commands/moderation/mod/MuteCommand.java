@@ -32,7 +32,7 @@ public class MuteCommand implements Command {
             try {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
             } catch(HierarchyException e) {
-                MessageUtils.sendErrorMessage("Cannot mute users who have the same or higher roles than FlareBot. Please check your role hierarchy.", 
+                MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the role hierarchy.", 
                     channel);
                 return;
             }
