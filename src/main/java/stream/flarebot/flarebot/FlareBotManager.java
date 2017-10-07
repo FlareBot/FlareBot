@@ -3,21 +3,29 @@ package stream.flarebot.flarebot;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.google.common.util.concurrent.Runnables;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 import stream.flarebot.flarebot.util.objects.expiringmap.ExpiredEvent;
 import stream.flarebot.flarebot.util.objects.expiringmap.ExpiringMap;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -89,7 +97,7 @@ public class FlareBotManager {
         new FlarebotTask() {
             @Override
             public void run() {
-                if(!FlareBot.EXITING.get())
+                if (!FlareBot.EXITING.get())
                     guilds.purge();
                 else
                     cancel();
@@ -111,20 +119,28 @@ public class FlareBotManager {
                 + " (" + new Date(last_r) + ") - " + guilds.size() + " currently loaded.");
     }
 
-    public void savePlaylist(TextChannel channel, String owner, String name, List<String> songs) {
+    public void savePlaylist(Command command, TextChannel channel, String ownerId, boolean overwriteAllowed, String name, List<String> songs) {
         CassandraController.runTask(session -> {
             PreparedStatement exists = session
                     .prepare("SELECT * FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
             ResultSet set = session.execute(exists.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             if (set.one() != null) {
-                channel.sendMessage("That name is already taken!").queue();
-                return;
+                if (ConfirmUtil.checkExists(ownerId, command.getClass())) {
+                    MessageUtils.sendWarningMessage("Overwriting playlist!", channel);
+                } else if (!overwriteAllowed) {
+                    MessageUtils.sendErrorMessage("That name is already taken! You need the `flarebot.playlist.save.overwrite` permission to overwrite", channel);
+                    return;
+                } else {
+                    MessageUtils.sendErrorMessage("That name is already taken! Do this again within 1 minute to overwrite!", channel);
+                    ConfirmUtil.pushAction(ownerId, new RunnableWrapper(Runnables.doNothing(), command.getClass()));
+                    return;
+                }
             }
             session.execute(session.prepare("INSERT INTO flarebot.playlist (playlist_name, guild_id, owner, songs, " +
                     "scope, times_played) VALUES (?, ?, ?, ?, ?, ?)").bind()
-                    .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, owner).setList(3, songs)
+                    .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, ownerId).setList(3, songs)
                     .setString(4, "local").setInt(5, 0));
-            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(owner))
+            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(ownerId))
                     .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
         });
     }
@@ -175,7 +191,8 @@ public class FlareBotManager {
                 wrapper = new GuildWrapperBuilder(id).build();
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
-            if(total >= 100) {
+          
+            if (total >= 200) {
                 FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
                         .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)
                         .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis()

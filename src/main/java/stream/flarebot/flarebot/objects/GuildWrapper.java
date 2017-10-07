@@ -38,6 +38,7 @@ public class GuildWrapper {
     private String mutedRoleID = null;
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
+    private Map<String, String> tags = new ConcurrentHashMap<>();
 
     // oooo special!
     private boolean betaAccess = false;
@@ -63,7 +64,7 @@ public class GuildWrapper {
     }
 
     public AutoModConfig getAutoModConfig() {
-        if(this.autoModGuild == null)
+        if (this.autoModGuild == null)
             this.autoModGuild = new AutoModGuild();
         return this.autoModGuild.getConfig();
     }
@@ -168,9 +169,10 @@ public class GuildWrapper {
 
     public Role getMutedRole() {
         if (mutedRoleID == null) {
-            Role mutedRole = GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
+            Role mutedRole =
+                    GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
             if (mutedRole == null) {
-                if(!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES))
+                if (!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES))
                     return null;
                 try {
                     mutedRole = getGuild().getController().createRole().setName("Muted").submit().get();
@@ -209,17 +211,34 @@ public class GuildWrapper {
         this.reportManager = reportManager;
     }
 
-    public List<String> getUserWarnings(User user){
+    public List<String> getUserWarnings(User user) {
         return warnings.get(user.getId());
     }
 
-    public void addWarning(User user, String reason){
+    public void addWarning(User user, String reason) {
         List<String> warningsList = warnings.getOrDefault(user.getId(), new ArrayList<>());
         warningsList.add(reason);
         warnings.put(user.getId(), warningsList);
     }
 
-    public Map<String, List<String>> getWarningsMap(){
+    public Map<String, List<String>> getWarningsMap() {
         return warnings;
+    }
+
+    public boolean isBetaAccess() {
+        return betaAccess;
+    }
+
+    public void setBetaAccess(boolean betaAccess) {
+        this.betaAccess = betaAccess;
+    }
+
+    public boolean getBetaAccess() {
+        return betaAccess;
+    }
+
+    public Map<String, String> getTags() {
+        if (tags == null) tags = new ConcurrentHashMap<>();
+        return tags;
     }
 }

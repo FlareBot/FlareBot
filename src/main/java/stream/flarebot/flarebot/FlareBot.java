@@ -35,10 +35,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
-import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -51,19 +49,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.ModlogCommand;
-import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
-import stream.flarebot.flarebot.commands.general.HelpCommand;
-import stream.flarebot.flarebot.commands.general.InfoCommand;
-import stream.flarebot.flarebot.commands.general.InviteCommand;
-import stream.flarebot.flarebot.commands.general.JoinCommand;
-import stream.flarebot.flarebot.commands.general.LeaveCommand;
-import stream.flarebot.flarebot.commands.general.PollCommand;
-import stream.flarebot.flarebot.commands.general.ReportCommand;
-import stream.flarebot.flarebot.commands.general.SelfAssignCommand;
-import stream.flarebot.flarebot.commands.general.ServerInfoCommand;
-import stream.flarebot.flarebot.commands.general.ShardInfoCommand;
-import stream.flarebot.flarebot.commands.general.StatsCommand;
-import stream.flarebot.flarebot.commands.general.UserInfoCommand;
+import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
 import stream.flarebot.flarebot.commands.moderation.FixCommand;
 import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
@@ -92,6 +78,7 @@ import stream.flarebot.flarebot.commands.secret.QuitCommand;
 import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
 import stream.flarebot.flarebot.commands.secret.TestCommand;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.AnnounceCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -100,14 +87,12 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
-import stream.flarebot.flarebot.util.ExceptionUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -163,6 +148,8 @@ public class FlareBot {
 
     private static String botListAuth;
     private static String dBotsAuth;
+    private static String carbonAuth;
+    
     private FlareBotManager manager;
     private static String webSecret;
     private static boolean apiEnabled = true;
@@ -189,37 +176,6 @@ public class FlareBot {
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
 
     public static void main(String[] args) throws Exception {
-        SimpleLog.LEVEL = SimpleLog.Level.OFF;
-        SimpleLog.addListener(new SimpleLog.LogListener() {
-            @Override
-            public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
-                switch (logLevel) {
-                    case ALL:
-                    case INFO:
-                        getLog(log.name).info(String.valueOf(message));
-                        break;
-                    case FATAL:
-                        getLog(log.name).error(String.valueOf(message));
-                        break;
-                    case WARNING:
-                        getLog(log.name).warn(String.valueOf(message));
-                        break;
-                    case DEBUG:
-                        getLog(log.name).debug(String.valueOf(message));
-                        break;
-                    case TRACE:
-                        getLog(log.name).trace(String.valueOf(message));
-                        break;
-                    case OFF:
-                        break;
-                }
-            }
-
-            @Override
-            public void onError(SimpleLog log, Throwable err) {
-
-            }
-        });
         Spark.port(8080);
 
         JSONConfig config = null;
@@ -268,16 +224,20 @@ public class FlareBot {
         if (config.getString("misc.hook").isPresent()) {
             FlareBot.secret = config.getString("misc.hook").get();
         }
-        if (config.getString("botlists.discordBots").isPresent()) {
-            FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
-        }
         if (config.getString("misc.web").isPresent()) {
             FlareBot.webSecret = config.getString("misc.web").get();
         }
-        if (config.getString("bot.statusHook").isPresent())
+        if (config.getString("bot.statusHook").isPresent()) {
             FlareBot.statusHook = config.getString("bot.statusHook").get();
+        }
         if (config.getString("botlists.botlist").isPresent()) {
             FlareBot.botListAuth = config.getString("botlists.botlist").get();
+        }
+        if (config.getString("botlists.discordBots").isPresent()) {
+            FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
+        }
+        if (config.getString("botlists.carbon").isPresent()) {
+            FlareBot.carbonAuth = config.getString("botlists.carbon").get();
         }
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
@@ -443,7 +403,7 @@ public class FlareBot {
                             } // Even I couldn't make this a one-liner
                             c.getController()
                                     .setNickname(c.getSelfMember(), str)
-                                    .queue(MessageUtils.noOpConsumer(), MessageUtils.noOpConsumer());
+                                    .queue();
                         }
                     }
                 }
@@ -513,6 +473,7 @@ public class FlareBot {
         registerCommand(new SaveCommand());
         registerCommand(new DeleteCommand());
         registerCommand(new PlaylistsCommand());
+        registerCommand(new SeekCommand());
         registerCommand(new PurgeCommand());
         registerCommand(new EvalCommand());
         registerCommand(new MusicAnnounceCommand());
@@ -528,6 +489,8 @@ public class FlareBot {
         registerCommand(new WarnCommand());
         registerCommand(new WarningsCommand());
         registerCommand(new CommandUsageCommand());
+        registerCommand(new CurrencyCommand());
+        registerCommand(new ConvertCommand());
 
 //        registerCommand(new AutoModCommand());
         registerCommand(new ModlogCommand());
@@ -552,6 +515,9 @@ public class FlareBot {
         registerCommand(new GuildCommand());
         registerCommand(new RepeatCommand());
         registerCommand(new DisableCommandCommand());
+
+        registerCommand(new TagsCommand());
+        registerCommand(new AnnounceCommand());
 
         ApiFactory.bind();
 
@@ -586,6 +552,24 @@ public class FlareBot {
                 if (FlareBot.botListAuth != null) {
                     postToBotList(FlareBot.botListAuth, String
                             .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+        
+        new FlarebotTask("PostCarbonData" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                if (FlareBot.botListAuth != null) {
+                    try {
+                    WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON, 
+                    new JSONObject()
+                        .put("key", FlareBot.carbonAuth)
+                        .put("servercount", getGuilds().size())
+                        .put("shardcount", clients.length)
+                        .toString());
+                    } catch(IOException e) {
+                        LOGGER.error("Failed to update carbon!", e);
+                    }
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
@@ -953,11 +937,9 @@ public class FlareBot {
     public static void reportError(TextChannel channel, String s, Exception e) {
         JsonObject message = new JsonObject();
         message.addProperty("message", s);
-        message.addProperty("exception", ExceptionUtils.getStackTrace(e));
+        message.addProperty("exception", GeneralUtils.getStackTrace(e));
         String id = instance.postToApi("postReport", "error", message);
-        channel.sendMessage(new EmbedBuilder().setColor(Color.red)
-                .setDescription(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id)
-                .build()).queue();
+        MessageUtils.sendErrorMessage(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id, channel);
     }
 
     public static String getStatusHook() {
@@ -1003,17 +985,19 @@ public class FlareBot {
         return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
     }
 
-    public void logEG(String eg, Guild guild, User user) {
-        getEGLogChannel().sendMessage(new EmbedBuilder().setTitle("Found `" + eg + "`")
+    public void logEG(String eg, Command command, Guild guild, User user) {
+        EmbedBuilder builder = new EmbedBuilder().setTitle("Found `" + eg + "`")
                 .addField("Guild", guild.getId() + " (`" + guild.getName() + "`) ", true)
                 .addField("User", user.getAsMention() + " (`" + user.getName() + "#" + user.getDiscriminator() + "`)", true)
-                .setTimestamp(LocalDateTime.now(Clock.systemUTC()))
-                .build()).queue();
+                .setTimestamp(LocalDateTime.now(Clock.systemUTC()));
+        if (command != null) builder.addField("Command", command.getCommand(), true);
+        getEGLogChannel().sendMessage(builder.build()).queue();
     }
 
     public TextChannel getImportantLogChannel() {
         return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358978253966278657"));
     }
+
 
     public static String getYoutubeKey() {
         return youtubeApi;

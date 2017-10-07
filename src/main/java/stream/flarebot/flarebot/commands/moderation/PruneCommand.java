@@ -13,8 +13,6 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RestActionRunnable;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
-import java.awt.*;
-
 public class PruneCommand implements Command {
 
     @Override
@@ -40,11 +38,8 @@ public class PruneCommand implements Command {
                 }
 
                 int userSize = guild.getGuild().getPrunableMemberCount(amount).complete();
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setColor(Color.RED)
-                        .setDescription(GeneralUtils.formatCommandPrefix(channel, "Are you sure you want to prune " + userSize + " members?\n" +
-                                "To confirm type `{%}prune confirm` within 1 minute!"))
-                        .build()).queue();
+                MessageUtils.sendErrorMessage(GeneralUtils.formatCommandPrefix(channel, "Are you sure you want to prune " + userSize + " members?\n" +
+                        "To confirm type `{%}prune confirm` within 1 minute!"), channel);
 
                 ConfirmUtil.pushAction(sender.getId(),
                         new RunnableWrapper(
@@ -62,7 +57,7 @@ public class PruneCommand implements Command {
                 return;
             }
         }
-        MessageUtils.getUsage(this, channel, sender).queue();
+        MessageUtils.sendUsage(this, channel, sender);
     }
 
     @Override

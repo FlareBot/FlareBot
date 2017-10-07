@@ -21,10 +21,10 @@ public class AutoModCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+        if (args.length == 0) {
+            MessageUtils.sendUsage(this, channel, sender);
             return;
-        }else if (args.length == 1) {
+        } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("config")) {
                 AutoModConfig config = guild.getAutoModConfig();
                 EmbedBuilder builder = new EmbedBuilder().setColor(Color.white).addField("Auto Mod Enabled", String
@@ -58,11 +58,11 @@ public class AutoModCommand implements Command {
                         });
                 channel.sendMessage(new EmbedBuilder().setTitle("Guild Punishments", null).setDescription(sb.toString())
                         .build()).queue();
-            }else if(args[0].equalsIgnoreCase("enable")) {
+            } else if (args[0].equalsIgnoreCase("enable")) {
                 guild.getAutoModConfig().setEnabled(true);
                 channel.sendMessage(new EmbedBuilder().setColor(Color.green).setTitle("Enabled AutoMod", null).setDescription("Successfully enabled automod! " +
                         "Check the configuration with `" + getPrefix(channel.getGuild()) + "automod config`").build()).queue();
-            }else if(args[0].equalsIgnoreCase("disable")) {
+            } else if (args[0].equalsIgnoreCase("disable")) {
                 guild.getAutoModConfig().setEnabled(false);
                 channel.sendMessage(new EmbedBuilder().setColor(Color.orange).setTitle("Disabled AutoMod", null).setDescription("Successfully disabled automod! " +
                         "I will no longer be the guardian bot to your server.").build()).queue();
@@ -77,7 +77,7 @@ public class AutoModCommand implements Command {
                             .setDescription("Reset the punishments back to default")
                             .build()).queue();
                 } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 }
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 //TODO: Walshy - Add this to usage when finished

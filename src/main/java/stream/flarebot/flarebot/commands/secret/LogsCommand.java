@@ -12,11 +12,10 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import java.io.File;
 
 public class LogsCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender)) {
-            channel.sendFile(new File("latest.log"), new MessageBuilder().append('\u200B').build()).queue();
-        }
+        channel.sendFile(new File("latest.log"), new MessageBuilder().append('\u200B').build()).queue();
     }
 
     @Override

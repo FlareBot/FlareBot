@@ -10,6 +10,10 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
 
 public class WebUtils {
 
@@ -59,6 +63,26 @@ public class WebUtils {
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
         String jsonString = response.body().string();
         return new JSONObject(jsonString).getInt("shards");
+    }
+
+
+    public static boolean pingHost(String host, int timeout) {
+        return pingHost(host, 80, timeout);
+    }
+
+    public static boolean pingHost(String host, int port, int timeout) {
+        String hostname;
+        try {
+            hostname = new URL(host).getHost();
+        } catch (MalformedURLException e) {
+            return false;
+        }
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(hostname, port), timeout);
+            return true;
+        } catch (IOException e) {
+            return false; // Either timeout or unreachable or failed DNS lookup.
+        }
     }
 
 }
