@@ -235,9 +235,9 @@ public class FlareBot {
         if (config.getString("botlists.discordBots").isPresent()) {
             FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
         }
-        /*if (config.getString("botlists.carbon").isPresent()) {
+        if (config.getString("botlists.carbon").isPresent()) {
             FlareBot.carbonAuth = config.getString("botlists.carbon").get();
-        }*/
+        }
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
         if (config.getArray("options").isPresent()) {
@@ -554,7 +554,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
         
-        /*new FlarebotTask("PostCarbonData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostCarbonData" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
@@ -570,7 +570,7 @@ public class FlareBot {
                     }
                 }
             }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));*/
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
         new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
