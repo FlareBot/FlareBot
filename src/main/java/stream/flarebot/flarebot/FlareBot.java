@@ -78,6 +78,7 @@ import stream.flarebot.flarebot.commands.secret.QuitCommand;
 import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
 import stream.flarebot.flarebot.commands.secret.TestCommand;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.AnnounceCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -516,6 +517,7 @@ public class FlareBot {
         registerCommand(new DisableCommandCommand());
 
         registerCommand(new TagsCommand());
+        registerCommand(new AnnounceCommand());
 
         ApiFactory.bind();
 
