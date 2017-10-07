@@ -509,6 +509,8 @@ public class FlareBot {
         registerCommand(new RepeatCommand());
         registerCommand(new DisableCommandCommand());
 
+        registerCommand(new TagsCommand());
+
         ApiFactory.bind();
 
         //manager.executeCreations();
