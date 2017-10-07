@@ -65,7 +65,7 @@ public class GuildCommand implements Command {
                             .build()).queue();
                     return;
                 } else if (args.length == 2) {
-                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[0]);
+                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[1]);
                     if (guildWrapper == null) {
                         MessageUtils.sendErrorMessage("That guild does not exist!", channel);
                         return;
