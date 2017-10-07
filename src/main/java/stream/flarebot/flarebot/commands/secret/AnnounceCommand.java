@@ -43,9 +43,4 @@ public class AnnounceCommand implements Command {
     public CommandType getType() {
         return CommandType.SECRET;
     }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
 }
