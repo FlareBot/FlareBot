@@ -554,7 +554,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
         
-        new FlarebotTask("PostCarbonData" + System.currentTimeMillis()) {
+        /*new FlarebotTask("PostCarbonData" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
@@ -570,7 +570,7 @@ public class FlareBot {
                     }
                 }
             }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));*/
 
         new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
