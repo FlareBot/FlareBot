@@ -107,7 +107,7 @@ public class AutoModConfig {
     
     public void postToModLog(User user, User responsible, Punishment punishment, boolean showNoReason) {
         if (hasModLog()) {
-            getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, responsible, null, false)).queue();
+            getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, responsible, null, !showNoReason)).queue();
         }
     }
 
