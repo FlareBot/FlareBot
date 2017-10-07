@@ -30,7 +30,7 @@ public class WarnCommand implements Command {
             guild.addWarning(user, reason);
             EmbedBuilder eb = new EmbedBuilder();
             eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user) 
-                    + (reason != null ? "(`" + reason.replaceAll("`", "'") + "`" : "")
+                    + (reason != null ? "(`" + reason.replaceAll("`", "'") + "`" : ""))
                 .setColor(Color.WHITE);
             channel.sendMessage(eb.build()).queue();
         }
