@@ -22,7 +22,7 @@ public class TagsCommand implements Command {
                         "Add a tag via `{%}tags add <tag_name> <tag_message>`.", channel);
                 return;
             }
-            channel.sendMessage(MessageUtils.getEmbed(sender).setTitle("Guild Tags", null).setColor(Color.cyan)
+            channel.sendMessage(MessageUtils.getEmbed(sender).setTitle("Guild Tags", null).setColor(Color.CYAN)
                     .setDescription("```\n" + StringUtils.join(guild.getTags().keySet(), ", ") + "\n```")
                     .build()).queue();
         } else if (args.length == 1) {
@@ -65,7 +65,7 @@ public class TagsCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "As we couldn't decide on a description, we're just here to say hello!";
+        return "Allows user to save chunks of texts as 'tags' and view them in the future";
     }
 
     @Override
