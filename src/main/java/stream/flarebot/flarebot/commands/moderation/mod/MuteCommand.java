@@ -31,7 +31,7 @@ public class MuteCommand implements Command {
             guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
             String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
             guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.MUTE), reason);
-            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention() + " (`" + MessageUtils.escapeMarkdown(reason) + "`)", channel, sender);
+            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention() + " (`" + reason.replaceAll("`", "'") + "`)", channel, sender);
         }
     }
 
