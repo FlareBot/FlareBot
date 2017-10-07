@@ -22,7 +22,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -148,17 +151,18 @@ public class MessageUtils {
         return channel.sendMessage(builder.setColor(Color.RED).build()).complete();
     }
 
-    public static Message sendMessage(MessageEmbed embed, TextChannel channel) {
+    private static Message sendMessage(MessageEmbed embed, TextChannel channel) {
         return channel.sendMessage(embed).complete();
     }
 
-    public static Message sendMessage(MessageType type, String message, TextChannel channel, User sender) {
-        return sendMessage(getEmbed(sender).setColor(type.getColor()).setDescription(message).setTimestamp(LocalDate.now()).build(), channel);
+    public static Message sendMessage(MessageType type, String message, TextChannel channel) {
+        return sendMessage(type, message, channel, null);
     }
 
-    public static Message sendMessage(MessageType type, String message, TextChannel channel) {
-        EmbedBuilder builder = getEmbed().setTimestamp(LocalDate.now());
-        return sendMessage(builder.setDescription(message).build(), channel);
+    public static Message sendMessage(MessageType type, String message, TextChannel channel, User sender) {
+        EmbedBuilder builder = (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()));
+        return sendMessage(builder.setDescription(GeneralUtils.formatCommandPrefix(channel, message)).build(), channel);
     }
 
     public static Message sendMessage(String message, TextChannel channel) {
@@ -166,7 +170,7 @@ public class MessageUtils {
     }
 
     public static Message sendMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.NEUTRAL, message, channel);
+        return sendMessage(MessageType.NEUTRAL, message, channel, sender);
     }
 
     public static Message sendErrorMessage(String message, TextChannel channel) {
@@ -174,7 +178,7 @@ public class MessageUtils {
     }
 
     public static Message sendErrorMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.ERROR, message, channel);
+        return sendMessage(MessageType.ERROR, message, channel, sender);
     }
 
     public static Message sendWarningMessage(String message, TextChannel channel) {
@@ -182,7 +186,7 @@ public class MessageUtils {
     }
 
     public static Message sendWarningMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.WARNING, message, channel);
+        return sendMessage(MessageType.WARNING, message, channel, sender);
     }
 
     public static Message sendSuccessMessage(String message, TextChannel channel) {
@@ -190,7 +194,7 @@ public class MessageUtils {
     }
 
     public static Message sendSuccessMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.SUCCESS, message, channel);
+        return sendMessage(MessageType.SUCCESS, message, channel, sender);
     }
 
     public static Message sendInfoMessage(String message, TextChannel channel) {
@@ -198,7 +202,7 @@ public class MessageUtils {
     }
 
     public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.INFO, message, channel);
+        return sendMessage(MessageType.INFO, message, channel, sender);
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {

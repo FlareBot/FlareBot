@@ -37,10 +37,14 @@ public class ConvertCommand implements Command {
             String from = args[1];
             String to = args[2];
             try {
-                if (!CurrencyConversionUtil.isValidCurrency(from))
+                if (!CurrencyConversionUtil.isValidCurrency(from)) {
                     MessageUtils.sendErrorMessage("The currency `" + from + "` is not valid!", channel);
-                if (!CurrencyConversionUtil.isValidCurrency(to))
+                    return;
+                }
+                if (!CurrencyConversionUtil.isValidCurrency(to)) {
                     MessageUtils.sendErrorMessage("The currency `" + to + "` is not valid!", channel);
+                    return;
+                }
 
                 CurrencyComparison comparison;
                 if (from.equalsIgnoreCase(to)) {

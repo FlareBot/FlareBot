@@ -36,7 +36,8 @@ public class PerGuildPermissions {
             return true;
         if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
-        if (isContributor(user.getUser()))
+        // Change done by Walshy: Internal review needed
+        if (isContributor(user.getUser()) && FlareBot.getInstance().isTestBot())
             return true;
         PermissionNode node = new PermissionNode(permission);
         for (Group g : getGroups().values()) {
