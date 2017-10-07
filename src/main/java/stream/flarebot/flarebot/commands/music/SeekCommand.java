@@ -50,11 +50,11 @@ public class SeekCommand implements Command {
                     } else {
                         t.getTrack().setPosition(millis);
                         PeriodFormatter niceFormatter = new PeriodFormatterBuilder()
-                                .appendHours().appendSuffix(" Hours")
-                                .appendMinutes().appendSuffix(" Minutes")
+                                .appendHours().appendSuffix(" Hours ")
+                                .appendMinutes().appendSuffix(" Minutes ")
                                 .appendSeconds().appendSuffix(" Seconds")
                                 .toFormatter();
-                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + period.toString(niceFormatter), channel);
+                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + period.toString(niceFormatter).trim(), channel);
                         return;
                     }
                 }

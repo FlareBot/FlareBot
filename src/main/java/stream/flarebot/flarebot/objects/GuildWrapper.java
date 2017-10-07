@@ -38,6 +38,7 @@ public class GuildWrapper {
     private String mutedRoleID = null;
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
+    private Map<String, String> tags = new ConcurrentHashMap<>();
 
     // oooo special!
     private boolean betaAccess = false;
@@ -202,6 +203,7 @@ public class GuildWrapper {
     }
 
     public ReportManager getReportManager() {
+        if(reportManager == null) reportManager = new ReportManager();
         return reportManager;
     }
 
@@ -233,5 +235,10 @@ public class GuildWrapper {
 
     public boolean getBetaAccess() {
         return betaAccess;
+    }
+
+    public Map<String, String> getTags() {
+        if (tags == null) tags = new ConcurrentHashMap<>();
+        return tags;
     }
 }
