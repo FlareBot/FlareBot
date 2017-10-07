@@ -20,7 +20,7 @@ public class AnnounceCommand implements Command {
             String message = msg.getRawContent();
             message = message.substring(message.indexOf(" ") + 1);
             guild.getGuild().getTextChannelById(226786449217945601L).sendMessage(r.getAsMention() + "\n" + message).complete();
-            r.getManager().setMentionable(false).complete();
+            r.getManager().setMentionable(false).queue();
         }
     }
 
