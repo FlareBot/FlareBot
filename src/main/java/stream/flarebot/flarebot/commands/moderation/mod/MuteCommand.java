@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.HierarchyException;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -28,10 +29,17 @@ public class MuteCommand implements Command {
                 MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
                 return;
             }
-            guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
+            try {
+                guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
+            } catch(HierarchyException e) {
+                MessageUtils.sendErrorMessage("Cannot mute users who have the same or higher roles than FlareBot. Please check your role hierarchy.", 
+                    channel);
+                return;
+            }
             String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
             guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.MUTE), reason);
-            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention() + " (`" + reason.replaceAll("`", "'") + "`)", channel, sender);
+            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention() + (reason == null ? "" : " (`" + reason.replaceAll("`", "'") + "`)"), 
+                channel, sender);
         }
     }
 

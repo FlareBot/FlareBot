@@ -25,12 +25,13 @@ public class WarnCommand implements Command {
                 MessageUtils.sendErrorMessage("We couldn't find that user!!", channel);
                 return;
             }
-            String reason = MessageUtils.getMessage(args, 1);
+            String reason = null;
+            if(args.length >= 2) reason = MessageUtils.getMessage(args, 1);
             guild.addWarning(user, reason);
             EmbedBuilder eb = new EmbedBuilder();
             eb.appendDescription("You have been warned in the `" + guild.getGuild().getName() + "(" + guild.getGuildId() + ")` guild");
             eb.addField("Reason", "```" + reason + "```", false);
-            eb.addField("WarningsCommand", String.valueOf(guild.getUserWarnings(user).size()), true);
+            eb.addField("Your total warnings", String.valueOf(guild.getUserWarnings(user).size()), true);
             eb.setColor(Color.CYAN);
             MessageUtils.sendPM(channel, user, eb);
         }
