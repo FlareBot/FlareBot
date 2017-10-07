@@ -29,11 +29,10 @@ public class WarnCommand implements Command {
             if(args.length >= 2) reason = MessageUtils.getMessage(args, 1);
             guild.addWarning(user, reason);
             EmbedBuilder eb = new EmbedBuilder();
-            eb.appendDescription("You have been warned in the `" + guild.getGuild().getName() + "(" + guild.getGuildId() + ")` guild");
-            eb.addField("Reason", "```" + reason + "```", false);
-            eb.addField("Your total warnings", String.valueOf(guild.getUserWarnings(user).size()), true);
-            eb.setColor(Color.CYAN);
-            MessageUtils.sendPM(channel, user, eb);
+            eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user) 
+                    + (reason != null ? "(`" + reason.replaceAll("`", "'") + "`" : "")
+                .setColor(Color.WHITE);
+            channel.sendMessage(eb.build()).queue();
         }
     }
 
@@ -49,7 +48,7 @@ public class WarnCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}warn <user> <reason>` - warns a user";
+        return "`{%}warn <user> (reason)` - warns a user";
     }
 
     @Override
