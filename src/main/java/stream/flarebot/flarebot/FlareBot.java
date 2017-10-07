@@ -236,7 +236,7 @@ public class FlareBot {
             FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
         }
         if (config.getString("botlists.carbon").isPresent()) {
-            FlareBot.carbonAuth = config.getString("botlists.carbonAuth").get();
+            FlareBot.carbonAuth = config.getString("botlists.carbon").get();
         }
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
