@@ -34,7 +34,7 @@ public class Punishment {
 
     public MessageEmbed getPunishmentEmbed(User user, User responsible, String reason) {
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(punishment.getName());
+        eb.setTitle(getName());
         eb.setColor(Color.WHITE);
         eb.addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true);
         if(responsible != null)
