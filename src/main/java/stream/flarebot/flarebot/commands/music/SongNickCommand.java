@@ -11,20 +11,20 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
-
 public class SongNickCommand implements Command {
-    
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (guild.isSongnickEnabled()) {
             guild.setSongnick(false);
             if(GeneralUtils.canChangeNick(guild.getGuildId()))
                 channel.getGuild().getController().setNickname(channel.getGuild().getSelfMember(), null).queue();
-            channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Disabled changing nickname with song!").setColor(Color.RED).build()).queue();
+            MessageUtils.sendSuccessMessage("Disabled changing nickname with song!", channel, sender);
+            return;
         } else {
             guild.setSongnick(true);
-            channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("Enabled changing nickname with song!").setColor(Color.GREEN).build()).queue();
+            MessageUtils.sendSuccessMessage("Enabled changing nickname with song!", channel, sender);
+            return;
         }
     }
 

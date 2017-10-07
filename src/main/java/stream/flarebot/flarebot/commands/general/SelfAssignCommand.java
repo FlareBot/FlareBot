@@ -25,29 +25,24 @@ public class SelfAssignCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("add")) {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 } else {
-                    MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
-                                    .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
-                                    .setColor(Color.red).build(),
-                            5000, channel);
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender), 5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 } else {
-                    MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
-                                    .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
-                                    .setColor(Color.red).build(),
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender),
                             5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 if (guild.getSelfAssignRoles().isEmpty()) {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender).setColor(Color.RED).setDescription("There are no self-assignable roles!").build(), 5000, channel);
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("There are no self-assignable roles!", channel, sender), 5000, channel);
                     return;
                 }
                 StringBuilder base = new StringBuilder("**Self assignable roles**\n```\n");
@@ -85,9 +80,7 @@ public class SelfAssignCommand implements Command {
             if (args[0].equalsIgnoreCase("add")) {
                 if (!guild.getPermissions()
                         .hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
-                                    .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
-                                    .setColor(Color.red).build(),
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender),
                             5000, channel);
                     return;
                 }
@@ -110,9 +103,7 @@ public class SelfAssignCommand implements Command {
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (!guild.getPermissions()
                         .hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendAutoDeletedMessage(new EmbedBuilder()
-                                    .setDescription("You need `flarebot.selfassign.admin` in order to do this!")
-                                    .setColor(Color.red).build(),
+                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender),
                             5000, channel);
                     return;
                 }

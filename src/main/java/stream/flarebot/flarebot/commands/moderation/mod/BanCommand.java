@@ -26,9 +26,7 @@ public class BanCommand implements Command {
             if (channel.getGuild().getSelfMember().hasPermission(channel, Permission.BAN_MEMBERS)) {
                 User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
-                    channel.sendMessage(new EmbedBuilder()
-                            .setDescription("We cannot find that user! Try their ID if you didn't already.")
-                            .setColor(Color.red).build()).queue();
+                    MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
                     return;
                 }
                 String reason = null;
@@ -41,18 +39,16 @@ public class BanCommand implements Command {
                             .setColor(Color.GREEN)
                             .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
                             .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
-                                    "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null)
+                                    "https://cdn.discordapp.com/attachments/229704246004547585/361184232128905216/Webp.net-resizeimage.png" : null)
                             .build()).queue();
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
             } else {
-                channel.sendMessage(new EmbedBuilder()
-                        .setDescription("We can't ban users! Make sure we have the `Ban Members` permission!")
-                        .setColor(Color.red).build()).queue();
+                MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel, sender);
             }
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

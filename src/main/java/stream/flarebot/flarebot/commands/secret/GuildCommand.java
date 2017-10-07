@@ -24,7 +24,7 @@ public class GuildCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             if (args[0].equalsIgnoreCase("block")) {
                 if (args.length == 1) {
@@ -41,43 +41,63 @@ public class GuildCommand implements Command {
                     handleUnblock(channel, args[1]);
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
-                if (args.length == 1) {
-                    EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
-                    embedBuilder.setDescription("This guild " +
-                            (guild.isBlocked() ? "is blocked!" : "is not blocked!"))
-                            .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    channel.sendMessage(embedBuilder.build()).queue();
-                    return;
-                } else if (args.length == 2) {
-                    Guild guild1 = FlareBot.getInstance().getGuildByID(args[1]);
-                    if (guild1 == null) {
+                GuildWrapper wrapper = guild;
+                if (args.length == 2) {
+                    if (FlareBot.getInstance().getGuildByID(args[1]) == null) {
                         MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
                         return;
                     }
-                    EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? Color.RED : Color.GREEN);
-                    embedBuilder.setDescription("That guild " +
-                            (FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? "is blocked!" : "is not blocked!"))
-                            .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    channel.sendMessage(embedBuilder.build()).queue();
-                    return;
-                }
-            }else if(args[0].equalsIgnoreCase("data")) {
-                GuildWrapper wrapper = guild;
-                if(args.length == 2)
                     wrapper = FlareBotManager.getInstance().getGuild(args[1]);
-                try {
-                    PrintWriter out = new PrintWriter("data.json");
-                    out.println(FlareBot.GSON.toJson(wrapper));
-                    out.close();
-                } catch (FileNotFoundException e) {
-                    FlareBot.LOGGER.error("Failed to write data", e);
                 }
-                sender.openPrivateChannel().complete().sendFile(new File("data.json"), new MessageBuilder()
-                        .append('\u200B').build()).queue();
+                Guild g = guild.getGuild();
+                    
+                EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
+                        .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
+                embedBuilder.setTitle(g.getName(), null).addField("Beta", wrapper.getBetaAccess(), true)
+                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + guild.getBlockedReason() + "`)" : "", true);
+                channel.sendMessage(embedBuilder.build()).queue();
+            } else if (args[0].equalsIgnoreCase("beta")) {
+                if (args.length == 1) {
+                    guild.setBetaAccess(!guild.getBetaAccess());
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
+                            .setDescription("This guild has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                            .build()).queue();
+                    return;
+                } else if (args.length == 2) {
+                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[0]);
+                    if (guildWrapper == null) {
+                        MessageUtils.sendErrorMessage("That guild does not exist!", channel);
+                        return;
+                    } else {
+                        guildWrapper.setBetaAccess(!guild.getBetaAccess());
+                        channel.sendMessage(MessageUtils.getEmbed(sender)
+                                .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
+                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                                .build()).queue();
+                        return;
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("data")) {
+                GuildWrapper wrapper = guild;
+                if (args.length == 2)
+                    wrapper = FlareBotManager.getInstance().getGuild(args[1]);
+                if (wrapper == null) {
+                    MessageUtils.sendErrorMessage("That guild does not exist!", channel);
+                    return;
+                } else {
+                    try {
+                        PrintWriter out = new PrintWriter("data.json");
+                        out.println(FlareBot.GSON.toJson(wrapper));
+                        out.close();
+                    } catch (FileNotFoundException e) {
+                        FlareBot.LOGGER.error("Failed to write data", e);
+                    }
+                    sender.openPrivateChannel().complete().sendFile(new File("data.json"), new MessageBuilder()
+                            .append('\u200B').build()).queue();
+                }
             }
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -96,7 +116,8 @@ public class GuildCommand implements Command {
         return "`{%}guild block [guildID] [reason]` - Blocks this guild [or another guild]\n" +
                 "`{%}guild unblock [guildID]` - Unblocks this guild [or another guild]\n" +
                 "`{%}guild status [guildID]` - Shows the status of this guild [or another guild]\n" +
-                "`{%}guild data [guildID] - Gets the JSON data for the current guild [or another guild]";
+                "`{%}guild beta [guildID]` - Gives beta access to this guild [or another guild]\n" +
+                "`{%}guild data [guildID]` - Gets the JSON data for the current guild [or another guild]";
     }
 
     @Override
@@ -115,7 +136,7 @@ public class GuildCommand implements Command {
             return;
         }
         FlareBotManager.getInstance().getGuild(guild1.getId()).addBlocked(reason);
-        MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed().setColor(Color.RED).setDescription("Guild has been blocked!").build(), 5000, channel);
+        MessageUtils.sendErrorMessage("Guild has been blocked!", channel);
         return;
     }
 
@@ -130,7 +151,6 @@ public class GuildCommand implements Command {
             return;
         }
         FlareBotManager.getInstance().getGuild(guild1.getId()).revokeBlock();
-        MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed().setColor(Color.GREEN).setDescription("Guild has been unblocked!").build(), 5000, channel);
-        return;
+        MessageUtils.autoDeleteMessage(MessageUtils.sendSuccessMessage("Guild has been unblocked!", channel), 5000);
     }
 }

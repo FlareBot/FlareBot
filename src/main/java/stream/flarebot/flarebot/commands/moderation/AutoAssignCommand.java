@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -14,17 +13,15 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class AutoAssignCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
                 listRoles(guild, 1, channel, sender);
@@ -38,7 +35,7 @@ public class AutoAssignCommand implements Command {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                         .getAsMention() + " Invalid argument!"), channel);
             }
-        } else if(args.length == 2 && args[0].equalsIgnoreCase("list")) {
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("list")) {
             int page;
             try {
                 page = Integer.valueOf(args[1]);
@@ -153,12 +150,11 @@ public class AutoAssignCommand implements Command {
         } else {
             List<String> subRoles = roles.subList(start, end);
             if (roles.isEmpty()) {
-                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(Color.CYAN)
-                        .setDescription("There are no role being autoassigned in this guild!").build()).queue();
+                MessageUtils.sendInfoMessage("There are no role being autoassigned in this guild!", channel, sender);
                 return;
             } else {
                 for (String role : subRoles) {
-                    if(wrapper.getGuild().getRoleById(role) == null) {
+                    if (wrapper.getGuild().getRoleById(role) == null) {
                         wrapper.getAutoAssignRoles().remove(role);
                         continue;
                     }
@@ -168,7 +164,6 @@ public class AutoAssignCommand implements Command {
         }
 
         sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
-
-        channel.sendMessage(new EmbedBuilder().setDescription(sb.toString()).setColor(Color.cyan).build()).queue();
+        MessageUtils.sendInfoMessage(sb.toString(), channel, sender);
     }
 }
