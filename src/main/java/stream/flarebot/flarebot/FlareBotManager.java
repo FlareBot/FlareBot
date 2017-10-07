@@ -191,6 +191,7 @@ public class FlareBotManager {
                 wrapper = new GuildWrapperBuilder(id).build();
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
+          
             if (total >= 200) {
                 FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
                         .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)
