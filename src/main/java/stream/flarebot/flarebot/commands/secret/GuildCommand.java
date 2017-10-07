@@ -53,8 +53,8 @@ public class GuildCommand implements Command {
                     
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
                         .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
-                embedBuilder.setTitle(g.getName(), null).addField("Beta", wrapper.getBetaAccess(), true)
-                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + guild.getBlockedReason() + "`)" : "", true);
+                embedBuilder.setTitle(g.getName(), null).addField("Beta", String.valueOf(wrapper.getBetaAccess()), true)
+                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
                 channel.sendMessage(embedBuilder.build()).queue();
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
