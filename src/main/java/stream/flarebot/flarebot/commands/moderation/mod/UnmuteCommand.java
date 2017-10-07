@@ -29,7 +29,7 @@ public class UnmuteCommand implements Command {
             if (guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())) {
                 guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()).queue();
                 MessageUtils.sendSuccessMessage("Unmuted " + user.getAsMention(), channel, sender);
-                guild.getAutoModConfig().postToModLog(user, null, new Punishment(Punishment.EPunishment.UNMUTE), null);
+                guild.getAutoModConfig().postToModLog(user, null, new Punishment(Punishment.EPunishment.UNMUTE), true);
             } else {
                 MessageUtils.sendErrorMessage("That user isn't muted!!", channel);
             }
