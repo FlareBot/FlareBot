@@ -70,10 +70,10 @@ public class GuildCommand implements Command {
                         MessageUtils.sendErrorMessage("That guild does not exist!", channel);
                         return;
                     } else {
-                        guildWrapper.setBetaAccess(!guild.getBetaAccess());
+                        guildWrapper.setBetaAccess(!guildWrapper.getBetaAccess());
                         channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
-                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                                .setColor(guildWrapper.getBetaAccess() ? Color.GREEN : Color.RED)
+                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guildWrapper.getBetaAccess() ? "given" : "removed from") + " beta access!")
                                 .build()).queue();
                         return;
                     }
