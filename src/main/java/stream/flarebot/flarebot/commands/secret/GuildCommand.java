@@ -41,28 +41,21 @@ public class GuildCommand implements Command {
                     handleUnblock(channel, args[1]);
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
-                if (args.length == 1) {
-                    EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
-                    embedBuilder.setDescription("This guild " +
-                            (guild.isBlocked() ? "is blocked!" : "is not blocked!"))
-                            .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    channel.sendMessage(embedBuilder.build()).queue();
-                    return;
-                } else if (args.length == 2) {
-                    Guild guild1 = FlareBot.getInstance().getGuildByID(args[1]);
-                    if (guild1 == null) {
+                GuildWrapper wrapper = guild;
+                if (args.length == 2) {
+                    if (FlareBot.getInstance().getGuildByID(args[1]) == null) {
                         MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
                         return;
                     }
-                    EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? Color.RED : Color.GREEN);
-                    embedBuilder.setDescription("That guild " +
-                            (FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? "is blocked!" : "is not blocked!"))
-                            .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    channel.sendMessage(embedBuilder.build()).queue();
-                    return;
+                    wrapper = FlareBotManager.getInstance().getGuild(args[1]);
                 }
+                Guild g = guild.getGuild();
+                    
+                EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
+                        .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
+                embedBuilder.setTitle(g.getName(), null).addField("Beta", wrapper.getBetaAccess(), true)
+                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + guild.getBlockedReason() + "`)" : "", true);
+                channel.sendMessage(embedBuilder.build()).queue();
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
                     guild.setBetaAccess(!guild.getBetaAccess());
