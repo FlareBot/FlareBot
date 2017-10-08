@@ -172,7 +172,7 @@ public class GuildWrapper {
             Role mutedRole =
                     GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
             if (mutedRole == null) {
-                if (!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES))
+                if (!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES, Permission.MANAGE_PERMISSIONS))
                     return null;
                 try {
                     mutedRole = getGuild().getController().createRole().setName("Muted").submit().get();
