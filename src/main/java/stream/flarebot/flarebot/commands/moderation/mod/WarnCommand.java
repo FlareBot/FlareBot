@@ -25,9 +25,10 @@ public class WarnCommand implements Command {
                 MessageUtils.sendErrorMessage("We couldn't find that user!!", channel);
                 return;
             }
-            String reason = "No reason provided - action done by " + sender.getName();
+            String reason = null;
             if(args.length >= 2) reason = MessageUtils.getMessage(args, 1);
-            guild.addWarning(user, reason);
+            guild.addWarning(user, (reason != null ? reason : "No reason provided - action done by " + sender.getName()));
+            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.WARN), reason);
             EmbedBuilder eb = new EmbedBuilder();
             eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user) 
                     + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
