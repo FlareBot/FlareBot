@@ -218,7 +218,10 @@ public class GeneralUtils {
                 if (guildId == null || guildId.isEmpty()) {
                     tmp = FlareBot.getInstance().getUserById(l);
                 } else {
-                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l).getUser();
+                    Member temMember = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l);
+                    if (temMember != null) {
+                        tmp = temMember.getUser();
+                    }
                 }
                 if (tmp != null) {
                     return tmp;
