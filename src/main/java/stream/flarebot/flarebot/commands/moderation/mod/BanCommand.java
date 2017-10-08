@@ -29,8 +29,8 @@ public class BanCommand implements Command {
                     MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
                     return;
                 }
-                Member member = guild.getGuild().getMember(user);
-                if(member == null) {
+                Member target = guild.getGuild().getMember(user);
+                if(target == null) {
                     MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID", 
                         channel, sender);
                     return;
@@ -39,7 +39,7 @@ public class BanCommand implements Command {
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
                 try {
-                    channel.getGuild().getController().ban(member, 7, reason).queue();
+                    channel.getGuild().getController().ban(target, 7, reason).queue();
                     guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                     channel.sendMessage(new EmbedBuilder()
                             .setColor(Color.GREEN)
