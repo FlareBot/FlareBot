@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -27,13 +28,13 @@ public class WarnCommand implements Command {
             }
             String reason = null;
             if(args.length >= 2) reason = MessageUtils.getMessage(args, 1);
-            guild.addWarning(user, reason);
+            guild.addWarning(user, (reason != null ? reason : "No reason provided - action done by " + sender.getName()));
+            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.WARN), reason);
             EmbedBuilder eb = new EmbedBuilder();
-            eb.appendDescription("You have been warned in the `" + guild.getGuild().getName() + "(" + guild.getGuildId() + ")` guild");
-            eb.addField("Reason", "```" + reason + "```", false);
-            eb.addField("Your total warnings", String.valueOf(guild.getUserWarnings(user).size()), true);
-            eb.setColor(Color.CYAN);
-            MessageUtils.sendPM(channel, user, eb);
+            eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user) 
+                    + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
+                .setColor(Color.WHITE);
+            channel.sendMessage(eb.build()).queue();
         }
     }
 
@@ -49,7 +50,7 @@ public class WarnCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}warn <user> <reason>` - warns a user";
+        return "`{%}warn <user> (reason)` - warns a user";
     }
 
     @Override

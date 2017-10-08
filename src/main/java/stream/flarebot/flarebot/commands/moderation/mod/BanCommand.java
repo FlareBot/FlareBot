@@ -32,9 +32,9 @@ public class BanCommand implements Command {
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                 try {
                     channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7, reason).queue();
+                    guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                     channel.sendMessage(new EmbedBuilder()
                             .setColor(Color.GREEN)
                             .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
@@ -42,7 +42,7 @@ public class BanCommand implements Command {
                                     "https://cdn.discordapp.com/attachments/229704246004547585/361184232128905216/Webp.net-resizeimage.png" : null)
                             .build()).queue();
                 } catch (PermissionException e) {
-                    MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
+                    MessageUtils.sendErrorMessage(String.format("Cannot ban user **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
             } else {
                 MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel, sender);
