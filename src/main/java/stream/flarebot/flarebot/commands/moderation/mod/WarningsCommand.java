@@ -48,12 +48,13 @@ public class WarningsCommand implements Command {
                     sb.append(i + ". " + warning.subString(0, 725) + (warning.length() > 750 ? "..." : "")+ "\n");
                     i++;
                 }
-            EmbedBuilder eb = new EmbedBuilder()
-                .setTitle("Warnings for " + user.getName())
-                .addField("Warning count", String.valueOf(warnings.size()), true)
-                .addField("Last 5 warnings", "```md\n" + sb.toString().trim() + "\n```", false)
-                .setColor(Color.CYAN);
-            channel.sendMessage(eb.build()).queue();
+                EmbedBuilder eb = new EmbedBuilder()
+                    .setTitle("Warnings for " + user.getName())
+                    .addField("Warning count", String.valueOf(warnings.size()), true)
+                    .addField("Last 5 warnings", "```md\n" + sb.toString().trim() + "\n```", false)
+                    .setColor(Color.CYAN);
+                channel.sendMessage(eb.build()).queue();
+            }
         } else {
             MessageUtils.sendUsage(this, channel, sender);
         }
