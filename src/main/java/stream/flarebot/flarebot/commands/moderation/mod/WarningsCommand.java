@@ -32,7 +32,7 @@ public class WarningsCommand implements Command {
                     .addField("Users warned", String.valueOf(guild.getWarningsMap().size()), true)
                     .addField("Most warned user", MessageUtils.getTag(mostWarned) 
                             + " - " + highestEntry.getValue().size() + " warnings", true)
-                    .setColor(Color.CYAN).build());
+                    .setColor(Color.CYAN).build()).queue();
             } else {
                 User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
@@ -72,7 +72,7 @@ public class WarningsCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}warnings [user]` - check the warnings on a guild or the warnings of a user\n" +
-                "{%}warnings stats` - Check warning stats for this guild";
+                "`{%}warnings stats` - Check warning stats for this guild";
     }
 
     @Override
