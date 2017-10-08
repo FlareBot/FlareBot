@@ -26,7 +26,7 @@ public class AnnounceCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "announce";
+        return "announcement";
     }
 
     @Override
@@ -36,7 +36,7 @@ public class AnnounceCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}announce [message]";
+        return "{%}announcement [message]";
     }
 
     @Override
