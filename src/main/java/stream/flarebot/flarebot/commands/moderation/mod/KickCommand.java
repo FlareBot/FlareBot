@@ -28,7 +28,7 @@ public class KickCommand implements Command {
                 }
                 Member member = guild.getGuild().getMember(user);
                 if(member == null) {
-                    MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID", 
+                    MessageUtils.sendErrorMessage("That user is not on this server therefor cannot be kicked!", 
                         channel, sender);
                     return;
                 }
