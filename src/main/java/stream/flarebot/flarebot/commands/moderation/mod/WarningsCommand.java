@@ -49,7 +49,7 @@ public class WarningsCommand implements Command {
                 }
                 EmbedBuilder eb = new EmbedBuilder()
                     .setTitle("Warnings for " + user.getName())
-                    .addField("Warning count", String.valueOf(warnings.size()), true)
+                    .addField("Warning count", String.valueOf(tmp.size()), true)
                     .addField("Last 5 warnings", "```md\n" + sb.toString().trim() + "\n```", false)
                     .setColor(Color.CYAN);
                 channel.sendMessage(eb.build()).queue();
