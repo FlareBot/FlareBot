@@ -16,46 +16,46 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.lang.Math;
 
 public class WarningsCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 0) {
-            List<String> header = new ArrayList<>();
-            header.add("User");
-            header.add("Warnings");
-            List<List<String>> body = new ArrayList<>();
-            Iterator<Map.Entry<String, List<String>>> it = guild.getWarningsMap().entrySet().iterator();
-            while (it.hasNext()) {
-                List<String> part = new ArrayList<>();
-                Map.Entry<String, List<String>> pair = it.next();
-                User user = guild.getGuild().getMemberById(pair.getKey()).getUser();
-                part.add(user.getName() + "(" + user.getId() + ")");
-                part.add(String.valueOf(pair.getValue().size()));
-                body.add(part);
-            }
-            String table = MessageUtils.makeAsciiTable(header, body, null);
-            channel.sendMessage(table).queue();
-        } else {
-            User user = GeneralUtils.getUser(args[0]);
-            if (user == null) {
-                MessageUtils.sendErrorMessage("Invalid user!!", channel);
-                return;
-            }
-            StringBuilder sb = new StringBuilder();
-            List<String> warnings = guild.getUserWarnings(user);
-            int i = 1;
-            for (String warning : warnings) {
-                sb.append(i + ". " + warning + "\n");
-                i++;
-            }
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle("Warnings for " + user.getName());
-            eb.addField("Warning count", String.valueOf(warnings.size()), true);
-            eb.addField("Warnings", "```md\n" + sb.toString() + "```", false);
-            eb.setColor(Color.CYAN);
+        if (args.length == 1) {
+            if(args[0].equalsIgnoreCase("stats")) {
+                Map.Entry<String, List<String>> highestEntry = Collections.max(guild.getWarningsMap().entrySet(), 
+                    (entry1, entry2) -> entry1.getValue().size() - entry2.getValue().size());
+                User mostWarned = GeneralUtils.getUser(highestEntry.getKey(), guild.getGuildId(), true);
+                MessageUtils.sendInfoMessage(new EmbedBuilder().setTitle("Warning stats", null)
+                    .addField("Total Warnings", String.valueOf(
+                        guild.getWarningsMap().values().stream().flatMap(List::stream).count()), true)
+                    .addField("Users warned", String.valueOf(guild.getWarningsMap().size()), true)
+                    .addField("Most warned user", MessageUtils.getTag(mostWarned) 
+                            + " - " + highestEntry.getValue().size() + " warnings"), true)
+                    .build(), channel);
+            } else {
+                User user = GeneralUtils.getUser(args[0]);
+                if (user == null) {
+                    MessageUtils.sendErrorMessage("Invalid user!!", channel);
+                    return;
+                }
+                StringBuilder sb = new StringBuilder();
+                List<String> tmp = guild.getUserWarnings(user);
+                List<String> warnings = tmp.subList(Math.max(tmp.size() - 5), tmp.size());
+                int i = 1;
+                for (String warning : warnings) {
+                    sb.append(i + ". " + warning.subString(0, 725) + (warning.length() > 750 ? "..." : "")+ "\n");
+                    i++;
+                }
+            EmbedBuilder eb = new EmbedBuilder()
+                .setTitle("Warnings for " + user.getName())
+                .addField("Warning count", String.valueOf(warnings.size()), true)
+                .addField("Last 5 warnings", "```md\n" + sb.toString().trim() + "\n```", false)
+                .setColor(Color.CYAN);
             channel.sendMessage(eb.build()).queue();
+        } else {
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -71,7 +71,8 @@ public class WarningsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}warnings [users]` - check the warnings on a guild or the warnings of a user";
+        return "`{%}warnings [user]` - check the warnings on a guild or the warnings of a user\n
+            {%}warnings stats` - Check warning stats for this guild";
     }
 
     @Override
