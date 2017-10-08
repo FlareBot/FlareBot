@@ -41,7 +41,7 @@ public class WarningsCommand implements Command {
                 }
                 StringBuilder sb = new StringBuilder();
                 List<String> tmp = guild.getUserWarnings(user);
-                List<String> warnings = tmp.subList(Math.max(tmp.size() - 5, 0)), tmp.size());
+                List<String> warnings = tmp.subList(Math.max(tmp.size() - 5, 0), tmp.size());
                 int i = 1;
                 for (String warning : warnings) {
                     sb.append(i + ". " + warning.substring(0, Math.min(725, warning.length())) + (warning.length() > 725 ? "..." : "")+ "\n");
