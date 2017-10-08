@@ -27,13 +27,13 @@ public class WarningsCommand implements Command {
                 Map.Entry<String, List<String>> highestEntry = Collections.max(guild.getWarningsMap().entrySet(), 
                     (entry1, entry2) -> entry1.getValue().size() - entry2.getValue().size());
                 User mostWarned = GeneralUtils.getUser(highestEntry.getKey(), guild.getGuildId(), true);
-                MessageUtils.sendInfoMessage(new EmbedBuilder().setTitle("Warning stats", null)
+                channel.sendMessage(new EmbedBuilder().setTitle("Warning stats", null)
                     .addField("Total Warnings", String.valueOf(
                         guild.getWarningsMap().values().stream().flatMap(List::stream).count()), true)
                     .addField("Users warned", String.valueOf(guild.getWarningsMap().size()), true)
                     .addField("Most warned user", MessageUtils.getTag(mostWarned) 
                             + " - " + highestEntry.getValue().size() + " warnings"), true)
-                    .build(), channel);
+                    .setColor(Color.CYAN).build());
             } else {
                 User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
