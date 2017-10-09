@@ -117,6 +117,7 @@ public class FlareBotManager {
         });
         FlareBot.LOGGER.debug("Guild " + guildId + "'s data got saved! Last retrieved: " + last_r
                 + " (" + new Date(last_r) + ") - " + guilds.size() + " currently loaded.");
+        FlareBot.LOGGER.debug(FlareBot.GSON.toJson("Guild " + guildId + " JSON: " + guildWrapper));
     }
 
     public void savePlaylist(Command command, TextChannel channel, String ownerId, boolean overwriteAllowed, String name, List<String> songs) {
