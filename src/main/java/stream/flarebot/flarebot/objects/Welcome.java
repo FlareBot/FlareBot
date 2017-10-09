@@ -1,14 +1,16 @@
 package stream.flarebot.flarebot.objects;
 
-import com.google.gson.annotations.Expose;
+import com.datastax.driver.mapping.annotations.UDT;
+import com.datastax.driver.mapping.annotations.Transient;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@UDT(name = "welcome")
 public class Welcome {
 
-    @Expose(serialize = false, deserialize = false)
+    @Transient
     private Random random = new Random();
 
     private List<String> dmMessages;
