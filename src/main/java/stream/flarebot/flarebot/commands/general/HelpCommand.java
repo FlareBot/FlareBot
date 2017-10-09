@@ -1,12 +1,19 @@
 package stream.flarebot.flarebot.commands.general;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.util.HelpFormatter;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
+import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,12 +22,8 @@ import java.util.stream.Collectors;
 public class HelpCommand implements Command {
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("here")) {
-                sendCommands(channel.getGuild(), channel, sender);
-                return;
-            }
             CommandType type;
             try {
                 type = CommandType.valueOf(args[0].toUpperCase());
@@ -28,18 +31,21 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if (type != CommandType.HIDDEN) {
+            if (type != CommandType.SECRET && !getPermissions(channel).isCreator(sender)) {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()
-                        .stream()
-                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + HelpFormatter.on(channel, command.getDescription()) + '\n')
+                        .stream().filter(cmd -> getPermissions(channel)
+                                .hasPermission(member, cmd.getPermission()))
+                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
+                                .getDescription() + '\n')
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
                 int page = 0;
                 for (String s : help) {
                     if (sb.length() + s.length() > 1024) {
-                        embedBuilder.addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+                        embedBuilder
+                                .addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
                         sb.setLength(0);
                     }
                     sb.append(s);
@@ -50,8 +56,7 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
             }
         } else {
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription("You can see all the commands [here](https://flarebot.stream/#commands)").build()).queue();
+            sendCommands(channel.getGuild(), channel, sender);
         }
     }
 
@@ -62,12 +67,18 @@ public class HelpCommand implements Command {
         return FlareBot.getPrefixes().get(null);
     }
 
-    private void sendCommands(Guild guild, TextChannel channel, User sender) {
+    private void sendCommands(Guild guild, MessageChannel channel, User sender) {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
-                    .stream()
-                    .map(command -> get(guild) + command.getCommand() + " - " + HelpFormatter.on(channel, command.getDescription()) + '\n')
+                    .stream().filter(cmd -> cmd.getPermission() != null &&
+                                    FlareBotManager.getInstance().getGuild(guild.getId())
+                            .getPermissions()
+                            .hasPermission(guild
+                                    .getMember(sender), cmd
+                                    .getPermission()))
+                    .map(command -> get(guild) + command.getCommand() + " - " + command
+                            .getDescription() + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
             int page = 0;
@@ -78,6 +89,7 @@ public class HelpCommand implements Command {
                 }
                 sb.append(s);
             }
+            if (sb.toString().trim().isEmpty()) continue;
             embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
         }
         channel.sendMessage(embedBuilder.build()).queue();
@@ -96,6 +108,12 @@ public class HelpCommand implements Command {
     @Override
     public String getDescription() {
         return "See a list of all commands.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}help [here]` - Gives a list of commands [in this channel]\n"
+                + "`{%}help <category>` - Gives a list of commands in a specific category";
     }
 
     @Override

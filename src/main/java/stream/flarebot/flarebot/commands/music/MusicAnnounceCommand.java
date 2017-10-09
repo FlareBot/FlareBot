@@ -1,42 +1,38 @@
 package stream.flarebot.flarebot.commands.music;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.util.SQLController;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class MusicAnnounceCommand implements Command {
+
     private static final Pattern ARGS_PATTERN = Pattern.compile("(here)|(off)", Pattern.CASE_INSENSITIVE);
     private static Map<String, String> announcements = new ConcurrentHashMap<>();
 
+    //TODO: Do
     static {
-        try {
-            SQLController.runSqlTask(conn -> {
-                conn.createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS announces (" +
-                        "   guildid VARCHAR(20) PRIMARY KEY," +
-                        "   channelid VARCHAR(20) UNIQUE" +
-                        ");");
-                ResultSet set = conn.createStatement().executeQuery("SELECT * FROM announces;");
-                while (set.next()) {
-                    announcements
-                            .put(set.getString("guildid"), set.getString("channelid"));
-                }
-            });
-        } catch (SQLException e) {
-            FlareBot.LOGGER.error("Could not load song announces!!", e);
-        }
+        CassandraController.runTask(session -> {
+            session.execute("CREATE TABLE IF NOT EXISTS flarebot.announces (" +
+                    "guild_id varchar PRIMARY KEY," +
+                    "channel_id varchar)");
+            ResultSet set = session.execute("SELECT * FROM flarebot.announces");
+            Row row;
+            while ((row = set.one()) != null) {
+                announcements.put(row.getString("guild_id"), row.getString("channel_id"));
+            }
+        });
     }
 
     public static Map<String, String> getAnnouncements() {
@@ -44,44 +40,28 @@ public class MusicAnnounceCommand implements Command {
     }
 
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && ARGS_PATTERN.matcher(args[0]).matches()) {
             if (args[0].equalsIgnoreCase("here")) {
                 announcements.put(channel.getGuild().getId(), channel.getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("Set music announcements to appear in " + channel.getAsMention()).build()).queue();
-                try {
-                    SQLController.runSqlTask(conn -> {
-                        PreparedStatement statement = conn.prepareStatement("UPDATE announces SET channelid = ? WHERE guildid = ?");
-                        statement.setString(1, channel.getId());
-                        statement.setString(2, channel.getGuild().getId());
-                        if (statement.executeUpdate() == 0) {
-                            statement = conn.prepareStatement("INSERT INTO announces (guildid, channelid) VALUES (?, ?)");
-                            statement.setString(1, channel.getGuild().getId());
-                            statement.setString(2, channel.getId());
-                            statement.executeUpdate();
-                        }
-                    });
-                } catch (SQLException e) {
-                    FlareBot.LOGGER.error("Could not edit the announces in the database!", e);
-                }
+                        .setDescription("Set music announcements to appear in " + channel
+                                .getAsMention()).build()).queue();
+                CassandraController.runTask(session -> session.executeAsync(session.prepare("UPDATE flarebot.announces SET " +
+                        "channel_id = ? WHERE guild_id = ?").bind()
+                        .setString(0, channel.getId()).setString(1, channel.getGuild().getId())));
             } else {
                 announcements.remove(channel.getGuild().getId());
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(String.format("Disabled announcements for `%s`", channel.getGuild().getName())).build()).queue();
-                try {
-                    SQLController.runSqlTask(conn -> {
-                        PreparedStatement statement = conn.prepareStatement("DELETE FROM announces WHERE guildid = ?");
-                        statement.setString(1, channel.getGuild().getId());
-                    });
-                } catch (SQLException e) {
-                    FlareBot.LOGGER.error("Could not edit the announces in the database!", e);
-                }
+                        .setDescription(String
+                                .format("Disabled announcements for `%s`", channel.getGuild()
+                                        .getName()))
+                        .build()).queue();
+                CassandraController.runTask(session -> session.executeAsync(session.prepare("DELETE FROM flarebot.announces " +
+                        "WHERE guild_id = ?").bind().setString(0, channel.getGuild().getId())));
             }
         } else {
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription("Bad syntax! Must have either `HERE` or `OFF` as your first, and only, argument." +
-                            "\nCase insensitive.").build()).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -92,7 +72,12 @@ public class MusicAnnounceCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Announces a track start in a text channel. Usage: `announce HERE|OFF`";
+        return "Announces a track start in a text channel.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}announce <here|off>` - Sets the music announce channel or turns it off";
     }
 
     @Override

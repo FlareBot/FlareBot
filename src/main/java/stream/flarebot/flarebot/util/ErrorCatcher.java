@@ -7,7 +7,6 @@ import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
-import stream.flarebot.flarebot.MessageUtils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,14 +30,17 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 && FlareBot.getInstance().isReady()
                 && event.getLevel() == Level.ERROR) {
             String finalMsg = msg;
+            if (event.getThreadName().startsWith("lava-daemon-pool")) {
+                return FilterReply.NEUTRAL;
+            }
             EXECUTOR.submit(() -> {
                 Throwable throwable = null;
                 if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
                     throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
                 }
                 if (throwable != null) {
-                    MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getUpdateChannel());
-                } else MessageUtils.sendException(finalMsg, FlareBot.getInstance().getUpdateChannel());
+                    MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
+                } else FlareBot.getInstance().getErrorLogChannel().sendMessage(finalMsg).queue();
             });
         }
         return FilterReply.NEUTRAL;

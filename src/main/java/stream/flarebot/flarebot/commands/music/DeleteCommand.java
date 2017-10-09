@@ -1,55 +1,43 @@
 package stream.flarebot.flarebot.commands.music;
 
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.MessageUtils;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.util.SQLController;
+import com.datastax.driver.core.ResultSet;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.awt.Color;
 
-/**
- * <br>
- * Created by Arsen on 29.10.16..
- */
 public class DeleteCommand implements Command {
     @Override
-    public void onCommand(User sender, TextChannel channel, Message message, String[] args, Member member) {
+    public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            channel.sendMessage("Usage: " + FlareBot.getPrefix(channel.getGuild().getId()) + "delete [NAME]").queue();
+            MessageUtils.sendUsage(this, channel, sender);
             return;
         }
-        String name = "";
-        for (String arg : args) name += arg + ' ';
-        name = name.trim();
         channel.sendTyping().complete();
-        try {
-            String finalName = name;
-            SQLController.runSqlTask(connection -> {
-                connection.createStatement().execute("CREATE TABLE IF NOT EXISTS playlist (\n" +
-                        "  playlist_name VARCHAR(10),\n" +
-                        "  guild VARCHAR(10),\n" +
-                        "  list VARCHAR(80),\n" +
-                        "  scope  VARCHAR(7) DEFAULT 'local',\n" +
-                        "  PRIMARY KEY(playlist_name, guild)\n" +
-                        ")");
-                PreparedStatement update = connection.prepareStatement("DELETE FROM playlist WHERE playlist_name = ? AND guild = ?");
-                update.setString(1, finalName);
-                update.setString(2, channel.getGuild().getId());
-                if (update.executeUpdate() > 0) {
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("*Removed the playlist %s*", finalName)).build()).queue();
-                } else channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(String.format("*The playlist %s never existed!", finalName)).build()).queue();
-            });
-        } catch (SQLException e) {
-            MessageUtils.sendException("**Database error!**", e, channel);
-        }
+        String name = MessageUtils.getMessage(args, 0);
+        CassandraController.runTask(session -> {
+            ResultSet set = session.execute(session
+                    .prepare("SELECT playlist_name FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?")
+                    .bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            if (set.one() != null) {
+                session.execute(session
+                        .prepare("DELETE FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?").bind()
+                        .setString(0, name).setString(1, channel.getGuild().getId()));
+                channel.sendMessage(MessageUtils.getEmbed(sender)
+                        .setDescription(String
+                                .format("Removed the playlist '%s'", name)).setColor(Color.green)
+                        .build()).queue();
+            } else {
+                MessageUtils.sendErrorMessage(String.format("The playlist '%s' does not exist!", name), channel, sender);
+            }
+        });
     }
 
     @Override
@@ -59,7 +47,12 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Deletes a playlist. Usage `delete NAME`";
+        return "Deletes a playlist.";
+    }
+
+    @Override
+    public String getUsage() {
+        return "`{%}delete <playlist>` - Deletes a playlist";
     }
 
     @Override
