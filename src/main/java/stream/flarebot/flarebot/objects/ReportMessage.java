@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.objects;
 import java.sql.Timestamp;
 
 public class ReportMessage {
+
     private String message;
     private Timestamp time;
 

@@ -43,8 +43,7 @@ public class ReportCommand implements Command {
                 messages = messages.subList(0, Math.min(5, messages.size() - 1));
                 List<ReportMessage> reportMessages = new ArrayList<>();
                 for (Message userMessage: messages) {
-                    ReportMessage reportMessage = new ReportMessage(userMessage.getContent(), Timestamp.valueOf(userMessage.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()));
-                    reportMessages.add(reportMessage);
+                    reportMessages.add(new ReportMessage(userMessage.getContent(), Timestamp.valueOf(userMessage.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())));
                 }
                 report.setMessages(reportMessages);
             }
