@@ -347,4 +347,12 @@ public class GeneralUtils {
         printWriter.close();
         return writer.toString();
     }
+    
+    public static int getInt(String s, int defaultValue) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
 }
