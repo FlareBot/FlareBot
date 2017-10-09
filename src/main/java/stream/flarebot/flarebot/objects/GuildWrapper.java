@@ -55,7 +55,7 @@ public class GuildWrapper {
     @Column(name = "guild_id")
     private String guildId;
     //private AutoModGuild autoModGuild = new AutoModGuild();
-    //private Welcome welcome = new Welcome();
+    private Welcome welcome = new Welcome();
     //private PerGuildPermissions permissions = new PerGuildPermissions();
     //private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new HashSet<>();
