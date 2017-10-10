@@ -89,7 +89,7 @@ public class GuildWrapper {
         return permissions;
     }
 
-    protected void setPermissions(PerGuildPermissions permissions) {
+    public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
     }
 

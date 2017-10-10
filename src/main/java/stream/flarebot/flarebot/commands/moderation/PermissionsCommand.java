@@ -4,13 +4,16 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -223,12 +226,13 @@ public class PermissionsCommand implements Command {
 
                             String list = getStringList(groupList, page);
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            eb.addField("Grou", list, false);
+                            eb.addField("Groups", list, false);
                             eb.addField("Current page", String.valueOf(page), true);
                             int pageSize = 20;
                             int pages =
                                     groups.size() < pageSize ? 1 : (groups.size() / pageSize) + (groups.size() % pageSize != 0 ? 1 : 0);
                             eb.addField("Pages", String.valueOf(pages), true);
+                            eb.addField("User", user.getAsMention(), false);
                             eb.setColor(Color.CYAN);
                             channel.sendMessage(eb.build()).queue();
                             return;
@@ -281,32 +285,64 @@ public class PermissionsCommand implements Command {
                     }
                 }
             }
-        } else if (args.length >= 1 && args[0].equalsIgnoreCase("groups")) {
-            if (this.getPermissions(channel).getListGroups().isEmpty()) {
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setColor(Color.BLUE)
-                        .setDescription("There are no groups for this guild!")
-                        .build()).queue();
-                return;
-            } else {
-                int page = args.length == 2 ? Integer.valueOf(args[4]) : 1;
-                Set<String> groups = this.getPermissions(channel).getGroups().keySet();
-                List<String> groupList = GeneralUtils.orderList(groups);
+        } else if (args.length >= 1) {
+            if (args[0].equalsIgnoreCase("groups")) {
+                if (this.getPermissions(channel).getListGroups().isEmpty()) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setColor(Color.BLUE)
+                            .setDescription("There are no groups for this guild!")
+                            .build()).queue();
+                    return;
+                } else {
+                    int page = args.length == 2 ? Integer.valueOf(args[4]) : 1;
+                    Set<String> groups = this.getPermissions(channel).getGroups().keySet();
+                    List<String> groupList = GeneralUtils.orderList(groups);
 
-                String list = getStringList(groupList, page);
-                EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                eb.addField("Groups", list, false);
-                eb.addField("Current page", String.valueOf(page), true);
-                int pageSize = 20;
-                int pages =
-                        groups.size() < pageSize ? 1 : (groups.size() / pageSize) + (groups.size() % pageSize != 0 ? 1 : 0);
-                eb.addField("Pages", String.valueOf(pages), true);
-                eb.setColor(Color.CYAN);
-                channel.sendMessage(eb.build()).queue();
+                    String list = getStringList(groupList, page);
+                    EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                    eb.addField("Groups", list, false);
+                    eb.addField("Current page", String.valueOf(page), true);
+                    int pageSize = 20;
+                    int pages =
+                            groups.size() < pageSize ? 1 : (groups.size() / pageSize) + (groups.size() % pageSize != 0 ? 1 : 0);
+                    eb.addField("Pages", String.valueOf(pages), true);
+                    eb.setColor(Color.CYAN);
+                    channel.sendMessage(eb.build()).queue();
+                    return;
+                }
+            } else if (args[0].equalsIgnoreCase("reset")) {
+                guild.setPermissions(new PerGuildPermissions());
+                MessageUtils.sendSuccessMessage("Successfully reset perms", channel, sender);
+                return;
+            } else if (args[0].equalsIgnoreCase("restoredefault")) {
+                if (guild.getPermissions().hasGroup("Default")) {
+                    guild.getPermissions().deleteGroup("Default");
+                }
+                guild.getPermissions().addGroup("Default");
+                Group defaults = guild.getPermissions().getGroup("Default");
+                for (Command command : FlareBot.getInstance().getCommands()) {
+                    if (command.isDefaultPermission()) {
+                        defaults.addPermission(command.getPermission());
+                    }
+                }
+                defaults.addPermission("flarebot.userinfo.other");
+                for (Member members : guild.getGuild().getMembers()) {
+                    guild.getPermissions().getUser(members).addGroup(defaults);
+                }
+                MessageUtils.sendSuccessMessage("Successfully restored the Default group", channel, sender);
                 return;
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        EmbedBuilder ufusage = getEmbedUsage(); //Un-Formatted Usage
+        EmbedBuilder usage = new EmbedBuilder();
+        usage.setTitle("Usage");
+        for (MessageEmbed.Field field : ufusage.getFields()) {
+            String title = GeneralUtils.formatCommandPrefix(channel, field.getName());
+            String body = GeneralUtils.formatCommandPrefix(channel, field.getValue());
+            usage.addField(title, body, field.isInline());
+        }
+        usage.setColor(Color.RED);
+        channel.sendMessage(usage.build()).queue();
     }
 
     private String getStringList(Collection<String> perms, int page) {
@@ -366,7 +402,34 @@ public class PermissionsCommand implements Command {
                 "`permissions add <perm>` - adds a permissions to this user\n" +
                 "`permissions remove <perm>` - removes a permission from this user\n" +
                 "`permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)\n\n" +
-                "`permissions groups` - Lists all the groups in a server";
+                "`{%}permissions groups` - Lists all the groups in a server\n" +
+                "`{%}permissions reset` - Resets all of the guilds perms\n" +
+                "`{%}permissions restoredefault` - Restores the default group and adds any new default perms that might have been added";
+    }
+
+    public EmbedBuilder getEmbedUsage() {
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.addField("`{%}permissions group <group>`",
+                "`add <perm>` - Adds a permission to a group\n" +
+                        "`remove <perm>` - removes a perm from a group\n" +
+                        "`create` - creates a group\n" +
+                        "`delete` - deletes the group\n" +
+                        "`link <role>` - links the group to a discord role\n" +
+                        "`unlink` - unlinks it from a role\n" +
+                        "`list [page]` - lists the permissions this group has\n" +
+                        "`massadd <@everyone/@here/role>` - puts everyone with the giving role into the group", false);
+        eb.addField("`{%}permissions user <user>`",
+                "`group add <group>` - adds a group to this user\n" +
+                        "`group remove <group>` - removes a group from this user\n" +
+                        "`group list [page]` - lists the groups this user is in\n" +
+                        "`permissions add <perm>` - adds a permissions to this user\n" +
+                        "`permissions remove <perm>` - removes a permission from this user\n" +
+                        "`permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)", false);
+        eb.addField("Misc",
+                "`{%}permissions groups` - Lists all the groups in a server\n" +
+                        "`{%}permissions reset` - Resets all of the guilds perms\n" +
+                        "`{%}permissions restoredefault` - Restores the default group and adds any new default perms that might have been added", false);
+        return eb;
     }
 
     @Override
