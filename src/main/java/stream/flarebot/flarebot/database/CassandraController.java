@@ -10,6 +10,7 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
+import com.datastax.driver.mapping.MappingManager;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.github.binaryoverload.JSONConfig;
 import stream.flarebot.flarebot.FlareBot;
@@ -19,6 +20,7 @@ public class CassandraController {
     private static Cluster cluster;
     // Cassandra sessions should be kept open, these handle the pooling per node internally.
     private static Session session;
+    private static MappingManager mappingManager;
 
     public void init(JSONConfig config) {
         Cluster.Builder builder = Cluster.builder().withClusterName("FlareBot Nodes")
@@ -27,6 +29,7 @@ public class CassandraController {
         config.getArray("cassandra.nodes").ifPresent(array -> array.forEach(ip -> builder.addContactPoint(ip.getAsString())));
         cluster = builder.build();
         session = cluster.connect();
+        mappingManager = new MappingManager(session);
     }
 
     public static void runTask(CassandraTask task) {
@@ -62,6 +65,10 @@ public class CassandraController {
         return session.prepareAsync(query);
     }
 
+    // May remove this or at least un-static, for now, its good.
+    public static MappingManager getMappingManager() {
+        return mappingManager;
+    }
 
     public void close() {
         session.close();

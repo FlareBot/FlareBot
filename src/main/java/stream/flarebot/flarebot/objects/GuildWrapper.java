@@ -12,6 +12,10 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
+import com.datastax.driver.mapping.annotations.Table;
+import com.datastax.driver.mapping.annotations.PartitionKey;
+import com.datastax.driver.mapping.annotations.Column;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -21,8 +25,34 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
+//TODO: Change the table name
+@Table(keyspace = "flarebot", name = "guild_data_experimental", 
+       readConsistency = "QUORUM", writeConsistency = "QUORUM")
 public class GuildWrapper {
 
+    /*
+        CREATE TABLE flarebot.guild_data (
+            guild_id text PRIMARY KEY,
+            data text,
+            last_retrieved timestamp
+        ) WITH bloom_filter_fp_chance = 0.01
+        AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+        AND comment = ''
+        AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+        AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+        AND crc_check_chance = 1.0
+        AND dclocal_read_repair_chance = 0.1
+        AND default_time_to_live = 0
+        AND gc_grace_seconds = 864000
+        AND max_index_interval = 2048
+        AND memtable_flush_period_in_ms = 0
+        AND min_index_interval = 128
+        AND read_repair_chance = 0.0
+        AND speculative_retry = '99PERCENTILE';
+    */
+    
+    @PartitionKey
+    @Column(name = "guild_id")
     private String guildId;
     private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = new Welcome();
