@@ -370,7 +370,26 @@ public class PermissionsCommand implements Command {
     //TODO: Pagination
     @Override
     public String getUsage() {
-        return "Run `{%}permissions` to see the usage";
+        return "**`{%}permissions group <group>`  - All usage in this section starts with this**\n" +
+                "`add <perm>` - Adds a permission to a group\n" +
+                "`remove <perm>` - removes a perm from a group\n" +
+                "`create` - creates a group\n" +
+                "`delete` - deletes the group\n" +
+                "`link <role>` - links the group to a discord role\n" +
+                "`unlink` - unlinks it from a role\n" +
+                "`list [page]` - lists the permissions this group has\n" +
+                "`massadd <@everyone/@here/role>` - puts everyone with the giving role into the group\n" +
+                "\n" +
+                "**`{%}permissions user <user>` - All usage in this section starts with this**\n" +
+                "`group add <group>` - adds a group to this user\n" +
+                "`group remove <group>` - removes a group from this user\n" +
+                "`group list [page]` - lists the groups this user is in\n" +
+                "`permissions add <perm>` - adds a permissions to this user\n" +
+                "`permissions remove <perm>` - removes a permission from this user\n" +
+                "`permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)\n\n" +
+                "`{%}permissions groups` - Lists all the groups in a server\n" +
+                "`{%}permissions reset` - Resets all of the guilds perms\n" +
+                "`{%}permissions restoredefault` - Restores the default group and adds any new default perms that might have been added";
     }
 
     public EmbedBuilder getEmbedUsage() {
