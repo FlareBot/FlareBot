@@ -55,6 +55,7 @@ public class Punishment {
         UNMUTE,
         KICK,
         TEMP_BAN,
-        BAN
+        BAN,
+        WARN
     }
 }
