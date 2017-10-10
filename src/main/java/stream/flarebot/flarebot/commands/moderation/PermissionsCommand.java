@@ -223,7 +223,7 @@ public class PermissionsCommand implements Command {
 
                             String list = getStringList(groupList, page);
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            eb.addField("Grou", list, false);
+                            eb.addField("Groups for " + user.getAsMention(), list, false);
                             eb.addField("Current page", String.valueOf(page), true);
                             int pageSize = 20;
                             int pages =

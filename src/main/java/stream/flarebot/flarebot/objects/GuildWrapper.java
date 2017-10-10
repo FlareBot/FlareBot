@@ -54,10 +54,10 @@ public class GuildWrapper {
     @PartitionKey
     @Column(name = "guild_id")
     private String guildId;
-    //private AutoModGuild autoModGuild = new AutoModGuild();
+    private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = new Welcome();
-    //private PerGuildPermissions permissions = new PerGuildPermissions();
-    //private LinkedList<Poll> polls = new LinkedList<>();
+    private PerGuildPermissions permissions = new PerGuildPermissions();
+    private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new HashSet<>();
     private Set<String> selfAssignRoles = new HashSet<>();
     private Language.Locales locale = Language.Locales.ENGLISH_UK;
@@ -66,7 +66,7 @@ public class GuildWrapper {
     private long unBlockTime = -1;
     private String blockReason = null;
     private String mutedRoleID = null;
-    //private ReportManager reportManager = new ReportManager();
+    private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
 

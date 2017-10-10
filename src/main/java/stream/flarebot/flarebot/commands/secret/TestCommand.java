@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import com.datastax.driver.mapping.Mapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -30,7 +31,7 @@ public class TestCommand implements Command {
         if(mapper == null) mapper = CassandraController.getMappingManager().mapper(GuildWrapper.class);
         
         Message msg = channel.sendMessage("Saving...").complete();
-        CassandraController.getMappingManager().save(guild);
+        CassandraController.getMappingManager().mapper(GuildWrapper.class).save(guild);
         msg.editMessage("Saved!").complete();
         
         channel.sendMessage(MessageUtils.hastebin(FlareBot.GSON.toJson(guild))).queue();
