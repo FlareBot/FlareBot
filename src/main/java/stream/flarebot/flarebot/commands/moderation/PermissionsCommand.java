@@ -289,7 +289,7 @@ public class PermissionsCommand implements Command {
             if (args[0].equalsIgnoreCase("groups")) {
                 if (this.getPermissions(channel).getListGroups().isEmpty()) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setColor(Color.BLUE)
+                            .setColor(Color.RED)
                             .setDescription("There are no groups for this guild!")
                             .build()).queue();
                     return;
@@ -333,9 +333,7 @@ public class PermissionsCommand implements Command {
         EmbedBuilder usage = new EmbedBuilder();
         usage.setTitle("Usage");
         for (MessageEmbed.Field field : getEmbedUsage().getFields()) {
-            String title = GeneralUtils.formatCommandPrefix(channel, field.getName());
-            String body = GeneralUtils.formatCommandPrefix(channel, field.getValue());
-            usage.addField(title, body, field.isInline());
+            usage.addField(GeneralUtils.formatCommandPrefix(channel, field.getName()), GeneralUtils.formatCommandPrefix(channel, field.getValue()), field.isInline());
         }
         usage.setColor(Color.RED);
         channel.sendMessage(usage.build()).queue();
