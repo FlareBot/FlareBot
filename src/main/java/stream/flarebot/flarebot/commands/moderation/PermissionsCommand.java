@@ -326,9 +326,6 @@ public class PermissionsCommand implements Command {
                     }
                 }
                 defaults.addPermission("flarebot.userinfo.other");
-                for (Member members : guild.getGuild().getMembers()) {
-                    guild.getPermissions().getUser(members).addGroup(defaults);
-                }
                 MessageUtils.sendSuccessMessage("Successfully restored the Default group", channel, sender);
                 return;
             }
