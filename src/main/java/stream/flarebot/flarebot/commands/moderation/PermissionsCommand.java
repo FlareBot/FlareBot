@@ -333,10 +333,9 @@ public class PermissionsCommand implements Command {
                 return;
             }
         }
-        EmbedBuilder ufusage = getEmbedUsage(); //Un-Formatted Usage
         EmbedBuilder usage = new EmbedBuilder();
         usage.setTitle("Usage");
-        for (MessageEmbed.Field field : ufusage.getFields()) {
+        for (MessageEmbed.Field field : getEmbedUsage().getFields()) {
             String title = GeneralUtils.formatCommandPrefix(channel, field.getName());
             String body = GeneralUtils.formatCommandPrefix(channel, field.getValue());
             usage.addField(title, body, field.isInline());
