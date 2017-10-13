@@ -226,13 +226,12 @@ public class PermissionsCommand implements Command {
 
                             String list = getStringList(groupList, page);
                             EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            eb.addField("Groups", list, false);
+                            eb.addField("Groups for " + MessageUtils.getTag(user), list, false);
                             eb.addField("Current page", String.valueOf(page), true);
                             int pageSize = 20;
                             int pages =
                                     groups.size() < pageSize ? 1 : (groups.size() / pageSize) + (groups.size() % pageSize != 0 ? 1 : 0);
                             eb.addField("Pages", String.valueOf(pages), true);
-                            eb.addField("User", user.getAsMention(), false);
                             eb.setColor(Color.CYAN);
                             channel.sendMessage(eb.build()).queue();
                             return;
@@ -315,17 +314,7 @@ public class PermissionsCommand implements Command {
                 MessageUtils.sendSuccessMessage("Successfully reset perms", channel, sender);
                 return;
             } else if (args[0].equalsIgnoreCase("restoredefault")) {
-                if (guild.getPermissions().hasGroup("Default")) {
-                    guild.getPermissions().deleteGroup("Default");
-                }
-                guild.getPermissions().addGroup("Default");
-                Group defaults = guild.getPermissions().getGroup("Default");
-                for (Command command : FlareBot.getInstance().getCommands()) {
-                    if (command.isDefaultPermission()) {
-                        defaults.addPermission(command.getPermission());
-                    }
-                }
-                defaults.addPermission("flarebot.userinfo.other");
+                guild.getPermissions().createDefaultGroup();
                 MessageUtils.sendSuccessMessage("Successfully restored the Default group", channel, sender);
                 return;
             }
