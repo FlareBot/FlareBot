@@ -5,8 +5,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
@@ -16,8 +14,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-
-import java.time.Clock;
 
 public class TempMuteCommand implements Command {
 
@@ -45,12 +41,12 @@ public class TempMuteCommand implements Command {
             Period period;
             if((period = GeneralUtils.getTimeFromInput(args[1], channel)) == null) return;
             String reason = args.length >= 3 ? FlareBot.getMessage(args, 2) : null;
-            guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.TEMP_MUTE.toPunishment(period.getMillis()), reason);
+            guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.TEMP_MUTE.toPunishment(period.toStandardDuration().getMillis()), reason);
             MessageUtils.sendSuccessMessage("Temporarily Muted " + user.getAsMention() + " for " + GeneralUtils.formatJodaTime(period)
                     + (reason == null ? "" : " (`" + reason.replaceAll("`", "'") + "`)"), channel, sender);
 
             new FutureAction(guild.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(), user.getIdLong(),
-                    null, period, new DateTime(DateTimeZone.UTC), FutureAction.Action.TEMP_MUTE).queue();
+                    null, period, FutureAction.Action.TEMP_MUTE).queue();
         }
     }
 

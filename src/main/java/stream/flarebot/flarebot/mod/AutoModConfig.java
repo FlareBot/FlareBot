@@ -112,9 +112,14 @@ public class AutoModConfig {
         }
     }
 
-    public void postAutoModAction(Punishment punishment, User user) {
+    public void postAutoModAction(User user, Punishment punishment) {
         if(hasModLog())
             getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, null)).queue();
+    }
+
+    public void postAutoModAction(User user, Punishment punishment, String reason) {
+        if(hasModLog())
+            getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, reason)).queue();
     }
 
     public Option getOption(String s) {

@@ -11,6 +11,7 @@ public enum ModlogAction {
     KICK,
     TEMP_BAN,
     BAN,
+    UNBAN,
 
     WARN;
 
@@ -18,7 +19,7 @@ public enum ModlogAction {
         return new Punishment(this);
     }
 
-    public Punishment toPunishment(int duration) {
+    public Punishment toPunishment(long duration) {
         return new Punishment(this, duration);
     }
 }

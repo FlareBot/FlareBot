@@ -1,6 +1,8 @@
 package stream.flarebot.flarebot.scheduler;
 
 import com.datastax.driver.core.PreparedStatement;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -16,8 +18,8 @@ import java.time.ZoneOffset;
 
 public class FutureAction {
 
-    private PreparedStatement update;
-    private PreparedStatement delete;
+    private static PreparedStatement update;
+    private static PreparedStatement delete;
 
     /*
      * Ok so this will work with a few things, due to this it will have quite a few weird fields.
@@ -77,28 +79,27 @@ public class FutureAction {
     }
 
     public FutureAction(long guildId, long channelId, long responsible, long target, String content,
-                        Period delay, DateTime created, Action action) {
+                        Period delay, Action action) {
         this.guildId = guildId;
         this.channelId = channelId;
         this.responsible = responsible;
         this.target = target;
         this.content = content;
         this.delay = delay;
-        this.expires = new DateTime(DateTimeZone.UTC).plus(delay);
-        this.created = created;
+        this.created = new DateTime(DateTimeZone.UTC);
+        this.expires = created.plus(delay);
         this.action = action;
     }
 
-    public FutureAction(long guildId, long channelId, long responsible, String content, Period delay,
-                        DateTime created, Action action) {
+    public FutureAction(long guildId, long channelId, long responsible, String content, Period delay, Action action) {
         this.guildId = guildId;
         this.channelId = channelId;
         this.responsible = responsible;
         this.target = -1;
         this.content = content;
         this.delay = delay;
-        this.expires = new DateTime(DateTimeZone.UTC).plus(delay);
-        this.created = created;
+        this.created = new DateTime(DateTimeZone.UTC);
+        this.expires = created.plus(delay);
         this.action = action;
     }
 
@@ -141,18 +142,25 @@ public class FutureAction {
                 if (guild.getMutedRole() != null && guild.getGuild().getMemberById(target).getRoles().contains(guild.getMutedRole()))
                     guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMemberById(target),
                             guild.getMutedRole()).queue(aVoid -> guild.getAutoModConfig().postAutoModAction(
-                                    ModlogAction.UNMUTE.toPunishment(), FlareBot.getInstance().getUserById(target)));
-                delete();
+                            FlareBot.getInstance().getUserById(target), ModlogAction.UNMUTE.toPunishment()));
                 break;
             case TEMP_BAN:
+                GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
+                if(gw.getGuild().getSelfMember().hasPermission(Permission.BAN_MEMBERS))
+                    gw.getGuild().getController().unban(String.valueOf(target)).queue(aVoid -> gw.getAutoModConfig()
+                            .postAutoModAction(GeneralUtils.getUser(String.valueOf(target), null, true),
+                                    ModlogAction.UNBAN.toPunishment(), "Temporary ban expired, was banned for "
+                                            + GeneralUtils.formatJodaTime(delay)));
                 break;
             case REMINDER:
                 if(FlareBot.getInstance().getChannelById(channelId) != null)
                     FlareBot.getInstance().getChannelById(channelId).sendMessage(FlareBot.getInstance()
                             .getUserById(responsible).getAsMention() + " You asked me to remind you " +
-                            GeneralUtils.formatJodaTime(delay) + " ago about: " + content).queue();
+                            GeneralUtils.formatJodaTime(delay) + " ago about: `" + content.replaceAll("`", "'") + "`")
+                            .queue();
                 break;
         }
+        delete();
     }
 
     public void queue() {

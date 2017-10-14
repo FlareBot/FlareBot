@@ -44,7 +44,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,10 +103,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -485,7 +482,7 @@ public class FlareBot {
         registerCommand(new MuteCommand());
         registerCommand(new TempMuteCommand());
         registerCommand(new UnmuteCommand());
-//        registerCommand(new TempBanCommand());
+        registerCommand(new TempBanCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
@@ -501,6 +498,7 @@ public class FlareBot {
 
         registerCommand(new TagsCommand());
         registerCommand(new AnnounceCommand());
+        registerCommand(new RemindCommand());
 
         ApiFactory.bind();
 
@@ -796,7 +794,6 @@ public class FlareBot {
                 String out = "";
                 String line;
                 if ((line = reader.readLine()) != null) {
-                    System.out.println(line);
                     out += line + '\n';
                 }
                 p.waitFor();
@@ -1050,6 +1047,10 @@ public class FlareBot {
 
     public Guild getGuildByID(String id) {
         return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
+    }
+
+    public Guild getGuildById(long id) {
+        return getGuilds().stream().filter(g -> g.getIdLong() == id).findFirst().orElse(null);
     }
 
     // getXs

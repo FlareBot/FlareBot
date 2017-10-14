@@ -68,7 +68,7 @@ public class AutoModGuild {
                     case PURGE:
 
                 }
-                config.postAutoModAction(punishment, guild.getMemberById(userId).getUser());
+                config.postAutoModAction(guild.getMemberById(userId).getUser(), punishment);
             }
         }
         return null;

@@ -35,7 +35,7 @@ public class ForceBanCommand implements Command {
                     channel.getGuild().getController().ban(user, 7, reason).queue();
                     MessageUtils.sendSuccessMessage("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28", channel, sender);
                 } catch (PermissionException e) {
-                    MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
+                    MessageUtils.sendErrorMessage(String.format("Cannot ban user **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
             } else {
                 MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel);

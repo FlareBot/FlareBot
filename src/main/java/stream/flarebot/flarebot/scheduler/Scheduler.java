@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.scheduler;
 
+import org.joda.time.Period;
 import stream.flarebot.flarebot.FlareBot;
 
 import java.util.HashMap;
@@ -66,5 +67,15 @@ public class Scheduler {
 
     public static Map<String, ScheduledFuture<?>> getPersistentTasks() {
         return persistentTasks;
+    }
+
+    public static void queueFutureAction(long guuildId, long channelId, long responsible, long target, String reason,
+                                         Period delay, FutureAction.Action action) {
+        new FutureAction(guuildId, channelId, responsible, target, reason, delay, action).queue();
+    }
+
+    public static void queueFutureAction(long guuildId, long channelId, long responsible, String reason,
+                                         Period delay, FutureAction.Action action) {
+        new FutureAction(guuildId, channelId, responsible, reason, delay, action).queue();
     }
 }
