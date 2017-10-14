@@ -31,8 +31,6 @@ public class RemindCommand implements Command {
 
             Scheduler.queueFutureAction(guild.getGuildIdLong(), channel.getIdLong(), sender.getIdLong(), reminder.substring(0,
                     Math.min(reminder.length(), 1000)), period, FutureAction.Action.REMINDER);
-            new FutureAction(guild.getGuildIdLong(), channel.getIdLong(), sender.getIdLong(), reminder.substring(0,
-                    Math.min(reminder.length(), 1000)), period, FutureAction.Action.REMINDER).queue();
         }
     }
 
