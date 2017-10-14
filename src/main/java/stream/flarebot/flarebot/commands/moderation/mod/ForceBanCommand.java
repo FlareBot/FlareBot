@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -29,7 +30,7 @@ public class ForceBanCommand implements Command {
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
+                guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.BAN.toPunishment(), reason);
                 try {
                     channel.getGuild().getController().ban(user, 7, reason).queue();
                     MessageUtils.sendSuccessMessage("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28", channel, sender);

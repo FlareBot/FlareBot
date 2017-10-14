@@ -31,7 +31,7 @@ import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -365,7 +365,7 @@ public class Events extends ListenerAdapter {
                                 .getPermission() + "`` which is required for use of this command!"), e
                         .getChannel());
                 delete(e.getMessage());
-                new FlarebotTask("Delete message " + msg.getChannel().toString()) {
+                new FlareBotTask("Delete message " + msg.getChannel().toString()) {
                     @Override
                     public void run() {
                         delete(msg);

@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -40,7 +41,7 @@ public class BanCommand implements Command {
                     reason = MessageUtils.getMessage(args, 1);
                 try {
                     channel.getGuild().getController().ban(target, 7, reason).queue();
-                    guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
+                    guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.BAN.toPunishment(), reason);
                     channel.sendMessage(new EmbedBuilder()
                             .setColor(Color.GREEN)
                             .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")

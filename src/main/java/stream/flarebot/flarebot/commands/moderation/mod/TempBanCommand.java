@@ -14,6 +14,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.RestActionTask;
@@ -35,7 +36,7 @@ public class TempBanCommand implements Command {
                 String reason = null;
                 if (args.length >= 3)
                     reason = MessageUtils.getMessage(args, 2);
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
+                guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.BAN.toPunishment(), reason);
                 try {
                     channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7, reason).queue();
                     channel.sendMessage(new EmbedBuilder()

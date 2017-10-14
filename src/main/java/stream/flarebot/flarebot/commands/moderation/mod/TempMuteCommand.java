@@ -5,20 +5,25 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.ModlogAction;
-import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-public class MuteCommand implements Command {
+import java.time.Clock;
+
+public class TempMuteCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 0) {
+        if (args.length < 2) {
             MessageUtils.sendUsage(this, channel, sender);
         } else {
             User user = GeneralUtils.getUser(args[0], guild.getGuildId());
@@ -33,30 +38,35 @@ public class MuteCommand implements Command {
             try {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
             } catch(HierarchyException e) {
-                MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the role hierarchy.", 
-                    channel);
+                MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the role hierarchy.",
+                        channel);
                 return;
             }
-            String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
-            guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.MUTE.toPunishment(), reason);
-            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention() + (reason == null ? "" : " (`" + reason.replaceAll("`", "'") + "`)"), 
-                channel, sender);
+            Period period;
+            if((period = GeneralUtils.getTimeFromInput(args[1], channel)) == null) return;
+            String reason = args.length >= 3 ? FlareBot.getMessage(args, 2) : null;
+            guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.TEMP_MUTE.toPunishment(period.getMillis()), reason);
+            MessageUtils.sendSuccessMessage("Temporarily Muted " + user.getAsMention() + " for " + GeneralUtils.formatJodaTime(period)
+                    + (reason == null ? "" : " (`" + reason.replaceAll("`", "'") + "`)"), channel, sender);
+
+            new FutureAction(guild.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(), user.getIdLong(),
+                    null, period, new DateTime(DateTimeZone.UTC), FutureAction.Action.TEMP_MUTE).queue();
         }
     }
 
     @Override
     public String getCommand() {
-        return "mute";
+        return "tempmute";
     }
 
     @Override
     public String getDescription() {
-        return "Mutes people";
+        return "Temporarily mute a user!";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}mute <user>` - Mutes a user";
+        return "{%}tempmute <duration> (reason)";
     }
 
     @Override

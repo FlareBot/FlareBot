@@ -8,15 +8,15 @@ import java.awt.Color;
 
 public class Punishment {
 
-    private EPunishment punishment;
+    private ModlogAction action;
     private long duration;
 
-    public Punishment(EPunishment punishment) {
-        this.punishment = punishment;
+    public Punishment(ModlogAction action) {
+        this.action = action;
     }
 
-    public Punishment(EPunishment punishment, int duration) {
-        this.punishment = punishment;
+    public Punishment(ModlogAction action, int duration) {
+        this.action = action;
         this.duration = duration;
     }
 
@@ -25,18 +25,18 @@ public class Punishment {
     }
 
     public String getName() {
-        return punishment.name().charAt(0) + punishment.name().substring(1).toLowerCase().replaceAll("_", " ");
+        return action.name().charAt(0) + action.name().substring(1).toLowerCase().replaceAll("_", " ");
     }
 
-    public EPunishment getPunishment() {
-        return punishment;
+    public ModlogAction getAction() {
+        return action;
     }
 
-    public MessageEmbed getPunishmentEmbed(User user, User responsible, String reason) {
-        return getPunishmentEmbed(user, responsible, reason, true);
+    public MessageEmbed getActionEmbed(User user, User responsible, String reason) {
+        return getActionEmbed(user, responsible, reason, true);
     }
     
-    public MessageEmbed getPunishmentEmbed(User user, User responsible, String reason, boolean showReason) {
+    public MessageEmbed getActionEmbed(User user, User responsible, String reason, boolean showReason) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(getName());
         eb.setColor(Color.WHITE);
@@ -46,16 +46,5 @@ public class Punishment {
         if((responsible != null || reason != null) && showReason)
             eb.addField("Reason", (reason != null ? reason : "No reason given!"), true);
         return eb.build();
-    }
-
-    public enum EPunishment {
-        PURGE,
-        TEMP_MUTE,
-        MUTE,
-        UNMUTE,
-        KICK,
-        TEMP_BAN,
-        BAN,
-        WARN
     }
 }

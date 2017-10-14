@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -29,7 +30,7 @@ public class WarnCommand implements Command {
             String reason = null;
             if(args.length >= 2) reason = MessageUtils.getMessage(args, 1);
             guild.addWarning(user, (reason != null ? reason : "No reason provided - action done by " + sender.getName()));
-            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.WARN), reason);
+            guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.WARN.toPunishment(), reason);
             EmbedBuilder eb = new EmbedBuilder();
             eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user) 
                     + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
