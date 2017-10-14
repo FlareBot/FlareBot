@@ -28,19 +28,7 @@ public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length < 2) {
-            MessageUtils.sendUsage(this, channel, sender);
-        } else {
-            Period period;
-            if((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
-            String reminder = FlareBot.getMessage(args, 1);
-            channel.sendMessage("\uD83D\uDC4D I will remind you in " + GeneralUtils.formatJodaTime(period) + " (at "
-                    + GeneralUtils.formatPrecisely(period) + ")").queue();
-
-            new FutureAction(guild.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(), reminder.substring(0,
-                    Math.min(reminder.length(), 1000)), period,
-                    new DateTime(DateTimeZone.UTC), FutureAction.Action.REMINDER).queue();
-        }
+        // Served it's purpose once again :) Now it's free to be reused... no memes pls
     }
 
     @Override
