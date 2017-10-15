@@ -23,8 +23,8 @@ public class ShardInfoCommand implements Command {
         List<String> headers = new ArrayList<>();
         headers.add("Shard ID");
         headers.add("Status");
-        headers.add("Guild Count");
         headers.add("Ping");
+        headers.add("Guild Count");
         headers.add("VCs");
 
         List<List<String>> table = new ArrayList<>();
@@ -32,8 +32,8 @@ public class ShardInfoCommand implements Command {
             List<String> row = new ArrayList<>();
             row.add(GeneralUtils.getShardId(jda) + (GeneralUtils.getShardIdAsInt(channel.getJDA()) == GeneralUtils.getShardIdAsInt(jda) ? " (You)" : ""));
             row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));
-            row.add(String.valueOf(jda.getGuilds().size()));
             row.add(String.valueOf(jda.getPing()));
+            row.add(String.valueOf(jda.getGuilds().size()));
             row.add(String.valueOf(jda.getVoiceChannels().stream().filter(vc -> vc.getMembers().contains(vc.getGuild().getSelfMember())).count()));
             table.add(row);
         }
