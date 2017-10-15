@@ -303,12 +303,12 @@ public class FlareBot {
                     .setToken(tkn)
                     .setAudioSendFactory(new NativeAudioSendFactory());
             if (clients.length == 1) {
-                clients[0] = builder.buildAsync();
+                clients[0] = builder.buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
                 Thread.sleep(5000);
             } else {
                 builder = builder.setReconnectQueue(new SessionReconnectQueue());
                 for (int i = 0; i < clients.length; i++) {
-                    clients[i] = builder.useSharding(i, clients.length).buildAsync();
+                    clients[i] = builder.useSharding(i, clients.length).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
                     Thread.sleep(5000); // 5 second backoff
                 }
             }
