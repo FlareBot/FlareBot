@@ -542,7 +542,7 @@ public class FlareBot {
         new FlareBotTask("PostCarbonData" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                if (FlareBot.botListAuth != null) {
+                if (FlareBot.carbonAuth != null) {
                     try {
                     WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON, 
                     new JSONObject()
