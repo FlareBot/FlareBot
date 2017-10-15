@@ -10,7 +10,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.time.OffsetDateTime;
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PurgeCommand implements Command {
+
     private Map<String, Long> cooldowns = new HashMap<>();
     private static final long cooldown = 60000;
 
@@ -82,7 +83,7 @@ public class PurgeCommand implements Command {
                     }
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Deleted `%s` messages!", i)).build())
-                            .queue(s -> new FlarebotTask("Delete Message " + s) {
+                            .queue(s -> new FlareBotTask("Delete Message " + s) {
                                 @Override
                                 public void run() {
                                     s.delete().queue();

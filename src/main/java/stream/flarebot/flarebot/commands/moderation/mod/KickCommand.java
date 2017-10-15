@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -37,7 +38,7 @@ public class KickCommand implements Command {
                     reason = MessageUtils.getMessage(args, 1);
                 try {
                     channel.getGuild().getController().kick(target, reason).queue();
-                    guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.KICK), reason);
+                    guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.KICK.toPunishment(), reason);
                     MessageUtils.sendSuccessMessage(user.getName() + " has been kicked from the server!", channel, sender);
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot kick player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);

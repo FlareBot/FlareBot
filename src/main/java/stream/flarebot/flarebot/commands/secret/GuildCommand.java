@@ -97,7 +97,6 @@ public class GuildCommand implements Command {
                             .append('\u200B').build()).queue();
                 }
             }
-            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

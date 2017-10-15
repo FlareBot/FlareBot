@@ -44,7 +44,7 @@ public class AutoModGuild {
         for(int punishmentPoints : config.getPunishments().keySet()){
             if(userPoints.get(userId) >= punishmentPoints && userPoints.get(userId) - points < punishmentPoints){
                 Punishment punishment = config.getPunishments().get(punishmentPoints);
-                switch(punishment.getPunishment()) {
+                switch(punishment.getAction()) {
                     case TEMP_MUTE:
                     case MUTE:
                         if(guild.getSelfMember().hasPermission(Permission.MANAGE_ROLES))
@@ -68,7 +68,7 @@ public class AutoModGuild {
                     case PURGE:
 
                 }
-                config.postAutoModAction(punishment, guild.getMemberById(userId).getUser());
+                config.postAutoModAction(guild.getMemberById(userId).getUser(), punishment);
             }
         }
         return null;

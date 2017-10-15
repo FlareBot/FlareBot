@@ -55,6 +55,10 @@ public class GuildWrapper {
         return this.guildId;
     }
 
+    public long getGuildIdLong() {
+        return Long.parseLong(this.guildId);
+    }
+
     public AutoModGuild getAutoModGuild() {
         return this.autoModGuild;
     }

@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.mod;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -74,9 +75,9 @@ public class AutoModConfig {
     }
 
     public void resetPunishments() {
-        punishments.put(3, new Punishment(Punishment.EPunishment.TEMP_MUTE, 259200));
-        punishments.put(5, new Punishment(Punishment.EPunishment.TEMP_BAN, 604800));
-        punishments.put(10, new Punishment(Punishment.EPunishment.BAN));
+        punishments.put(3, new Punishment(ModlogAction.TEMP_MUTE, 259200));
+        punishments.put(5, new Punishment(ModlogAction.TEMP_BAN, 604800));
+        punishments.put(10, new Punishment(ModlogAction.BAN));
     }
 
     public boolean hasModLog() {
@@ -101,18 +102,24 @@ public class AutoModConfig {
 
     public void postToModLog(User user, User responsible, Punishment punishment, String reason) {
         if (hasModLog()) {
-            getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, responsible, reason)).queue();
+            getModLogChannel().sendMessage(punishment.getActionEmbed(user, responsible, reason)).queue();
         }
     }
     
     public void postToModLog(User user, User responsible, Punishment punishment, boolean showNoReason) {
         if (hasModLog()) {
-            getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, responsible, null, !showNoReason)).queue();
+            getModLogChannel().sendMessage(punishment.getActionEmbed(user, responsible, null, !showNoReason)).queue();
         }
     }
 
-    public void postAutoModAction(Punishment punishment, User user) {
-        getModLogChannel().sendMessage(punishment.getPunishmentEmbed(user, null, null)).queue();
+    public void postAutoModAction(User user, Punishment punishment) {
+        if(hasModLog())
+            getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, null)).queue();
+    }
+
+    public void postAutoModAction(User user, Punishment punishment, String reason) {
+        if(hasModLog())
+            getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, reason)).queue();
     }
 
     public Option getOption(String s) {
