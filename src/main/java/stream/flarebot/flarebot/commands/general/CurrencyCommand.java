@@ -91,7 +91,7 @@ public class CurrencyCommand implements Command {
 
     @Override
     public boolean isBetaTesterCommand() {
-        return true;
+        return false;
     }
 
     private MessageEmbed getCurrencyRatesEmbed(User sender, CurrencyComparison c) {
