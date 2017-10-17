@@ -160,7 +160,7 @@ public class PurgeCommand implements Command {
                     if(msg.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())) break outer;
                     if(targetUser != null && msg.getAuthor().getId().equals(targetUser.getId()))
                         toDelete.add(msg);
-                    else
+                    else if(targetUser == null) //a "all" purge.
                         toDelete.add(msg);
                     i++;
                 }
@@ -168,14 +168,9 @@ public class PurgeCommand implements Command {
                 toRetrieve -= toDelete.size();
                 toDelete.clear();
             }
-            channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("Deleted `%s` messages!", i-1)).build())
-                            .queue(s -> new FlareBotTask("Delete Message " + s) {
-                                @Override
-                                public void run() {
-                                    s.delete().queue();
-                                }
-                            }.delay(TimeUnit.SECONDS.toMillis(5)));
+            MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
+                            .setDescription(String.format("Deleted `%s` messages!", i-1)).build(), 
+                                                TimeUnit.SECONDS.toMillis(5), channel);
         }
     }
 
