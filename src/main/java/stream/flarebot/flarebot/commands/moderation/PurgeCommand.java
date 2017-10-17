@@ -151,21 +151,21 @@ public class PurgeCommand implements Command {
             while(toRetrieve > 0) { // I don't really know if this should be min... 
                                     // since deleting 10 of someone could be like 100 back yet this would request it 10 times. 
                                     // For now I will just request 100 here each time.
-                if(history.retrievePast(100).complete().isEmpty()) {
+                if(history.retrievePast((targetUser == null ? Math.min(toRetrieve, 100) : 100)).complete().isEmpty()) {
                     break;
                 }
 
                 List<Message> toDelete = new ArrayList<>();
                 for(Message msg : history.getRetrievedHistory()) {
                     if(msg.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())) break outer;
-                    if(targetUser != null && msg.getAuthor().getId().equals(targetUser.getId()))
+                    if((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
                         toDelete.add(msg);
-                    else if(targetUser == null) //a "all" purge.
-                        toDelete.add(msg);
-                    i++;
+                        i++;
+                        toRetrieve--;
+                    }
+                    if(toRetrieve == 0) break;
                 }
                 channel.deleteMessages(toDelete).complete();
-                toRetrieve -= toDelete.size();
                 toDelete.clear();
             }
             MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
