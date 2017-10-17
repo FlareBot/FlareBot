@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -111,9 +112,9 @@ public class PurgeCommand implements Command {
             // clean all 5
             User targetUser = null;
             if(!args[0].equalsIgnoreCase("all")) {
-                targetuser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
-                if(targetuser == null) {
-                    MessageUtils.sendErrormessage("That target user cannot be found, try mentioning them, using the user ID or using `all` to clear the entire chat.", channel);
+                targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
+                if(targetUser == null) {
+                    MessageUtils.sendErrorMessage("That target user cannot be found, try mentioning them, using the user ID or using `all` to clear the entire chat.", channel);
                     return;
                 }                
             }
@@ -122,7 +123,7 @@ public class PurgeCommand implements Command {
 
             // 2 messages min
             if(amount < 2) {
-                MessageUtils.sendErrormessage("You must purge at least 2 messages, please give a vaid purge amount.", channel);
+                MessageUtils.sendErrorMessage("You must purge at least 2 messages, please give a vaid purge amount.", channel);
                 return;
             }
 
@@ -158,7 +159,7 @@ public class PurgeCommand implements Command {
                 List<Message> toDelete = new ArrayList<>();
                 for(Message msg : history.getRetrievedHistory()) {
                     if(msg.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())) break outer;
-                    if(target != null && msg.getAuthor().getId().equals(target.getId()))
+                    if(targetUser != null && msg.getAuthor().getId().equals(targetUser.getId()))
                         toDelete.add(msg);
                     else
                         toDelete.add(msg);
