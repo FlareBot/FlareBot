@@ -339,20 +339,19 @@ public class FlareBot {
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
-                        if (GeneralUtils.canChangeNick(player.getGuildId())) {
-                            Guild c = getGuildByID(player.getGuildId());
-                            if (c == null) {
-                                manager.getGuild(player.getGuildId()).setSongnick(false);
-                            } else {
-                                if (player.getPlaylist().isEmpty())
-                                    c.getController().setNickname(c.getSelfMember(), null).queue();
-                            }
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled() && GeneralUtils.canChangeNick(player.getGuildId())) {
+                        Guild c = getGuildByID(player.getGuildId());
+                        if (c == null) {
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         } else {
-                            if (!GeneralUtils.canChangeNick(player.getGuildId())) {
-                                MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
+                            if (player.getPlaylist().isEmpty())
+                                c.getController().setNickname(c.getSelfMember(), null).queue();
+                        }
+                    } else {
+                        if (!GeneralUtils.canChangeNick(player.getGuildId())) {
+                            MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
                                     "FlareBot can't change it's nickname so SongNick has been disabled!");
-                            }
+                            manager.getGuild(player.getGuildId()).setSongnick(false);
                         }
                     }
                 }
