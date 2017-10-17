@@ -11,7 +11,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
@@ -72,10 +72,21 @@ public class FlareBotManager {
                 "scope varchar, " +
                 "times_played int, " +
                 "PRIMARY KEY(playlist_name, guild_id))");
-
         // Can't seem to cluster this because times_played is a bitch to have as a primary key.
         //"PRIMARY KEY((playlist_name, guild_id), times_played)) " +
         //"WITH CLUSTERING ORDER BY (times_played DESC)");
+
+        // Also used in FutureAction - Make sure to update if changes are done.
+        CassandraController.executeAsync("CREATE TABLE IF NOT EXISTS future_tasks (" +
+                "guild_id bigint, " +
+                "channel_id bigint, " +
+                "responsible bigint, " +
+                "target bigint, " +
+                "content text, " +
+                "expires_at timestamp, " +
+                "created_at timestamp, " +
+                "action varchar, " +
+                "PRIMARY KEY(guild_id, channel_id, created_at))");
 
         initGuildSaving();
     }
@@ -94,7 +105,7 @@ public class FlareBotManager {
                 }
             }
         });
-        new FlarebotTask() {
+        new FlareBotTask() {
             @Override
             public void run() {
                 if (!FlareBot.EXITING.get())
@@ -179,6 +190,7 @@ public class FlareBotManager {
 
     public synchronized GuildWrapper getGuild(String id) {
         //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
+        if(guilds == null) return null; //This is if it's ran before even being loaded
         guilds.computeIfAbsent(id, guildId -> {
             long start = System.currentTimeMillis();
             ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"

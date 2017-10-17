@@ -55,6 +55,10 @@ public class GuildWrapper {
         return this.guildId;
     }
 
+    public long getGuildIdLong() {
+        return Long.parseLong(this.guildId);
+    }
+
     public AutoModGuild getAutoModGuild() {
         return this.autoModGuild;
     }
@@ -89,7 +93,7 @@ public class GuildWrapper {
         return permissions;
     }
 
-    protected void setPermissions(PerGuildPermissions permissions) {
+    public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
     }
 

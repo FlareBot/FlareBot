@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
@@ -247,7 +247,7 @@ public class MessageUtils {
     }
 
     public static void autoDeleteMessage(Message message, long delay) {
-        new FlarebotTask("AutoDeleteTask") {
+        new FlareBotTask("AutoDeleteTask") {
             @Override
             public void run() {
                 message.delete().queue();
@@ -257,7 +257,7 @@ public class MessageUtils {
 
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
         Message msg = channel.sendMessage(message).complete();
-        new FlarebotTask("AutoDeleteTask") {
+        new FlareBotTask("AutoDeleteTask") {
             @Override
             public void run() {
                 msg.delete().queue();

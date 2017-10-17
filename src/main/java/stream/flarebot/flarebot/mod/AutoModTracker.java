@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -23,7 +23,7 @@ public class AutoModTracker extends ListenerAdapter {
     private Map<String, ConcurrentHashMap<String, Integer>> spamCounter = new ConcurrentHashMap<>();
 
     public AutoModTracker() {
-        new FlarebotTask("AutoModTracker") {
+        new FlareBotTask("AutoModTracker") {
             @Override
             public void run() {
                 spamCounter.forEach((s, map) -> map.clear());

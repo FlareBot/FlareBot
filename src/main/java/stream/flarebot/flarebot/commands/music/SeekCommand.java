@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class SeekCommand implements Command {
@@ -49,12 +50,7 @@ public class SeekCommand implements Command {
                         return;
                     } else {
                         t.getTrack().setPosition(millis);
-                        PeriodFormatter niceFormatter = new PeriodFormatterBuilder()
-                                .appendHours().appendSuffix(" Hours ")
-                                .appendMinutes().appendSuffix(" Minutes ")
-                                .appendSeconds().appendSuffix(" Seconds")
-                                .toFormatter();
-                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + period.toString(niceFormatter).trim(), channel);
+                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + GeneralUtils.formatJodaTime(period), channel);
                         return;
                     }
                 }

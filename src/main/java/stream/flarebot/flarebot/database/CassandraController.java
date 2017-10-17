@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.database;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.PoolingOptions;
@@ -52,6 +53,10 @@ public class CassandraController {
 
     public static ResultSetFuture executeAsync(String query) {
         return session.executeAsync(query);
+    }
+
+    public static ResultSetFuture executeAsync(BoundStatement statement) {
+        return session.executeAsync(statement);
     }
 
     public static PreparedStatement prepare(String query) {

@@ -97,7 +97,7 @@ public class ConvertCommand implements Command {
 
     @Override
     public boolean isBetaTesterCommand() {
-        return true;
+        return false;
     }
 
     private MessageEmbed getCurrencyConversionEmbed(User sender, CurrencyComparison c, Double from) {
