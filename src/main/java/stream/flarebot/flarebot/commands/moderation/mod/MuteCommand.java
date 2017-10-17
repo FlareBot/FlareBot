@@ -27,7 +27,7 @@ public class MuteCommand implements Command {
                 return;
             }
             if (guild.getMutedRole() == null) {
-                MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
+                MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create and apply it!", channel);
                 return;
             }
             try {
