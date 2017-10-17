@@ -127,7 +127,7 @@ public class PurgeCommand implements Command {
             }
 
             // This will be a successful delete so limit here.
-            if (!channel.getGuild().getPermissions().isCreator(sender)) {
+            if (!guild.getPermissions().isCreator(sender)) {
                 long riotPolice = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - riotPolice < cooldown) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
