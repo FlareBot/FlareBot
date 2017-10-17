@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -122,13 +121,13 @@ public class PurgeCommand implements Command {
             int amount = GeneralUtils.getInt(args[1], -1);
 
             // 2 messages min
-            if(amount < 2) {
-                MessageUtils.sendErrorMessage("You must purge at least 2 messages, please give a vaid purge amount.", channel);
+            if(amount < 1) {
+                MessageUtils.sendErrorMessage("You must purge at least 1 message, please give a vaid purge amount.", channel);
                 return;
             }
 
             // This will be a successful delete so limit here.
-            if (!FlareBotManager.getInstance().getGuild(channel.getId()).getPermissions().isCreator(sender)) {
+            if (!channel.getGuild().getPermissions().isCreator(sender)) {
                 long riotPolice = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - riotPolice < cooldown) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
@@ -207,11 +206,6 @@ public class PurgeCommand implements Command {
 
     @Override
     public boolean deleteMessage() {
-        return false;
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
         return false;
     }
 
