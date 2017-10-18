@@ -89,6 +89,7 @@ public class PurgeCommand implements Command {
                 channel.deleteMessages(toDelete).complete();
                 toDelete.clear();
             }
+            guild.getAutoModConfig().postToModLog(user, targetUser, ModlogAction.PURGE.toPunishment());
             MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Deleted `%s` messages!", i-1)).build(), 
                                                 TimeUnit.SECONDS.toMillis(5), channel);
