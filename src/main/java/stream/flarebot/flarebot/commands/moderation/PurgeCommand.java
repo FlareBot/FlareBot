@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
@@ -89,6 +90,14 @@ public class PurgeCommand implements Command {
                 channel.deleteMessages(toDelete).complete();
                 toDelete.clear();
             }
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Purge" : "User Purge");
+            if (targetUser != null)
+                eb.addField("User", MessageUtils.getTag(targetUser) + " (" + targetUser.getId() + ")", true);
+            eb.addField("Responsible moderator", sender.getAsMention(), true);
+            eb.addField("Messages purged", String.valueOf((i-1)), true);
+            
+            guild.getAutoModConfig().postToModLog(eb.build());                                                  
             MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Deleted `%s` messages!", i-1)).build(), 
                                                 TimeUnit.SECONDS.toMillis(5), channel);
