@@ -29,8 +29,9 @@ This is one of the best ways to contribute to this project!
 
 You can find the contributing guidelines at [this link](https://github.com/FlareBot/FlareBot/blob/master/CONTRIBUTING.md).
 
-#### **Current Contributors**
+#### **Current Maintainers**
 
+* [Walshy(@Walshy#9060)](https://github.com/WalshyDev/FlareBot)
 * [BinaryOverload(@BinaryOverload#2382)](https://github.com/binaryoverload/FlareBot)
 * [weeryan17(@weeryan17#1258)](https://github.com/weeryan17/FlareBot)
 
