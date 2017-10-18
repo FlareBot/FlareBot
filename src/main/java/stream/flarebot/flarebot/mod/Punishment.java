@@ -37,17 +37,17 @@ public class Punishment {
     public MessageEmbed getActionEmbed(User user, User responsible, String reason) {
         return getActionEmbed(user, responsible, reason, true);
     }
-    
+
     public MessageEmbed getActionEmbed(User user, User responsible, String reason, boolean showReason) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(getName());
         eb.setColor(Color.WHITE);
         eb.addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true);
-        if(responsible != null)
+        if (responsible != null)
             eb.addField("Responsible moderator", responsible.getAsMention(), true);
-        if((responsible != null || reason != null) && showReason)
+        if ((responsible != null || reason != null) && showReason)
             eb.addField("Reason", (reason != null ? reason : "No reason given!"), true);
-        if(action.name().startsWith("TEMP"))
+        if (action.name().startsWith("TEMP"))
             eb.addField("Duration", FlareBot.getInstance().formatTime(duration, TimeUnit.MILLISECONDS, true, false), true);
         return eb.build();
     }

@@ -90,7 +90,7 @@ public class Events extends ListenerAdapter {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
-        if(wrapper == null) return;
+        if (wrapper == null) return;
         if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = wrapper.getWelcome();

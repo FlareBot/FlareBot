@@ -45,7 +45,7 @@ public class CurrencyCommand implements Command {
                         MessageUtils.sendErrorMessage("The currency `" + to + "` is not valid!", channel);
                         return;
                     }
-                  
+
                     CurrencyComparison comparison;
                     if (from.equalsIgnoreCase(to)) {
                         if ((random.nextInt(100) + 1) == 100) {

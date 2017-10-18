@@ -17,7 +17,7 @@ public class SongNickCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (guild.isSongnickEnabled()) {
             guild.setSongnick(false);
-            if(GeneralUtils.canChangeNick(guild.getGuildId()))
+            if (GeneralUtils.canChangeNick(guild.getGuildId()))
                 channel.getGuild().getController().setNickname(channel.getGuild().getSelfMember(), null).queue();
             MessageUtils.sendSuccessMessage("Disabled changing nickname with song!", channel, sender);
             return;

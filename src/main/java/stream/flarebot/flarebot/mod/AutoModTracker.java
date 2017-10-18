@@ -41,7 +41,7 @@ public class AutoModTracker extends ListenerAdapter {
         int index = message.indexOf(' ');
         if (index > 0)
             command = command.substring(0, index - 1);
-        if(FlareBot.getInstance().getCommand(command) != null) return;
+        if (FlareBot.getInstance().getCommand(command) != null) return;
 
         String userId = event.getAuthor().getId();
         AutoModGuild guild = FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModGuild();
@@ -72,10 +72,10 @@ public class AutoModTracker extends ListenerAdapter {
                 }
 
                 String resp = guild.addPoints(event.getGuild(), userId, guild.getConfig().getActions().get(action));
-                if(resp == null) {
-                    if(event.getChannel().canTalk())
+                if (resp == null) {
+                    if (event.getChannel().canTalk())
                         sendMessage(event.getChannel(), event.getAuthor(), action, event.getMessage(), guild, guild.getConfig());
-                }else{
+                } else {
                     MessageUtils.sendErrorMessage(resp, event.getChannel());
                     event.getGuild().getOwner().getUser().openPrivateChannel().complete().sendMessage(resp).queue();
                 }

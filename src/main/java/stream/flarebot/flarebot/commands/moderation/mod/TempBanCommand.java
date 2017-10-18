@@ -41,7 +41,7 @@ public class TempBanCommand implements Command {
                     reason = MessageUtils.getMessage(args, 2);
                 try {
                     Period period = GeneralUtils.getTimeFromInput(args[1], channel);
-                    if(period == null) return;
+                    if (period == null) return;
                     channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7, reason).queue();
                     guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.TEMP_BAN.toPunishment(
                             period.toStandardDuration().getMillis()), reason);

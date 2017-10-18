@@ -28,13 +28,13 @@ public class WarnCommand implements Command {
                 return;
             }
             String reason = null;
-            if(args.length >= 2) reason = MessageUtils.getMessage(args, 1);
+            if (args.length >= 2) reason = MessageUtils.getMessage(args, 1);
             guild.addWarning(user, (reason != null ? reason : "No reason provided - action done by " + sender.getName()));
             guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.WARN.toPunishment(), reason);
             EmbedBuilder eb = new EmbedBuilder();
-            eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user) 
+            eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user)
                     + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
-                .setColor(Color.WHITE);
+                    .setColor(Color.WHITE);
             channel.sendMessage(eb.build()).queue();
         }
     }

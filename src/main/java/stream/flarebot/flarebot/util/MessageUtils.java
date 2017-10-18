@@ -103,7 +103,7 @@ public class MessageUtils {
         try {
             Response response = WebUtils.post("https://hastebin.com/documents", WebUtils.APPLICATION_JSON, trace);
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            if(response.body() != null) {
+            if (response.body() != null) {
                 String key = new JSONObject(response.body().string()).getString("key");
                 return "https://hastebin.com/" + key;
             } else {
@@ -204,11 +204,11 @@ public class MessageUtils {
     public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.INFO, message, channel, sender);
     }
-    
+
     public static Message sendModMessage(String message, TextChannel channel) {
         return sendMessage(MessageType.MODERATION, message, channel);
     }
-    
+
     public static Message sendModMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.MODERATION, message, channel, sender);
     }
