@@ -49,7 +49,7 @@ public class GuildCommand implements Command {
                     }
                     wrapper = FlareBotManager.getInstance().getGuild(args[1]);
                 }
-                Guild g = guild.getGuild();
+                Guild g = wrapper.getGuild();
                     
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
                         .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
