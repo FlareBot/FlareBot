@@ -28,9 +28,9 @@ public class KickCommand implements Command {
                     return;
                 }
                 Member target = guild.getGuild().getMember(user);
-                if(target == null) {
-                    MessageUtils.sendErrorMessage("That user is not on this server therefor cannot be kicked!", 
-                        channel, sender);
+                if (target == null) {
+                    MessageUtils.sendErrorMessage("That user is not on this server therefor cannot be kicked!",
+                            channel, sender);
                     return;
                 }
                 String reason = null;

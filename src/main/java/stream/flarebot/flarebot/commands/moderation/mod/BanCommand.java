@@ -31,9 +31,9 @@ public class BanCommand implements Command {
                     return;
                 }
                 Member target = guild.getGuild().getMember(user);
-                if(target == null) {
-                    MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID", 
-                        channel, sender);
+                if (target == null) {
+                    MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID",
+                            channel, sender);
                     return;
                 }
                 String reason = null;

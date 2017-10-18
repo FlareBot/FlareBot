@@ -32,15 +32,15 @@ public class MuteCommand implements Command {
             }
             try {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-            } catch(HierarchyException e) {
-                MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the role hierarchy.", 
-                    channel);
+            } catch (HierarchyException e) {
+                MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the role hierarchy.",
+                        channel);
                 return;
             }
             String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
             guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.MUTE.toPunishment(), reason);
-            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention() + (reason == null ? "" : " (`" + reason.replaceAll("`", "'") + "`)"), 
-                channel, sender);
+            MessageUtils.sendSuccessMessage("Muted " + user.getAsMention() + (reason == null ? "" : " (`" + reason.replaceAll("`", "'") + "`)"),
+                    channel, sender);
         }
     }
 

@@ -31,7 +31,7 @@ public class TempMuteCommand implements Command {
                 MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
                 return;
             }
-            
+
             try {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
             } catch (HierarchyException e) {
@@ -39,7 +39,7 @@ public class TempMuteCommand implements Command {
                         channel);
                 return;
             }
-            
+
             Period period;
             if ((period = GeneralUtils.getTimeFromInput(args[1], channel)) == null) return;
             String reason = args.length >= 3 ? FlareBot.getMessage(args, 2) : null;

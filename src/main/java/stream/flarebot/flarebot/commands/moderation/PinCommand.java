@@ -19,10 +19,10 @@ public class PinCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && args[0].matches("[0-9]{18,22}")) {
             if (!guild.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE)) {
-               MessageUtils.sendErrorMessage("I need the `Manage Messages` permission in order to pin!", channel);
-               return;
+                MessageUtils.sendErrorMessage("I need the `Manage Messages` permission in order to pin!", channel);
+                return;
             }
-            
+
             Message msg = channel.getMessageById(args[0].trim()).complete();
             if (msg == null) {
                 MessageUtils.sendErrorMessage("That message could not be found!", channel);
@@ -32,10 +32,10 @@ public class PinCommand implements Command {
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else if (args.length != 0) {
             if (!guild.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE)) {
-               MessageUtils.sendErrorMessage("I need the `Manage Messages` permission in order to pin!", channel);
-               return;
+                MessageUtils.sendErrorMessage("I need the `Manage Messages` permission in order to pin!", channel);
+                return;
             }
-            
+
             Message msg = channel.sendMessage(new EmbedBuilder().setTitle(sender.getName(), null)
                     .setThumbnail(MessageUtils.getAvatar(sender)).setDescription(MessageUtils.getMessage(args, 0))
                     .build()).complete();
