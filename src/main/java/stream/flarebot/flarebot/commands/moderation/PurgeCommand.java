@@ -92,7 +92,7 @@ public class PurgeCommand implements Command {
                 toDelete.clear();
             }
             EmbedBuilder eb = new EmbedBuilder();
-            eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Purge" : "User Purge", null);
+            eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Chat Purge" : "User Purge", null);
             if (targetUser != null)
                 eb.addField("User", MessageUtils.getTag(targetUser) + " (" + targetUser.getId() + ")", true);
             eb.addField("Responsible moderator", sender.getAsMention(), true);
