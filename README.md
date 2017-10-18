@@ -37,6 +37,6 @@ You can find the contributing guidelines at [this link](https://github.com/Flare
 
 ## Credits
 
-- [ ] Initially started by [WalshyDev(@bwfcwalshy#1284)](https://github.com/WalshyDev/) and [ArsenArsen(@Arsen#7525)](https://github.com/ArsenArsen/)
+- [ ] Initially started by [Walshy(@Walshy#9060)](https://github.com/WalshyDev/) and [ArsenArsen(@Arsen#7525)](https://github.com/ArsenArsen/)
 - [ ] FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz) with minor design changes.
 - [ ] Big thanks to EJ Technologies for providing us with open source licenses for [their Java profiler](https://www.ej-technologies.com/products/jprofiler/overview.html). 
