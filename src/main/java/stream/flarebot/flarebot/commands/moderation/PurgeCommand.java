@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
+import java.awt.Color;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -91,7 +92,7 @@ public class PurgeCommand implements Command {
                 toDelete.clear();
             }
             EmbedBuilder eb = new EmbedBuilder();
-            eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Purge" : "User Purge");
+            eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Purge" : "User Purge", null);
             if (targetUser != null)
                 eb.addField("User", MessageUtils.getTag(targetUser) + " (" + targetUser.getId() + ")", true);
             eb.addField("Responsible moderator", sender.getAsMention(), true);
