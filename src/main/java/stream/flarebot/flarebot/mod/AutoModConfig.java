@@ -1,7 +1,7 @@
 package stream.flarebot.flarebot.mod;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
