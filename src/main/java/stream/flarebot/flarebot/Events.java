@@ -348,9 +348,6 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            System.out.println(guild);
-            System.out.println(guild.getOptions());
-            System.out.println(guild.getOptions().getBoolean("commands.delete-command-message"));
             if (cmd.deleteMessage() && guild.getOptions().getBoolean("commands.delete-command-message"))
                 delete(event.getMessage());
         });
@@ -383,7 +380,6 @@ public class Events extends ListenerAdapter {
     }
 
     private void delete(Message message) {
-        System.out.println("Fire delete");
         if (message.getTextChannel().getGuild().getSelfMember()
                 .getPermissions(message.getTextChannel()).contains(Permission.MESSAGE_MANAGE))
             message.delete().queue();
