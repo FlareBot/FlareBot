@@ -10,7 +10,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.Action;
 import stream.flarebot.flarebot.mod.AutoModConfig;
-import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.guilds.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;

@@ -114,7 +114,8 @@ public class FlareBot {
 
     private static final Map<String, Logger> LOGGERS;
     public static final Logger LOGGER;
-    public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
+    public static final String INVITE_URL = "https://flarebot.stream/support-server";
+    //public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
 
     private static FlareBot instance;
     private static String youtubeApi;

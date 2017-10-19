@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.objects;
+package stream.flarebot.flarebot.objects.guilds;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -8,11 +8,14 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.objects.Poll;
+import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +42,9 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+
+    // Testing
+    private GuildOptions options = new GuildOptions();
 
     // oooo special!
     private boolean betaAccess = false;
@@ -244,5 +250,10 @@ public class GuildWrapper {
     public Map<String, String> getTags() {
         if (tags == null) tags = new ConcurrentHashMap<>();
         return tags;
+    }
+
+    public GuildOptions getOptions() {
+        if(options == null) options = new GuildOptions();
+        return options;
     }
 }

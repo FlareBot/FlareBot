@@ -9,8 +9,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.objects.guilds.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
@@ -44,8 +43,8 @@ public class PurgeCommand implements Command {
             int amount = GeneralUtils.getInt(args[1], -1);
 
             // 2 messages min
-            if (amount < 1) {
-                MessageUtils.sendErrorMessage("You must purge at least 1 message, please give a vaid purge amount.", channel);
+            if (amount < 2) {
+                MessageUtils.sendErrorMessage("You must purge at least 2 message, please give a valid purge amount.", channel);
                 return;
             }
 
@@ -80,6 +79,7 @@ public class PurgeCommand implements Command {
 
                 List<Message> toDelete = new ArrayList<>();
                 for (Message msg : history.getRetrievedHistory()) {
+                    if (msg.getId().equals(message.getId())) continue; // We don't want to delete the command message itself
                     if (msg.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())) break outer;
                     if ((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
                         toDelete.add(msg);
@@ -88,15 +88,19 @@ public class PurgeCommand implements Command {
                     }
                     if (toRetrieve == 0) break;
                 }
-                channel.deleteMessages(toDelete).complete();
+                if (toDelete.size() < 2)
+                    toDelete.forEach(msg -> msg.delete().queue());
+                else
+                    channel.deleteMessages(toDelete).complete();
                 toDelete.clear();
             }
             EmbedBuilder eb = new EmbedBuilder();
             eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Chat Purge" : "User Purge", null);
             if (targetUser != null)
                 eb.addField("User", MessageUtils.getTag(targetUser) + " (" + targetUser.getId() + ")", true);
-            eb.addField("Responsible moderator", sender.getAsMention(), true);
-            eb.addField("Messages purged", String.valueOf((i - 1)), true);
+            eb.addField("Responsible moderator", sender.getAsMention(), true)
+            .addField("Messages purged", String.valueOf((i - 1)), true)
+            .addField("Channel", channel.getAsMention() + " (" + channel.getName() + ")", true);
 
             guild.getAutoModConfig().postToModLog(eb.build());
             MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)

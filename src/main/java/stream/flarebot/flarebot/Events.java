@@ -28,7 +28,7 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
-import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.guilds.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
@@ -348,7 +348,10 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            if (cmd.deleteMessage())
+            System.out.println(guild);
+            System.out.println(guild.getOptions());
+            System.out.println(guild.getOptions().getBoolean("commands.delete-command-message"));
+            if (cmd.deleteMessage() && guild.getOptions().getBoolean("commands.delete-command-message"))
                 delete(event.getMessage());
         });
     }
@@ -380,6 +383,7 @@ public class Events extends ListenerAdapter {
     }
 
     private void delete(Message message) {
+        System.out.println("Fire delete");
         if (message.getTextChannel().getGuild().getSelfMember()
                 .getPermissions(message.getTextChannel()).contains(Permission.MESSAGE_MANAGE))
             message.delete().queue();

@@ -27,6 +27,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -211,6 +212,11 @@ public class MessageUtils {
 
     public static Message sendModMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.MODERATION, message, channel, sender);
+    }
+
+    public static void sendNoPermMessage(String permission, TextChannel channel, User sender) {
+        sendAutoDeletedMessage(getEmbed(sender).setColor(Color.red).setDescription("You need the `" + permission + "` " +
+                "permission to do that command!").build(), TimeUnit.SECONDS.toMillis(5), channel);
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {

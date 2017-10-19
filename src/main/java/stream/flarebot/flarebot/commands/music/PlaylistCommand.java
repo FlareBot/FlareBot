@@ -12,7 +12,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
-import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.guilds.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;

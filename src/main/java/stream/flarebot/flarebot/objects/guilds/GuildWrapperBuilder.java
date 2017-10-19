@@ -1,7 +1,9 @@
-package stream.flarebot.flarebot.objects;
+package stream.flarebot.flarebot.objects.guilds;
 
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.objects.Poll;
+import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
 import java.util.LinkedList;

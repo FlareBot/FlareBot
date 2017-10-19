@@ -6,8 +6,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.guilds.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class RandomCommand implements Command {
