@@ -49,7 +49,7 @@ public class YouTubeExtractor implements Extractor {
             if (e.getMessage().contains("Vevo")) {
                 MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                         .setDescription("We are blocked from playing this video as it is from Vevo! " +
-                                "Sorry for any inconvience.")
+                                "Sorry for any inconvenience.")
                         .setColor(Color.RED), message);
                 return;
             }

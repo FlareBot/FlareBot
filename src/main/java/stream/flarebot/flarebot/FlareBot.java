@@ -544,12 +544,12 @@ public class FlareBot {
             public void run() {
                 if (FlareBot.carbonAuth != null) {
                     try {
-                    WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON, 
-                    new JSONObject()
-                        .put("key", FlareBot.carbonAuth)
-                        .put("servercount", getGuilds().size())
-                        .put("shardcount", clients.length)
-                        .toString());
+                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
+                        new JSONObject()
+                            .put("key", FlareBot.carbonAuth)
+                            .put("servercount", getGuilds().size())
+                            .put("shardcount", clients.length)
+                            .toString());
                     } catch(IOException e) {
                         LOGGER.error("Failed to update carbon!", e);
                     }
