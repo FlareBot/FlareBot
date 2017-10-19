@@ -87,6 +87,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        if (event.getMember().getUser().isBot()) return;
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
