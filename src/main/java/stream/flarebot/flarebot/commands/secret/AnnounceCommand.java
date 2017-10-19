@@ -14,7 +14,7 @@ public class AnnounceCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {
-        if(guild.getGuildId().equals("226785954537406464")) {
+        if (guild.getGuildId().equals("226785954537406464")) {
             Role r = guild.getGuild().getRoleById(320304080926801922L);
             r.getManager().setMentionable(true).complete();
             String message = msg.getRawContent();

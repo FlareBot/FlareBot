@@ -367,7 +367,7 @@ public class GeneralUtils {
         printWriter.close();
         return writer.toString();
     }
-    
+
     public static int getInt(String s, int defaultValue) {
         try {
             return Integer.parseInt(s);
@@ -379,6 +379,7 @@ public class GeneralUtils {
     /**
      * Get a Joda Period from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
      * Joda Period.
+     *
      * @param input The input string to parse.
      * @return The joda Period or null if the format is not correct.
      */
@@ -398,6 +399,7 @@ public class GeneralUtils {
 
     /**
      * This will format a Joda Period into a precise timestamp (yyyy-MM-dd HH:mm:ss.SS).
+     *
      * @param period Period to format onto the current date
      * @return The date in a precise format. Example: 2017-10-13 21:56:33.681
      */

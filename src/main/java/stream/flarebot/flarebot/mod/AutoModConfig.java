@@ -1,7 +1,7 @@
 package stream.flarebot.flarebot.mod;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -105,20 +105,26 @@ public class AutoModConfig {
             getModLogChannel().sendMessage(punishment.getActionEmbed(user, responsible, reason)).queue();
         }
     }
-    
+
     public void postToModLog(User user, User responsible, Punishment punishment, boolean showNoReason) {
         if (hasModLog()) {
             getModLogChannel().sendMessage(punishment.getActionEmbed(user, responsible, null, !showNoReason)).queue();
         }
     }
 
+    // Shouldn't really be used - Good for stuff like the purge command though
+    public void postToModLog(MessageEmbed embed) {
+        if (hasModLog())
+            getModLogChannel().sendMessage(embed).queue();
+    }
+
     public void postAutoModAction(User user, Punishment punishment) {
-        if(hasModLog())
+        if (hasModLog())
             getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, null)).queue();
     }
 
     public void postAutoModAction(User user, Punishment punishment, String reason) {
-        if(hasModLog())
+        if (hasModLog())
             getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, reason)).queue();
     }
 

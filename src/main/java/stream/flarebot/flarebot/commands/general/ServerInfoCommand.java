@@ -22,12 +22,12 @@ public class ServerInfoCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 0){
+        if (args.length == 0) {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
             String guildid = args[0];
             Guild targetGuild = FlareBot.getInstance().getGuildByID(guildid);
-            if(targetGuild != null){
+            if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {
                 MessageUtils.sendErrorMessage("We couldn't find that guild.", channel);
@@ -35,7 +35,7 @@ public class ServerInfoCommand implements Command {
         }
     }
 
-    private void sendGuildInfo(Guild guild, TextChannel channel){
+    private void sendGuildInfo(Guild guild, TextChannel channel) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(guild.getName());
         eb.setThumbnail(guild.getIconUrl());
@@ -46,7 +46,7 @@ public class ServerInfoCommand implements Command {
                 guild.getMembers().stream().filter(member -> !member.getOnlineStatus().equals(OnlineStatus.OFFLINE)).count() + "\n" +
                 "\n" +
                 "**Owner:** " +
-                guild.getOwner().getUser().getName() +  "#" + guild.getOwner().getUser().getDiscriminator(), true);
+                guild.getOwner().getUser().getName() + "#" + guild.getOwner().getUser().getDiscriminator(), true);
         String afk = guild.getAfkChannel() == null ? "" :
                 "**AFK:**\n" +
                         "Channel: " +
@@ -81,8 +81,8 @@ public class ServerInfoCommand implements Command {
         channel.sendMessage(eb.build()).queue();
     }
 
-    private String getVerificationString(Guild.VerificationLevel level){
-        switch (level){
+    private String getVerificationString(Guild.VerificationLevel level) {
+        switch (level) {
             case HIGH:
                 return "(\u256F\u00B0\u25A1\u00B0\uFF09\u256F\uFE35 \u253B\u2501\u253B"; //(╯°□°）╯︵ ┻━┻
             case VERY_HIGH:
@@ -114,6 +114,6 @@ public class ServerInfoCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"guildinfo"};
+        return new String[]{"guildinfo"};
     }
 }

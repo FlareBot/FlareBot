@@ -24,7 +24,7 @@ public class RemindCommand implements Command {
             MessageUtils.sendUsage(this, channel, sender);
         } else {
             Period period;
-            if((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
+            if ((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
             String reminder = FlareBot.getMessage(args, 1);
             channel.sendMessage("\uD83D\uDC4D I will remind you in " + GeneralUtils.formatJodaTime(period) + " (at "
                     + GeneralUtils.formatPrecisely(period) + ")").queue();
@@ -56,7 +56,7 @@ public class RemindCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"r"};
+        return new String[]{"r"};
     }
 
     @Override

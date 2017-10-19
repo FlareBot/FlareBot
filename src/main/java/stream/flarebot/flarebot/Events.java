@@ -90,7 +90,7 @@ public class Events extends ListenerAdapter {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
-        if(wrapper == null) return;
+        if (wrapper == null) return;
         if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = wrapper.getWelcome();
@@ -343,7 +343,7 @@ public class Events extends ListenerAdapter {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
                                 .getChannel());
-                FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
+                FlareBot.LOGGER.error("Exception in guild " + event.getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }

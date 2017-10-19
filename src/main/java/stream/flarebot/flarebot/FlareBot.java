@@ -128,7 +128,7 @@ public class FlareBot {
     private static String botListAuth;
     private static String dBotsAuth;
     private static String carbonAuth;
-    
+
     private FlareBotManager manager;
     private static String webSecret;
     private static boolean apiEnabled = true;
@@ -318,18 +318,20 @@ public class FlareBot {
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled() && GeneralUtils.canChangeNick(player.getGuildId())) {
-                        Guild c = getGuildByID(player.getGuildId());
-                        if (c == null) {
-                            manager.getGuild(player.getGuildId()).setSongnick(false);
+                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
+                        if (GeneralUtils.canChangeNick(player.getGuildId())) {
+                            Guild c = getGuildByID(player.getGuildId());
+                            if (c == null) {
+                                manager.getGuild(player.getGuildId()).setSongnick(false);
+                            } else {
+                                if (player.getPlaylist().isEmpty())
+                                    c.getController().setNickname(c.getSelfMember(), null).queue();
+                            }
                         } else {
-                            if (player.getPlaylist().isEmpty())
-                                c.getController().setNickname(c.getSelfMember(), null).queue();
-                        }
-                    } else {
-                        if (!GeneralUtils.canChangeNick(player.getGuildId())) {
-                            MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
-                                    "FlareBot can't change it's nickname so SongNick has been disabled!");
+                            if (!GeneralUtils.canChangeNick(player.getGuildId())) {
+                                MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
+                                        "FlareBot can't change it's nickname so SongNick has been disabled!");
+                            }
                         }
                     }
                 }
@@ -538,18 +540,18 @@ public class FlareBot {
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-        
+
         new FlareBotTask("PostCarbonData" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (FlareBot.carbonAuth != null) {
                     try {
-                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
-                        new JSONObject()
-                            .put("key", FlareBot.carbonAuth)
-                            .put("servercount", getGuilds().size())
-                            .put("shardcount", clients.length)
-                            .toString());
+                    	WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
+	                        new JSONObject()
+	                            .put("key", FlareBot.carbonAuth)
+	                            .put("servercount", getGuilds().size())
+	                            .put("shardcount", clients.length)
+	                            .toString());
                     } catch(IOException e) {
                         LOGGER.error("Failed to update carbon!", e);
                     }
@@ -587,12 +589,12 @@ public class FlareBot {
         CassandraController.runTask(session -> {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
             Row row;
-            while((row = set.one()) != null) {
+            while ((row = set.one()) != null) {
                 FutureAction fa = new FutureAction(row.getLong("guild_id"), row.getLong("channel_id"), row.getLong("responsible"),
                         row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
                         new DateTime(row.getTimestamp("created_at")),
                         FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
-                if(new DateTime().isAfter(fa.getExpires()))
+                if (new DateTime().isAfter(fa.getExpires()))
                     fa.execute();
                 else
                     fa.queue();
