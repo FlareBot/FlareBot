@@ -87,7 +87,6 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        if (event.getMember().getUser().isBot()) return;
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
@@ -121,6 +120,7 @@ public class Events extends ListenerAdapter {
                 }
             } else welcome.setGuildEnabled(false);
         }
+        if (event.getMember().getUser().isBot()) return;
         if (!wrapper.getAutoAssignRoles().isEmpty()) {
             Set<String> autoAssignRoles = wrapper.getAutoAssignRoles();
             List<Role> roles = new ArrayList<>();
