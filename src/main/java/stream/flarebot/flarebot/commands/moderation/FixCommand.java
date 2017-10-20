@@ -27,6 +27,9 @@ public class FixCommand implements Command {
                 + "\nWe assign roles to users without any roles so be aware that if you allow "
                 + "the removal of your autoassign roles they may be added back to users.\n"
                 + "Use `{%}fix confirm` to confirm your command", channel, sender);
+
+        ConfirmUtil.pushAction(sender.getId(),
+                new RunnableWrapper(() -> fix(guild, sender, channel), this.getClass()));
     }
 
     private void fix(GuildWrapper guild, User sender, TextChannel channel) {
