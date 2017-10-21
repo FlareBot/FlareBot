@@ -113,6 +113,9 @@ public class PollCommand implements Command {
                     } catch (IllegalStateException e) {
                         MessageUtils.sendErrorMessage(e.getMessage(), channel);
                         return;
+                    } catch (NumberFormatException e) {
+                        MessageUtils.sendErrorMessage("That is not a valid poll ID!", channel);
+                        return;
                     }
 
                     MessageUtils.sendSuccessMessage("Successfully " + action + " the poll with the ID: " + String.valueOf(index + 1), channel, sender);
