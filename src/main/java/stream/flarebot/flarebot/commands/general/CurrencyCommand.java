@@ -45,7 +45,7 @@ public class CurrencyCommand implements Command {
                         MessageUtils.sendErrorMessage("The currency `" + to + "` is not valid!", channel);
                         return;
                     }
-                  
+
                     CurrencyComparison comparison;
                     if (from.equalsIgnoreCase(to)) {
                         if ((random.nextInt(100) + 1) == 100) {
@@ -91,7 +91,7 @@ public class CurrencyCommand implements Command {
 
     @Override
     public boolean isBetaTesterCommand() {
-        return true;
+        return false;
     }
 
     private MessageEmbed getCurrencyRatesEmbed(User sender, CurrencyComparison c) {

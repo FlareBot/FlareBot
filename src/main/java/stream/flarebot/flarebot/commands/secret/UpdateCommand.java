@@ -11,7 +11,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class UpdateCommand implements Command {
                                     .toFormatter();
                             p = formatter.parsePeriod(args[0]);
 
-                            new FlarebotTask("Scheduled-Update") {
+                            new FlareBotTask("Scheduled-Update") {
                                 @Override
                                 public void run() {
                                     update(true, channel);

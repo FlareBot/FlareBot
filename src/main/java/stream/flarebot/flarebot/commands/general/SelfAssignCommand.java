@@ -150,12 +150,12 @@ public class SelfAssignCommand implements Command {
                 channel.getGuild().getController().addRolesToMember(member, channel.getGuild().getRoleById(roleId)).queue();
                 MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention())
                         .setEmbed(new EmbedBuilder().setDescription("You have been assigned `" + channel.getGuild()
-                        .getRoleById(roleId).getName() + "` to yourself!").setColor(Color.green).build()).build(), 30_000, channel);
+                                .getRoleById(roleId).getName() + "` to yourself!").setColor(Color.green).build()).build(), 30_000, channel);
             } else {
                 channel.getGuild().getController().removeRolesFromMember(member, channel.getGuild().getRoleById(roleId)).queue();
                 MessageUtils.sendAutoDeletedMessage(new MessageBuilder().append(member.getAsMention())
                         .setEmbed(new EmbedBuilder().setDescription("You have removed the role `" + channel.getGuild()
-                        .getRoleById(roleId).getName() + "` from yourself!").setColor(Color.orange).build()).build(), 30_000, channel);
+                                .getRoleById(roleId).getName() + "` from yourself!").setColor(Color.orange).build()).build(), 30_000, channel);
             }
         } catch (PermissionException e) {
             MessageUtils.sendErrorMessage(e.getMessage() + "\nContact a server administrator!", channel);
@@ -177,7 +177,7 @@ public class SelfAssignCommand implements Command {
             MessageUtils.sendErrorMessage("That role does not exist! "
                     + (closest != null ? "Maybe you mean `" + closest + "`" : ""), channel);
             return null;
-        }else
+        } else
             return guild.getGuild().getRolesByName(message, true).get(0);
     }
 

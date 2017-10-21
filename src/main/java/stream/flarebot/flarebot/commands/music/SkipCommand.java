@@ -9,7 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -121,7 +121,7 @@ public class SkipCommand implements Command {
                         .build()).queue();
                 return null;
             }
-            new FlarebotTask("Vote " + s) {
+            new FlareBotTask("Vote " + s) {
 
                 @Override
                 public void run() {

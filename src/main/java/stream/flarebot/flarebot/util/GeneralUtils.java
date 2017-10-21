@@ -10,12 +10,16 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
@@ -36,6 +40,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -51,6 +56,20 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+
+    private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+
+    private static final PeriodFormatter prettyTime = new PeriodFormatterBuilder()
+            .appendDays().appendSuffix("Day ", "Days ")
+            .appendHours().appendSuffix(" Hour ", " Hours ")
+            .appendMinutes().appendSuffix(" Minute ", " Minutes ")
+            .appendSeconds().appendSuffix(" Second", " Seconds")
+            .toFormatter();
+    private static final PeriodFormatter periodParser = new PeriodFormatterBuilder()
+            .appendHours().appendSuffix("h")
+            .appendMinutes().appendSuffix("m")
+            .appendSeconds().appendSuffix("s")
+            .toFormatter();
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -75,7 +94,7 @@ public class GeneralUtils {
         eb.addField("Message", "```" + report.getMessage() + "```", false);
         StringBuilder builder = new StringBuilder("The last 5 messages by the reported user: ```\n");
         for (ReportMessage m : report.getMessages()) {
-            builder.append("[" + m.getTime().toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
+            builder.append("[").append(m.getTime().toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"))).append(" GMT/BST] ")
                     .append(GeneralUtils.truncate(100, m.getMessage()))
                     .append("\n");
         }
@@ -288,7 +307,7 @@ public class GeneralUtils {
 
     public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
         List<T> list = new ArrayList<>(strings);
-        Collections.sort(list, Comparable::compareTo);
+        list.sort(Comparable::compareTo);
         return list;
     }
 
@@ -348,12 +367,43 @@ public class GeneralUtils {
         printWriter.close();
         return writer.toString();
     }
-    
+
     public static int getInt(String s, int defaultValue) {
         try {
             return Integer.parseInt(s);
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+    /**
+     * Get a Joda Period from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
+     * Joda Period.
+     *
+     * @param input The input string to parse.
+     * @return The joda Period or null if the format is not correct.
+     */
+    public static Period getTimeFromInput(String input, TextChannel channel) {
+        try {
+            return periodParser.parsePeriod(input);
+        } catch (IllegalArgumentException e) {
+            MessageUtils.sendErrorMessage("The duration is not in the correct format! Try something like `1d`",
+                    channel);
+            return null;
+        }
+    }
+
+    public static String formatJodaTime(Period period) {
+        return period.toString(prettyTime).trim();
+    }
+
+    /**
+     * This will format a Joda Period into a precise timestamp (yyyy-MM-dd HH:mm:ss.SS).
+     *
+     * @param period Period to format onto the current date
+     * @return The date in a precise format. Example: 2017-10-13 21:56:33.681
+     */
+    public static String formatPrecisely(Period period) {
+        return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
     }
 }

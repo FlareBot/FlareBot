@@ -50,6 +50,6 @@ public class LoopCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"andagainandagainandagainandagain"};
+        return new String[]{"andagainandagainandagainandagain"};
     }
 }
