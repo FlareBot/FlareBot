@@ -16,10 +16,14 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportMessage;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
@@ -28,6 +32,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
@@ -68,9 +74,9 @@ public class GeneralUtils {
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
         StringBuilder builder = new StringBuilder("The last 5 messages by the reported user: ```\n");
-        for (Message m : report.getMessages()) {
-            builder.append("[" + m.getCreationTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
-                    .append(GeneralUtils.truncate(100, m.getContent()))
+        for (ReportMessage m : report.getMessages()) {
+            builder.append("[" + m.getTime().toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
+                    .append(GeneralUtils.truncate(100, m.getMessage()))
                     .append("\n");
         }
         builder.append("```");
@@ -124,7 +130,10 @@ public class GeneralUtils {
             } catch (FriendlyException | InterruptedException | ExecutionException e) {
                 failed = true;
                 cause = e;
-                FlareBot.LOGGER.error("Cannot get video '" + input + "'", e);
+                if (e.getMessage().contains("Vevo")) {
+                    throw new IllegalStateException(Jsoup.clean(cause.getMessage(), Whitelist.none()), cause);
+                }
+                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Cannot get video '" + input + "'");
                 try {
                     Thread.sleep(backoff);
                 } catch (InterruptedException ignored) {
@@ -133,7 +142,7 @@ public class GeneralUtils {
             }
         }
         if (failed) {
-            throw new IllegalStateException(cause.getMessage(), cause);
+            throw new IllegalStateException(Jsoup.clean(cause.getMessage(), Whitelist.none()), cause);
         } else if (!item.isPresent()) {
             throw new IllegalArgumentException();
         }
@@ -210,7 +219,10 @@ public class GeneralUtils {
                 if (guildId == null || guildId.isEmpty()) {
                     tmp = FlareBot.getInstance().getUserById(l);
                 } else {
-                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l).getUser();
+                    Member temMember = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l);
+                    if (temMember != null) {
+                        tmp = temMember.getUser();
+                    }
                 }
                 if (tmp != null) {
                     return tmp;
@@ -287,9 +299,10 @@ public class GeneralUtils {
 
     /**
      * This will download and cache the image if not found already!
-     * @param fileUrl Url to download the image from.
+     *
+     * @param fileUrl  Url to download the image from.
      * @param fileName Name of the image file.
-     * @param user User to send the image to.
+     * @param user     User to send the image to.
      */
     public static void sendImage(String fileUrl, String fileName, User user) {
         try {
@@ -328,4 +341,19 @@ public class GeneralUtils {
             return false;
     }
 
+    public static String getStackTrace(Throwable e) {
+        StringWriter writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        e.printStackTrace(printWriter);
+        printWriter.close();
+        return writer.toString();
+    }
+    
+    public static int getInt(String s, int defaultValue) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
 }

@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import net.dv8tion.jda.core.requests.RestAction;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -23,6 +22,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -145,12 +148,69 @@ public class MessageUtils {
     }
 
     public static Message sendErrorMessage(EmbedBuilder builder, MessageChannel channel) {
-        return channel.sendMessage(builder.setColor(Color.red).build()).complete();
+        return channel.sendMessage(builder.setColor(Color.RED).build()).complete();
     }
 
-    public static Message sendErrorMessage(String message, MessageChannel channel) {
-        return channel.sendMessage(MessageUtils.getEmbed().setColor(Color.red).setDescription(message).build())
-                .complete();
+    private static Message sendMessage(MessageEmbed embed, TextChannel channel) {
+        return channel.sendMessage(embed).complete();
+    }
+
+    public static Message sendMessage(MessageType type, String message, TextChannel channel) {
+        return sendMessage(type, message, channel, null);
+    }
+
+    public static Message sendMessage(MessageType type, String message, TextChannel channel, User sender) {
+        EmbedBuilder builder = (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()));
+        return sendMessage(builder.setDescription(GeneralUtils.formatCommandPrefix(channel, message)).build(), channel);
+    }
+
+    public static Message sendMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.NEUTRAL, message, channel);
+    }
+
+    public static Message sendMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.NEUTRAL, message, channel, sender);
+    }
+
+    public static Message sendErrorMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.ERROR, message, channel);
+    }
+
+    public static Message sendErrorMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.ERROR, message, channel, sender);
+    }
+
+    public static Message sendWarningMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.WARNING, message, channel);
+    }
+
+    public static Message sendWarningMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.WARNING, message, channel, sender);
+    }
+
+    public static Message sendSuccessMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.SUCCESS, message, channel);
+    }
+
+    public static Message sendSuccessMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.SUCCESS, message, channel, sender);
+    }
+
+    public static Message sendInfoMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.INFO, message, channel);
+    }
+
+    public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.INFO, message, channel, sender);
+    }
+    
+    public static Message sendModMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.MODERATION, message, channel);
+    }
+    
+    public static Message sendModMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.MODERATION, message, channel, sender);
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {
@@ -186,6 +246,15 @@ public class MessageUtils {
         sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
     }
 
+    public static void autoDeleteMessage(Message message, long delay) {
+        new FlarebotTask("AutoDeleteTask") {
+            @Override
+            public void run() {
+                message.delete().queue();
+            }
+        }.delay(delay);
+    }
+
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
         Message msg = channel.sendMessage(message).complete();
         new FlarebotTask("AutoDeleteTask") {
@@ -196,16 +265,17 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static RestAction<Message> getUsage(Command command, TextChannel channel, User user) {
+    public static void sendUsage(Command command, TextChannel channel, User user) {
         String title = capitalize(command.getCommand()) + " Usage";
         String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        if(command.getPermission() != null)
-            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+        if (command.getPermission() != null) {
+            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
                     .addField("Permission", command.getPermission() + "\n" +
-                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.red).build());
-        else
-            return channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .setColor(Color.red).build());
+                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED).build()).queue();
+        } else {
+            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
+                    .setColor(Color.RED).build()).queue();
+        }
     }
 
     private static String capitalize(String s) {
@@ -301,4 +371,6 @@ public class MessageUtils {
     public static String escapeMarkdown(String s) {
         return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
     }
+
+
 }

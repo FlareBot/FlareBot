@@ -26,18 +26,19 @@ public class PlaylistsCommand implements Command {
             if (args[0].equalsIgnoreCase("mark")) {
                 if (getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1 || args.length == 2) {
-                        MessageUtils.getUsage(this, channel, sender).queue();
+                        MessageUtils.sendUsage(this, channel, sender);
                     } else {
                         String playlist = FlareBot.getMessage(args, 2);
                         CassandraController.runTask(session -> {
-                            ResultSet set = session.execute(session.prepare("SELECT playlist_name FROM flarebot.playlist WHERE " +
-                                    "guild_id = ? AND playlist_name = ?").bind()
-                                    .setString(0, channel.getGuild().getId()).setString(1, playlist));
+                            ResultSet set =
+                                    session.execute(session.prepare("SELECT playlist_name FROM flarebot.playlist WHERE " +
+                                            "guild_id = ? AND playlist_name = ?").bind()
+                                            .setString(0, channel.getGuild().getId()).setString(1, playlist));
                             if (set.one() != null) {
                                 if (args[1].equalsIgnoreCase("global") || args[1].equalsIgnoreCase("local")) {
                                     session.execute(session.prepare("UPDATE flarebot.playlist SET " +
                                             "scope = ? WHERE guild_id = ? AND playlist_name = ?").bind()
-                                    .setString(0, args[1].toLowerCase()).setString(1, channel.getGuild().getId())
+                                            .setString(0, args[1].toLowerCase()).setString(1, channel.getGuild().getId())
                                             .setString(2, playlist));
                                     channel.sendMessage(MessageUtils.getEmbed()
                                             .setDescription("Changed the scope of '" + playlist + "' to "

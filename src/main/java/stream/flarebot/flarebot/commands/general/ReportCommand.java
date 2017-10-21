@@ -8,11 +8,14 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +30,8 @@ public class ReportCommand implements Command {
                 return;
             }
 
-            Report report = new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
+            Report report =
+                    new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
             List<Message> messages = channel.getHistory()
                     .retrievePast(100)
@@ -35,14 +39,20 @@ public class ReportCommand implements Command {
                     .stream()
                     .filter(m -> m.getAuthor().equals(user))
                     .collect(Collectors.toList());
-            if(messages.size() > 0)
-                report.setMessages(messages.subList(0, Math.min(5, messages.size() - 1)));
+            if (messages.size() > 0) {
+                messages = messages.subList(0, Math.min(5, messages.size() - 1));
+                List<ReportMessage> reportMessages = new ArrayList<>();
+                for (Message userMessage: messages) {
+                    reportMessages.add(new ReportMessage(userMessage.getContent(), Timestamp.valueOf(userMessage.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())));
+                }
+                report.setMessages(reportMessages);
+            }
 
             guild.getReportManager().report(report);
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.Region;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -34,7 +33,7 @@ public class PlayCommand implements Command {
                 if (LocalDateTime.now().getHour() == 0 && LocalDateTime.now().getMinute() == 0 && LocalDateTime.now().getSecond() == 0) {
                     channel.sendMessage(new EmbedBuilder().setTitle("Jesus Quist", null).setDescription("It's quite late to be listening to music! You should be asleep! " +
                             ":zzz: :night_with_stars:").setColor(Color.blue).build()).queue();
-                    FlareBot.getInstance().logEG("Jesus Quist - Late night", guild.getGuild(), sender);
+                    FlareBot.getInstance().logEG("Jesus Quist - Late night", this, guild.getGuild(), sender);
                 }
             }
             if (member.getVoiceState().inVoiceChannel()) {

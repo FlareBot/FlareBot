@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.mod;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.exceptions.HierarchyException;
 import stream.flarebot.flarebot.FlareBotManager;
 
 import java.util.Map;
@@ -73,7 +74,7 @@ public class AutoModGuild {
         return null;
     }
 
-    public void muteUser(Guild guild, Member member) {
+    public void muteUser(Guild guild, Member member) throws HierarchyException {
         guild.getController().addRolesToMember(member, FlareBotManager.getInstance().getGuild(guild.getId()).getMutedRole()).complete();
     }
 }

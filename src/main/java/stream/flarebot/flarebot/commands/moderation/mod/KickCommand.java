@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation.mod;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -14,7 +13,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.util.EnumSet;
 
 public class KickCommand implements Command {
@@ -25,31 +23,30 @@ public class KickCommand implements Command {
             if (channel.getGuild().getSelfMember().hasPermission(channel, Permission.KICK_MEMBERS)) {
                 User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
-                    channel.sendMessage(new EmbedBuilder()
-                            .setDescription("We cannot find that user! Try their ID if you didn't already.")
-                            .setColor(Color.red).build()).queue();
+                    MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
+                    return;
+                }
+                Member target = guild.getGuild().getMember(user);
+                if(target == null) {
+                    MessageUtils.sendErrorMessage("That user is not on this server therefor cannot be kicked!", 
+                        channel, sender);
                     return;
                 }
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.KICK), reason);
                 try {
-                    channel.getGuild().getController().kick(channel.getGuild().getMember(user), reason).queue();
-                    channel.sendMessage(new EmbedBuilder()
-                            .setColor(Color.GREEN)
-                            .setDescription(user.getName() + " has been kicked from the server!")
-                            .build()).queue();
+                    channel.getGuild().getController().kick(target, reason).queue();
+                    guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.KICK), reason);
+                    MessageUtils.sendSuccessMessage(user.getName() + " has been kicked from the server!", channel, sender);
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot kick player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
             } else {
-                channel.sendMessage(new EmbedBuilder()
-                        .setDescription("We can't kick users! Make sure we have the `Kick Members` permission!")
-                        .setColor(Color.red).build()).queue();
+                MessageUtils.sendErrorMessage("We can't kick users! Make sure we have the `Kick Members` permission!", channel, sender);
             }
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.music;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -11,13 +10,11 @@ import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
-
 public class SearchCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        channel.sendMessage(new EmbedBuilder().setColor(Color.YELLOW).setDescription("This is deprecated! Please use _play instead!").build()).queue();
+        MessageUtils.sendWarningMessage("This is deprecated! Please use _play instead!", channel, sender);
         if (args.length > 0) {
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();
@@ -26,7 +23,7 @@ public class SearchCommand implements Command {
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
         } else {
-            MessageUtils.getUsage(this, channel, sender).queue();
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

@@ -38,11 +38,11 @@ public class PlaylistCommand implements Command {
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
                     channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 } else if (args[0].equalsIgnoreCase("here")) {
                     send(channel, channel, member);
                 } else {
-                    MessageUtils.getUsage(this, channel, sender).queue();
+                    MessageUtils.sendUsage(this, channel, sender);
                 }
             } else {
                 if (args[0].equalsIgnoreCase("remove")) {
@@ -111,7 +111,7 @@ public class PlaylistCommand implements Command {
                     break;
                 builder.addField("Page " + page, s, false);
             }
-            if((i-1) == 1)
+            if ((i - 1) == 1)
                 channel.sendMessage(builder.build()).queue();
             else
                 mchannel.sendMessage(builder.build()).queue();
