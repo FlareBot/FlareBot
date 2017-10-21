@@ -39,10 +39,15 @@ public class TagsCommand implements Command {
                     guild.getTags().remove(args[1]);
                     MessageUtils.sendSuccessMessage("You successfully removed the tag `" + args[1] + "`!",
                             channel, sender);
-                } else
+                } else {
                     MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
-            } else
+                }
+            } else if (args[0].equalsIgnoreCase("edit")) {
+                MessageUtils.sendErrorMessage("This seems to be invalid ¯\\_(ツ)_/¯\n"
+                        + "Usage: `{%}tags edit " + args[1] + " <tag_message>`", channel);
+            } else {
                 MessageUtils.sendErrorMessage("That is an invalid argument!", channel);
+            }
         } else {
             if (args[0].equalsIgnoreCase("add")) {
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
@@ -53,8 +58,18 @@ public class TagsCommand implements Command {
                 guild.getTags().put(args[1].toLowerCase(), MessageUtils.getMessage(args, 2));
                 MessageUtils.sendSuccessMessage("You successfully added the tag `" + args[1] + "`!", channel,
                         sender);
-            } else
+            } else if (args[0].equalsIgnoreCase("edit")) {
+                if (!guild.getTags().containsKey(args[1].toLowerCase())) {
+                    MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
+                    return;
+                }
+
+                guild.getTags().put(args[1].toLowerCase(), MessageUtils.getMessage(args, 2));
+                MessageUtils.sendSuccessMessage("You successfully edited the tag `" + args[1] + "`!", channel,
+                        sender);
+            } else {
                 MessageUtils.sendErrorMessage("That is an invalid argument!", channel);
+            }
         }
     }
 
@@ -73,6 +88,7 @@ public class TagsCommand implements Command {
         return "`{%}tags` - Lists the existing tags\n" +
                 "`{%}tags <tag_name>` - Sends the tag message\n" +
                 "`{%}tags add <tag_name> <tag_message>` - Adds a tag to the guild\n" +
+                "`{%}tags edit <tag_name> <tag_message>` - Edits an already existing tag\n" +
                 "`{%}tags remove <tag_name>` - Removes a tag from the guild";
     }
 
