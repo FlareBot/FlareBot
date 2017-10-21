@@ -48,10 +48,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.*;
+import stream.flarebot.flarebot.commands.configuration.OptionsCommand;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
@@ -502,6 +505,7 @@ public class FlareBot {
         registerCommand(new TagsCommand());
         registerCommand(new AnnounceCommand());
         registerCommand(new RemindCommand());
+        registerCommand(new OptionsCommand());
 
         ApiFactory.bind();
 
@@ -650,7 +654,7 @@ public class FlareBot {
     private JsonParser parser = new JsonParser();
 
     private void sendData() {
-        /*JsonObject data = new JsonObject();
+        JsonObject data = new JsonObject();
         data.addProperty("guilds", getGuilds().size());
         data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
         data.addProperty("text_channels", getChannels().size());
@@ -662,7 +666,7 @@ public class FlareBot {
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("uptime", getUptime());
 
-        postToApi("postData", "data", data);*/
+        //ApiRequester.requestAsync(ApiRoute.DATA, data);
     }
 
     private void sendCommands() {

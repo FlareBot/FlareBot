@@ -254,6 +254,7 @@ public class GuildWrapper {
 
     public GuildOptions getOptions() {
         if(options == null) options = new GuildOptions();
+        options.validateOptions();
         return options;
     }
 }

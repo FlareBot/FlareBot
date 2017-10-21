@@ -94,6 +94,7 @@ public class Events extends ListenerAdapter {
         if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = wrapper.getWelcome();
+
             if ((welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
                 if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
@@ -348,7 +349,7 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            if (cmd.deleteMessage() && guild.getOptions().getBoolean("commands.delete-command-message"))
+            if (cmd.deleteMessage() && (!guild.isBetaAccess() || guild.getOptions().getBoolean("commands.delete-command-message")))
                 delete(event.getMessage());
         });
     }

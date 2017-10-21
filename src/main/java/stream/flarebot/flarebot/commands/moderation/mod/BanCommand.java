@@ -43,7 +43,8 @@ public class BanCommand implements Command {
                     guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.BAN.toPunishment(), reason);
                     channel.sendMessage(new EmbedBuilder()
                             .setColor(Color.GREEN)
-                            .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
+                            .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28\n" +
+                                    "Reason: " + (reason != null ? reason.replaceAll("`", "'") : "No reason provided"))
                             .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
                                     "https://flarebot.stream/img/banhammer.png" : null)
                             .build()).queue();

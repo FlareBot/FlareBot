@@ -29,12 +29,16 @@ public class ApiRequester {
         return request(route, null);
     }
 
-    public static void requestAsync(ApiRoute route, JsonElement element, Callback callback) {
-        requestAsync(route, element, route.getMethod(), callback);
+    public static void requestAsync(ApiRoute route, JsonElement element) {
+        requestAsync(route, element, new EmptyCallback());
     }
 
     public static void requestAsync(ApiRoute route, Callback callback) {
         requestAsync(route, null, route.getMethod(), callback);
+    }
+
+    public static void requestAsync(ApiRoute route, JsonElement element, Callback callback) {
+        requestAsync(route, element, route.getMethod(), callback);
     }
 
     public static Response request(ApiRoute route, JsonElement element, Method method) {

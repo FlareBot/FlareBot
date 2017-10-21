@@ -7,8 +7,9 @@ import java.util.List;
 public enum CommandType {
 
     GENERAL,
-    MODERATION,
     MUSIC,
+    CONFIGURATION,
+    MODERATION,
     SECRET;
 
     public String toString() {
@@ -16,14 +17,10 @@ public enum CommandType {
     }
 
     public static CommandType[] getTypes() {
-        return new CommandType[]{GENERAL, MODERATION, MUSIC};
+        return new CommandType[]{GENERAL, MUSIC, CONFIGURATION, MODERATION};
     }
 
     public List<Command> getCommands() {
         return FlareBot.getInstance().getCommandsByType(this);
-    }
-
-    public String formattedName() {
-        return toString();
     }
 }

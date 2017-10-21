@@ -29,10 +29,11 @@ public class ForceBanCommand implements Command {
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
-                guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.BAN.toPunishment(), reason);
                 try {
                     channel.getGuild().getController().ban(user, 7, reason).queue();
-                    MessageUtils.sendSuccessMessage("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28", channel, sender);
+                    guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.BAN.toPunishment(), reason);
+                    MessageUtils.sendSuccessMessage("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28\n" +
+                            "Reason: " + (reason != null ? reason.replaceAll("`", "'") : "No reason provided"), channel, sender);
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot ban user **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
