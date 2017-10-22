@@ -1,0 +1,20 @@
+{
+  "global": {
+    "invalid_argument": "Das Argument unterstützen wir nicht!"
+  },
+  "commands": {
+    "tags": {
+      "no_tags": "Dieser Server hat noch keine Tags!\nFüge einen Tag via `{%}tags add <tag_name> <tag_nachricht>` hinzu.",
+      "guild_tags": "Server Tags",
+      "tag_does_not_exist": "Der Tag existiert nicht!",
+      "invalid": "Das scheint nicht zu stimmen ¯\\_(ツ)_/¯\nBenutze: `{%}tags add %s <tag_nachricht>`",
+      "removed_tag": "Du hast erfolgreich den Tag `%s` entfernt!",
+      "tag_exists": "Der Tag existiert schon!",
+      "added_tag": "Du hast erfolgreich den Tag `%s` hinzugefügt!",
+      "edited_tag": "Du hast erfolgreich den Tag `%s` editiert!",
+
+      "description": "Erlaubt den Usern, Texte als 'tags' zu speichern und sie bei Bedarf wieder aufzurufen",
+      "usage": "`{%}tags` - Listet die existieren Tags auf\n`{%}tags <tag_name>` - Sendet die Nachricht des Tags\n`{%}tags add <tag_name> <tag_nachricht>` - Fügt dem Server einen Tag hinzu\n`{%}tags edit <tag_name> <tag_nachricht>` - Editiert einen schon existierenden Tag\n`{%}tags remove <tag_name>` - Entfernt einen Tag vom Server"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "global": {
+    "invalid_argument": "That is an invalid argument!"
+  },
+  "commands": {
+    "tags": {
+      "no_tags": "There are currently no tags for this guild!\nAdd a tag via `{%}tags add <tag_name> <tag_message>`.",
+      "guild_tags": "Guild Tags",
+      "tag_does_not_exist": "This tag doesn't exist!",
+      "invalid": "This seems to be invalid ¯\\_(ツ)_/¯\nUsage: `{%}tags add %s <tag_message>`",
+      "removed_tag": "You successfully removed the tag `%s`!",
+      "tag_exists": "This tag already exists!",
+      "added_tag": "You successfully added the tag `%s`!",
+      "edited_tag": "You successfully edited the tag `%s`!",
+
+      "description": "Allows user to save chunks of texts as 'tags' and view them in the futur",
+      "usage": "`{%}tags` - Lists the existing tags\n`{%}tags <tag_name>` - Sends the tag message\n`{%}tags add <tag_name> <tag_message>` - Adds a tag to the guild\n`{%}tags edit <tag_name> <tag_message>` - Edits an already existing tag\n`{%}tags remove <tag_name>` - Removes a tag from the guild"
+    }
+  }
+}

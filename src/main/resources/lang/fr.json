@@ -1,0 +1,20 @@
+{
+  "global": {
+    "invalid_argument": "Cette commande est invalide"
+  },
+  "commands": {
+    "tags": {
+      "no_tags": "Il n'y a actuellement aucun 'tag'!\nAjouter un tag via `{%}tags add <nom_du_tag> <message_du_tag>`.",
+      "guild_tags": "Tags du serveur",
+      "tag_does_not_exist": "Ce tag n'existe pas!",
+      "invalid": "Cela ne fonctionne pas ¯\\_(ツ)_/¯\nUtilisation: `{%}tags add %s <message_du_tag>`",
+      "removed_tag": "Le tag`%s` a bien été supprimé!",
+      "tag_exists": "Ce tag existe déjà!",
+      "added_tag": "Le tag `%s` a bien été ajouté!",
+      "edited_tag": "Le tag `%s` a bien été modifié!",
+
+      "description": "Permet aux utilisateurs de sauvegarder des textes personnalisés en tant que 'tags' et de les voir dans le futur",
+      "usage": "`{%}tags` - Liste les tags existants\n`{%}tags <nom_du_tag>` -Envoie le message contenu dans le tag\n`{%}tags add <nom_du_tag> <message_du_tag>` - Ajoute un tag au serveur\n`{%}tags edit <nom_du_tag> <message_du_tag>` - Modifie un tag existant\n`{%}tags remove <nom_du_tag>` - Supprime un tag du serveur"
+    }
+  }
+}
