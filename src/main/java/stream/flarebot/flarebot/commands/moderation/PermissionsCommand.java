@@ -322,7 +322,8 @@ public class PermissionsCommand implements Command {
         EmbedBuilder usage = new EmbedBuilder();
         usage.setTitle("Usage");
         for (MessageEmbed.Field field : getEmbedUsage().getFields()) {
-            usage.addField(GeneralUtils.formatCommandPrefix(channel, field.getName()), GeneralUtils.formatCommandPrefix(channel, field.getValue()), field.isInline());
+            usage.addField(GeneralUtils.formatCommandPrefix(guild, field.getName()), GeneralUtils.formatCommandPrefix(
+                    guild, field.getValue()), field.isInline());
         }
         usage.setColor(Color.RED);
         channel.sendMessage(usage.build()).queue();

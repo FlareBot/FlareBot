@@ -26,6 +26,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
 
@@ -56,6 +57,7 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final Pattern prefixPattern = Pattern.compile("\\{%}");
 
     private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 
@@ -125,15 +127,26 @@ public class GeneralUtils {
     }
 
     private static char getPrefix(TextChannel channel) {
-        if (channel.getGuild() != null) {
+        if (channel != null) {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
         return FlareBot.getPrefixes().get(null);
     }
 
+    private static char getPrefix(GuildWrapper guild) {
+        if (guild != null) {
+            return FlareBot.getPrefixes().get(guild.getGuildId());
+        }
+        return FlareBot.getPrefixes().get(null);
+    }
+
+    @Deprecated
     public static String formatCommandPrefix(TextChannel channel, String usage) {
-        String prefix = String.valueOf(getPrefix(channel));
-        return usage.replaceAll("\\{%}", prefix);
+        return prefixPattern.matcher(usage).replaceAll(String.valueOf(getPrefix(channel)));
+    }
+
+    public static String formatCommandPrefix(GuildWrapper guild, String usage) {
+        return prefixPattern.matcher(usage).replaceAll(String.valueOf(getPrefix(guild)));
     }
 
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {

@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
+import stream.flarebot.flarebot.Lang;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -18,43 +19,42 @@ public class TagsCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             if (guild.getTags().isEmpty()) {
-                MessageUtils.sendErrorMessage("There are currently no tags for this guild!\n" +
-                        "Add a tag via `{%}tags add <tag_name> <tag_message>`.", channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, this, "no_tags"), channel);
                 return;
             }
-            channel.sendMessage(MessageUtils.getEmbed(sender).setTitle("Guild Tags", null).setColor(Color.CYAN)
+            channel.sendMessage(MessageUtils.getEmbed(sender).setTitle(Lang.get(guild, this, "guild_tags", guild.getL())
+                    , null).setColor(Color.CYAN)
                     .setDescription("```\n" + StringUtils.join(guild.getTags().keySet(), ", ") + "\n```")
                     .build()).queue();
         } else if (args.length == 1) {
             if (guild.getTags().containsKey(args[0].toLowerCase()))
                 channel.sendMessage(guild.getTags().get(args[0].toLowerCase())).queue();
             else
-                MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_does_not_exist", guild.getL()), channel);
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("add")) {
-                MessageUtils.sendErrorMessage("This seems to be invalid ¯\\_(ツ)_/¯\n"
-                        + "Usage: `{%}tags add " + args[1] + " <tag_message>`", channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, this, "invalid", guild.getL(), args[1]), channel);
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
                     guild.getTags().remove(args[1]);
-                    MessageUtils.sendSuccessMessage("You successfully removed the tag `" + args[1] + "`!",
+                    MessageUtils.sendSuccessMessage(Lang.get(guild, this, "removed_tag", guild.getL(), args[1]),
                             channel, sender);
                 } else
-                    MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
+                    MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_does_not_exist", guild.getL()), channel);
             } else
-                MessageUtils.sendErrorMessage("That is an invalid argument!", channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, "global.invalid_argument", guild.getL()), channel);
         } else {
             if (args[0].equalsIgnoreCase("add")) {
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
-                    MessageUtils.sendErrorMessage("This tag already exists!", channel);
+                    MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_exists", guild.getL()), channel);
                     return;
                 }
 
                 guild.getTags().put(args[1].toLowerCase(), MessageUtils.getMessage(args, 2));
-                MessageUtils.sendSuccessMessage("You successfully added the tag `" + args[1] + "`!", channel,
+                MessageUtils.sendSuccessMessage(Lang.get(guild, this, "added_tag", guild.getL(), args[1]), channel,
                         sender);
             } else
-                MessageUtils.sendErrorMessage("That is an invalid argument!", channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, "global.invalid_argument", guild.getL()), channel);
         }
     }
 

@@ -295,6 +295,7 @@ public class FlareBot {
 
         latch = new CountDownLatch(1);
         events = new Events(this);
+
         //tracker = new AutoModTracker();
         LOGGER.info("Starting builders");
         try {
@@ -312,6 +313,10 @@ public class FlareBot {
                     Thread.sleep(5000); // 5 second backoff
                 }
             }
+            LOGGER.info("Built JDA");
+
+            new Lang().initLang();
+
             prefixes = new Prefixes();
             commands = ConcurrentHashMap.newKeySet();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));

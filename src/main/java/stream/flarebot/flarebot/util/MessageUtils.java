@@ -308,16 +308,16 @@ public class MessageUtils {
             }
         }
         sb.append("```").append(lang).append("\n");
-        String formatLine = "|";
+        StringBuilder formatLine = new StringBuilder("|");
         for (int width : widths) {
-            formatLine += " %-" + width + "s |";
+            formatLine.append(" %-").append(width).append("s |");
         }
-        formatLine += "\n";
+        formatLine.append("\n");
         sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        sb.append(String.format(formatLine, headers.toArray()));
+        sb.append(String.format(formatLine.toString(), headers.toArray()));
         sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
         for (java.util.List<String> row : table) {
-            sb.append(String.format(formatLine, row.toArray()));
+            sb.append(String.format(formatLine.toString(), row.toArray()));
         }
         if (footer != null) {
             sb.append(appendSeparatorLine("+", "+", "+", padding, widths));

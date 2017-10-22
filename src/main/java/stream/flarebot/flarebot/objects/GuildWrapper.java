@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Lang;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
@@ -39,6 +40,8 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+
+    private Lang.Locale l;
 
     // oooo special!
     private boolean betaAccess = false;
@@ -244,5 +247,14 @@ public class GuildWrapper {
     public Map<String, String> getTags() {
         if (tags == null) tags = new ConcurrentHashMap<>();
         return tags;
+    }
+
+    public Lang.Locale getL() {
+        if(l == null) l = Lang.Locale.ENGLISH_UK;
+        return l;
+    }
+
+    public void setL(Lang.Locale l) {
+        this.l = l;
     }
 }
