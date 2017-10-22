@@ -35,6 +35,10 @@ public class PlaylistCommand implements Command {
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
+                    if (!this.getPermissions(channel).hasPermission(member, "flarebot.playlist.clear")) {
+                        MessageUtils.sendErrorMessage("You need the `flarebot.playlist.clear` permission to do this!", channel, sender);
+                        return;
+                    }
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
                     channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {

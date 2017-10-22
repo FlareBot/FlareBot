@@ -120,6 +120,7 @@ public class Events extends ListenerAdapter {
                 }
             } else welcome.setGuildEnabled(false);
         }
+        if (event.getMember().getUser().isBot()) return;
         if (!wrapper.getAutoAssignRoles().isEmpty()) {
             Set<String> autoAssignRoles = wrapper.getAutoAssignRoles();
             List<Role> roles = new ArrayList<>();
