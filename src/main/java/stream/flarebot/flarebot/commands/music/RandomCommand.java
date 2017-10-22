@@ -58,6 +58,6 @@ public class RandomCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"SHOWMEWHATYOUGOT"};
+        return new String[]{"SHOWMEWHATYOUGOT"};
     }
 }

@@ -26,7 +26,7 @@ public class SongCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
-            if(track.getTrack().getInfo().isStream)
+            if (track.getTrack().getInfo().isStream)
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("Current song", getLink(track), false)
                         .addField("Amount Played", "Issa livestream ;)", false)
@@ -34,12 +34,12 @@ public class SongCommand implements Command {
                         .queue();
             else
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .addField("Current song", getLink(track), false)
-                    .addField("Amount Played", GeneralUtils.getProgressBar(track), true)
-                    .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()),
-                            GeneralUtils.formatDuration(track.getTrack().getDuration())), false)
-                    .build())
-                    .queue();
+                        .addField("Current song", getLink(track), false)
+                        .addField("Amount Played", GeneralUtils.getProgressBar(track), true)
+                        .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()),
+                                GeneralUtils.formatDuration(track.getTrack().getDuration())), false)
+                        .build())
+                        .queue();
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
                     .addField("Current song", "**No song playing right now!**", false)

@@ -109,7 +109,7 @@ public class WelcomeCommand implements Command {
                                 } else if (args[2].equalsIgnoreCase("remove")) {
                                     if (args.length == 4) {
                                         int id = GeneralUtils.getInt(args[3], 0);
-                                        if(id >= guild.getWelcome().getGuildMessages().size()) {
+                                        if (id >= guild.getWelcome().getGuildMessages().size()) {
                                             MessageUtils.sendErrorMessage("Invalid index!", channel);
                                             return;
                                         }

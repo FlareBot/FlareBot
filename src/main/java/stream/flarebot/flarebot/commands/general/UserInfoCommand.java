@@ -102,6 +102,6 @@ public class UserInfoCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"stalk"};
+        return new String[]{"stalk"};
     }
 }

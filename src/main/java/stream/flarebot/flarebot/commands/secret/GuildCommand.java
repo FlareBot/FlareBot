@@ -49,12 +49,12 @@ public class GuildCommand implements Command {
                     }
                     wrapper = FlareBotManager.getInstance().getGuild(args[1]);
                 }
-                Guild g = guild.getGuild();
-                    
+                Guild g = wrapper.getGuild();
+
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
                         .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
                 embedBuilder.setTitle(g.getName(), null).addField("Beta", String.valueOf(wrapper.getBetaAccess()), true)
-                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
+                        .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
                 channel.sendMessage(embedBuilder.build()).queue();
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
@@ -97,7 +97,6 @@ public class GuildCommand implements Command {
                             .append('\u200B').build()).queue();
                 }
             }
-            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

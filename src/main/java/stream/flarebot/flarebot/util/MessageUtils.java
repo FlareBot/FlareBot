@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
@@ -103,7 +103,7 @@ public class MessageUtils {
         try {
             Response response = WebUtils.post("https://hastebin.com/documents", WebUtils.APPLICATION_JSON, trace);
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            if(response.body() != null) {
+            if (response.body() != null) {
                 String key = new JSONObject(response.body().string()).getString("key");
                 return "https://hastebin.com/" + key;
             } else {
@@ -204,11 +204,11 @@ public class MessageUtils {
     public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.INFO, message, channel, sender);
     }
-    
+
     public static Message sendModMessage(String message, TextChannel channel) {
         return sendMessage(MessageType.MODERATION, message, channel);
     }
-    
+
     public static Message sendModMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.MODERATION, message, channel, sender);
     }
@@ -247,7 +247,7 @@ public class MessageUtils {
     }
 
     public static void autoDeleteMessage(Message message, long delay) {
-        new FlarebotTask("AutoDeleteTask") {
+        new FlareBotTask("AutoDeleteTask") {
             @Override
             public void run() {
                 message.delete().queue();
@@ -257,7 +257,7 @@ public class MessageUtils {
 
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
         Message msg = channel.sendMessage(message).complete();
-        new FlarebotTask("AutoDeleteTask") {
+        new FlareBotTask("AutoDeleteTask") {
             @Override
             public void run() {
                 msg.delete().queue();

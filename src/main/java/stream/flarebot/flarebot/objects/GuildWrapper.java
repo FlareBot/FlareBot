@@ -55,6 +55,10 @@ public class GuildWrapper {
         return this.guildId;
     }
 
+    public long getGuildIdLong() {
+        return Long.parseLong(this.guildId);
+    }
+
     public AutoModGuild getAutoModGuild() {
         return this.autoModGuild;
     }
@@ -89,7 +93,7 @@ public class GuildWrapper {
         return permissions;
     }
 
-    protected void setPermissions(PerGuildPermissions permissions) {
+    public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
     }
 
@@ -203,7 +207,7 @@ public class GuildWrapper {
     }
 
     public ReportManager getReportManager() {
-        if(reportManager == null) reportManager = new ReportManager();
+        if (reportManager == null) reportManager = new ReportManager();
         return reportManager;
     }
 
@@ -212,11 +216,11 @@ public class GuildWrapper {
     }
 
     public List<String> getUserWarnings(User user) {
-        return warnings.get(user.getId());
+        return warnings.getOrDefault(user.getId(), new ArrayList<>());
     }
 
     public void addWarning(User user, String reason) {
-        List<String> warningsList = warnings.getOrDefault(user.getId(), new ArrayList<>());
+        List<String> warningsList = getUserWarnings(user);
         warningsList.add(reason);
         warnings.put(user.getId(), warningsList);
     }
