@@ -118,13 +118,13 @@ public class ReportsCommand implements Command {
                             ReportStatus old = guild.getReportManager().getReport(id).getStatus();
                             guild.getReportManager().getReport(id).setStatus(status);
                             MessageUtils.sendSuccessMessage(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage()), channel, sender);
-                            EmbedBuilder eb = new EmbedBuilder();
-                            eb.setTitle("Report edited");
-                            eb.setColor(Color.WHITE);
-                            eb.addField("Report ID", String.valueOf(id), true);
-                            eb.addField("Old Status", old.getMessage(), true);
-                            eb.addField("New Status", guild.getReportManager().getReport(id).getStatus().getMessage(), true);
-                            eb.addField("Responsible moderator", sender.getAsMention(), true);
+                            EmbedBuilder eb = new EmbedBuilder()
+                            .setTitle("Report edited")
+                            .setColor(Color.WHITE)
+                            .addField("Report ID", String.valueOf(id), true)
+                            .addField("Old Status", old.getMessage(), true)
+                            .addField("New Status", guild.getReportManager().getReport(id).getStatus().getMessage(), true)
+                            .addField("Responsible moderator", sender.getAsMention(), true);
                             guild.getAutoModConfig().postToModLog(eb.build());
                         }
                     } else {
