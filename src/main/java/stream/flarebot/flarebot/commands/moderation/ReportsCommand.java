@@ -14,7 +14,7 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -119,12 +119,12 @@ public class ReportsCommand implements Command {
                             guild.getReportManager().getReport(id).setStatus(status);
                             MessageUtils.sendSuccessMessage(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage()), channel, sender);
                             EmbedBuilder eb = new EmbedBuilder()
-                            .setTitle("Report edited")
-                            .setColor(Color.WHITE)
-                            .addField("Report ID", String.valueOf(id), true)
-                            .addField("Old Status", old.getMessage(), true)
-                            .addField("New Status", guild.getReportManager().getReport(id).getStatus().getMessage(), true)
-                            .addField("Responsible moderator", sender.getAsMention(), true);
+                                    .setTitle("Report edited")
+                                    .setColor(Color.WHITE)
+                                    .addField("Report ID", String.valueOf(id), true)
+                                    .addField("Old Status", old.getMessage(), true)
+                                    .addField("New Status", guild.getReportManager().getReport(id).getStatus().getMessage(), true)
+                                    .addField("Responsible moderator", sender.getAsMention(), true);
                             guild.getAutoModConfig().postToModLog(eb.build());
                         }
                     } else {
