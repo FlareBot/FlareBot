@@ -6,6 +6,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.ModlogAction;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
@@ -49,6 +51,8 @@ public class ReportCommand implements Command {
             }
 
             guild.getReportManager().report(report);
+
+            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(ModlogAction.REPORT_CREATE), MessageUtils.getMessage(args, 1));
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {

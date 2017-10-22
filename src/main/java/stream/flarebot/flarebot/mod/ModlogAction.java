@@ -13,7 +13,9 @@ public enum ModlogAction {
     BAN,
     UNBAN,
 
-    WARN;
+    WARN,
+
+    REPORT_CREATE;
 
     public Punishment toPunishment() {
         return new Punishment(this);
