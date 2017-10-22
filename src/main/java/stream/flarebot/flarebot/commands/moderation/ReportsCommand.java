@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.*;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -114,8 +115,17 @@ public class ReportsCommand implements Command {
                         if (guild.getReportManager().getReport(id).getStatus().equals(status)) {
                             MessageUtils.sendInfoMessage("Current status is: **" + status.getMessage() + "**", channel, sender);
                         } else {
+                            ReportStatus old = guild.getReportManager().getReport(id).getStatus();
                             guild.getReportManager().getReport(id).setStatus(status);
                             MessageUtils.sendSuccessMessage(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage()), channel, sender);
+                            EmbedBuilder eb = new EmbedBuilder();
+                            eb.setTitle("Report edited");
+                            eb.setColor(Color.WHITE);
+                            eb.addField("Report ID", String.valueOf(id), true);
+                            eb.addField("Old Status", old.getMessage(), true);
+                            eb.addField("New Status", guild.getReportManager().getReport(id).getStatus().getMessage(), true);
+                            eb.addField("Responsible moderator", sender.getAsMention(), true);
+                            guild.getAutoModConfig().postToModLog(eb.build());
                         }
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
