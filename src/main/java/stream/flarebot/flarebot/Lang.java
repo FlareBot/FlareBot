@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot;
 
-import com.sun.istack.internal.NotNull;
 import io.github.binaryoverload.JSONConfig;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.objects.GuildWrapper;
