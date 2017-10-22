@@ -43,9 +43,7 @@ public class Punishment {
         eb.setTitle(getName());
         eb.setColor(Color.WHITE);
         eb.addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true);
-        if(action == ModlogAction.REPORT_CREATE)
-            eb.addField("Responsible", responsible.getAsMention(), true);
-        if (responsible != null && action != ModlogAction.REPORT_CREATE)
+        if (responsible != null)
             eb.addField("Responsible moderator", responsible.getAsMention(), true);
         if ((responsible != null || reason != null) && showReason)
             eb.addField("Reason", (reason != null ? reason : "No reason given!"), true);
