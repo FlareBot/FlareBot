@@ -57,7 +57,7 @@ public class PruneCommand implements Command {
                 return;
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override

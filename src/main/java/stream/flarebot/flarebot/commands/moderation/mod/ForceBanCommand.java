@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.ModlogAction;
-import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -41,7 +40,7 @@ public class ForceBanCommand implements Command {
                 MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel);
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 

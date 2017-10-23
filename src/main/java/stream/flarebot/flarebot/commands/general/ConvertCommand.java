@@ -72,7 +72,7 @@ public class ConvertCommand implements Command {
                         "Please join the support guild: " + FlareBot.INVITE_URL, e, channel);
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override

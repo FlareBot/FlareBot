@@ -22,7 +22,7 @@ public class AutoModCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
             return;
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("config")) {
@@ -77,7 +77,7 @@ public class AutoModCommand implements Command {
                             .setDescription("Reset the punishments back to default")
                             .build()).queue();
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 //TODO: Walshy - Add this to usage when finished

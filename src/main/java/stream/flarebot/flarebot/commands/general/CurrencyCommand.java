@@ -66,7 +66,7 @@ public class CurrencyCommand implements Command {
                 }
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override

@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -17,24 +16,23 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 import java.util.Iterator;
-import java.util.stream.Collectors;
 
 public class SelfAssignCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("add")) {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 } else {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender), 5000, channel);
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 } else {
                     MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender),
                             5000, channel);

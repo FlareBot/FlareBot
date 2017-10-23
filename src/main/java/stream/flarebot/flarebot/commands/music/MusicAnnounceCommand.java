@@ -61,7 +61,7 @@ public class MusicAnnounceCommand implements Command {
                         "WHERE guild_id = ?").bind().setString(0, channel.getGuild().getId())));
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 

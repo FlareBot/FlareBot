@@ -55,7 +55,7 @@ public class WarningsCommand implements Command {
                 channel.sendMessage(eb.build()).queue();
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 

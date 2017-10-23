@@ -26,7 +26,7 @@ public class ReportsCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
@@ -64,7 +64,7 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else if (args[0].equalsIgnoreCase("view")) {
                 if (args.length == 2) {
@@ -88,7 +88,7 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length >= 3) {
@@ -121,10 +121,10 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else {
-                MessageUtils.sendUsage(this, channel, sender);
+                MessageUtils.sendUsage(this, channel, sender, args);
             }
         }
 

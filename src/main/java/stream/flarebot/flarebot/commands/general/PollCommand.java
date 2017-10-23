@@ -299,11 +299,11 @@ public class PollCommand implements Command {
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("help")) {
-                MessageUtils.sendUsage(this, channel, sender);
+                MessageUtils.sendUsage(this, channel, sender, args);
                 return;
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     private Poll getPollById(String idText, List<Poll> polls, TextChannel channel) {

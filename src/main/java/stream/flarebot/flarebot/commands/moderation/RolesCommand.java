@@ -60,7 +60,7 @@ public class RolesCommand implements Command {
             sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
             MessageUtils.sendInfoMessage(sb.toString(), channel, sender);
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 

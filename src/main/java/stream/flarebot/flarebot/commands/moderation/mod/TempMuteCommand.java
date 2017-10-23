@@ -20,7 +20,7 @@ public class TempMuteCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length < 2) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             User user = GeneralUtils.getUser(args[0], guild.getGuildId());
             if (user == null) {
