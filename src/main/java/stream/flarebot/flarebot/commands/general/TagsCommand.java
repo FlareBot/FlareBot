@@ -22,39 +22,39 @@ public class TagsCommand implements Command {
                 MessageUtils.sendErrorMessage(Lang.get(guild, this, "no_tags"), channel);
                 return;
             }
-            channel.sendMessage(MessageUtils.getEmbed(sender).setTitle(Lang.get(guild, this, "guild_tags", guild.getL())
-                    , null).setColor(Color.CYAN)
-                    .setDescription("```\n" + StringUtils.join(guild.getTags().keySet(), ", ") + "\n```")
+            channel.sendMessage(MessageUtils.getEmbed(sender).setTitle(Lang.get(guild, this, "guild_tags"), null)
+                    .setColor(Color.CYAN).setDescription("```\n" + StringUtils.join(guild.getTags().keySet(), ", ")
+                            + "\n```")
                     .build()).queue();
         } else if (args.length == 1) {
             if (guild.getTags().containsKey(args[0].toLowerCase()))
                 channel.sendMessage(guild.getTags().get(args[0].toLowerCase())).queue();
             else
-                MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_does_not_exist", guild.getL()), channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_does_not_exist"), channel);
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("add")) {
-                MessageUtils.sendErrorMessage(Lang.get(guild, this, "invalid", guild.getL(), args[1]), channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, this, "invalid", args[1]), channel);
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
                     guild.getTags().remove(args[1]);
-                    MessageUtils.sendSuccessMessage(Lang.get(guild, this, "removed_tag", guild.getL(), args[1]),
+                    MessageUtils.sendSuccessMessage(Lang.get(guild, this, "removed_tag", args[1]),
                             channel, sender);
                 } else
-                    MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_does_not_exist", guild.getL()), channel);
+                    MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_does_not_exist"), channel);
             } else
-                MessageUtils.sendErrorMessage(Lang.get(guild, "global.invalid_argument", guild.getL()), channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, "global.invalid_argument"), channel);
         } else {
             if (args[0].equalsIgnoreCase("add")) {
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
-                    MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_exists", guild.getL()), channel);
+                    MessageUtils.sendErrorMessage(Lang.get(guild, this, "tag_exists"), channel);
                     return;
                 }
 
                 guild.getTags().put(args[1].toLowerCase(), MessageUtils.getMessage(args, 2));
-                MessageUtils.sendSuccessMessage(Lang.get(guild, this, "added_tag", guild.getL(), args[1]), channel,
+                MessageUtils.sendSuccessMessage(Lang.get(guild, this, "added_tag", args[1]), channel,
                         sender);
             } else
-                MessageUtils.sendErrorMessage(Lang.get(guild, "global.invalid_argument", guild.getL()), channel);
+                MessageUtils.sendErrorMessage(Lang.get(guild, "global.invalid_argument"), channel);
         }
     }
 
