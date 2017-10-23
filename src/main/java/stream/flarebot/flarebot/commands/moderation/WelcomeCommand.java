@@ -45,7 +45,7 @@ public class WelcomeCommand implements Command {
                         if (args.length >= 3) {
                             if (args.length == 3 || args.length == 4) {
                                 if (args[2].equalsIgnoreCase("list")) {
-                                    int page = args.length == 3 ? 1 : Integer.valueOf(args[3]);
+                                    int page = args.length == 3 ? 1 : GeneralUtils.getInt(args[3], 1);
                                     List<String> messages = guild.getWelcome().getDmMessages();
                                     sendWelcomeTable(messages, page, channel);
                                     return;
@@ -102,13 +102,17 @@ public class WelcomeCommand implements Command {
                         if (args.length >= 3) {
                             if (args.length == 3 || args.length == 4) {
                                 if (args[2].equalsIgnoreCase("list")) {
-                                    int page = args.length == 3 ? 1 : Integer.valueOf(args[3]);
+                                    int page = args.length == 3 ? 1 : GeneralUtils.getInt(args[3], 1);
                                     List<String> messages = guild.getWelcome().getGuildMessages();
                                     sendWelcomeTable(messages, page, channel);
                                     return;
                                 } else if (args[2].equalsIgnoreCase("remove")) {
                                     if (args.length == 4) {
-                                        int id = Integer.valueOf(args[3]);
+                                        int id = GeneralUtils.getInt(args[3], 0);
+                                        if(id >= guild.getWelcome().getGuildMessages().size()) {
+                                            MessageUtils.sendErrorMessage("Invalid index!", channel);
+                                            return;
+                                        }
                                         String welcome = guild.getWelcome().getGuildMessages().get(id);
                                         guild.getWelcome().getGuildMessages().remove(id);
                                         channel.sendMessage("Removed welcome message `" + welcome + "`").queue();

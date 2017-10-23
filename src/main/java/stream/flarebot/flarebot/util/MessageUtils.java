@@ -204,6 +204,14 @@ public class MessageUtils {
     public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.INFO, message, channel, sender);
     }
+    
+    public static Message sendModMessage(String message, TextChannel channel) {
+        return sendMessage(MessageType.MODERATION, message, channel);
+    }
+    
+    public static Message sendModMessage(String message, TextChannel channel, User sender) {
+        return sendMessage(MessageType.MODERATION, message, channel, sender);
+    }
 
     public static void editMessage(EmbedBuilder embed, Message message) {
         editMessage(message.getRawContent(), embed, message);

@@ -23,6 +23,7 @@ import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportMessage;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
@@ -73,9 +74,9 @@ public class GeneralUtils {
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
         StringBuilder builder = new StringBuilder("The last 5 messages by the reported user: ```\n");
-        for (Message m : report.getMessages()) {
-            builder.append("[" + m.getCreationTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
-                    .append(GeneralUtils.truncate(100, m.getContent()))
+        for (ReportMessage m : report.getMessages()) {
+            builder.append("[" + m.getTime().toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
+                    .append(GeneralUtils.truncate(100, m.getMessage()))
                     .append("\n");
         }
         builder.append("```");
@@ -218,7 +219,10 @@ public class GeneralUtils {
                 if (guildId == null || guildId.isEmpty()) {
                     tmp = FlareBot.getInstance().getUserById(l);
                 } else {
-                    tmp = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l).getUser();
+                    Member temMember = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l);
+                    if (temMember != null) {
+                        tmp = temMember.getUser();
+                    }
                 }
                 if (tmp != null) {
                     return tmp;
@@ -343,5 +347,13 @@ public class GeneralUtils {
         e.printStackTrace(printWriter);
         printWriter.close();
         return writer.toString();
+    }
+    
+    public static int getInt(String s, int defaultValue) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }

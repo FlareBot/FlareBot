@@ -26,12 +26,18 @@ public class KickCommand implements Command {
                     MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
                     return;
                 }
+                Member target = guild.getGuild().getMember(user);
+                if(target == null) {
+                    MessageUtils.sendErrorMessage("That user is not on this server therefor cannot be kicked!", 
+                        channel, sender);
+                    return;
+                }
                 String reason = null;
                 if (args.length >= 2)
                     reason = MessageUtils.getMessage(args, 1);
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.KICK), reason);
                 try {
-                    channel.getGuild().getController().kick(channel.getGuild().getMember(user), reason).queue();
+                    channel.getGuild().getController().kick(target, reason).queue();
+                    guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.KICK), reason);
                     MessageUtils.sendSuccessMessage(user.getName() + " has been kicked from the server!", channel, sender);
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot kick player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);

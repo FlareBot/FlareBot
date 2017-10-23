@@ -15,14 +15,6 @@ public enum ReportStatus {
         this.message = message;
     }
 
-    public static ReportStatus get(int id) {
-        for (ReportStatus status : ReportStatus.values()) {
-            if (status.ordinal() == id)
-                return status;
-        }
-        return null;
-    }
-
     public String getMessage() {
         return this.message;
     }

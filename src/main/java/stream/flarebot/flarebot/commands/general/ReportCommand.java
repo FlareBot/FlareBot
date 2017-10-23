@@ -8,11 +8,14 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,8 +39,14 @@ public class ReportCommand implements Command {
                     .stream()
                     .filter(m -> m.getAuthor().equals(user))
                     .collect(Collectors.toList());
-            if (messages.size() > 0)
-                report.setMessages(messages.subList(0, Math.min(5, messages.size() - 1)));
+            if (messages.size() > 0) {
+                messages = messages.subList(0, Math.min(5, messages.size() - 1));
+                List<ReportMessage> reportMessages = new ArrayList<>();
+                for (Message userMessage: messages) {
+                    reportMessages.add(new ReportMessage(userMessage.getContent(), Timestamp.valueOf(userMessage.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())));
+                }
+                report.setMessages(reportMessages);
+            }
 
             guild.getReportManager().report(report);
 
