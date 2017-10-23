@@ -196,7 +196,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        if (event.getMember().getUser().getId() == event.getJDA().getSelfUser().getId()) {
+        if (event.getMember().getUser().getId().equals(event.getJDA().getSelfUser().getId())) {
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
             }
