@@ -77,23 +77,23 @@ public class UsageParser {
 
 
     public enum Symbol {
-        SINGLE_SUB_COMMAND("^[A-Za-z]+$"),
-        MULTIPLE_SUB_COMMAND("^[A-z]+(\\|+[A-z]+)+$"),
-        REQUIRED_ARG("^<.+>$"),
-        OPTIONAL_ARG("^\\[.+\\]$");
+        SINGLE_SUB_COMMAND(Pattern.compile("^[A-Za-z]+$")),
+        MULTIPLE_SUB_COMMAND(Pattern.compile("^[A-z]+(\\|+[A-z]+)+$")),
+        REQUIRED_ARG(Pattern.compile("^<.+>$")),
+        OPTIONAL_ARG(Pattern.compile("^\\[.+\\]$"));
 
-        private String regex;
+        private Pattern regex;
 
-        Symbol(String regex) {
+        Symbol(Pattern regex) {
             this.regex = regex;
         }
 
-        public String getRegex() {
+        public Pattern getRegex() {
             return regex;
         }
 
         public boolean matches(String arg) {
-            return arg.matches(regex);
+            return regex.matcher(arg).matches();
         }
 
     }
