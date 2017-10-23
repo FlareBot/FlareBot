@@ -63,7 +63,7 @@ public class UsageParser {
         return strings;
     }
 
-    public static Map<Integer, Pair<Symbol, String>> findSymbols(String string) {
+    private static Map<Integer, Pair<Symbol, String>> findSymbols(String string) {
         Map<Integer, Pair<Symbol, String>> map = new HashMap<>();
         int i = 0;
         for (String s : string.split(" ")) {
