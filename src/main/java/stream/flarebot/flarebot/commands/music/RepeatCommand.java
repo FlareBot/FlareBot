@@ -46,7 +46,7 @@ public class RepeatCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}repeat";
+        return "`{%}repeat` - Repeats the current song";
     }
 
     @Override

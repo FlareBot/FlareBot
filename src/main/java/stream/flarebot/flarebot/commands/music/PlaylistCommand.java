@@ -138,6 +138,7 @@ public class PlaylistCommand implements Command {
                 "To make it not send a DM do `playlist here`";
     }
 
+    //TODO: Add alllllll the stuff here
     @Override
     public String getUsage() {
         return "{%}playlist [option]\n" +

@@ -78,7 +78,7 @@ public class PlayCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}play [searchTerm/URL]` - Resumes the playlist [or searches for a song on YouTube]";
+        return "`{%}play [search_term/URL]` - Resumes the playlist [or searches for a song on YouTube]";
     }
 
     @Override

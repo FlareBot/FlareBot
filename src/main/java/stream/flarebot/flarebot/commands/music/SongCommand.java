@@ -70,7 +70,7 @@ public class SongCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}song";
+        return "`{%}song` - Displays info about the currently playing song";
     }
 
     @Override

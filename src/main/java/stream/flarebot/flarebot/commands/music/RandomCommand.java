@@ -48,7 +48,7 @@ public class RandomCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}random [amount]";
+        return "`{%}random [amount]`";
     }
 
     @Override

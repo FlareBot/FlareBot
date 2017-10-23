@@ -163,8 +163,9 @@ public class SkipCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}skip [yes/no]\n" +
-                "{%}skip force";
+        return "`{%}skip` - Starts a vote to skip the song\n" +
+                "`{%}skip yes|no` - Vote yes or no to skip the current song\n" +
+                "`{%}skip force` - Forces FlareBot to skip the current song";
     }
 
     @Override

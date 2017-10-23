@@ -35,7 +35,7 @@ public class ShuffleCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}shuffle";
+        return "`{%}shuffle` - Shuffles order of the songs";
     }
 
     @Override
