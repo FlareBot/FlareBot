@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.util;
 
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
 import stream.flarebot.flarebot.commands.general.TagsCommand;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.regex.Pattern;
 public class UsageParser {
 
     public static void test(String... ss) {
-        for (String s : matchUsage(new TagsCommand(), ss)) {
+        for (String s : matchUsage(new CommandUsageCommand(), ss)) {
             FlareBot.getInstance().getImportantLogChannel().sendMessage(s).queue();
         }
     }
@@ -28,7 +29,7 @@ public class UsageParser {
         }
         for (String usage : c.getUsage().split("\n")) {
             Pattern p = Pattern.compile("`.+`");
-            String symbols = usage.replace("{%}" + c.getCommand(), "").trim();
+            String symbols = usage.replace("{%}" + c.getCommand(), "").trim(); // Strip command out
             Matcher m = p.matcher(symbols);
             if (m.find()) {
                 symbols = m.group().replace("`", "").trim();
@@ -37,15 +38,15 @@ public class UsageParser {
             }
             Map<Integer, Pair<Symbol, String>> map = findSymbols(symbols);
             boolean applicable = false;
-            if (args.length > map.size()) {
+            if (args.length > map.size()) { // If there are more args than symbols it wouldn't be applicable
                 continue;
             }
             for (Map.Entry<Integer, Pair<Symbol, String>> entry : map.entrySet()) {
                 if (entry.getValue().getKey() == Symbol.SINGLE_SUB_COMMAND) {
                     if (args[entry.getKey()].equalsIgnoreCase(entry.getValue().getValue())) {
-                        applicable = true;
+                        applicable = true; // Sub command matches arg
                     } else {
-                        break;
+                        break; // We don't want to check any other args if this fails
                     }
                 } else if (entry.getValue().getKey() == Symbol.MULTIPLE_SUB_COMMAND) {
                     for (String cmd : entry.getValue().getValue().split("\\|")) {
@@ -54,7 +55,7 @@ public class UsageParser {
                             break;
                         }
                     }
-                    if (!applicable) break;
+                    if (!applicable) break; // CHeck nothing else if this fails
                 } else {
                     applicable = true;
                 }
