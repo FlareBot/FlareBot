@@ -206,7 +206,8 @@ public class Events extends ListenerAdapter {
                 UpdateCommand.update(true, null);
             }
         } else {
-            if (event.getChannelLeft().getMembers().contains(event.getGuild().getSelfMember()) && (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
+            if (event.getChannelLeft().getMembers().contains(event.getGuild().getSelfMember()) &&
+                    (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
                     .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size())) {
                 event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
             }
