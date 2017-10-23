@@ -1,11 +1,14 @@
 package stream.flarebot.flarebot.util;
 
+import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
+import stream.flarebot.flarebot.commands.general.PollCommand;
 import stream.flarebot.flarebot.commands.general.TagsCommand;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -16,18 +19,20 @@ import java.util.regex.Pattern;
 public class UsageParser {
 
     public static void test(String... ss) {
-        for (String s : matchUsage(new CommandUsageCommand(), ss)) {
+        for (String s : matchUsage(new PollCommand(), ss)) {
             FlareBot.getInstance().getImportantLogChannel().sendMessage(s).queue();
         }
     }
 
     public static List<String> matchUsage(Command c, String[] args) {
         List<String> strings = new ArrayList<>();
+        String[] usages = c.getUsage().split("\n");
+        usages = Arrays.stream(usages).filter(StringUtils::isNotEmpty).toArray(String[]::new);
         if (args.length == 0) {
-            Collections.addAll(strings, c.getUsage().split("\n"));
+            Collections.addAll(strings, usages);
             return strings;
         }
-        for (String usage : c.getUsage().split("\n")) {
+        for (String usage : usages) {
             Pattern p = Pattern.compile("`.+`");
             String symbols = usage.replace("{%}" + c.getCommand(), "").trim(); // Strip command out
             Matcher m = p.matcher(symbols);
@@ -46,18 +51,27 @@ public class UsageParser {
                     if (args[entry.getKey()].equalsIgnoreCase(entry.getValue().getValue())) {
                         applicable = true; // Sub command matches arg
                     } else {
+                        applicable = false;
                         break; // We don't want to check any other args if this fails
                     }
                 } else if (entry.getValue().getKey() == Symbol.MULTIPLE_SUB_COMMAND) {
+                    boolean valid = false;
                     for (String cmd : entry.getValue().getValue().split("\\|")) {
                         if (args[entry.getKey()].equalsIgnoreCase(cmd)) {
                             applicable = true;
+                            valid = true;
                             break;
                         }
                     }
-                    if (!applicable) break; // CHeck nothing else if this fails
+                    if (!valid) {
+                        applicable = false;
+                        break; // CHeck nothing else if this fails
+                    }
                 } else {
                     applicable = true;
+                }
+                if (!(args.length - 1 >= entry.getKey())) {
+                    break;
                 }
             }
 
