@@ -273,10 +273,10 @@ public class GeneralUtils {
                 int distance = LEVENSHTEIN_DISTANCE;
                 for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.getInstance().getGuild(guildId).getSelfAssignRoles()
                         .contains(role1.getId())).collect(Collectors.toList())) {
-                    int currentDistance = StringUtils.getLevenshteinDistance(role.getName(), s);
+                    int currentDistance = StringUtils.getLevenshteinDistance(role1.getName(), s);
                     if (currentDistance < distance) {
                         distance = currentDistance;
-                        closest = role.getName();
+                        closest = role1.getName();
                     }
                 }
                 MessageUtils.sendErrorMessage("That role does not exist! "

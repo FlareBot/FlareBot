@@ -60,6 +60,7 @@ public class SelfAssignCommand implements Command {
                 channel.sendMessage(base.toString()).queue();
             } else {
                 Role role = GeneralUtils.getRole(args[0], guild.getGuildId(), channel);
+                if(role == null) return;
 
                 if (guild.getSelfAssignRoles().contains(role.getId())) {
                     handleRole(member, channel, role.getIdLong());
@@ -69,7 +70,7 @@ public class SelfAssignCommand implements Command {
                             channel);
                 }
             }
-        } else if (args.length >= 2) {
+        } else {
             if (args[0].equalsIgnoreCase("add")) {
                 if (!guild.getPermissions()
                         .hasPermission(member, "flarebot.selfassign.admin")) {
@@ -84,8 +85,6 @@ public class SelfAssignCommand implements Command {
                     channel.sendMessage(new EmbedBuilder()
                             .setDescription("Added `" + role.getName() + "` to the self-assign list!").build())
                             .queue();
-                } else {
-                    MessageUtils.sendErrorMessage("That role does not exist!", channel);
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (!guild.getPermissions()
@@ -100,11 +99,10 @@ public class SelfAssignCommand implements Command {
                     channel.sendMessage(new EmbedBuilder()
                             .setDescription("Removed `" + role.getName() + "` from the self-assign list!").build())
                             .queue();
-                } else {
-                    MessageUtils.sendErrorMessage("That role does not exist!", channel);
                 }
             } else {
                 Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
+                if(role == null) return;
                 // TODO: Move these to Long
                 if (guild.getSelfAssignRoles().contains(role.getId())) {
                     handleRole(member, channel, role.getIdLong());
@@ -113,15 +111,6 @@ public class SelfAssignCommand implements Command {
                                     .getGuild()) + "selfassign list` to see what you can assign to yourself!",
                             channel);
                 }
-            }
-        } else {
-            Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
-            if (guild.getSelfAssignRoles().contains(role.getId())) {
-                handleRole(member, channel, role.getIdLong());
-            } else {
-                MessageUtils.sendErrorMessage("You cannot self-assign that role! Do `" + getPrefix(channel
-                                .getGuild()) + "selfassign list` to see what you can assign to yourself!",
-                        channel);
             }
         }
     }
