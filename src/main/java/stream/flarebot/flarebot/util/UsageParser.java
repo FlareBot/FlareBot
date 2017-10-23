@@ -27,7 +27,7 @@ public class UsageParser {
             return strings;
         }
         for (String usage : c.getUsage().split("\n")) {
-            Pattern p = Pattern.compile("\\`.+\\`");
+            Pattern p = Pattern.compile("`.+`");
             String symbols = usage.replace("{%}" + c.getCommand(), "").trim();
             Matcher m = p.matcher(symbols);
             if (m.find()) {
@@ -49,8 +49,10 @@ public class UsageParser {
                     }
                 } else if (entry.getValue().getKey() == Symbol.MULTIPLE_SUB_COMMAND) {
                     for (String cmd : entry.getValue().getValue().split("\\|")) {
-                        if (args[entry.getKey()].equalsIgnoreCase(cmd)) applicable = true;
-                        break;
+                        if (args[entry.getKey()].equalsIgnoreCase(cmd)) {
+                            applicable = true;
+                            break;
+                        }
                     }
                     if (!applicable) break;
                 } else {
@@ -68,7 +70,7 @@ public class UsageParser {
         int i = 0;
         for (String s : string.split(" ")) {
             for (Symbol sy : Symbol.values()) {
-                if (sy.matches(s)) map.put(i, new Pair<Symbol, String>(sy, s));
+                if (sy.matches(s)) map.put(i, new Pair<>(sy, s));
             }
             i++;
         }
@@ -93,7 +95,7 @@ public class UsageParser {
         }
 
         public boolean matches(String arg) {
-            return regex.matcher(arg).matches();
+            return getRegex().matcher(arg).matches();
         }
 
     }
