@@ -114,11 +114,11 @@ public class Events extends ListenerAdapter {
                     }
                 }
                 if (welcome.isDmEnabled()) {
-                    String dmMsg = welcome.getRandomDmMessage()
+                    if(event.getMember().getUser().isBot()) return; // We can't DM other bots.
+                    MessageUtils.sendPM(event.getMember().getUser(), welcome.getRandomDmMessage()
                             .replace("%user%", event.getMember().getUser().getName())
                             .replace("%guild%", event.getGuild().getName())
-                            .replace("%mention%", event.getMember().getUser().getAsMention());
-                    MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+                            .replace("%mention%", event.getMember().getUser().getAsMention()));
                 }
             } else welcome.setGuildEnabled(false);
         }
