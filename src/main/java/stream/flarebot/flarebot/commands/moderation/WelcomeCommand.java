@@ -162,13 +162,16 @@ public class WelcomeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}welcome <dm/guild> <enable/disable> `- Enables/Disables welcome message for dm/guild\n" +
-                "`{%}welcome <dm/guild> message add <message>` - Adds a message to the welcomes\n" +
-                "`{%}welcome <dm/guild> message remove <message id>` - Removes a message from the welcomes\n" +
-                "`{%}welcome <dm/guild> message list [page]` - Lists all the messages and their IDs for welcomes\n" +
-                "`{%}welcome setchannel` - sets the channel in the guild to have welcome in\n" +
-                "\n" +
-                "**Message syntax:**\n" +
+        return "`{%}welcome dm|guild enable|disable`- Enables/Disables welcome message for dm/guild\n" +
+                "`{%}welcome dm|guild message add <message>` - Adds a message to the welcomes\n" +
+                "`{%}welcome dm|guild message remove <message_id>` - Removes a message from the welcomes\n" +
+                "`{%}welcome dm|guild message list [page]` - Lists all the messages and their IDs for welcomes\n" +
+                "`{%}welcome setchannel` - Sets the channel in the guild to have welcome in";
+    }
+
+    @Override
+    public String getExtraInfo() {
+        return "**Message syntax:**\n" +
                 "`%mention%` - mentions the user\n" +
                 "`%user%` - the users name\n" +
                 "`%guild%` - the guild name";

@@ -64,7 +64,7 @@ public class TempMuteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}tempmute <duration> [reason]";
+        return "`{%}tempmute <duration> [reason]` - Temp mutes a user for a specified amount of time";
     }
 
     @Override

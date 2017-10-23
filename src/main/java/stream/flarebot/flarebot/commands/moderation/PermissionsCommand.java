@@ -366,6 +366,8 @@ public class PermissionsCommand implements Command {
         return "Manages server-wide permissions for FlareBot.";
     }
 
+
+    //TODO: Pagination
     @Override
     public String getUsage() {
         return "Run `{%}permissions` to see the usage";

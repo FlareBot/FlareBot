@@ -117,7 +117,7 @@ public class PurgeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}purge <'all'/user> <amount>` - Purges a certain amount of messages.";
+        return "`{%}purge <\"all\"/user> <amount>` - Purges a certain amount of messages.";
     }
 
     @Override
