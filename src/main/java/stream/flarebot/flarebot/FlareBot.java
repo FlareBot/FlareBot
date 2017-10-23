@@ -73,6 +73,7 @@ import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
 import stream.flarebot.flarebot.commands.secret.EvalCommand;
 import stream.flarebot.flarebot.commands.secret.GuildCommand;
 import stream.flarebot.flarebot.commands.secret.LogsCommand;
+import stream.flarebot.flarebot.commands.secret.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.secret.QueryCommand;
 import stream.flarebot.flarebot.commands.secret.QuitCommand;
 import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
@@ -519,7 +520,7 @@ public class FlareBot {
         registerCommand(new DisableCommandCommand());
 
         registerCommand(new TagsCommand());
-        registerCommand(new AnnounceCommand());
+        registerCommand(new PostUpdateCommand());
 
         ApiFactory.bind();
 
