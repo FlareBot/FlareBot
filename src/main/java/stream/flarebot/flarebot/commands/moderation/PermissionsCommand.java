@@ -319,13 +319,7 @@ public class PermissionsCommand implements Command {
                 return;
             }
         }
-        EmbedBuilder usage = new EmbedBuilder();
-        usage.setTitle("Usage");
-        for (MessageEmbed.Field field : getEmbedUsage().getFields()) {
-            usage.addField(GeneralUtils.formatCommandPrefix(channel, field.getName()), GeneralUtils.formatCommandPrefix(channel, field.getValue()), field.isInline());
-        }
-        usage.setColor(Color.RED);
-        channel.sendMessage(usage.build()).queue();
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     private String getStringList(Collection<String> perms, int page) {
@@ -370,52 +364,20 @@ public class PermissionsCommand implements Command {
     //TODO: Pagination
     @Override
     public String getUsage() {
-        return "**`{%}permissions group <group>`  - All usage in this section starts with this**\n" +
-                "`add <perm>` - Adds a permission to a group\n" +
-                "`remove <perm>` - removes a perm from a group\n" +
-                "`create` - creates a group\n" +
-                "`delete` - deletes the group\n" +
-                "`link <role>` - links the group to a discord role\n" +
-                "`unlink` - unlinks it from a role\n" +
-                "`list [page]` - lists the permissions this group has\n" +
-                "`massadd <@everyone/@here/role>` - puts everyone with the giving role into the group\n" +
-                "\n" +
-                "**`{%}permissions user <user>` - All usage in this section starts with this**\n" +
-                "`group add <group>` - adds a group to this user\n" +
-                "`group remove <group>` - removes a group from this user\n" +
-                "`group list [page]` - lists the groups this user is in\n" +
-                "`permissions add <perm>` - adds a permissions to this user\n" +
-                "`permissions remove <perm>` - removes a permission from this user\n" +
-                "`permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)\n\n" +
+        return "`{%}permissions group <group> add|remove <perm>` - Adds or removes a permission to a group\n" +
+                "`{%}permissions group <group> create|delete` - Creates or deletes a group\n" +
+                "`{%}permissions group <group> link <role>` - Links the group to a discord role\n" +
+                "`{%}permissions group <group> unlink` - Unlinks the group from a role\n" +
+                "`{%}permissions group <group> list [page]` - lists the permissions this group has\n" +
+                "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group\n\n" +
+                "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user\n" +
+                "`{%}permissions user <user> group list [page]` - Lists the groups this user is in\n" +
+                "`{%}permissions user <user> permissions add|remove <perm>` - Adds or removes a permissions from this user\n" +
+                "`{%}permissions user <user> permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)\n\n" +
                 "`{%}permissions groups` - Lists all the groups in a server\n" +
-                "`{%}permissions reset` - Resets all of the guilds perms\n" +
-                "`{%}permissions restoredefault` - Restores the default group and adds any new default perms that might have been added";
+                "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions";
     }
 
-    public EmbedBuilder getEmbedUsage() {
-        EmbedBuilder eb = new EmbedBuilder();
-        eb.addField("`{%}permissions group <group>`",
-                "`add <perm>` - Adds a permission to a group\n" +
-                        "`remove <perm>` - removes a perm from a group\n" +
-                        "`create` - creates a group\n" +
-                        "`delete` - deletes the group\n" +
-                        "`link <role>` - links the group to a discord role\n" +
-                        "`unlink` - unlinks it from a role\n" +
-                        "`list [page]` - lists the permissions this group has\n" +
-                        "`massadd <@everyone/@here/role>` - puts everyone with the giving role into the group", false);
-        eb.addField("`{%}permissions user <user>`",
-                "`group add <group>` - adds a group to this user\n" +
-                        "`group remove <group>` - removes a group from this user\n" +
-                        "`group list [page]` - lists the groups this user is in\n" +
-                        "`permissions add <perm>` - adds a permissions to this user\n" +
-                        "`permissions remove <perm>` - removes a permission from this user\n" +
-                        "`permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)", false);
-        eb.addField("Misc",
-                "`{%}permissions groups` - Lists all the groups in a server\n" +
-                        "`{%}permissions reset` - Resets all of the guilds perms\n" +
-                        "`{%}permissions restoredefault` - Restores the default group and adds any new default perms that might have been added", false);
-        return eb;
-    }
 
     @Override
     public CommandType getType() {

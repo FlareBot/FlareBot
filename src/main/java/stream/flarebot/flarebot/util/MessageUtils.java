@@ -268,19 +268,22 @@ public class MessageUtils {
     public static void sendUsage(Command command, TextChannel channel, User user, String[] args) {
         String title = capitalize(command.getCommand()) + " Usage";
         List<String> usages = UsageParser.matchUsage(command, args);
-        if (usages.size() > 10) {
+        int size = 10;
+        if (usages.size() > size) {
+            int initialSize = usages.size();
             int i = 0;
-            while (usages.size() > 12) {
-                String usage = GeneralUtils.formatCommandPrefix(channel, usages.subList(i, i + 12).stream().collect(Collectors.joining("\n")));
+            while (initialSize > size) {
+                String usage = GeneralUtils.formatCommandPrefix(channel, usages.subList(i, i + size).stream().collect(Collectors.joining("\n")));
                 channel.sendMessage(getEmbed(user)
                         .setTitle(title, null)
                         .addField("Usage", usage, false)
                         .setColor(Color.RED)
                         .build()).queue();
-                i += 12;
+                i += size;
+                initialSize -= size;
             }
             String usage = GeneralUtils.formatCommandPrefix(channel, usages.subList(i, usages.size()).stream().collect(Collectors.joining("\n")));
-            EmbedBuilder b = getEmbed(user).setTitle(title, null).addField("Usage", usage, false);
+            EmbedBuilder b = new EmbedBuilder().addField("Usage", usage, false);
             if (command.getPermission() != null) {
                 b.addField("Permission", command.getPermission() + "\n" +
                         "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED);
