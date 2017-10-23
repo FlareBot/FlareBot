@@ -499,7 +499,7 @@ public class FlareBot {
         registerCommand(new DisableCommandCommand());
 
         registerCommand(new TagsCommand());
-        registerCommand(new AnnounceCommand());
+        registerCommand(new PostUpdateCommand());
         registerCommand(new RemindCommand());
 
         ApiFactory.bind();
