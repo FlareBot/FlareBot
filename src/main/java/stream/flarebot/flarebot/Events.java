@@ -8,6 +8,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.StatusChangeEvent;
@@ -204,12 +206,11 @@ public class Events extends ListenerAdapter {
                 UpdateCommand.update(true, null);
             }
         } else {
-            if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
-                return;
-            }
-            if (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
-                    .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size()) {
-                event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
+            if (event.getChannelLeft().getMembers().contains(event.getChannelLeft().getGuild().getMember(event.getJDA().getSelfUser()))) {
+                if (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
+                        .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size()) {
+                    event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
+                }
             }
         }
     }
