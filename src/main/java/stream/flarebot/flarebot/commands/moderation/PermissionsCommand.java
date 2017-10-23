@@ -4,11 +4,9 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -17,7 +15,7 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -293,7 +291,7 @@ public class PermissionsCommand implements Command {
                             .build()).queue();
                     return;
                 } else {
-                    int page = args.length == 2 ? Integer.valueOf(args[4]) : 1;
+                    int page = args.length == 2 ? Integer.valueOf(args[1]) : 1;
                     Set<String> groups = this.getPermissions(channel).getGroups().keySet();
                     List<String> groupList = GeneralUtils.orderList(groups);
 
@@ -339,7 +337,7 @@ public class PermissionsCommand implements Command {
         StringBuilder sb = new StringBuilder();
         sb.append("```\n");
         for (String perm : permsList) {
-            sb.append(perm + "\n");
+            sb.append(perm).append("\n");
         }
         sb.append("```");
         return sb.toString();
@@ -373,7 +371,7 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in\n" +
                 "`{%}permissions user <user> permissions add|remove <perm>` - Adds or removes a permissions from this user\n" +
-                "`{%}permissions user <user> permissions list [page]` - list the permmissions this user has (exulding those obtained from groups)\n\n" +
+                "`{%}permissions user <user> permissions list [page]` - list the permmissions this user has (Excluding those obtained from groups)\n\n" +
                 "`{%}permissions groups` - Lists all the groups in a server\n" +
                 "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions";
     }
