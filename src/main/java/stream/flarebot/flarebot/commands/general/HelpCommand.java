@@ -112,7 +112,7 @@ public class HelpCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}help [here]` - Gives a list of commands [in this channel]\n"
+        return "`{%}help` - Gives a list of commands\n"
                 + "`{%}help <category>` - Gives a list of commands in a specific category";
     }
 

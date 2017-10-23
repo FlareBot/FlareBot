@@ -62,7 +62,7 @@ public class StatsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}stats [section] - Sends stats about the bot.";
+        return "`{%}stats [section]` - Sends stats about the bot";
     }
 
     @Override

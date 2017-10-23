@@ -335,9 +335,9 @@ public class PollCommand implements Command {
                 "`{%}poll help` - Shows this help message\n" +
                 "`{%}poll create <question>` - Creates a poll with a specified question\n" +
                 "`{%}poll list` - Lists the polls for the server\n\n" +
-                "`{%}poll <close/open/remove> <pollID>` - Closes, opens or removes a poll with the specified ID\n" +
+                "`{%}poll close|open|remove <pollID>` - Closes, opens or removes a poll with the specified ID\n" +
                 "`{%}poll set <pollID> colour <colour>` - Sets a colour for a poll with the specified ID\n\n" +
-                "`{%}poll options <pollID> <view/remove> <optionID>` - Views or Removes a specific option from a poll\n" +
+                "`{%}poll options <pollID> view|remove <optionID>` - Views or Removes a specific option from a poll\n" +
                 "`{%}poll options <pollID> add <option>` - Adds an option to a poll\n" +
                 "`{%}poll options <pollID> list` - Lists all the options for a poll\n\n" +
                 "`{%}poll setchannel <pollID/\"all\">` - Sets the poll announcement channel for all polls or a specific poll\n" +

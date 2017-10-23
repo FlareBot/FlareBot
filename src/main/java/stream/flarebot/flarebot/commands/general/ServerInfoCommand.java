@@ -104,7 +104,7 @@ public class ServerInfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}serverinfo [guild id]` - Gets the info on a guild (server)";
+        return "`{%}serverinfo [guild_id]` - Gets the info on a guild (server)";
     }
 
     @Override
