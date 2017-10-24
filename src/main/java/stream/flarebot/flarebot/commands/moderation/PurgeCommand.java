@@ -42,8 +42,11 @@ public class PurgeCommand implements Command {
                     MessageUtils.sendErrorMessage("That target user cannot be found, try mentioning them, using the user ID or using `all` to clear the entire chat.", channel);
                     return;
                 }
-            } else {
+            } else if (args.length == 2) {
                 amount = GeneralUtils.getInt(args[1], -1);
+            } else {
+                MessageUtils.sendUsage(this, channel, sender, args);
+                return;
             }
 
             // 2 messages min
@@ -132,11 +135,6 @@ public class PurgeCommand implements Command {
     @Override
     public String[] getAliases() {
         return new String[]{"clean"};
-    }
-
-    @Override
-    public boolean deleteMessage() {
-        return false;
     }
 
     @Override
