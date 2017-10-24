@@ -44,7 +44,7 @@ public class RemindCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}remind <duration> <reminder>` - Reminds a user about something after a duration";
+        return "`{%}remind <duration> <reminder>` - Reminds a user about something after a duration.";
     }
 
     @Override

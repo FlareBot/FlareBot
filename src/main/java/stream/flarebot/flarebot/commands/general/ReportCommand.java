@@ -78,7 +78,7 @@ public class ReportCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}report <user> <reason>` - Reports a user your guild moderators";
+        return "`{%}report <user> <reason>` - Reports a user your guild moderators.";
     }
 
     @Override

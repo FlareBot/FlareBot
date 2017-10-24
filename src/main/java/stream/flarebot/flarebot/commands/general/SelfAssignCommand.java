@@ -143,9 +143,9 @@ public class SelfAssignCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}selfassign <roleID/name>` - Adds a role to yourself\n"
-                + "`{%}selfassign add|remove <roleID/name>` - Allows admins to add roles to the self assign list\n"
-                + "`{%}selfassign list` - Lists roles that are self-assignable";
+        return "`{%}selfassign <roleID/name>` - Adds a role to yourself.\n"
+                + "`{%}selfassign add|remove <roleID/name>` - Allows admins to add roles to the self assign list.\n"
+                + "`{%}selfassign list` - Lists roles that are self-assignable.";
     }
 
     @Override

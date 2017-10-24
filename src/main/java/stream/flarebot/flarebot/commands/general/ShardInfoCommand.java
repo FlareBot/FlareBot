@@ -53,7 +53,7 @@ public class ShardInfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}shardinfo` - Shows info about the shards";
+        return "`{%}shardinfo` - Shows info about the shards.";
     }
 
     @Override

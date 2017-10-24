@@ -30,7 +30,7 @@ public class InviteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}invite` - Gets FlareBot's invite link";
+        return "`{%}invite` - Gets FlareBot's invite link.";
     }
 
     @Override

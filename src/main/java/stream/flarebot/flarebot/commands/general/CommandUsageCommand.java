@@ -38,7 +38,7 @@ public class CommandUsageCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}usage <command_name>";
+        return "`{%}usage <command_name>` - Displays the usage for another command.";
     }
 
     @Override
