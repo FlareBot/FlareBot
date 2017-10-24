@@ -24,3 +24,13 @@ A lot of the changes requested in PRs is related to memory usage and efficiency.
  - Variables have to be used 3 times or more. If they are not then they need to be inlined *This doesn't apply to variables which are final or effectively final (Single item array for interfacing with lambas for example)*
  - Big sets of commits such as data restructures must be put in their own branch.
 
+### Usage Formatting
+###### If you don't follow these instructions when creating a new command it will automatically be denied
+The command usage now has the following format:
+ - The command (not the description) needs to be enclosed in graves \`.
+ - `[optional_argument]` for arguments that can be included but are not required.
+ - `<required_argument>` for arguments that are required.
+ - `subcommand` sub commands **must not** be enclosed in anything.
+ - `command|command1|command2` multiple sub commands not enclosed by anything and separated by a pipe.
+ - Spaces are only permitted between arguments.
+ - `\`{%}command\`` is the format for commands
