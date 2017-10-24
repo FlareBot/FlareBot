@@ -141,8 +141,8 @@ public class PlaylistCommand implements Command {
     //TODO: Add alllllll the stuff here
     @Override
     public String getUsage() {
-        return "{%}playlist [option]\n" +
-                "{%}playlist remove <#>";
+        return "`{%}playlist [option]`\n" +
+                "`{%}playlist remove <#>`";
     }
 
     @Override

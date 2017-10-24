@@ -119,7 +119,7 @@ public class PlaylistsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}playlists` - Returns the playlists available";
+        return "`{%}playlists` - Returns the playlists available.";
         // Admin command:
         // {%}playlists mark <global/local> <playlist>
     }

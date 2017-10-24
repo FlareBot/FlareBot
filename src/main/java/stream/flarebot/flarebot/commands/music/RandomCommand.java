@@ -48,7 +48,7 @@ public class RandomCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}random [amount]` - Gives you some random songs [of an amount] (DISABLED)";
+        return "`{%}random [amount]` - Gives you some random songs [of an amount]. (DISABLED)";
     }
 
     @Override

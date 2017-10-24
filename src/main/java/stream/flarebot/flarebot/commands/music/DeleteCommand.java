@@ -52,7 +52,7 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}delete <playlist>` - Deletes a playlist";
+        return "`{%}delete <playlist>` - Deletes a playlist.";
     }
 
     @Override

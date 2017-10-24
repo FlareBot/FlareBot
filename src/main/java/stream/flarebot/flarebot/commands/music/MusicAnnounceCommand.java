@@ -77,7 +77,7 @@ public class MusicAnnounceCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}announce here|off` - Sets the music announce channel or turns it off";
+        return "`{%}announce here|off` - Sets the music announce channel or turns it off.";
     }
 
     @Override

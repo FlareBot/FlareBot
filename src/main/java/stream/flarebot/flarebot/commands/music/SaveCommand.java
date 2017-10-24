@@ -72,12 +72,12 @@ public class SaveCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Save the current playlist! Usage: `save NAME`";
+        return "Save the current playlist!";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}save <name>` - Saves a playlist";
+        return "`{%}save <name>` - Saves a playlist.";
     }
 
     @Override
