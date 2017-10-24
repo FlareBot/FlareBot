@@ -27,12 +27,15 @@ public class UsageParser {
     public static List<String> matchUsage(Command c, String[] args) {
         List<String> strings = new ArrayList<>();
         String[] usages = c.getUsage().split("\n");
-        usages = Arrays.stream(usages).filter(StringUtils::isNotEmpty).toArray(String[]::new);
         if (args.length == 0) {
             Collections.addAll(strings, usages);
             return strings;
         }
         for (String usage : usages) {
+            if (usage.isEmpty()) {
+                strings.add(usage);
+                continue;
+            }
             Pattern p = Pattern.compile("`.+`");
             String symbols = usage.replace("{%}" + c.getCommand(), "").trim(); // Strip command out
             Matcher m = p.matcher(symbols);
@@ -70,7 +73,7 @@ public class UsageParser {
                 } else {
                     applicable = true;
                 }
-                if (!(args.length - 1 >= entry.getKey())) {
+                if (args.length - 1 >= entry.getKey()) {
                     break;
                 }
             }
