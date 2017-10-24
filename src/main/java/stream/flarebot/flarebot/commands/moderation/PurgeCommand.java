@@ -31,8 +31,7 @@ public class PurgeCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
-
-            User targetUser = null;
+            User targetUser;
             int amount;
             targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
             if (targetUser == null) {
