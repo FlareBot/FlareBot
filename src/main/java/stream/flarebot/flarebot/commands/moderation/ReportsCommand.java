@@ -174,10 +174,10 @@ public class ReportsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}reports` - Shows the usage\n" +
-                "`{%}reports list [page]` - List the reports on your guild\n" +
-                "`{%}reports view <number>` - Views a report with the given number\n" +
-                "`{%}reports status <number> <status>` - Edits the status of a report";
+        return "`{%}reports` - Shows the usage.\n" +
+                "`{%}reports list [page]` - List the reports on your guild.\n" +
+                "`{%}reports view <number>` - Views a report with the given number.\n" +
+                "`{%}reports status <number> <status>` - Edits the status of a report.";
     }
 
     @Override

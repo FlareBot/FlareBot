@@ -76,7 +76,7 @@ public class RolesCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}roles [page]` - Gets the roles for the current server";
+        return "`{%}roles [page]` - Gets the roles for the current server.";
     }
 
     @Override

@@ -106,8 +106,8 @@ public class AutoAssignCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}autoassign add|remove <role>` - Add or Remove roles from AutoAssign\n"
-                + "`{%}autoassign list` - List roles that are currently AutoAssigned";
+        return "`{%}autoassign add|remove <role>` - Add or Remove roles from AutoAssign.\n"
+                + "`{%}autoassign list` - List roles that are currently AutoAssigned.";
     }
 
     @Override

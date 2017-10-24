@@ -58,7 +58,7 @@ public class PinCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}pin <messageID|message>` - Pins a message either by ID or by typing a message";
+        return "`{%}pin <messageID|message>` - Pins a message either by ID or by typing a message.";
     }
 
     @Override

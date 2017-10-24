@@ -329,18 +329,18 @@ public class PermissionsCommand implements Command {
     //TODO: Pagination
     @Override
     public String getUsage() {
-        return "`{%}permissions group <group> add|remove <perm>` - Adds or removes a permission to a group\n" +
-                "`{%}permissions group <group> create|delete` - Creates or deletes a group\n" +
-                "`{%}permissions group <group> link <role>` - Links the group to a discord role\n" +
-                "`{%}permissions group <group> unlink` - Unlinks the group from a role\n" +
-                "`{%}permissions group <group> list [page]` - lists the permissions this group has\n" +
-                "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group\n\n" +
-                "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user\n" +
-                "`{%}permissions user <user> group list [page]` - Lists the groups this user is in\n" +
-                "`{%}permissions user <user> permissions add|remove <perm>` - Adds or removes a permissions from this user\n" +
-                "`{%}permissions user <user> permissions list [page]` - list the permmissions this user has (Excluding those obtained from groups)\n\n" +
-                "`{%}permissions groups` - Lists all the groups in a server\n" +
-                "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions";
+        return "`{%}permissions group <group> add|remove <perm>` - Adds or removes a permission to a group.\n" +
+                "`{%}permissions group <group> create|delete` - Creates or deletes a group.\n" +
+                "`{%}permissions group <group> link <role>` - Links the group to a discord role.\n" +
+                "`{%}permissions group <group> unlink` - Unlinks the group from a role.\n" +
+                "`{%}permissions group <group> list [page]` - lists the permissions this group has.\n" +
+                "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n\n" +
+                "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
+                "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
+                "`{%}permissions user <user> permissions add|remove <perm>` - Adds or removes a permissions from this user.\n" +
+                "`{%}permissions user <user> permissions list [page]` - list the permmissions this user has (Excluding those obtained from groups).\n\n" +
+                "`{%}permissions groups` - Lists all the groups in a server.\n" +
+                "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions.";
     }
 
 
