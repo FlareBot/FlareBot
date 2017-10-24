@@ -26,44 +26,38 @@ public class PermissionsCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length > 2) {
+        if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("group")) {
                 String groupString = args[1];
+                Group group = getPermissions(channel).getGroup(groupString);
+                if (group == null) {
+                    MessageUtils.sendErrorMessage("That group doesn't exist! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                    return;
+                }
                 if (args[2].equals("add")) {
                     if (args.length == 4) {
-                        Group group = getPermissions(channel).getGroup(groupString);
-                        if (group == null) {
-                            MessageUtils.sendErrorMessage("That group doesn't exist!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                        if (!GeneralUtils.validPerm(args[3])) {
+                            MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
+                                    "**Example:** `flarebot.play`", channel);
+                            return;
+                        }
+                        if (group.addPermission(args[3])) {
+                            MessageUtils.sendSuccessMessage("Successfully added the permission `" + args[3] + "` to the group `" + groupString + "`", channel, sender);
                             return;
                         } else {
-                            if (!GeneralUtils.validPerm(args[3])) {
-                                MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
-                                        "**Example:** `flarebot.play`", channel);
-                                return;
-                            }
-                            if (group.addPermission(args[3])) {
-                                MessageUtils.sendSuccessMessage("Successfully added the permission `" + args[3] + "` to the group `" + groupString + "`", channel, sender);
-                                return;
-                            } else {
-                                MessageUtils.sendErrorMessage("Couldn't add the permission (it probably already exists)", channel);
-                                return;
-                            }
+                            MessageUtils.sendErrorMessage("Couldn't add the permission (it probably already exists)", channel);
+                            return;
                         }
+
                     }
                 } else if (args[2].equals("remove")) {
                     if (args.length == 4) {
-                        Group group = getPermissions(channel).getGroup(groupString);
-                        if (group == null) {
-                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
+                        if (group.removePermission(args[3])) {
+                            MessageUtils.sendSuccessMessage("Successfully removed the permission `" + args[3] + "` from the group `" + groupString + "`", channel, sender);
                             return;
                         } else {
-                            if (group.removePermission(args[3])) {
-                                MessageUtils.sendSuccessMessage("Successfully removed the permission `" + args[3] + "` from the group `" + groupString + "`", channel, sender);
-                                return;
-                            } else {
-                                MessageUtils.sendErrorMessage("Couldn't remove the permission (it probably didn't exist)", channel);
-                                return;
-                            }
+                            MessageUtils.sendErrorMessage("Couldn't remove the permission (it probably didn't exist)", channel);
+                            return;
                         }
                     }
                 } else if (args[2].equals("create")) {
@@ -78,104 +72,77 @@ public class PermissionsCommand implements Command {
                     }
                 } else if (args[2].equals("delete")) {
                     if (args.length == 3) {
-                        if (getPermissions(channel).getGroup(groupString) == null) {
-                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
-                            return;
-                        } else {
-                            getPermissions(channel).deleteGroup(groupString);
-                            return;
-                        }
+                        getPermissions(channel).deleteGroup(groupString);
+                        return;
                     }
                 } else if (args[2].equals("link")) {
                     if (args.length == 4) {
-                        Group group = getPermissions(channel).getGroup(groupString);
-                        if (group == null) {
-                            MessageUtils.sendErrorMessage("That group doesn't exist!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                        Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
+                        if (role != null) {
+                            group.linkRole(role.getId());
+                            MessageUtils.sendSuccessMessage("Successfully linked the group `" + groupString + "` to the role `" + role.getName() + "`", channel, sender);
                             return;
                         } else {
-                            Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
-                            if (role != null) {
-                                group.linkRole(role.getId());
-                                MessageUtils.sendSuccessMessage("Successfully linked the group `" + groupString + "` to the role `" + role.getName() + "`", channel, sender);
-                                return;
-                            } else {
-                                MessageUtils.sendErrorMessage("That role doesn't exist!", channel);
-                                return;
-                            }
+                            MessageUtils.sendErrorMessage("That role doesn't exist!", channel);
+                            return;
                         }
                     }
                 } else if (args[2].equals("unlink")) {
                     if (args.length == 3) {
-                        Group group = getPermissions(channel).getGroup(groupString);
-                        if (group == null) {
-                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
+                        Role role = guild.getGuild().getRoleById(group.getRoleId());
+                        if (role == null) {
+                            MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
                             return;
                         } else {
-                            Role role = guild.getGuild().getRoleById(group.getRoleId());
-                            if (role == null) {
-                                MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
-                                return;
-                            } else {
-                                group.linkRole(null);
-                                MessageUtils.sendSuccessMessage("Successfully unlinked the role " + role.getName() + " from the group " + group.getName(), channel, sender);
-                                return;
-                            }
+                            group.linkRole(null);
+                            MessageUtils.sendSuccessMessage("Successfully unlinked the role " + role.getName() + " from the group " + group.getName(), channel, sender);
+                            return;
                         }
                     }
                 } else if (args[2].equals("list")) {
                     if (args.length == 3 || args.length == 4) {
-                        Group group = getPermissions(channel).getGroup(groupString);
-                        if (group == null) {
-                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
-                            return;
-                        } else {
-                            int page = args.length == 4 ? Integer.valueOf(args[3]) : 1;
-                            Set<String> perms = group.getPermissions();
-                            List<String> permList = GeneralUtils.orderList(perms);
+                        int page = args.length == 4 ? Integer.valueOf(args[3]) : 1;
+                        Set<String> perms = group.getPermissions();
+                        List<String> permList = GeneralUtils.orderList(perms);
 
-                            String list = getStringList(permList, page);
-                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            eb.addField("Perms", list, false);
-                            eb.addField("Current page", String.valueOf(page), true);
-                            int pageSize = 20;
-                            int pages =
-                                    perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
-                            eb.addField("Pages", String.valueOf(pages), true);
-                            eb.setColor(Color.CYAN);
-                            channel.sendMessage(eb.build()).queue();
-                            return;
-                        }
+                        String list = getStringList(permList, page);
+                        EmbedBuilder eb = MessageUtils.getEmbed(sender);
+                        eb.addField("Perms", list, false);
+                        eb.addField("Current page", String.valueOf(page), true);
+                        int pageSize = 20;
+                        int pages =
+                                perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
+                        eb.addField("Pages", String.valueOf(pages), true);
+                        eb.setColor(Color.CYAN);
+                        channel.sendMessage(eb.build()).queue();
+                        return;
+
                     }
                 } else if (args[2].equals("massadd")) {
                     if (args.length == 4) {
-                        Group group = getPermissions(channel).getGroup(groupString);
-                        if (group == null) {
-                            MessageUtils.sendErrorMessage("That group doesn't exist!!", channel);
-                            return;
+                        List<Member> roleMembers;
+                        String roleName = "";
+                        if (args[3].equals("@everyone")) {
+                            roleMembers = guild.getGuild().getMembers();
+                            roleName = "everyone";
+                        } else if (args[3].equals("@here")) {
+                            roleMembers = channel.getMembers();
+                            roleName = "here";
                         } else {
-                            List<Member> roleMembers;
-                            String roleName = "";
-                            if (args[3].equals("@everyone")) {
-                                roleMembers = guild.getGuild().getMembers();
-                                roleName = "everyone";
-                            } else if (args[3].equals("@here")) {
-                                roleMembers = channel.getMembers();
-                                roleName = "here";
+                            Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
+                            if (role != null) {
+                                roleMembers = guild.getGuild().getMembersWithRoles(role);
                             } else {
-                                Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
-                                if (role != null) {
-                                    roleMembers = guild.getGuild().getMembersWithRoles(role);
-                                } else {
-                                    MessageUtils.sendErrorMessage("That role doesn't exist!!", channel);
-                                    return;
-                                }
+                                MessageUtils.sendErrorMessage("That role doesn't exist!!", channel);
+                                return;
                             }
-                            for (Member user : roleMembers) {
-                                getPermissions(channel).getUser(user).addGroup(group);
-                            }
-                            MessageUtils.sendSuccessMessage("Successfully added the group `" + groupString + "` to everyone in the role @" + roleName, channel, sender);
-                            return;
                         }
+                        for (Member user : roleMembers) {
+                            getPermissions(channel).getUser(user).addGroup(group);
+                        }
+                        MessageUtils.sendSuccessMessage("Successfully added the group `" + groupString + "` to everyone in the role @" + roleName, channel, sender);
+                        return;
+
                     }
                 }
             } else if (args[0].equalsIgnoreCase("user")) {
