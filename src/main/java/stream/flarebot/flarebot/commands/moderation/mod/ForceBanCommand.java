@@ -56,7 +56,7 @@ public class ForceBanCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}ban <user> [reason]` - Bans a user with an optional reason";
+        return "`{%}ban <user> [reason]` - Bans a user with an optional reason.";
     }
 
     @Override

@@ -51,7 +51,7 @@ public class UnmuteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}unmute <user>` - Unmutes a user";
+        return "`{%}unmute <user>` - Unmutes a user.";
     }
 
     @Override

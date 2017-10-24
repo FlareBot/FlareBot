@@ -62,7 +62,7 @@ public class KickCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}kick <user> [reason]` - Kicks a user with an optional reason";
+        return "`{%}kick <user> [reason]` - Kicks a user with an optional reason.";
     }
 
     @Override

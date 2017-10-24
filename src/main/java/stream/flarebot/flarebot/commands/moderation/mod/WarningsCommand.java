@@ -71,8 +71,8 @@ public class WarningsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}warnings [user]` - Check the warnings on a guild or the warnings of a user\n" +
-                "`{%}warnings stats` - Check warning stats for this guild";
+        return "`{%}warnings [user]` - Check the warnings on a guild or the warnings of a user.\n" +
+                "`{%}warnings stats` - Check warning stats for this guild.";
     }
 
     @Override

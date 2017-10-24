@@ -50,7 +50,7 @@ public class WarnCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}warn <user> (reason)` - Warns a user";
+        return "`{%}warn <user> (reason)` - Warns a user.";
     }
 
     @Override
