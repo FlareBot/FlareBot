@@ -270,10 +270,13 @@ public class MessageUtils {
         List<String> usages = UsageParser.matchUsage(command, args);
 
         String usage = GeneralUtils.formatCommandPrefix(channel, usages.stream().collect(Collectors.joining("\n")));
-        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage);
+        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
+        if (command.getExtraInfo() != null) {
+            b.addField("Extra Info", command.getExtraInfo(), false);
+        }
         if (command.getPermission() != null) {
             b.addField("Permission", command.getPermission() + "\n" +
-                    "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED);
+                    "**Default permission: **" + command.isDefaultPermission(), false);
         }
         channel.sendMessage(b.build()).queue();
 
