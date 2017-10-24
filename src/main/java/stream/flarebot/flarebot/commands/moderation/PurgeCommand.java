@@ -30,22 +30,25 @@ public class PurgeCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length >= 2) {
-            // clean all 5
+        if (args.length >= 1) {
+
             User targetUser = null;
-            if (!args[0].equalsIgnoreCase("all")) {
-                targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
-                if (targetUser == null) {
+            int amount;
+            targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
+            if (targetUser == null) {
+                if (args[0].matches("\\d+")) {
+                    amount = GeneralUtils.getInt(args[0], -1);
+                } else {
                     MessageUtils.sendErrorMessage("That target user cannot be found, try mentioning them, using the user ID or using `all` to clear the entire chat.", channel);
                     return;
                 }
+            } else {
+                amount = GeneralUtils.getInt(args[1], -1);
             }
-
-            int amount = GeneralUtils.getInt(args[1], -1);
 
             // 2 messages min
             if (amount < 1) {
-                MessageUtils.sendErrorMessage("You must purge at least 1 message, please give a vaid purge amount.", channel);
+                MessageUtils.sendErrorMessage("You must purge at least 1 message, please give a valid purge amount.", channel);
                 return;
             }
 
@@ -117,7 +120,8 @@ public class PurgeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}purge <\"all\"/user> <amount>` - Purges a certain amount of messages.";
+        return "`{%}purge <user> <amount>` - Purges a certain amount of messages from a user.\n" +
+                "`{%}purge <amount>` - Purges a certain amount of messages.";
     }
 
     @Override
