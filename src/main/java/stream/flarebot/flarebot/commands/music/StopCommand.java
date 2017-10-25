@@ -35,7 +35,7 @@ public class StopCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}stop";
+        return "`{%}stop` - Stops the current playlist.";
     }
 
     @Override
