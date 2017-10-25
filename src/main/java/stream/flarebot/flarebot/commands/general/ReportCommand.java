@@ -62,7 +62,7 @@ public class ReportCommand implements Command {
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 
@@ -78,7 +78,7 @@ public class ReportCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}report <user> <reason>` - Reports a user your guild moderators";
+        return "`{%}report <user> <reason>` - Reports a user your guild moderators.";
     }
 
     @Override

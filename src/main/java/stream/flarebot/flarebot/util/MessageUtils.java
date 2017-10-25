@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -268,17 +269,21 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static void sendUsage(Command command, TextChannel channel, User user) {
+    public static void sendUsage(Command command, TextChannel channel, User user, String[] args) {
         String title = capitalize(command.getCommand()) + " Usage";
-        String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        if (command.getPermission() != null) {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .addField("Permission", command.getPermission() + "\n" +
-                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED).build()).queue();
-        } else {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .setColor(Color.RED).build()).queue();
+        List<String> usages = UsageParser.matchUsage(command, args);
+
+        String usage = GeneralUtils.formatCommandPrefix(channel, usages.stream().collect(Collectors.joining("\n")));
+        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
+        if (command.getExtraInfo() != null) {
+            b.addField("Extra Info", command.getExtraInfo(), false);
         }
+        if (command.getPermission() != null) {
+            b.addField("Permission", command.getPermission() + "\n" +
+                    "**Default permission: **" + command.isDefaultPermission(), false);
+        }
+        channel.sendMessage(b.build()).queue();
+
     }
 
     private static String capitalize(String s) {

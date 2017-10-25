@@ -56,7 +56,7 @@ public class SeekCommand implements Command {
                 }
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class SeekCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}seek <time>` - Seeks to a specific time in the currently playing video";
+        return "`{%}seek <time>` - Seeks to a specific time in the currently playing video.";
     }
 
     @Override
