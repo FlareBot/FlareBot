@@ -33,4 +33,4 @@ The command usage now has the following format:
  - `subcommand` sub commands **must not** be enclosed in anything.
  - `command|command1|command2` multiple sub commands not enclosed by anything and separated by a pipe.
  - Spaces are only permitted between arguments.
- - `\`{%}command\`` is the format for commands
+ - ````{%}command```` is the format for commands
