@@ -131,6 +131,7 @@ public class FlareBot {
 
     private FlareBotManager manager;
     private static String webSecret;
+    private static String pasteKey;
     private static boolean apiEnabled = true;
 
     public static final Gson GSON = new GsonBuilder().create();
@@ -200,6 +201,9 @@ public class FlareBot {
         String tkn = config.getString("bot.token").get();
 
         new CassandraController().init(config);
+
+        if (config.getString("bot.pasteAccessKey").isPresent())
+            FlareBot.pasteKey = config.getString("bot.pasteAccessKey").get();
         if (config.getString("misc.hook").isPresent()) {
             FlareBot.secret = config.getString("misc.hook").get();
         }
@@ -546,13 +550,13 @@ public class FlareBot {
             public void run() {
                 if (FlareBot.carbonAuth != null) {
                     try {
-                    	WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
-	                        new JSONObject()
-	                            .put("key", FlareBot.carbonAuth)
-	                            .put("servercount", getGuilds().size())
-	                            .put("shardcount", clients.length)
-	                            .toString());
-                    } catch(IOException e) {
+                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
+                                new JSONObject()
+                                        .put("key", FlareBot.carbonAuth)
+                                        .put("servercount", getGuilds().size())
+                                        .put("shardcount", clients.length)
+                                        .toString());
+                    } catch (IOException e) {
                         LOGGER.error("Failed to update carbon!", e);
                     }
                 }
@@ -801,7 +805,7 @@ public class FlareBot {
                 p.waitFor();
                 if (p.exitValue() != 0) {
                     UpdateCommand.UPDATING.set(false);
-                    LOGGER.error("Could not update! Log:** {} **", MessageUtils.hastebin(out));
+                    LOGGER.error("Could not update! Log:** {} **", MessageUtils.paste(out));
                     return;
                 }
                 LOGGER.info("Replacing jar!");
@@ -1143,5 +1147,9 @@ public class FlareBot {
 
     public boolean isTestBot() {
         return testBot;
+    }
+
+    public String getPasteKey() {
+        return pasteKey;
     }
 }
