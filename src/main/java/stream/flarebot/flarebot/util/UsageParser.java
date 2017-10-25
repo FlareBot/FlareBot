@@ -68,7 +68,7 @@ public class UsageParser {
                     }
                     if (!valid) {
                         applicable = false;
-                        break; // CHeck nothing else if this fails
+                        break; // Check nothing else if this fails
                     }
                 } else {
                     applicable = true;
