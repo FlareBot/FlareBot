@@ -78,7 +78,7 @@ public class InfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}info [section] - Sends info about the bot.";
+        return "`{%}info [section]` - Sends info about the bot.";
     }
 
     @Override

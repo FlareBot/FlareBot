@@ -61,7 +61,7 @@ public class MusicAnnounceCommand implements Command {
                         "WHERE guild_id = ?").bind().setString(0, channel.getGuild().getId())));
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 
@@ -77,7 +77,7 @@ public class MusicAnnounceCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}announce <here|off>` - Sets the music announce channel or turns it off";
+        return "`{%}announce here|off` - Sets the music announce channel or turns it off.";
     }
 
     @Override

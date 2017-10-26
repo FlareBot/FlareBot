@@ -21,7 +21,7 @@ public class AutoAssignCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
                 listRoles(guild, 1, channel, sender);
@@ -106,8 +106,8 @@ public class AutoAssignCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}autoassign <add/remove> <role>` - Add or Remove roles from AutoAssign\n"
-                + "`{%}autoassign list` - List roles that are currently AutoAssigned";
+        return "`{%}autoassign add|remove <role>` - Add or Remove roles from AutoAssign.\n"
+                + "`{%}autoassign list` - List roles that are currently AutoAssigned.";
     }
 
     @Override
