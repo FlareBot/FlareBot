@@ -4,6 +4,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.audit.AuditLogEntry;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
@@ -13,14 +15,17 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.StatusChangeEvent;
+import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -30,6 +35,8 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.mod.ModlogAction;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
@@ -89,6 +96,11 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("User Join")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .build());
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
@@ -139,6 +151,15 @@ public class Events extends ListenerAdapter {
                 handle(e1, event, roles);
             }
         }
+    }
+
+    @Override
+    public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("User Leave")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .build());
     }
 
     private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
@@ -294,10 +315,35 @@ public class Events extends ListenerAdapter {
     }
 
     @Override
+    public void onRoleCreate(RoleCreateEvent event) {
+        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Role create")
+                .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build());
+    }
+
+    @Override
     public void onRoleDelete(RoleDeleteEvent event) {
+        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Role delete")
+                .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build());
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
+    }
+
+    @Override
+    public void onGuildBan(GuildBanEvent event) {
+        Guild guild = event.getGuild();
+        AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
+        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
     }
 
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String command, String[] args) {
@@ -340,6 +386,12 @@ public class Events extends ListenerAdapter {
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
+
+                guild.getAutoModConfig().postToModLog(new EmbedBuilder()
+                        .setTitle("Command Run")
+                        .addField("User", event.getAuthor().getAsMention(), true)
+                        .addField("Command", cmd.getCommand(), true)
+                        .build());
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
