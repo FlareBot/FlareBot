@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
+import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
@@ -16,6 +17,11 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.StatusChangeEvent;
+import net.dv8tion.jda.core.events.channel.category.CategoryCreateEvent;
+import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent;
+import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
@@ -381,6 +387,46 @@ public class Events extends ListenerAdapter {
                 .setTitle("Role remove")
                 .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
                 .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build());
+    }
+
+    @Override
+    public void onTextChannelCreate(TextChannelCreateEvent event) {
+        handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public  void onVoiceChannelCreate(VoiceChannelCreateEvent event) {
+        handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public void onTextChannelDelete(TextChannelDeleteEvent event) {
+        handleChannelDelete(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
+        handleChannelDelete(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
+        AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
+        wrapper.getAutoModConfig().postToModLog(new EmbedBuilder()
+        .setTitle("Channel create")
+        .addField("Type", channel.getType().name().toLowerCase(), true)
+        .addField("Name", channel.getName(), true)
+        .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+        .build());
+    }
+
+    private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
+        AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
+        wrapper.getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Channel delete")
+                .addField("Type", channel.getType().name().toLowerCase(), true)
+                .addField("Name", channel.getName(), true)
                 .addField("Responsible moderator", entry.getUser().getAsMention(), true)
                 .build());
     }
