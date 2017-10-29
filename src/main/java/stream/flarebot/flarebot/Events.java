@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -20,6 +21,8 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
@@ -50,6 +53,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -344,6 +349,40 @@ public class Events extends ListenerAdapter {
         Guild guild = event.getGuild();
         AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
         FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
+    }
+
+    @Override
+    public  void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
+        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        Map<String, AuditLogChange> changes = entry.getChanges();
+        AuditLogChange change = changes.get("$add");
+        @SuppressWarnings("unchecked")
+        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
+
+        FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Role add")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build());
+    }
+
+    @Override
+    public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
+        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        Map<String, AuditLogChange> changes = entry.getChanges();
+        AuditLogChange change = changes.get("$remove");
+        @SuppressWarnings("unchecked")
+        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
+
+        FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Role remove")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build());
     }
 
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String command, String[] args) {
