@@ -220,6 +220,12 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Voice join")
+                .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
+                .addField("Channel", event.getChannelJoined().getName() + " (" + event.getChannelJoined().getId() + ")", true)
+                .build());
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
             event.getGuild().getAudioManager().setSelfDeafened(true);
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
@@ -230,6 +236,12 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Voice leave")
+                .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
+                .addField("Channel", event.getChannelLeft().getName() + " (" + event.getChannelLeft().getId() + ")", true)
+                .build());
         if (event.getMember().getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
