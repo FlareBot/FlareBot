@@ -132,7 +132,7 @@ public class AutoModConfig {
     public void postToModLog(String message) {
         if (hasModLog())
             getModLogChannel().sendMessage(message).queue();
-        
+
     }
 
     public void postToModlog(MessageEmbed embed, ModlogEvent event) {
