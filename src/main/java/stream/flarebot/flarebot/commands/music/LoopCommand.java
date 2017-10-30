@@ -35,7 +35,7 @@ public class LoopCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}loop` - Toggles looping of current playlist";
+        return "`{%}loop` - Toggles looping of current playlist.";
     }
 
     @Override

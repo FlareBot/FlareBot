@@ -71,7 +71,7 @@ public class EvalCommand implements Command {
             try {
                 String eResult = String.valueOf(engine.eval(imports + "with (imports) {\n" + code + "\n}"));
                 if (("```js\n" + eResult + "\n```").length() > 1048) {
-                    eResult = String.format("[Result](%s)", MessageUtils.hastebin(eResult));
+                    eResult = String.format("[Result](%s)", MessageUtils.paste(eResult));
                 } else eResult = "```js\n" + eResult + "\n```";
                 if (!silent)
                     channel.sendMessage(MessageUtils.getEmbed(sender)

@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.automod;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -9,18 +10,13 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.Color;
+
 public class ModlogCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length >= 1) {
-
-        }
-
-        MessageUtils.sendUsage(this, channel, member.getUser(), args);
-
-        //OLD COMMAND I don't know if you still want this walshy.
-        /*if (!getPermissions(channel).hasPermission(member, "flarebot.modlog"))
+        if (!getPermissions(channel).hasPermission(member, "flarebot.modlog"))
             return;
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("setchannel")) {
@@ -30,7 +26,7 @@ public class ModlogCommand implements Command {
                         .setDescription("The modlog channel has been changed to " + channel
                                 .getAsMention()).build()).queue();
             }
-            *//*} else if (args[0].equalsIgnoreCase("config")) {
+            /*} else if (args[0].equalsIgnoreCase("config")) {
             } else if (args[0].equalsIgnoreCase("set")) {
 
             } else {
@@ -38,11 +34,11 @@ public class ModlogCommand implements Command {
             }
         } else if (args.length == 2) {
 
-        } else if (args.length == 3) {*//*
+        } else if (args.length == 3) {*/
 
         } else {
             MessageUtils.sendUsage(this, channel, sender);
-        }*/
+        }
     }
 
     @Override
@@ -57,11 +53,8 @@ public class ModlogCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}modlog enable|disable <feature>` - Enables or or disables a modlog feature.\n" +
-                "`{%}modlog compact <feature>` - Toggles the compacting of a feature.\n" +
-                "`{%}modlog channel set` - Sets the modlog channel.";
-        /*return "`{%}modlog setchannel` - Set the modlog to be displayed in this channel.\n";
-                *//*+ "`{%}modlog config` - View the config of the modlog.\n"
+        return "`{%}modlog setchannel` - Set the modlog to be displayed in this channel.\n";
+                /*+ "`{%}modlog config` - View the config of the modlog.\n"
                 + "`{%}modlog set <configOption> <value>` - Set config options";*/
     }
 

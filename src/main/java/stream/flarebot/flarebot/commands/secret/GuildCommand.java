@@ -24,7 +24,7 @@ public class GuildCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             if (args[0].equalsIgnoreCase("block")) {
                 if (args.length == 1) {
