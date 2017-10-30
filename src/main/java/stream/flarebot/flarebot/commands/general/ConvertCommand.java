@@ -72,7 +72,7 @@ public class ConvertCommand implements Command {
                         "Please join the support guild: " + FlareBot.INVITE_URL, e, channel);
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ConvertCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}convert <amount> <from> <to>` - Converts an amount of one currency to another";
+        return "`{%}convert <amount> <from> <to>` - Converts an amount of one currency to another.";
     }
 
     @Override
@@ -97,7 +97,7 @@ public class ConvertCommand implements Command {
 
     @Override
     public boolean isBetaTesterCommand() {
-        return true;
+        return false;
     }
 
     private MessageEmbed getCurrencyConversionEmbed(User sender, CurrencyComparison c, Double from) {

@@ -8,6 +8,8 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -15,7 +17,7 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
@@ -24,9 +26,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -96,22 +98,28 @@ public class MessageUtils {
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        return sendErrorMessage(getEmbed().setDescription(s + "\n**Stack trace**: " + hastebin(trace)), channel);
+        return sendErrorMessage(getEmbed().setDescription(s + "\n**Stack trace**: " + paste(trace)), channel);
     }
 
-    public static String hastebin(String trace) {
+    public static String paste(String trace) {
+        if (FlareBot.getInstance().getPasteKey() == null || FlareBot.getInstance().getPasteKey().isEmpty()) {
+            FlareBot.LOGGER.warn("Paste server key is missing! Pastes will not work!");
+            return null;
+        }
         try {
-            Response response = WebUtils.post("https://hastebin.com/documents", WebUtils.APPLICATION_JSON, trace);
+            Response response = WebUtils.post(new Request.Builder().url("https://paste.flarebot.stream/documents")
+                    .addHeader("Authorization", FlareBot.getInstance().getPasteKey()).post(RequestBody
+                            .create(WebUtils.APPLICATION_JSON, trace)));
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            if(response.body() != null) {
+            if (response.body() != null) {
                 String key = new JSONObject(response.body().string()).getString("key");
-                return "https://hastebin.com/" + key;
+                return "https://paste.flarebot.stream/" + key;
             } else {
-                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Hastebin is down");
+                FlareBot.LOGGER.error("Local instance of hastebin is down");
                 return null;
             }
         } catch (IOException | JSONException e) {
-            FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
+            FlareBot.LOGGER.error("Could not make POST request to paste!", e);
             return null;
         }
     }
@@ -204,11 +212,11 @@ public class MessageUtils {
     public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.INFO, message, channel, sender);
     }
-    
+
     public static Message sendModMessage(String message, TextChannel channel) {
         return sendMessage(MessageType.MODERATION, message, channel);
     }
-    
+
     public static Message sendModMessage(String message, TextChannel channel, User sender) {
         return sendMessage(MessageType.MODERATION, message, channel, sender);
     }
@@ -247,7 +255,7 @@ public class MessageUtils {
     }
 
     public static void autoDeleteMessage(Message message, long delay) {
-        new FlarebotTask("AutoDeleteTask") {
+        new FlareBotTask("AutoDeleteTask") {
             @Override
             public void run() {
                 message.delete().queue();
@@ -257,7 +265,7 @@ public class MessageUtils {
 
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
         Message msg = channel.sendMessage(message).complete();
-        new FlarebotTask("AutoDeleteTask") {
+        new FlareBotTask("AutoDeleteTask") {
             @Override
             public void run() {
                 msg.delete().queue();
@@ -265,17 +273,21 @@ public class MessageUtils {
         }.delay(delay);
     }
 
-    public static void sendUsage(Command command, TextChannel channel, User user) {
+    public static void sendUsage(Command command, TextChannel channel, User user, String[] args) {
         String title = capitalize(command.getCommand()) + " Usage";
-        String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        if (command.getPermission() != null) {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .addField("Permission", command.getPermission() + "\n" +
-                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED).build()).queue();
-        } else {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .setColor(Color.RED).build()).queue();
+        List<String> usages = UsageParser.matchUsage(command, args);
+
+        String usage = GeneralUtils.formatCommandPrefix(channel, usages.stream().collect(Collectors.joining("\n")));
+        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
+        if (command.getExtraInfo() != null) {
+            b.addField("Extra Info", command.getExtraInfo(), false);
         }
+        if (command.getPermission() != null) {
+            b.addField("Permission", command.getPermission() + "\n" +
+                    "**Default permission: **" + command.isDefaultPermission(), false);
+        }
+        channel.sendMessage(b.build()).queue();
+
     }
 
     private static String capitalize(String s) {
