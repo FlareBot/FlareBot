@@ -25,7 +25,7 @@ public class GuildWrapperBuilder {
         return this;
     }
 
-    public GuildWrapperBuilder setPermissions(PerGuildPermissions permissions) {
+    public GuildWrapperBuilder setPermissions(PerGuildPermissions permissions){
         this.wrapper.setPermissions(permissions);
         return this;
     }
@@ -56,12 +56,11 @@ public class GuildWrapperBuilder {
         return this;
     }
 
-    public GuildWrapperBuilder setBlocked(boolean blocked) {
+    public GuildWrapperBuilder setBlocked(boolean blocked){
         this.wrapper.setBlocked(blocked);
         return this;
 
     }
-
     public GuildWrapperBuilder setSongnick(boolean songnick) {
         this.wrapper.setSongnick(songnick);
         return this;

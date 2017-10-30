@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.mod.ModlogAction;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -30,9 +30,9 @@ public class BanCommand implements Command {
                     return;
                 }
                 Member target = guild.getGuild().getMember(user);
-                if (target == null) {
-                    MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID",
-                            channel, sender);
+                if(target == null) {
+                    MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID", 
+                        channel, sender);
                     return;
                 }
                 String reason = null;
@@ -40,12 +40,12 @@ public class BanCommand implements Command {
                     reason = MessageUtils.getMessage(args, 1);
                 try {
                     channel.getGuild().getController().ban(target, 7, reason).queue();
-                    guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.BAN.toPunishment(), reason);
+                    guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                     channel.sendMessage(new EmbedBuilder()
                             .setColor(Color.GREEN)
                             .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
                             .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
-                                    "https://flarebot.stream/img/banhammer.png" : null)
+                                    "https://cdn.discordapp.com/attachments/229704246004547585/361184232128905216/Webp.net-resizeimage.png" : null)
                             .build()).queue();
                 } catch (PermissionException e) {
                     MessageUtils.sendErrorMessage(String.format("Cannot ban user **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
@@ -54,7 +54,7 @@ public class BanCommand implements Command {
                 MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel, sender);
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -70,7 +70,7 @@ public class BanCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}ban <user> [reason]` - Bans a user with an optional reason.";
+        return "`{%}ban <user> [reason]` - Bans a user with an optional reason";
     }
 
     @Override

@@ -52,21 +52,17 @@ public class InfoCommand implements Command {
             channel.sendMessage(bld.build()).queue();
         } else {
             String search = FlareBot.getMessage(args);
-            String[] fields = search.split(",");
-            EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
-            boolean valid = false;
-            for (String string : fields) {
-                String s = string.trim();
-                for (Content content : Content.values) {
-                    if (s.equalsIgnoreCase(content.getName()) || s.replaceAll("_", " ")
-                            .equalsIgnoreCase(content.getName())) {
-                        builder.addField(content.getName(), content.getReturn(), content.align);
-                        valid = true;
-                    }
+
+            for (Content content : Content.values) {
+                if (search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ")
+                        .equalsIgnoreCase(content.getName())) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .addField(content.getName(), content.getReturn(), false).build())
+                            .queue();
+                    return;
                 }
             }
-            if (valid) channel.sendMessage(builder.build()).queue();
-            else MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
+            MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
         }
     }
 
@@ -82,7 +78,7 @@ public class InfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}info [section]` - Sends info about the bot.";
+        return "`{%}info [section] - Sends info about the bot.";
     }
 
     @Override

@@ -12,7 +12,6 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class SeekCommand implements Command {
@@ -50,13 +49,18 @@ public class SeekCommand implements Command {
                         return;
                     } else {
                         t.getTrack().setPosition(millis);
-                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + GeneralUtils.formatJodaTime(period), channel);
+                        PeriodFormatter niceFormatter = new PeriodFormatterBuilder()
+                                .appendHours().appendSuffix(" Hours ")
+                                .appendMinutes().appendSuffix(" Minutes ")
+                                .appendSeconds().appendSuffix(" Seconds")
+                                .toFormatter();
+                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + period.toString(niceFormatter).trim(), channel);
                         return;
                     }
                 }
             }
         }
-        MessageUtils.sendUsage(this, channel, sender, args);
+        MessageUtils.sendUsage(this, channel, sender);
     }
 
     @Override
@@ -71,7 +75,7 @@ public class SeekCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}seek <time>` - Seeks to a specific time in the currently playing video.";
+        return "`{%}seek <time>` - Seeks to a specific time in the currently playing video";
     }
 
     @Override

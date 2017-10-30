@@ -30,7 +30,7 @@ public enum DataSetters {
         CassandraController.runTask(session -> {
             session.execute("DELETE FROM playlist WHERE guild = '691337'");
             session.execute(session.prepare("INSERT INTO playlist (playlist_name, guild, list, scope) VALUES (?, ?, ?, 'global')").bind()
-                    .setString(0, playlist.name)
+                            .setString(0, playlist.name)
                     .setString(1, "691337")
                     .setList(2, Arrays.asList(playlist.playlist)));
         });

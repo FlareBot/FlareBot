@@ -24,15 +24,15 @@ public class User {
         return groups.remove(group.getName());
     }
 
-    public Set<String> getPermissions() {
+    public Set<String> getPermissions(){
         return permissions;
     }
 
-    public boolean addPermission(String permission) {
+    public boolean addPermission(String permission){
         return permissions.add(permission);
     }
 
-    public boolean removePermission(String permission) {
+    public boolean removePermission(String permission){
         return permissions.remove(permission);
     }
 }

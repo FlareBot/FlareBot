@@ -37,7 +37,7 @@ public class ModlogCommand implements Command {
         } else if (args.length == 3) {*/
 
         } else {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -55,7 +55,7 @@ public class ModlogCommand implements Command {
     public String getUsage() {
         return "`{%}modlog setchannel` - Set the modlog to be displayed in this channel.\n";
                 /*+ "`{%}modlog config` - View the config of the modlog.\n"
-                + "`{%}modlog set <config_option> <value>` - Set config options.";*/
+                + "`{%}modlog set <configOption> <value>` - Set config options";*/
     }
 
     @Override

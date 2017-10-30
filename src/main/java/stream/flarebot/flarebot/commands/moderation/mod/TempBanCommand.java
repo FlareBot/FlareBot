@@ -7,19 +7,20 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.requests.RestAction;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.mod.ModlogAction;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FutureAction;
-import stream.flarebot.flarebot.scheduler.Scheduler;
+import stream.flarebot.flarebot.scheduler.RestActionTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
-
+// THIS IS NOT FOR v4
 public class TempBanCommand implements Command {
 
     @Override
@@ -34,27 +35,35 @@ public class TempBanCommand implements Command {
                 String reason = null;
                 if (args.length >= 3)
                     reason = MessageUtils.getMessage(args, 2);
+                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.BAN), reason);
                 try {
-                    Period period = GeneralUtils.getTimeFromInput(args[1], channel);
-                    if (period == null) return;
                     channel.getGuild().getController().ban(channel.getGuild().getMember(user), 7, reason).queue();
-                    guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.TEMP_BAN.toPunishment(
-                            period.toStandardDuration().getMillis()), reason);
                     channel.sendMessage(new EmbedBuilder()
-                            .setDescription("The ban hammer has been struck on " + user.getName() + " for "
-                                    + GeneralUtils.formatJodaTime(period)).setImage(channel.getGuild().getId()
-                                    .equals(FlareBot.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
-                            .setColor(Color.WHITE).build()).queue();
-                    Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
-                            user.getIdLong(), reason, period, FutureAction.Action.TEMP_BAN);
+                            .setDescription("The ban hammer has been struck on " + user.getName() + " \uD83D\uDD28")
+                            .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
+                                    "https://cdn.discordapp.com/attachments/226785954537406464/309414200344707084/logo-no-background.png" : null)
+                            .build()).queue();
+                    while (!guild.getGuild().getBans().complete().contains(user)) {
+                        //Nothing!!
+                    }
+                    PeriodFormatter formatter = new PeriodFormatterBuilder()
+                            .appendDays().appendSuffix("d")
+                            .appendHours().appendSuffix("h")
+                            .appendMinutes().appendSuffix("m")
+                            .appendSeconds().appendSuffix("s")
+                            .toFormatter();
+                    Period period = formatter.parsePeriod(args[1]);
+                    long mills = period.toStandardSeconds().getSeconds() * 1000;
+                    RestAction action = guild.getGuild().getController().unban(user);
+                    new RestActionTask(action, "Unban user: " + user.getName()).delay(mills);
                 } catch (PermissionException e) {
-                    MessageUtils.sendErrorMessage(String.format("Cannot ban user **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
+                    MessageUtils.sendErrorMessage(String.format("Cannot ban player **%s#%s**! I do not have permission!", user.getName(), user.getDiscriminator()), channel);
                 }
             } else {
                 MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel, sender);
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

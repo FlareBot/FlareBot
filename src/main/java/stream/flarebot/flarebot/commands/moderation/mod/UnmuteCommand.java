@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -17,7 +16,7 @@ public class UnmuteCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length != 1) {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             User user = GeneralUtils.getUser(args[0], guild.getGuildId());
             if (user == null) {
@@ -31,7 +30,7 @@ public class UnmuteCommand implements Command {
             if (guild.getGuild().getMember(user).getRoles().contains(guild.getMutedRole())) {
                 guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMember(user), guild.getMutedRole()).queue();
                 MessageUtils.sendSuccessMessage("Unmuted " + user.getAsMention(), channel, sender);
-                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(ModlogAction.UNMUTE), true);
+                guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.UNMUTE), true);
             } else {
                 MessageUtils.sendErrorMessage("That user isn't muted!!", channel);
             }
@@ -51,7 +50,7 @@ public class UnmuteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}unmute <user>` - Unmutes a user.";
+        return "`{%}unmute <user>` - unmutes a user";
     }
 
     @Override
