@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -32,17 +33,21 @@ public class StatsCommand implements Command {
             channel.sendMessage(bld.build()).queue();
         } else {
             String search = FlareBot.getMessage(args);
-
-            for (Content content : Content.values) {
-                if (search.equalsIgnoreCase(content.getName()) || search.replaceAll("_", " ")
-                        .equalsIgnoreCase(content.getName())) {
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .addField(content.getName(), content.getReturn(), false).build())
-                            .queue();
-                    return;
+            String[] fields = search.split(",");
+            EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
+            boolean valid = false;
+            for (String string : fields) {
+                String s = string.trim();
+                for (Content content : Content.values) {
+                    if (s.equalsIgnoreCase(content.getName()) || s.replaceAll("_", " ")
+                            .equalsIgnoreCase(content.getName())) {
+                        builder.addField(content.getName(), content.getReturn(), content.align);
+                        valid = true;
+                    }
                 }
             }
-            MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
+            if (valid) channel.sendMessage(builder.build()).queue();
+            else MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
         }
     }
 
