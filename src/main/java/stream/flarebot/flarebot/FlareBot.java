@@ -539,11 +539,15 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(32));
 
+<<<<<<< refs/remotes/origin/master
 <<<<<<< HEAD
         new FlareBotTask("PostDbotsData" + System.currentTimeMillis()) {
 =======
         new FlarebotTask("PostDbotsData") {
 >>>>>>> parent of 5b2aed9... Merge branch 'hacktoberfest' into master
+=======
+        new FlarebotTask("PostDbotsData") {
+>>>>>>> Revert "Merge branch 'hacktoberfest' into master"
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
@@ -553,11 +557,15 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
+<<<<<<< refs/remotes/origin/master
 <<<<<<< HEAD
         new FlareBotTask("PostBotlistData" + System.currentTimeMillis()) {
 =======
         new FlarebotTask("PostBotlistData") {
 >>>>>>> parent of 5b2aed9... Merge branch 'hacktoberfest' into master
+=======
+        new FlarebotTask("PostBotlistData") {
+>>>>>>> Revert "Merge branch 'hacktoberfest' into master"
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
@@ -572,7 +580,10 @@ public class FlareBot {
 =======
         
         new FlarebotTask("PostCarbonData") {
+<<<<<<< refs/remotes/origin/master
 >>>>>>> parent of 5b2aed9... Merge branch 'hacktoberfest' into master
+=======
+>>>>>>> Revert "Merge branch 'hacktoberfest' into master"
             @Override
             public void run() {
                 if (FlareBot.carbonAuth != null) {
