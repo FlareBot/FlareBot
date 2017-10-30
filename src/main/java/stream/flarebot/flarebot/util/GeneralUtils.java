@@ -37,6 +37,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -427,5 +428,30 @@ public class GeneralUtils {
      */
     public static String formatPrecisely(Period period) {
         return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
+    }
+
+    private static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
+
+    public static String formatTime(LocalDateTime dateTime) {
+        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
+        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
+                .format(timeFormat) + " UTC";
+    }
+
+    private static String getDayOfMonthSuffix(final int n) {
+        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
+        if (n >= 11 && n <= 13) {
+            return "th";
+        }
+        switch (n % 10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
+        }
     }
 }

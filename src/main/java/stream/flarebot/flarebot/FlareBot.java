@@ -267,8 +267,6 @@ public class FlareBot {
     private String version = null;
     private JDA[] clients;
 
-    private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
-
     private Set<Command> commands = ConcurrentHashMap.newKeySet();
     private PlayerManager musicManager;
     private long startTime;
@@ -1112,33 +1110,6 @@ public class FlareBot {
             }
             return null;
         }).filter(Objects::nonNull).findFirst().orElse(null);
-    }
-
-    public DateTimeFormatter getTimeFormatter() {
-        return this.timeFormat;
-    }
-
-    public String formatTime(LocalDateTime dateTime) {
-        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
-        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
-                .format(timeFormat) + " UTC";
-    }
-
-    private String getDayOfMonthSuffix(final int n) {
-        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
-        if (n >= 11 && n <= 13) {
-            return "th";
-        }
-        switch (n % 10) {
-            case 1:
-                return "st";
-            case 2:
-                return "nd";
-            case 3:
-                return "rd";
-            default:
-                return "th";
-        }
     }
 
     public boolean isTestBot() {
