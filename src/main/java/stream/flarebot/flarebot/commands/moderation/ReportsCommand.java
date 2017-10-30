@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.Color;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class ReportsCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
@@ -64,7 +65,7 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else if (args[0].equalsIgnoreCase("view")) {
                 if (args.length == 2) {
@@ -88,7 +89,7 @@ public class ReportsCommand implements Command {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length >= 3) {
@@ -114,17 +115,25 @@ public class ReportsCommand implements Command {
                         if (guild.getReportManager().getReport(id).getStatus().equals(status)) {
                             MessageUtils.sendInfoMessage("Current status is: **" + status.getMessage() + "**", channel, sender);
                         } else {
+                            ReportStatus old = guild.getReportManager().getReport(id).getStatus();
                             guild.getReportManager().getReport(id).setStatus(status);
                             MessageUtils.sendSuccessMessage(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage()), channel, sender);
+                            guild.getAutoModConfig().postToModLog(new EmbedBuilder()
+                                    .setTitle("Report edited")
+                                    .setColor(Color.WHITE)
+                                    .addField("Report ID", String.valueOf(id), true)
+                                    .addField("Old Status", old.getMessage(), true)
+                                    .addField("New Status", guild.getReportManager().getReport(id).getStatus().getMessage(), true)
+                                    .addField("Responsible moderator", sender.getAsMention(), true).build());
                         }
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
                     }
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else {
-                MessageUtils.sendUsage(this, channel, sender);
+                MessageUtils.sendUsage(this, channel, sender, args);
             }
         }
 
@@ -165,10 +174,10 @@ public class ReportsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}reports` - shows the usage\n" +
-                "`{%}reports list [page]` - list the reports on your guild\n" +
-                "`{%}reports view <number>` - views a report with the given number\n" +
-                "`{%}reports status <number> <status>` - edits the status of a report\n";
+        return "`{%}reports` - Shows the usage.\n" +
+                "`{%}reports list [page]` - List the reports on your guild.\n" +
+                "`{%}reports view <number>` - Views a report with the given number.\n" +
+                "`{%}reports status <number> <status>` - Edits the status of a report.";
     }
 
     @Override
