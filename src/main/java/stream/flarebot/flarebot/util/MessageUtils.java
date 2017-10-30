@@ -104,7 +104,7 @@ public class MessageUtils {
     public static String paste(String trace) {
         if (FlareBot.getInstance().getPasteKey() == null || FlareBot.getInstance().getPasteKey().isEmpty()) {
             FlareBot.LOGGER.warn("Paste server key is missing! Pastes will not work!");
-            return;
+            return null;
         }
         try {
             Response response = WebUtils.post(new Request.Builder().url("https://paste.flarebot.stream/documents")
