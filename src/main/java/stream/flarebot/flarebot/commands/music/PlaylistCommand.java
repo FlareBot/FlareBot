@@ -42,11 +42,11 @@ public class PlaylistCommand implements Command {
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
                     channel.sendMessage("Cleared the current playlist!").queue();
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 } else if (args[0].equalsIgnoreCase("here")) {
                     send(channel, channel, member);
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender);
+                    MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else {
                 if (args[0].equalsIgnoreCase("remove")) {
@@ -138,10 +138,11 @@ public class PlaylistCommand implements Command {
                 "To make it not send a DM do `playlist here`";
     }
 
+    //TODO: Add alllllll the stuff here
     @Override
     public String getUsage() {
-        return "{%}playlist [option]\n" +
-                "{%}playlist remove <#>";
+        return "`{%}playlist [option]`\n" +
+                "`{%}playlist remove <#>`";
     }
 
     @Override
