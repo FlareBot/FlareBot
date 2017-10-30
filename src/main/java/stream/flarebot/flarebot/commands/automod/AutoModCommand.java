@@ -22,7 +22,7 @@ public class AutoModCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
             return;
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("config")) {
@@ -77,7 +77,7 @@ public class AutoModCommand implements Command {
                             .setDescription("Reset the punishments back to default")
                             .build()).queue();
                 } else {
-                    MessageUtils.sendUsage(this, channel, sender, args);
+                    MessageUtils.sendUsage(this, channel, sender);
                 }
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 //TODO: Walshy - Add this to usage when finished
@@ -137,11 +137,11 @@ public class AutoModCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}automod enable|disable` - Enable or disable automod for your server!\n"
-                + "`{%}automod config` - View config/punishments for a server.\n"
-                + "`{%}automod punishments [reset]` - View punishments. Reset punishments with the optional argument.\n"
-                + "`{%}automod punishments set <punishment> <points> [duration]` - Description.\n"
-                + "`{%}automod whitelist list|add|remove [whitelist_item]` - Description.\n"
+        return "{%}automod enable/disable - Enable or disable automod for your server!\n"
+                + "{%}automod config - View config/punishments for a server\n"
+                + "{%}automod punishments [reset] - View punishments. Reset punishments with the optional argument\n"
+                + "{%}automod punishments set <punishment> <points> [duration] - Description\n"
+                + "{%}automod whitelist list/add/remove [whitelist item] - Description\n"
                 //TODO: Walshy - See above
                 + "{%}automod";
     }

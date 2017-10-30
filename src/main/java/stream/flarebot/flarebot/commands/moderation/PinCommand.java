@@ -18,31 +18,17 @@ public class PinCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && args[0].matches("[0-9]{18,22}")) {
-            if (!guild.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE)) {
-                MessageUtils.sendErrorMessage("I need the `Manage Messages` permission in order to pin!", channel);
-                return;
-            }
-
             Message msg = channel.getMessageById(args[0].trim()).complete();
-            if (msg == null) {
-                MessageUtils.sendErrorMessage("That message could not be found!", channel);
-                return;
-            }
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else if (args.length != 0) {
-            if (!guild.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE)) {
-                MessageUtils.sendErrorMessage("I need the `Manage Messages` permission in order to pin!", channel);
-                return;
-            }
-
             Message msg = channel.sendMessage(new EmbedBuilder().setTitle(sender.getName(), null)
                     .setThumbnail(MessageUtils.getAvatar(sender)).setDescription(MessageUtils.getMessage(args, 0))
                     .build()).complete();
             msg.pin().complete();
             channel.getHistory().retrievePast(1).complete().get(0).delete().queue();
         } else {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -58,7 +44,7 @@ public class PinCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}pin <messageID|message>` - Pins a message either by ID or by typing a message.";
+        return "`{%}pin <messageID|message>` - Pins a message either by ID or by typing a message";
     }
 
     @Override

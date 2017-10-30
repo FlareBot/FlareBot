@@ -60,7 +60,7 @@ public class RolesCommand implements Command {
             sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
             MessageUtils.sendInfoMessage(sb.toString(), channel, sender);
         } else {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -76,7 +76,7 @@ public class RolesCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}roles [page]` - Gets the roles for the current server.";
+        return "`{%}roles [page]` - Gets the roles for the current server";
     }
 
     @Override

@@ -23,7 +23,7 @@ public class Prefixes {
                     ")");
             ResultSet set = session.execute("SELECT * FROM flarebot.prefixes;");
             List<Row> rows = set.all();
-            for (Row row : rows) {
+            for(Row row : rows){
                 prefixes.put(row.getString("guild_id"), row.getString("prefix").charAt(0));
             }
         });
@@ -44,7 +44,7 @@ public class Prefixes {
         }
         prefixes.put(guildId, character);
         CassandraController.runTask(session -> session.execute(session.prepare("UPDATE flarebot.prefixes SET prefix = ? WHERE guild_id = ?").bind()
-                .setString(0, String.valueOf(character)).setString(1, guildId)));
+            .setString(0, String.valueOf(character)).setString(1, guildId)));
         update(guildId, character);
     }
 

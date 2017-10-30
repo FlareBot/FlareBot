@@ -15,13 +15,13 @@ public class CommandUsageCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         } else {
             Command c = FlareBot.getInstance().getCommand(args[0]);
-            if (c == null || (c.getType() == CommandType.SECRET && !getPermissions(channel).isCreator(sender))) {
+            if (c == null) {
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
             } else {
-                MessageUtils.sendUsage(c, channel, sender, new String[]{});
+                MessageUtils.sendUsage(c, channel, sender);
             }
         }
     }
@@ -38,7 +38,7 @@ public class CommandUsageCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}usage <command_name>` - Displays the usage for another command.";
+        return "{%}usage <command name>";
     }
 
     @Override
