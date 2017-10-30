@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
@@ -39,6 +40,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+    private List<ModlogEvent> enabledEvents = new ArrayList<>();
 
     // oooo special!
     private boolean betaAccess = false;
@@ -244,5 +246,17 @@ public class GuildWrapper {
     public Map<String, String> getTags() {
         if (tags == null) tags = new ConcurrentHashMap<>();
         return tags;
+    }
+
+    public boolean eventEnabled(ModlogEvent event) {
+        return enabledEvents.contains(event);
+    }
+
+    public boolean enableEvent(ModlogEvent event) {
+        return enabledEvents.add(event);
+    }
+
+    public boolean disableEvent(ModlogEvent event) {
+        return enabledEvents.remove(event);
     }
 }

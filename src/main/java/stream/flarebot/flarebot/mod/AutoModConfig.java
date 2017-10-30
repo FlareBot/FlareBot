@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.awt.Color;
@@ -125,6 +126,22 @@ public class AutoModConfig {
             }
             eb.setFooter(GeneralUtils.formatTime(LocalDateTime.now()), null);
             getModLogChannel().sendMessage(eb.build()).queue();
+        }
+    }
+
+    public void postToModLog(String message) {
+        if (hasModLog())
+            getModLogChannel().sendMessage(message).queue();
+        
+    }
+
+    public void postToModlog(MessageEmbed embed, ModlogEvent event) {
+        if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).eventEnabled(event)) {
+            if (event.isCompact()) {
+                postToModLog(GeneralUtils.embedToText(embed));
+            } else {
+                postToModLog(embed);
+            }
         }
     }
 

@@ -454,4 +454,18 @@ public class GeneralUtils {
                 return "th";
         }
     }
+
+    public static String embedToText(MessageEmbed embed) {
+        StringBuilder sb = new StringBuilder();
+        if (embed.getTitle() != null)
+            sb.append("**" + embed.getTitle() + "**: ");
+        if (embed.getDescription() != null)
+            sb.append(embed.getDescription() + " ");
+        for (MessageEmbed.Field field : embed.getFields()) {
+            sb.append("**" + field.getName() + "**: " + field.getValue() + " ");
+        }
+        if (embed.getFooter() != null)
+            sb.append("*" + embed.getFooter() + "*");
+        return sb.toString();
+    }
 }
