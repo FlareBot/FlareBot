@@ -11,7 +11,6 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.ModlogAction;
-import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -31,9 +30,9 @@ public class BanCommand implements Command {
                     return;
                 }
                 Member target = guild.getGuild().getMember(user);
-                if(target == null) {
-                    MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID", 
-                        channel, sender);
+                if (target == null) {
+                    MessageUtils.sendErrorMessage("That user is not on this server, you could try to forceban and try with the ID",
+                            channel, sender);
                     return;
                 }
                 String reason = null;
@@ -55,7 +54,7 @@ public class BanCommand implements Command {
                 MessageUtils.sendErrorMessage("We can't ban users! Make sure we have the `Ban Members` permission!", channel, sender);
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 
@@ -71,7 +70,7 @@ public class BanCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}ban <user> [reason]` - Bans a user with an optional reason";
+        return "`{%}ban <user> [reason]` - Bans a user with an optional reason.";
     }
 
     @Override

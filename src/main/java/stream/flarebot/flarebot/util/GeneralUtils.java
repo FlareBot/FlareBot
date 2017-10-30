@@ -7,12 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -23,6 +18,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -51,6 +47,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GeneralUtils {
 
@@ -70,6 +67,7 @@ public class GeneralUtils {
             .appendMinutes().appendSuffix("m")
             .appendSeconds().appendSuffix("s")
             .toFormatter();
+    private static final int LEVENSHTEIN_DISTANCE = 8;
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -255,14 +253,38 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId) {
-        Role role = FlareBot.getInstance().getGuildByID(guildId).getRoles().stream()
+        return getRole(s, guildId, null);
+    }
+
+    public static Role getRole(String s, String guildId, TextChannel channel) {
+        Guild guild = FlareBot.getInstance().getGuildByID(guildId);
+        Role role = guild.getRoles().stream()
                 .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
         if (role != null) return role;
         try {
-            role = FlareBot.getInstance().getGuildByID(guildId).getRoleById(Long.parseLong(s.replaceAll("[^0-9]", "")));
+            role = guild.getRoleById(Long.parseLong(s.replaceAll("[^0-9]", "")));
             if (role != null) return role;
         } catch (NumberFormatException | NullPointerException ignored) {
+        }
+        if (channel != null) {
+            if (guild.getRolesByName(s, true).isEmpty()) {
+                String closest = null;
+                int distance = LEVENSHTEIN_DISTANCE;
+                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.getInstance().getGuild(guildId).getSelfAssignRoles()
+                        .contains(role1.getId())).collect(Collectors.toList())) {
+                    int currentDistance = StringUtils.getLevenshteinDistance(role1.getName(), s);
+                    if (currentDistance < distance) {
+                        distance = currentDistance;
+                        closest = role1.getName();
+                    }
+                }
+                MessageUtils.sendErrorMessage("That role does not exist! "
+                        + (closest != null ? "Maybe you mean `" + closest + "`" : ""), channel);
+                return null;
+            } else {
+                return guild.getRolesByName(s, true).get(0);
+            }
         }
         return null;
     }
@@ -367,7 +389,7 @@ public class GeneralUtils {
         printWriter.close();
         return writer.toString();
     }
-    
+
     public static int getInt(String s, int defaultValue) {
         try {
             return Integer.parseInt(s);
@@ -379,6 +401,7 @@ public class GeneralUtils {
     /**
      * Get a Joda Period from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
      * Joda Period.
+     *
      * @param input The input string to parse.
      * @return The joda Period or null if the format is not correct.
      */
@@ -398,6 +421,7 @@ public class GeneralUtils {
 
     /**
      * This will format a Joda Period into a precise timestamp (yyyy-MM-dd HH:mm:ss.SS).
+     *
      * @param period Period to format onto the current date
      * @return The date in a precise format. Example: 2017-10-13 21:56:33.681
      */

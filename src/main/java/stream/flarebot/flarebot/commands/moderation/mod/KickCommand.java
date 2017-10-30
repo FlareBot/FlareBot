@@ -9,7 +9,6 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.ModlogAction;
-import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -28,9 +27,9 @@ public class KickCommand implements Command {
                     return;
                 }
                 Member target = guild.getGuild().getMember(user);
-                if(target == null) {
-                    MessageUtils.sendErrorMessage("That user is not on this server therefor cannot be kicked!", 
-                        channel, sender);
+                if (target == null) {
+                    MessageUtils.sendErrorMessage("That user is not on this server therefor cannot be kicked!",
+                            channel, sender);
                     return;
                 }
                 String reason = null;
@@ -47,7 +46,7 @@ public class KickCommand implements Command {
                 MessageUtils.sendErrorMessage("We can't kick users! Make sure we have the `Kick Members` permission!", channel, sender);
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 
@@ -63,7 +62,7 @@ public class KickCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}kick <user> [reason]` - Kicks a user with an optional reason";
+        return "`{%}kick <user> [reason]` - Kicks a user with an optional reason.";
     }
 
     @Override

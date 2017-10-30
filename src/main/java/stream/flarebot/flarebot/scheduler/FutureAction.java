@@ -136,7 +136,7 @@ public class FutureAction {
     }
 
     public void execute() {
-        switch(action) {
+        switch (action) {
             case TEMP_MUTE:
                 GuildWrapper guild = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
                 if (guild.getMutedRole() != null && guild.getGuild().getMemberById(target).getRoles().contains(guild.getMutedRole()))
@@ -146,14 +146,14 @@ public class FutureAction {
                 break;
             case TEMP_BAN:
                 GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
-                if(gw.getGuild().getSelfMember().hasPermission(Permission.BAN_MEMBERS))
+                if (gw.getGuild().getSelfMember().hasPermission(Permission.BAN_MEMBERS))
                     gw.getGuild().getController().unban(String.valueOf(target)).queue(aVoid -> gw.getAutoModConfig()
                             .postAutoModAction(GeneralUtils.getUser(String.valueOf(target), null, true),
                                     ModlogAction.UNBAN.toPunishment(), "Temporary ban expired, was banned for "
                                             + GeneralUtils.formatJodaTime(delay)));
                 break;
             case REMINDER:
-                if(FlareBot.getInstance().getChannelById(channelId) != null)
+                if (FlareBot.getInstance().getChannelById(channelId) != null)
                     FlareBot.getInstance().getChannelById(channelId).sendMessage(FlareBot.getInstance()
                             .getUserById(responsible).getAsMention() + " You asked me to remind you " +
                             GeneralUtils.formatJodaTime(delay) + " ago about: `" + content.replaceAll("`", "'") + "`")
@@ -166,7 +166,7 @@ public class FutureAction {
     public void queue() {
         // I have to minus here since this has the complete end time.
         Scheduler.delayTask(this::execute, getExpires().minus(System.currentTimeMillis()).getMillis());
-        if(update == null) update = CassandraController.prepare("UPDATE flarebot.future_tasks SET responsible = ?, " +
+        if (update == null) update = CassandraController.prepare("UPDATE flarebot.future_tasks SET responsible = ?, " +
                 "target = ?, content = ?, expires_at = ?, action = ? WHERE guild_id = ? AND channel_id = ? " +
                 "AND created_at = ?");
         CassandraController.executeAsync(update.bind().setLong(0, responsible).setLong(1, target).setString(2, content)
@@ -175,8 +175,9 @@ public class FutureAction {
     }
 
     public void delete() {
-        if(delete == null) delete = CassandraController.prepare("DELETE FROM flarebot.future_tasks WHERE guild_id = ? " +
-                "AND channel_id = ? AND created_at = ?");
+        if (delete == null)
+            delete = CassandraController.prepare("DELETE FROM flarebot.future_tasks WHERE guild_id = ? " +
+                    "AND channel_id = ? AND created_at = ?");
         CassandraController.executeAsync(delete.bind().setLong(0, guildId).setLong(1, channelId)
                 .setTimestamp(2, created.toDate()));
     }

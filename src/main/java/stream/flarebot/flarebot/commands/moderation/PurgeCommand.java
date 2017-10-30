@@ -30,22 +30,27 @@ public class PurgeCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length >= 2) {
-            // clean all 5
-            User targetUser = null;
-            if(!args[0].equalsIgnoreCase("all")) {
-                targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
-                if(targetUser == null) {
+        if (args.length >= 1) {
+            User targetUser;
+            int amount;
+            targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
+            if (targetUser == null) {
+                if (args[0].matches("\\d+")) {
+                    amount = GeneralUtils.getInt(args[0], -1);
+                } else {
                     MessageUtils.sendErrorMessage("That target user cannot be found, try mentioning them, using the user ID or using `all` to clear the entire chat.", channel);
                     return;
-                }                
+                }
+            } else if (args.length == 2) {
+                amount = GeneralUtils.getInt(args[1], -1);
+            } else {
+                MessageUtils.sendUsage(this, channel, sender, args);
+                return;
             }
 
-            int amount = GeneralUtils.getInt(args[1], -1);
-
             // 2 messages min
-            if(amount < 1) {
-                MessageUtils.sendErrorMessage("You must purge at least 1 message, please give a vaid purge amount.", channel);
+            if (amount < 1) {
+                MessageUtils.sendErrorMessage("You must purge at least 1 message, please give a valid purge amount.", channel);
                 return;
             }
 
@@ -63,7 +68,7 @@ public class PurgeCommand implements Command {
                 }
             }
 
-            if(!guild.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY)) {
+            if (!guild.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY)) {
                 MessageUtils.sendErrorMessage("I do not have the perms `Manage Messages` and `Read Message History` please make sure I have these and do the command again.", channel);
                 return;
             }
@@ -71,37 +76,37 @@ public class PurgeCommand implements Command {
             int toRetrieve = amount + 1;
             int i = 0;
             outer:
-            while(toRetrieve > 0) { // I don't really know if this should be min... 
-                                    // since deleting 10 of someone could be like 100 back yet this would request it 10 times. 
-                                    // For now I will just request 100 here each time.
-                if(history.retrievePast((targetUser == null ? Math.min(toRetrieve, 100) : 100)).complete().isEmpty()) {
+            while (toRetrieve > 0) { // I don't really know if this should be min...
+                // since deleting 10 of someone could be like 100 back yet this would request it 10 times.
+                // For now I will just request 100 here each time.
+                if (history.retrievePast((targetUser == null ? Math.min(toRetrieve, 100) : 100)).complete().isEmpty()) {
                     break;
                 }
 
                 List<Message> toDelete = new ArrayList<>();
-                for(Message msg : history.getRetrievedHistory()) {
-                    if(msg.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())) break outer;
-                    if((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
+                for (Message msg : history.getRetrievedHistory()) {
+                    if (msg.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())) break outer;
+                    if ((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
                         toDelete.add(msg);
                         i++;
                         toRetrieve--;
                     }
-                    if(toRetrieve == 0) break;
+                    if (toRetrieve == 0) break;
                 }
                 channel.deleteMessages(toDelete).complete();
                 toDelete.clear();
             }
             EmbedBuilder eb = new EmbedBuilder();
-            eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Purge" : "User Purge", null);
+            eb.setColor(Color.WHITE).setTitle(targetUser == null ? "Chat Purge" : "User Purge", null);
             if (targetUser != null)
                 eb.addField("User", MessageUtils.getTag(targetUser) + " (" + targetUser.getId() + ")", true);
             eb.addField("Responsible moderator", sender.getAsMention(), true);
-            eb.addField("Messages purged", String.valueOf((i-1)), true);
-            
-            guild.getAutoModConfig().postToModLog(eb.build());                                                  
+            eb.addField("Messages purged", String.valueOf((i - 1)), true);
+
+            guild.getAutoModConfig().postToModLog(eb.build());
             MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("Deleted `%s` messages!", i-1)).build(), 
-                                                TimeUnit.SECONDS.toMillis(5), channel);
+                            .setDescription(String.format("Deleted `%s` messages!", i - 1)).build(),
+                    TimeUnit.SECONDS.toMillis(5), channel);
         }
     }
 
@@ -117,7 +122,8 @@ public class PurgeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}purge <'all'/user> <amount>` - Purges a certain amount of messages.";
+        return "`{%}purge <user> <amount>` - Purges a certain amount of messages from a user.\n" +
+                "`{%}purge <amount>` - Purges a certain amount of messages.";
     }
 
     @Override
@@ -128,11 +134,6 @@ public class PurgeCommand implements Command {
     @Override
     public String[] getAliases() {
         return new String[]{"clean"};
-    }
-
-    @Override
-    public boolean deleteMessage() {
-        return false;
     }
 
     @Override

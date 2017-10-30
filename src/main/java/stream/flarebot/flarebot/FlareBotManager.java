@@ -190,7 +190,7 @@ public class FlareBotManager {
 
     public synchronized GuildWrapper getGuild(String id) {
         //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
-        if(guilds == null) return null; //This is if it's ran before even being loaded
+        if (guilds == null) return null; //This is if it's ran before even being loaded
         guilds.computeIfAbsent(id, guildId -> {
             long start = System.currentTimeMillis();
             ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
@@ -203,7 +203,7 @@ public class FlareBotManager {
                 wrapper = new GuildWrapperBuilder(id).build();
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
-          
+
             if (total >= 200) {
                 FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
                         .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)

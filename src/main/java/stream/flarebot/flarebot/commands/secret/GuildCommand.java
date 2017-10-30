@@ -24,7 +24,7 @@ public class GuildCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             if (args[0].equalsIgnoreCase("block")) {
                 if (args.length == 1) {
@@ -50,11 +50,11 @@ public class GuildCommand implements Command {
                     wrapper = FlareBotManager.getInstance().getGuild(args[1]);
                 }
                 Guild g = wrapper.getGuild();
-                    
+
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
                         .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
                 embedBuilder.setTitle(g.getName(), null).addField("Beta", String.valueOf(wrapper.getBetaAccess()), true)
-                    .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
+                        .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
                 channel.sendMessage(embedBuilder.build()).queue();
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {

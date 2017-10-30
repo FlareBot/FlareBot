@@ -4,8 +4,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
@@ -21,10 +19,10 @@ public class RemindCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length < 2) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             Period period;
-            if((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
+            if ((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
             String reminder = FlareBot.getMessage(args, 1);
             channel.sendMessage("\uD83D\uDC4D I will remind you in " + GeneralUtils.formatJodaTime(period) + " (at "
                     + GeneralUtils.formatPrecisely(period) + ")").queue();
@@ -46,7 +44,7 @@ public class RemindCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}remind <duration> <reminder>";
+        return "`{%}remind <duration> <reminder>` - Reminds a user about something after a duration.";
     }
 
     @Override
@@ -56,7 +54,7 @@ public class RemindCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"r"};
+        return new String[]{"r"};
     }
 
     @Override
