@@ -35,7 +35,7 @@ public class PauseCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}pause` - Pauses the currently playing song.";
+        return "`{%}pause` - Pauses the currently playing song";
     }
 
     @Override

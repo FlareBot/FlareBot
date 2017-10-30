@@ -3,22 +3,20 @@ package stream.flarebot.flarebot.mod;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 
 import java.awt.Color;
-import java.util.concurrent.TimeUnit;
 
 public class Punishment {
 
-    private ModlogAction action;
+    private EPunishment punishment;
     private long duration;
 
-    public Punishment(ModlogAction action) {
-        this.action = action;
+    public Punishment(EPunishment punishment) {
+        this.punishment = punishment;
     }
 
-    public Punishment(ModlogAction action, long duration) {
-        this.action = action;
+    public Punishment(EPunishment punishment, int duration) {
+        this.punishment = punishment;
         this.duration = duration;
     }
 
@@ -27,28 +25,37 @@ public class Punishment {
     }
 
     public String getName() {
-        return action.name().charAt(0) + action.name().substring(1).toLowerCase().replaceAll("_", " ");
+        return punishment.name().charAt(0) + punishment.name().substring(1).toLowerCase().replaceAll("_", " ");
     }
 
-    public ModlogAction getAction() {
-        return action;
+    public EPunishment getPunishment() {
+        return punishment;
     }
 
-    public MessageEmbed getActionEmbed(User user, User responsible, String reason) {
-        return getActionEmbed(user, responsible, reason, true);
+    public MessageEmbed getPunishmentEmbed(User user, User responsible, String reason) {
+        return getPunishmentEmbed(user, responsible, reason, true);
     }
-
-    public MessageEmbed getActionEmbed(User user, User responsible, String reason, boolean showReason) {
+    
+    public MessageEmbed getPunishmentEmbed(User user, User responsible, String reason, boolean showReason) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(getName());
         eb.setColor(Color.WHITE);
         eb.addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true);
-        if (responsible != null)
+        if(responsible != null)
             eb.addField("Responsible moderator", responsible.getAsMention(), true);
-        if ((responsible != null || reason != null) && showReason)
+        if((responsible != null || reason != null) && showReason)
             eb.addField("Reason", (reason != null ? reason : "No reason given!"), true);
-        if (action.name().startsWith("TEMP"))
-            eb.addField("Duration", FlareBot.getInstance().formatTime(duration, TimeUnit.MILLISECONDS, true, false), true);
         return eb.build();
+    }
+
+    public enum EPunishment {
+        PURGE,
+        TEMP_MUTE,
+        MUTE,
+        UNMUTE,
+        KICK,
+        TEMP_BAN,
+        BAN,
+        WARN
     }
 }

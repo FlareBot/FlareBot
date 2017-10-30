@@ -16,9 +16,7 @@ public final class ReportManager {
     }
 
     public Report getReport(int id) {
-        if (reports.size() >= id)
-            return reports.get(id - 1);
-        return null;
+        return reports.get(id - 1);
     }
 
     public void report(Report report) {

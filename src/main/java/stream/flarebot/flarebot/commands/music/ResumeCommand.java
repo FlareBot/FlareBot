@@ -37,7 +37,7 @@ public class ResumeCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}resume` - Resumes the playlist.";
+        return "`{%}resume` - Resumes the playlist";
     }
 
     @Override

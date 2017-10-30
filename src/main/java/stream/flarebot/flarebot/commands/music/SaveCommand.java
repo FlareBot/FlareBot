@@ -22,7 +22,7 @@ public class SaveCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
             return;
         }
 
@@ -72,12 +72,12 @@ public class SaveCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Save the current playlist!";
+        return "Save the current playlist! Usage: `save NAME`";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}save <name>` - Saves a playlist.";
+        return "{%}save <name>";
     }
 
     @Override
