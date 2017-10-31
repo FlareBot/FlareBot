@@ -9,7 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -121,7 +121,7 @@ public class SkipCommand implements Command {
                         .build()).queue();
                 return null;
             }
-            new FlarebotTask("Vote " + s) {
+            new FlareBotTask("Vote " + s) {
 
                 @Override
                 public void run() {
@@ -163,8 +163,9 @@ public class SkipCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}skip [yes/no]\n" +
-                "{%}skip force";
+        return "`{%}skip` - Starts a vote to skip the song.\n" +
+                "`{%}skip yes|no` - Vote yes or no to skip the current song.\n" +
+                "`{%}skip force` - Forces FlareBot to skip the current song.";
     }
 
     @Override

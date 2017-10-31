@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.mod;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.exceptions.HierarchyException;
 import stream.flarebot.flarebot.FlareBotManager;
 
 import java.util.Map;
@@ -40,26 +41,26 @@ public class AutoModGuild {
     public String addPoints(Guild guild, String userId, int points) {
         this.userPoints.put(userId, userPoints.containsKey(userId) ? userPoints.get(userId) + points : points);
 
-        for(int punishmentPoints : config.getPunishments().keySet()){
-            if(userPoints.get(userId) >= punishmentPoints && userPoints.get(userId) - points < punishmentPoints){
+        for (int punishmentPoints : config.getPunishments().keySet()) {
+            if (userPoints.get(userId) >= punishmentPoints && userPoints.get(userId) - points < punishmentPoints) {
                 Punishment punishment = config.getPunishments().get(punishmentPoints);
-                switch(punishment.getPunishment()) {
+                switch (punishment.getAction()) {
                     case TEMP_MUTE:
                     case MUTE:
-                        if(guild.getSelfMember().hasPermission(Permission.MANAGE_ROLES))
+                        if (guild.getSelfMember().hasPermission(Permission.MANAGE_ROLES))
                             muteUser(guild, guild.getMemberById(userId));
                         else
                             return "Unable to mute user! (ID: " + userId + ") I do not have the 'Manage Roles' permission!";
                         break;
                     case TEMP_BAN:
                     case BAN:
-                        if(guild.getSelfMember().hasPermission(Permission.BAN_MEMBERS))
+                        if (guild.getSelfMember().hasPermission(Permission.BAN_MEMBERS))
                             guild.getController().ban(userId, 30, "AutoMod punishment - " + userPoints.get(userId) + " points.").queue();
                         else
                             return "Unable to ban user! (ID: " + userId + ") I do not have the 'Ban Members' permission!";
                         break;
                     case KICK:
-                        if(guild.getSelfMember().hasPermission(Permission.KICK_MEMBERS))
+                        if (guild.getSelfMember().hasPermission(Permission.KICK_MEMBERS))
                             guild.getController().kick(userId, "AutoMod punishment - " + userPoints.get(userId) + " points.").queue();
                         else
                             return "Unable to kick user! (ID: " + userId + ") I do not have the 'Kick Members' permission!";
@@ -67,13 +68,13 @@ public class AutoModGuild {
                     case PURGE:
 
                 }
-                config.postAutoModAction(punishment, guild.getMemberById(userId).getUser());
+                config.postAutoModAction(guild.getMemberById(userId).getUser(), punishment);
             }
         }
         return null;
     }
 
-    public void muteUser(Guild guild, Member member) {
+    public void muteUser(Guild guild, Member member) throws HierarchyException {
         guild.getController().addRolesToMember(member, FlareBotManager.getInstance().getGuild(guild.getId()).getMutedRole()).complete();
     }
 }

@@ -37,10 +37,14 @@ public class ConvertCommand implements Command {
             String from = args[1];
             String to = args[2];
             try {
-                if (!CurrencyConversionUtil.isValidCurrency(from))
+                if (!CurrencyConversionUtil.isValidCurrency(from)) {
                     MessageUtils.sendErrorMessage("The currency `" + from + "` is not valid!", channel);
-                if (!CurrencyConversionUtil.isValidCurrency(to))
+                    return;
+                }
+                if (!CurrencyConversionUtil.isValidCurrency(to)) {
                     MessageUtils.sendErrorMessage("The currency `" + to + "` is not valid!", channel);
+                    return;
+                }
 
                 CurrencyComparison comparison;
                 if (from.equalsIgnoreCase(to)) {
@@ -68,7 +72,7 @@ public class ConvertCommand implements Command {
                         "Please join the support guild: " + FlareBot.INVITE_URL, e, channel);
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override
@@ -83,7 +87,7 @@ public class ConvertCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}convert <amount> <from> <to>` - Converts an amount of one currency to another";
+        return "`{%}convert <amount> <from> <to>` - Converts an amount of one currency to another.";
     }
 
     @Override
@@ -93,7 +97,7 @@ public class ConvertCommand implements Command {
 
     @Override
     public boolean isBetaTesterCommand() {
-        return true;
+        return false;
     }
 
     private MessageEmbed getCurrencyConversionEmbed(User sender, CurrencyComparison c, Double from) {

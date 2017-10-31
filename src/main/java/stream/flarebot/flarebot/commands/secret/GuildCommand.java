@@ -24,7 +24,7 @@ public class GuildCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             if (args[0].equalsIgnoreCase("block")) {
                 if (args.length == 1) {
@@ -41,28 +41,21 @@ public class GuildCommand implements Command {
                     handleUnblock(channel, args[1]);
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
-                if (args.length == 1) {
-                    EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
-                    embedBuilder.setDescription("This guild " +
-                            (guild.isBlocked() ? "is blocked!" : "is not blocked!"))
-                            .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    MessageUtils.sendMessage(embedBuilder.build(), channel);
-                    return;
-                } else if (args.length == 2) {
-                    Guild guild1 = FlareBot.getInstance().getGuildByID(args[1]);
-                    if (guild1 == null) {
+                GuildWrapper wrapper = guild;
+                if (args.length == 2) {
+                    if (FlareBot.getInstance().getGuildByID(args[1]) == null) {
                         MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
                         return;
                     }
-                    EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                    embedBuilder.setColor(FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? Color.RED : Color.GREEN);
-                    embedBuilder.setDescription("That guild " +
-                            (FlareBotManager.getInstance().getGuild(guild1.getId()).isBlocked() ? "is blocked!" : "is not blocked!"))
-                            .addField("Reason", (guild.getBlockReason() == null ? "No reason provided!" : guild.getBlockReason()), false);
-                    MessageUtils.sendMessage(embedBuilder.build(), channel);
-                    return;
+                    wrapper = FlareBotManager.getInstance().getGuild(args[1]);
                 }
+                Guild g = wrapper.getGuild();
+
+                EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender)
+                        .setColor(guild.isBlocked() ? Color.RED : Color.GREEN);
+                embedBuilder.setTitle(g.getName(), null).addField("Beta", String.valueOf(wrapper.getBetaAccess()), true)
+                        .addField("Blocked", guild.isBlocked() + (guild.isBlocked() ? " (`" + wrapper.getBlockReason() + "`)" : ""), true);
+                channel.sendMessage(embedBuilder.build()).queue();
             } else if (args[0].equalsIgnoreCase("beta")) {
                 if (args.length == 1) {
                     guild.setBetaAccess(!guild.getBetaAccess());
@@ -72,15 +65,15 @@ public class GuildCommand implements Command {
                             .build()).queue();
                     return;
                 } else if (args.length == 2) {
-                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[0]);
+                    GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[1]);
                     if (guildWrapper == null) {
                         MessageUtils.sendErrorMessage("That guild does not exist!", channel);
                         return;
                     } else {
-                        guildWrapper.setBetaAccess(!guild.getBetaAccess());
+                        guildWrapper.setBetaAccess(!guildWrapper.getBetaAccess());
                         channel.sendMessage(MessageUtils.getEmbed(sender)
-                                .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
-                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
+                                .setColor(guildWrapper.getBetaAccess() ? Color.GREEN : Color.RED)
+                                .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guildWrapper.getBetaAccess() ? "given" : "removed from") + " beta access!")
                                 .build()).queue();
                         return;
                     }
@@ -104,7 +97,6 @@ public class GuildCommand implements Command {
                             .append('\u200B').build()).queue();
                 }
             }
-            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 

@@ -38,6 +38,7 @@ public class GuildWrapper {
     private String mutedRoleID = null;
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
+    private Map<String, String> tags = new ConcurrentHashMap<>();
 
     // oooo special!
     private boolean betaAccess = false;
@@ -52,6 +53,10 @@ public class GuildWrapper {
 
     public String getGuildId() {
         return this.guildId;
+    }
+
+    public long getGuildIdLong() {
+        return Long.parseLong(this.guildId);
     }
 
     public AutoModGuild getAutoModGuild() {
@@ -88,7 +93,7 @@ public class GuildWrapper {
         return permissions;
     }
 
-    protected void setPermissions(PerGuildPermissions permissions) {
+    public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
     }
 
@@ -171,7 +176,7 @@ public class GuildWrapper {
             Role mutedRole =
                     GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
             if (mutedRole == null) {
-                if (!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES))
+                if (!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES, Permission.MANAGE_PERMISSIONS))
                     return null;
                 try {
                     mutedRole = getGuild().getController().createRole().setName("Muted").submit().get();
@@ -202,6 +207,7 @@ public class GuildWrapper {
     }
 
     public ReportManager getReportManager() {
+        if (reportManager == null) reportManager = new ReportManager();
         return reportManager;
     }
 
@@ -210,11 +216,11 @@ public class GuildWrapper {
     }
 
     public List<String> getUserWarnings(User user) {
-        return warnings.get(user.getId());
+        return warnings.getOrDefault(user.getId(), new ArrayList<>());
     }
 
     public void addWarning(User user, String reason) {
-        List<String> warningsList = warnings.getOrDefault(user.getId(), new ArrayList<>());
+        List<String> warningsList = getUserWarnings(user);
         warningsList.add(reason);
         warnings.put(user.getId(), warningsList);
     }
@@ -233,5 +239,10 @@ public class GuildWrapper {
 
     public boolean getBetaAccess() {
         return betaAccess;
+    }
+
+    public Map<String, String> getTags() {
+        if (tags == null) tags = new ConcurrentHashMap<>();
+        return tags;
     }
 }

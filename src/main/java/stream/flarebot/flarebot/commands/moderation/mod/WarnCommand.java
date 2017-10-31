@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -18,21 +19,22 @@ public class WarnCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             User user = GeneralUtils.getUser(args[0]);
             if (user == null) {
                 MessageUtils.sendErrorMessage("We couldn't find that user!!", channel);
                 return;
             }
-            String reason = MessageUtils.getMessage(args, 1);
-            guild.addWarning(user, reason);
+            String reason = null;
+            if (args.length >= 2) reason = MessageUtils.getMessage(args, 1);
+            guild.addWarning(user, (reason != null ? reason : "No reason provided - action done by " + sender.getName()));
+            guild.getAutoModConfig().postToModLog(user, sender, ModlogAction.WARN.toPunishment(), reason);
             EmbedBuilder eb = new EmbedBuilder();
-            eb.appendDescription("You have been warned in the `" + guild.getGuild().getName() + "(" + guild.getGuildId() + ")` guild");
-            eb.addField("Reason", "```" + reason + "```", false);
-            eb.addField("WarningsCommand", String.valueOf(guild.getUserWarnings(user).size()), true);
-            eb.setColor(Color.CYAN);
-            MessageUtils.sendPM(channel, user, eb);
+            eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user)
+                    + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
+                    .setColor(Color.WHITE);
+            channel.sendMessage(eb.build()).queue();
         }
     }
 
@@ -48,7 +50,7 @@ public class WarnCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}warn <user> <reason>` - warns a user";
+        return "`{%}warn <user> (reason)` - Warns a user.";
     }
 
     @Override

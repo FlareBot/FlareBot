@@ -37,10 +37,14 @@ public class CurrencyCommand implements Command {
                 String from = args[0];
                 String to = args[1];
                 try {
-                    if (!CurrencyConversionUtil.isValidCurrency(from))
+                    if (!CurrencyConversionUtil.isValidCurrency(from)) {
                         MessageUtils.sendErrorMessage("The currency `" + from + "` is not valid!", channel);
-                    if (!CurrencyConversionUtil.isValidCurrency(to))
+                        return;
+                    }
+                    if (!CurrencyConversionUtil.isValidCurrency(to)) {
                         MessageUtils.sendErrorMessage("The currency `" + to + "` is not valid!", channel);
+                        return;
+                    }
 
                     CurrencyComparison comparison;
                     if (from.equalsIgnoreCase(to)) {
@@ -62,7 +66,7 @@ public class CurrencyCommand implements Command {
                 }
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override
@@ -77,7 +81,7 @@ public class CurrencyCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}currency <from> <to>` - Displays the currency conversion rates for two currencies";
+        return "`{%}currency <from> <to>` - Displays the currency conversion rates for two currencies.";
     }
 
     @Override
@@ -87,7 +91,7 @@ public class CurrencyCommand implements Command {
 
     @Override
     public boolean isBetaTesterCommand() {
-        return true;
+        return false;
     }
 
     private MessageEmbed getCurrencyRatesEmbed(User sender, CurrencyComparison c) {

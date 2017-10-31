@@ -7,6 +7,7 @@ public enum MessageType {
     INFO(Color.CYAN),
     SUCCESS(Color.GREEN),
     WARNING(Color.YELLOW),
+    MODERATION(Color.WHITE),
     ERROR(Color.RED),
     NEUTRAL(null);
 

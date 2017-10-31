@@ -15,7 +15,7 @@
 
 ## Support
 
-If you need any help with the bot or you think you have found a bug please join our [official Discord server](https://discord.gg/TTAUGvZ)) and report it there
+If you need any help with the bot or you think you have found a bug please join our [official Discord server](https://discord.gg/TTAUGvZ) and report it there
 
 ## Contributing Corner
 
@@ -29,13 +29,14 @@ This is one of the best ways to contribute to this project!
 
 You can find the contributing guidelines at [this link](https://github.com/FlareBot/FlareBot/blob/master/CONTRIBUTING.md).
 
-#### **Current Contributors**
+#### **Current Maintainers**
 
+* [Walshy(@Walshy#9060)](https://github.com/WalshyDev/FlareBot)
 * [BinaryOverload(@BinaryOverload#2382)](https://github.com/binaryoverload/FlareBot)
 * [weeryan17(@weeryan17#1258)](https://github.com/weeryan17/FlareBot)
 
 ## Credits
 
-- [ ] Initially started by [WalshyDev(@bwfcwalshy#1284)](https://github.com/WalshyDev/) and [ArsenArsen(@Arsen#7525)](https://github.com/ArsenArsen/)
+- [ ] Initially started by [Walshy(@Walshy#9060)](https://github.com/WalshyDev/) and [ArsenArsen(@Arsen#7525)](https://github.com/ArsenArsen/)
 - [ ] FlareBot's Avatar is made by [CaptainBaconz](https://www.twitch.tv/captainbaconz) with minor design changes.
 - [ ] Big thanks to EJ Technologies for providing us with open source licenses for [their Java profiler](https://www.ej-technologies.com/products/jprofiler/overview.html). 

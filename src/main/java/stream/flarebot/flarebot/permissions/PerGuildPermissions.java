@@ -17,14 +17,7 @@ public class PerGuildPermissions {
 
     public PerGuildPermissions() {
         if (!hasGroup("Default")) {
-            Group defaults = new Group("Default");
-            for (Command command : FlareBot.getInstance().getCommands()) {
-                if (command.isDefaultPermission()) {
-                    defaults.addPermission(command.getPermission());
-                }
-            }
-            defaults.addPermission("flarebot.userinfo.other");
-            groups.put("Default", defaults);
+            createDefaultGroup();
         }
     }
 
@@ -36,7 +29,8 @@ public class PerGuildPermissions {
             return true;
         if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
-        if (isContributor(user.getUser()))
+        // Change done by Walshy: Internal review needed
+        if (isContributor(user.getUser()) && FlareBot.getInstance().isTestBot())
             return true;
         PermissionNode node = new PermissionNode(permission);
         for (Group g : getGroups().values()) {
@@ -90,6 +84,21 @@ public class PerGuildPermissions {
 
     public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
         return user.getId().equals("215644829969809421");
+    }
+
+    public void createDefaultGroup() {
+        if (hasGroup("Default")) {
+            deleteGroup("Default");
+        }
+        Group defaults = new Group("Default");
+        for (Command command : FlareBot.getInstance().getCommands()) {
+            if (command.isDefaultPermission()) {
+                defaults.addPermission(command.getPermission());
+            }
+        }
+        defaults.addPermission("flarebot.userinfo.other");
+        defaults.addPermission("flarebot.playlist.clear");
+        groups.put("Default", defaults);
     }
 
 }

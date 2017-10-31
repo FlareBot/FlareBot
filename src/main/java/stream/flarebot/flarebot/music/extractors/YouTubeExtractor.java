@@ -49,7 +49,7 @@ public class YouTubeExtractor implements Extractor {
             if (e.getMessage().contains("Vevo")) {
                 MessageUtils.editMessage("", MessageUtils.getEmbed(user)
                         .setDescription("We are blocked from playing this video as it is from Vevo! " +
-                                "Sorry for any inconvience.")
+                                "Sorry for any inconvenience.")
                         .setColor(Color.RED), message);
                 return;
             }
@@ -58,7 +58,7 @@ public class YouTubeExtractor implements Extractor {
                             "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
                             "Input: " + input + "\n" +
                             "Error Message: " + e.getMessage() + "\n" +
-                            "Stacktrace: " + MessageUtils.hastebin(GeneralUtils.getStackTrace(e)))
+                            "Stacktrace: " + MessageUtils.paste(GeneralUtils.getStackTrace(e)))
                     .setColor(Color.RED), message);
             return;
         }
