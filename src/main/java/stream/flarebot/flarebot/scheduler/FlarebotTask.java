@@ -1,13 +1,18 @@
 package stream.flarebot.flarebot.scheduler;
 
-public abstract class FlareBotTask implements Runnable {
+/**
+ * ayy it repeats
+ * <br>
+ * Created by Arsen on 20.9.16..
+ */
+public abstract class FlarebotTask implements Runnable {
 
     private String taskName;
 
-    protected FlareBotTask() {
+    protected FlarebotTask() {
     }
 
-    public FlareBotTask(String taskName) {
+    public FlarebotTask(String taskName) {
         this.taskName = taskName;
     }
 

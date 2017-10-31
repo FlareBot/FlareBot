@@ -23,7 +23,7 @@ public class SearchCommand implements Command {
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
         } else {
-            MessageUtils.sendUsage(this, channel, sender, args);
+            MessageUtils.sendUsage(this, channel, sender);
         }
     }
 
@@ -39,7 +39,7 @@ public class SearchCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}search <URL/words>` - Searches for a song on YouTube.";
+        return "{%}search <URL/words>";
     }
 
     @Override

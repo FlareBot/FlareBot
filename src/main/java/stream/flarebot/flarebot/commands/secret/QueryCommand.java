@@ -46,8 +46,8 @@ public class QueryCommand implements Command {
                 if (output.length() < 2000) {
                     channel.sendMessage(output).queue();
                 } else {
-                    MessageUtils.sendErrorMessage("The query result set was very large, it has been posted to paste [here](" + MessageUtils
-                            .paste(output) + ")", channel, sender);
+                    MessageUtils.sendErrorMessage("The query result set was very large, it has been posted to hastebin [here](" + MessageUtils
+                            .hastebin(output) + ")", channel, sender);
                 }
             });
         } catch (QueryExecutionException | QueryValidationException e) {

@@ -26,7 +26,7 @@ public class PlaylistsCommand implements Command {
             if (args[0].equalsIgnoreCase("mark")) {
                 if (getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1 || args.length == 2) {
-                        MessageUtils.sendUsage(this, channel, sender, args);
+                        MessageUtils.sendUsage(this, channel, sender);
                     } else {
                         String playlist = FlareBot.getMessage(args, 2);
                         CassandraController.runTask(session -> {
@@ -119,7 +119,7 @@ public class PlaylistsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}playlists` - Returns the playlists available.";
+        return "{%}playlists";
         // Admin command:
         // {%}playlists mark <global/local> <playlist>
     }

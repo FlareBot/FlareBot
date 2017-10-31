@@ -8,8 +8,6 @@ import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.arsenarsen.lavaplayerbridge.utils.JDAMultiShard;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -43,7 +41,6 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,19 +48,44 @@ import spark.Spark;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.automod.*;
+import stream.flarebot.flarebot.commands.automod.ModlogCommand;
 import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.moderation.*;
-import stream.flarebot.flarebot.commands.moderation.mod.*;
+import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
+import stream.flarebot.flarebot.commands.moderation.FixCommand;
+import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
+import stream.flarebot.flarebot.commands.moderation.PinCommand;
+import stream.flarebot.flarebot.commands.moderation.PruneCommand;
+import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
+import stream.flarebot.flarebot.commands.moderation.ReportsCommand;
+import stream.flarebot.flarebot.commands.moderation.RolesCommand;
+import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.ForceBanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.KickCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.WarnCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.WarningsCommand;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.secret.AvatarCommand;
+import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
+import stream.flarebot.flarebot.commands.secret.EvalCommand;
+import stream.flarebot.flarebot.commands.secret.GuildCommand;
+import stream.flarebot.flarebot.commands.secret.LogsCommand;
+import stream.flarebot.flarebot.commands.secret.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.QueryCommand;
+import stream.flarebot.flarebot.commands.secret.QuitCommand;
+import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.TestCommand;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.AnnounceCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
-import stream.flarebot.flarebot.scheduler.FutureAction;
+import stream.flarebot.flarebot.scheduler.FlarebotTask;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -128,10 +150,9 @@ public class FlareBot {
     private static String botListAuth;
     private static String dBotsAuth;
     private static String carbonAuth;
-
+    
     private FlareBotManager manager;
     private static String webSecret;
-    private static String pasteKey;
     private static boolean apiEnabled = true;
 
     public static final Gson GSON = new GsonBuilder().create();
@@ -201,9 +222,6 @@ public class FlareBot {
         String tkn = config.getString("bot.token").get();
 
         new CassandraController().init(config);
-
-        if (config.getString("bot.pasteAccessKey").isPresent())
-            FlareBot.pasteKey = config.getString("bot.pasteAccessKey").get();
         if (config.getString("misc.hook").isPresent()) {
             FlareBot.secret = config.getString("misc.hook").get();
         }
@@ -307,12 +325,12 @@ public class FlareBot {
                     .setToken(tkn)
                     .setAudioSendFactory(new NativeAudioSendFactory());
             if (clients.length == 1) {
-                clients[0] = builder.buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
+                clients[0] = builder.buildAsync();
                 Thread.sleep(5000);
             } else {
                 builder = builder.setReconnectQueue(new SessionReconnectQueue());
                 for (int i = 0; i < clients.length; i++) {
-                    clients[i] = builder.useSharding(i, clients.length).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
+                    clients[i] = builder.useSharding(i, clients.length).buildAsync();
                     Thread.sleep(5000); // 5 second backoff
                 }
             }
@@ -334,7 +352,7 @@ public class FlareBot {
                         } else {
                             if (!GeneralUtils.canChangeNick(player.getGuildId())) {
                                 MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
-                                        "FlareBot can't change it's nickname so SongNick has been disabled!");
+                                    "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
                         }
                     }
@@ -486,9 +504,8 @@ public class FlareBot {
         registerCommand(new ForceBanCommand());
         registerCommand(new BanCommand());
         registerCommand(new MuteCommand());
-        registerCommand(new TempMuteCommand());
         registerCommand(new UnmuteCommand());
-        registerCommand(new TempBanCommand());
+//        registerCommand(new TempBanCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
@@ -504,20 +521,17 @@ public class FlareBot {
 
         registerCommand(new TagsCommand());
         registerCommand(new PostUpdateCommand());
-        registerCommand(new RemindCommand());
 
         ApiFactory.bind();
 
-        manager.executeCreations();
-
-        loadFutureTasks();
+        //manager.executeCreations();
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
         //sendCommands();
 
-        new FlareBotTask("FixThatStatus" + System.currentTimeMillis()) {
+        new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
@@ -525,7 +539,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(32));
 
-        new FlareBotTask("PostDbotsData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostDbotsData") {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
@@ -535,7 +549,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
-        new FlareBotTask("PostBotlistData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostBotlistData") {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
@@ -544,40 +558,41 @@ public class FlareBot {
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("PostCarbonData" + System.currentTimeMillis()) {
+        
+        new FlarebotTask("PostCarbonData") {
             @Override
             public void run() {
                 if (FlareBot.carbonAuth != null) {
                     try {
-                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
-                                new JSONObject()
-                                        .put("key", FlareBot.carbonAuth)
-                                        .put("servercount", getGuilds().size())
-                                        .put("shardcount", clients.length)
-                                        .toString());
-                    } catch (IOException e) {
+                    WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON, 
+                    new JSONObject()
+                        .put("key", FlareBot.carbonAuth)
+                        .put("servercount", getGuilds().size())
+                        .put("shardcount", clients.length)
+                        .toString());
+                    } catch(IOException e) {
                         LOGGER.error("Failed to update carbon!", e);
                     }
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
-        new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
+        new FlarebotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 sendData();
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(30));
 
-        new FlareBotTask("spam" + System.currentTimeMillis()) {
+        new FlarebotTask("spam" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 Events.spamMap.clear();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
 
-        new FlareBotTask("ClearConfirmMap" + System.currentTimeMillis()) {
+        new FlarebotTask("ClearConfirmMap" + System.currentTimeMillis()) {
+
             @Override
             public void run() {
                 ConfirmUtil.clearConfirmMap();
@@ -586,27 +601,6 @@ public class FlareBot {
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));
 
         setupUpdate();
-    }
-
-    private void loadFutureTasks() {
-        final int[] loaded = {0};
-        CassandraController.runTask(session -> {
-            ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
-            Row row;
-            while ((row = set.one()) != null) {
-                FutureAction fa = new FutureAction(row.getLong("guild_id"), row.getLong("channel_id"), row.getLong("responsible"),
-                        row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
-                        new DateTime(row.getTimestamp("created_at")),
-                        FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
-                if (new DateTime().isAfter(fa.getExpires()))
-                    fa.execute();
-                else
-                    fa.queue();
-                loaded[0]++;
-            }
-        });
-
-        LOGGER.info("Loaded " + loaded[0] + " future tasks");
     }
 
     private void postToBotList(String auth, String url) {
@@ -636,10 +630,11 @@ public class FlareBot {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
         }
+        LOGGER.debug("Sent " + clients.length + " requests to " + url);
     }
 
     private void setupUpdate() {
-        new FlareBotTask("Auto-Update" + System.currentTimeMillis()) {
+        new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
             @Override
             public void run() {
                 quit(true);
@@ -800,12 +795,13 @@ public class FlareBot {
                 String out = "";
                 String line;
                 if ((line = reader.readLine()) != null) {
+                    System.out.println(line);
                     out += line + '\n';
                 }
                 p.waitFor();
                 if (p.exitValue() != 0) {
                     UpdateCommand.UPDATING.set(false);
-                    LOGGER.error("Could not update! Log:** {} **", MessageUtils.paste(out));
+                    LOGGER.error("Could not update! Log:** {} **", MessageUtils.hastebin(out));
                     return;
                 }
                 LOGGER.info("Replacing jar!");
@@ -1047,16 +1043,8 @@ public class FlareBot {
                 .findFirst().orElse(null);
     }
 
-    public TextChannel getChannelById(long id) {
-        return getGuilds().stream().map(g -> g.getTextChannelById(id)).filter(Objects::nonNull).findFirst().orElse(null);
-    }
-
     public Guild getGuildByID(String id) {
         return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
-    }
-
-    public Guild getGuildById(long id) {
-        return getGuilds().stream().filter(g -> g.getIdLong() == id).findFirst().orElse(null);
     }
 
     // getXs
@@ -1147,9 +1135,5 @@ public class FlareBot {
 
     public boolean isTestBot() {
         return testBot;
-    }
-
-    public String getPasteKey() {
-        return pasteKey;
     }
 }
