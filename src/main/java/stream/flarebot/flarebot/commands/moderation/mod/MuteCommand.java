@@ -26,13 +26,13 @@ public class MuteCommand implements Command {
                 return;
             }
             if (guild.getMutedRole() == null) {
-                MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create and apply it!", channel);
+                MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
                 return;
             }
             try {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
             } catch (HierarchyException e) {
-                MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the role hierarchy.",
+                MessageUtils.sendErrorMessage("Cannot apply the Muted role, make sure it is below FlareBot in the role hierarchy.",
                         channel);
                 return;
             }
