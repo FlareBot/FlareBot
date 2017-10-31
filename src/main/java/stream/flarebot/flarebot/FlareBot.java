@@ -524,8 +524,8 @@ public class FlareBot {
                     setStatus("_help | _invite");
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(32));
-
-        new FlareBotTask("PostDbotsData" + System.currentTimeMillis()) {
+      
+        new FlareBotTask("PostDbotsData") {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
@@ -535,7 +535,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
-        new FlareBotTask("PostBotlistData" + System.currentTimeMillis()) {
+        new FlareBotTask("PostBotlistData") {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
@@ -544,8 +544,8 @@ public class FlareBot {
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("PostCarbonData" + System.currentTimeMillis()) {
+        
+        new FlareBotTask("PostCarbonData") {
             @Override
             public void run() {
                 if (FlareBot.carbonAuth != null) {
@@ -636,6 +636,7 @@ public class FlareBot {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
         }
+        LOGGER.debug("Sent " + clients.length + " requests to " + url);
     }
 
     private void setupUpdate() {

@@ -52,6 +52,7 @@ public class Scheduler {
         Iterator<Map.Entry<String, ScheduledFuture<?>>> i = tasks.entrySet().iterator();
         while (i.hasNext()) {
             Map.Entry<String, ScheduledFuture<?>> next = i.next();
+            if (next.getKey() == null) continue;
             if (next.getKey().equals(taskName)) {
                 next.getValue().cancel(false);
                 i.remove();
