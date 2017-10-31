@@ -73,6 +73,7 @@ import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
 import stream.flarebot.flarebot.commands.secret.EvalCommand;
 import stream.flarebot.flarebot.commands.secret.GuildCommand;
 import stream.flarebot.flarebot.commands.secret.LogsCommand;
+import stream.flarebot.flarebot.commands.secret.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.secret.QueryCommand;
 import stream.flarebot.flarebot.commands.secret.QuitCommand;
 import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
@@ -519,7 +520,7 @@ public class FlareBot {
         registerCommand(new DisableCommandCommand());
 
         registerCommand(new TagsCommand());
-        registerCommand(new AnnounceCommand());
+        registerCommand(new PostUpdateCommand());
 
         ApiFactory.bind();
 
@@ -538,7 +539,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(32));
 
-        new FlarebotTask("PostDbotsData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostDbotsData") {
             @Override
             public void run() {
                 if (FlareBot.dBotsAuth != null) {
@@ -548,7 +549,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
-        new FlarebotTask("PostBotlistData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostBotlistData") {
             @Override
             public void run() {
                 if (FlareBot.botListAuth != null) {
@@ -558,7 +559,7 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
         
-        new FlarebotTask("PostCarbonData" + System.currentTimeMillis()) {
+        new FlarebotTask("PostCarbonData") {
             @Override
             public void run() {
                 if (FlareBot.carbonAuth != null) {
@@ -629,6 +630,7 @@ public class FlareBot {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
         }
+        LOGGER.debug("Sent " + clients.length + " requests to " + url);
     }
 
     private void setupUpdate() {
