@@ -32,7 +32,7 @@ public class ModlogCommand implements Command {
                 } else {
                     EmbedBuilder errorBuilder = new EmbedBuilder();
                     errorBuilder.setDescription("Invalid Event: `" + args[1] + "`");
-                    errorBuilder.addField("Events", "**" + Arrays.stream(ModlogEvent.values()).map(ModlogEvent::toString).collect(Collectors.joining("**\n**")) + "**", false);
+                    errorBuilder.addField("Events", "`" + Arrays.stream(ModlogEvent.values()).map(ModlogEvent::toString).collect(Collectors.joining("`\n`")) + "`", false);
                     MessageUtils.sendErrorMessage(errorBuilder, channel);
                     return;
                 }
@@ -107,31 +107,6 @@ public class ModlogCommand implements Command {
         }
 
         MessageUtils.sendUsage(this, channel, member.getUser(), args);
-
-        //Old command. not sure if you want this still walshy
-        /*if (!getPermissions(channel).hasPermission(member, "flarebot.modlog"))
-            return;
-        if (args.length == 1) {
-            if (args[0].equalsIgnoreCase("setchannel")) {
-                guild.getAutoModConfig()
-                        .setModLogChannel(channel.getId());
-                channel.sendMessage(new EmbedBuilder().setColor(Color.green)
-                        .setDescription("The modlog channel has been changed to " + channel
-                                .getAsMention()).build()).queue();
-            }
-            *//*} else if (args[0].equalsIgnoreCase("config")) {
-            } else if (args[0].equalsIgnoreCase("set")) {
-
-            } else {
-                MessageUtils.sendErrorMessage("Invalid argument!", channel);
-            }
-        } else if (args.length == 2) {
-
-        } else if (args.length == 3) {*//*
-
-        } else {
-            MessageUtils.sendUsage(this, channel, sender);
-        }*/
     }
 
     @Override
