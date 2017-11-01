@@ -130,17 +130,21 @@ public class AutoModConfig {
     }
 
     public void postToModLog(String message) {
-        if (hasModLog())
+        if (hasModLog()) {
+            message += ("*" + GeneralUtils.formatTime(LocalDateTime.now()) + "*");
             getModLogChannel().sendMessage(message).queue();
+        }
 
     }
 
-    public void postToModlog(MessageEmbed embed, ModlogEvent event) {
-        if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).eventEnabled(event)) {
-            if (event.isCompact()) {
-                postToModLog(GeneralUtils.embedToText(embed));
-            } else {
-                postToModLog(embed);
+    public void postToModLog(MessageEmbed embed, ModlogEvent event) {
+        if (hasModLog()) {
+            if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).eventEnabled(event)) {
+                if (event.isCompact()) {
+                    postToModLog(GeneralUtils.embedToText(embed));
+                } else {
+                    postToModLog(embed);
+                }
             }
         }
     }

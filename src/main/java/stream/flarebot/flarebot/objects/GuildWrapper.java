@@ -249,14 +249,41 @@ public class GuildWrapper {
     }
 
     public boolean eventEnabled(ModlogEvent event) {
+        checkEventsArray();
         return enabledEvents.contains(event);
     }
 
     public boolean enableEvent(ModlogEvent event) {
+        checkEventsArray();
         return enabledEvents.add(event);
     }
 
     public boolean disableEvent(ModlogEvent event) {
+        checkEventsArray();
         return enabledEvents.remove(event);
+    }
+
+    public boolean toogleCompactEvent(ModlogEvent event) {
+        if (event.isCompact()) {
+            event.setCompact(false);
+            return false;
+        } else {
+            event.setCompact(true);
+            return true;
+        }
+    }
+
+    private void checkEventsArray() {
+        if (enabledEvents == null) {
+            enabledEvents = new ArrayList<>();
+            enabledEvents.add(ModlogEvent.MEMBER_ROLE_GIVE);
+            enabledEvents.add(ModlogEvent.MEMBER_ROLE_REMOVE);
+            enabledEvents.add(ModlogEvent.ROLE_CREATE);
+            enabledEvents.add(ModlogEvent.ROLE_DELETE);
+            enabledEvents.add(ModlogEvent.CHANNEL_CREATE);
+            enabledEvents.add(ModlogEvent.CHANNEL_DELETE);
+            enabledEvents.add(ModlogEvent.MESSAGE_EDIT);
+            enabledEvents.add(ModlogEvent.MESSAGE_DELETE);
+        }
     }
 }

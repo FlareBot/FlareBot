@@ -18,6 +18,7 @@ public enum ModlogEvent {
 
     COMMAND,
 
+    MESSAGE_EDIT,
     MESSAGE_DELETE;
 
     boolean compact = false;

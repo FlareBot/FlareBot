@@ -45,6 +45,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.mod.ModlogAction;
+import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
@@ -111,7 +112,7 @@ public class Events extends ListenerAdapter {
                 .getAutoModConfig().postToModLog(new EmbedBuilder()
                 .setTitle("User Join")
                 .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
-                .build());
+                .build(), ModlogEvent.MEMBER_JOIN);
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
@@ -170,7 +171,7 @@ public class Events extends ListenerAdapter {
                 .getAutoModConfig().postToModLog(new EmbedBuilder()
                 .setTitle("User Leave")
                 .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
-                .build());
+                .build(), ModlogEvent.MEMBER_LEAVE);
     }
 
     private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
@@ -225,7 +226,7 @@ public class Events extends ListenerAdapter {
                 .setTitle("Voice join")
                 .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
                 .addField("Channel", event.getChannelJoined().getName() + " (" + event.getChannelJoined().getId() + ")", true)
-                .build());
+                .build(), ModlogEvent.MEMBER_VOICE_JOIN);
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
@@ -240,7 +241,7 @@ public class Events extends ListenerAdapter {
                 .setTitle("Voice leave")
                 .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
                 .addField("Channel", event.getChannelLeft().getName() + " (" + event.getChannelLeft().getId() + ")", true)
-                .build());
+                .build(), ModlogEvent.MEMBER_VOICE_LEAVE);
         if (event.getMember().getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
@@ -338,24 +339,29 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onRoleCreate(RoleCreateEvent event) {
-        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
-        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Role create")
-                .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
-                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
-                .build());
+        event.getGuild().getAuditLogs().queue(auditLog -> {
+            AuditLogEntry entry = auditLog.get(0);
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                    .getAutoModConfig().postToModLog(new EmbedBuilder()
+                    .setTitle("Role create")
+                    .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
+                    .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                    .build(), ModlogEvent.ROLE_CREATE);
+        });
+
     }
 
     @Override
     public void onRoleDelete(RoleDeleteEvent event) {
-        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
-        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Role delete")
-                .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
-                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
-                .build());
+        event.getGuild().getAuditLogs().queue(auditLog -> {
+            AuditLogEntry entry = auditLog.get(0);
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                    .getAutoModConfig().postToModLog(new EmbedBuilder()
+                    .setTitle("Role delete")
+                    .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
+                    .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                    .build(), ModlogEvent.ROLE_DELETE);
+        });
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
@@ -382,7 +388,7 @@ public class Events extends ListenerAdapter {
                 .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
                 .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
                 .addField("Responsible moderator", entry.getUser().getAsMention(), true)
-                .build());
+                .build(), ModlogEvent.MEMBER_ROLE_GIVE);
     }
 
     @Override
@@ -399,7 +405,7 @@ public class Events extends ListenerAdapter {
                 .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
                 .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
                 .addField("Responsible moderator", entry.getUser().getAsMention(), true)
-                .build());
+                .build(), ModlogEvent.MEMBER_ROLE_REMOVE);
     }
 
     @Override
@@ -429,7 +435,7 @@ public class Events extends ListenerAdapter {
         .addField("Type", channel.getType().name().toLowerCase(), true)
         .addField("Name", channel.getName(), true)
         .addField("Responsible moderator", entry.getUser().getAsMention(), true)
-        .build());
+        .build(), ModlogEvent.CHANNEL_CREATE);
     }
 
     private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
@@ -439,7 +445,7 @@ public class Events extends ListenerAdapter {
                 .addField("Type", channel.getType().name().toLowerCase(), true)
                 .addField("Name", channel.getName(), true)
                 .addField("Responsible moderator", entry.getUser().getAsMention(), true)
-                .build());
+                .build(), ModlogEvent.CHANNEL_DELETE);
     }
 
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String command, String[] args) {
@@ -487,7 +493,7 @@ public class Events extends ListenerAdapter {
                         .setTitle("Command Run")
                         .addField("User", event.getAuthor().getAsMention(), true)
                         .addField("Command", cmd.getCommand(), true)
-                        .build());
+                        .build(), ModlogEvent.COMMAND);
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
