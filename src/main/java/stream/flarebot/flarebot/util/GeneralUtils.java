@@ -43,7 +43,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -467,5 +469,24 @@ public class GeneralUtils {
         if (embed.getFooter() != null)
             sb.append("*" + embed.getFooter() + "*");
         return sb.toString();
+    }
+
+    public static Map<Boolean, List<Permission>> getChangedPerms(List<Permission> oldPerms, List<Permission> newPerms) {
+        Map<Boolean, List<Permission>> changes = new HashMap<>();
+        List<Permission> removed = new ArrayList<>();
+        List<Permission> added = new ArrayList<>();
+        for (Permission oldPerm : oldPerms) {
+            if (!newPerms.contains(oldPerm)) {
+                removed.add(oldPerm);
+            }
+        }
+        for (Permission newPerm : newPerms) {
+            if(!oldPerms.contains(newPerm)) {
+                added.add(newPerm);
+            }
+        }
+        changes.put(true, added);
+        changes.put(false, removed);
+        return changes;
     }
 }

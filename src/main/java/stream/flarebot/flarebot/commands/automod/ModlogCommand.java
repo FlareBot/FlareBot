@@ -93,6 +93,15 @@ public class ModlogCommand implements Command {
                         MessageUtils.sendSuccessMessage("Compacted all the modlog events", channel, sender);
                         return;
                     }
+                } else {
+                    boolean compact = guild.toogleCompactEvent(event);
+                    if (compact) {
+                        MessageUtils.sendSuccessMessage("Compacted event `" + event.toString() + "`", channel, sender);
+                        return;
+                    } else {
+                        MessageUtils.sendSuccessMessage("Un-compacted event `" + event.toString() + "`", channel, sender);
+                        return;
+                    }
                 }
             }
             if (args[0].equalsIgnoreCase("setchannel")) {
@@ -116,7 +125,7 @@ public class ModlogCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Set the channel where mod events can be logged.";
+        return "Used for setting modlog options.";
     }
 
     @Override

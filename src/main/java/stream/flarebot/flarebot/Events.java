@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
+import net.dv8tion.jda.core.audit.AuditLogKey;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -36,6 +37,13 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
+import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
+import net.dv8tion.jda.core.events.role.update.RoleUpdateColorEvent;
+import net.dv8tion.jda.core.events.role.update.RoleUpdateHoistedEvent;
+import net.dv8tion.jda.core.events.role.update.RoleUpdateMentionableEvent;
+import net.dv8tion.jda.core.events.role.update.RoleUpdateNameEvent;
+import net.dv8tion.jda.core.events.role.update.RoleUpdatePermissionsEvent;
+import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.Request;
@@ -364,6 +372,58 @@ public class Events extends ListenerAdapter {
         });
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
+        }
+    }
+
+    @Override
+    public void onGenericRoleUpdate(GenericRoleUpdateEvent event) {
+        if (event instanceof RoleUpdatePositionEvent) {
+            
+        } else {
+            event.getGuild().getAuditLogs().queue(auditLogs -> {
+                AuditLogEntry entry = auditLogs.get(0);
+                Map<String, AuditLogChange> changes = entry.getChanges();
+                EmbedBuilder permissionsBuilder = new EmbedBuilder();
+                permissionsBuilder.setTitle("Role Change");
+
+                permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", false);
+
+                System.out.println(changes.keySet());
+
+                if (changes.containsKey("permissions")) {
+                    AuditLogChange change = changes.get("permissions");
+                    Map<Boolean, List<Permission>> permChanges = GeneralUtils.getChangedPerms(Permission.getPermissions(((Integer) change.getOldValue()).longValue()), Permission.getPermissions(((Integer) change.getNewValue()).longValue()));
+                    if (permChanges.get(true).size() > 0) {
+                        StringBuilder added = new StringBuilder();
+                        for (Permission addedPerm : permChanges.get(true)) {
+                            added.append(addedPerm.getName()).append("\n");
+                        }
+                        permissionsBuilder.addField("Added Perms", "```\n" + added.toString() + "```", false);
+                    }
+                    if (permChanges.get(false).size() > 0) {
+                        StringBuilder removed = new StringBuilder();
+                        for (Permission removedPerm : permChanges.get(false)) {
+                            removed.append(removedPerm.getName()).append("\n");
+                        }
+                        permissionsBuilder.addField("Removed Perms", "```\n" + removed.toString() + "```", false);
+                    }
+                }
+                if (changes.containsKey("name")) {
+                    AuditLogChange change = changes.get("name");
+                    permissionsBuilder.addField("Name Change", "`" + change.getOldValue() + "` -> `" + change.getNewValue() + "`", true);
+                }
+                if (changes.containsKey("mentionable")) {
+                    AuditLogChange change = changes.get("mentionable");
+                    permissionsBuilder.addField("Mentionable", "`" + change.getNewValue() + "`", true);
+                }
+                if (changes.containsKey("hoist")) {
+                    AuditLogChange change = changes.get("hoist");
+                    permissionsBuilder.addField("Displayed Separately", "`" + change.getNewValue() + "`", true);
+                }
+                permissionsBuilder.addField("Responsible Moderator", entry.getUser().getAsMention(), true);
+                FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(permissionsBuilder.build(), ModlogEvent.ROLE_EDIT);
+
+            });
         }
     }
 
