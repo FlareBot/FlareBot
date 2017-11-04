@@ -460,14 +460,14 @@ public class GeneralUtils {
     public static String embedToText(MessageEmbed embed) {
         StringBuilder sb = new StringBuilder();
         if (embed.getTitle() != null)
-            sb.append("**" + embed.getTitle() + "**: ");
+            sb.append("**").append(embed.getTitle()).append("**:");
         if (embed.getDescription() != null)
-            sb.append(embed.getDescription() + " ");
+            sb.append(embed.getDescription()).append(" ");
         for (MessageEmbed.Field field : embed.getFields()) {
-            sb.append("**" + field.getName() + "**: " + field.getValue() + " ");
+            sb.append("**").append(field.getName()).append("**: ").append(field.getValue()).append(" ");
         }
         if (embed.getFooter() != null)
-            sb.append("*" + embed.getFooter() + "*");
+            sb.append("*").append(embed.getFooter()).append("*");
         return sb.toString();
     }
 
