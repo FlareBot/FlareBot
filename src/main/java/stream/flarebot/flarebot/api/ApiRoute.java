@@ -11,7 +11,9 @@ public enum ApiRoute {
 
     // Root route
     COMMANDS(POST, "commands"),
-    DATA(POST, "data-ping"),
+
+    // Stats route
+    UPDATE_DATA(POST, "stats/data"),
 
     // Guild route
     UPDATE_PREFIX(PATCH, "guild/prefix"),

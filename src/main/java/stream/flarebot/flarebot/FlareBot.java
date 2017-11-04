@@ -48,6 +48,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.api.EmptyCallback;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
@@ -125,13 +128,9 @@ public class FlareBot {
         LOGGER = getLog(FlareBot.class);
     }
 
-    private static String botListAuth;
-    private static String dBotsAuth;
-    private static String carbonAuth;
+    private static JSONConfig config;
 
     private FlareBotManager manager;
-    private static String webSecret;
-    private static String pasteKey;
     private static boolean apiEnabled = true;
 
     public static final Gson GSON = new GsonBuilder().create();
@@ -158,7 +157,6 @@ public class FlareBot {
     public static void main(String[] args) throws Exception {
         Spark.port(8080);
 
-        JSONConfig config = null;
         try {
             File file = new File("config.json");
             if (!file.exists())
@@ -202,7 +200,7 @@ public class FlareBot {
 
         new CassandraController().init(config);
 
-        if (config.getString("bot.pasteAccessKey").isPresent())
+        /*if (config.getString("bot.pasteAccessKey").isPresent())
             FlareBot.pasteKey = config.getString("bot.pasteAccessKey").get();
         if (config.getString("misc.hook").isPresent()) {
             FlareBot.secret = config.getString("misc.hook").get();
@@ -221,7 +219,7 @@ public class FlareBot {
         }
         if (config.getString("botlists.carbon").isPresent()) {
             FlareBot.carbonAuth = config.getString("botlists.carbon").get();
-        }
+        }*/
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
         if (config.getArray("options").isPresent()) {
@@ -241,7 +239,7 @@ public class FlareBot {
             }
         }
 
-        if (webSecret == null || webSecret.isEmpty()) apiEnabled = false;
+        if (!config.getString("misc.apiKey").isPresent() || config.getString("misc.apiKey").get().isEmpty()) apiEnabled = false;
 
         Thread.setDefaultUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         Thread.currentThread()
@@ -528,8 +526,8 @@ public class FlareBot {
         new FlareBotTask("PostDbotsData" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                if (FlareBot.dBotsAuth != null) {
-                    postToBotList(FlareBot.dBotsAuth, String
+                if (config.getString("botlists.discordBots").isPresent()) {
+                    postToBotList(config.getString("botlists.discordBots").get(), String
                             .format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
@@ -538,8 +536,8 @@ public class FlareBot {
         new FlareBotTask("PostBotlistData" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                if (FlareBot.botListAuth != null) {
-                    postToBotList(FlareBot.botListAuth, String
+                if (config.getString("botlists.botlist").isPresent()) {
+                    postToBotList(config.getString("botlists.botlist").get(), String
                             .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
                 }
             }
@@ -548,11 +546,11 @@ public class FlareBot {
         new FlareBotTask("PostCarbonData" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                if (FlareBot.carbonAuth != null) {
+                if (config.getString("botlists.carbon").isPresent()) {
                     try {
                         WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
                                 new JSONObject()
-                                        .put("key", FlareBot.carbonAuth)
+                                        .put("key", config.getString("botlists.carbon").get())
                                         .put("servercount", getGuilds().size())
                                         .put("shardcount", clients.length)
                                         .toString());
@@ -653,11 +651,12 @@ public class FlareBot {
     private JsonParser parser = new JsonParser();
 
     private void sendData() {
-        /*JsonObject data = new JsonObject();
+        JsonObject data = new JsonObject();
         data.addProperty("guilds", getGuilds().size());
         data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
         data.addProperty("text_channels", getChannels().size());
-        data.addProperty("voice_channels", getConnectedVoiceChannels().size());
+        data.addProperty("voice_channels", getVoiceChannels().size());
+        data.addProperty("connected_voice_channels", getConnectedVoiceChannels().size());
         data.addProperty("active_voice_channels", getActiveVoiceChannels());
         data.addProperty("num_queued_songs", getGuilds().stream()
                 .mapToInt(guild -> musicManager.getPlayer(guild.getId())
@@ -665,7 +664,7 @@ public class FlareBot {
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("uptime", getUptime());
 
-        postToApi("postData", "data", data);*/
+        ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data, new EmptyCallback());
     }
 
     private void sendCommands() {
@@ -704,7 +703,7 @@ public class FlareBot {
         CountDownLatch latch = new CountDownLatch(1);
         API_THREAD_POOL.submit(() -> {
             JsonObject object = new JsonObject();
-            object.addProperty("secret", webSecret);
+            object.addProperty("secret", "null");
             object.addProperty("action", action);
             object.add(property, data);
 
@@ -1069,6 +1068,10 @@ public class FlareBot {
         return clients;
     }
 
+    public List<VoiceChannel> getVoiceChannels() {
+        return getGuilds().stream().flatMap(g -> g.getVoiceChannels().stream()).collect(Collectors.toList());
+    }
+
     public List<Channel> getChannels() {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
@@ -1150,6 +1153,15 @@ public class FlareBot {
     }
 
     public String getPasteKey() {
-        return pasteKey;
+        return config.getString("bot.pasteAccessKey").isPresent() ? config.getString("bot.pasteAccessKey").get() : null;
+    }
+
+    public String getApiKey() {
+        if(config.getString("misc.apiKey").isPresent())
+            return config.getString("misc.apiKey").get();
+        else {
+            apiEnabled = false;
+            return null;
+        }
     }
 }
