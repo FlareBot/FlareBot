@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.PaginationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class RolesCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length <= 1) {
-            StringBuilder sb = new StringBuilder();
+            /*StringBuilder sb = new StringBuilder();
             sb.append("**Server Roles**\n```json\n");
             List<Role> roles = new ArrayList<>(channel.getGuild().getRoles());
             roles.remove(channel.getGuild().getRoleById(channel.getGuild().getId()));
@@ -58,7 +59,15 @@ public class RolesCommand implements Command {
             }
 
             sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
-            MessageUtils.sendInfoMessage(sb.toString(), channel, sender);
+            MessageUtils.sendInfoMessage(sb.toString(), channel, sender);*/
+
+            StringBuilder sb = new StringBuilder();
+            for(Role r : guild.getGuild().getRoles())
+                sb.append(r.getName()).append(" (").append(r.getId()).append(")\n");
+            int page = 1;
+            if(args.length == 1)
+                page = Integer.parseInt(args[0]);
+            PaginationUtil.sendPagedMessage(channel, sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000, page, true);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
