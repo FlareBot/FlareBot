@@ -13,6 +13,7 @@ public enum ModlogEvent {
     ROLE_CREATE,
     ROLE_DELETE,
     ROLE_EDIT,
+    ROLE_MOVE,
 
     CHANNEL_CREATE,
     CHANNEL_DELETE,

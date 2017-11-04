@@ -148,7 +148,9 @@ public class ModlogCommand implements Command {
                 "`MEMBER_VOICE_JOIN` - Triggers when a user joins a voice channel.\n" +
                 "`MEMBER_VOICE_LEAVE` - Triggers when a user leaves a voice channel.\n\n" +
                 "`ROLE_CREATE` - Triggers when a role is created.\n" +
-                "`ROLE_DELETE` - Triggers when a role is deleted.\n\n" +
+                "`ROLE_DELETE` - Triggers when a role is deleted.\n" +
+                "`ROLE_EDIT` - Triggers when a role is edited.\n" +
+                "`ROLE_MOVE` - Triggers when a role is moved on the higharchy.\n\n" +
                 "`CHANNEL_CREATE` - Triggers when a channel is created.\n" +
                 "`CHANNEL_DELETE` - Triggers when a channel is deleted.\n\n" +
                 "`COMMAND` - Triggers when a user runs a **FlareBot** command.\n\n" +

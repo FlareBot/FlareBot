@@ -6,19 +6,15 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
-import net.dv8tion.jda.core.audit.AuditLogKey;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.StatusChangeEvent;
-import net.dv8tion.jda.core.events.channel.category.CategoryCreateEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
@@ -38,11 +34,6 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
-import net.dv8tion.jda.core.events.role.update.RoleUpdateColorEvent;
-import net.dv8tion.jda.core.events.role.update.RoleUpdateHoistedEvent;
-import net.dv8tion.jda.core.events.role.update.RoleUpdateMentionableEvent;
-import net.dv8tion.jda.core.events.role.update.RoleUpdateNameEvent;
-import net.dv8tion.jda.core.events.role.update.RoleUpdatePermissionsEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -69,7 +60,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -374,13 +364,35 @@ public class Events extends ListenerAdapter {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
     }
-
+    private long responseNumber = 0;
     @Override
     public void onGenericRoleUpdate(GenericRoleUpdateEvent event) {
         if (event instanceof RoleUpdatePositionEvent) {
-            
+            int oldpos = ((RoleUpdatePositionEvent) event).getOldPosition();
+            int newpos = event.getRole().getPosition();
+            if (oldpos == newpos)
+                return;
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle("Role Move");
+            embedBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
+            embedBuilder.addField("Position", "`" + oldpos + "` -> `" + newpos + "`", true);
+            List<Role> roles = event.getGuild().getRoles();
+            String surounding = "```md\n";
+            if (newpos != roles.size())
+                surounding += "+ " + roles.get(roles.size() - (newpos + 3)).getName() + "\n";
+           surounding += "> " + event.getRole().getName() + "\n";
+            if (newpos != 0) {
+                surounding += "+ " + roles.get(roles.size() - (newpos + 1)).getName() + "\n";
+            }
+            surounding += "```";
+            embedBuilder.addField("Surrounding roles", surounding, false);
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(embedBuilder.build(), ModlogEvent.ROLE_MOVE);
         } else {
-            event.getGuild().getAuditLogs().queue(auditLogs -> {
+            if (event.getResponseNumber() == responseNumber) {
+                return;
+            }
+            responseNumber = event.getResponseNumber();
+            event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
                 AuditLogEntry entry = auditLogs.get(0);
                 Map<String, AuditLogChange> changes = entry.getChanges();
                 EmbedBuilder permissionsBuilder = new EmbedBuilder();
@@ -419,6 +431,11 @@ public class Events extends ListenerAdapter {
                 if (changes.containsKey("hoist")) {
                     AuditLogChange change = changes.get("hoist");
                     permissionsBuilder.addField("Displayed Separately", "`" + change.getNewValue() + "`", true);
+                }
+                if (changes.containsKey("color")) {
+                    AuditLogChange change = changes.get("color");
+                    permissionsBuilder.addField("Color Change", "`#" + Integer.toHexString(change.getOldValue()) + "` -> `#" + Integer.toHexString(change.getNewValue()) + "`", true);
+
                 }
                 permissionsBuilder.addField("Responsible Moderator", entry.getUser().getAsMention(), true);
                 FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(permissionsBuilder.build(), ModlogEvent.ROLE_EDIT);
