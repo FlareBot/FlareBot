@@ -47,6 +47,8 @@ import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
@@ -61,6 +63,7 @@ import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -177,6 +180,8 @@ public class FlareBot {
         required.add("cassandra.username");
         required.add("cassandra.password");
         required.add("misc.yt");
+        required.add("redis.host");
+        required.add("redis.port");
 
         boolean good = true;
         for (String req : required) {
@@ -198,7 +203,8 @@ public class FlareBot {
 
         String tkn = config.getString("bot.token").get();
 
-        new CassandraController().init(config);
+        new CassandraController(config);
+        new RedisController(config);
 
         /*if (config.getString("bot.pasteAccessKey").isPresent())
             FlareBot.pasteKey = config.getString("bot.pasteAccessKey").get();
