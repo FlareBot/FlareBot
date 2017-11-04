@@ -1,33 +1,85 @@
 package stream.flarebot.flarebot.util;
 
-import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class PaginationList<T> implements Iterable<List<T>> {
 
     private int pageSize = 10;
     private List<T> list;
-    private List<List<T>> pagesList;
-    private boolean updated = false;
 
     public PaginationList(List<T> list) {
         Objects.requireNonNull(list);
         this.list = list;
-        generatePages();
+        list.stream();
     }
 
     public PaginationList(List<T> list, int pageSize) {
         this.list = list;
         this.pageSize = pageSize;
-        generatePages();
+    }
+
+    public int getPages() {
+        return this.list.size() < this.pageSize ?
+                1 : (this.list.size() / this.pageSize) + (this.list.size() % this.pageSize != 0 ? 1 : 0);
+    }
+
+    public Pair<Integer, Integer> getIndexes(int page) {
+        if (page >= getPages())
+            throw new NoSuchElementException();
+        int start = this.pageSize * (page);
+        int end = Math.min(start + this.pageSize, this.list.size());
+        return new Pair<>(start, end);
     }
 
     @Override
     public Iterator<List<T>> iterator() {
-        generatePages();
-        return pagesList.iterator();
+        return new Iterator<List<T>>() {
+            int cursor;
+
+            @Override
+            public boolean hasNext() {
+                return !(cursor >= getPages());
+            }
+
+            @Override
+            public List<T> next() {
+                int i = cursor;
+                if (i >= getPages())
+                    throw new NoSuchElementException();
+                Pair<Integer, Integer> indexes = getIndexes(i);
+                List<T> elementData = PaginationList.this.list.subList(indexes.getKey(), indexes.getValue());
+                if (i >= getPages())
+                    throw new ConcurrentModificationException();
+                cursor = i + 1;
+                return elementData;
+            }
+
+            @Override
+            public void forEachRemaining(Consumer<? super List<T>> consumer) {
+                Objects.requireNonNull(consumer);
+                final int size = getPages();
+                int i = cursor;
+
+                if (i >= getPages())
+                    throw new ConcurrentModificationException();
+                while (i != size) {
+                    Pair<Integer, Integer> indexes = getIndexes(i++);
+                    List<T> elementData = PaginationList.this.list.subList(indexes.getKey(), indexes.getValue());
+                    consumer.accept(elementData);
+                }
+                cursor = i;
+            }
+
+        };
     }
 
     public int getPageSize() {
@@ -38,47 +90,26 @@ public class PaginationList<T> implements Iterable<List<T>> {
         this.pageSize = pageSize;
     }
 
-    protected void generatePages() {
-        if (this.updated) return;
-        Objects.requireNonNull(this.list);
-        if (this.pagesList == null) {
-            this.pagesList = new ArrayList<>();
-        } else {
-            this.pagesList.clear();
-        }
-        int remaining = this.list.size();
-        int cursor = 0;
-        List<List<T>> pagesList = new ArrayList<>();
-        while (remaining > 0) {
-            List<T> list = this.list.subList(cursor, Math.min(cursor + this.pageSize, cursor + remaining));
-            pagesList.add(list);
-            remaining -= list.size();
-            cursor += list.size();
-        }
-        this.pagesList.addAll(pagesList);
-        this.updated = true;
-    }
 
     public List<T> getPage(int index) {
-        return this.pagesList.get(index);
+        Pair<Integer, Integer> indexes = getIndexes(index);
+        return PaginationList.this.list.subList(indexes.getKey(), indexes.getValue());
     }
 
     public boolean hasPage(int index) {
-        return (this.pagesList.size() >= index) || index < 0;
-    }
-
-    public int getPageAmount() {
-        generatePages();
-        return this.pagesList.size();
-    }
-
-    public List<List<T>> getPages() {
-        generatePages();
-        return this.pagesList;
+        return (getPages() >= index) && !(index < 0);
     }
 
     public void setList(List<T> list) {
-        this.updated = false;
         this.list = list;
     }
+
+    public Stream<List<T>> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
+    public String[] convertToStringPage(Function<? super T, ? extends String> mapper) {
+        return this.stream().map(l -> l.stream().map(mapper).collect(Collectors.joining("\n"))).toArray(String[]::new);
+    }
+
 }
