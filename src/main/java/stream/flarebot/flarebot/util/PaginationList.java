@@ -28,8 +28,7 @@ public class PaginationList<T> implements Iterable<List<T>> {
     }
 
     public int getPages() {
-        return this.list.size() < this.pageSize ?
-                1 : (this.list.size() / this.pageSize) + (this.list.size() % this.pageSize != 0 ? 1 : 0);
+        return (this.list.size() / this.pageSize) + (this.list.size() % this.pageSize != 0 ? 1 : 0);
     }
 
     public Pair<Integer, Integer> getIndexes(int page) {
