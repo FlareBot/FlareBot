@@ -2,9 +2,13 @@ package stream.flarebot.flarebot.database;
 
 import io.github.binaryoverload.JSONConfig;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisMonitor;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Transaction;
 import stream.flarebot.flarebot.FlareBot;
+
+import java.io.IOException;
 
 public class RedisController {
     private static JedisPool jedisPool;
@@ -20,10 +24,25 @@ public class RedisController {
                 3000,
                 config.getString("redis.password").get());
         try (Jedis jedis = jedisPool.getResource()) {
+            String response = jedis.ping();
+            if (!(response.equals("PONG"))) throw new IOException("Ping to server failed!");
             FlareBot.LOGGER.info("Redis started with a DB Size of {}", jedis.dbSize());
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not connect to redis!", e);
+            return;
         }
+        new Thread(() -> {
+            try (Jedis jedis = RedisController.getJedisPool().getResource()) {
+                jedis.monitor(new JedisMonitor() {
+                    public void onCommand(String command) {
+                        if (command.contains("AUTH")) {
+                            command = "AUTH";
+                        }
+                        FlareBot.LOGGER.debug("Executing redis command: {}", command.substring(command.lastIndexOf("]") + 1).trim());
+                    }
+                });
+            }
+        },"Redis-Monitor").start();
     }
 
     public static JedisPool getJedisPool() {
