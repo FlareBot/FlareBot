@@ -828,6 +828,9 @@ public class FlareBot {
         getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
                 .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
                 .queue();
+        getImportantLogChannel().sendMessage("Average delete messages of this session (mins): " + (Events.avgDuration / 60000)
+                 + "\nHighest time: " + (Events.durations.stream().mapToLong(v -> v).max().orElse(0) / 60000))
+                .queue();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
         for (JDA client : clients)

@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.audit.AuditLogEntry;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
@@ -52,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class Events extends ListenerAdapter {
 
@@ -61,7 +63,9 @@ public class Events extends ListenerAdapter {
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
-    private long averageDuration;
+    public static List<Long> durations = new ArrayList<>();
+    public static Long avgDuration = 0L;
+    private static List<Long> removedByMe = new ArrayList<>();
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -348,8 +352,10 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            if (cmd.deleteMessage())
+            if (cmd.deleteMessage()) {
                 delete(event.getMessage());
+                removedByMe.add(event.getMessageIdLong());
+            }
         });
     }
 
@@ -410,8 +416,19 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
         long messageID = event.getMessageIdLong();
+        if (removedByMe.contains(messageID)) {
+            removedByMe.remove(messageID);
+            return;
+        }
         long discordEpoch = (messageID >> 22) + 1420070400000L;
         long difference = System.currentTimeMillis() - discordEpoch;
-        this.averageDuration = (this.averageDuration + difference) / 2;
+        this.durations.add(difference);
+        long dur = 0L;
+        int i = 0;
+        for (Long l : durations) {
+            dur += l;
+            i++;
+        }
+        avgDuration = dur / i;
     }
 }
