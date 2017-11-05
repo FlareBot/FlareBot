@@ -182,6 +182,7 @@ public class FlareBot {
         required.add("misc.yt");
         required.add("redis.host");
         required.add("redis.port");
+        required.add("redis.password");
 
         boolean good = true;
         for (String req : required) {
