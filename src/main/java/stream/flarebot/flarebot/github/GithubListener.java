@@ -56,6 +56,6 @@ public class GithubListener implements EventListener<PushEvent> {
             diff.append("```");
             eb.addField("Changes", diff.toString(), false);
         }
-        FlareBot.getInstance().getChannelByID("229236239201468417").sendMessage(eb.build()).queue();
+        FlareBot.getInstance().getChannelById("229236239201468417").sendMessage(eb.build()).queue();
     }
 }

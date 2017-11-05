@@ -77,12 +77,9 @@ public class StatsCommand implements Command {
 
     public enum Content {
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
-        TOTAL_USERS("Total Users", () -> String.valueOf(Arrays.stream(FlareBot.getInstance().getClients())
-                .flatMap(c -> c.getUsers().stream())
-                .map(ISnowflake::getId)
-                .collect(Collectors.toSet()).size())),
+        TOTAL_USERS("Total Users", () -> String.valueOf(FlareBot.getInstance().getUsers().size())),
         VOICE_CONNECTIONS("Voice Connections", () -> String
-                .valueOf(FlareBot.getInstance().getConnectedVoiceChannels().size())),
+                .valueOf(FlareBot.getInstance().getConnectedVoiceChannels())),
         ACTIVE_CHANNELS("Channels Playing Music", () -> String
                 .valueOf(FlareBot.getInstance().getActiveVoiceChannels())),
         TEXT_CHANNELS("Text Channels", () -> String.valueOf(FlareBot.getInstance().getChannels().size())),

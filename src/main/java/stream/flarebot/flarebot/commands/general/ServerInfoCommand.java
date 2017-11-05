@@ -26,7 +26,7 @@ public class ServerInfoCommand implements Command {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
             String guildid = args[0];
-            Guild targetGuild = FlareBot.getInstance().getGuildByID(guildid);
+            Guild targetGuild = FlareBot.getInstance().getGuildById(guildid);
             if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {

@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -29,7 +30,7 @@ public class EvalCommand implements Command {
             "stream.flarebot.flarebot.util",
             "stream.flarebot.flarebot.mod",
             "stream.flarebot.flarebot.mod.events",
-            "stream.flarebot.flarebot.sheduler",
+            "stream.flarebot.flarebot.scheduler",
             "stream.flarebot.flarebot.permissions",
             "stream.flarebot.flarebot.commands",
             "stream.flarebot.flarebot.music.extractors",
@@ -39,6 +40,7 @@ public class EvalCommand implements Command {
             "net.dv8tion.jda.core.managers",
             "net.dv8tion.jda.core.entities.impl",
             "net.dv8tion.jda.core.entities",
+            "net.dv8tion.jda.core.utils",
             "java.util.streams",
             "java.util",
             "java.lang",
@@ -78,7 +80,7 @@ public class EvalCommand implements Command {
                             .addField("Code:", "```js\n" + code + "```", false)
                             .addField("Result: ", eResult, false).build()).queue();
             } catch (Exception e) {
-                FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e);
+                FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e, Markers.NO_ANNOUNCE);
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("Code:", "```js\n" + code + "```", false)
                         .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();

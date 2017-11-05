@@ -48,7 +48,7 @@ public class GuildWrapper {
     }
 
     public Guild getGuild() {
-        return FlareBot.getInstance().getGuildByID(guildId);
+        return FlareBot.getInstance().getGuildById(guildId);
     }
 
     public String getGuildId() {

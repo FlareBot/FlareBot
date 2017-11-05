@@ -1,11 +1,13 @@
 package stream.flarebot.flarebot.util;
 
+import com.sun.istack.internal.NotNull;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 
@@ -61,7 +63,11 @@ public class WebUtils {
                 .header("Authorization", "Bot " + token);
         Response response = get(request);
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-        String jsonString = response.body().string();
+        ResponseBody body= response.body();
+        if(body == null)
+            return -1;
+        String jsonString = body.string();
+        body.close();
         return new JSONObject(jsonString).getInt("shards");
     }
 

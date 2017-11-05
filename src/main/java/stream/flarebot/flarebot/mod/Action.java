@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 public enum Action {
 
     INVITE_LINKS(2, true, (message, config) -> MessageUtils.hasInvite(message)),
-    SPAM(1, false, (message, config) -> FlareBot.getInstance().getAutoModTracker()
+    /*SPAM(1, false, (message, config) -> FlareBot.getInstance().getAutoModTracker()
             .getMessages(message.getGuild().getId(), message.getAuthor().getId())
             >= FlareBot.getInstance().getManager().getGuild(message.getGuild().getId()).getAutoModConfig()
-            .getMaxMessagesPerMinute()),
+            .getMaxMessagesPerMinute()),*/
     LINKS(1, true, (message, config) -> MessageUtils.hasLink(message) && !MessageUtils.hasInvite(message)),
     PROFANITY(1, true, (message, config) -> FlareBot.getInstance().getManager().getProfanity().stream()
             .filter(word -> message.getContent().toLowerCase().contains(word))

@@ -45,7 +45,7 @@ public class AutoModConfig {
     }
 
     public TextChannel getModLogChannel() {
-        return FlareBot.getInstance().getChannelByID(modLogChannel);
+        return FlareBot.getInstance().getChannelById(modLogChannel);
     }
 
     public void setModLogChannel(String modLogChannel) {

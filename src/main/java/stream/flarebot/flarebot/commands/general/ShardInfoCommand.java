@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.utils.MiscUtil;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
@@ -14,6 +15,7 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ShardInfoCommand implements Command {
@@ -28,7 +30,9 @@ public class ShardInfoCommand implements Command {
         headers.add("VCs");
 
         List<List<String>> table = new ArrayList<>();
-        for (JDA jda : FlareBot.getInstance().getClients()) {
+        List<JDA> shards = new ArrayList<>(FlareBot.getInstance().getShards());
+        Collections.reverse(shards);
+        for (JDA jda : shards) {
             List<String> row = new ArrayList<>();
             row.add(GeneralUtils.getShardId(jda) + (GeneralUtils.getShardIdAsInt(channel.getJDA()) == GeneralUtils.getShardIdAsInt(jda) ? " (You)" : ""));
             row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));

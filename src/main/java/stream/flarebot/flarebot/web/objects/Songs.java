@@ -25,7 +25,7 @@ public class Songs {
         requester = track.getMeta().getOrDefault("requester", "Unknown").toString();
         length = track.getTrack().getDuration();
         progress = track.getTrack().getPosition();
-        User user = FlareBot.getInstance().getUserByID(requester);
+        User user = FlareBot.getInstance().getUserById(requester);
         if (user != null) {
             discrim = user.getDiscriminator();
             name = user.getName();

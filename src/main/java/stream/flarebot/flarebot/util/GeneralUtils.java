@@ -41,7 +41,6 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -79,8 +78,8 @@ public class GeneralUtils {
 
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+        User reporter = FlareBot.getInstance().getUserById(String.valueOf(report.getReporterId()));
+        User reported = FlareBot.getInstance().getUserById(String.valueOf(report.getReportedId()));
 
         eb.addField("Report ID", String.valueOf(report.getId()), true);
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
@@ -212,7 +211,7 @@ public class GeneralUtils {
                         .findFirst().orElse(null);
             } else {
                 try {
-                    return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                    return FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                             .findFirst().orElse(null);
@@ -225,7 +224,7 @@ public class GeneralUtils {
                 tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
                         .map(Member::getUser)
                         .filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
@@ -236,7 +235,7 @@ public class GeneralUtils {
                 if (guildId == null || guildId.isEmpty()) {
                     tmp = FlareBot.getInstance().getUserById(l);
                 } else {
-                    Member temMember = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l);
+                    Member temMember = FlareBot.getInstance().getGuildById(guildId).getMemberById(l);
                     if (temMember != null) {
                         tmp = temMember.getUser();
                     }
@@ -257,7 +256,7 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId, TextChannel channel) {
-        Guild guild = FlareBot.getInstance().getGuildByID(guildId);
+        Guild guild = FlareBot.getInstance().getGuildById(guildId);
         Role role = guild.getRoles().stream()
                 .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
@@ -375,9 +374,9 @@ public class GeneralUtils {
     }
 
     public static boolean canChangeNick(String guildId) {
-        if (FlareBot.getInstance().getGuildByID(guildId) != null) {
-            return FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                    FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
+        if (FlareBot.getInstance().getGuildById(guildId) != null) {
+            return FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                    FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
         } else
             return false;
     }

@@ -80,7 +80,8 @@ public class AutoModTracker extends ListenerAdapter {
                     event.getGuild().getOwner().getUser().openPrivateChannel().complete().sendMessage(resp).queue();
                 }
 
-                if (action == Action.SPAM) {
+                // Removed this till I re-do AutoMod... this code will all change anyway so whatever.
+                if (action == Action.valueOf("SPAM")) {
                     spamCounter.get(event.getGuild().getId()).put(userId, 0);
                     List<Message> messageList = event.getChannel().getHistory()
                             .retrievePast(guild.getConfig().getMaxMessagesPerMinute() * 2)

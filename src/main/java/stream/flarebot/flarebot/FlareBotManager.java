@@ -151,7 +151,7 @@ public class FlareBotManager {
                     "scope, times_played) VALUES (?, ?, ?, ?, ?, ?)").bind()
                     .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, ownerId).setList(3, songs)
                     .setString(4, "local").setInt(5, 0));
-            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(ownerId))
+            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserById(ownerId))
                     .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
         });
     }

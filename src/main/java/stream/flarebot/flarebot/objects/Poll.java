@@ -57,9 +57,9 @@ public class Poll {
         }
         this.status = status;
         if (status == PollStatus.OPEN) {
-            FlareBot.getInstance().getChannelByID(pollChannel).sendMessage(getPollEmbed("New Poll", "A new poll has been opened!").build()).queue();
+            FlareBot.getInstance().getChannelById(pollChannel).sendMessage(getPollEmbed("New Poll", "A new poll has been opened!").build()).queue();
         } else {
-            FlareBot.getInstance().getChannelByID(pollChannel).sendMessage(getClosedPollEmbed("Poll Closed!", "The poll has been closed!").build()).queue();
+            FlareBot.getInstance().getChannelById(pollChannel).sendMessage(getClosedPollEmbed("Poll Closed!", "The poll has been closed!").build()).queue();
         }
     }
 
