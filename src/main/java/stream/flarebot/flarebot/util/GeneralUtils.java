@@ -7,12 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -20,6 +15,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
@@ -432,4 +428,29 @@ public class GeneralUtils {
     public static String formatPrecisely(Period period) {
         return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
     }
+
+    /**
+     * Message fields:
+     *  - Message ID
+     *  - Author ID
+     *  - Channel ID
+     *  - Guild ID
+     *  - Raw Content
+     *  - Timestamp (Epoch seconds)
+     *
+     * @param message The message to serialise
+     * @return The serialised message
+     */
+    public static String getRedisMessage(Message message) {
+        JSONObject object = new JSONObject();
+        object.put("id", message.getId());
+        object.put("author_id", message.getAuthor().getId());
+        object.put("channel_id", message.getChannel().getId());
+        object.put("guild_id", message.getGuild().getId());
+        object.put("content", message.getRawContent());
+        object.put("timestamp", message.getCreationTime().toEpochSecond());
+        return object.toString();
+    }
+
+
 }
