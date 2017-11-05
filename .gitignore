@@ -5,3 +5,10 @@ latest.log
 *.json
 *.iml
 tags
+
+# Gradle can use hashes
+gradle/
+gradlew
+gradlew.bat
+settings.gradle
+build.gradle

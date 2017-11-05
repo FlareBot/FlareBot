@@ -46,7 +46,7 @@ public class ServerInfoCommand implements Command {
                 guild.getMembers().stream().filter(member -> !member.getOnlineStatus().equals(OnlineStatus.OFFLINE)).count() + "\n" +
                 "\n" +
                 "**Owner:** " +
-                guild.getOwner().getUser().getName() + "#" + guild.getOwner().getUser().getDiscriminator(), true);
+                MessageUtils.getTag(guild.getOwner().getUser()), true);
         String afk = guild.getAfkChannel() == null ? "" :
                 "**AFK:**\n" +
                         "Channel: " +
