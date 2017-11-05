@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
@@ -60,6 +61,7 @@ public class Events extends ListenerAdapter {
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
+    private long averageDuration;
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -403,5 +405,13 @@ public class Events extends ListenerAdapter {
         } else {
             spamMap.put(event.getGuild().getId(), 1);
         }
+    }
+
+    @Override
+    public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
+        long messageID = event.getMessageIdLong();
+        long discordEpoch = (messageID >> 22) + 1420070400000L;
+        long difference = System.currentTimeMillis() - discordEpoch;
+        this.averageDuration = (this.averageDuration + difference) / 2;
     }
 }
