@@ -35,9 +35,7 @@ public class RedisController {
             try (Jedis jedis = RedisController.getJedisPool().getResource()) {
                 jedis.monitor(new JedisMonitor() {
                     public void onCommand(String command) {
-                        if (command.contains("AUTH")) {
-                            command = "AUTH";
-                        }
+                        if (command.contains("AUTH")) command = "AUTH";
                         FlareBot.LOGGER.debug("Executing redis command: {}", command.substring(command.lastIndexOf("]") + 1).trim());
                     }
                 });
