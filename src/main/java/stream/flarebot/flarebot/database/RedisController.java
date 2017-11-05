@@ -5,7 +5,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisMonitor;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Transaction;
 import stream.flarebot.flarebot.FlareBot;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ public class RedisController {
                     }
                 });
             }
-        },"Redis-Monitor").start();
+        }, "Redis-Monitor").start();
     }
 
     public static JedisPool getJedisPool() {
@@ -140,4 +139,88 @@ public class RedisController {
         }
     }
 
+    /**
+     * Sets a value with a specific key in the datebase
+     *
+     * @param key   The key to set
+     * @param value The value to set at the key
+     * @return "OK" if success
+     */
+    public static String set(String key, String value) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.set(key, value);
+        }
+    }
+
+    /**
+     * Sets a value with a specific key in the datebase
+     *
+     * @param key   The key to set
+     * @param value The value to set at the key
+     * @param nxxx  {@code NX} to set the key only if doesn't exist <br>
+     *              {@code XX} to set the key only if it exists <br>
+     *              Otherwise use {@link RedisController#set(String, String)}
+     * @return {@code OK} if success or {@code null} if conditions not met
+     */
+    public static String set(String key, String value, String nxxx) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.set(key, value, nxxx);
+        }
+    }
+
+    /**
+     * Sets a value with a specific key in the datebase
+     *
+     * @param key   The key to set
+     * @param value The value to set at the key
+     * @param nxxx  {@code NX} to set the key only if doesn't exist <br>
+     *              {@code XX} to set the key only if it exists <br>
+     *              Otherwise use empty value
+     * @param pxex  {@code PX} to set the expiry in milliseconds <br>
+     *              {@code EX} to set the expiry in seconds <br>
+     *              Otherwise use {@link RedisController#set(String, String, String)}
+     * @param time  The expiry time to set
+     * @return {@code OK} if success or {@code null} if conditions not met
+     */
+    public static String set(String key, String value, String nxxx, String pxex, long time) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.set(key, value, nxxx, pxex, time);
+        }
+    }
+
+    /**
+     * Gets a value from the database
+     *
+     * @param key The key to get from redis
+     * @return The value of the key or {@code null} if the key doesn't exist
+     */
+    public static String get(String key) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.get(key);
+        }
+    }
+
+    /**
+     * Deletes one or more keys from Eedis
+     *
+     * @param keys The keys to remove
+     * @return The amount of keys that were removed
+     */
+    public static Long del(String... keys) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.del(keys);
+        }
+    }
+
+    /**
+     * Check whether a key exists
+     *
+     * @param key The key to check
+     * @return Whether the specified key exists or not
+     */
+    public static boolean exists(String key) {
+        try (Jedis jedis = jedisPool.getResource()) {
+            return jedis.exists(key);
+        }
+    }
 }
