@@ -6,11 +6,20 @@ import redis.clients.jedis.JedisMonitor;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.Pair;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class RedisController {
     private static JedisPool jedisPool;
+
+    public static BlockingQueue<RedisSetData> setQueue = new LinkedBlockingQueue<>();
+    private static Thread setThread;
 
     private RedisController() {
     }
@@ -40,6 +49,23 @@ public class RedisController {
                 });
             }
         }, "Redis-Monitor").start();
+        setThread = new Thread(() -> {
+            while (!FlareBot.EXITING.get()) {
+                try {
+                    RedisSetData data = RedisController.setQueue.poll(2, TimeUnit.SECONDS);
+                    if (data != null) {
+                        try (Jedis jedis = RedisController.getJedisPool().getResource()) {
+                            data.set(jedis);
+                            FlareBot.LOGGER.debug("Saving redis value with key: " + data.getKey());
+                        }
+                    }
+
+                } catch (Exception e) {
+                    FlareBot.LOGGER.error("Error in set thread!");
+                }
+            }
+        }, "Redis-SetThread");
+        setThread.start();
     }
 
     public static JedisPool getJedisPool() {
@@ -146,10 +172,8 @@ public class RedisController {
      * @param value The value to set at the key
      * @return "OK" if success
      */
-    public static String set(String key, String value) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            return jedis.set(key, value);
-        }
+    public static void set(String key, String value) {
+        setQueue.add(new RedisSetData(key, value));
     }
 
     /**
@@ -223,4 +247,6 @@ public class RedisController {
             return jedis.exists(key);
         }
     }
+
+
 }

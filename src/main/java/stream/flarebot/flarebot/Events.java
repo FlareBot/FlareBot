@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
@@ -51,6 +52,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class Events extends ListenerAdapter {
 
@@ -114,7 +116,7 @@ public class Events extends ListenerAdapter {
                     }
                 }
                 if (welcome.isDmEnabled()) {
-                    if(event.getMember().getUser().isBot()) return; // We can't DM other bots.
+                    if (event.getMember().getUser().isBot()) return; // We can't DM other bots.
                     MessageUtils.sendPM(event.getMember().getUser(), welcome.getRandomDmMessage()
                             .replace("%user%", event.getMember().getUser().getName())
                             .replace("%guild%", event.getGuild().getName())
@@ -209,11 +211,14 @@ public class Events extends ListenerAdapter {
         } else {
             if (event.getChannelLeft().getMembers().contains(event.getGuild().getSelfMember()) &&
                     (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
-                    .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size())) {
+                            .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size())) {
                 event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
             }
         }
     }
+
+    int i = 0;
+    LongStream.Builder s = LongStream.builder();
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
@@ -257,6 +262,7 @@ public class Events extends ListenerAdapter {
                             .build()).queue();
                 }
             }
+            RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()));
         }
     }
 
