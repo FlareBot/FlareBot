@@ -828,7 +828,14 @@ public class FlareBot {
         getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
                 .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
                 .queue();
-        getImportantLogChannel().sendMessage("Average delete messages of this session (mins): " + (Events.avgDuration / 60000)
+        long dur = 0L;
+        int i = 0;
+        for (Long l : Events.durations) {
+            dur += l;
+            i++;
+        }
+        long avgDuration = dur / i;
+        getImportantLogChannel().sendMessage("Average delete messages of this session (mins): " + (avgDuration / 60000)
                  + "\nHighest time: " + (Events.durations.stream().mapToLong(v -> v).max().orElse(0) / 60000))
                 .queue();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())

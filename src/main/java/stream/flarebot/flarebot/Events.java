@@ -63,9 +63,8 @@ public class Events extends ListenerAdapter {
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
-    public static List<Long> durations = new ArrayList<>();
-    public static Long avgDuration = 0L;
-    private static List<Long> removedByMe = new ArrayList<>();
+    public static final List<Long> durations = new ArrayList<>();
+    private static final List<Long> removedByMe = new ArrayList<>();
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -422,13 +421,6 @@ public class Events extends ListenerAdapter {
         }
         long discordEpoch = (messageID >> 22) + 1420070400000L;
         long difference = System.currentTimeMillis() - discordEpoch;
-        this.durations.add(difference);
-        long dur = 0L;
-        int i = 0;
-        for (Long l : durations) {
-            dur += l;
-            i++;
-        }
-        avgDuration = dur / i;
+        durations.add(difference);
     }
 }
