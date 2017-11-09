@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.audit.AuditLogEntry;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
@@ -19,6 +20,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
@@ -51,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class Events extends ListenerAdapter {
 
@@ -60,6 +63,8 @@ public class Events extends ListenerAdapter {
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
+    public static final List<Long> durations = new ArrayList<>();
+    private static final List<Long> removedByMe = new ArrayList<>();
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -346,8 +351,10 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            if (cmd.deleteMessage())
+            if (cmd.deleteMessage()) {
                 delete(event.getMessage());
+                removedByMe.add(event.getMessageIdLong());
+            }
         });
     }
 
@@ -403,5 +410,17 @@ public class Events extends ListenerAdapter {
         } else {
             spamMap.put(event.getGuild().getId(), 1);
         }
+    }
+
+    @Override
+    public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
+        long messageID = event.getMessageIdLong();
+        if (removedByMe.contains(messageID)) {
+            removedByMe.remove(messageID);
+            return;
+        }
+        long discordEpoch = (messageID >> 22) + 1420070400000L;
+        long difference = System.currentTimeMillis() - discordEpoch;
+        durations.add(difference);
     }
 }
