@@ -54,7 +54,7 @@ public class RemindCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"r"};
+        return new String[]{"r", "reminder"};
     }
 
     @Override

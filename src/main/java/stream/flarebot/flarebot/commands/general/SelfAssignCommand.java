@@ -152,4 +152,9 @@ public class SelfAssignCommand implements Command {
     public CommandType getType() {
         return CommandType.GENERAL;
     }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"sa", "iam", "giverole"};
+    }
 }

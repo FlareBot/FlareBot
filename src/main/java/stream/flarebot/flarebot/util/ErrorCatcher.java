@@ -27,7 +27,6 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
             msg = "null";
         if (event.getMarker() != Markers.NO_ANNOUNCE
                 && FlareBot.getInstance() != null
-                && FlareBot.getInstance().isReady()
                 && event.getLevel() == Level.ERROR) {
             String finalMsg = msg;
             if (event.getThreadName().startsWith("lava-daemon-pool")) {
@@ -40,7 +39,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 }
                 if (throwable != null) {
                     MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
-                } else FlareBot.getInstance().getErrorLogChannel().sendMessage(finalMsg).queue();
+                } else MessageUtils.sendErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
             });
         }
         return FilterReply.NEUTRAL;

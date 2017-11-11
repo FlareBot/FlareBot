@@ -317,7 +317,12 @@ public class Events extends ListenerAdapter {
         }
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
         if (handleMissingPermission(cmd, event)) return;
-        if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) return;
+        if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) {
+            if(FlareBot.getInstance().isTestBot())
+                FlareBot.LOGGER.error("Guild " + event.getGuild().getId() + " tried to use the beta command '"
+                    + cmd.getCommand() + "'!");
+            return;
+        }
         if (UpdateCommand.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
