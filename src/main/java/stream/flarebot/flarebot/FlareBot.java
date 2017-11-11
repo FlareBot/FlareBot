@@ -26,7 +26,9 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.WebSocketCode;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
@@ -34,6 +36,7 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
@@ -531,7 +534,7 @@ public class FlareBot {
 
         //sendCommands();
 
-        new FlarebotTask("FixThatStatus" + System.currentTimeMillis()) {
+        new FlarebotTask("FixThatStatus") {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
@@ -626,6 +629,9 @@ public class FlareBot {
                                 .put("shard_id", client.getShardInfo().getShardId())
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
                 WebUtils.postAsync(request.post(body));
+
+                // Gonna spread these out just a bit so we don't burst 15 requests all at once
+                Thread.sleep(20_000);
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
@@ -823,21 +829,16 @@ public class FlareBot {
     }
 
     protected void stop() {
+        if(EXITING.get()) return;
         LOGGER.info("Saving data.");
         EXITING.set(true);
         getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
                 .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
                 .queue();
-        long dur = 0L;
-        int i = 0;
-        for (Long l : Events.durations) {
-            dur += l;
-            i++;
-        }
-        long avgDuration = dur / i;
-        getImportantLogChannel().sendMessage("Average delete messages of this session (mins): " + (avgDuration / 60000)
+        getImportantLogChannel().sendMessage("Average delete messages of this session (mins): "
+                + (Events.durations.stream().mapToLong(v -> v).average().orElse(0) / 60000)
                  + "\nHighest time: " + (Events.durations.stream().mapToLong(v -> v).max().orElse(0) / 60000))
-                .queue();
+                .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
         for (JDA client : clients)
@@ -847,6 +848,8 @@ public class FlareBot {
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
         }
         LOGGER.info("Finished saving!");
+        for(JDA client : clients)
+            client.shutdown();
     }
 
     private void registerCommand(Command command) {
@@ -918,9 +921,23 @@ public class FlareBot {
             clients[0].getPresence().setGame(Game.of(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
-        for (JDA jda : clients)
-            jda.getPresence().setGame(Game.of(status + " | Shard: " + (jda.getShardInfo().getShardId() + 1) + "/" +
-                    clients.length, "https://www.twitch.tv/discordflarebot"));
+
+        // Let's have some fun :p
+
+        JSONObject obj = new JSONObject();
+        JSONObject game = new JSONObject();
+        game.put("url", "https://www.twitch.tv/discordflarebot");
+        game.put("type", 3);
+        obj.put("afk", false);
+        obj.put("status", OnlineStatus.ONLINE.getKey());
+        obj.put("since", System.currentTimeMillis());
+        for (JDA jda : clients) {
+            //jda.getPresence().setGame(Game.of(status + " | Shard: " + (jda.getShardInfo().getShardId() + 1) + "/" +
+            //        clients.length, "https://www.twitch.tv/discordflarebot"));
+            game.put("name", "over shard " + (jda.getShardInfo().getShardId() + 1) + "/" + clients.length + " | " + status);
+            obj.put("game", game);
+            ((JDAImpl) jda).getClient().send(new JSONObject().put("d", obj).put("op", WebSocketCode.PRESENCE).toString());
+        }
     }
 
     public boolean isReady() {
