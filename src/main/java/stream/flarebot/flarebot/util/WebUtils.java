@@ -18,7 +18,6 @@ import java.net.URL;
 
 public class WebUtils {
 
-    public static MediaType PLAIN_TEXT = MediaType.parse("plain/text");
     public static MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
     private static final Callback defaultCallback = new Callback() {
@@ -58,17 +57,6 @@ public class WebUtils {
     public static void postAsync(Request.Builder builder) {
         FlareBot.getOkHttpClient().newCall(builder.build()).enqueue(defaultCallback);
     }
-
-    public static int getShards(String token) throws IOException {
-        Request.Builder request = new Request.Builder()
-                .url("https://discordapp.com/api/gateway/bot")
-                .header("Authorization", "Bot " + token);
-        Response response = get(request);
-        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-        String jsonString = response.body().string();
-        return new JSONObject(jsonString).getInt("shards");
-    }
-
 
     public static boolean pingHost(String host, int timeout) {
         return pingHost(host, 80, timeout);
