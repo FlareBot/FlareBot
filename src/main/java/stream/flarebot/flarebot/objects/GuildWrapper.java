@@ -60,6 +60,7 @@ public class GuildWrapper {
     }
 
     public AutoModGuild getAutoModGuild() {
+        if(autoModGuild == null) autoModGuild = new AutoModGuild();
         return this.autoModGuild;
     }
 
