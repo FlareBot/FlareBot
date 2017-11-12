@@ -6,6 +6,7 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 
@@ -18,6 +19,7 @@ import java.net.URL;
 
 public class WebUtils {
 
+    public static MediaType PLAIN_TEXT = MediaType.parse("plain/text");
     public static MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
     private static final Callback defaultCallback = new Callback() {
@@ -56,6 +58,20 @@ public class WebUtils {
 
     public static void postAsync(Request.Builder builder) {
         FlareBot.getOkHttpClient().newCall(builder.build()).enqueue(defaultCallback);
+    }
+
+    public static int getShards(String token) throws IOException {
+        Request.Builder request = new Request.Builder()
+                .url("https://discordapp.com/api/gateway/bot")
+                .header("Authorization", "Bot " + token);
+        Response response = get(request);
+        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response.code() + " when getting shards");
+        int shards = -1;
+        ResponseBody body = response.body();
+        if(body != null)
+            shards = new JSONObject(body.string()).getInt("shards");
+        response.close();
+        return shards;
     }
 
     public static boolean pingHost(String host, int timeout) {
