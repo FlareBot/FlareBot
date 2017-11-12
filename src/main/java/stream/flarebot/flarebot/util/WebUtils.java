@@ -9,6 +9,7 @@ import okhttp3.Response;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -22,12 +23,15 @@ public class WebUtils {
 
     private static final Callback defaultCallback = new Callback() {
         @Override
+        @ParametersAreNonnullByDefault
         public void onFailure(Call call, IOException e) {
             FlareBot.LOGGER.error("Error for " + call.request().method() + " request to " + call.request().url(), e);
         }
 
         @Override
+        @ParametersAreNonnullByDefault
         public void onResponse(Call call, Response response) throws IOException {
+            response.close();
             FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
         }
     };
