@@ -216,6 +216,7 @@ public class GuildWrapper {
     }
 
     public List<String> getUserWarnings(User user) {
+        if(warnings == null) warnings = new ConcurrentHashMap<>();
         return warnings.getOrDefault(user.getId(), new ArrayList<>());
     }
 
