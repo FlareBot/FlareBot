@@ -518,7 +518,7 @@ public class FlareBot {
 
         //sendCommands();
 
-        new FlarebotTask("FixThatStatus") {
+        new FlareBotTask("FixThatStatus") {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
