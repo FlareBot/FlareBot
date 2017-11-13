@@ -2,7 +2,7 @@ package stream.flarebot.flarebot.util;
 
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.general.PollCommand;
+import stream.flarebot.flarebot.commands.useful.PollCommand;
 
 import java.util.ArrayList;
 import java.util.Collections;

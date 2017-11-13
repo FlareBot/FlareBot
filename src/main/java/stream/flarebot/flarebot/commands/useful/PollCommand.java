@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.useful;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -347,6 +347,6 @@ public class PollCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.USEFUL;
     }
 }

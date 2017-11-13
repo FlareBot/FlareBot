@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.music;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
@@ -58,6 +58,6 @@ public class JoinCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.MUSIC;
     }
 }

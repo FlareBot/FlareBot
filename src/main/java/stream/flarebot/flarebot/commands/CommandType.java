@@ -9,6 +9,9 @@ public enum CommandType {
     GENERAL,
     MODERATION,
     MUSIC,
+    USEFUL,
+    CURRENCY,
+    RANDOM,
     SECRET;
 
     public String toString() {

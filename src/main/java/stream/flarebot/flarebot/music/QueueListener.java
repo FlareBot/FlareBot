@@ -35,6 +35,6 @@ public class QueueListener implements QueueHook {
             array.add(object);
         }
 
-        FlareBot.getInstance().postToApi("updatePlaylistData", "playlist", array);
+        //FlareBot.getInstance().postToApi("updatePlaylistData", "playlist", array);
     }
 }

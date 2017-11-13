@@ -54,7 +54,7 @@ public class ApiRequester {
     public static void requestAsync(ApiRoute route, JSONObject object, Method method, Callback callback) {
         FlareBot.LOGGER.debug("Sending async request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                 object.toString() : false));
-        if(callback == null) callback = new EmptyCallback();
+        if (callback == null) callback = new DefaultCallback();
         client.newCall(getRequest(route, object, method)).enqueue(callback);
     }
 

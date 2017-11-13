@@ -7,6 +7,9 @@ import com.google.common.util.concurrent.Runnables;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.json.JSONObject;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -189,7 +192,6 @@ public class FlareBotManager {
     }
 
     public synchronized GuildWrapper getGuild(String id) {
-        //ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("load_time", guilds.getValue(id)), new EmptyCallback());
         if (guilds == null) return null; //This is if it's ran before even being loaded
         guilds.computeIfAbsent(id, guildId -> {
             long start = System.currentTimeMillis();
@@ -212,6 +214,8 @@ public class FlareBotManager {
                         .addField("Load time", total + "ms", false)
                         .build()).queue();
             }
+            ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("loadTime", total)
+                    .put("guildId", id));
             return wrapper;
         });
         return guilds.get(id);

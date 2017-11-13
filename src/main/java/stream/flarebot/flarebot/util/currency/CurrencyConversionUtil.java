@@ -1,12 +1,20 @@
 package stream.flarebot.flarebot.util.currency;
 
 import io.github.binaryoverload.JSONConfig;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import okhttp3.Response;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.util.WebUtils;
 
 import java.io.IOException;
+import java.util.Random;
 
 public class CurrencyConversionUtil {
+
+    private static Random random = new Random();
 
     public static boolean normalEndpointAvailable() {
         return WebUtils.pingHost(CurrencyApiRoutes.NormalApi.LATEST_ALL.getCompiledUrl(), 300);
@@ -46,13 +54,22 @@ public class CurrencyConversionUtil {
         return false;
     }
 
-    public static CurrencyComparison getCurrencyComparison(String from, String to) {
+    public static CurrencyComparison getCurrencyComparison(TextChannel channel, User sender, Command cmd,
+                                                           String from, String to) {
         try {
             if (!isValidCurrency(from))
                 throw new IllegalArgumentException("`" + from.toUpperCase() + "` is not a valid currency!");
 
             if (!isValidCurrency(to))
                 throw new IllegalArgumentException("`" + to.toUpperCase() + "` is not a valid currency!");
+
+            if (from.equalsIgnoreCase(to)) {
+                if ((random.nextInt(100) + 1) == 100) {
+                    channel.sendMessage("I had hoped you didn't need me for that...").queue();
+                    FlareBot.getInstance().logEG("Convert a currency to itself...", cmd, channel.getGuild(), sender);
+                }
+                return new CurrencyComparison(from, to, (double) 1);
+            }
 
             CurrencyComparison normalCurrency = CurrencyConversionUtil.getNormalCurrency(from, to);
             if (normalCurrency != null) return normalCurrency;
@@ -68,6 +85,7 @@ public class CurrencyConversionUtil {
         if (!res.isSuccessful() || res.body() == null) return null;
 
         JSONConfig config = new JSONConfig(res.body().byteStream());
+        res.close();
         if (config.getBoolean("success").isPresent() && config.getBoolean("success").get()) {
             String price = config.getString("ticker.price").get();
             Double priceDouble;
@@ -86,20 +104,11 @@ public class CurrencyConversionUtil {
                 WebUtils.get(CurrencyApiRoutes.NormalApi.LATEST_WITH_SYMBOLS_AND_BASE.getCompiledUrl(to, from));
         if (!response.isSuccessful() || response.body() == null) return null;
         JSONConfig config = new JSONConfig(response.body().byteStream());
+        response.close();
         if (config.getString("base").isPresent() && config.getDouble("rates." + to).isPresent()) {
             Double conversion = config.getDouble("rates." + to).getAsDouble();
             return new CurrencyComparison(from, to, conversion);
         }
         return null;
     }
-
-    public static Double convertCurrency(String from, String to, Double amount) {
-        CurrencyComparison comparison = getCurrencyComparison(from, to);
-        if (comparison == null) {
-            return null;
-        } else {
-            return comparison.getRate() * amount;
-        }
-    }
-
 }

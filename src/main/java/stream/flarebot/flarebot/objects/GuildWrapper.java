@@ -60,7 +60,7 @@ public class GuildWrapper {
     }
 
     public AutoModGuild getAutoModGuild() {
-        if(autoModGuild == null) autoModGuild = new AutoModGuild();
+        if (autoModGuild == null) autoModGuild = new AutoModGuild();
         return this.autoModGuild;
     }
 
@@ -217,7 +217,7 @@ public class GuildWrapper {
     }
 
     public List<String> getUserWarnings(User user) {
-        if(warnings == null) warnings = new ConcurrentHashMap<>();
+        if (warnings == null) warnings = new ConcurrentHashMap<>();
         return warnings.getOrDefault(user.getId(), new ArrayList<>());
     }
 

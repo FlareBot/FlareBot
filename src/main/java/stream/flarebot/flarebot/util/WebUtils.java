@@ -65,10 +65,11 @@ public class WebUtils {
                 .url("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + token);
         Response response = get(request);
-        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response.code() + " when getting shards");
+        if (!response.isSuccessful())
+            throw new IOException("Unexpected code " + response.code() + " when getting shards");
         int shards = -1;
         ResponseBody body = response.body();
-        if(body != null)
+        if (body != null)
             shards = new JSONObject(body.string()).getInt("shards");
         response.close();
         return shards;

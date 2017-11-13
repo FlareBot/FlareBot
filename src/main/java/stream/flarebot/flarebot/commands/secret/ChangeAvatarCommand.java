@@ -12,7 +12,8 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import java.io.IOException;
 import java.net.URL;
 
-public class AvatarCommand implements Command {
+public class ChangeAvatarCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {

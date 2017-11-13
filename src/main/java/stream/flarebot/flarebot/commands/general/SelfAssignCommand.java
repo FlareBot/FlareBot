@@ -58,7 +58,7 @@ public class SelfAssignCommand implements Command {
                 channel.sendMessage(base.toString()).queue();
             } else {
                 Role role = GeneralUtils.getRole(args[0], guild.getGuildId(), channel);
-                if(role == null) return;
+                if (role == null) return;
 
                 if (guild.getSelfAssignRoles().contains(role.getId())) {
                     handleRole(member, channel, role.getIdLong());
@@ -100,7 +100,7 @@ public class SelfAssignCommand implements Command {
                 }
             } else {
                 Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
-                if(role == null) return;
+                if (role == null) return;
                 // TODO: Move these to Long
                 if (guild.getSelfAssignRoles().contains(role.getId())) {
                     handleRole(member, channel, role.getIdLong());
