@@ -421,6 +421,7 @@ public class Events extends ListenerAdapter {
         }
         long discordEpoch = (messageID >> 22) + 1420070400000L;
         long difference = System.currentTimeMillis() - discordEpoch;
-        durations.add(difference);
+        if(difference < TimeUnit.DAYS.toMillis(14))
+            durations.add(difference);
     }
 }
