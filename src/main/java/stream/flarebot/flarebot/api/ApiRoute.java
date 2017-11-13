@@ -14,6 +14,7 @@ public enum ApiRoute {
 
     // Stats route
     UPDATE_DATA(POST, "stats/data"),
+    DISPATCH_COMMAND(POST, "stats/command"),
 
     // Guild route
     UPDATE_PREFIX(PATCH, "guild/prefix"),

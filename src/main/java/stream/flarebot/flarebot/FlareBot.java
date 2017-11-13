@@ -658,18 +658,18 @@ public class FlareBot {
     private JsonParser parser = new JsonParser();
 
     private void sendData() {
-        JsonObject data = new JsonObject();
-        data.addProperty("guilds", getGuilds().size());
-        data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
-        data.addProperty("text_channels", getChannels().size());
-        data.addProperty("voice_channels", getVoiceChannels().size());
-        data.addProperty("connected_voice_channels", getConnectedVoiceChannels().size());
-        data.addProperty("active_voice_channels", getActiveVoiceChannels());
-        data.addProperty("num_queued_songs", getGuilds().stream()
-                .mapToInt(guild -> musicManager.getPlayer(guild.getId())
-                        .getPlaylist().size()).sum());
-        data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
-        data.addProperty("uptime", getUptime());
+        JSONObject data = new JSONObject()
+                .put("guilds", getGuilds().size())
+                .put("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size())
+                .put("text_channels", getChannels().size())
+                .put("voice_channels", getVoiceChannels().size())
+                .put("connected_voice_channels", getConnectedVoiceChannels().size())
+                .put("active_voice_channels", getActiveVoiceChannels())
+                .put("num_queued_songs", getGuilds().stream()
+                        .mapToInt(guild -> musicManager.getPlayer(guild.getId())
+                                .getPlaylist().size()).sum())
+                .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
+                .put("uptime", getUptime());
 
         ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data, new EmptyCallback());
     }

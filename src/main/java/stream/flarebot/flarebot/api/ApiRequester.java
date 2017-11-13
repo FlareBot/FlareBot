@@ -1,7 +1,5 @@
 package stream.flarebot.flarebot.api;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import okhttp3.Callback;
 import okhttp3.ConnectionPool;
 import okhttp3.MediaType;
@@ -21,44 +19,50 @@ public class ApiRequester {
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static Response request(ApiRoute route, JsonElement element) {
-        return request(route, element, route.getMethod());
-    }
-
     public static Response request(ApiRoute route) {
         return request(route, null);
     }
 
-    public static void requestAsync(ApiRoute route, JsonElement element, Callback callback) {
-        requestAsync(route, element, route.getMethod(), callback);
+    public static Response request(ApiRoute route, JSONObject object) {
+        return request(route, object, route.getMethod());
+    }
+
+    public static void requestAsync(ApiRoute route, JSONObject object) {
+        requestAsync(route, object, route.getMethod(), null);
+    }
+
+    public static void requestAsync(ApiRoute route, JSONObject object, Callback callback) {
+        requestAsync(route, object, route.getMethod(), callback);
     }
 
     public static void requestAsync(ApiRoute route, Callback callback) {
         requestAsync(route, null, route.getMethod(), callback);
     }
 
-    public static Response request(ApiRoute route, JsonElement element, Method method) {
+    /* Root methods */
+    public static Response request(ApiRoute route, JSONObject object, Method method) {
         try {
-            FlareBot.LOGGER.debug("Sending request with route '" + route.getRoute() + "'. Body: " + (element != null ?
-                    element.toString() : false));
-            return client.newCall(getRequest(route, element, method)).execute();
+            FlareBot.LOGGER.debug("Sending request with route '" + route.getRoute() + "'. Body: " + (object != null ?
+                    object.toString() : false));
+            return client.newCall(getRequest(route, object, method)).execute();
         } catch (IOException e) {
             FlareBot.LOGGER.error("Failed to request route " + route.getRoute(), e);
             return null;
         }
     }
 
-    public static void requestAsync(ApiRoute route, JsonElement element, Method method, Callback callback) {
-        FlareBot.LOGGER.debug("Sending request with route '" + route.getRoute() + "'. Body: " + (element != null ?
-                element.toString() : false));
-        client.newCall(getRequest(route, element, method)).enqueue(callback);
+    public static void requestAsync(ApiRoute route, JSONObject object, Method method, Callback callback) {
+        FlareBot.LOGGER.debug("Sending async request with route '" + route.getRoute() + "'. Body: " + (object != null ?
+                object.toString() : false));
+        if(callback == null) callback = new EmptyCallback();
+        client.newCall(getRequest(route, object, method)).enqueue(callback);
     }
 
-    private static Request getRequest(ApiRoute route, JsonElement element, Method method) {
+    private static Request getRequest(ApiRoute route, JSONObject object, Method method) {
         Request.Builder request = new Request.Builder().url(route.getFullUrl());
         request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
         request.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
-        RequestBody body = RequestBody.create(JSON, (element == null ? new JsonObject().toString() : element.toString()));
+        RequestBody body = RequestBody.create(JSON, (object == null ? new JSONObject().toString() : object.toString()));
         if (method == Method.GET) {
             request = request.get();
         } else if (method == Method.PATCH) {

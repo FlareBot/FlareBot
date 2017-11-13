@@ -29,6 +29,9 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.api.EmptyCallback;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
@@ -346,6 +349,8 @@ public class Events extends ListenerAdapter {
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args) + " in " + event.getChannel() + "! Sender: " +
                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
+            ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())
+                    .put("guildId", guild.getGuildId()));
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
