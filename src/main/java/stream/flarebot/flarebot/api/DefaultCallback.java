@@ -12,7 +12,7 @@ public class DefaultCallback implements Callback {
     @Override
     @ParametersAreNonnullByDefault
     public void onResponse(Call call, Response response) throws IOException {
-        FlareBot.LOGGER.debug("[" + response.code() + "] - " + call.request().url().toString()
+        FlareBot.LOGGER.trace("[" + response.code() + "] - " + call.request().url().toString()
                 .replaceFirst(FlareBot.FLAREBOT_API, ""));
         response.close();
     }

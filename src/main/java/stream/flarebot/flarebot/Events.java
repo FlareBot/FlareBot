@@ -51,10 +51,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 public class Events extends ListenerAdapter {
+
+    private final Pattern multiSpace = Pattern.compile(" {2,}");
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
@@ -243,7 +246,8 @@ public class Events extends ListenerAdapter {
                     return;
                 }
             }
-            String message = event.getMessage().getRawContent();
+
+            String message = multiSpace.matcher(event.getMessage().getRawContent()).replaceAll(" ");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {

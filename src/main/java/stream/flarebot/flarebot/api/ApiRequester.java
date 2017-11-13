@@ -42,7 +42,7 @@ public class ApiRequester {
     /* Root methods */
     public static Response request(ApiRoute route, JSONObject object, Method method) {
         try {
-            FlareBot.LOGGER.debug("Sending request with route '" + route.getRoute() + "'. Body: " + (object != null ?
+            FlareBot.LOGGER.trace("Sending request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                     object.toString() : false));
             return client.newCall(getRequest(route, object, method)).execute();
         } catch (IOException e) {
@@ -52,7 +52,7 @@ public class ApiRequester {
     }
 
     public static void requestAsync(ApiRoute route, JSONObject object, Method method, Callback callback) {
-        FlareBot.LOGGER.debug("Sending async request with route '" + route.getRoute() + "'. Body: " + (object != null ?
+        FlareBot.LOGGER.trace("Sending async request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                 object.toString() : false));
         if (callback == null) callback = new DefaultCallback();
         client.newCall(getRequest(route, object, method)).enqueue(callback);
