@@ -51,9 +51,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 public class Events extends ListenerAdapter {
 
@@ -67,6 +67,8 @@ public class Events extends ListenerAdapter {
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     public static final List<Long> durations = new ArrayList<>();
     private static final List<Long> removedByMe = new ArrayList<>();
+
+    private final AtomicInteger commandCounter = new AtomicInteger(0);
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -256,7 +258,7 @@ public class Events extends ListenerAdapter {
             }
             Command cmd = flareBot.getCommand(command, event.getMember());
             if (cmd != null)
-                handleCommand(event, cmd, command, args);
+                handleCommand(event, cmd, args);
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
                     && !event.getAuthor().isBot()) {
@@ -309,7 +311,7 @@ public class Events extends ListenerAdapter {
         }
     }
 
-    private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String command, String[] args) {
+    private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String[] args) {
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
         if (guild.isBlocked()) {
             if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
@@ -350,6 +352,7 @@ public class Events extends ListenerAdapter {
                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
             ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())
                     .put("guildId", guild.getGuildId()));
+            commandCounter.incrementAndGet();
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
@@ -420,6 +423,10 @@ public class Events extends ListenerAdapter {
         } else {
             spamMap.put(event.getGuild().getId(), 1);
         }
+    }
+
+    public int getCommandCount() {
+        return commandCounter.get();
     }
 
     @Override

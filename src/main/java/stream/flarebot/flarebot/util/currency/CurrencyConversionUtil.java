@@ -1,7 +1,6 @@
 package stream.flarebot.flarebot.util.currency;
 
 import io.github.binaryoverload.JSONConfig;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import okhttp3.Response;

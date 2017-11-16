@@ -14,7 +14,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -57,17 +56,14 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.automod.*;
-import stream.flarebot.flarebot.commands.currency.ConvertCommand;
-import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
+import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.useful.PollCommand;
-import stream.flarebot.flarebot.commands.useful.RemindCommand;
-import stream.flarebot.flarebot.commands.useful.TagsCommand;
+import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -141,7 +137,6 @@ public class FlareBot {
 
     public static final String OFFICIAL_GUILD = "226785954537406464";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
-    //public static final String FLAREBOT_API = "http://localhost:8880/";
 
     public static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
 
@@ -149,7 +144,6 @@ public class FlareBot {
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     protected CountDownLatch latch;
-    private static String statusHook;
     private static String token;
 
     private static boolean testBot = false;
@@ -203,26 +197,6 @@ public class FlareBot {
 
         new CassandraController().init(config);
 
-        /*if (config.getString("bot.pasteAccessKey").isPresent())
-            FlareBot.pasteKey = config.getString("bot.pasteAccessKey").get();
-        if (config.getString("misc.hook").isPresent()) {
-            FlareBot.secret = config.getString("misc.hook").get();
-        }
-        if (config.getString("misc.web").isPresent()) {
-            FlareBot.webSecret = config.getString("misc.web").get();
-        }
-        if (config.getString("bot.statusHook").isPresent()) {
-            FlareBot.statusHook = config.getString("bot.statusHook").get();
-        }
-        if (config.getString("botlists.botlist").isPresent()) {
-            FlareBot.botListAuth = config.getString("botlists.botlist").get();
-        }
-        if (config.getString("botlists.discordBots").isPresent()) {
-            FlareBot.dBotsAuth = config.getString("botlists.discordBots").get();
-        }
-        if (config.getString("botlists.carbon").isPresent()) {
-            FlareBot.carbonAuth = config.getString("botlists.carbon").get();
-        }*/
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
         if (config.getArray("options").isPresent()) {
@@ -518,7 +492,7 @@ public class FlareBot {
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        //sendCommands();
+        sendCommands();
 
         new FlareBotTask("FixThatStatus") {
             @Override
@@ -657,7 +631,6 @@ public class FlareBot {
     }
 
     private Runtime runtime = Runtime.getRuntime();
-    private JsonParser parser = new JsonParser();
 
     private void sendData() {
         JSONObject data = new JSONObject()
@@ -923,7 +896,7 @@ public class FlareBot {
     }
 
     public static String getStatusHook() {
-        return statusHook;
+        return config.getString("bot.statusHook").isPresent() ? config.getString("bot.statusHook").get() : null;
     }
 
     public AutoModTracker getAutoModTracker() {
@@ -1136,5 +1109,9 @@ public class FlareBot {
             apiEnabled = false;
             return null;
         }
+    }
+
+    public boolean isApiEnabled() {
+        return apiEnabled;
     }
 }

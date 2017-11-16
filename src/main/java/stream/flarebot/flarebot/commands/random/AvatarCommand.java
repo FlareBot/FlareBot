@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.random;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -21,7 +20,7 @@ public class AvatarCommand implements Command {
         if (args.length > 0)
             user = GeneralUtils.getUser(MessageUtils.getMessage(args, 0), guild.getGuildId());
         if (user != null) {
-            if(!user.getId().equals(sender.getId()) && !getPermissions(channel).hasPermission(member, "flarebot.avatar.other")) {
+            if (!user.getId().equals(sender.getId()) && !getPermissions(channel).hasPermission(member, "flarebot.avatar.other")) {
                 MessageUtils.sendErrorMessage("You need the permission `flarebot.avatar.other` in order to do that command!",
                         channel);
                 return;

@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
@@ -24,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;

@@ -11,7 +11,9 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 import java.awt.Color;
 import java.io.File;
@@ -42,32 +44,17 @@ public class InfoCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            EmbedBuilder bld = MessageUtils.getEmbed(sender)
-                    .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
+            EmbedBuilder bld = MessageUtils.getEmbed()
+                    .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()))
+                    .setFooter("Made by Walshy#9060 and BinaryOverload#2382", channel.getJDA().getSelfUser().getEffectiveAvatarUrl());
             bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " info")
                     .setColor(Color.CYAN);
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
             channel.sendMessage(bld.build()).queue();
-        } else {
-            String search = FlareBot.getMessage(args);
-            String[] fields = search.split(",");
-            EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
-            boolean valid = false;
-            for (String string : fields) {
-                String s = string.trim();
-                for (Content content : Content.values) {
-                    if (s.equalsIgnoreCase(content.getName()) || s.replaceAll("_", " ")
-                            .equalsIgnoreCase(content.getName())) {
-                        builder.addField(content.getName(), content.getReturn(), content.align);
-                        valid = true;
-                    }
-                }
-            }
-            if (valid) channel.sendMessage(builder.build()).queue();
-            else MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
-        }
+        } else
+            GeneralUtils.handleMultiSelectionCommand(sender, channel, args, Content.values);
     }
 
     @Override
@@ -90,21 +77,24 @@ public class InfoCommand implements Command {
         return CommandType.GENERAL;
     }
 
-    public enum Content {
+    public enum Content implements MultiSelectionContent<String, String, Boolean> {
+
         SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
         VERSION("Version", FlareBot.getInstance().getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
-        SUPPORT_SERVER("Support Server", "[`Discord`](http://discord.me/flarebot)"),
-        DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/FlareBot/)"),
-        //        PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/discordflarebot)"),
-        WEBSITE("Website", "[`FlareBot`](http://flarebot.stream/)"),
-        TWITTER("Twitter", "[`Twitter`](https://twitter.com/DiscordFlareBot)"),
+        SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)"),
         INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite())),
         EMPTY("\u200B", "\u200B", false),
-        MADE_BY("Originally Made By", "Walshy#9060 and Arsen#7525"),
-        CONTRIBUTORS("Maintainers", "Walshy#9060, BinaryOverload#2382 and weeryan17#1258"),
-        SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)");
+        SUPPORT_SERVER("Support Server", "[`Discord`](https://flarebot.stream/support-server)"),
+        WEBSITE("Website", "[`FlareBot`](http://flarebot.stream/)"),
+        PATREON("Our Patreon", "[`Patreon`](https://www.patreon.com/flarebot)"),
+        DONATIONS("Donate", "[`PayPal`](https://www.paypal.me/walshydev/)"),
+        TWITTER("Twitter", "[`Twitter`](https://twitter.com/DiscordFlareBot)"),
+        TWITCH("Twitch", "[`Twitch`](https://twitch.tv/discordflarebot)");
+        //EMPTY_1("\u200B", "\u200B", false),
+        //MADE_BY("Originally Made By", "Walshy#9060 and Arsen#7525"),
+        //DEVELOPERS("Current Developers", "Walshy#9060 and BinaryOverload#2382");
 
         private String name;
         private Supplier<String> returns;
@@ -136,7 +126,7 @@ public class InfoCommand implements Command {
             return returns.get();
         }
 
-        public boolean isAlign() {
+        public Boolean isAlign() {
             return this.align;
         }
     }

@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.scheduler;
 
 import com.datastax.driver.core.PreparedStatement;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -12,9 +11,6 @@ import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 public class FutureAction {
 

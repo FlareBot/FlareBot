@@ -16,7 +16,6 @@ import stream.flarebot.flarebot.util.currency.CurrencyConversionUtil;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.Random;
 
 public class CurrencyCommand implements Command {
 

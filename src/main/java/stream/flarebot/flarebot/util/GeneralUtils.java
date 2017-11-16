@@ -29,6 +29,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
@@ -431,5 +432,30 @@ public class GeneralUtils {
      */
     public static String formatPrecisely(Period period) {
         return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
+    }
+
+    /**
+     * This is to handle "multi-selection commands" for example the info and stats commands which take one or more
+     * arguments and get select data from an enum
+     */
+    public static void handleMultiSelectionCommand(User sender, TextChannel channel, String[] args,
+                                                   MultiSelectionContent<String, String, Boolean>[] providedContent) {
+        String search = FlareBot.getMessage(args);
+        String[] fields = search.split(",");
+        EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
+        boolean valid = false;
+        for (String string : fields) {
+            String s = string.trim();
+            for (MultiSelectionContent<String, String, Boolean> content : providedContent) {
+                if (s.equalsIgnoreCase(content.getName()) || s.replaceAll("_", " ")
+                        .equalsIgnoreCase(content.getName())) {
+                    builder.addField(content.getName(), content.getReturn(), content.isAlign());
+                    valid = true;
+                }
+            }
+        }
+        if (valid) channel.sendMessage(builder.build()).queue();
+
+        else MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
     }
 }
