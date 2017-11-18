@@ -85,7 +85,7 @@ public class PerGuildPermissions {
         return new ArrayList<>(groups.values());
     }
 
-    private boolean checkOfficialGuildForRole(User user, long roleId) {
+    private boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
         if (FlareBot.getInstance().getOfficialGuild().getMember(user) == null) return false;
         return FlareBot.getInstance().getOfficialGuild().getMember(user).getRoles().contains(FlareBot.getInstance()
                    .getOfficialGuild().getRoleById(roleId));
