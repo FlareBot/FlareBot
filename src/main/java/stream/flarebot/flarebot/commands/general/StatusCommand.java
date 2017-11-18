@@ -48,14 +48,14 @@ public class StatusCommand implements Command {
         StringBuilder sb = new StringBuilder();
         if(reconnecting > Math.min(quaterShards, 10))
             sb.append("⚠ WARNING: A lot of shards are currently reconnecting! This could mean the bot is unable to be " +
-                    "used on several thousand servers for a few minutes! (").append(reconnecting).append(" shards reconnecting)");
+                    "used on several thousand servers for a few minutes! (").append(reconnecting).append(" shards reconnecting)").append("\n");
         if(highResponseTime > Math.min(quaterShards, 20))
             sb.append("⚠ WARNING: We seem to be experiencing a high event time on quite a few shards, this is usually " +
                     "down to Discord not wanting to co-op with us :( please be patient while these ")
-                    .append(highResponseTime).append(" shards go back to normal!");
+                    .append(highResponseTime).append(" shards go back to normal!").append("\n");
         if(deadShard > 5)
             sb.append(" SEVERE: We have quite a few dead shards! Please report this on the [Support Server](")
-                    .append(FlareBot.INVITE_URL).append(")");
+                    .append(FlareBot.INVITE_URL).append(")").append("\n");
 
         String status = deadShard == 0 && highResponseTime == 0 && reconnecting < (Math.max(quaterShards, 5))
                 ? "Good! :)" : "Issues :/";
