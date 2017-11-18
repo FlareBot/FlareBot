@@ -29,6 +29,7 @@ public class StatusCommand implements Command {
         int highResponseTime = 0;
 
         for(int shardId = 0; shardId < fb.getClients().length; shardId++) {
+            JDA jda = fb.getClients()[shardId];
             if (jda == null) {
                 connecting++;
                 continue;
@@ -64,6 +65,7 @@ public class StatusCommand implements Command {
 
         sb.append(String.format("FlareBot Version: %s\n" +
                 "JDA Version: %s\n" +
+                "Current Shard: %s\n" +
                 "* Average Ping: %s\n" +
                 "* Ping By Shard: %s\n" +
                 "* Dead Shards: %s shards\n" +
@@ -74,6 +76,7 @@ public class StatusCommand implements Command {
                 "Guilds: %d | Users: %d | Connected VCs: %d | Active VCs: %d",
                 fb.getVersion(),
                 JDAInfo.VERSION,
+                channel.getJDA().getShardInfo() == null ? 0 : channel.getJDA().getShardInfo().getShardId(),
                 ping,
                 Arrays.toString(ShardUtils.getPingsForShards()),
                 deadShard,
