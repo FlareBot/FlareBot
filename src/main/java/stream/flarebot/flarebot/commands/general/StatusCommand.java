@@ -54,20 +54,17 @@ public class StatusCommand implements Command {
             sb.append("⚠ WARNING: A lot of shards are currently reconnecting! This could mean the bot is unable to be " +
                     "used on several thousand servers for a few minutes! (").append(reconnecting).append(" shards reconnecting)");
         if(highResponseTime > Math.min(quaterShards, 20))
-            sb.append("⚠ WARNING: We seem to be experiencing a high event time on quite a fwe shards, this is usually " +
+            sb.append("⚠ WARNING: We seem to be experiencing a high event time on quite a few shards, this is usually " +
                     "down to Discord not wanting to co-op with us :( please be patient while these ")
                     .append(highResponseTime).append(" shards go back to normal!");
         if(deadShard > 5)
             sb.append(" SEVERE: We have quite a few dead shards! Please report this on the [Support Server](")
                     .append(FlareBot.INVITE_URL).append(")");
 
-        System.out.println(deadShard == 0);
-        System.out.println(deadShard == 0 && highResponseTime == 0);
-        System.out.println(deadShard == 0 && highResponseTime == 0 && reconnecting < (Math.max(quaterShards, 10)));
         String status = deadShard == 0 && highResponseTime == 0 && reconnecting < (Math.max(quaterShards, 5))
                 ? "Good!" : "Issues :/";
         if(deadShard > 5)
-            status = "Severe issues! Discord could be dying!";
+            status = "Severe issues! Discord could be dying! @EVERYONE RUN!";
         sb.append("Bot Status: ").append(status).append("\n\n");
 
         sb.append(String.format("FlareBot Version: %s\n" +
@@ -78,7 +75,7 @@ public class StatusCommand implements Command {
                 "* No Voice Connections: %s shards\n" +
                 "* Shards Reconnecting: %s shards\n" +
                 "* Shards Connecting: %s shards\n" +
-                "* Last High Event Time: %s shards\n" +
+                "* High Last Event Time: %s shards\n" +
                 "Guilds: %d | Users: %d | Connected VCs: %d | Active VCs: %d",
                 fb.getVersion(),
                 JDAInfo.VERSION,
