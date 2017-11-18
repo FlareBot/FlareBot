@@ -37,7 +37,7 @@ public class ShardUtils {
     public static long[] getPingsForShards() {
         long[] pings = new long[flareBot.getClients().length];
         for(int shardId = 0; shardId < pings.length; shardId++)
-            pings[shardId] = jda.getPing();
+            pings[shardId] = flareBot.getClients()[shardId].getPing();
         return pings;
     }
 }
