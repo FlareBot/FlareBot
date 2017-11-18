@@ -41,6 +41,7 @@ import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.webhook.WebhookClientBuilder;
+import net.dv8tion.webhook.WebhookClient;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -228,7 +229,7 @@ public class FlareBot {
 
         new CassandraController().init(config);
         if (config.getString("bot.importantHook").isPresent()) {
-            FlareBot.importantHookUrl = config.getString("bot.importantHook").get()
+            FlareBot.importantHookUrl = config.getString("bot.importantHook").get();
         }
         if (config.getString("misc.hook").isPresent()) {
             FlareBot.secret = config.getString("misc.hook").get();
