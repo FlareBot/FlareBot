@@ -26,7 +26,7 @@ public class PostUpdateCommand implements Command {
                 return;
             }
             Role r = guild.getGuild().getRoleById(320304080926801922L);
-            r.getManager().setMentionable(false).queue(aVoid -> {
+            r.getManager().setMentionable(true).queue(aVoid -> {
                         String message = msg.getRawContent();
                         message = message.substring(message.indexOf(" ") + 1);
                         MessageBuilder builder = new MessageBuilder().append(r.getAsMention());
