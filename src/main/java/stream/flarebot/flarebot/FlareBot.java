@@ -40,8 +40,8 @@ import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
-import net.dv8tion.jda.webhook.WebhookClientBuilder;
 import net.dv8tion.jda.webhook.WebhookClient;
+import net.dv8tion.jda.webhook.WebhookClientBuilder;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -78,12 +78,12 @@ import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
 import stream.flarebot.flarebot.commands.secret.EvalCommand;
 import stream.flarebot.flarebot.commands.secret.GuildCommand;
 import stream.flarebot.flarebot.commands.secret.LogsCommand;
-import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.secret.QueryCommand;
 import stream.flarebot.flarebot.commands.secret.QuitCommand;
 import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
 import stream.flarebot.flarebot.commands.secret.TestCommand;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -155,7 +155,7 @@ public class FlareBot {
     private static String botListAuth;
     private static String dBotsAuth;
     private static String carbonAuth;
-    
+
     private FlareBotManager manager;
     private static String webSecret;
     private static boolean apiEnabled = true;
@@ -361,7 +361,7 @@ public class FlareBot {
                         } else {
                             if (!GeneralUtils.canChangeNick(player.getGuildId())) {
                                 MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
-                                    "FlareBot can't change it's nickname so SongNick has been disabled!");
+                                        "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
                         }
                     }
@@ -568,19 +568,19 @@ public class FlareBot {
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-        
+
         new FlarebotTask("PostCarbonData") {
             @Override
             public void run() {
                 if (FlareBot.carbonAuth != null) {
                     try {
-                    WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON, 
-                    new JSONObject()
-                        .put("key", FlareBot.carbonAuth)
-                        .put("servercount", getGuilds().size())
-                        .put("shardcount", clients.length)
-                        .toString());
-                    } catch(IOException e) {
+                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
+                                new JSONObject()
+                                        .put("key", FlareBot.carbonAuth)
+                                        .put("servercount", getGuilds().size())
+                                        .put("shardcount", clients.length)
+                                        .toString());
+                    } catch (IOException e) {
                         LOGGER.error("Failed to update carbon!", e);
                     }
                 }
@@ -613,11 +613,17 @@ public class FlareBot {
         new FlarebotTask("DeadShard-Checker") {
             @Override
             public void run() {
-                if(getClients().length == 1) return;
+                if (getClients().length == 1) return;
                 Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
                         .filter(ShardUtils::isDead).collect(Collectors.toSet());
-                if(deadShards.size() > 0)
-                    getImportantLogChannel().sendMessage("Found " + deadShards.size() + " possibly dead shards! Shards: " + deadShards.toString()).queue();
+                if (deadShards.size() > 0) {
+                    if (getImportantWebhook() == null) {
+                        FlareBot.LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
+                        cancel();
+                    }
+                    getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
+                            deadShards.toString());
+                }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
@@ -847,7 +853,7 @@ public class FlareBot {
     }
 
     protected void stop() {
-        if(EXITING.get()) return;
+        if (EXITING.get()) return;
         LOGGER.info("Saving data.");
         EXITING.set(true);
         getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
@@ -855,7 +861,7 @@ public class FlareBot {
                 .queue();
         getImportantLogChannel().sendMessage("Average delete messages of this session (mins): "
                 + (Events.durations.stream().mapToLong(v -> v).average().orElse(0) / 60000)
-                 + "\nHighest time: " + (Events.durations.stream().mapToLong(v -> v).max().orElse(0) / 60000))
+                + "\nHighest time: " + (Events.durations.stream().mapToLong(v -> v).max().orElse(0) / 60000))
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
@@ -866,7 +872,7 @@ public class FlareBot {
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
         }
         LOGGER.info("Finished saving!");
-        for(JDA client : clients)
+        for (JDA client : clients)
             client.shutdown();
     }
 
@@ -1181,9 +1187,9 @@ public class FlareBot {
     public boolean isTestBot() {
         return testBot;
     }
-    
+
     private WebhookClient importantHook;
-    
+
     public WebhookClient getImportantWebhook() {
         if (importantHookUrl == null) return null;
         if (importantHook == null)
