@@ -28,16 +28,11 @@ public class StatusCommand implements Command {
         int noVoiceConnections = 0;
         int highResponseTime = 0;
 
-        for(JDA jda : fb.getClients()) {
+        for(int shardId = 0; shardId < fb.getClients().length; shardId++) {
             if (jda == null) {
                 connecting++;
                 continue;
             }
-            int shardId;
-            if(jda.getShardInfo() == null)
-                shardId = 0;
-            else
-                shardId = jda.getShardInfo().getShardId();
 
             boolean reconnect = ShardUtils.isReconnecting(shardId);
             if(ShardUtils.isDead(shardId))
@@ -62,7 +57,7 @@ public class StatusCommand implements Command {
                     .append(FlareBot.INVITE_URL).append(")");
 
         String status = deadShard == 0 && highResponseTime == 0 && reconnecting < (Math.max(quaterShards, 5))
-                ? "Good!" : "Issues :/";
+                ? "Good! :)" : "Issues :/";
         if(deadShard > 5)
             status = "Severe issues! Discord could be dying! @EVERYONE RUN!";
         sb.append("Bot Status: ").append(status).append("\n\n");
@@ -89,7 +84,7 @@ public class StatusCommand implements Command {
                 fb.getGuilds().size(), fb.getUsers().size(), fb.getConnectedVoiceChannels().size(), fb.getActiveVoiceChannels()
                 ));
 
-        channel.sendMessage("**FlareBot's Status**\n```prolog\n" +sb.toString() + "\n```").queue();
+        channel.sendMessage("**FlareBot's Status**\n```prolog\n" + sb.toString() + "\n```").queue();
     }
 
     @Override
@@ -104,7 +99,7 @@ public class StatusCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}status [shardId]";
+        return "`{%}status [shardId]` - Check the status of the bot [or a shard]";
     }
 
     @Override
