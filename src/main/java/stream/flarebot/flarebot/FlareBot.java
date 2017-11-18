@@ -1196,4 +1196,8 @@ public class FlareBot {
             importantHook = new WebhookClientBuilder(importantHookUrl).build();
         return importantHook;
     }
+
+    public Guild getOfficialGuild() {
+        return getInstance().getGuildByID(FlareBot.OFFICIAL_GUILD);
+    }
 }

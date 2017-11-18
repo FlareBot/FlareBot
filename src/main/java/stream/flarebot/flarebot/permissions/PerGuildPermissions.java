@@ -86,14 +86,14 @@ public class PerGuildPermissions {
     }
 
     public boolean isCreator(net.dv8tion.jda.core.entities.Member member) {
-        return member.getRoles().contains(member.getGuild().getRoleById(226788297156853771L));
+        return member.getRoles().contains(FlareBot.getInstance().getOfficialGuild().getRoleById(226788297156853771L));
     }
 
     public boolean isContributor(net.dv8tion.jda.core.entities.Member member) {
-        return member.getRoles().contains(member.getGuild().getRoleById(272324832279003136L));
+        return member.getRoles().contains(FlareBot.getInstance().getOfficialGuild().getRoleById(272324832279003136L));
     }
 
     public boolean isStaff(Member member) {
-        return member.getRoles().contains(member.getGuild().getRoleById(320327762881675264L));
+        return member.getRoles().contains(FlareBot.getInstance().getOfficialGuild().getRoleById(320327762881675264L));
     }
 }
