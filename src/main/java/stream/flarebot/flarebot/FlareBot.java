@@ -611,7 +611,7 @@ public class FlareBot {
                 Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
                         .filter(ShardUtils::isDead).collect(Collectors.toSet());
                 if(deadShards.size() > 0)
-                    getImportantLogChannel().sendMessage("Found " + deadShards + " dead shards! Shards: " + deadShards.toString()).queue();
+                    getImportantLogChannel().sendMessage("Found " + deadShards.size() + " possibly dead shards! Shards: " + deadShards.toString()).queue();
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
