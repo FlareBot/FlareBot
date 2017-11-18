@@ -19,7 +19,7 @@ public class DisableCommandCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender) || getPermissions(channel).isContributor(sender)) {
+        if (getPermissions(channel).isCreator(member) || getPermissions(channel).isContributor(member)) {
             if (args.length == 0) {
                 channel.sendMessage("Can't really disable commands if you don't supply any ¯\\_(ツ)_/¯").queue();
                 return;

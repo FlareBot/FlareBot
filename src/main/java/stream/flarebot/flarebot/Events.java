@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.StatusChangeEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
@@ -45,6 +46,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,6 +67,8 @@ public class Events extends ListenerAdapter {
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     public static final List<Long> durations = new ArrayList<>();
     private static final List<Long> removedByMe = new ArrayList<>();
+
+    private final Map<Integer, Long> shardEventTime = new HashMap<>();
 
     public Events(FlareBot bot) {
         this.flareBot = bot;
@@ -312,8 +316,8 @@ public class Events extends ListenerAdapter {
         }
         handleSpamDetection(event, guild);
         if (cmd.getType() == CommandType.SECRET) {
-            if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot()
-                    && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
+            if (!cmd.getPermissions(event.getChannel()).isCreator(event.getMember()) && !(FlareBot.getInstance().isTestBot()
+                    && cmd.getPermissions(event.getChannel()).isContributor(event.getMember()))) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
                 FlareBot.getInstance().logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
                 return;
@@ -423,5 +427,14 @@ public class Events extends ListenerAdapter {
         long difference = System.currentTimeMillis() - discordEpoch;
         if(difference < TimeUnit.DAYS.toMillis(14))
             durations.add(difference);
+    }
+
+    @Override
+    public void onGenericEvent(Event e) {
+        shardEventTime.put(e.getJDA().getShardInfo() == null ? 0 : e.getJDA().getShardInfo().getShardId(), System.currentTimeMillis());
+    }
+
+    public Map<Integer, Long> getShardEventTime() {
+        return this.shardEventTime;
     }
 }

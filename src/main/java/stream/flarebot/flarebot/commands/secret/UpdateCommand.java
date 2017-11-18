@@ -30,7 +30,7 @@ public class UpdateCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender)) {
+        if (getPermissions(channel).isCreator(member)) {
             if (args.length == 0) {
                 update(false, channel);
             } else if (args.length == 1) {

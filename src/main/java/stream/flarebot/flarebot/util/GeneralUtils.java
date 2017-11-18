@@ -36,7 +36,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +56,8 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
+    private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -355,5 +362,9 @@ public class GeneralUtils {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+    public static String getCurrentTime(boolean seconds) {
+        return ZonedDateTime.now(Clock.systemDefaultZone().getZone()).format(DateTimeFormatter.ofPattern("HH:mm:ss z"));
     }
 }

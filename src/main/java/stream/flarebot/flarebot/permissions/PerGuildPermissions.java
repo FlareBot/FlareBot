@@ -30,14 +30,14 @@ public class PerGuildPermissions {
 
     public boolean hasPermission(Member user, String permission) {
         // So we can go into servers and figure out any issues they have.
-        if (isCreator(user.getUser()))
+        if (isCreator(user))
             return true;
         if (user.isOwner())
             return true;
         if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
         // Change done by Walshy: Internal review needed
-        if (isContributor(user.getUser()) && FlareBot.getInstance().isTestBot())
+        if (isContributor(user) && FlareBot.getInstance().isTestBot())
             return true;
         PermissionNode node = new PermissionNode(permission);
         for (Group g : getGroups().values()) {
@@ -85,12 +85,15 @@ public class PerGuildPermissions {
         return new ArrayList<>(groups.values());
     }
 
-    public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
-        return user.getId().equals("158310004187725824") || user.getId().equals("203894491784937472");
+    public boolean isCreator(net.dv8tion.jda.core.entities.Member member) {
+        return member.getRoles().contains(member.getGuild().getRoleById(226788297156853771L));
     }
 
-    public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return user.getId().equals("215644829969809421");
+    public boolean isContributor(net.dv8tion.jda.core.entities.Member member) {
+        return member.getRoles().contains(member.getGuild().getRoleById(272324832279003136L));
     }
 
+    public boolean isStaff(Member member) {
+        return member.getRoles().contains(member.getGuild().getRoleById(320327762881675264L));
+    }
 }

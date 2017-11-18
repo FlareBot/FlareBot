@@ -31,7 +31,7 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if (type != CommandType.SECRET && !getPermissions(channel).isCreator(sender)) {
+            if (type != CommandType.SECRET && !getPermissions(channel).isCreator(member)) {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()

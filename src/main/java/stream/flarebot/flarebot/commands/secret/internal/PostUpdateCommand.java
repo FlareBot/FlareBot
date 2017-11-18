@@ -1,5 +1,7 @@
-package stream.flarebot.flarebot.commands.secret;
+package stream.flarebot.flarebot.commands.secret.internal;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -9,21 +11,30 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
+
+import java.awt.Color;
 
 public class PostUpdateCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {
-        if (guild.getGuildId().equals("226785954537406464")) {
+        if (guild.getGuildId().equals("226785954537406464") && getPermissions(channel).isStaff(member)) {
             if(args.length == 0) {
                 channel.sendMessage("You kinda need like.... a message to announce... like yeah...").queue();
                 return;
             }
             Role r = guild.getGuild().getRoleById(320304080926801922L);
-            r.getManager().setMentionable(true).queue(aVoid -> {
+            r.getManager().setMentionable(false).queue(aVoid -> {
                         String message = msg.getRawContent();
                         message = message.substring(message.indexOf(" ") + 1);
-                        guild.getGuild().getTextChannelById(226786449217945601L).sendMessage(r.getAsMention() + "\n" + message).complete();
+                        MessageBuilder builder = new MessageBuilder().append(r.getAsMention());
+                        builder.setEmbed(new EmbedBuilder().setTitle("Important Announcement - " + GeneralUtils
+                                .getCurrentTime(false))
+                                .setDescription(message).setColor(Color.ORANGE).setFooter("Announcement by "
+                                        + MessageUtils.getTag(sender), sender.getEffectiveAvatarUrl()).build());
+                        guild.getGuild().getTextChannelById(242297848123621376L /*226786449217945601L*/).sendMessage(builder.build()).complete();
                     });
             r.getManager().setMentionable(false).queue();
         }
@@ -46,7 +57,7 @@ public class PostUpdateCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.SECRET;
+        return CommandType.INTERNAL;
     }
 
     @Override

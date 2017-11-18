@@ -76,13 +76,12 @@ import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
 import stream.flarebot.flarebot.commands.secret.EvalCommand;
 import stream.flarebot.flarebot.commands.secret.GuildCommand;
 import stream.flarebot.flarebot.commands.secret.LogsCommand;
-import stream.flarebot.flarebot.commands.secret.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.secret.QueryCommand;
 import stream.flarebot.flarebot.commands.secret.QuitCommand;
 import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
 import stream.flarebot.flarebot.commands.secret.TestCommand;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
-import stream.flarebot.flarebot.commands.secret.AnnounceCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
@@ -93,6 +92,7 @@ import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
@@ -524,6 +524,7 @@ public class FlareBot {
 
         registerCommand(new TagsCommand());
         registerCommand(new PostUpdateCommand());
+        registerCommand(new StatusCommand());
 
         ApiFactory.bind();
 
@@ -602,6 +603,17 @@ public class FlareBot {
             }
 
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+
+        new FlarebotTask("DeadShard-Checker") {
+            @Override
+            public void run() {
+                if(getClients().length == 1) return;
+                Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
+                        .filter(ShardUtils::isDead).collect(Collectors.toSet());
+                if(deadShards.size() > 0)
+                    getImportantLogChannel().sendMessage("Found " + deadShards + " dead shards! Shards: " + deadShards.toString()).queue();
+            }
+        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
         setupUpdate();
     }

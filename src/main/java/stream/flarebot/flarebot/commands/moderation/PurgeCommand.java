@@ -22,13 +22,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PurgeCommand implements Command {
+
     private Map<String, Long> cooldowns = new HashMap<>();
     private static final long cooldown = 60000;
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1 && args[0].matches("\\d+")) {
-            if (!FlareBotManager.getInstance().getGuild(channel.getId()).getPermissions().isCreator(sender)) {
+            if (!FlareBotManager.getInstance().getGuild(channel.getId()).getPermissions().isCreator(member)) {
                 long calmitdood = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - calmitdood < cooldown) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
