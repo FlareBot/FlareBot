@@ -10,7 +10,6 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
