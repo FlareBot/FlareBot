@@ -5,6 +5,7 @@ import spark.Request;
 import java.util.function.Predicate;
 
 public class Require {
+
     private String name;
     protected Predicate<String> test;
 

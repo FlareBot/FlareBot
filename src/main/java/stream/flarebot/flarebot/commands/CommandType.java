@@ -9,6 +9,10 @@ public enum CommandType {
     GENERAL,
     MODERATION,
     MUSIC,
+	INTERNAL,
+    USEFUL,
+    CURRENCY,
+    RANDOM,
     SECRET;
 
     public String toString() {
@@ -21,9 +25,5 @@ public enum CommandType {
 
     public List<Command> getCommands() {
         return FlareBot.getInstance().getCommandsByType(this);
-    }
-
-    public String formattedName() {
-        return toString();
     }
 }

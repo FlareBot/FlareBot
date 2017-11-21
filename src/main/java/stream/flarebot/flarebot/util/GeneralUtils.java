@@ -7,7 +7,12 @@ import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -24,6 +29,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
@@ -37,11 +43,12 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,6 +60,8 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
+    private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
 
     private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 
@@ -398,6 +407,10 @@ public class GeneralUtils {
         }
     }
 
+	public static String getCurrentTime(boolean seconds) {
+        return ZonedDateTime.now(Clock.systemDefaultZone().getZone()).format(DateTimeFormatter.ofPattern("HH:mm:ss z"));
+    }
+
     /**
      * Get a Joda Period from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
      * Joda Period.
@@ -427,5 +440,30 @@ public class GeneralUtils {
      */
     public static String formatPrecisely(Period period) {
         return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
+    }
+
+    /**
+     * This is to handle "multi-selection commands" for example the info and stats commands which take one or more
+     * arguments and get select data from an enum
+     */
+    public static void handleMultiSelectionCommand(User sender, TextChannel channel, String[] args,
+                                                   MultiSelectionContent<String, String, Boolean>[] providedContent) {
+        String search = FlareBot.getMessage(args);
+        String[] fields = search.split(",");
+        EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
+        boolean valid = false;
+        for (String string : fields) {
+            String s = string.trim();
+            for (MultiSelectionContent<String, String, Boolean> content : providedContent) {
+                if (s.equalsIgnoreCase(content.getName()) || s.replaceAll("_", " ")
+                        .equalsIgnoreCase(content.getName())) {
+                    builder.addField(content.getName(), content.getReturn(), content.isAlign());
+                    valid = true;
+                }
+            }
+        }
+        if (valid) channel.sendMessage(builder.build()).queue();
+
+        else MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
     }
 }

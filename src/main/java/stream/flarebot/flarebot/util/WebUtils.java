@@ -6,9 +6,11 @@ import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -22,12 +24,15 @@ public class WebUtils {
 
     private static final Callback defaultCallback = new Callback() {
         @Override
+        @ParametersAreNonnullByDefault
         public void onFailure(Call call, IOException e) {
             FlareBot.LOGGER.error("Error for " + call.request().method() + " request to " + call.request().url(), e);
         }
 
         @Override
+        @ParametersAreNonnullByDefault
         public void onResponse(Call call, Response response) throws IOException {
+            response.close();
             FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
         }
     };
@@ -60,11 +65,15 @@ public class WebUtils {
                 .url("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + token);
         Response response = get(request);
-        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-        String jsonString = response.body().string();
-        return new JSONObject(jsonString).getInt("shards");
+        if (!response.isSuccessful())
+            throw new IOException("Unexpected code " + response.code() + " when getting shards");
+        int shards = -1;
+        ResponseBody body = response.body();
+        if (body != null)
+            shards = new JSONObject(body.string()).getInt("shards");
+        response.close();
+        return shards;
     }
-
 
     public static boolean pingHost(String host, int timeout) {
         return pingHost(host, 80, timeout);

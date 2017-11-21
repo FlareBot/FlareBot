@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
@@ -24,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -102,6 +100,10 @@ public class MessageUtils {
     }
 
     public static String paste(String trace) {
+        if (FlareBot.getInstance().getPasteKey() == null || FlareBot.getInstance().getPasteKey().isEmpty()) {
+            FlareBot.LOGGER.warn("Paste server key is missing! Pastes will not work!");
+            return null;
+        }
         try {
             Response response = WebUtils.post(new Request.Builder().url("https://paste.flarebot.stream/documents")
                     .addHeader("Authorization", FlareBot.getInstance().getPasteKey()).post(RequestBody

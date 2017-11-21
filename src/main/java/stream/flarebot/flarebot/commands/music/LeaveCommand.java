@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.music;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -44,12 +44,12 @@ public class LeaveCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"gtfo", "banish", "getout"};
+        return new String[]{"gtfo", "banish", "getout", "quit"};
     }
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.MUSIC;
     }
 
     @Override

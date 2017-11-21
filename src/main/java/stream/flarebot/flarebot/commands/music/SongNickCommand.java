@@ -29,7 +29,7 @@ public class SongNickCommand implements Command {
                 return;
             }
             guild.setSongnick(true);
-            if(FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack() != null) {
+            if (FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack() != null) {
                 Track track = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
                 String str = null;
                 if (track != null) {

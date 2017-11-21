@@ -89,8 +89,8 @@ public class PermissionsCommand implements Command {
                     }
                 } else if (args[2].equals("unlink")) {
                     if (args.length == 3) {
-                        Role role = guild.getGuild().getRoleById(group.getRoleId());
-                        if (role == null) {
+                        Role role;
+                        if (group.getRoleId() == null || (role = guild.getGuild().getRoleById(group.getRoleId())) == null) {
                             MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
                             return;
                         } else {
