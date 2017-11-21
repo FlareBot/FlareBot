@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.StatusChangeEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
@@ -44,6 +45,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,9 +69,8 @@ public class Events extends ListenerAdapter {
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     public static final List<Long> durations = new ArrayList<>();
     private static final List<Long> removedByMe = new ArrayList<>();
-
-    private final AtomicInteger commandCounter = new AtomicInteger(0);
-
+	private final Map<Integer, Long> shardEventTime = new HashMap<>();
+	private final AtomicInteger commandCounter = new AtomicInteger(0);
     public Events(FlareBot bot) {
         this.flareBot = bot;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> sd = true));
@@ -440,5 +441,14 @@ public class Events extends ListenerAdapter {
         long difference = System.currentTimeMillis() - discordEpoch;
         if (difference < TimeUnit.DAYS.toMillis(14))
             durations.add(difference);
+    }
+
+    @Override
+    public void onGenericEvent(Event e) {
+        shardEventTime.put(e.getJDA().getShardInfo() == null ? 0 : e.getJDA().getShardInfo().getShardId(), System.currentTimeMillis());
+    }
+
+    public Map<Integer, Long> getShardEventTime() {
+        return this.shardEventTime;
     }
 }

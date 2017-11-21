@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.permissions;
 
+import com.google.gson.annotations.Expose;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import stream.flarebot.flarebot.FlareBot;
@@ -14,6 +15,9 @@ public class PerGuildPermissions {
 
     private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
+
+    @Expose(deserialize = false, serialize = false)
+    private static final FlareBot fb = FlareBot.getInstance();
 
     public PerGuildPermissions() {
         if (!hasGroup("Default")) {
@@ -79,14 +83,18 @@ public class PerGuildPermissions {
     }
 
     public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
-        return user.getId().equals("158310004187725824") || user.getId().equals("203894491784937472");
+        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(226788297156853771L));
     }
 
     public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return user.getId().equals("215644829969809421");
+        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(226788297156853771L));
     }
 
-    public void createDefaultGroup() {
+    public boolean isStaff(net.dv8tion.jda.core.entities.User user) {
+        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(226788297156853771L));
+	}
+
+	public void createDefaultGroup() {
         if (hasGroup("Default")) {
             deleteGroup("Default");
         }
@@ -99,6 +107,4 @@ public class PerGuildPermissions {
         defaults.addPermission("flarebot.userinfo.other");
         defaults.addPermission("flarebot.playlist.clear");
         groups.put("Default", defaults);
-    }
-
-}
+    }}

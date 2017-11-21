@@ -40,6 +40,8 @@ import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
+import net.dv8tion.jda.webhook.WebhookClient;
+import net.dv8tion.jda.webhook.WebhookClientBuilder;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -63,6 +65,7 @@ import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
@@ -75,6 +78,7 @@ import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 
@@ -129,7 +133,6 @@ public class FlareBot {
     }
 
     private static JSONConfig config;
-
     private FlareBotManager manager;
     private static boolean apiEnabled = true;
 
@@ -144,6 +147,7 @@ public class FlareBot {
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     protected CountDownLatch latch;
+    private static String importantHookUrl;
     private static String token;
 
     private static boolean testBot = false;
@@ -480,7 +484,8 @@ public class FlareBot {
 
         registerCommand(new TagsCommand());
         registerCommand(new PostUpdateCommand());
-        registerCommand(new RemindCommand());
+		registerCommand(new StatusCommand());
+		registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
 
         ApiFactory.bind();
@@ -561,6 +566,23 @@ public class FlareBot {
             }
 
         }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+
+        new FlareBotTask("DeadShard-Checker") {
+            @Override
+            public void run() {
+                if (getClients().length == 1) return;
+                Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
+                        .filter(ShardUtils::isDead).collect(Collectors.toSet());
+                if (deadShards.size() > 0) {
+                    if (getImportantWebhook() == null) {
+                        FlareBot.LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
+                        cancel();
+                    }
+                    getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
+                            deadShards.toString());
+                }
+            }
+        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
         setupUpdate();
     }
@@ -1113,5 +1135,18 @@ public class FlareBot {
 
     public boolean isApiEnabled() {
         return apiEnabled;
+    }
+
+	private WebhookClient importantHook;
+
+    public WebhookClient getImportantWebhook() {
+        if (importantHookUrl == null) return null;
+        if (importantHook == null)
+            importantHook = new WebhookClientBuilder(importantHookUrl).build();
+        return importantHook;
+    }
+
+    public Guild getOfficialGuild() {
+        return getGuildByID(OFFICIAL_GUILD);
     }
 }

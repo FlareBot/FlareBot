@@ -43,7 +43,9 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,6 +60,8 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
+    private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
 
     private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 
@@ -401,6 +405,10 @@ public class GeneralUtils {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
+    }
+
+	public static String getCurrentTime(boolean seconds) {
+        return ZonedDateTime.now(Clock.systemDefaultZone().getZone()).format(DateTimeFormatter.ofPattern("HH:mm:ss z"));
     }
 
     /**
