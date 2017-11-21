@@ -282,6 +282,7 @@ public class FlareBot {
         try {
             JDABuilder builder = new JDABuilder(AccountType.BOT)
                     .addEventListener(events)
+                    .addEventListener(new ModlogEvents())
                     .setToken(tkn)
                     .setAudioSendFactory(new NativeAudioSendFactory());
             if (clients.length == 1) {

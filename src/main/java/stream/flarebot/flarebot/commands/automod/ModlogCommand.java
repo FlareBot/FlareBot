@@ -47,7 +47,7 @@ public class ModlogCommand implements Command {
                     MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
                     return;
                 } else {
-                    List<ModlogEvent> events = guild.getEnabledEvents().subList(start, end);
+                    List<ModlogEvent> events = new ArrayList<>(guild.getEnabledEvents()).subList(start, end);
 
                     if (events.isEmpty()) {
                         MessageUtils.sendErrorMessage("No Events are enabled", channel);

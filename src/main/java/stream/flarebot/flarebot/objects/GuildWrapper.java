@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
@@ -40,7 +41,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
-    private List<ModlogEvent> enabledEvents = new ArrayList<>();
+    private Set<ModlogEvent> enabledEvents = new ConcurrentHashSet<>();
 
     // oooo special!
     private boolean betaAccess = false;
@@ -275,14 +276,14 @@ public class GuildWrapper {
         }
     }
 
-    public List<ModlogEvent> getEnabledEvents() {
+    public Set<ModlogEvent> getEnabledEvents() {
         checkEventsArray();
         return enabledEvents;
     }
 
     private void checkEventsArray() {
         if (enabledEvents == null) {
-            enabledEvents = new ArrayList<>();
+            enabledEvents = new ConcurrentHashSet<>();
             enabledEvents.add(ModlogEvent.MEMBER_ROLE_GIVE);
             enabledEvents.add(ModlogEvent.MEMBER_ROLE_REMOVE);
             enabledEvents.add(ModlogEvent.ROLE_CREATE);
