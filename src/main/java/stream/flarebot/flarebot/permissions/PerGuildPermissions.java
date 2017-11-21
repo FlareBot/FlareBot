@@ -92,7 +92,7 @@ public class PerGuildPermissions {
     }
 
     public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, 226788297156853771L);
+        return checkOfficialGuildForRole(user, 272324832279003136L);
     }
 
     public boolean isStaff(net.dv8tion.jda.core.entities.User user) {
