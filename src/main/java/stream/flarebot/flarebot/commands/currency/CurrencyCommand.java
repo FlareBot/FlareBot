@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.currency;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -16,11 +16,8 @@ import stream.flarebot.flarebot.util.currency.CurrencyConversionUtil;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.Random;
 
 public class CurrencyCommand implements Command {
-
-    private Random random = new Random();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -46,19 +43,8 @@ public class CurrencyCommand implements Command {
                         return;
                     }
 
-                    CurrencyComparison comparison;
-                    if (from.equalsIgnoreCase(to)) {
-                        if ((random.nextInt(100) + 1) == 100) {
-                            channel.sendMessage("I had hoped you didn't need me for that...").complete();
-                            FlareBot.getInstance().logEG("Convert a currency to itself...", this, guild.getGuild(), sender);
-                        }
-                        comparison = new CurrencyComparison(from, to, (double) 1);
-                    } else {
-                        comparison = CurrencyConversionUtil.getCurrencyComparison(from, to);
-                    }
-
-                    channel.sendMessage(getCurrencyRatesEmbed(sender, comparison)).queue();
-
+                    channel.sendMessage(getCurrencyRatesEmbed(sender,
+                            CurrencyConversionUtil.getCurrencyComparison(channel, sender, this, from, to))).queue();
                     return;
                 } catch (IOException e) {
                     MessageUtils.sendException("There was an error completing your request! \n" +
@@ -86,7 +72,7 @@ public class CurrencyCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.CURRENCY;
     }
 
     @Override

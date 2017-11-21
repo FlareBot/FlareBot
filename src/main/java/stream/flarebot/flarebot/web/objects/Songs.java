@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Songs {
+
     public long length;
     public long progress;
     public String avatar;
@@ -61,6 +62,7 @@ public class Songs {
     }
 
     private static class ResponsePlayer {
+
         private List<Songs> playlist;
         public Songs current;
         public String guildId;

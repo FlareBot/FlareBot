@@ -79,8 +79,8 @@ public class YouTubeExtractor implements Extractor {
             audioTracks.add(track);
             name = track.getInfo().title;
             if (track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000) + 1) == 1000) {
-                GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", message.getAuthor());
-                FlareBot.getInstance().logEG("You can't rick roll me!", null, message.getGuild(), message.getAuthor());
+                GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", user);
+                FlareBot.getInstance().logEG("You can't rick roll me!", null, message.getGuild(), user);
             }
         }
         if (name != null) {

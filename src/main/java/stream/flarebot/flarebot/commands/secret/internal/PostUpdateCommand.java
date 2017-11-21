@@ -1,14 +1,13 @@
-package stream.flarebot.flarebot.commands.secret;
+package stream.flarebot.flarebot.commands.secret.internal;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.Role;
 import org.json.JSONObject;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -21,7 +20,7 @@ public class PostUpdateCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {
-        if (guild.getGuildId().equals("226785954537406464")) {
+        if (guild.getGuildId().equals("226785954537406464") && getPermissions(channel).isStaff(sender)) {
             if (args.length == 0) {
                 channel.sendMessage("You kinda need like.... a message to announce... like yeah...").queue();
                 return;
@@ -47,7 +46,7 @@ public class PostUpdateCommand implements Command {
                     EmbedBuilder embed = new EmbedBuilder();
                     boolean hasTitle = false;
                     for (int i = 0; i < array.length; i++) {
-                        String value = array[i].replaceAll("\n\\* ", "\n• "); // this breaks markdown...
+                        String value = array[i].replaceAll("\n\\* ", "\n� "); // this breaks markdown...
                         String header = value.replace("## ", "").substring(0, value.indexOf("\n") - 4).replace("\n", "");
 
                         value = value.replace("## " + header, "");
@@ -95,7 +94,7 @@ public class PostUpdateCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.SECRET;
+        return CommandType.INTERNAL;
     }
 
     @Override
