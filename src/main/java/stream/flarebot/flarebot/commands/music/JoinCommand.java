@@ -1,6 +1,5 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.music;
 
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -48,7 +47,7 @@ public class JoinCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}join` - Joins FlareBot to join your active voice channel";
+        return "`{%}join` - Joins FlareBot to join your active voice channel.";
     }
 
     @Override
@@ -58,6 +57,6 @@ public class JoinCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.MUSIC;
     }
 }

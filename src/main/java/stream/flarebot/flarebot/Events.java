@@ -4,39 +4,57 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.StatusChangeEvent;
+import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent;
+import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
+import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
+import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.mod.ModlogAction;
+import stream.flarebot.flarebot.mod.ModlogEvent;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -54,10 +72,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 public class Events extends ListenerAdapter {
+
+    private final Pattern multiSpace = Pattern.compile(" {2,}");
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
@@ -67,9 +88,8 @@ public class Events extends ListenerAdapter {
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     public static final List<Long> durations = new ArrayList<>();
     private static final List<Long> removedByMe = new ArrayList<>();
-
-    private final Map<Integer, Long> shardEventTime = new HashMap<>();
-
+	private final Map<Integer, Long> shardEventTime = new HashMap<>();
+	private final AtomicInteger commandCounter = new AtomicInteger(0);
     public Events(FlareBot bot) {
         this.flareBot = bot;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> sd = true));
@@ -79,13 +99,15 @@ public class Events extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
         if (!event.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD)) return;
+        if (!event.getReactionEmote().getName().equals("\uD83D\uDCCC")) return; // Check if it's a :pushpin:
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
             MessageReaction reaction =
-                    message.getReactions().stream().filter(r -> r.getEmote().getName().equals(event.getReactionEmote().getName())).findFirst().orElse(null);
+                    message.getReactions().stream().filter(r -> r.getReactionEmote().getName()
+                            .equals(event.getReactionEmote().getName())).findFirst().orElse(null);
             if (reaction != null) {
                 if (reaction.getCount() == 5) {
-                    message.pin().complete();
-                    event.getChannel().getHistory().retrievePast(1).complete().get(0).delete().queue();
+                    message.pin().queue((aVoid) -> event.getChannel().getHistory().retrievePast(1).complete().get(0)
+                            .delete().queue());
                 }
             }
         });
@@ -98,11 +120,18 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("User Join")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .build(), ModlogEvent.MEMBER_JOIN);
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
-        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked()) return;
+        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
+        if (wrapper == null) return;
+        if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
-            Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
+            Welcome welcome = wrapper.getWelcome();
             if ((welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
                 if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
@@ -121,15 +150,15 @@ public class Events extends ListenerAdapter {
                     }
                 }
                 if (welcome.isDmEnabled()) {
-                    String dmMsg = welcome.getRandomDmMessage()
+                    if (event.getMember().getUser().isBot()) return; // We can't DM other bots.
+                    MessageUtils.sendPM(event.getMember().getUser(), welcome.getRandomDmMessage()
                             .replace("%user%", event.getMember().getUser().getName())
                             .replace("%guild%", event.getGuild().getName())
-                            .replace("%mention%", event.getMember().getUser().getAsMention());
-                    MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+                            .replace("%mention%", event.getMember().getUser().getAsMention()));
                 }
             } else welcome.setGuildEnabled(false);
         }
-        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
+        if (event.getMember().getUser().isBot()) return;
         if (!wrapper.getAutoAssignRoles().isEmpty()) {
             Set<String> autoAssignRoles = wrapper.getAutoAssignRoles();
             List<Role> roles = new ArrayList<>();
@@ -146,6 +175,15 @@ public class Events extends ListenerAdapter {
                 handle(e1, event, roles);
             }
         }
+    }
+
+    @Override
+    public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("User Leave")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .build(), ModlogEvent.MEMBER_LEAVE);
     }
 
     private void handle(Throwable e1, GuildMemberJoinEvent event, List<Role> roles) {
@@ -195,8 +233,13 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Voice join")
+                .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
+                .addField("Channel", event.getChannelJoined().getName() + " (" + event.getChannelJoined().getId() + ")", true)
+                .build(), ModlogEvent.MEMBER_VOICE_JOIN);
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
-            event.getGuild().getAudioManager().setSelfDeafened(true);
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
             }
@@ -205,6 +248,12 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Voice leave")
+                .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
+                .addField("Channel", event.getChannelLeft().getName() + " (" + event.getChannelLeft().getId() + ")", true)
+                .build(), ModlogEvent.MEMBER_VOICE_LEAVE);
         if (event.getMember().getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
             if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
                 FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
@@ -217,7 +266,7 @@ public class Events extends ListenerAdapter {
         } else {
             if (event.getChannelLeft().getMembers().contains(event.getGuild().getSelfMember()) &&
                     (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
-                    .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size())) {
+                            .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size())) {
                 event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
             }
         }
@@ -245,16 +294,17 @@ public class Events extends ListenerAdapter {
                     return;
                 }
             }
-            String message = event.getMessage().getRawContent();
+
+            String message = multiSpace.matcher(event.getMessage().getRawContent()).replaceAll(" ");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
                 command = command.substring(0, message.indexOf(" ") - 1);
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
-            Command cmd = flareBot.getCommand(command);
+            Command cmd = flareBot.getCommand(command, event.getMember());
             if (cmd != null)
-                handleCommand(event, cmd, command, args);
+                handleCommand(event, cmd, args);
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
                     && !event.getAuthor().isBot()) {
@@ -301,13 +351,201 @@ public class Events extends ListenerAdapter {
     }
 
     @Override
+    public void onRoleCreate(RoleCreateEvent event) {
+        event.getGuild().getAuditLogs().queue(auditLog -> {
+            AuditLogEntry entry = auditLog.get(0);
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                    .getAutoModConfig().postToModLog(new EmbedBuilder()
+                    .setTitle("Role create")
+                    .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
+                    .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                    .build(), ModlogEvent.ROLE_CREATE);
+        });
+
+    }
+
+    @Override
     public void onRoleDelete(RoleDeleteEvent event) {
+        event.getGuild().getAuditLogs().queue(auditLog -> {
+            AuditLogEntry entry = auditLog.get(0);
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId())
+                    .getAutoModConfig().postToModLog(new EmbedBuilder()
+                    .setTitle("Role delete")
+                    .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
+                    .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                    .build(), ModlogEvent.ROLE_DELETE);
+        });
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
     }
+    private long responseNumber = 0;
+    @Override
+    public void onGenericRoleUpdate(GenericRoleUpdateEvent event) {
+        if (event instanceof RoleUpdatePositionEvent) {
+            int oldpos = ((RoleUpdatePositionEvent) event).getOldPosition();
+            int newpos = event.getRole().getPosition();
+            if (oldpos == newpos)
+                return;
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle("Role Move");
+            embedBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
+            embedBuilder.addField("Position", "`" + oldpos + "` -> `" + newpos + "`", true);
+            List<Role> roles = event.getGuild().getRoles();
+            String surounding = "```md\n";
+            if (newpos != roles.size())
+                surounding += "+ " + roles.get(roles.size() - (newpos + 3)).getName() + "\n";
+           surounding += "> " + event.getRole().getName() + "\n";
+            if (newpos != 0) {
+                surounding += "+ " + roles.get(roles.size() - (newpos + 1)).getName() + "\n";
+            }
+            surounding += "```";
+            embedBuilder.addField("Surrounding roles", surounding, false);
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(embedBuilder.build(), ModlogEvent.ROLE_MOVE);
+        } else {
+            if (event.getResponseNumber() == responseNumber) {
+                return;
+            }
+            responseNumber = event.getResponseNumber();
+            event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
+                AuditLogEntry entry = auditLogs.get(0);
+                Map<String, AuditLogChange> changes = entry.getChanges();
+                EmbedBuilder permissionsBuilder = new EmbedBuilder();
+                permissionsBuilder.setTitle("Role Change");
 
-    private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String command, String[] args) {
+                permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", false);
+
+                System.out.println(changes.keySet());
+
+                if (changes.containsKey("permissions")) {
+                    AuditLogChange change = changes.get("permissions");
+                    Map<Boolean, List<Permission>> permChanges = GeneralUtils.getChangedPerms(Permission.getPermissions(((Integer) change.getOldValue()).longValue()), Permission.getPermissions(((Integer) change.getNewValue()).longValue()));
+                    if (permChanges.get(true).size() > 0) {
+                        StringBuilder added = new StringBuilder();
+                        for (Permission addedPerm : permChanges.get(true)) {
+                            added.append(addedPerm.getName()).append("\n");
+                        }
+                        permissionsBuilder.addField("Added Perms", "```\n" + added.toString() + "```", false);
+                    }
+                    if (permChanges.get(false).size() > 0) {
+                        StringBuilder removed = new StringBuilder();
+                        for (Permission removedPerm : permChanges.get(false)) {
+                            removed.append(removedPerm.getName()).append("\n");
+                        }
+                        permissionsBuilder.addField("Removed Perms", "```\n" + removed.toString() + "```", false);
+                    }
+                }
+                if (changes.containsKey("name")) {
+                    AuditLogChange change = changes.get("name");
+                    permissionsBuilder.addField("Name Change", "`" + change.getOldValue() + "` -> `" + change.getNewValue() + "`", true);
+                }
+                if (changes.containsKey("mentionable")) {
+                    AuditLogChange change = changes.get("mentionable");
+                    permissionsBuilder.addField("Mentionable", "`" + change.getNewValue() + "`", true);
+                }
+                if (changes.containsKey("hoist")) {
+                    AuditLogChange change = changes.get("hoist");
+                    permissionsBuilder.addField("Displayed Separately", "`" + change.getNewValue() + "`", true);
+                }
+                if (changes.containsKey("color")) {
+                    AuditLogChange change = changes.get("color");
+                    permissionsBuilder.addField("Color Change", "`#" + Integer.toHexString(change.getOldValue()) + "` -> `#" + Integer.toHexString(change.getNewValue()) + "`", true);
+
+                }
+                permissionsBuilder.addField("Responsible Moderator", entry.getUser().getAsMention(), true);
+                FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(permissionsBuilder.build(), ModlogEvent.ROLE_EDIT);
+
+            });
+        }
+    }
+
+    @Override
+    public void onGuildBan(GuildBanEvent event) {
+        Guild guild = event.getGuild();
+        AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
+        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
+    }
+
+    @Override
+    public  void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
+        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        Map<String, AuditLogChange> changes = entry.getChanges();
+        AuditLogChange change = changes.get("$add");
+        @SuppressWarnings("unchecked")
+        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
+
+        FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Role add")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build(), ModlogEvent.MEMBER_ROLE_GIVE);
+    }
+
+    @Override
+    public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
+        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        Map<String, AuditLogChange> changes = entry.getChanges();
+        AuditLogChange change = changes.get("$remove");
+        @SuppressWarnings("unchecked")
+        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
+
+        FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
+                .getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Role remove")
+                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build(), ModlogEvent.MEMBER_ROLE_REMOVE);
+    }
+
+    @Override
+    public void onTextChannelCreate(TextChannelCreateEvent event) {
+        handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public  void onVoiceChannelCreate(VoiceChannelCreateEvent event) {
+        handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public void onTextChannelDelete(TextChannelDeleteEvent event) {
+        handleChannelDelete(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
+        handleChannelDelete(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public void onMessageUpdate(MessageUpdateEvent event) {
+        //TODO message caching
+    }
+
+    private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
+        AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
+        wrapper.getAutoModConfig().postToModLog(new EmbedBuilder()
+        .setTitle("Channel create")
+        .addField("Type", channel.getType().name().toLowerCase(), true)
+        .addField("Name", channel.getName(), true)
+        .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+        .build(), ModlogEvent.CHANNEL_CREATE);
+    }
+
+    private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
+        AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
+        wrapper.getAutoModConfig().postToModLog(new EmbedBuilder()
+                .setTitle("Channel delete")
+                .addField("Type", channel.getType().name().toLowerCase(), true)
+                .addField("Name", channel.getName(), true)
+                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
+                .build(), ModlogEvent.CHANNEL_DELETE);
+    }
+
+    private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String[] args) {
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
         if (guild.isBlocked()) {
             if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
@@ -316,8 +554,8 @@ public class Events extends ListenerAdapter {
         }
         handleSpamDetection(event, guild);
         if (cmd.getType() == CommandType.SECRET) {
-            if (!cmd.getPermissions(event.getChannel()).isCreator(event.getMember()) && !(FlareBot.getInstance().isTestBot()
-                    && cmd.getPermissions(event.getChannel()).isContributor(event.getMember()))) {
+            if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot()
+                    && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
                 FlareBot.getInstance().logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
                 return;
@@ -325,7 +563,12 @@ public class Events extends ListenerAdapter {
         }
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
         if (handleMissingPermission(cmd, event)) return;
-        if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) return;
+        if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) {
+            if (FlareBot.getInstance().isTestBot())
+                FlareBot.LOGGER.error("Guild " + event.getGuild().getId() + " tried to use the beta command '"
+                        + cmd.getCommand() + "'!");
+            return;
+        }
         if (UpdateCommand.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
@@ -336,22 +579,28 @@ public class Events extends ListenerAdapter {
             return;
         }
 
-        // TODO: Replace with new API endpoints.
-        flareBot.postToApi("commands", new JSONObject().put("command", command).put("guild", event.getGuild().getId()).put("guildName", event.getGuild().getName()));
-
         CACHED_POOL.submit(() -> {
             FlareBot.LOGGER.info(
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args) + " in " + event.getChannel() + "! Sender: " +
                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
+            ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())
+                    .put("guildId", guild.getGuildId()));
+            commandCounter.incrementAndGet();
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
+
+                guild.getAutoModConfig().postToModLog(new EmbedBuilder()
+                        .setTitle("Command Run")
+                        .addField("User", event.getAuthor().getAsMention(), true)
+                        .addField("Command", cmd.getCommand(), true)
+                        .build(), ModlogEvent.COMMAND);
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
                                 .getChannel());
-                FlareBot.LOGGER.error("Exception in guild " + "!\n" + '\'' + cmd.getCommand() + "' "
+                FlareBot.LOGGER.error("Exception in guild " + event.getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
@@ -376,7 +625,7 @@ public class Events extends ListenerAdapter {
                                 .getPermission() + "`` which is required for use of this command!"), e
                         .getChannel());
                 delete(e.getMessage());
-                new FlarebotTask("Delete message " + msg.getChannel().toString()) {
+                new FlareBotTask("Delete message " + msg.getChannel().toString()) {
                     @Override
                     public void run() {
                         delete(msg);
@@ -416,6 +665,10 @@ public class Events extends ListenerAdapter {
         }
     }
 
+    public int getCommandCount() {
+        return commandCounter.get();
+    }
+
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
         long messageID = event.getMessageIdLong();
@@ -425,7 +678,7 @@ public class Events extends ListenerAdapter {
         }
         long discordEpoch = (messageID >> 22) + 1420070400000L;
         long difference = System.currentTimeMillis() - discordEpoch;
-        if(difference < TimeUnit.DAYS.toMillis(14))
+        if (difference < TimeUnit.DAYS.toMillis(14))
             durations.add(difference);
     }
 

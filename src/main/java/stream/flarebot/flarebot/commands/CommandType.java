@@ -9,7 +9,10 @@ public enum CommandType {
     GENERAL,
     MODERATION,
     MUSIC,
-    INTERNAL,
+	INTERNAL,
+    USEFUL,
+    CURRENCY,
+    RANDOM,
     SECRET;
 
     public String toString() {

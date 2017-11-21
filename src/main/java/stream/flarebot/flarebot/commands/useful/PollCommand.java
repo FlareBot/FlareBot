@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.useful;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -112,6 +112,9 @@ public class PollCommand implements Command {
                         return;
                     } catch (IllegalStateException e) {
                         MessageUtils.sendErrorMessage(e.getMessage(), channel);
+                        return;
+                    } catch (NumberFormatException e) {
+                        MessageUtils.sendErrorMessage("That is not a valid poll ID!", channel);
                         return;
                     }
 
@@ -296,11 +299,11 @@ public class PollCommand implements Command {
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("help")) {
-                MessageUtils.sendUsage(this, channel, sender);
+                MessageUtils.sendUsage(this, channel, sender, args);
                 return;
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     private Poll getPollById(String idText, List<Poll> polls, TextChannel channel) {
@@ -328,21 +331,22 @@ public class PollCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}poll` - Shows if there are any polls running or not\n" +
-                "`{%}poll help` - Shows this help message\n" +
-                "`{%}poll create <question>` - Creates a poll with a specified question\n" +
-                "`{%}poll list` - Lists the polls for the server\n\n" +
-                "`{%}poll <close/open/remove> <pollID>` - Closes, opens or removes a poll with the specified ID\n" +
-                "`{%}poll set <pollID> colour <colour>` - Sets a colour for a poll with the specified ID\n\n" +
-                "`{%}poll options <pollID> <view/remove> <optionID>` - Views or Removes a specific option from a poll\n" +
-                "`{%}poll options <pollID> add <option>` - Adds an option to a poll\n" +
-                "`{%}poll options <pollID> list` - Lists all the options for a poll\n\n" +
-                "`{%}poll setchannel <pollID/\"all\">` - Sets the poll announcement channel for all polls or a specific poll\n" +
-                "`{%}poll vote [pollID] <optionID>` - Votes for an option on a poll (Poll ID is only needed if the server has more than 1 poll)";
+        return "`{%}poll` - Shows if there are any polls running or not.\n" +
+                "`{%}poll help` - Shows this help message.\n" +
+                "`{%}poll create <question>` - Creates a poll with a specified question.\n" +
+                "`{%}poll list` - Lists the polls for the server.\n\n" +
+                "`{%}poll close|open|remove <pollID>` - Closes, opens or removes a poll with the specified ID.\n" +
+                "`{%}poll set <pollID> colour <colour>` - Sets a colour for a poll with the specified ID.\n\n" +
+                "`{%}poll options <pollID> view|remove <optionID>` - Views or Removes a specific option from a poll.\n" +
+                "`{%}poll options <pollID> add <option>` - Adds an option to a poll.\n" +
+                "`{%}poll options <pollID> list` - Lists all the options for a poll.\n\n" +
+                "`{%}poll setchannel <pollID>` - Sets the poll announcement channel for a specific poll.\n" +
+                "`{%}poll setchannel all` - Sets the poll announcement channel for all polls." +
+                "`{%}poll vote [pollID] <optionID>` - Votes for an option on a poll (Poll ID is only needed if the server has more than 1 poll).";
     }
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.USEFUL;
     }
 }

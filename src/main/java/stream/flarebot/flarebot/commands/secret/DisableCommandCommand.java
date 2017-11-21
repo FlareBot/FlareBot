@@ -19,7 +19,7 @@ public class DisableCommandCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(member) || getPermissions(channel).isContributor(member)) {
+        if (getPermissions(channel).isCreator(sender) || getPermissions(channel).isContributor(sender)) {
             if (args.length == 0) {
                 channel.sendMessage("Can't really disable commands if you don't supply any ¯\\_(ツ)_/¯").queue();
                 return;
@@ -42,7 +42,7 @@ public class DisableCommandCommand implements Command {
             String[] cmds = msg.substring(0, msg.contains("-") ? msg.indexOf("-") : msg.length()).trim().split("\\|");
             StringBuilder sb = new StringBuilder();
             for (String command : cmds) {
-                Command cmd = FlareBot.getInstance().getCommand(command.trim());
+                Command cmd = FlareBot.getInstance().getCommand(command.trim(), member);
                 if (cmd == null || cmd.getType() == CommandType.SECRET) continue;
 
                 // If it's already disabled and there's only 1 (with a reason supplied) just update the reason.

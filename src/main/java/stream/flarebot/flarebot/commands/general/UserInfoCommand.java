@@ -67,15 +67,15 @@ public class UserInfoCommand implements Command {
                                                 String.format("[`%s`](%s)", member.getGame()
                                                                 .getName(),
                                                         member.getGame().getUrl())) : ""), true)
-                .addField("Time Data", "Created: " + flareBot
+                .addField("Time Data", "Created: " + GeneralUtils
                         .formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
                         "Joined: " + (channel.getGuild()
                         .getMember(user) == null ? "The user is not in this server."
-                        : flareBot.formatTime(LocalDateTime
+                        : GeneralUtils.formatTime(LocalDateTime
                         .from(channel.getGuild().getMember(user).getJoinDate()))) + "\n" +
-                        "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : flareBot
+                        "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : GeneralUtils
                         .formatTime(cache.getLastSeen())) + "\n" +
-                        "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : flareBot
+                        "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : GeneralUtils
                         .formatTime(cache.getLastMessage())), false)
                 .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
     }
@@ -92,7 +92,7 @@ public class UserInfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}userinfo [userID]` - Views your user info [or info for another user]";
+        return "`{%}userinfo [userID]` - Views your user info [or info for another user].";
     }
 
     @Override
@@ -102,6 +102,6 @@ public class UserInfoCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"stalk"};
+        return new String[]{"stalk"};
     }
 }

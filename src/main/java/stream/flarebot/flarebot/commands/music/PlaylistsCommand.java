@@ -24,9 +24,9 @@ public class PlaylistsCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("mark")) {
-                if (getPermissions(channel).isCreator(member)) {
+                if (getPermissions(channel).isCreator(sender)) {
                     if (args.length == 1 || args.length == 2) {
-                        MessageUtils.sendUsage(this, channel, sender);
+                        MessageUtils.sendUsage(this, channel, sender, args);
                     } else {
                         String playlist = FlareBot.getMessage(args, 2);
                         CassandraController.runTask(session -> {
@@ -119,7 +119,7 @@ public class PlaylistsCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}playlists";
+        return "`{%}playlists` - Returns the playlists available.";
         // Admin command:
         // {%}playlists mark <global/local> <playlist>
     }

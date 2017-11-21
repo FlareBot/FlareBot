@@ -25,6 +25,10 @@ public interface Command {
 
     CommandType getType();
 
+    default String getExtraInfo() {
+        return null;
+    }
+
     default String getPermission() {
         return getType() == CommandType.SECRET ? null : "flarebot." + getCommand();
     }

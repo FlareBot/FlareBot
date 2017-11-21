@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
@@ -39,6 +40,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+    private List<ModlogEvent> enabledEvents = new ArrayList<>();
 
     // oooo special!
     private boolean betaAccess = false;
@@ -55,7 +57,12 @@ public class GuildWrapper {
         return this.guildId;
     }
 
+    public long getGuildIdLong() {
+        return Long.parseLong(this.guildId);
+    }
+
     public AutoModGuild getAutoModGuild() {
+        if (autoModGuild == null) autoModGuild = new AutoModGuild();
         return this.autoModGuild;
     }
 
@@ -89,7 +96,7 @@ public class GuildWrapper {
         return permissions;
     }
 
-    protected void setPermissions(PerGuildPermissions permissions) {
+    public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
     }
 
@@ -203,7 +210,7 @@ public class GuildWrapper {
     }
 
     public ReportManager getReportManager() {
-        if(reportManager == null) reportManager = new ReportManager();
+        if (reportManager == null) reportManager = new ReportManager();
         return reportManager;
     }
 
@@ -212,11 +219,12 @@ public class GuildWrapper {
     }
 
     public List<String> getUserWarnings(User user) {
-        return warnings.get(user.getId());
+        if (warnings == null) warnings = new ConcurrentHashMap<>();
+        return warnings.getOrDefault(user.getId(), new ArrayList<>());
     }
 
     public void addWarning(User user, String reason) {
-        List<String> warningsList = warnings.getOrDefault(user.getId(), new ArrayList<>());
+        List<String> warningsList = getUserWarnings(user);
         warningsList.add(reason);
         warnings.put(user.getId(), warningsList);
     }
@@ -240,5 +248,49 @@ public class GuildWrapper {
     public Map<String, String> getTags() {
         if (tags == null) tags = new ConcurrentHashMap<>();
         return tags;
+    }
+
+    public boolean eventEnabled(ModlogEvent event) {
+        checkEventsArray();
+        return enabledEvents.contains(event);
+    }
+
+    public boolean enableEvent(ModlogEvent event) {
+        checkEventsArray();
+        return enabledEvents.add(event);
+    }
+
+    public boolean disableEvent(ModlogEvent event) {
+        checkEventsArray();
+        return enabledEvents.remove(event);
+    }
+
+    public boolean toogleCompactEvent(ModlogEvent event) {
+        if (event.isCompact()) {
+            event.setCompact(false);
+            return false;
+        } else {
+            event.setCompact(true);
+            return true;
+        }
+    }
+
+    public List<ModlogEvent> getEnabledEvents() {
+        checkEventsArray();
+        return enabledEvents;
+    }
+
+    private void checkEventsArray() {
+        if (enabledEvents == null) {
+            enabledEvents = new ArrayList<>();
+            enabledEvents.add(ModlogEvent.MEMBER_ROLE_GIVE);
+            enabledEvents.add(ModlogEvent.MEMBER_ROLE_REMOVE);
+            enabledEvents.add(ModlogEvent.ROLE_CREATE);
+            enabledEvents.add(ModlogEvent.ROLE_DELETE);
+            enabledEvents.add(ModlogEvent.CHANNEL_CREATE);
+            enabledEvents.add(ModlogEvent.CHANNEL_DELETE);
+            enabledEvents.add(ModlogEvent.MESSAGE_EDIT);
+            enabledEvents.add(ModlogEvent.MESSAGE_DELETE);
+        }
     }
 }

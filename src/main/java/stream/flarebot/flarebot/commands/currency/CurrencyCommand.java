@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.currency;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -16,11 +16,8 @@ import stream.flarebot.flarebot.util.currency.CurrencyConversionUtil;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.Random;
 
 public class CurrencyCommand implements Command {
-
-    private Random random = new Random();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -45,20 +42,9 @@ public class CurrencyCommand implements Command {
                         MessageUtils.sendErrorMessage("The currency `" + to + "` is not valid!", channel);
                         return;
                     }
-                  
-                    CurrencyComparison comparison;
-                    if (from.equalsIgnoreCase(to)) {
-                        if ((random.nextInt(100) + 1) == 100) {
-                            channel.sendMessage("I had hoped you didn't need me for that...").complete();
-                            FlareBot.getInstance().logEG("Convert a currency to itself...", this, guild.getGuild(), sender);
-                        }
-                        comparison = new CurrencyComparison(from, to, (double) 1);
-                    } else {
-                        comparison = CurrencyConversionUtil.getCurrencyComparison(from, to);
-                    }
 
-                    channel.sendMessage(getCurrencyRatesEmbed(sender, comparison)).queue();
-
+                    channel.sendMessage(getCurrencyRatesEmbed(sender,
+                            CurrencyConversionUtil.getCurrencyComparison(channel, sender, this, from, to))).queue();
                     return;
                 } catch (IOException e) {
                     MessageUtils.sendException("There was an error completing your request! \n" +
@@ -66,7 +52,7 @@ public class CurrencyCommand implements Command {
                 }
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override
@@ -81,17 +67,17 @@ public class CurrencyCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}currency <from> <to>` - Displays the currency conversion rates for two currencies";
+        return "`{%}currency <from> <to>` - Displays the currency conversion rates for two currencies.";
     }
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.CURRENCY;
     }
 
     @Override
     public boolean isBetaTesterCommand() {
-        return true;
+        return false;
     }
 
     private MessageEmbed getCurrencyRatesEmbed(User sender, CurrencyComparison c) {

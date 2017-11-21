@@ -5,6 +5,7 @@ import org.eclipse.jetty.util.ConcurrentHashSet;
 import java.util.Set;
 
 public class User {
+
     private final Set<String> groups = new ConcurrentHashSet<>();
     private final Set<String> permissions = new ConcurrentHashSet<>();
 
@@ -24,15 +25,15 @@ public class User {
         return groups.remove(group.getName());
     }
 
-    public Set<String> getPermissions(){
+    public Set<String> getPermissions() {
         return permissions;
     }
 
-    public boolean addPermission(String permission){
+    public boolean addPermission(String permission) {
         return permissions.add(permission);
     }
 
-    public boolean removePermission(String permission){
+    public boolean removePermission(String permission) {
         return permissions.remove(permission);
     }
 }

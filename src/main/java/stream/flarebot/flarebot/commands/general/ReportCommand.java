@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.general;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,6 +14,7 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.awt.Color;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class ReportCommand implements Command {
             if (messages.size() > 0) {
                 messages = messages.subList(0, Math.min(5, messages.size() - 1));
                 List<ReportMessage> reportMessages = new ArrayList<>();
-                for (Message userMessage: messages) {
+                for (Message userMessage : messages) {
                     reportMessages.add(new ReportMessage(userMessage.getContent(), Timestamp.valueOf(userMessage.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())));
                 }
                 report.setMessages(reportMessages);
@@ -50,9 +52,15 @@ public class ReportCommand implements Command {
 
             guild.getReportManager().report(report);
 
+            guild.getAutoModConfig().postToModLog(new EmbedBuilder()
+                    .addField("Responsible", sender.getAsMention(), true)
+                    .addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true)
+                    .addField("Reason", MessageUtils.getMessage(args, 1), false)
+                    .setColor(Color.WHITE).build());
+
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
         } else {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 
@@ -68,7 +76,7 @@ public class ReportCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}report <user> <reason>` - Reports a user your guild moderators";
+        return "`{%}report <user> <reason>` - Reports a user your guild moderators.";
     }
 
     @Override

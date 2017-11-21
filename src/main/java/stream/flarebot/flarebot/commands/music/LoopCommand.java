@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
 public class LoopCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId());
@@ -35,7 +36,7 @@ public class LoopCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}loop` - Toggles looping of current playlist";
+        return "`{%}loop` - Toggles looping of current playlist.";
     }
 
     @Override
@@ -50,6 +51,6 @@ public class LoopCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"andagainandagainandagainandagain"};
+        return new String[]{"andagainandagainandagainandagain"};
     }
 }
