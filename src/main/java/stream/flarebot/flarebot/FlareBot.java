@@ -795,7 +795,7 @@ public class FlareBot {
 
     public Command getCommand(String s, Member member) {
         boolean creator = FlareBotManager.getInstance().getGuild(member.getGuild().getId()).getPermissions()
-                .isCreator(member.getUser());
+                .isCreator(member.getUser()) || (FlareBotManager.getInstance().getGuild(member.getGuild().getId()).getPermissions().isContributor(member.getUser()) && isTestBot());
         for (Command cmd : getCommands()) {
             if (cmd.getType() == CommandType.SECRET && !creator) continue;
             if (cmd.getCommand().equalsIgnoreCase(s))
