@@ -487,6 +487,7 @@ public class FlareBot {
 		registerCommand(new StatusCommand());
 		registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
+        registerCommand(new UpdateJDACommand());
 
         ApiFactory.bind();
 
@@ -585,6 +586,16 @@ public class FlareBot {
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
         setupUpdate();
+    }
+
+    /**
+     * This will always return the main shard or just the client itself.
+     * For reference the main shard will always be shard 0 - the shard responsible for DMs
+     *
+     * @return The main shard or actual client in the case of only 1 shard.
+     */
+    public JDA getClient() {
+        return clients[0];
     }
 
     private void loadFutureTasks() {
@@ -1080,13 +1091,11 @@ public class FlareBot {
     }
 
     public User retrieveUserById(long id) {
-        return Arrays.stream(clients).map(jda -> {
-            try {
-                return jda.retrieveUserById(id).complete();
-            } catch (ErrorResponseException ex) {
-            }
-            return null;
-        }).filter(Objects::nonNull).findFirst().orElse(null);
+        return getClient().retrieveUserById(id).complete();
+    }
+
+    public RestAction<User> queueRetrieveUserById(long id) {
+        return getClient().retrieveUserById(id);
     }
 
     public DateTimeFormatter getTimeFormatter() {

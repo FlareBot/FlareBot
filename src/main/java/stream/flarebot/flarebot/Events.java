@@ -63,14 +63,19 @@ public class Events extends ListenerAdapter {
 
     private volatile boolean sd = false;
     private FlareBot flareBot;
+
     protected static Map<String, Integer> spamMap = new ConcurrentHashMap<>();
+
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
+
     public static final List<Long> durations = new ArrayList<>();
     private static final List<Long> removedByMe = new ArrayList<>();
+
 	private final Map<Integer, Long> shardEventTime = new HashMap<>();
 	private final AtomicInteger commandCounter = new AtomicInteger(0);
+
     public Events(FlareBot bot) {
         this.flareBot = bot;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> sd = true));
