@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands.automod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,13 +14,62 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ModlogCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+
+        if (args[0].equalsIgnoreCase("list")) {
+            int page = 1;
+            if (args.length == 2) {
+                try {
+                    page = Integer.valueOf(args[1]);
+                } catch (NumberFormatException e) {
+                    MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
+                    return;
+                }
+            }
+            int pageSize = 15;
+            int pages =
+                    guild.getEnabledEvents().size() < pageSize ? 1 : (guild.getEnabledEvents().size() / pageSize) + (guild.getEnabledEvents().size() % pageSize != 0 ? 1 : 0);
+
+            int start;
+            int end;
+
+            start = pageSize * (page - 1);
+            end = Math.min(start + pageSize, guild.getEnabledEvents().size());
+
+            if (page > pages || page < 0) {
+                MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+                return;
+            } else {
+                List<ModlogEvent> events = guild.getEnabledEvents().subList(start, end);
+
+                if (events.isEmpty()) {
+                    MessageUtils.sendErrorMessage("No Events are enabled", channel);
+                    return;
+                }
+                List<String> header = new ArrayList<>();
+                header.add("Event");
+                header.add("Compacted");
+
+                List<List<String>> body = new ArrayList<>();
+                for (ModlogEvent modlogEvent : events) {
+                    List<String> part = new ArrayList<>();
+                    part.add(modlogEvent.toString());
+                    part.add(String.valueOf(modlogEvent.isCompact()));
+                    body.add(part);
+                }
+
+                channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Page " + page + "/" + pages)).queue();
+                return;
+            }
+        }
 
         if (args.length >= 2) {
             ModlogEvent event = null;
@@ -38,11 +88,16 @@ public class ModlogCommand implements Command {
                 }
             }
             if (args[0].equalsIgnoreCase("enable")) {
+                if (!guild.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
+                    MessageUtils.sendErrorMessage("I don't have permission to view audit logs so you can't use Modlog events!", channel);
+                    return;
+                }
                 if (all) {
                     for (ModlogEvent modlogEvent : ModlogEvent.values()) {
                         guild.enableEvent(modlogEvent);
                     }
                     MessageUtils.sendSuccessMessage("Successfully enabled all events", channel, sender);
+                    return;
                 } else {
                     if (guild.enableEvent(event)) {
                         MessageUtils.sendSuccessMessage("Successfully enabled event " + event.toString(), channel, sender);
@@ -58,13 +113,13 @@ public class ModlogCommand implements Command {
                     for (ModlogEvent modlogEvent : ModlogEvent.values()) {
                         guild.disableEvent(modlogEvent);
                     }
-                    MessageUtils.sendSuccessMessage("Successfully enabled all events", channel, sender);
+                    MessageUtils.sendSuccessMessage("Successfully disabled all events", channel, sender);
                 } else {
                     if (guild.disableEvent(event)) {
-                        MessageUtils.sendSuccessMessage("Successfully enabled event " + event.toString(), channel, sender);
+                        MessageUtils.sendSuccessMessage("Successfully disabled event " + event.toString(), channel, sender);
                         return;
                     } else {
-                        MessageUtils.sendErrorMessage("Error enabling event (Probably already enabled)", channel, sender);
+                        MessageUtils.sendErrorMessage("Error disabling event (Probably already disabled)", channel, sender);
                         return;
                     }
                 }
@@ -132,10 +187,8 @@ public class ModlogCommand implements Command {
     public String getUsage() {
         return "`{%}modlog enable|disable <feature>` - Enables or disables a modlog feature.\n" +
                 "`{%}modlog compact <feature>` - Toggles the compacting of modlog features (Compacted is plain text).\n" +
-                "`{%}modlog setchannel <feature>` - Sets the modlog channel.";
-        /*return "`{%}modlog setchannel` - Set the modlog to be displayed in this channel.\n";
-                *//*+ "`{%}modlog config` - View the config of the modlog.\n"
-                + "`{%}modlog set <configOption> <value>` - Set config options";*/
+                "`{%}modlog setchannel <feature>` - Sets the modlog channel.\n" +
+                "`{%}modlog list [page]` - List enabled events";
     }
 
     @Override

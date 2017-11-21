@@ -273,6 +273,11 @@ public class GuildWrapper {
         }
     }
 
+    public List<ModlogEvent> getEnabledEvents() {
+        checkEventsArray();
+        return enabledEvents;
+    }
+
     private void checkEventsArray() {
         if (enabledEvents == null) {
             enabledEvents = new ArrayList<>();

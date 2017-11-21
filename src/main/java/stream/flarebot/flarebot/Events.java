@@ -28,6 +28,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
@@ -503,6 +504,11 @@ public class Events extends ListenerAdapter {
     @Override
     public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
         handleChannelDelete(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
+    }
+
+    @Override
+    public void onMessageUpdate(MessageUpdateEvent event) {
+        //TODO message caching
     }
 
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
