@@ -82,16 +82,23 @@ public class PerGuildPermissions {
         return new ArrayList<>(groups.values());
     }
 
+    private boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
+        if (fb.getOfficialGuild().getMember(user) == null) return false;
+        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(roleId));
+    }
+  
     public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
-        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(226788297156853771L));
+        return checkOfficialGuildForRole(user, 226788297156853771L);
     }
 
     public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(226788297156853771L));
+        return checkOfficialGuildForRole(user, 226788297156853771L);
+        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(272324832279003136L));
     }
 
     public boolean isStaff(net.dv8tion.jda.core.entities.User user) {
-        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(226788297156853771L));
+        return checkOfficialGuildForRole(user, 226788297156853771L);
+        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(320327762881675264L));
 	}
 
 	public void createDefaultGroup() {
@@ -107,4 +114,4 @@ public class PerGuildPermissions {
         defaults.addPermission("flarebot.userinfo.other");
         defaults.addPermission("flarebot.playlist.clear");
         groups.put("Default", defaults);
-    }}
+    }
