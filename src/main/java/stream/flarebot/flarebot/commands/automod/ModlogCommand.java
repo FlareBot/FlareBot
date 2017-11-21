@@ -23,54 +23,54 @@ public class ModlogCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        if (args.length >= 1) {
+            if (args[0].equalsIgnoreCase("list")) {
+                int page = 1;
+                if (args.length == 2) {
+                    try {
+                        page = Integer.valueOf(args[1]);
+                    } catch (NumberFormatException e) {
+                        MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
+                        return;
+                    }
+                }
+                int pageSize = 15;
+                int pages =
+                        guild.getEnabledEvents().size() < pageSize ? 1 : (guild.getEnabledEvents().size() / pageSize) + (guild.getEnabledEvents().size() % pageSize != 0 ? 1 : 0);
 
-        if (args[0].equalsIgnoreCase("list")) {
-            int page = 1;
-            if (args.length == 2) {
-                try {
-                    page = Integer.valueOf(args[1]);
-                } catch (NumberFormatException e) {
-                    MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
+                int start;
+                int end;
+
+                start = pageSize * (page - 1);
+                end = Math.min(start + pageSize, guild.getEnabledEvents().size());
+
+                if (page > pages || page < 0) {
+                    MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+                    return;
+                } else {
+                    List<ModlogEvent> events = guild.getEnabledEvents().subList(start, end);
+
+                    if (events.isEmpty()) {
+                        MessageUtils.sendErrorMessage("No Events are enabled", channel);
+                        return;
+                    }
+                    List<String> header = new ArrayList<>();
+                    header.add("Event");
+                    header.add("Compacted");
+
+                    List<List<String>> body = new ArrayList<>();
+                    for (ModlogEvent modlogEvent : events) {
+                        List<String> part = new ArrayList<>();
+                        part.add(modlogEvent.toString());
+                        part.add(String.valueOf(modlogEvent.isCompact()));
+                        body.add(part);
+                    }
+
+                    channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Page " + page + "/" + pages)).queue();
                     return;
                 }
-            }
-            int pageSize = 15;
-            int pages =
-                    guild.getEnabledEvents().size() < pageSize ? 1 : (guild.getEnabledEvents().size() / pageSize) + (guild.getEnabledEvents().size() % pageSize != 0 ? 1 : 0);
-
-            int start;
-            int end;
-
-            start = pageSize * (page - 1);
-            end = Math.min(start + pageSize, guild.getEnabledEvents().size());
-
-            if (page > pages || page < 0) {
-                MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-                return;
-            } else {
-                List<ModlogEvent> events = guild.getEnabledEvents().subList(start, end);
-
-                if (events.isEmpty()) {
-                    MessageUtils.sendErrorMessage("No Events are enabled", channel);
-                    return;
-                }
-                List<String> header = new ArrayList<>();
-                header.add("Event");
-                header.add("Compacted");
-
-                List<List<String>> body = new ArrayList<>();
-                for (ModlogEvent modlogEvent : events) {
-                    List<String> part = new ArrayList<>();
-                    part.add(modlogEvent.toString());
-                    part.add(String.valueOf(modlogEvent.isCompact()));
-                    body.add(part);
-                }
-
-                channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Page " + page + "/" + pages)).queue();
-                return;
             }
         }
-
         if (args.length >= 2) {
             ModlogEvent event = null;
             boolean all = false;
