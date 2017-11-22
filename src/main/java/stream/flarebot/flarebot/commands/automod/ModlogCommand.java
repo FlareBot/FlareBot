@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.ModlogEvent;
@@ -73,6 +74,39 @@ public class ModlogCommand implements Command {
                     return;
                 }
             }
+            if (args[0].equalsIgnoreCase("features")) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("**Features**\n");
+
+                Map<String, List<ModlogEvent>> groups = new HashMap<>();
+                for (ModlogEvent modlogEvent : ModlogEvent.values()) {
+                    String name = modlogEvent.name();
+                    String[] split = name.split("_");
+                    String groupKey = split[0];
+                    if (groups.containsKey(groupKey)) {
+                        List<ModlogEvent> group = groups.get(groupKey);
+                        group.add(modlogEvent);
+                        groups.put(groupKey, group);
+                    } else {
+                        List<ModlogEvent> group = new ArrayList<>();
+                        group.add(modlogEvent);
+                        groups.put(groupKey, group);
+                    }
+                }
+
+                Iterator<Map.Entry<String, List<ModlogEvent>>> it = groups.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<String, List<ModlogEvent>> pair = it.next();
+                    for (ModlogEvent event : pair.getValue()) {
+                        sb.append("`").append(event.name()).append("` - ").append(event.getDescription()).append("\n");
+                    }
+                    sb.append("\n");
+                    it.remove();
+                }
+                sb.append("`all` - Is for targeting all events");
+                channel.sendMessage(sb.toString()).queue();
+                return;
+            }
         }
         if (args.length >= 2) {
             ModlogEvent event = null;
@@ -102,11 +136,12 @@ public class ModlogCommand implements Command {
                     MessageUtils.sendSuccessMessage("Successfully enabled all events", channel, sender);
                     return;
                 } else {
-                    if (guild.enableEvent(event)) {
-                        MessageUtils.sendSuccessMessage("Successfully enabled event " + event.toString(), channel, sender);
+                    if (!guild.eventEnabled(event)) {
+                        guild.enableEvent(event);
+                        MessageUtils.sendSuccessMessage("Successfully enabled event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     } else {
-                        MessageUtils.sendErrorMessage("Error enabling event (Probably already enabled)", channel, sender);
+                        MessageUtils.sendErrorMessage("Error enabling event (Probably already disabled)", channel, sender);
                         return;
                     }
                 }
@@ -118,8 +153,9 @@ public class ModlogCommand implements Command {
                     }
                     MessageUtils.sendSuccessMessage("Successfully disabled all events", channel, sender);
                 } else {
-                    if (guild.disableEvent(event)) {
-                        MessageUtils.sendSuccessMessage("Successfully disabled event " + event.toString(), channel, sender);
+                    if (guild.eventEnabled(event)) {
+                        guild.disableEvent(event);
+                        MessageUtils.sendSuccessMessage("Successfully disabled event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     } else {
                         MessageUtils.sendErrorMessage("Error disabling event (Probably already disabled)", channel, sender);
@@ -156,10 +192,10 @@ public class ModlogCommand implements Command {
                 } else {
                     boolean compact = guild.toggleCompactEvent(event);
                     if (compact) {
-                        MessageUtils.sendSuccessMessage("Compacted event `" + event.toString() + "`", channel, sender);
+                        MessageUtils.sendSuccessMessage("Compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     } else {
-                        MessageUtils.sendSuccessMessage("Un-compacted event `" + event.toString() + "`", channel, sender);
+                        MessageUtils.sendSuccessMessage("Un-compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     }
                 }
@@ -193,41 +229,8 @@ public class ModlogCommand implements Command {
         return "`{%}modlog enable|disable <feature>` - Enables or disables a modlog feature.\n" +
                 "`{%}modlog compact <feature>` - Toggles the compacting of modlog features (Compacted is plain text).\n" +
                 "`{%}modlog setchannel <feature>` - Sets the modlog channel.\n" +
-                "`{%}modlog list [page]` - List enabled events";
-    }
-
-    @Override
-    public String getExtraInfo() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("**Features**\n");
-
-        Map<String, List<ModlogEvent>> groups = new HashMap<>();
-        for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-            String name = modlogEvent.name();
-            String[] split = name.split("_");
-            String groupKey = split[0];
-            if (groups.containsKey(groupKey)) {
-                List<ModlogEvent> group = groups.get(groupKey);
-                group.add(modlogEvent);
-                groups.put(groupKey, group);
-            } else {
-                List<ModlogEvent> group = new ArrayList<>();
-                group.add(modlogEvent);
-                groups.put(groupKey, group);
-            }
-        }
-
-        Iterator<Map.Entry<String, List<ModlogEvent>>> it = groups.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, List<ModlogEvent>> pair = it.next();
-            for (ModlogEvent event : pair.getValue()) {
-                sb.append("`").append(event.name()).append("` - ").append(event.getDescription()).append("\n");
-            }
-            sb.append("\n");
-            it.remove();
-        }
-        sb.append("`all` - Is for targeting all events");
-        return sb.toString();
+                "`{%}modlog list [page]` - List enabled events.\n" +
+                "`{%}modlog features` - Lists all the modlog features you can enable.";
     }
 
     @Override

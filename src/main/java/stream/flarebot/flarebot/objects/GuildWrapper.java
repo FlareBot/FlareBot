@@ -256,17 +256,18 @@ public class GuildWrapper {
         return modlogEventMap.containsKey(event);
     }
 
-    public boolean enableEvent(ModlogEvent event) {
+    public void enableEvent(ModlogEvent event) {
         checkEventsArray();
-        return modlogEventMap.put(event, false);
+        modlogEventMap.put(event, false);
     }
 
-    public boolean disableEvent(ModlogEvent event) {
+    public void disableEvent(ModlogEvent event) {
         checkEventsArray();
-        return modlogEventMap.remove(event);
+        modlogEventMap.remove(event);
     }
 
     public boolean toggleCompactEvent(ModlogEvent event) {
+        checkEventsArray();
         if (modlogEventMap.containsKey(event)) {
             if (modlogEventMap.get(event)) {
                 modlogEventMap.put(event, false);
@@ -285,6 +286,7 @@ public class GuildWrapper {
     }
 
     public boolean eventCompact(ModlogEvent event) {
+        checkEventsArray();
         if (modlogEventMap.containsKey(event)) {
             return modlogEventMap.get(event);
         }
@@ -292,6 +294,7 @@ public class GuildWrapper {
     }
 
     public void setCompact(ModlogEvent event, boolean compact) {
+        checkEventsArray();
         if (modlogEventMap.containsKey(event)) {
             modlogEventMap.put(event, compact);
         }
