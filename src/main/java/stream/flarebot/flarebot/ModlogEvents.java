@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
@@ -103,90 +102,64 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGenericRoleUpdate(GenericRoleUpdateEvent event) {
         if (event instanceof RoleUpdatePositionEvent) {
-            /*
-            if (event.getResponseNumber() == moveResponceNumber) {
-                return;
-            }
-            moveResponceNumber = event.getResponseNumber();
-            int oldpos = ((RoleUpdatePositionEvent) event).getOldPosition();
-            int newpos = event.getRole().getPosition();
-            if (oldpos == newpos)
-                return;
-            EmbedBuilder embedBuilder = ModlogEvent.ROLE_MOVE.getEventEmbed(null, null);
-            embedBuilder.setTitle("Role Move");
-            embedBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
-            embedBuilder.addField("Position", "`" + oldpos + "` -> `" + newpos + "`", true);
-            List<Role> roles = event.getGuild().getRoles();
-            StringBuilder sb = new StringBuilder();
-            sb.append("```md\n");
-            if (newpos != roles.size())
-                sb.append("+ ").append(roles.get(roles.size() - (newpos + 3)).getName()).append("\n");
-            sb.append("> ").append(event.getRole().getName()).append("\n");
-            if (newpos != 0) {
-                sb.append("+ ").append(roles.get(roles.size() - (newpos + 1)).getName()).append("\n");
-            }
-            sb.append("```");
-            embedBuilder.addField("Surrounding roles", sb.toString(), false);
-            FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(embedBuilder.build(), ModlogEvent.ROLE_MOVE);
-            */
-        } else {
-            if (event.getResponseNumber() == genericResponseNumber) {
-                return;
-            }
-            genericResponseNumber = event.getResponseNumber();
-            event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
-                AuditLogEntry entry = auditLogs.get(0);
-                Map<String, AuditLogChange> changes = entry.getChanges();
-                EmbedBuilder permissionsBuilder = ModlogEvent.ROLE_EDIT.getEventEmbed(null, entry.getUser());
-                permissionsBuilder.setTitle("Role Change");
-                permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
-                if (changes.containsKey("permissions")) {
-                    AuditLogChange change = changes.get("permissions");
-                    Map<Boolean, List<Permission>> permChanges = GeneralUtils.getChangedPerms(Permission.getPermissions(((Integer) change.getOldValue()).longValue()), Permission.getPermissions(((Integer) change.getNewValue()).longValue()));
-                    if (permChanges.get(true).size() > 0) {
-                        StringBuilder added = new StringBuilder();
-                        for (Permission addedPerm : permChanges.get(true)) {
-                            added.append(addedPerm.getName()).append("\n");
-                        }
-                        permissionsBuilder.addField("Added Perms", "```\n" + added.toString() + "```", false);
-                    }
-                    if (permChanges.get(false).size() > 0) {
-                        StringBuilder removed = new StringBuilder();
-                        for (Permission removedPerm : permChanges.get(false)) {
-                            removed.append(removedPerm.getName()).append("\n");
-                        }
-                        permissionsBuilder.addField("Removed Perms", "```\n" + removed.toString() + "```", false);
-                    }
-                }
-                if (changes.containsKey("name")) {
-                    AuditLogChange change = changes.get("name");
-                    permissionsBuilder.addField("Name Change", "`" + change.getOldValue() + "` -> `" + change.getNewValue() + "`", true);
-                }
-                if (changes.containsKey("mentionable")) {
-                    AuditLogChange change = changes.get("mentionable");
-                    permissionsBuilder.addField("Mentionable", "`" + change.getNewValue() + "`", true);
-                }
-                if (changes.containsKey("hoist")) {
-                    AuditLogChange change = changes.get("hoist");
-                    permissionsBuilder.addField("Displayed Separately", "`" + change.getNewValue() + "`", true);
-                }
-                if (changes.containsKey("color")) {
-                    AuditLogChange change = changes.get("color");
-                    permissionsBuilder.addField("Color Change", "`#" + Integer.toHexString(change.getOldValue()) + "` -> `#" + Integer.toHexString(change.getNewValue()) + "`", true);
-
-                }
-                FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(permissionsBuilder.build(), ModlogEvent.ROLE_EDIT);
-            });
+            return;
         }
+        if (event.getResponseNumber() == genericResponseNumber) {
+            return;
+        }
+        genericResponseNumber = event.getResponseNumber();
+        event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
+            AuditLogEntry entry = auditLogs.get(0);
+            Map<String, AuditLogChange> changes = entry.getChanges();
+            EmbedBuilder permissionsBuilder = ModlogEvent.ROLE_EDIT.getEventEmbed(null, entry.getUser());
+            permissionsBuilder.setTitle("Role Change");
+            permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
+            if (changes.containsKey("permissions")) {
+                AuditLogChange change = changes.get("permissions");
+                Map<Boolean, List<Permission>> permChanges = GeneralUtils.getChangedPerms(Permission.getPermissions(((Integer) change.getOldValue()).longValue()), Permission.getPermissions(((Integer) change.getNewValue()).longValue()));
+                if (permChanges.get(true).size() > 0) {
+                    StringBuilder added = new StringBuilder();
+                    for (Permission addedPerm : permChanges.get(true)) {
+                        added.append(addedPerm.getName()).append("\n");
+                    }
+                    permissionsBuilder.addField("Added Perms", "```\n" + added.toString() + "```", false);
+                }
+                if (permChanges.get(false).size() > 0) {
+                    StringBuilder removed = new StringBuilder();
+                    for (Permission removedPerm : permChanges.get(false)) {
+                        removed.append(removedPerm.getName()).append("\n");
+                    }
+                    permissionsBuilder.addField("Removed Perms", "```\n" + removed.toString() + "```", false);
+                }
+            }
+            if (changes.containsKey("name")) {
+                AuditLogChange change = changes.get("name");
+                permissionsBuilder.addField("Name Change", "`" + change.getOldValue() + "` -> `" + change.getNewValue() + "`", true);
+            }
+            if (changes.containsKey("mentionable")) {
+                AuditLogChange change = changes.get("mentionable");
+                permissionsBuilder.addField("Mentionable", "`" + change.getNewValue() + "`", true);
+            }
+            if (changes.containsKey("hoist")) {
+                AuditLogChange change = changes.get("hoist");
+                permissionsBuilder.addField("Displayed Separately", "`" + change.getNewValue() + "`", true);
+            }
+            if (changes.containsKey("color")) {
+                AuditLogChange change = changes.get("color");
+                permissionsBuilder.addField("Color Change", "`#" + Integer.toHexString(change.getOldValue()) + "` -> `#" + Integer.toHexString(change.getNewValue()) + "`", true);
+
+            }
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(permissionsBuilder.build(), ModlogEvent.ROLE_EDIT);
+        });
     }
 
     @Override
-    public  void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
+    public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
         AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
         Map<String, AuditLogChange> changes = entry.getChanges();
         AuditLogChange change = changes.get("$add");
         @SuppressWarnings("unchecked")
-        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
+        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
 
         FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
                 .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_ROLE_GIVE.getEventEmbed(event.getUser(), entry.getUser())
@@ -200,7 +173,7 @@ public class ModlogEvents extends ListenerAdapter {
         Map<String, AuditLogChange> changes = entry.getChanges();
         AuditLogChange change = changes.get("$remove");
         @SuppressWarnings("unchecked")
-        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
+        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
 
         FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
                 .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_ROLE_REMOVE.getEventEmbed(event.getUser(), entry.getUser())
@@ -209,14 +182,13 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
 
-
     @Override
     public void onTextChannelCreate(TextChannelCreateEvent event) {
         handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
     }
 
     @Override
-    public  void onVoiceChannelCreate(VoiceChannelCreateEvent event) {
+    public void onVoiceChannelCreate(VoiceChannelCreateEvent event) {
         handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
     }
 

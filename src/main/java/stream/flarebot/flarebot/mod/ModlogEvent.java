@@ -20,7 +20,6 @@ public enum ModlogEvent {
     ROLE_CREATE("Triggers when a role is created.", Color.GREEN),
     ROLE_DELETE("Triggers when a role is deleted.", Color.RED),
     ROLE_EDIT("Triggers when a role is edited.", Color.decode("#addfe6")),
-    ROLE_MOVE("Triggers when a role is moved on the higharchy.", Color.decode("#addfe6")),
 
     CHANNEL_CREATE("Triggers when a channel is created.", Color.GREEN),
     CHANNEL_DELETE("Triggers when a channel is deleted.", Color.RED),
