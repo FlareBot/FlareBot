@@ -323,13 +323,6 @@ public class Events extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildBan(GuildBanEvent event) {
-        Guild guild = event.getGuild();
-        AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
-        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
-    }
-
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String[] args) {
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
         if (guild.isBlocked()) {

@@ -14,7 +14,10 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ModlogCommand implements Command {
@@ -191,22 +194,35 @@ public class ModlogCommand implements Command {
 
     @Override
     public String getExtraInfo() {
-        return "**Features:**\n" +
-                "`MEMBER_JOIN` - Triggers when user joins the server.\n" +
-                "`MEMBER_LEAVE` - Triggers when user leaves the server.\n\n" +
-                "`MEMBER_ROLE_GIVE` - Triggers when a role is added to a user.\n" +
-                "`MEMBER_ROLE_REMOVE` - Triggers when a role is taken away a user.\n\n" +
-                "`MEMBER_VOICE_JOIN` - Triggers when a user joins a voice channel.\n" +
-                "`MEMBER_VOICE_LEAVE` - Triggers when a user leaves a voice channel.\n\n" +
-                "`ROLE_CREATE` - Triggers when a role is created.\n" +
-                "`ROLE_DELETE` - Triggers when a role is deleted.\n" +
-                "`ROLE_EDIT` - Triggers when a role is edited.\n" +
-                "`ROLE_MOVE` - Triggers when a role is moved on the higharchy.\n\n" +
-                "`CHANNEL_CREATE` - Triggers when a channel is created.\n" +
-                "`CHANNEL_DELETE` - Triggers when a channel is deleted.\n\n" +
-                "`COMMAND` - Triggers when a user runs a **FlareBot** command.\n\n" +
-                "`MESSAGE_DELETE` - Triggers when a message is deleted.\n\n" +
-                "`all` - This is for targeting everything.";
+        StringBuilder sb = new StringBuilder();
+        sb.append("**Features**\n");
+
+        Map<String, List<ModlogEvent>> groups = new HashMap<>();
+        for (ModlogEvent modlogEvent : ModlogEvent.values()) {
+            String name = modlogEvent.name();
+            String[] split = name.split("_");
+            String groupKey = split[0];
+            if (groups.containsKey(groupKey)) {
+                List<ModlogEvent> group = groups.get(groupKey);
+                group.add(modlogEvent);
+                groups.put(groupKey, group);
+            } else {
+                List<ModlogEvent> group = new ArrayList<>();
+                group.add(modlogEvent);
+                groups.put(groupKey, group);
+            }
+        }
+
+        Iterator<Map.Entry<String, List<ModlogEvent>>> it = groups.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, List<ModlogEvent>> pair = it.next();
+            for (ModlogEvent event : pair.getValue()) {
+                sb.append("`").append(event.name()).append("` - ").append(event.getDiscription()).append("\n");
+            }
+            sb.append("\n");
+            it.remove();
+        }
+        return sb.toString();
     }
 
     @Override

@@ -5,11 +5,13 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
@@ -22,7 +24,9 @@ import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.ModlogEvent;
+import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -37,6 +41,13 @@ public class ModlogEvents extends ListenerAdapter {
     private long responseNumber = 0;
 
     @Override
+    public void onGuildBan(GuildBanEvent event) {
+        Guild guild = event.getGuild();
+        AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
+        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
+    }
+
+    @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
                 .getAutoModConfig().postToModLog(new EmbedBuilder()
@@ -44,8 +55,6 @@ public class ModlogEvents extends ListenerAdapter {
                 .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
                 .build(), ModlogEvent.MEMBER_JOIN);
     }
-
-
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
