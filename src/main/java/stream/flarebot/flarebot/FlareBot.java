@@ -419,7 +419,7 @@ public class FlareBot {
         registerCommand(new LeaveCommand());
         registerCommand(new InfoCommand());
         registerCommand(new ResumeCommand());
-        registerCommand(new PlayCommand(this));
+        registerCommand(new PlayCommand());
         registerCommand(new PauseCommand(this));
         registerCommand(new StopCommand(this));
         registerCommand(new SkipCommand(this));
@@ -812,7 +812,10 @@ public class FlareBot {
         for (Command cmd : getCommands()) {
             if (cmd.getType() == CommandType.SECRET && (isTestBot() && !PerGuildPermissions.isContributor(user))
                     && !PerGuildPermissions.isCreator(user)) {
-                tmp = cmd;
+                if (cmd.getCommand().equalsIgnoreCase(s))
+                    tmp = cmd;
+                for (String alias : cmd.getAliases())
+                    if (alias.equalsIgnoreCase(s)) tmp = cmd;
                 continue;
             }
             if (cmd.getCommand().equalsIgnoreCase(s))

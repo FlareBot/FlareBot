@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.music;
 
-import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Region;
 import net.dv8tion.jda.core.entities.Member;
@@ -19,12 +18,6 @@ import java.awt.Color;
 import java.time.LocalDateTime;
 
 public class PlayCommand implements Command {
-
-    private PlayerManager musicManager;
-
-    public PlayCommand(FlareBot bot) {
-        this.musicManager = bot.getMusicManager();
-    }
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -54,14 +47,6 @@ public class PlayCommand implements Command {
             } else {
                 String term = MessageUtils.getMessage(args, 0);
                 VideoThread.getSearchThread(term, channel, sender).start();
-            }
-        } else {
-            if (musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null &&
-                    (musicManager.getPlayer(channel.getGuild().getId()).getPaused())) {
-                MessageUtils.sendErrorMessage("There is no music playing!", channel);
-            } else {
-                musicManager.getPlayer(channel.getGuild().getId()).play();
-                channel.sendMessage("Resuming...!").queue();
             }
         }
     }

@@ -24,6 +24,7 @@ public class LeaveCommand implements Command {
                 return;
             }
             channel.getGuild().getAudioManager().closeAudioConnection();
+            MessageUtils.sendInfoMessage("Bye bye! I've left the channel for now", channel, sender);
         }
     }
 
