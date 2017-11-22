@@ -39,8 +39,8 @@ public class Scheduler {
         return true;
     }
 
-    public static void delayTask(Runnable task, long delay) {
-        timer.schedule(task, delay, TimeUnit.MILLISECONDS);
+    public static void delayTask(Runnable task, String taskName, long delay) {
+        tasks.put(taskName, timer.schedule(task, delay, TimeUnit.MILLISECONDS));
     }
 
     public static boolean cancelTask(String taskName) {
