@@ -61,10 +61,12 @@ public class ModlogCommand implements Command {
 
                     List<List<String>> body = new ArrayList<>();
                     for (ModlogEvent modlogEvent : events) {
-                        List<String> part = new ArrayList<>();
-                        part.add(modlogEvent.toString());
-                        part.add(String.valueOf(modlogEvent.isCompact()));
-                        body.add(part);
+                        if (guild.eventEnabled(modlogEvent)) {
+                            List<String> part = new ArrayList<>();
+                            part.add(modlogEvent.toString());
+                            part.add(String.valueOf(guild.eventCompact(modlogEvent)));
+                            body.add(part);
+                        }
                     }
 
                     channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Page " + page + "/" + pages)).queue();
@@ -130,27 +132,29 @@ public class ModlogCommand implements Command {
                     int compact = 0;
                     int uncompact = 0;
                     for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                        if (modlogEvent.isCompact()) {
-                            compact++;
-                        } else {
-                            uncompact++;
+                        if (guild.eventEnabled(modlogEvent)) {
+                            if (guild.eventCompact(modlogEvent)) {
+                                compact++;
+                            } else {
+                                uncompact++;
+                            }
+                            if (compact >= uncompact) {
+                                for (ModlogEvent modlogEvents : ModlogEvent.values()) {
+                                    guild.setCompact(modlogEvents, false);
+                                }
+                                MessageUtils.sendSuccessMessage("Un-compacted all the modlog events", channel, sender);
+                                return;
+                            } else {
+                                for (ModlogEvent modlogEvents : ModlogEvent.values()) {
+                                    guild.setCompact(modlogEvents, true);
+                                }
+                                MessageUtils.sendSuccessMessage("Compacted all the modlog events", channel, sender);
+                                return;
+                            }
                         }
-                    }
-                    if (compact >= uncompact) {
-                        for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                            modlogEvent.setCompact(false);
-                        }
-                        MessageUtils.sendSuccessMessage("Un-compacted all the modlog events", channel, sender);
-                        return;
-                    } else {
-                        for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                            modlogEvent.setCompact(true);
-                        }
-                        MessageUtils.sendSuccessMessage("Compacted all the modlog events", channel, sender);
-                        return;
                     }
                 } else {
-                    boolean compact = guild.toogleCompactEvent(event);
+                    boolean compact = guild.toggleCompactEvent(event);
                     if (compact) {
                         MessageUtils.sendSuccessMessage("Compacted event `" + event.toString() + "`", channel, sender);
                         return;

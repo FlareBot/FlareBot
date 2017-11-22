@@ -181,7 +181,6 @@ public class ModlogEvents extends ListenerAdapter {
                 .build(), ModlogEvent.MEMBER_ROLE_REMOVE);
     }
 
-
     @Override
     public void onTextChannelCreate(TextChannelCreateEvent event) {
         handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
@@ -191,7 +190,6 @@ public class ModlogEvents extends ListenerAdapter {
     public void onVoiceChannelCreate(VoiceChannelCreateEvent event) {
         handleChannelCreate(FlareBotManager.getInstance().getGuild(event.getGuild().getId()), event.getChannel());
     }
-
 
     @Override
     public void onTextChannelDelete(TextChannelDeleteEvent event) {

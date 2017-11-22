@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 
 public enum ModlogEvent {
+
     MEMBER_JOIN("Triggers when user joins the server.", Color.GREEN),
     MEMBER_LEAVE("Triggers when user leaves the server.", Color.RED),
 
@@ -29,22 +30,12 @@ public enum ModlogEvent {
     MESSAGE_EDIT("Triggers when a message is edited.", Color.decode("#addfe6")),
     MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED);
 
-    boolean compact = false;
-
     String description;
     Color color;
 
     ModlogEvent(String description, Color color) {
         this.description = description;
         this.color = color;
-    }
-
-    public boolean isCompact() {
-        return compact;
-    }
-
-    public void setCompact(boolean compact) {
-        this.compact = compact;
     }
 
     public String getDescription() {

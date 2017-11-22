@@ -41,7 +41,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
-    private Set<ModlogEvent> enabledEvents = new ConcurrentHashSet<>();
+    private Map<ModlogEvent, Boolean> modlogEventMap;
 
     // oooo special!
     private boolean betaAccess = false;
@@ -253,45 +253,61 @@ public class GuildWrapper {
 
     public boolean eventEnabled(ModlogEvent event) {
         checkEventsArray();
-        return enabledEvents.contains(event);
+        return modlogEventMap.containsKey(event);
     }
 
     public boolean enableEvent(ModlogEvent event) {
         checkEventsArray();
-        return enabledEvents.add(event);
+        return modlogEventMap.put(event, false);
     }
 
     public boolean disableEvent(ModlogEvent event) {
         checkEventsArray();
-        return enabledEvents.remove(event);
+        return modlogEventMap.remove(event);
     }
 
-    public boolean toogleCompactEvent(ModlogEvent event) {
-        if (event.isCompact()) {
-            event.setCompact(false);
-            return false;
-        } else {
-            event.setCompact(true);
-            return true;
+    public boolean toggleCompactEvent(ModlogEvent event) {
+        if (modlogEventMap.containsKey(event)) {
+            if (modlogEventMap.get(event)) {
+                modlogEventMap.put(event, false);
+                return false;
+            } else {
+                modlogEventMap.put(event, true);
+                return true;
+            }
         }
+        return false;
     }
 
     public Set<ModlogEvent> getEnabledEvents() {
         checkEventsArray();
-        return enabledEvents;
+        return modlogEventMap.keySet();
+    }
+
+    public boolean eventCompact(ModlogEvent event) {
+        if (modlogEventMap.containsKey(event)) {
+            return modlogEventMap.get(event);
+        }
+        return false;
+    }
+
+    public void setCompact(ModlogEvent event, boolean compact) {
+        if (modlogEventMap.containsKey(event)) {
+            modlogEventMap.put(event, compact);
+        }
     }
 
     private void checkEventsArray() {
-        if (enabledEvents == null) {
-            enabledEvents = new ConcurrentHashSet<>();
-            enabledEvents.add(ModlogEvent.MEMBER_ROLE_GIVE);
-            enabledEvents.add(ModlogEvent.MEMBER_ROLE_REMOVE);
-            enabledEvents.add(ModlogEvent.ROLE_CREATE);
-            enabledEvents.add(ModlogEvent.ROLE_DELETE);
-            enabledEvents.add(ModlogEvent.CHANNEL_CREATE);
-            enabledEvents.add(ModlogEvent.CHANNEL_DELETE);
-            enabledEvents.add(ModlogEvent.MESSAGE_EDIT);
-            enabledEvents.add(ModlogEvent.MESSAGE_DELETE);
+        if (modlogEventMap == null) {
+            modlogEventMap = new ConcurrentHashMap<>();
+            modlogEventMap.put(ModlogEvent.MEMBER_ROLE_GIVE, false);
+            modlogEventMap.put(ModlogEvent.MEMBER_ROLE_REMOVE, false);
+            modlogEventMap.put(ModlogEvent.ROLE_CREATE, false);
+            modlogEventMap.put(ModlogEvent.ROLE_DELETE, false);
+            modlogEventMap.put(ModlogEvent.CHANNEL_CREATE, false);
+            modlogEventMap.put(ModlogEvent.CHANNEL_DELETE, false);
+            modlogEventMap.put(ModlogEvent.MESSAGE_EDIT, false);
+            modlogEventMap.put(ModlogEvent.MESSAGE_DELETE, false);
         }
     }
 }
