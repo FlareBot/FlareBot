@@ -85,15 +85,21 @@ public class PerGuildPermissions {
         return new ArrayList<>(groups.values());
     }
 
+    private boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
+        if (FlareBot.getInstance().getOfficialGuild().getMember(user) == null) return false;
+        return FlareBot.getInstance().getOfficialGuild().getMember(user).getRoles().contains(FlareBot.getInstance()
+                   .getOfficialGuild().getRoleById(roleId));
+    }
+    
     public boolean isCreator(net.dv8tion.jda.core.entities.Member member) {
-        return member.getRoles().contains(member.getGuild().getRoleById(226788297156853771L));
+        return checkOfficialGuildForRole(member.getUser(), 226788297156853771L);
     }
 
     public boolean isContributor(net.dv8tion.jda.core.entities.Member member) {
-        return member.getRoles().contains(member.getGuild().getRoleById(272324832279003136L));
+        return checkOfficialGuildForRole(member.getUser(), 272324832279003136L);
     }
 
     public boolean isStaff(Member member) {
-        return member.getRoles().contains(member.getGuild().getRoleById(320327762881675264L));
+        return checkOfficialGuildForRole(member.getUser(), 320327762881675264L);
     }
 }
