@@ -50,27 +50,21 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("User Join")
-                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_JOIN.getEventEmbed(event.getUser(), null)
                 .build(), ModlogEvent.MEMBER_JOIN);
     }
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("User Leave")
-                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_LEAVE.getEventEmbed(event.getUser(), null)
                 .build(), ModlogEvent.MEMBER_LEAVE);
     }
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Voice join")
-                .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
+                .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_VOICE_JOIN.getEventEmbed(event.getMember().getUser(), null)
                 .addField("Channel", event.getChannelJoined().getName() + " (" + event.getChannelJoined().getId() + ")", true)
                 .build(), ModlogEvent.MEMBER_VOICE_JOIN);
     }
@@ -78,9 +72,7 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Voice Leave")
-                .addField("User", MessageUtils.getTag(event.getMember().getUser()) + " (" + event.getMember().getUser().getId() + ")", true)
+                .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_VOICE_LEAVE.getEventEmbed(event.getMember().getUser(), null)
                 .addField("Channel", event.getChannelLeft().getName() + " (" + event.getChannelLeft().getId() + ")", true)
                 .build(), ModlogEvent.MEMBER_VOICE_LEAVE);
     }
@@ -90,10 +82,8 @@ public class ModlogEvents extends ListenerAdapter {
         event.getGuild().getAuditLogs().queue(auditLog -> {
             AuditLogEntry entry = auditLog.get(0);
             FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                    .getAutoModConfig().postToModLog(new EmbedBuilder()
-                    .setTitle("Role Create")
+                    .getAutoModConfig().postToModLog(ModlogEvent.ROLE_CREATE.getEventEmbed(null, entry.getUser())
                     .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
-                    .addField("Responsible Moderator", entry.getUser().getAsMention(), true)
                     .build(), ModlogEvent.ROLE_CREATE);
         });
 
@@ -104,10 +94,8 @@ public class ModlogEvents extends ListenerAdapter {
         event.getGuild().getAuditLogs().queue(auditLog -> {
             AuditLogEntry entry = auditLog.get(0);
             FlareBotManager.getInstance().getGuild(event.getGuild().getId())
-                    .getAutoModConfig().postToModLog(new EmbedBuilder()
-                    .setTitle("Role Delete")
+                    .getAutoModConfig().postToModLog(ModlogEvent.ROLE_DELETE.getEventEmbed(null, entry.getUser())
                     .addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true)
-                    .addField("Responsible Moderator", entry.getUser().getAsMention(), true)
                     .build(), ModlogEvent.ROLE_DELETE);
         });
     }
@@ -119,7 +107,7 @@ public class ModlogEvents extends ListenerAdapter {
             int newpos = event.getRole().getPosition();
             if (oldpos == newpos)
                 return;
-            EmbedBuilder embedBuilder = new EmbedBuilder();
+            EmbedBuilder embedBuilder = ModlogEvent.ROLE_MOVE.getEventEmbed(null, null);
             embedBuilder.setTitle("Role Move");
             embedBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
             embedBuilder.addField("Position", "`" + oldpos + "` -> `" + newpos + "`", true);
@@ -143,7 +131,7 @@ public class ModlogEvents extends ListenerAdapter {
             event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
                 AuditLogEntry entry = auditLogs.get(0);
                 Map<String, AuditLogChange> changes = entry.getChanges();
-                EmbedBuilder permissionsBuilder = new EmbedBuilder();
+                EmbedBuilder permissionsBuilder = ModlogEvent.ROLE_EDIT.getEventEmbed(null, entry.getUser());
                 permissionsBuilder.setTitle("Role Change");
                 permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", false);
                 if (changes.containsKey("permissions")) {
@@ -181,9 +169,7 @@ public class ModlogEvents extends ListenerAdapter {
                     permissionsBuilder.addField("Color Change", "`#" + Integer.toHexString(change.getOldValue()) + "` -> `#" + Integer.toHexString(change.getNewValue()) + "`", true);
 
                 }
-                permissionsBuilder.addField("Responsible Moderator", entry.getUser().getAsMention(), true);
                 FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(permissionsBuilder.build(), ModlogEvent.ROLE_EDIT);
-
             });
         }
     }
@@ -197,11 +183,8 @@ public class ModlogEvents extends ListenerAdapter {
         HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
 
         FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Role Add")
-                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_ROLE_GIVE.getEventEmbed(event.getUser(), entry.getUser())
                 .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
-                .addField("Responsible Moderator", entry.getUser().getAsMention(), true)
                 .build(), ModlogEvent.MEMBER_ROLE_GIVE);
     }
 
@@ -214,11 +197,8 @@ public class ModlogEvents extends ListenerAdapter {
         HashMap<String, String> role = ((ArrayList<HashMap<String, String>>)change.getNewValue()).get(0);
 
         FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
-                .getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Role Remove")
-                .addField("User", MessageUtils.getTag(event.getUser()) + " (" + event.getUser().getId() + ")", true)
+                .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_ROLE_REMOVE.getEventEmbed(event.getUser(), entry.getUser())
                 .addField("Role", role.get("name") + " (" + role.get("id") + ")", true)
-                .addField("Responsible Moderator", entry.getUser().getAsMention(), true)
                 .build(), ModlogEvent.MEMBER_ROLE_REMOVE);
     }
 
@@ -252,21 +232,17 @@ public class ModlogEvents extends ListenerAdapter {
 
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
-        wrapper.getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Channel create")
+        wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_CREATE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
                 .addField("Name", channel.getName(), true)
-                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
                 .build(), ModlogEvent.CHANNEL_CREATE);
     }
 
     private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
-        wrapper.getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Channel Delete")
+        wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_DELETE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
                 .addField("Name", channel.getName(), true)
-                .addField("Responsible moderator", entry.getUser().getAsMention(), true)
                 .build(), ModlogEvent.CHANNEL_DELETE);
     }
 }

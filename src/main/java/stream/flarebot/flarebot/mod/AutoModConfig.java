@@ -117,12 +117,13 @@ public class AutoModConfig {
             EmbedBuilder eb = new EmbedBuilder();
             if (embed.getTitle() != null)
                 eb.setTitle(embed.getTitle());
-            if(embed.getDescription() != null)
+            if (embed.getDescription() != null)
                 eb.appendDescription(embed.getDescription());
+            if (embed.getColor() != null)
+                eb.setColor(embed.getColor());
             for (MessageEmbed.Field field : embed.getFields()) {
                 eb.addField(field);
             }
-            eb.setFooter(GeneralUtils.formatTime(LocalDateTime.now()), null);
             getModLogChannel().sendMessage(eb.build()).queue();
         }
     }

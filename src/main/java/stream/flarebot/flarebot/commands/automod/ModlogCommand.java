@@ -217,7 +217,7 @@ public class ModlogCommand implements Command {
         while (it.hasNext()) {
             Map.Entry<String, List<ModlogEvent>> pair = it.next();
             for (ModlogEvent event : pair.getValue()) {
-                sb.append("`").append(event.name()).append("` - ").append(event.getDiscription()).append("\n");
+                sb.append("`").append(event.name()).append("` - ").append(event.getDescription()).append("\n");
             }
             sb.append("\n");
             it.remove();

@@ -369,9 +369,7 @@ public class Events extends ListenerAdapter {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
 
-                guild.getAutoModConfig().postToModLog(new EmbedBuilder()
-                        .setTitle("Command Run")
-                        .addField("User", event.getAuthor().getAsMention(), true)
+                guild.getAutoModConfig().postToModLog(ModlogEvent.COMMAND.getEventEmbed(event.getAuthor(), null)
                         .addField("Command", cmd.getCommand(), true)
                         .build(), ModlogEvent.COMMAND);
             } catch (Exception ex) {
