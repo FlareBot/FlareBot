@@ -2,11 +2,10 @@ package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.*;
+import java.awt.Color;
 
 public enum ModlogEvent {
     MEMBER_JOIN("Triggers when user joins the server.", Color.GREEN),
@@ -20,15 +19,15 @@ public enum ModlogEvent {
 
     ROLE_CREATE("Triggers when a role is created.", Color.GREEN),
     ROLE_DELETE("Triggers when a role is deleted.", Color.RED),
-    ROLE_EDIT("Triggers when a role is edited.", Color.BLUE),
-    ROLE_MOVE("Triggers when a role is moved on the higharchy.", Color.BLUE),
+    ROLE_EDIT("Triggers when a role is edited.", Color.decode("#addfe6")),
+    ROLE_MOVE("Triggers when a role is moved on the higharchy.", Color.decode("#addfe6")),
 
     CHANNEL_CREATE("Triggers when a channel is created.", Color.GREEN),
     CHANNEL_DELETE("Triggers when a channel is deleted.", Color.RED),
 
-    COMMAND("Triggers when a user runs a **FlareBot** command.", Color.BLUE),
+    COMMAND("Triggers when a user runs a **FlareBot** command.", Color.decode("#addfe6")),
 
-    MESSAGE_EDIT("Triggers when a message is edited.", Color.BLUE),
+    MESSAGE_EDIT("Triggers when a message is edited.", Color.decode("#addfe6")),
     MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED);
 
     boolean compact = false;
