@@ -252,18 +252,22 @@ public class GuildWrapper {
     }
 
     public boolean eventEnabled(ModlogEvent event) {
-        checkEventsArray();
+            checkEventsArray();
         return modlogEventMap.containsKey(event);
     }
 
     public void enableEvent(ModlogEvent event) {
         checkEventsArray();
-        modlogEventMap.put(event, false);
+        if (!modlogEventMap.containsKey(event)) {
+            modlogEventMap.put(event, false);
+        }
     }
 
     public void disableEvent(ModlogEvent event) {
         checkEventsArray();
-        modlogEventMap.remove(event);
+        if (modlogEventMap.containsKey(event)) {
+            modlogEventMap.remove(event);
+        }
     }
 
     public boolean toggleCompactEvent(ModlogEvent event) {

@@ -365,11 +365,12 @@ public class Events extends ListenerAdapter {
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
-
-                guild.getAutoModConfig().postToModLog(ModlogEvent.COMMAND.getEventEmbed(event.getAuthor(), null)
-                        .addField("Command", cmd.getCommand(), true)
-                        .addField("Args", "`" + MessageUtils.getMessage(args, 0) + "`", false)
-                        .build(), ModlogEvent.COMMAND);
+                EmbedBuilder commandEmbed = ModlogEvent.COMMAND.getEventEmbed(event.getAuthor(), null)
+                        .addField("Command", cmd.getCommand(), true);
+                if (!MessageUtils.getMessage(args, 0).equals("")) {
+                        commandEmbed.addField("Args", "`" + MessageUtils.getMessage(args, 0) + "`", false);
+                }
+                guild.getAutoModConfig().postToModLog(commandEmbed.build(), ModlogEvent.COMMAND);
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
