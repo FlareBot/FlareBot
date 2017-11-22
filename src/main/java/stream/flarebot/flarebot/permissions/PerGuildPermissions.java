@@ -82,21 +82,21 @@ public class PerGuildPermissions {
         return new ArrayList<>(groups.values());
     }
 
-    private boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
+    private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
         if (fb.getOfficialGuild().getMember(user) == null) return false;
         return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(roleId));
     }
 
-    public boolean isCreator(net.dv8tion.jda.core.entities.User user) {
+    public static boolean isCreator(net.dv8tion.jda.core.entities.User user) {
         return checkOfficialGuildForRole(user, 226788297156853771L);
     }
 
-    public boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, 226788297156853771L);
+    public static boolean isContributor(net.dv8tion.jda.core.entities.User user) {
+        return checkOfficialGuildForRole(user, 272324832279003136L);
     }
 
-    public boolean isStaff(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, 226788297156853771L);
+    public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
+        return checkOfficialGuildForRole(user, 320327762881675264L);
     }
 
     public void createDefaultGroup() {

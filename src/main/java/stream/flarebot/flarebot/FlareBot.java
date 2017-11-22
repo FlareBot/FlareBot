@@ -72,6 +72,7 @@ import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
@@ -806,17 +807,20 @@ public class FlareBot {
         this.commands.add(command);
     }
 
-    public Command getCommand(String s, Member member) {
-        boolean creator = FlareBotManager.getInstance().getGuild(member.getGuild().getId()).getPermissions()
-                .isCreator(member.getUser());
+    public Command getCommand(String s, User user) {
+        Command tmp = null;
         for (Command cmd : getCommands()) {
-            if (cmd.getType() == CommandType.SECRET && !creator) continue;
+            if (cmd.getType() == CommandType.SECRET && (isTestBot() && !PerGuildPermissions.isContributor(user))
+                    && !PerGuildPermissions.isCreator(user)) {
+                tmp = cmd;
+                continue;
+            }
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
                 if (alias.equalsIgnoreCase(s)) return cmd;
         }
-        return null;
+        return tmp;
     }
 
     public Set<Command> getCommands() {
@@ -871,7 +875,7 @@ public class FlareBot {
 
     public void setStatus(String status) {
         if (clients.length == 1) {
-            clients[0].getPresence().setGame(Game.of(status, "https://www.twitch.tv/discordflarebot"));
+            clients[0].getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
 
