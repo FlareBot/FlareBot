@@ -29,7 +29,6 @@ import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
-import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +37,8 @@ import java.util.Map;
 
 public class ModlogEvents extends ListenerAdapter {
 
-    private long responseNumber = 0;
+    private long genericResponseNumber = 0;
+    private long moveResponceNumber = 0;
 
     @Override
     public void onGuildBan(GuildBanEvent event) {
@@ -103,6 +103,11 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGenericRoleUpdate(GenericRoleUpdateEvent event) {
         if (event instanceof RoleUpdatePositionEvent) {
+            /*
+            if (event.getResponseNumber() == moveResponceNumber) {
+                return;
+            }
+            moveResponceNumber = event.getResponseNumber();
             int oldpos = ((RoleUpdatePositionEvent) event).getOldPosition();
             int newpos = event.getRole().getPosition();
             if (oldpos == newpos)
@@ -123,17 +128,18 @@ public class ModlogEvents extends ListenerAdapter {
             sb.append("```");
             embedBuilder.addField("Surrounding roles", sb.toString(), false);
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(embedBuilder.build(), ModlogEvent.ROLE_MOVE);
+            */
         } else {
-            if (event.getResponseNumber() == responseNumber) {
+            if (event.getResponseNumber() == genericResponseNumber) {
                 return;
             }
-            responseNumber = event.getResponseNumber();
+            genericResponseNumber = event.getResponseNumber();
             event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
                 AuditLogEntry entry = auditLogs.get(0);
                 Map<String, AuditLogChange> changes = entry.getChanges();
                 EmbedBuilder permissionsBuilder = ModlogEvent.ROLE_EDIT.getEventEmbed(null, entry.getUser());
                 permissionsBuilder.setTitle("Role Change");
-                permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", false);
+                permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
                 if (changes.containsKey("permissions")) {
                     AuditLogChange change = changes.get("permissions");
                     Map<Boolean, List<Permission>> permChanges = GeneralUtils.getChangedPerms(Permission.getPermissions(((Integer) change.getOldValue()).longValue()), Permission.getPermissions(((Integer) change.getNewValue()).longValue()));

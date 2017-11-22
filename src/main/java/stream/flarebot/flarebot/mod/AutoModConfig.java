@@ -124,6 +124,7 @@ public class AutoModConfig {
             for (MessageEmbed.Field field : embed.getFields()) {
                 eb.addField(field);
             }
+            eb.setFooter(GeneralUtils.formatTime(LocalDateTime.now()), null);
             getModLogChannel().sendMessage(eb.build()).queue();
         }
     }
