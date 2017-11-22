@@ -50,7 +50,7 @@ public enum ModlogEvent {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(WordUtils.capitalize(name().toLowerCase().replaceAll("_", " ")));
         if (user != null) {
-            eb.addField("User", MessageUtils.getTag(user), true);
+            eb.addField("User", MessageUtils.getTag(user) + " (" + user.getId() + ")", true);
         }
         if (responsible != null) {
             eb.addField("Responsible", responsible.getAsMention(), true);
