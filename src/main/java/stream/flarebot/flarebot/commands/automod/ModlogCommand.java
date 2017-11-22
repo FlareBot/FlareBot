@@ -222,6 +222,7 @@ public class ModlogCommand implements Command {
             sb.append("\n");
             it.remove();
         }
+        sb.append("`all` - Is for targeting all events");
         return sb.toString();
     }
 
