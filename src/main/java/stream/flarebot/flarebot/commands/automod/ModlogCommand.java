@@ -119,7 +119,7 @@ public class ModlogCommand implements Command {
                     all = true;
                 } else {
                     EmbedBuilder errorBuilder = new EmbedBuilder();
-                    errorBuilder.setDescription("Invalid Event: `" + args[1] + "`");
+                    errorBuilder.setDescription("Invalid Event: `" + MessageUtils.getMessage(args, 1) + "`");
                     errorBuilder.addField("Events", "`" + Arrays.stream(ModlogEvent.values()).map(ModlogEvent::toString).collect(Collectors.joining("`\n`")) + "`", false);
                     MessageUtils.sendErrorMessage(errorBuilder, channel);
                     return;
@@ -191,12 +191,17 @@ public class ModlogCommand implements Command {
                         }
                     }
                 } else {
-                    boolean compact = guild.toggleCompactEvent(event);
-                    if (compact) {
-                        MessageUtils.sendSuccessMessage("Compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
-                        return;
+                    if (guild.eventEnabled(event)) {
+                        boolean compact = guild.toggleCompactEvent(event);
+                        if (compact) {
+                            MessageUtils.sendSuccessMessage("Compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                            return;
+                        } else {
+                            MessageUtils.sendSuccessMessage("Un-compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                            return;
+                        }
                     } else {
-                        MessageUtils.sendSuccessMessage("Un-compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                        MessageUtils.sendErrorMessage("You can't compact an event that isn't enabled!", channel);
                         return;
                     }
                 }
