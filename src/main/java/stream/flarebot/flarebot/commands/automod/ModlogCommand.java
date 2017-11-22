@@ -76,8 +76,6 @@ public class ModlogCommand implements Command {
             }
             if (args[0].equalsIgnoreCase("features")) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("**Features**\n");
-
                 Map<String, List<ModlogEvent>> groups = new HashMap<>();
                 for (ModlogEvent modlogEvent : ModlogEvent.values()) {
                     String name = modlogEvent.name();
@@ -104,7 +102,10 @@ public class ModlogCommand implements Command {
                     it.remove();
                 }
                 sb.append("`all` - Is for targeting all events");
-                channel.sendMessage(sb.toString()).queue();
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setTitle("Features");
+                eb.setDescription(sb.toString());
+                channel.sendMessage(eb.build()).queue();
                 return;
             }
         }
