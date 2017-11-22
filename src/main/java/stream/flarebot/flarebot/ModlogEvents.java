@@ -254,7 +254,7 @@ public class ModlogEvents extends ListenerAdapter {
     private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
         wrapper.getAutoModConfig().postToModLog(new EmbedBuilder()
-                .setTitle("Channel delete")
+                .setTitle("Channel Delete")
                 .addField("Type", channel.getType().name().toLowerCase(), true)
                 .addField("Name", channel.getName(), true)
                 .addField("Responsible moderator", entry.getUser().getAsMention(), true)
