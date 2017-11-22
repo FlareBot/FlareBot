@@ -664,7 +664,7 @@ public class FlareBot {
     }
 
     private void setupUpdate() {
-        new FlarebotTask("Auto-Update" + System.currentTimeMillis()) {
+        new FlarebotTask("Auto-Update") {
             @Override
             public void run() {
                 quit(true);
