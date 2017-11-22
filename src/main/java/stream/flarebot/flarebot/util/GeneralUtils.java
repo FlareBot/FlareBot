@@ -474,7 +474,7 @@ public class GeneralUtils {
     public static String embedToText(MessageEmbed embed) {
         StringBuilder sb = new StringBuilder();
         if (embed.getTitle() != null)
-            sb.append("**").append(embed.getTitle()).append("**:");
+            sb.append("**").append(embed.getTitle()).append("**: ");
         if (embed.getDescription() != null)
             sb.append(embed.getDescription()).append(" ");
         for (MessageEmbed.Field field : embed.getFields()) {
