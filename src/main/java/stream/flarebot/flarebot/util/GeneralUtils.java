@@ -407,7 +407,15 @@ public class GeneralUtils {
         }
     }
 
-	public static String getCurrentTime(boolean seconds) {
+    public static long getLong(String s, long defaultValue) {
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    public static String getCurrentTime(boolean seconds) {
         return ZonedDateTime.now(Clock.systemDefaultZone().getZone()).format(DateTimeFormatter.ofPattern("HH:mm:ss z"));
     }
 

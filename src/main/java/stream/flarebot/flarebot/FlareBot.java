@@ -86,7 +86,9 @@ import stream.flarebot.flarebot.web.ApiFactory;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -95,6 +97,7 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -103,6 +106,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -117,21 +121,24 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class FlareBot {
 
     private static final Map<String, Logger> LOGGERS;
     public static final Logger LOGGER;
     public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
-
-    private static FlareBot instance;
-    private static String youtubeApi;
+    public static final char COMMAND_CHAR = '_';
 
     static {
-        new File("latest.log").delete();
+        handleLogArchive();
         LOGGERS = new ConcurrentHashMap<>();
         LOGGER = getLog(FlareBot.class);
     }
+
+    private static FlareBot instance;
+    private static String youtubeApi;
 
     private static JSONConfig config;
     private FlareBotManager manager;
@@ -233,8 +240,6 @@ public class FlareBot {
             e.printStackTrace();
         }
     }
-
-    public static final char COMMAND_CHAR = '_';
 
     public static String getToken() {
         return token;
@@ -557,7 +562,7 @@ public class FlareBot {
         new FlareBotTask("spam" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                Events.spamMap.clear();
+                events.getSpamMap().clear();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
 
@@ -1054,7 +1059,7 @@ public class FlareBot {
         return clients;
     }
 
-    public List<VoiceChannel> getVoiceChannels() {
+    private List<VoiceChannel> getVoiceChannels() {
         return getGuilds().stream().flatMap(g -> g.getVoiceChannels().stream()).collect(Collectors.toList());
     }
 
@@ -1099,14 +1104,6 @@ public class FlareBot {
 
     public User retrieveUserById(long id) {
         return getClient().retrieveUserById(id).complete();
-    }
-
-    public RestAction<User> queueRetrieveUserById(long id) {
-        return getClient().retrieveUserById(id);
-    }
-
-    public DateTimeFormatter getTimeFormatter() {
-        return this.timeFormat;
     }
 
     public String formatTime(LocalDateTime dateTime) {
@@ -1155,7 +1152,7 @@ public class FlareBot {
 
 	private WebhookClient importantHook;
 
-    public WebhookClient getImportantWebhook() {
+    private WebhookClient getImportantWebhook() {
         if (importantHookUrl == null) return null;
         if (importantHook == null)
             importantHook = new WebhookClientBuilder(importantHookUrl).build();
@@ -1164,5 +1161,40 @@ public class FlareBot {
 
     public Guild getOfficialGuild() {
         return getGuildByID(OFFICIAL_GUILD);
+    }
+
+    private static void handleLogArchive() {
+        try {
+            byte[] buffer = new byte[1024];
+            String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
+
+            File dir = new File("logs");
+            if(!dir.exists())
+                if(!dir.mkdir())
+                    LOGGER.error("Failed to create directory for latest log!");
+            File f = new File(dir, "latest.log " + time + ".zip");
+            File latestLog = new File("latest.log");
+
+            FileOutputStream fos = new FileOutputStream(f);
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            ZipEntry entry = new ZipEntry(latestLog.getName());
+            zos.putNextEntry(entry);
+            FileInputStream in = new FileInputStream(latestLog);
+
+            int len;
+            while ((len = in.read(buffer)) > 0)
+                zos.write(buffer, 0, len);
+
+            in.close();
+            zos.closeEntry();
+            zos.close();
+            fos.close();
+
+            if(!latestLog.delete()) {
+                throw new IllegalStateException("Failed to delete the old log file!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
