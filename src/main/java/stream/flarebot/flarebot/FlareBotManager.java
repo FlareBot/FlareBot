@@ -108,7 +108,7 @@ public class FlareBotManager {
                 }
             }
         });
-        new FlareBotTask() {
+        new FlareBotTask("Guild Activity Purge") {
             @Override
             public void run() {
                 if (!FlareBot.EXITING.get())
