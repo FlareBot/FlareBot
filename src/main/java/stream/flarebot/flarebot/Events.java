@@ -387,18 +387,12 @@ public class Events extends ListenerAdapter {
         }
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
-                Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
+                MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
                         .setDescription("You are missing the permission ``"
                                 + cmd
-                                .getPermission() + "`` which is required for use of this command!"), e
-                        .getChannel());
+                                .getPermission() + "`` which is required for use of this command!").build(), 5000,
+                        e.getChannel());
                 delete(e.getMessage());
-                new FlareBotTask("Delete message " + msg.getChannel().toString()) {
-                    @Override
-                    public void run() {
-                        delete(msg);
-                    }
-                }.delay(TimeUnit.SECONDS.toMillis(5));
                 return true;
             }
         }

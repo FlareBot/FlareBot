@@ -4,10 +4,12 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.common.util.concurrent.Runnables;
+import com.google.gson.JsonSyntaxException;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
+import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
@@ -17,6 +19,7 @@ import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 import stream.flarebot.flarebot.util.objects.expiringmap.ExpiredEvent;
 import stream.flarebot.flarebot.util.objects.expiringmap.ExpiringMap;
@@ -34,6 +37,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class FlareBotManager {
+
+    private final Logger LOGGER = FlareBot.getLog(getClass());
 
     private static FlareBotManager instance;
 
@@ -129,7 +134,7 @@ public class FlareBotManager {
                     .setTimestamp(0, new Date(last_r))
                     .setString(1, FlareBot.GSON.toJson(guildWrapper)).setString(2, guildId));
         });
-        FlareBot.LOGGER.debug("Guild " + guildId + "'s data got saved! Last retrieved: " + last_r
+        LOGGER.debug("Guild " + guildId + "'s data got saved! Last retrieved: " + last_r
                 + " (" + new Date(last_r) + ") - " + guilds.size() + " currently loaded.");
     }
 
@@ -199,9 +204,17 @@ public class FlareBotManager {
                     + guildId + "'");
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
-            if (row != null)
-                wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-            else
+            if (row != null) {
+                try {
+                    wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
+                } catch (JsonSyntaxException e) {
+                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
+                            "Guild ID: " + id + "\n" +
+                            "Guild JSON: " + row.getString("data") + "\n" +
+                            "Error: " + e.getMessage(), e);
+                    return null;
+                }
+            } else
                 wrapper = new GuildWrapperBuilder(id).build();
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);

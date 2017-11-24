@@ -88,15 +88,15 @@ public class PerGuildPermissions {
     }
 
     public static boolean isCreator(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, 226788297156853771L);
+        return checkOfficialGuildForRole(user, FlareBot.DEVELOPER_ID);
     }
 
     public static boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, 272324832279003136L);
+        return checkOfficialGuildForRole(user, FlareBot.CONTRIBUTOR_ID);
     }
 
     public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, 320327762881675264L);
+        return checkOfficialGuildForRole(user, FlareBot.STAFF_ID);
     }
 
     public void createDefaultGroup() {

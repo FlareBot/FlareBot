@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.Expose;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -149,7 +150,11 @@ public class FlareBot {
     public static final String OFFICIAL_GUILD = "226785954537406464";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
 
-    public static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
+    public static final long DEVELOPER_ID = 226788297156853771L;
+    public static final long CONTRIBUTOR_ID = 272324832279003136L;
+    public static final long STAFF_ID = 320327762881675264L;
+
+    private static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
 
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
