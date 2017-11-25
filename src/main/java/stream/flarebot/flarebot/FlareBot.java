@@ -690,7 +690,7 @@ public class FlareBot {
 
     private void sendData() {
         JsonObject data = new JsonObject();
-        data.addProperty("guilds", 60);
+        data.addProperty("guilds", getGuilds().size());
         //data.addProperty("loaded_guilds", FlareBotManager.getInstance().getGuilds().size());
         data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
         data.addProperty("text_channels", getChannels().size());
