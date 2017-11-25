@@ -56,6 +56,7 @@ public class ApiRequester {
 
     private static Request getRequest(ApiRoute route, JsonElement element, Method method) {
         Request.Builder request = new Request.Builder().url(route.getFullUrl());
+        request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
         RequestBody body = RequestBody.create(JSON, (element == null ? new JsonObject().toString() : element.toString()));
         if (method == Method.GET) {
             request = request.get();

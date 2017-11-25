@@ -42,6 +42,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
+import okhttp3.Call;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -50,6 +51,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.api.Callback;
+import stream.flarebot.flarebot.api.EmptyCallback;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
@@ -120,6 +125,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -159,6 +165,7 @@ public class FlareBot {
     private FlareBotManager manager;
     private static String webSecret;
     private static boolean apiEnabled = true;
+    private static String apiKey;
 
     public static final Gson GSON = new GsonBuilder().create();
 
@@ -249,6 +256,10 @@ public class FlareBot {
         if (config.getString("botlists.carbon").isPresent()) {
             FlareBot.carbonAuth = config.getString("botlists.carbon").get();
         }
+
+        if(config.getString("misc.apiKey").isPresent())
+            FlareBot.apiKey = config.getString("misc.apiKey").get();
+
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
         if (config.getArray("options").isPresent()) {
@@ -678,11 +689,13 @@ public class FlareBot {
     private JsonParser parser = new JsonParser();
 
     private void sendData() {
-        /*JsonObject data = new JsonObject();
-        data.addProperty("guilds", getGuilds().size());
+        JsonObject data = new JsonObject();
+        data.addProperty("guilds", 60);
+        //data.addProperty("loaded_guilds", FlareBotManager.getInstance().getGuilds().size());
         data.addProperty("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size());
         data.addProperty("text_channels", getChannels().size());
-        data.addProperty("voice_channels", getConnectedVoiceChannels().size());
+        data.addProperty("voice_channels", getVoiceChannels().size());
+        data.addProperty("connected_voice_channels", getConnectedVoiceChannels().size());
         data.addProperty("active_voice_channels", getActiveVoiceChannels());
         data.addProperty("num_queued_songs", getGuilds().stream()
                 .mapToInt(guild -> musicManager.getPlayer(guild.getId())
@@ -690,7 +703,7 @@ public class FlareBot {
         data.addProperty("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB");
         data.addProperty("uptime", getUptime());
 
-        postToApi("postData", "data", data);*/
+        ApiRequester.requestAsync(ApiRoute.DATA, data, new EmptyCallback());
     }
 
     private void sendCommands() {
@@ -1058,6 +1071,10 @@ public class FlareBot {
         return youtubeApi;
     }
 
+    public List<VoiceChannel> getVoiceChannels() {
+        return Arrays.stream(clients).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
+    }
+
     public long getActiveVoiceChannels() {
         return getConnectedVoiceChannels().stream()
                 .map(VoiceChannel::getGuild)
@@ -1199,5 +1216,9 @@ public class FlareBot {
 
     public Guild getOfficialGuild() {
         return getInstance().getGuildByID(FlareBot.OFFICIAL_GUILD);
+    }
+
+    public String getApiKey() {
+        return apiKey;
     }
 }
