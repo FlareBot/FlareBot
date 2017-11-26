@@ -34,9 +34,6 @@ public enum ModlogEvent {
 
     GUILD_EXPLICIT_FILTER_CHANGE("Triggers when the server's explicit filter level is changed.", Color.orange);
 
-    String description;
-    Color color;
-
     private String description;
     private Color color;
 
