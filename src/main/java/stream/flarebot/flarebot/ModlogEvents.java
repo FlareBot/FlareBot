@@ -24,13 +24,11 @@ import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
-import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -33,14 +33,11 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
-import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.ModlogEvent;
-import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -78,8 +75,8 @@ public class Events extends ListenerAdapter {
 
     static final List<Long> durations = new ArrayList<>();
 
-	private final Map<Integer, Long> shardEventTime = new HashMap<>();
-	private final AtomicInteger commandCounter = new AtomicInteger(0);
+    private final Map<Integer, Long> shardEventTime = new HashMap<>();
+    private final AtomicInteger commandCounter = new AtomicInteger(0);
 
     Events(FlareBot bot) {
         this.flareBot = bot;
@@ -372,7 +369,7 @@ public class Events extends ListenerAdapter {
                         .addField("Command", cmd.getCommand(), true);
                 if (args.length > 0) {
                     String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
-                    if(s.length() > 1000)
+                    if (s.length() > 1000)
                         s = s.substring(0, 1000) + "...";
                     commandEmbed.addField("Args", "`" + s + "`", false);
                 }
@@ -401,9 +398,9 @@ public class Events extends ListenerAdapter {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
-                        .setDescription("You are missing the permission ``"
-                                + cmd
-                                .getPermission() + "`` which is required for use of this command!").build(), 5000,
+                                .setDescription("You are missing the permission ``"
+                                        + cmd
+                                        .getPermission() + "`` which is required for use of this command!").build(), 5000,
                         e.getChannel());
                 delete(e.getMessage());
                 return true;
