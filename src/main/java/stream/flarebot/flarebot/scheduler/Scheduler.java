@@ -38,8 +38,8 @@ public class Scheduler {
         return true;
     }
 
-    public static void delayTask(Runnable task, long delay) {
-        tasks.put(task.toString() + System.currentTimeMillis(), timer.schedule(task, delay, TimeUnit.MILLISECONDS));
+    public static void delayTask(Runnable task, String taskName, long delay) {
+        tasks.put(taskName, timer.schedule(task, delay, TimeUnit.MILLISECONDS));
     }
 
     public static void delayTask(FutureAction action) {

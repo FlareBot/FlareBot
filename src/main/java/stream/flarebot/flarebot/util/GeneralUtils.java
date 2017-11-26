@@ -25,7 +25,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.Markers;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
@@ -411,7 +411,15 @@ public class GeneralUtils {
         }
     }
 
-	public static String getCurrentTime(boolean seconds) {
+    public static long getLong(String s, long defaultValue) {
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    public static String getCurrentTime(boolean seconds) {
         return ZonedDateTime.now(Clock.systemDefaultZone().getZone()).format(DateTimeFormatter.ofPattern("HH:mm:ss z"));
     }
 
