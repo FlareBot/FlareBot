@@ -41,6 +41,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildBan(GuildBanEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         Guild guild = event.getGuild();
         AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
         FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
@@ -48,6 +49,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
                 .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_JOIN.getEventEmbed(event.getUser(), null)
                 .build(), ModlogEvent.MEMBER_JOIN);
@@ -55,6 +57,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
                 .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_LEAVE.getEventEmbed(event.getUser(), null)
                 .build(), ModlogEvent.MEMBER_LEAVE);
@@ -62,6 +65,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
                 .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_VOICE_JOIN.getEventEmbed(event.getMember().getUser(), null)
                 .addField("Channel", event.getChannelJoined().getName() + " (" + event.getChannelJoined().getId() + ")", true)
@@ -70,6 +74,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         FlareBotManager.getInstance().getGuild(event.getGuild().getId())
                 .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_VOICE_LEAVE.getEventEmbed(event.getMember().getUser(), null)
                 .addField("Channel", event.getChannelLeft().getName() + " (" + event.getChannelLeft().getId() + ")", true)
@@ -78,6 +83,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onRoleCreate(RoleCreateEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         event.getGuild().getAuditLogs().queue(auditLog -> {
             AuditLogEntry entry = auditLog.get(0);
             FlareBotManager.getInstance().getGuild(event.getGuild().getId())
@@ -90,6 +96,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onRoleDelete(RoleDeleteEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         event.getGuild().getAuditLogs().queue(auditLog -> {
             AuditLogEntry entry = auditLog.get(0);
             FlareBotManager.getInstance().getGuild(event.getGuild().getId())
@@ -101,6 +108,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGenericRoleUpdate(GenericRoleUpdateEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         if (event instanceof RoleUpdatePositionEvent) {
             return;
         }
@@ -155,6 +163,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
         Map<String, AuditLogChange> changes = entry.getChanges();
         AuditLogChange change = changes.get("$add");
@@ -169,6 +178,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
+        if (!checkModlog(event.getGuild())) return;
         AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
         Map<String, AuditLogChange> changes = entry.getChanges();
         AuditLogChange change = changes.get("$remove");
@@ -208,6 +218,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildUpdateExplicitContentLevel(GuildUpdateExplicitContentLevelEvent e) {
+        if (!checkModlog(e.getGuild())) return;
         AuditLogEntry entry = e.getGuild().getAuditLogs().complete().get(0);
         AuditLogChange levelChange = entry.getChanges().get("explicit_content_filter");
 
@@ -219,6 +230,7 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
+        if (!checkModlog(wrapper.getGuild())) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
         wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_CREATE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
@@ -227,10 +239,20 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
+        if (!checkModlog(wrapper.getGuild())) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
         wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_DELETE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
                 .addField("Name", channel.getName(), true)
                 .build(), ModlogEvent.CHANNEL_DELETE);
+    }
+
+    public static boolean checkModlog(Guild guild) {
+        if (FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().hasModLog()) {
+            if (guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
