@@ -153,6 +153,13 @@ public class Events extends ListenerAdapter {
             try {
                 event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
                 }, e1 -> handle(e1, event, roles));
+                StringBuilder sb = new StringBuilder("```\n");
+                for (Role role : roles) {
+                    sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
+                }
+                sb.append("```");
+                FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(
+                        ModlogEvent.AUTOASSIGN_ROLE.getEventEmbed(event.getUser(), null).addField("Roles", sb.toString(), false).build(), ModlogEvent.AUTOASSIGN_ROLE);
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
