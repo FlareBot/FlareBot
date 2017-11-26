@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class CommandUsageCommand implements Command {
@@ -17,8 +18,8 @@ public class CommandUsageCommand implements Command {
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
-            Command c = FlareBot.getInstance().getCommand(args[0], member);
-            if (c == null || (c.getType() == CommandType.SECRET && !getPermissions(channel).isCreator(sender))) {
+            Command c = FlareBot.getInstance().getCommand(args[0], sender);
+            if (c == null || (c.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(sender))) {
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
             } else {
                 MessageUtils.sendUsage(c, channel, sender, new String[]{});

@@ -48,7 +48,7 @@ public class UpdateJDACommand implements Command {
                 TransformerFactory.newInstance().newTransformer().transform(source, new StreamResult(f));
                 channel.sendMessage("Updated to JDA version `" + version + "`\n" +
                         "I will now restart in 10 minutes and apply the update!").queue();
-                new FlareBotTask() {
+                new FlareBotTask("JDA-Update") {
                     @Override
                     public void run() {
                         FlareBot.getInstance().quit(true);

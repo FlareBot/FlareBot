@@ -27,6 +27,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
+import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
@@ -38,6 +39,7 @@ import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -62,26 +64,25 @@ import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
 
-    private final Pattern multiSpace = Pattern.compile(" {2,}");
-
-    private volatile boolean sd = false;
-    private FlareBot flareBot;
-
-    protected static Map<String, Integer> spamMap = new ConcurrentHashMap<>();
-
     private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
-
-    public static final List<Long> durations = new ArrayList<>();
     private static final List<Long> removedByMe = new ArrayList<>();
+
+    private final Logger LOGGER = FlareBot.getLog(this.getClass());
+    private final Pattern multiSpace = Pattern.compile(" {2,}");
+
+    private FlareBot flareBot;
+
+    private Map<String, Integer> spamMap = new ConcurrentHashMap<>();
+
+    static final List<Long> durations = new ArrayList<>();
 
 	private final Map<Integer, Long> shardEventTime = new HashMap<>();
 	private final AtomicInteger commandCounter = new AtomicInteger(0);
 
-    public Events(FlareBot bot) {
+    Events(FlareBot bot) {
         this.flareBot = bot;
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> sd = true));
     }
 
     @Override
@@ -104,7 +105,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        FlareBot.getInstance().latch.countDown();
+        flareBot.latch.countDown();
     }
 
     @Override
@@ -181,7 +182,7 @@ public class Events extends ListenerAdapter {
     public void onGuildJoin(GuildJoinEvent event) {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
                 event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now()))
-            FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
+            flareBot.getGuildLogChannel().sendMessage(new EmbedBuilder()
                     .setColor(new Color(96, 230, 144))
                     .setThumbnail(event.getGuild().getIconUrl())
                     .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
@@ -194,7 +195,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        FlareBot.getInstance().getGuildLogChannel().sendMessage(new EmbedBuilder()
+        flareBot.getGuildLogChannel().sendMessage(new EmbedBuilder()
                 .setColor(new Color(244, 23, 23))
                 .setThumbnail(event.getGuild().getIconUrl())
                 .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
@@ -209,8 +210,8 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
-            if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
-                FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
+            if (flareBot.getMusicManager().hasPlayer(event.getGuild().getId())) {
+                flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
             }
         }
     }
@@ -218,11 +219,11 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         if (event.getMember().getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong()) {
-            if (FlareBot.getInstance().getMusicManager().hasPlayer(event.getGuild().getId())) {
-                FlareBot.getInstance().getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
+            if (flareBot.getMusicManager().hasPlayer(event.getGuild().getId())) {
+                flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
             }
             if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
-                FlareBot.getInstance().getImportantLogChannel()
+                flareBot.getImportantLogChannel()
                         .sendMessage("I am now updating, there are no voice channels active!").queue();
                 UpdateCommand.update(true, null);
             }
@@ -265,7 +266,7 @@ public class Events extends ListenerAdapter {
                 command = command.substring(0, message.indexOf(" ") - 1);
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
-            Command cmd = flareBot.getCommand(command, event.getMember());
+            Command cmd = flareBot.getCommand(command, event.getAuthor());
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
@@ -290,9 +291,10 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onStatusChange(StatusChangeEvent event) {
-        if (sd) return;
-        if (FlareBot.getStatusHook() == null) return;
-        Request.Builder request = new Request.Builder().url(FlareBot.getStatusHook());
+        if (FlareBot.EXITING.get()) return;
+        String statusHook = FlareBot.getStatusHook();
+        if (statusHook == null) return;
+        Request.Builder request = new Request.Builder().url(statusHook);
         RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON, new JSONObject()
                 .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
                         event.getOldStatus(), event.getStatus(),
@@ -304,11 +306,11 @@ public class Events extends ListenerAdapter {
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
-            FlareBot.LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
+            LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
                     .getCloseCode(), event
                     .getCloseCode()));
         else
-            FlareBot.LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
+            LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
                     .getCloseCode(), event
                     .getClientCloseFrame().getCloseReason()));
     }
@@ -329,18 +331,18 @@ public class Events extends ListenerAdapter {
         }
         handleSpamDetection(event, guild);
         if (cmd.getType() == CommandType.SECRET) {
-            if (!cmd.getPermissions(event.getChannel()).isCreator(event.getAuthor()) && !(FlareBot.getInstance().isTestBot()
-                    && cmd.getPermissions(event.getChannel()).isContributor(event.getAuthor()))) {
+            if (!PerGuildPermissions.isCreator(event.getAuthor()) && !(flareBot.isTestBot()
+                    && PerGuildPermissions.isContributor(event.getAuthor()))) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
-                FlareBot.getInstance().logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
+                flareBot.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
                 return;
             }
         }
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
         if (handleMissingPermission(cmd, event)) return;
         if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) {
-            if (FlareBot.getInstance().isTestBot())
-                FlareBot.LOGGER.error("Guild " + event.getGuild().getId() + " tried to use the beta command '"
+            if (flareBot.isTestBot())
+                LOGGER.error("Guild " + event.getGuild().getId() + " tried to use the beta command '"
                         + cmd.getCommand() + "'!");
             return;
         }
@@ -355,7 +357,7 @@ public class Events extends ListenerAdapter {
         }
 
         CACHED_POOL.submit(() -> {
-            FlareBot.LOGGER.info(
+            LOGGER.info(
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args) + " in " + event.getChannel() + "! Sender: " +
                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
@@ -375,7 +377,7 @@ public class Events extends ListenerAdapter {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
                                 .getChannel());
-                FlareBot.LOGGER.error("Exception in guild " + event.getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
+                LOGGER.error("Exception in guild " + event.getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
@@ -394,18 +396,12 @@ public class Events extends ListenerAdapter {
         }
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
-                Message msg = MessageUtils.sendErrorMessage(MessageUtils.getEmbed(e.getAuthor())
+                MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
                         .setDescription("You are missing the permission ``"
                                 + cmd
-                                .getPermission() + "`` which is required for use of this command!"), e
-                        .getChannel());
+                                .getPermission() + "`` which is required for use of this command!").build(), 5000,
+                        e.getChannel());
                 delete(e.getMessage());
-                new FlareBotTask("Delete message " + msg.getChannel().toString()) {
-                    @Override
-                    public void run() {
-                        delete(msg);
-                    }
-                }.delay(TimeUnit.SECONDS.toMillis(5));
                 return true;
             }
         }
@@ -464,5 +460,9 @@ public class Events extends ListenerAdapter {
 
     public Map<Integer, Long> getShardEventTime() {
         return this.shardEventTime;
+    }
+
+    Map<String, Integer> getSpamMap() {
+        return spamMap;
     }
 }
