@@ -175,7 +175,7 @@ public class ModlogEvents extends ListenerAdapter {
         @SuppressWarnings("unchecked")
         HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
 
-        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoAssignRoles().contains(role.get("id")) && ((System.currentTimeMillis() / 1000) - event.getMember().getJoinDate().toEpochSecond()) < 10)) {
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoAssignRoles().contains(role.get("id")) && ((System.currentTimeMillis() / 1000) - event.getMember().getJoinDate().toEpochSecond()) < 10) {
                 return;
         }
 
