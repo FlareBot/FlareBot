@@ -28,10 +28,12 @@ public enum ModlogEvent {
     COMMAND("Triggers when a user runs a **FlareBot** command.", Color.decode("#addfe6")),
 
     MESSAGE_EDIT("Triggers when a message is edited.", Color.decode("#addfe6")),
-    MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED);
+    MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED),
 
-    String description;
-    Color color;
+    GUILD_EXPLICIT_FILTER_CHANGE("Triggers when the server's explicit filter level is changed.", Color.orange);
+
+    private String description;
+    private Color color;
 
     ModlogEvent(String description, Color color) {
         this.description = description;

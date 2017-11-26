@@ -139,8 +139,8 @@ public class AutoModConfig {
 
     public void postToModLog(MessageEmbed embed, ModlogEvent event) {
         if (hasModLog()) {
-            if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).eventEnabled(event)) {
-                if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).eventCompact(event)) {
+            if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).isEventEnabled(event)) {
+                if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).isEventCompact(event)) {
                     postToModLog(GeneralUtils.embedToText(embed));
                 } else {
                     postToModLog(embed);

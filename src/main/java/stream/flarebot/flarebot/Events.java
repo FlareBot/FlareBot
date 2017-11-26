@@ -367,10 +367,14 @@ public class Events extends ListenerAdapter {
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
+
                 EmbedBuilder commandEmbed = ModlogEvent.COMMAND.getEventEmbed(event.getAuthor(), null)
                         .addField("Command", cmd.getCommand(), true);
-                if (!MessageUtils.getMessage(args, 0).equals("")) {
-                        commandEmbed.addField("Args", "`" + MessageUtils.getMessage(args, 0).replaceAll("`", "") + "`", false);
+                if (args.length > 0) {
+                    String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
+                    if(s.length() > 1000)
+                        s = s.substring(0, 1000) + "...";
+                    commandEmbed.addField("Args", "`" + s + "`", false);
                 }
                 guild.getAutoModConfig().postToModLog(commandEmbed.build(), ModlogEvent.COMMAND);
             } catch (Exception ex) {

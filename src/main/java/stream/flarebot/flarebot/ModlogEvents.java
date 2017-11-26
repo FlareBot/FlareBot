@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateExplicitContentLevelEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
@@ -23,11 +24,13 @@ import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +40,6 @@ import java.util.Map;
 public class ModlogEvents extends ListenerAdapter {
 
     private long genericResponseNumber = 0;
-    private long moveResponceNumber = 0;
 
     @Override
     public void onGuildBan(GuildBanEvent event) {
@@ -204,6 +206,18 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
         //TODO message caching
+    }
+
+    @Override
+    public void onGuildUpdateExplicitContentLevel(GuildUpdateExplicitContentLevelEvent e) {
+        AuditLogEntry entry = e.getGuild().getAuditLogs().complete().get(0);
+        AuditLogChange levelChange = entry.getChanges().get("explicit_content_filter");
+
+        FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
+                .getAutoModConfig().postToModLog(ModlogEvent.GUILD_EXPLICIT_FILTER_CHANGE.getEventEmbed(null, entry.getUser())
+                .addField("Old level", Guild.ExplicitContentLevel.fromKey(levelChange.getOldValue()).getDescription(), true)
+                .addField("New level", Guild.ExplicitContentLevel.fromKey(levelChange.getNewValue()).getDescription(), true)
+                .build(), ModlogEvent.GUILD_EXPLICIT_FILTER_CHANGE);
     }
 
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {

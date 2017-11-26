@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -29,12 +30,7 @@ public class ModlogCommand implements Command {
             if (args[0].equalsIgnoreCase("list")) {
                 int page = 1;
                 if (args.length == 2) {
-                    try {
-                        page = Integer.valueOf(args[1]);
-                    } catch (NumberFormatException e) {
-                        MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
-                        return;
-                    }
+                    page = GeneralUtils.getInt(args[1], 1);
                 }
                 int pageSize = 15;
                 int pages =
@@ -62,10 +58,10 @@ public class ModlogCommand implements Command {
 
                     List<List<String>> body = new ArrayList<>();
                     for (ModlogEvent modlogEvent : events) {
-                        if (guild.eventEnabled(modlogEvent)) {
+                        if (guild.isEventEnabled(modlogEvent)) {
                             List<String> part = new ArrayList<>();
                             part.add(modlogEvent.toString());
-                            part.add(String.valueOf(guild.eventCompact(modlogEvent)));
+                            part.add(String.valueOf(guild.isEventCompact(modlogEvent)));
                             body.add(part);
                         }
                     }
@@ -137,7 +133,7 @@ public class ModlogCommand implements Command {
                     MessageUtils.sendSuccessMessage("Successfully enabled all events", channel, sender);
                     return;
                 } else {
-                    if (!guild.eventEnabled(event)) {
+                    if (!guild.isEventEnabled(event)) {
                         guild.enableEvent(event);
                         MessageUtils.sendSuccessMessage("Successfully enabled event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
@@ -154,7 +150,7 @@ public class ModlogCommand implements Command {
                     }
                     MessageUtils.sendSuccessMessage("Successfully disabled all events", channel, sender);
                 } else {
-                    if (guild.eventEnabled(event)) {
+                    if (guild.isEventEnabled(event)) {
                         guild.disableEvent(event);
                         MessageUtils.sendSuccessMessage("Successfully disabled event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
@@ -169,8 +165,8 @@ public class ModlogCommand implements Command {
                     int compact = 0;
                     int uncompact = 0;
                     for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                        if (guild.eventEnabled(modlogEvent)) {
-                            if (guild.eventCompact(modlogEvent)) {
+                        if (guild.isEventEnabled(modlogEvent)) {
+                            if (guild.isEventCompact(modlogEvent)) {
                                 compact++;
                             } else {
                                 uncompact++;
@@ -191,7 +187,7 @@ public class ModlogCommand implements Command {
                         }
                     }
                 } else {
-                    if (guild.eventEnabled(event)) {
+                    if (guild.isEventEnabled(event)) {
                         boolean compact = guild.toggleCompactEvent(event);
                         if (compact) {
                             MessageUtils.sendSuccessMessage("Compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);

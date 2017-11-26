@@ -251,7 +251,7 @@ public class GuildWrapper {
         return tags;
     }
 
-    public boolean eventEnabled(ModlogEvent event) {
+    public boolean isEventEnabled(ModlogEvent event) {
             checkEventsArray();
         return modlogEventMap.containsKey(event);
     }
@@ -289,7 +289,7 @@ public class GuildWrapper {
         return modlogEventMap.keySet();
     }
 
-    public boolean eventCompact(ModlogEvent event) {
+    public boolean isEventCompact(ModlogEvent event) {
         checkEventsArray();
         if (modlogEventMap.containsKey(event)) {
             return modlogEventMap.get(event);
