@@ -30,11 +30,12 @@ public enum ModlogEvent {
     MESSAGE_EDIT("Triggers when a message is edited.", Color.decode("#addfe6")),
     MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED),
 
-    AUTOASSIGN_ROLE("Triggers when a role is automatically given to a user", Color.GREEN);
+    AUTOASSIGN_ROLE("Triggers when a role is automatically given to a user", Color.GREEN),
+
+    GUILD_EXPLICIT_FILTER_CHANGE("Triggers when the server's explicit filter level is changed.", Color.orange);
 
     String description;
     Color color;
-    GUILD_EXPLICIT_FILTER_CHANGE("Triggers when the server's explicit filter level is changed.", Color.orange);
 
     private String description;
     private Color color;
