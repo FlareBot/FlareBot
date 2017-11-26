@@ -63,7 +63,7 @@ import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.*;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
@@ -99,12 +99,9 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -492,8 +489,8 @@ public class FlareBot {
 
         registerCommand(new TagsCommand());
         registerCommand(new PostUpdateCommand());
-		registerCommand(new StatusCommand());
-		registerCommand(new RemindCommand());
+        registerCommand(new StatusCommand());
+        registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
 
@@ -676,7 +673,7 @@ public class FlareBot {
     private void sendData() {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
-				//.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
+                //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
                 .put("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
@@ -1130,7 +1127,7 @@ public class FlareBot {
         return apiEnabled;
     }
 
-	private WebhookClient importantHook;
+    private WebhookClient importantHook;
 
     private WebhookClient getImportantWebhook() {
         if (importantHookUrl == null) return null;
@@ -1149,8 +1146,8 @@ public class FlareBot {
             String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
 
             File dir = new File("logs");
-            if(!dir.exists())
-                if(!dir.mkdir())
+            if (!dir.exists())
+                if (!dir.mkdir())
                     LOGGER.error("Failed to create directory for latest log!");
             File f = new File(dir, "latest.log " + time + ".zip");
             File latestLog = new File("latest.log");
@@ -1170,7 +1167,7 @@ public class FlareBot {
             zos.close();
             fos.close();
 
-            if(!latestLog.delete()) {
+            if (!latestLog.delete()) {
                 throw new IllegalStateException("Failed to delete the old log file!");
             }
         } catch (IOException e) {
