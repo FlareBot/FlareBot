@@ -14,24 +14,20 @@
             <id>jitpack</id>
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
-            <id>repo.arsenarsen.com</id>
-            <url>https://repo.arsenarsen.com/content/repositories/snapshots/</url>
-        </repository>
     </repositories>
     <dependencies>
         <!-- JDA -->
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.3.1_306</version>
+            <version>3.3.1_307</version>
         </dependency>
 
         <!-- Lavaplayer related -->
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.43</version>
+            <version>1.2.45</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
@@ -45,9 +41,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
-            <artifactId>jda-impl</artifactId>
-            <version>1.16-SNAPSHOT</version>
+            <groupId>com.github.FlareBot</groupId>
+            <artifactId>lavaplayerbridge</artifactId>
+            <version>1afe8da</version>
             <exclusions>
                 <exclusion>
                     <artifactId>JDA</artifactId>

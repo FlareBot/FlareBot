@@ -43,6 +43,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
+import okhttp3.Call;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -55,6 +56,8 @@ import org.slf4j.LoggerFactory;
 import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.api.Callback;
+import stream.flarebot.flarebot.api.EmptyCallback;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
@@ -107,6 +110,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -144,6 +148,7 @@ public class FlareBot {
     private static JSONConfig config;
     private FlareBotManager manager;
     private static boolean apiEnabled = true;
+    private static String apiKey;
 
     public static final Gson GSON = new GsonBuilder().create();
 
@@ -213,6 +218,9 @@ public class FlareBot {
         String tkn = config.getString("bot.token").get();
 
         new CassandraController().init(config);
+
+        if(config.getString("misc.apiKey").isPresent())
+            FlareBot.apiKey = config.getString("misc.apiKey").get();
 
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
@@ -679,6 +687,7 @@ public class FlareBot {
     private void sendData() {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
+				//.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
                 .put("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
@@ -1006,6 +1015,10 @@ public class FlareBot {
         return youtubeApi;
     }
 
+    public List<VoiceChannel> getVoiceChannels() {
+        return Arrays.stream(clients).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
+    }
+
     public long getActiveVoiceChannels() {
         return getConnectedVoiceChannels().stream()
                 .map(VoiceChannel::getGuild)
@@ -1166,6 +1179,10 @@ public class FlareBot {
 
     public Guild getOfficialGuild() {
         return getGuildByID(OFFICIAL_GUILD);
+    }
+
+	public String getApiKey() {
+        return apiKey;
     }
 
     private static void handleLogArchive() {
