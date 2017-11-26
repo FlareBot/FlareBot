@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;

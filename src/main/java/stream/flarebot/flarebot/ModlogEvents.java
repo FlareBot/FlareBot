@@ -175,10 +175,8 @@ public class ModlogEvents extends ListenerAdapter {
         @SuppressWarnings("unchecked")
         HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
 
-        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoAssignRoles().contains(role.get("id"))) {
-            if (((System.currentTimeMillis() / 1000) - event.getMember().getJoinDate().toEpochSecond()) < 10) {
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoAssignRoles().contains(role.get("id")) && ((System.currentTimeMillis() / 1000) - event.getMember().getJoinDate().toEpochSecond()) < 10)) {
                 return;
-            }
         }
 
         FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
@@ -322,7 +320,6 @@ public class ModlogEvents extends ListenerAdapter {
                 embedBuilder.addField("Notification", "`" + oldValue + "` -> `" + newValue + "`", true);
             }
             if (changes.containsKey("verification_level")) {
-                String old = GeneralUtils.getVerificationString(Guild.VerificationLevel.fromKey(changes.get("verification_level").getOldValue()));
                 embedBuilder.addField("Verification level", "`" +
                         GeneralUtils.getVerificationString(Guild.VerificationLevel.fromKey(changes.get("verification_level").getOldValue())) + " ` -> `" +
                         GeneralUtils.getVerificationString(Guild.VerificationLevel.fromKey(changes.get("verification_level").getNewValue())) + "`", true);
@@ -366,10 +363,8 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     public static boolean checkModlog(Guild guild) {
-        if (FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().hasModLog()) {
-            if (guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
+        if (FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().hasModLog() && guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
                 return true;
-            }
         }
         return false;
     }
