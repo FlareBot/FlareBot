@@ -13,11 +13,14 @@ import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.core.events.guild.update.GenericGuildUpdateEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateExplicitContentLevelEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
@@ -32,12 +35,14 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class ModlogEvents extends ListenerAdapter {
 
-    private long genericResponseNumber = 0;
+    private long roleResponseNumber = 0;
+    private long guildResponceNumber = 0;
 
     @Override
     public void onGuildBan(GuildBanEvent event) {
@@ -112,10 +117,10 @@ public class ModlogEvents extends ListenerAdapter {
         if (event instanceof RoleUpdatePositionEvent) {
             return;
         }
-        if (event.getResponseNumber() == genericResponseNumber) {
+        if (event.getResponseNumber() == roleResponseNumber) {
             return;
         }
-        genericResponseNumber = event.getResponseNumber();
+        roleResponseNumber = event.getResponseNumber();
         event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
             AuditLogEntry entry = auditLogs.get(0);
             Map<String, AuditLogChange> changes = entry.getChanges();
@@ -169,6 +174,12 @@ public class ModlogEvents extends ListenerAdapter {
         AuditLogChange change = changes.get("$add");
         @SuppressWarnings("unchecked")
         HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
+
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoAssignRoles().contains(role.get("id"))) {
+            if (((System.currentTimeMillis() / 1000) - event.getMember().getJoinDate().toEpochSecond()) < 10) {
+                return;
+            }
+        }
 
         FlareBotManager.getInstance().getGuild(entry.getGuild().getId())
                 .getAutoModConfig().postToModLog(ModlogEvent.MEMBER_ROLE_GIVE.getEventEmbed(event.getUser(), entry.getUser())
@@ -227,6 +238,113 @@ public class ModlogEvents extends ListenerAdapter {
                 .addField("Old level", Guild.ExplicitContentLevel.fromKey(levelChange.getOldValue()).getDescription(), true)
                 .addField("New level", Guild.ExplicitContentLevel.fromKey(levelChange.getNewValue()).getDescription(), true)
                 .build(), ModlogEvent.GUILD_EXPLICIT_FILTER_CHANGE);
+    }
+
+    @Override
+    public void onGuildMemberNickChange(GuildMemberNickChangeEvent event) {
+        if (!checkModlog(event.getGuild())) return;
+        EmbedBuilder embedBuilder = ModlogEvent.MEMBER_NICK_CHANGE.getEventEmbed(event.getUser(), null);
+        embedBuilder.addField("Previous nick", event.getPrevNick(), true);
+        embedBuilder.addField("New nick", event.getNewNick(), true);
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(embedBuilder.build(), ModlogEvent.MEMBER_NICK_CHANGE);
+    }
+
+    @Override
+    public void onGenericGuildUpdate(GenericGuildUpdateEvent event) {
+        if (event instanceof GuildUpdateExplicitContentLevelEvent) {
+            return;
+        }
+        if (!checkModlog(event.getGuild())) return;
+        if (event.getResponseNumber() == guildResponceNumber) {
+            return;
+        }
+        guildResponceNumber = event.getResponseNumber();
+        event.getGuild().getAuditLogs().limit(1).queue(auditLogs -> {
+            AuditLogEntry entry = auditLogs.get(0);
+            Map<String, AuditLogChange> changes = entry.getChanges();
+            Iterator<Map.Entry<String, AuditLogChange>> it = changes.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, AuditLogChange> pair = it.next();
+                System.out.println(pair.getKey() + ": " + pair.getValue());
+            }
+            EmbedBuilder embedBuilder = ModlogEvent.GUILD_UPDATE.getEventEmbed(null, entry.getUser());
+            if (changes.containsKey("region")) {
+                embedBuilder.addField("Region change", "`" + changes.get("region").getOldValue() + "` -> `" + changes.get("region").getNewValue() + "`", true);
+            }
+            if (changes.containsKey("name")) {
+                embedBuilder.addField("Name", "`" + changes.get("name").getOldValue() + "` -> `" + changes.get("name").getNewValue() + "`", true);
+            }
+            if (changes.containsKey("afk_channel_id")) {
+                AuditLogChange change = changes.get("afk_channel_id");
+                String oldChannel;
+                String newChannel;
+                if (change.getOldValue() == null) {
+                    oldChannel = "none";
+                } else {
+                    oldChannel = event.getGuild().getVoiceChannelById(change.getOldValue()).getName();
+                }
+                if (change.getNewValue() == null) {
+                    newChannel = "none";
+                } else {
+                    newChannel = event.getGuild().getVoiceChannelById(change.getNewValue()).getName();
+                }
+                embedBuilder.addField("AFK channel", "`" + oldChannel + "` -> `" + newChannel + "`", true);
+            }
+            if (changes.containsKey("afk_timeout")) {
+                embedBuilder.addField("AFK timeout (minutes)", "`" + ((int)changes.get("afk_timeout").getOldValue() / 60) + "` -> `" + ((int)changes.get("afk_timeout").getNewValue() /60) + "`", true);
+            }
+            if (changes.containsKey("system_channel_id")) {
+                AuditLogChange change = changes.get("system_channel_id");
+                String oldChannel;
+                String newChannel;
+                if (change.getOldValue() == null) {
+                    oldChannel = "none";
+                } else {
+                    oldChannel = event.getGuild().getTextChannelById(change.getOldValue()).getName();
+                }
+                if (change.getNewValue() == null) {
+                    newChannel = "none";
+                } else {
+                    newChannel = event.getGuild().getTextChannelById(change.getNewValue()).getName();
+                }
+                embedBuilder.addField("Welcome channel", "`" + oldChannel + "` -> `" + newChannel + "`", true);
+            }
+            if (changes.containsKey("default_message_notifications")) {
+                String oldValue;
+                String newValue;
+                if ((int)changes.get("default_message_notifications").getOldValue() == 0) {
+                    oldValue = "All messages";
+                    newValue = "Only mentions";
+                } else {
+                    oldValue = "Only mentions";
+                    newValue = "All messages";
+                }
+                embedBuilder.addField("Notification", "`" + oldValue + "` -> `" + newValue + "`", true);
+            }
+            if (changes.containsKey("verification_level")) {
+                String old = GeneralUtils.getVerificationString(Guild.VerificationLevel.fromKey(changes.get("verification_level").getOldValue()));
+                embedBuilder.addField("Verification level", "`" +
+                        GeneralUtils.getVerificationString(Guild.VerificationLevel.fromKey(changes.get("verification_level").getOldValue())) + " ` -> `" +
+                        GeneralUtils.getVerificationString(Guild.VerificationLevel.fromKey(changes.get("verification_level").getNewValue())) + "`", true);
+            }
+            if (changes.containsKey("mfa_level")) {
+                boolean tfa = false;
+                if ((int)changes.get("mfa_level").getOldValue() == 0) {
+                    tfa = true;
+                }
+                embedBuilder.addField("Two Factor authorization required", tfa ? "Yes" : "No", true);
+            }
+            FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(embedBuilder.build(), ModlogEvent.GUILD_UPDATE);
+        });
+    }
+
+    @Override
+    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        if (!checkModlog(event.getGuild())) return;
+        FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(
+                ModlogEvent.MEMBER_VOICE_MOVE.getEventEmbed(event.getMember().getUser(), null)
+                .addField("Channel", "`" + event.getChannelLeft().getName() + "` -> `" + event.getChannelJoined().getName() + "`", true)
+                .build(), ModlogEvent.MEMBER_VOICE_MOVE);
     }
 
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {

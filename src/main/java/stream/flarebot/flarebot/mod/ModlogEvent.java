@@ -17,6 +17,9 @@ public enum ModlogEvent {
 
     MEMBER_VOICE_JOIN("Triggers when a user joins a voice channel.", Color.GREEN),
     MEMBER_VOICE_LEAVE("Triggers when a user leaves a voice channel.", Color.RED),
+    MEMBER_VOICE_MOVE("Triggers when a user moves to a different voice channel. Either because they moved or because they where force moved.", Color.decode("#addfe6")),
+
+    MEMBER_NICK_CHANGE("Triggers when a user changes their nick.", Color.decode("#addfe6")),
 
     ROLE_CREATE("Triggers when a role is created.", Color.GREEN),
     ROLE_DELETE("Triggers when a role is deleted.", Color.RED),
@@ -26,6 +29,8 @@ public enum ModlogEvent {
     CHANNEL_DELETE("Triggers when a channel is deleted.", Color.RED),
 
     COMMAND("Triggers when a user runs a **FlareBot** command.", Color.decode("#addfe6")),
+
+    GUILD_UPDATE("Triggers when any of the server setting are changed.", Color.decode("#addfe6")),
 
     MESSAGE_EDIT("Triggers when a message is edited.", Color.decode("#addfe6")),
     MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED),
