@@ -37,7 +37,6 @@ import java.util.Map;
 public class ModlogEvents extends ListenerAdapter {
 
     private long genericResponseNumber = 0;
-    private long moveResponceNumber = 0;
 
     @Override
     public void onGuildBan(GuildBanEvent event) {

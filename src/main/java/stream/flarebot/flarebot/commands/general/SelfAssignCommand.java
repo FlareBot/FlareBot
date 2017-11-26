@@ -39,7 +39,7 @@ public class SelfAssignCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 if (guild.getSelfAssignRoles().isEmpty()) {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("There are no self-assignable roles!", channel, sender), 5000, channel);
+                    MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("There are no self-assignable roles!").setColor(Color.RED).build(), 5000, channel);
                     return;
                 }
                 StringBuilder base = new StringBuilder("**Self assignable roles**\n```\n");

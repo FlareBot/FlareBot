@@ -28,7 +28,9 @@ public enum ModlogEvent {
     COMMAND("Triggers when a user runs a **FlareBot** command.", Color.decode("#addfe6")),
 
     MESSAGE_EDIT("Triggers when a message is edited.", Color.decode("#addfe6")),
-    MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED);
+    MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED),
+
+    AUTOASSIGN_ROLE("Triggers when a role is automatically given to a user", Color.GREEN);
 
     String description;
     Color color;
