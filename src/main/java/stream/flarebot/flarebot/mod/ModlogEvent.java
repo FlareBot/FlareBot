@@ -28,16 +28,14 @@ public enum ModlogEvent {
     CHANNEL_CREATE("Triggers when a channel is created.", Color.GREEN),
     CHANNEL_DELETE("Triggers when a channel is deleted.", Color.RED),
 
-    COMMAND("Triggers when a user runs a **FlareBot** command.", Color.decode("#addfe6")),
-
-    GUILD_UPDATE("Triggers when any of the server setting are changed.", Color.decode("#addfe6")),
-
     MESSAGE_EDIT("Triggers when a message is edited.", Color.decode("#addfe6")),
     MESSAGE_DELETE("Triggers when a message is deleted.", Color.RED),
 
-    AUTOASSIGN_ROLE("Triggers when a role is automatically given to a user", Color.GREEN),
+    GUILD_EXPLICIT_FILTER_CHANGE("Triggers when the server's explicit filter level is changed.", Color.orange),
+    GUILD_UPDATE("Triggers when any of the server setting are changed.", Color.decode("#addfe6")),
 
-    GUILD_EXPLICIT_FILTER_CHANGE("Triggers when the server's explicit filter level is changed.", Color.orange);
+    FLAREBOT_AUTOASSIGN_ROLE("Triggers when a role is automatically given to a user", Color.GREEN),
+    FLAREBOT_COMMAND("Triggers when a user runs a **FlareBot** command.", Color.decode("#addfe6"));
 
     private String description;
     private Color color;

@@ -160,7 +160,7 @@ public class Events extends ListenerAdapter {
                 }
                 sb.append("```");
                 FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(
-                        ModlogEvent.AUTOASSIGN_ROLE.getEventEmbed(event.getUser(), null).addField("Roles", sb.toString(), false).build(), ModlogEvent.AUTOASSIGN_ROLE);
+                        ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE.getEventEmbed(event.getUser(), null).addField("Roles", sb.toString(), false).build(), ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE);
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
@@ -375,7 +375,7 @@ public class Events extends ListenerAdapter {
 
                 if (!ModlogEvents.checkModlog(event.getGuild())) return;
 
-                EmbedBuilder commandEmbed = ModlogEvent.COMMAND.getEventEmbed(event.getAuthor(), null)
+                EmbedBuilder commandEmbed = ModlogEvent.FLAREBOT_COMMAND.getEventEmbed(event.getAuthor(), null)
                         .addField("Command", cmd.getCommand(), true);
                 if (args.length > 0) {
                     String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
@@ -383,7 +383,7 @@ public class Events extends ListenerAdapter {
                         s = s.substring(0, 1000) + "...";
                     commandEmbed.addField("Args", "`" + s + "`", false);
                 }
-                guild.getAutoModConfig().postToModLog(commandEmbed.build(), ModlogEvent.COMMAND);
+                guild.getAutoModConfig().postToModLog(commandEmbed.build(), ModlogEvent.FLAREBOT_COMMAND);
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
