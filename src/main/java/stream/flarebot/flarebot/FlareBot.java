@@ -33,7 +33,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.SimpleLog;
 import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
@@ -280,8 +279,6 @@ public class FlareBot {
     }
 
     public void init(String tkn) throws InterruptedException, UnirestException, FileNotFoundException {
-        SimpleLog.LEVEL = org.slf4j.event.Level.INFO;
-        SimpleLog.getLog(OkHttpClient.class.getName()).setLevel(org.slf4j.event.Level.TRACE);
         LOGGER.info("Starting init!");
         token = tkn;
         manager = new FlareBotManager();
@@ -300,7 +297,7 @@ public class FlareBot {
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setShardsTotal(2)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
-                    .buildAsync();
+                    .build();
 
             prefixes = new Prefixes();
             commands = ConcurrentHashMap.newKeySet();
