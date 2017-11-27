@@ -226,7 +226,7 @@ public class MessageUtils {
 
     public static void editMessage(String s, EmbedBuilder embed, Message message) {
         if (message != null)
-            message.editMessage(new MessageBuilder().append(s).setEmbed(embed.build()).build()).queue();
+            message.editMessage(new MessageBuilder().setContent(s).setEmbed(embed.build()).build()).queue();
     }
 
     public static boolean hasInvite(Message message) {
