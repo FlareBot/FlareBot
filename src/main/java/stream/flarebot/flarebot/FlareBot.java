@@ -1049,10 +1049,6 @@ public class FlareBot {
         return clients;
     }
 
-    private List<VoiceChannel> getVoiceChannels() {
-        return getGuilds().stream().flatMap(g -> g.getVoiceChannels().stream()).collect(Collectors.toList());
-    }
-
     public List<Channel> getChannels() {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
