@@ -14,7 +14,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -33,17 +32,14 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.ISnowflake;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
-import okhttp3.Call;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -56,8 +52,6 @@ import org.slf4j.LoggerFactory;
 import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.api.Callback;
-import stream.flarebot.flarebot.api.EmptyCallback;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
@@ -110,7 +104,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -148,7 +141,6 @@ public class FlareBot {
     private static JSONConfig config;
     private FlareBotManager manager;
     private static boolean apiEnabled = true;
-    private static String apiKey;
 
     public static final Gson GSON = new GsonBuilder().create();
 
@@ -218,9 +210,6 @@ public class FlareBot {
         String tkn = config.getString("bot.token").get();
 
         new CassandraController().init(config);
-
-        if(config.getString("misc.apiKey").isPresent())
-            FlareBot.apiKey = config.getString("misc.apiKey").get();
 
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
@@ -1077,10 +1066,6 @@ public class FlareBot {
         return clients;
     }
 
-    private List<VoiceChannel> getVoiceChannels() {
-        return getGuilds().stream().flatMap(g -> g.getVoiceChannels().stream()).collect(Collectors.toList());
-    }
-
     public List<Channel> getChannels() {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
@@ -1179,10 +1164,6 @@ public class FlareBot {
 
     public Guild getOfficialGuild() {
         return getGuildByID(OFFICIAL_GUILD);
-    }
-
-	public String getApiKey() {
-        return apiKey;
     }
 
     private static void handleLogArchive() {
