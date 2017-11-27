@@ -33,7 +33,7 @@ public class FixCommand implements Command {
                 + "and FlareBot's nickname if songnick is enabled?"
                 + "\nWe assign roles to users without any roles so be aware that if you allow "
                 + "the removal of your autoassign roles they may be added back to users."
-                + "\nTo confirm do `{%}fix confirm`", channel, sender);
+                + "\n\nDo `{%}fix confirm` to confirm you want to do this command!", channel, sender);
 
         ConfirmUtil.pushAction(sender.getId(),
                 new RunnableWrapper(() -> fix(guild, sender, channel), this.getClass()));
@@ -50,7 +50,7 @@ public class FixCommand implements Command {
                     iterator.remove();
                 } else {
                     if (!member1.getRoles().contains(role)) {
-                        guild.getGuild().getController().addRolesToMember(member1, role).queue();
+                        guild.getGuild().getController().addSingleRoleToMember(member1, role).queue();
                         rolesAdded++;
                     }
                 }
