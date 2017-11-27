@@ -14,7 +14,6 @@ public class RandomCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         MessageUtils.sendErrorMessage("This is currently disabled!", channel);
-        return;
         /*if (args.length != 1) {
             loadSongs(25, channel, sender);
         } else {

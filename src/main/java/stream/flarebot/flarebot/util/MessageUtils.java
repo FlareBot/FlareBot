@@ -27,7 +27,6 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -44,21 +43,6 @@ public class MessageUtils {
 
     private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
     private static final Pattern SPACE = Pattern.compile(" ");
-
-    public static int getLength(EmbedBuilder embed) {
-        int len = 0;
-        MessageEmbed e = embed.build();
-        if (e.getTitle() != null) len += e.getTitle().length();
-        if (e.getDescription() != null) len += e.getDescription().length();
-        if (e.getAuthor() != null) len += e.getAuthor().getName().length();
-        if (e.getFooter() != null) len += e.getFooter().getText().length();
-        if (e.getFields() != null) {
-            for (MessageEmbed.Field f : e.getFields()) {
-                len += f.getName().length() + f.getValue().length();
-            }
-        }
-        return len;
-    }
 
     public static void sendPM(User user, String message) {
         try {
@@ -237,7 +221,7 @@ public class MessageUtils {
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {
-        editMessage(message.getRawContent(), embed, message);
+        editMessage(message.getContentRaw(), embed, message);
     }
 
     public static void editMessage(String s, EmbedBuilder embed, Message message) {
@@ -246,7 +230,7 @@ public class MessageUtils {
     }
 
     public static boolean hasInvite(Message message) {
-        return INVITE_REGEX.matcher(message.getRawContent()).find();
+        return INVITE_REGEX.matcher(message.getContentRaw()).find();
     }
 
     public static boolean hasInvite(String message) {
@@ -254,7 +238,7 @@ public class MessageUtils {
     }
 
     public static boolean hasLink(Message message) {
-        return LINK_REGEX.matcher(message.getRawContent()).find();
+        return LINK_REGEX.matcher(message.getContentRaw()).find();
     }
 
     public static boolean hasLink(String message) {
@@ -262,7 +246,7 @@ public class MessageUtils {
     }
 
     public static boolean hasYouTubeLink(Message message) {
-        return YOUTUBE_LINK_REGEX.matcher(message.getRawContent()).find();
+        return YOUTUBE_LINK_REGEX.matcher(message.getContentRaw()).find();
     }
 
     public static void autoDeleteMessage(Message message, long delay) {

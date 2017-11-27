@@ -19,14 +19,14 @@ public enum Action {
             .getMaxMessagesPerMinute()),
     LINKS(1, true, (message, config) -> MessageUtils.hasLink(message) && !MessageUtils.hasInvite(message)),
     PROFANITY(1, true, (message, config) -> FlareBot.getInstance().getManager().getProfanity().stream()
-            .filter(word -> message.getContent().toLowerCase().contains(word))
+            .filter(word -> message.getContentDisplay().toLowerCase().contains(word))
             .count() > 0),
     DUPLICATED_CHARACTERS_OR_WORDS(1, true, (message, config) -> {
         Map<String, Integer> words = new HashMap<>();
-        for (String word : message.getContent().toLowerCase().split(" ")) {
+        for (String word : message.getContentDisplay().toLowerCase().split(" ")) {
             if (MessageUtils.hasInvite(word) || MessageUtils.hasLink(word)) continue;
             words.put(word, words.containsKey(word) ? words.get(word) + 1 : 1);
-            if (words.get(word) >= ((message.getContent().length() / 200) * 4 < 4 ? 4 : (message.getContent()
+            if (words.get(word) >= ((message.getContentDisplay().length() / 200) * 4 < 4 ? 4 : (message.getContentDisplay()
                     .length() / 200) * 4))
                 return true;
             if (word.chars().mapToObj(i -> (char) i)
@@ -36,12 +36,12 @@ public enum Action {
         }
         return false;
     }),
-    TOO_MANY_CAPS(1, false, (message, config) -> message.getContent().replaceAll("[^a-zA-Z0-9]", "").length() > 4 && message
-            .getContent().replaceAll("[^a-zA-Z0-9]", "").chars()
-            .filter(Character::isUpperCase).count() > 0 && ((double) message.getContent().replaceAll("[^a-zA-Z0-9]", "")
+    TOO_MANY_CAPS(1, false, (message, config) -> message.getContentDisplay().replaceAll("[^a-zA-Z0-9]", "").length() > 4 && message
+            .getContentDisplay().replaceAll("[^a-zA-Z0-9]", "").chars()
+            .filter(Character::isUpperCase).count() > 0 && ((double) message.getContentDisplay().replaceAll("[^a-zA-Z0-9]", "")
             .chars().filter(Character::isUpperCase)
             .count()
-            / message.getContent().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 >= config.getOption("cap-percentage").intValue());
+            / message.getContentDisplay().replaceAll("[^a-zA-Z0-9]", "").length()) * 100 >= config.getOption("cap-percentage").intValue());
     //MASS_MENTION(5, false, (message, config) -> message.getMentionedUsers().size() >= config.getOption("mass_mention.max-user-mentions") || message.getMentionedRoles().size() >= 3);
 
     public static Action[] values = values();

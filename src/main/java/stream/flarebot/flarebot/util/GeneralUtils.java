@@ -380,7 +380,6 @@ public class GeneralUtils {
         } catch (IOException | ErrorResponseException e) {
             FlareBot.LOGGER.error("Unable to send image", e);
         }
-        return;
     }
 
     public static boolean canChangeNick(String guildId) {

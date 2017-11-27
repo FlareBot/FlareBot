@@ -94,7 +94,7 @@ public class AutoModConfig {
                                     .getAsMention() + " and has been given " + getActions()
                                     .get(action) + " points.")
                             .addField("Reason", action.getName(), true)
-                            .addField("Message", message.getContent(), true)
+                            .addField("Message", message.getContentDisplay(), true)
                             .setColor(Color.white)
                             .build()).queue();
         }

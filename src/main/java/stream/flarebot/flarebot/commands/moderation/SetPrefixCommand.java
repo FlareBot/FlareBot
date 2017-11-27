@@ -28,7 +28,6 @@ public class SetPrefixCommand implements Command {
                         .queue();
             } else {
                 MessageUtils.sendErrorMessage("Cannot set the prefix to be more that one character long!", channel, sender);
-                return;
             }
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)

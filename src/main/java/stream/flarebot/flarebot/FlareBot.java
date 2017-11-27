@@ -106,7 +106,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -214,9 +213,7 @@ public class FlareBot {
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
         if (config.getArray("options").isPresent()) {
-            Iterator<JsonElement> it = config.getArray("options").get().iterator();
-            while (it.hasNext()) {
-                JsonElement em = it.next();
+            for (JsonElement em : config.getArray("options").get()) {
                 if (em.getAsString() != null) {
                     if (em.getAsString().equals("tb")) {
                         FlareBot.testBot = true;
@@ -886,7 +883,7 @@ public class FlareBot {
 
     public void setStatus(String status) {
         if (clients.length == 1) {
-            clients[0].getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
+            clients[0].getPresence().setGame(Game.of(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
 

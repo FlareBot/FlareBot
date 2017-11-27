@@ -16,7 +16,7 @@ public class AnnounceCommand implements Command {
         if (guild.getGuildId().equals("226785954537406464")) {
             Role r = guild.getGuild().getRoleById(320304080926801922L);
             r.getManager().setMentionable(true).complete();
-            String message = msg.getRawContent();
+            String message = msg.getContentRaw();
             message = message.substring(message.indexOf(" ") + 1);
             guild.getGuild().getTextChannelById(226786449217945601L).sendMessage(r.getAsMention() + "\n" + message).complete();
             r.getManager().setMentionable(false).queue();

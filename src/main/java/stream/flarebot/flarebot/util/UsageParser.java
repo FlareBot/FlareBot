@@ -100,7 +100,7 @@ public class UsageParser {
         SINGLE_SUB_COMMAND(Pattern.compile("^[A-Za-z]+$")),
         MULTIPLE_SUB_COMMAND(Pattern.compile("^[A-z]+(\\|+[A-z]+)+$")),
         REQUIRED_ARG(Pattern.compile("^<.+>$")),
-        OPTIONAL_ARG(Pattern.compile("^\\[.+\\]$"));
+        OPTIONAL_ARG(Pattern.compile("^\\[.+]$"));
 
         private Pattern regex;
 

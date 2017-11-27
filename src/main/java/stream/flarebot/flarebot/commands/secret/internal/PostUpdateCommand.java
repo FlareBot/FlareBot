@@ -58,8 +58,8 @@ public class PostUpdateCommand implements Command {
 
                     EmbedBuilder embed = new EmbedBuilder();
                     boolean hasTitle = false;
-                    for (int i = 0; i < array.length; i++) {
-                        String value = array[i].replaceAll("\n\\* ", "\n� ");
+                    for (String anArray : array) {
+                        String value = anArray.replaceAll("\n\\* ", "\n� ");
                         String header = value.replace("## ", "").substring(0, value.indexOf("\n") - 4).replace("\n", "");
 
                         value = value.replace("## " + header, "");
@@ -81,7 +81,7 @@ public class PostUpdateCommand implements Command {
                     }
                     channel.sendMessage(new MessageBuilder().setEmbed(embed.build()).append(r.getAsMention()).build()).queue();
                 } else {
-                    String message = msg.getRawContent();
+                    String message = msg.getContentRaw();
                     message = message.substring(message.indexOf(" ") + 1);
                     channel.sendMessage(r.getAsMention() + "\n" + message).complete();
                 }

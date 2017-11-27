@@ -37,7 +37,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -241,7 +240,7 @@ public class Events extends ListenerAdapter {
         cache.setLastSpokeGuild(event.getGuild().getId());
 
         if (FlareBot.getPrefixes() == null) return;
-        if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
+        if (event.getMessage().getContentRaw().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
                 && !event.getAuthor().isBot()) {
             List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
             if (!perms.contains(Permission.ADMINISTRATOR)) {
@@ -256,7 +255,7 @@ public class Events extends ListenerAdapter {
                 }
             }
 
-            String message = multiSpace.matcher(event.getMessage().getRawContent()).replaceAll(" ");
+            String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
@@ -269,7 +268,7 @@ public class Events extends ListenerAdapter {
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
                     && !event.getAuthor().isBot()) {
-                if (event.getMessage().getRawContent().startsWith("_prefix")) {
+                if (event.getMessage().getContentRaw().startsWith("_prefix")) {
                     event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
                             .setDescription("The server prefix is `" + FlareBot
                                     .getPrefixes().get(getGuildId(event)) + "`")

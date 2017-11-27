@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -111,7 +112,7 @@ public class PlaylistCommand implements Command {
                 int page = i++;
                 EmbedBuilder b = new EmbedBuilder(builder.build());
                 b.addField("Page " + page, s, false);
-                if (MessageUtils.getLength(b) > 4000)
+                if (!b.isValidLength(AccountType.BOT))
                     break;
                 builder.addField("Page " + page, s, false);
             }
