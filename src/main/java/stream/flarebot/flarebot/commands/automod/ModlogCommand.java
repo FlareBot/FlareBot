@@ -74,7 +74,7 @@ public class ModlogCommand implements Command {
                 StringBuilder sb = new StringBuilder();
                 Map<String, List<ModlogEvent>> groups = new HashMap<>();
                 for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                    String name = modlogEvent.name();
+                    String name = modlogEvent.getTitle();
                     String[] split = name.split("_");
                     String groupKey = split[0];
                     if (groups.containsKey(groupKey)) {
@@ -92,7 +92,7 @@ public class ModlogCommand implements Command {
                 while (it.hasNext()) {
                     Map.Entry<String, List<ModlogEvent>> pair = it.next();
                     for (ModlogEvent event : pair.getValue()) {
-                        sb.append("`").append(event.name()).append("` - ").append(event.getDescription()).append("\n");
+                        sb.append("`").append(event.getTitle()).append("` - ").append(event.getDescription()).append("\n");
                     }
                     sb.append("\n");
                     it.remove();
@@ -135,7 +135,7 @@ public class ModlogCommand implements Command {
                 } else {
                     if (!guild.isEventEnabled(event)) {
                         guild.enableEvent(event);
-                        MessageUtils.sendSuccessMessage("Successfully enabled event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                        MessageUtils.sendSuccessMessage("Successfully enabled event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     } else {
                         MessageUtils.sendErrorMessage("Error enabling event (Probably already disabled)", channel, sender);
@@ -152,7 +152,7 @@ public class ModlogCommand implements Command {
                 } else {
                     if (guild.isEventEnabled(event)) {
                         guild.disableEvent(event);
-                        MessageUtils.sendSuccessMessage("Successfully disabled event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                        MessageUtils.sendSuccessMessage("Successfully disabled event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     } else {
                         MessageUtils.sendErrorMessage("Error disabling event (Probably already disabled)", channel, sender);
@@ -190,10 +190,10 @@ public class ModlogCommand implements Command {
                     if (guild.isEventEnabled(event)) {
                         boolean compact = guild.toggleCompactEvent(event);
                         if (compact) {
-                            MessageUtils.sendSuccessMessage("Compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                            MessageUtils.sendSuccessMessage("Compacted event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                             return;
                         } else {
-                            MessageUtils.sendSuccessMessage("Un-compacted event `" + WordUtils.capitalize(event.name().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                            MessageUtils.sendSuccessMessage("Un-compacted event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                             return;
                         }
                     } else {
