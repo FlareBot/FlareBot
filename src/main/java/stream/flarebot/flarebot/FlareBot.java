@@ -1053,6 +1053,10 @@ public class FlareBot {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
 
+    public List<VoiceChannel> getVoiceChannels() {
+        return Arrays.stream(getClients()).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
+    }
+
     public List<VoiceChannel> getConnectedVoiceChannels() {
         return Arrays.stream(getClients()).flatMap(c -> c.getGuilds().stream())
                 .map(c -> c.getAudioManager().getConnectedChannel())
