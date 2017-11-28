@@ -44,6 +44,8 @@ public class MessageUtils {
     private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
     private static final Pattern SPACE = Pattern.compile(" ");
 
+    private static final String ZERO_WIDTH_SPACE = "\u200B";
+
     public static void sendPM(User user, String message) {
         try {
             user.openPrivateChannel().complete()
@@ -226,7 +228,7 @@ public class MessageUtils {
 
     public static void editMessage(String s, EmbedBuilder embed, Message message) {
         if (message != null)
-            message.editMessage(new MessageBuilder().setContent(s).setEmbed(embed.build()).build()).queue();
+            message.editMessage(new MessageBuilder().setContent((s == null ? ZERO_WIDTH_SPACE : s)).setEmbed(embed.build()).build()).queue();
     }
 
     public static boolean hasInvite(Message message) {
