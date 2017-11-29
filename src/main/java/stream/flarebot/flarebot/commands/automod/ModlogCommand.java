@@ -104,6 +104,8 @@ public class ModlogCommand implements Command {
                 channel.sendMessage(eb.build()).queue();
                 return;
             }
+        } else {
+            MessageUtils.sendUsage(this, channel, sender, args);
         }
         if (args.length >= 2) {
             ModlogEvent event = null;
@@ -233,6 +235,7 @@ public class ModlogCommand implements Command {
                 "`{%}modlog setchannel <feature>` - Sets the modlog channel.\n" +
                 "`{%}modlog list [page]` - List enabled events.\n" +
                 "`{%}modlog features` - Lists all the modlog features you can enable.";
+
     }
 
     @Override

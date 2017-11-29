@@ -26,6 +26,7 @@ public class AvatarCommand implements Command {
                 return;
             }
             channel.sendMessage(MessageUtils.getEmbed(user).setColor(Color.cyan).setAuthor(user.getName(), null, null)
+
                     .setImage(user.getEffectiveAvatarUrl()).build()).queue();
         } else
             MessageUtils.sendErrorMessage("Cannot find that user!", channel);

@@ -154,6 +154,17 @@ public class AutoModConfig {
             getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, null)).queue();
     }
 
+    // Shouldn't really be used - Good for stuff like the purge command though
+    public void postToModLog(MessageEmbed embed) {
+        if (hasModLog())
+            getModLogChannel().sendMessage(embed).queue();
+    }
+
+    public void postAutoModAction(User user, Punishment punishment) {
+        if (hasModLog())
+            getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, null)).queue();
+    }
+
     public void postAutoModAction(User user, Punishment punishment, String reason) {
         if (hasModLog())
             getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, reason)).queue();
