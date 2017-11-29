@@ -63,7 +63,7 @@ import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.*;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.github.GithubListener;
@@ -491,7 +491,6 @@ public class FlareBot {
         registerCommand(new PostUpdateCommand());
         registerCommand(new StatusCommand());
         registerCommand(new RemindCommand());
-
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
 
@@ -675,7 +674,6 @@ public class FlareBot {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
                 //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
-
                 .put("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
@@ -1129,24 +1127,7 @@ public class FlareBot {
         return apiEnabled;
     }
 
-    public String getPasteKey() {
-        return config.getString("bot.pasteAccessKey").isPresent() ? config.getString("bot.pasteAccessKey").get() : null;
-    }
-
-    public String getApiKey() {
-        if (config.getString("misc.apiKey").isPresent())
-            return config.getString("misc.apiKey").get();
-        else {
-            apiEnabled = false;
-            return null;
-        }
-    }
-
-    public boolean isApiEnabled() {
-        return apiEnabled;
-    }
-
-	private WebhookClient importantHook;
+    private WebhookClient importantHook;
 
     private WebhookClient getImportantWebhook() {
         if (importantHookUrl == null) return null;
@@ -1167,7 +1148,6 @@ public class FlareBot {
             File dir = new File("logs");
             if (!dir.exists())
                 if (!dir.mkdir())
-
                     LOGGER.error("Failed to create directory for latest log!");
             File f = new File(dir, "latest.log " + time + ".zip");
             File latestLog = new File("latest.log");
@@ -1188,7 +1168,6 @@ public class FlareBot {
             fos.close();
 
             if (!latestLog.delete()) {
-
                 throw new IllegalStateException("Failed to delete the old log file!");
             }
         } catch (IOException e) {

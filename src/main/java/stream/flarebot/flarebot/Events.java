@@ -38,8 +38,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -413,7 +411,6 @@ public class Events extends ListenerAdapter {
                                 .setDescription("You are missing the permission ``"
                                         + cmd
                                         .getPermission() + "`` which is required for use of this command!").build(), 5000,
-
                         e.getChannel());
                 delete(e.getMessage());
                 return true;
