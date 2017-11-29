@@ -30,11 +30,11 @@ public class PermissionsCommand implements Command {
             if (args[0].equalsIgnoreCase("group")) {
                 String groupString = args[1];
                 Group group = getPermissions(channel).getGroup(groupString);
-                if (group == null) {
+                if (group == null && !args[2].equalsIgnoreCase("create")) {
                     MessageUtils.sendErrorMessage("That group doesn't exist! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
                     return;
                 }
-                if (args[2].equals("add")) {
+                if (args[2].equalsIgnoreCase("add")) {
                     if (args.length == 4) {
                         if (!GeneralUtils.validPerm(args[3])) {
                             MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
@@ -50,7 +50,7 @@ public class PermissionsCommand implements Command {
                         }
 
                     }
-                } else if (args[2].equals("remove")) {
+                } else if (args[2].equalsIgnoreCase("remove")) {
                     if (args.length == 4) {
                         if (group.removePermission(args[3])) {
                             MessageUtils.sendSuccessMessage("Successfully removed the permission `" + args[3] + "` from the group `" + groupString + "`", channel, sender);
@@ -60,7 +60,7 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     }
-                } else if (args[2].equals("create")) {
+                } else if (args[2].equalsIgnoreCase("create")) {
                     if (args.length == 3) {
                         if (getPermissions(channel).addGroup(groupString)) {
                             MessageUtils.sendSuccessMessage("Successfully created group: `" + groupString + "`", channel, sender);
@@ -70,12 +70,12 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     }
-                } else if (args[2].equals("delete")) {
+                } else if (args[2].equalsIgnoreCase("delete")) {
                     if (args.length == 3) {
                         getPermissions(channel).deleteGroup(groupString);
                         return;
                     }
-                } else if (args[2].equals("link")) {
+                } else if (args[2].equalsIgnoreCase("link")) {
                     if (args.length == 4) {
                         Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
                         if (role != null) {
@@ -87,7 +87,7 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     }
-                } else if (args[2].equals("unlink")) {
+                } else if (args[2].equalsIgnoreCase("unlink")) {
                     if (args.length == 3) {
                         Role role;
                         if (group.getRoleId() == null || (role = guild.getGuild().getRoleById(group.getRoleId())) == null) {
@@ -99,7 +99,7 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     }
-                } else if (args[2].equals("list")) {
+                } else if (args[2].equalsIgnoreCase("list")) {
                     if (args.length == 3 || args.length == 4) {
                         int page = args.length == 4 ? Integer.valueOf(args[3]) : 1;
                         Set<String> perms = group.getPermissions();
@@ -118,7 +118,7 @@ public class PermissionsCommand implements Command {
                         return;
 
                     }
-                } else if (args[2].equals("massadd")) {
+                } else if (args[2].equalsIgnoreCase("massadd")) {
                     if (args.length == 4) {
                         List<Member> roleMembers;
                         String roleName = "";
@@ -154,9 +154,9 @@ public class PermissionsCommand implements Command {
                 }
                 stream.flarebot.flarebot.permissions.User permUser =
                         getPermissions(channel).getUser(guild.getGuild().getMember(user));
-                if (args[2].equals("group")) {
+                if (args[2].equalsIgnoreCase("group")) {
                     if (args.length >= 4) {
-                        if (args[3].equals("add")) {
+                        if (args[3].equalsIgnoreCase("add")) {
                             if (args.length == 5) {
                                 String groupString = args[4];
                                 Group group = getPermissions(channel).getGroup(groupString);
@@ -168,7 +168,7 @@ public class PermissionsCommand implements Command {
                                 MessageUtils.sendSuccessMessage("Successfully added the group `" + groupString + "` to " + user.getAsMention(), channel, sender);
                                 return;
                             }
-                        } else if (args[3].equals("remove")) {
+                        } else if (args[3].equalsIgnoreCase("remove")) {
                             if (args.length == 5) {
                                 String groupString = args[4];
                                 Group group = getPermissions(channel).getGroup(groupString);
@@ -184,7 +184,7 @@ public class PermissionsCommand implements Command {
                                     return;
                                 }
                             }
-                        } else if (args[3].equals("list")) {
+                        } else if (args[3].equalsIgnoreCase("list")) {
                             int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
                             Set<String> groups = permUser.getGroups();
                             List<String> groupList = GeneralUtils.orderList(groups);
@@ -202,9 +202,9 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     }
-                } else if (args[2].equals("permission")) {
+                } else if (args[2].equalsIgnoreCase("permission")) {
                     if (args.length >= 4) {
-                        if (args[3].equals("add")) {
+                        if (args[3].equalsIgnoreCase("add")) {
                             if (args.length == 5) {
                                 if (!GeneralUtils.validPerm(args[4])) {
                                     MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
@@ -219,7 +219,7 @@ public class PermissionsCommand implements Command {
                                     return;
                                 }
                             }
-                        } else if (args[3].equals("remove")) {
+                        } else if (args[3].equalsIgnoreCase("remove")) {
                             if (args.length == 5) {
                                 if (permUser.removePermission(args[4])) {
                                     MessageUtils.sendSuccessMessage("Successfully removed the permission `" + args[4] + "` from " + user.getAsMention(), channel, sender);
@@ -229,7 +229,7 @@ public class PermissionsCommand implements Command {
                                     return;
                                 }
                             }
-                        } else if (args[3].equals("list")) {
+                        } else if (args[3].equalsIgnoreCase("list")) {
                             int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
                             Set<String> perms = permUser.getPermissions();
                             List<String> permList = GeneralUtils.orderList(perms);
