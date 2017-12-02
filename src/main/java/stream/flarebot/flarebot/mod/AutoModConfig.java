@@ -7,8 +7,11 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.awt.Color;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,21 +104,49 @@ public class AutoModConfig {
     }
 
     public void postToModLog(User user, User responsible, Punishment punishment, String reason) {
-        if (hasModLog()) {
-            getModLogChannel().sendMessage(punishment.getActionEmbed(user, responsible, reason)).queue();
-        }
+        postToModLog(punishment.getActionEmbed(user, responsible, reason));
     }
 
     public void postToModLog(User user, User responsible, Punishment punishment, boolean showNoReason) {
-        if (hasModLog()) {
-            getModLogChannel().sendMessage(punishment.getActionEmbed(user, responsible, null, !showNoReason)).queue();
-        }
+        postToModLog(punishment.getActionEmbed(user, responsible, null, !showNoReason));
     }
 
     // Shouldn't really be used - Good for stuff like the purge command though
     public void postToModLog(MessageEmbed embed) {
-        if (hasModLog())
-            getModLogChannel().sendMessage(embed).queue();
+        if (hasModLog()) {
+            EmbedBuilder eb = new EmbedBuilder();
+            if (embed.getTitle() != null)
+                eb.setTitle(embed.getTitle());
+            if (embed.getDescription() != null)
+                eb.appendDescription(embed.getDescription());
+            if (embed.getColor() != null)
+                eb.setColor(embed.getColor());
+            for (MessageEmbed.Field field : embed.getFields()) {
+                eb.addField(field);
+            }
+            eb.setFooter(GeneralUtils.formatTime(LocalDateTime.now()), null);
+            getModLogChannel().sendMessage(eb.build()).queue();
+        }
+    }
+
+    public void postToModLog(String message) {
+        if (hasModLog()) {
+            message += ("*" + GeneralUtils.formatTime(LocalDateTime.now()) + "*");
+            getModLogChannel().sendMessage(message).queue();
+        }
+
+    }
+
+    public void postToModLog(MessageEmbed embed, ModlogEvent event) {
+        if (hasModLog()) {
+            if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).isEventEnabled(event)) {
+                if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).isEventCompact(event)) {
+                    postToModLog(GeneralUtils.embedToText(embed));
+                } else {
+                    postToModLog(embed);
+                }
+            }
+        }
     }
 
     public void postAutoModAction(User user, Punishment punishment) {

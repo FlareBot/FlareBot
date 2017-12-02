@@ -14,6 +14,7 @@ import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -50,6 +51,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -57,7 +59,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -458,6 +462,64 @@ public class GeneralUtils {
         return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
     }
 
+    private static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
+
+    public static String formatTime(LocalDateTime dateTime) {
+        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
+        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
+                .format(timeFormat) + " UTC";
+    }
+
+    private static String getDayOfMonthSuffix(final int n) {
+        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
+        if (n >= 11 && n <= 13) {
+            return "th";
+        }
+        switch (n % 10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
+        }
+    }
+
+    public static String embedToText(MessageEmbed embed) {
+        StringBuilder sb = new StringBuilder();
+        if (embed.getTitle() != null)
+            sb.append("**").append(embed.getTitle()).append("**: ");
+        if (embed.getDescription() != null)
+            sb.append(embed.getDescription()).append(" ");
+        for (MessageEmbed.Field field : embed.getFields()) {
+            sb.append("**").append(field.getName()).append("**: ").append(field.getValue()).append(" ");
+        }
+        if (embed.getFooter() != null)
+            sb.append("*").append(embed.getFooter()).append("*");
+        return sb.toString();
+    }
+
+    public static Map<Boolean, List<Permission>> getChangedPerms(List<Permission> oldPerms, List<Permission> newPerms) {
+        Map<Boolean, List<Permission>> changes = new HashMap<>();
+        List<Permission> removed = new ArrayList<>();
+        List<Permission> added = new ArrayList<>();
+        for (Permission oldPerm : oldPerms) {
+            if (!newPerms.contains(oldPerm)) {
+                removed.add(oldPerm);
+            }
+        }
+        for (Permission newPerm : newPerms) {
+            if(!oldPerms.contains(newPerm)) {
+                added.add(newPerm);
+            }
+        }
+        changes.put(true, added);
+        changes.put(false, removed);
+        return changes;
+    }
+
     /**
      * This is to handle "multi-selection commands" for example the info and stats commands which take one or more
      * arguments and get select data from an enum
@@ -551,5 +613,14 @@ public class GeneralUtils {
         return FlareBot.GSON.fromJson(json, RedisMessage.class);
     }
 
-
+    public static String getVerificationString(Guild.VerificationLevel level) {
+        switch (level) {
+            case HIGH:
+                return "(\u256F\u00B0\u25A1\u00B0\uFF09\u256F\uFE35 \u253B\u2501\u253B"; //(╯°□°）╯︵ ┻━┻
+            case VERY_HIGH:
+                return "\u253B\u2501\u253B\u5F61 \u30FD(\u0CA0\u76CA\u0CA0)\u30CE\u5F61\u253B\u2501\u253B"; //┻━┻彡 ヽ(ಠ益ಠ)ノ彡┻━┻
+            default:
+                return level.toString().charAt(0) + level.toString().substring(1).toLowerCase();
+        }
+    }
 }

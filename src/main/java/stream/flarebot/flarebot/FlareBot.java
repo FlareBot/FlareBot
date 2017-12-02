@@ -29,6 +29,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.WebSocketCode;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.EntityBuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.ISnowflake;
@@ -98,8 +99,6 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -262,8 +261,6 @@ public class FlareBot {
     private String version = null;
     private JDA[] clients;
 
-    private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
-
     private Set<Command> commands = ConcurrentHashMap.newKeySet();
     private PlayerManager musicManager;
     private long startTime;
@@ -295,6 +292,7 @@ public class FlareBot {
         try {
             JDABuilder builder = new JDABuilder(AccountType.BOT)
                     .addEventListener(events)
+                    .addEventListener(new ModlogEvents())
                     .setToken(tkn)
                     .setAudioSendFactory(new NativeAudioSendFactory());
             if (clients.length == 1) {
@@ -495,8 +493,8 @@ public class FlareBot {
 
         registerCommand(new TagsCommand());
         registerCommand(new PostUpdateCommand());
-		registerCommand(new StatusCommand());
-		registerCommand(new RemindCommand());
+        registerCommand(new StatusCommand());
+        registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
 
@@ -679,7 +677,7 @@ public class FlareBot {
     private void sendData() {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
-				//.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
+                //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
                 .put("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
@@ -1007,20 +1005,6 @@ public class FlareBot {
         return youtubeApi;
     }
 
-    public List<VoiceChannel> getVoiceChannels() {
-        return Arrays.stream(clients).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
-    }
-
-    public long getActiveVoiceChannels() {
-        return getConnectedVoiceChannels().stream()
-                .map(VoiceChannel::getGuild)
-                .map(ISnowflake::getId)
-                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
-                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
-                .filter(p -> p.getPlayingTrack() != null)
-                .filter(p -> !p.getPaused()).count();
-    }
-
     public FlareBotManager getManager() {
         return this.manager;
     }
@@ -1073,11 +1057,25 @@ public class FlareBot {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
 
+    public List<VoiceChannel> getVoiceChannels() {
+        return Arrays.stream(getClients()).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
+    }
+
     public List<VoiceChannel> getConnectedVoiceChannels() {
         return Arrays.stream(getClients()).flatMap(c -> c.getGuilds().stream())
                 .map(c -> c.getAudioManager().getConnectedChannel())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+    }
+
+    public long getActiveVoiceChannels() {
+        return getConnectedVoiceChannels().stream()
+                .map(VoiceChannel::getGuild)
+                .map(ISnowflake::getId)
+                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
+                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
+                .filter(p -> p.getPlayingTrack() != null)
+                .filter(p -> !p.getPaused()).count();
     }
 
     public Set<User> getUsers() {
@@ -1112,29 +1110,6 @@ public class FlareBot {
         return getClient().retrieveUserById(id).complete();
     }
 
-    public String formatTime(LocalDateTime dateTime) {
-        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
-        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
-                .format(timeFormat) + " UTC";
-    }
-
-    private String getDayOfMonthSuffix(final int n) {
-        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
-        if (n >= 11 && n <= 13) {
-            return "th";
-        }
-        switch (n % 10) {
-            case 1:
-                return "st";
-            case 2:
-                return "nd";
-            case 3:
-                return "rd";
-            default:
-                return "th";
-        }
-    }
-
     public boolean isTestBot() {
         return testBot;
     }
@@ -1156,7 +1131,7 @@ public class FlareBot {
         return apiEnabled;
     }
 
-	private WebhookClient importantHook;
+    private WebhookClient importantHook;
 
     private WebhookClient getImportantWebhook() {
         if (importantHookUrl == null) return null;
@@ -1175,8 +1150,8 @@ public class FlareBot {
             String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
 
             File dir = new File("logs");
-            if(!dir.exists())
-                if(!dir.mkdir())
+            if (!dir.exists())
+                if (!dir.mkdir())
                     LOGGER.error("Failed to create directory for latest log!");
             File f = new File(dir, "latest.log " + time + ".zip");
             File latestLog = new File("latest.log");
@@ -1196,7 +1171,7 @@ public class FlareBot {
             zos.close();
             fos.close();
 
-            if(!latestLog.delete()) {
+            if (!latestLog.delete()) {
                 throw new IllegalStateException("Failed to delete the old log file!");
             }
         } catch (IOException e) {

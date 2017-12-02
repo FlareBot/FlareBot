@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.AutoModConfig;
 import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
@@ -39,6 +40,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+    private Map<ModlogEvent, Boolean> modlogEventMap;
 
     // oooo special!
     private boolean betaAccess = false;
@@ -246,5 +248,72 @@ public class GuildWrapper {
     public Map<String, String> getTags() {
         if (tags == null) tags = new ConcurrentHashMap<>();
         return tags;
+    }
+
+    public boolean isEventEnabled(ModlogEvent event) {
+            checkEventsArray();
+        return modlogEventMap.containsKey(event);
+    }
+
+    public void enableEvent(ModlogEvent event) {
+        checkEventsArray();
+        if (!modlogEventMap.containsKey(event)) {
+            modlogEventMap.put(event, false);
+        }
+    }
+
+    public void disableEvent(ModlogEvent event) {
+        checkEventsArray();
+        if (modlogEventMap.containsKey(event)) {
+            modlogEventMap.remove(event);
+        }
+    }
+
+    public boolean toggleCompactEvent(ModlogEvent event) {
+        checkEventsArray();
+        if (modlogEventMap.containsKey(event)) {
+            if (modlogEventMap.get(event)) {
+                modlogEventMap.put(event, false);
+                return false;
+            } else {
+                modlogEventMap.put(event, true);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Set<ModlogEvent> getEnabledEvents() {
+        checkEventsArray();
+        return modlogEventMap.keySet();
+    }
+
+    public boolean isEventCompact(ModlogEvent event) {
+        checkEventsArray();
+        if (modlogEventMap.containsKey(event)) {
+            return modlogEventMap.get(event);
+        }
+        return false;
+    }
+
+    public void setCompact(ModlogEvent event, boolean compact) {
+        checkEventsArray();
+        if (modlogEventMap.containsKey(event)) {
+            modlogEventMap.put(event, compact);
+        }
+    }
+
+    private void checkEventsArray() {
+        if (modlogEventMap == null) {
+            modlogEventMap = new ConcurrentHashMap<>();
+            modlogEventMap.put(ModlogEvent.MEMBER_ROLE_GIVE, false);
+            modlogEventMap.put(ModlogEvent.MEMBER_ROLE_REMOVE, false);
+            modlogEventMap.put(ModlogEvent.ROLE_CREATE, false);
+            modlogEventMap.put(ModlogEvent.ROLE_DELETE, false);
+            modlogEventMap.put(ModlogEvent.CHANNEL_CREATE, false);
+            modlogEventMap.put(ModlogEvent.CHANNEL_DELETE, false);
+            modlogEventMap.put(ModlogEvent.MESSAGE_EDIT, false);
+            modlogEventMap.put(ModlogEvent.MESSAGE_DELETE, false);
+        }
     }
 }

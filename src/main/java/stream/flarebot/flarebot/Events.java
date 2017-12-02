@@ -33,6 +33,7 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
@@ -152,6 +153,14 @@ public class Events extends ListenerAdapter {
             try {
                 event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
                 }, e1 -> handle(e1, event, roles));
+                if (!ModlogEvents.checkModlog(event.getGuild())) return;
+                StringBuilder sb = new StringBuilder("```\n");
+                for (Role role : roles) {
+                    sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
+                }
+                sb.append("```");
+                FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(
+                        ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE.getEventEmbed(event.getUser(), null).addField("Roles", sb.toString(), false).build(), ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE);
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
@@ -366,6 +375,18 @@ public class Events extends ListenerAdapter {
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
+
+                if (!ModlogEvents.checkModlog(event.getGuild())) return;
+
+                EmbedBuilder commandEmbed = ModlogEvent.FLAREBOT_COMMAND.getEventEmbed(event.getAuthor(), null)
+                        .addField("Command", cmd.getCommand(), true);
+                if (args.length > 0) {
+                    String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
+                    if (s.length() > 1000)
+                        s = s.substring(0, 1000) + "...";
+                    commandEmbed.addField("Args", "`" + s + "`", false);
+                }
+                guild.getAutoModConfig().postToModLog(commandEmbed.build(), ModlogEvent.FLAREBOT_COMMAND);
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
