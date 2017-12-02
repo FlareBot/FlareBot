@@ -285,7 +285,7 @@ public class Events extends ListenerAdapter {
                 }
             }
             if (!event.getMessage().getRawContent().isEmpty()) {
-                RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "nx", "ex", 61200);
+                RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 61200);
             }
         }
     }

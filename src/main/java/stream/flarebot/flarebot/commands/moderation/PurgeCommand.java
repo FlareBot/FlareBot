@@ -7,9 +7,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -30,18 +32,18 @@ public class PurgeCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
-            User targetUser;
+            User targetUser = null;
             int amount;
-            targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
-            if (targetUser == null) {
-                if (args[0].matches("\\d+")) {
-                    amount = GeneralUtils.getInt(args[0], -1);
-                } else {
+            if (args.length == 1 && args[0].matches("\\d+")) {
+                amount = GeneralUtils.getInt(args[0], -1);
+            } else if (args.length == 2 && args[1].matches("\\d+")) {
+                amount = GeneralUtils.getInt(args[1], -1);
+                try {
+                    targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
+                } catch (ErrorResponseException e) {
                     MessageUtils.sendErrorMessage("That target user cannot be found, try mentioning them, using the user ID or using `all` to clear the entire chat.", channel);
                     return;
                 }
-            } else if (args.length == 2) {
-                amount = GeneralUtils.getInt(args[1], -1);
             } else {
                 MessageUtils.sendUsage(this, channel, sender, args);
                 return;
@@ -54,7 +56,7 @@ public class PurgeCommand implements Command {
             }
 
             // This will be a successful delete so limit here.
-            if (!guild.getPermissions().isCreator(sender)) {
+            if (!PerGuildPermissions.isCreator(sender)) {
                 long riotPolice = cooldowns.computeIfAbsent(channel.getGuild().getId(), n -> 0L);
                 if (System.currentTimeMillis() - riotPolice < cooldown) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
