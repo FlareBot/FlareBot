@@ -1,11 +1,15 @@
 package stream.flarebot.flarebot;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.audit.ActionType;
 import net.dv8tion.jda.core.audit.AuditLogChange;
 import net.dv8tion.jda.core.audit.AuditLogEntry;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
@@ -21,12 +25,14 @@ import net.dv8tion.jda.core.events.guild.update.GuildUpdateExplicitContentLevelE
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.mod.Punishment;
@@ -222,7 +228,32 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        //TODO message caching
+        JsonObject old = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
+        RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "xx", "ex", 61200);
+        FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
+        ModlogEvent.MESSAGE_EDIT.getEventEmbed(event.getAuthor(), null)
+                .addField("Old Message", "```\n" + old.get("content").getAsString() + "\n```", false)
+                .addField("New Message", "```\n" + event.getMessage().getContent() + "\n```", false)
+                .build(), ModlogEvent.MESSAGE_EDIT);
+    }
+
+    @Override
+    public void onMessageDelete(MessageDeleteEvent event) {
+        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        if(entry.getUser().equals(event.getGuild().getSelfMember().getUser())) return;
+        if(!RedisController.exists(event.getMessageId())) return;
+        User responsible = null;
+        JsonObject deleted = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
+        if (entry.getType() == ActionType.MESSAGE_DELETE) {
+            if(entry.getTargetId().equals(deleted.get("author_id").getAsString())) {
+                responsible = entry.getUser();
+            }
+        }
+        FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
+                ModlogEvent.MESSAGE_DELETE.getEventEmbed(GeneralUtils.getUser(deleted.get("author_id").getAsString(), true), responsible)
+                .addField("Message", "```\n" + deleted.get("content").getAsString() + "\n```", false)
+                .build(), ModlogEvent.MESSAGE_DELETE);
+        RedisController.del(event.getMessageId());
     }
 
     @Override

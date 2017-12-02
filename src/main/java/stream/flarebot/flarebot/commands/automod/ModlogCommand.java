@@ -138,7 +138,7 @@ public class ModlogCommand implements Command {
                         MessageUtils.sendSuccessMessage("Successfully enabled event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     } else {
-                        MessageUtils.sendErrorMessage("Error enabling event (Probably already disabled)", channel, sender);
+                        MessageUtils.sendErrorMessage("Error enabling event (Probably already enabled)", channel, sender);
                         return;
                     }
                 }
