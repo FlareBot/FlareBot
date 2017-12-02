@@ -80,6 +80,9 @@ public class Events extends ListenerAdapter {
     private final Map<Integer, Long> shardEventTime = new HashMap<>();
     private final AtomicInteger commandCounter = new AtomicInteger(0);
 
+    private int i = 0;
+    private LongStream.Builder s = LongStream.builder();
+
     Events(FlareBot bot) {
         this.flareBot = bot;
     }
@@ -234,9 +237,6 @@ public class Events extends ListenerAdapter {
             }
         }
     }
-
-    int i = 0;
-    LongStream.Builder s = LongStream.builder();
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {

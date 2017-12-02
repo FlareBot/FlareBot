@@ -30,7 +30,7 @@ public class RedisController {
                 config.getString("redis.password").get());
         try (Jedis jedis = jedisPool.getResource()) {
             String response = jedis.ping();
-            if (!(response.equals("PONG"))) throw new IOException("Ping to server failed!");
+            if (!("PONG".equals(response))) throw new IOException("Ping to server failed!");
             FlareBot.LOGGER.info("Redis started with a DB Size of {}", jedis.dbSize());
         } catch (Exception e) {
             FlareBot.LOGGER.error("Could not connect to redis!", e);
@@ -40,8 +40,9 @@ public class RedisController {
             try (Jedis jedis = RedisController.getJedisPool().getResource()) {
                 jedis.monitor(new JedisMonitor() {
                     public void onCommand(String command) {
-                        if (command.contains("AUTH")) command = "AUTH";
-                        FlareBot.LOGGER.debug("Executing redis command: {}", command.substring(command.lastIndexOf("]") + 1).trim());
+                        String finalCommand = command;
+                        if (command.contains("AUTH")) finalCommand = "AUTH";
+                        FlareBot.LOGGER.debug("Executing redis command: {}", command.substring(finalCommand.lastIndexOf("]") + 1).trim());
                     }
                 });
             }
