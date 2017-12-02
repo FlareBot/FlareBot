@@ -33,6 +33,7 @@ import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.mod.ModlogEvent;
 import stream.flarebot.flarebot.mod.Punishment;
@@ -228,13 +229,13 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        JsonObject old = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
+        RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
         ModlogEvent.MESSAGE_EDIT.getEventEmbed(event.getAuthor(), null)
-                .addField("Old Message", "```\n" + old.get("content").getAsString() + "\n```", false)
+                .addField("Old Message", "```\n" + old.getContent() + "\n```", false)
                 .addField("New Message", "```\n" + event.getMessage().getContent() + "\n```", false)
                 .build(), ModlogEvent.MESSAGE_EDIT);
-        RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "xx", "ex", 61200);
+        RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
     }
 
     @Override
@@ -243,16 +244,16 @@ public class ModlogEvents extends ListenerAdapter {
         if(entry.getUser().isBot()) return;
         if(!RedisController.exists(event.getMessageId())) return;
         User responsible = null;
-        JsonObject deleted = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
+        RedisMessage deleted = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         if (entry.getType() == ActionType.MESSAGE_DELETE) {
-            if(entry.getTargetId().equals(deleted.get("author_id").getAsString())) {
+            if(entry.getTargetId().equals(deleted.getAuthorID())) {
                 if(entry.getUser().isBot()) return;
                 responsible = entry.getUser();
             }
         }
         FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
-                ModlogEvent.MESSAGE_DELETE.getEventEmbed(GeneralUtils.getUser(deleted.get("author_id").getAsString(), true), responsible)
-                .addField("Message", "```\n" + deleted.get("content").getAsString() + "\n```", false)
+                ModlogEvent.MESSAGE_DELETE.getEventEmbed(GeneralUtils.getUser(deleted.getAuthorID(), true), responsible)
+                .addField("Message", "```\n" + deleted.getContent() + "\n```", false)
                 .build(), ModlogEvent.MESSAGE_DELETE);
         RedisController.del(event.getMessageId());
     }
