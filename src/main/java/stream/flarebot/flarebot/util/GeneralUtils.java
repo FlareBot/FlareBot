@@ -2,8 +2,11 @@ package stream.flarebot.flarebot.util;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
+import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
@@ -28,6 +31,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
@@ -50,7 +54,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -478,26 +484,71 @@ public class GeneralUtils {
     }
 
     /**
+     * Checks if paths exist in the given json
+     *
+     * Key of the {@link Pair} is a list of the paths that exist in the JSON
+     * Value of the {@link Pair} is a list of the paths that don't exist in the JSON
+     *
+     * @param json The JSON to check <b>Mustn't be null</b>
+     * @param paths The paths to check <b>Mustn't be null or empty</b>
+     * @return
+     */
+    public static Pair<List<String>, List<String>> jsonContains(String json, String... paths) {
+        Objects.requireNonNull(json);
+        Objects.requireNonNull(paths);
+        if (paths.length == 0)
+            throw new IllegalArgumentException("Paths cannot be empty!");
+        JsonElement jelem = FlareBot.GSON.fromJson(json, JsonElement.class);
+        JSONConfig config = new JSONConfig(jelem.getAsJsonObject());
+        List<String> contains = new ArrayList<>();
+        List<String> notContains = new ArrayList<>();
+        for (String path : paths) {
+            if (path == null) continue;
+            if (config.getElement(path).isPresent())
+                contains.add(path);
+            else
+                notContains.add(path);
+        }
+        return new Pair<>(Collections.unmodifiableList(contains), Collections.unmodifiableList(notContains));
+    }
+
+    /**
      * Message fields:
-     *  - Message ID
-     *  - Author ID
-     *  - Channel ID
-     *  - Guild ID
-     *  - Raw Content
-     *  - Timestamp (Epoch seconds)
+     * - Message ID
+     * - Author ID
+     * - Channel ID
+     * - Guild ID
+     * - Raw Content
+     * - Timestamp (Epoch seconds)
      *
      * @param message The message to serialise
      * @return The serialised message
      */
-    public static String getRedisMessage(Message message) {
-        JSONObject object = new JSONObject();
-        object.put("id", message.getId());
-        object.put("author_id", message.getAuthor().getId());
-        object.put("channel_id", message.getChannel().getId());
-        object.put("guild_id", message.getGuild().getId());
-        object.put("content", message.getRawContent());
-        object.put("timestamp", message.getCreationTime().toEpochSecond());
-        return object.toString();
+    public static String getRedisMessageJson(Message message) {
+        return FlareBot.GSON.toJson(new RedisMessage(
+                message.getId(),
+                message.getAuthor().getId(),
+                message.getChannel().getId(),
+                message.getGuild().getId(),
+                message.getRawContent(),
+                message.getCreationTime().toEpochSecond()
+        ));
+    }
+
+    public static RedisMessage toRedisMessage(String json) {
+        Pair<List<String>, List<String>> paths = jsonContains(json,
+                "messageID",
+                "authorID",
+                "channelID",
+                "guildID",
+                "content",
+                "timestamp"
+                );
+        if (paths.getKey().size() != 6) {
+            throw new IllegalArgumentException("Malformed JSON! Missing paths: " +
+                    Arrays.toString(paths.getValue().toArray(new String[paths.getValue().size()])));
+        }
+        return FlareBot.GSON.fromJson(json, RedisMessage.class);
     }
 
 
