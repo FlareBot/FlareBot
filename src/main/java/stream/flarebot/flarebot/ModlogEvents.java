@@ -229,6 +229,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
+        if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
         ModlogEvent.MESSAGE_EDIT.getEventEmbed(event.getAuthor(), null)
