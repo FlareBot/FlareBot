@@ -227,6 +227,7 @@ public class RedisController {
      * @return Whether the specified key exists or not
      */
     public static boolean exists(String key) {
+        if (key == null) return false;
         try (Jedis jedis = jedisPool.getResource()) {
             return jedis.exists(key);
         }
