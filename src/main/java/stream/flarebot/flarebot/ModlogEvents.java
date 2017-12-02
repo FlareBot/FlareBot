@@ -381,19 +381,25 @@ public class ModlogEvents extends ListenerAdapter {
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
         if (!checkModlog(wrapper.getGuild())) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
-        wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_CREATE.getEventEmbed(null, entry.getUser())
+        EmbedBuilder builder = ModlogEvent.CHANNEL_CREATE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
-                .addField("Name", channel.getName(), true)
-                .build(), ModlogEvent.CHANNEL_CREATE);
+                .addField("Name", channel.getName(), true);
+        if (channel.getParent() != null) {
+            builder.addField("Category", channel.getParent().getName(), true);
+        }
+        wrapper.getAutoModConfig().postToModLog(builder.build(), ModlogEvent.CHANNEL_CREATE);
     }
 
     private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
         if (!checkModlog(wrapper.getGuild())) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
-        wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_DELETE.getEventEmbed(null, entry.getUser())
+        EmbedBuilder builder = ModlogEvent.CHANNEL_DELETE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
-                .addField("Name", channel.getName(), true)
-                .build(), ModlogEvent.CHANNEL_DELETE);
+                .addField("Name", channel.getName(), true);
+        if (channel.getParent() != null) {
+            builder.addField("Category", channel.getParent().getName(), true);
+        }
+        wrapper.getAutoModConfig().postToModLog(builder.build(), ModlogEvent.CHANNEL_DELETE);
     }
 
     public static boolean checkModlog(Guild guild) {
