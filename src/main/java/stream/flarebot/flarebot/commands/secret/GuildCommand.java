@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageType;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -150,6 +151,6 @@ public class GuildCommand implements Command {
             return;
         }
         FlareBotManager.getInstance().getGuild(guild1.getId()).revokeBlock();
-        MessageUtils.autoDeleteMessage(MessageUtils.sendSuccessMessage("Guild has been unblocked!", channel), 5000);
+        MessageUtils.sendMessage(MessageType.SUCCESS, "Guild has been unblocked!", channel, null, 5000);
     }
 }

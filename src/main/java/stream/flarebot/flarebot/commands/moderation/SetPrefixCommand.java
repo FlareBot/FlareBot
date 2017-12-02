@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.util.EnumSet;
 
 public class SetPrefixCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {

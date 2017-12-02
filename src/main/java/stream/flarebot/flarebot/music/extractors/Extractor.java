@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
 public interface Extractor {
+
     Class<? extends AudioSourceManager> getSourceManagerClass();
 
     void process(String input, Player player, Message message, User user) throws Exception;
