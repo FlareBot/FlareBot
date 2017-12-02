@@ -77,8 +77,8 @@ public class Events extends ListenerAdapter {
 
     static final List<Long> durations = new ArrayList<>();
 
-	private final Map<Integer, Long> shardEventTime = new HashMap<>();
-	private final AtomicInteger commandCounter = new AtomicInteger(0);
+    private final Map<Integer, Long> shardEventTime = new HashMap<>();
+    private final AtomicInteger commandCounter = new AtomicInteger(0);
 
     Events(FlareBot bot) {
         this.flareBot = bot;
@@ -281,7 +281,9 @@ public class Events extends ListenerAdapter {
                             .build()).queue();
                 }
             }
-            RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "nx", "ex", 61200);
+            if (!event.getMessage().getRawContent().isEmpty()) {
+                RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "nx", "ex", 61200);
+            }
         }
     }
 
@@ -394,9 +396,9 @@ public class Events extends ListenerAdapter {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
-                        .setDescription("You are missing the permission ``"
-                                + cmd
-                                .getPermission() + "`` which is required for use of this command!").build(), 5000,
+                                .setDescription("You are missing the permission ``"
+                                        + cmd
+                                        .getPermission() + "`` which is required for use of this command!").build(), 5000,
                         e.getChannel());
                 delete(e.getMessage());
                 return true;
