@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class RedisController {
+
     private static JedisPool jedisPool;
 
     public static BlockingQueue<RedisSetData> setQueue = new LinkedBlockingQueue<>();
