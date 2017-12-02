@@ -281,7 +281,7 @@ public class Events extends ListenerAdapter {
                             .build()).queue();
                 }
             }
-            RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()));
+            RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "nx", "ex", 61200);
         }
     }
 

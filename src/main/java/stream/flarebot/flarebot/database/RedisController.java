@@ -6,12 +6,9 @@ import redis.clients.jedis.JedisMonitor;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.GeneralUtils;
-import stream.flarebot.flarebot.util.Pair;
 
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -61,7 +58,7 @@ public class RedisController {
                     }
 
                 } catch (Exception e) {
-                    FlareBot.LOGGER.error("Error in set thread!");
+                    FlareBot.LOGGER.error("Error in set thread!", e);
                 }
             }
         }, "Redis-SetThread");
@@ -170,7 +167,6 @@ public class RedisController {
      *
      * @param key   The key to set
      * @param value The value to set at the key
-     * @return "OK" if success
      */
     public static void set(String key, String value) {
         setQueue.add(new RedisSetData(key, value));
@@ -184,12 +180,9 @@ public class RedisController {
      * @param nxxx  {@code NX} to set the key only if doesn't exist <br>
      *              {@code XX} to set the key only if it exists <br>
      *              Otherwise use {@link RedisController#set(String, String)}
-     * @return {@code OK} if success or {@code null} if conditions not met
      */
-    public static String set(String key, String value, String nxxx) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            return jedis.set(key, value, nxxx);
-        }
+    public static void set(String key, String value, String nxxx) {
+        setQueue.add(new RedisSetData(key, value, nxxx));
     }
 
     /**
@@ -204,12 +197,9 @@ public class RedisController {
      *              {@code EX} to set the expiry in seconds <br>
      *              Otherwise use {@link RedisController#set(String, String, String)}
      * @param time  The expiry time to set
-     * @return {@code OK} if success or {@code null} if conditions not met
      */
-    public static String set(String key, String value, String nxxx, String pxex, long time) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            return jedis.set(key, value, nxxx, pxex, time);
-        }
+    public static void set(String key, String value, String nxxx, String pxex, long time) {
+        setQueue.add(new RedisSetData(key, value, nxxx, pxex, time));
     }
 
     /**
