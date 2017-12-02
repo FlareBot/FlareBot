@@ -16,7 +16,6 @@ public class RedisController {
     private static JedisPool jedisPool;
 
     public static BlockingQueue<RedisSetData> setQueue = new LinkedBlockingQueue<>();
-    private static Thread setThread;
 
     private RedisController() {
     }
@@ -47,7 +46,7 @@ public class RedisController {
                 });
             }
         }, "Redis-Monitor").start();
-        setThread = new Thread(() -> {
+        Thread setThread = new Thread(() -> {
             while (!FlareBot.EXITING.get()) {
                 try {
                     RedisSetData data = RedisController.setQueue.poll(2, TimeUnit.SECONDS);
