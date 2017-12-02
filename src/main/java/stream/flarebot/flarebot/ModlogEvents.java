@@ -229,12 +229,12 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
         JsonObject old = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
-        RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "xx", "ex", 61200);
         FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
         ModlogEvent.MESSAGE_EDIT.getEventEmbed(event.getAuthor(), null)
                 .addField("Old Message", "```\n" + old.get("content").getAsString() + "\n```", false)
                 .addField("New Message", "```\n" + event.getMessage().getContent() + "\n```", false)
                 .build(), ModlogEvent.MESSAGE_EDIT);
+        RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "xx", "ex", 61200);
     }
 
     @Override
