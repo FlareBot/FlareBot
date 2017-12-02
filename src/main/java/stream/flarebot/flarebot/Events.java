@@ -30,10 +30,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
-import stream.flarebot.flarebot.mod.ModlogEvent;
+import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
@@ -283,6 +282,9 @@ public class Events extends ListenerAdapter {
                                     .getPrefixes().get(getGuildId(event)) + "`")
                             .build()).queue();
                 }
+            }
+            if (!event.getMessage().getRawContent().isEmpty()) {
+                RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "nx", "ex", 61200);
             }
         }
     }

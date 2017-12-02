@@ -53,9 +53,7 @@ import org.slf4j.LoggerFactory;
 import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.automod.*;
 import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
@@ -67,6 +65,7 @@ import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.*;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -187,6 +186,9 @@ public class FlareBot {
         required.add("cassandra.username");
         required.add("cassandra.password");
         required.add("misc.yt");
+        required.add("redis.host");
+        required.add("redis.port");
+        required.add("redis.password");
 
         boolean good = true;
         for (String req : required) {
@@ -208,7 +210,8 @@ public class FlareBot {
 
         String tkn = config.getString("bot.token").get();
 
-        new CassandraController().init(config);
+        new CassandraController(config);
+        new RedisController(config);
 
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
