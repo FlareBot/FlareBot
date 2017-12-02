@@ -240,7 +240,7 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
         AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
-        if(entry.getUser().equals(event.getGuild().getSelfMember().getUser())) return;
+        if(entry.getUser().isBot()) return;
         if(!RedisController.exists(event.getMessageId())) return;
         User responsible = null;
         JsonObject deleted = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
