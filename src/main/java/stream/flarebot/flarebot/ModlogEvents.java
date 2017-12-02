@@ -246,6 +246,7 @@ public class ModlogEvents extends ListenerAdapter {
         JsonObject deleted = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
         if (entry.getType() == ActionType.MESSAGE_DELETE) {
             if(entry.getTargetId().equals(deleted.get("author_id").getAsString())) {
+                if(entry.getUser().isBot()) return;
                 responsible = entry.getUser();
             }
         }
