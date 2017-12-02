@@ -561,9 +561,7 @@ public class GeneralUtils {
         object.put("timestamp", message.getCreationTime().toEpochSecond());
         return object.toString();
     }
-
-
-
+    
     public static String getVerificationString(Guild.VerificationLevel level) {
         switch (level) {
             case HIGH:
