@@ -10,6 +10,11 @@
     <a href="https://github.com/FlareBot/FlareBot/blob/master" target="_blank"><img src="https://img.shields.io/github/stars/FlareBot/FlareBot.svg?style=social&label=Star" alt="Github Stars"></a>
     <a href="https://github.com/FlareBot/FlareBot/issues" target="_blank"><img src="https://img.shields.io/github/issues-raw/FlareBot/FlareBot.svg?style=flat-square)" alt="Github Issues"></a>
   </p>
+  <p align="center">
+    <a href="https://discordbots.org/bot/225652110493089792">
+          <img src="https://discordbots.org/api/widget/225652110493089792.png" alt="Discord Bots" />
+        </a>
+  </p>
   
 -------------------
 

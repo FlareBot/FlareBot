@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -25,8 +26,7 @@ public class ServerInfoCommand implements Command {
         if (args.length == 0) {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
-            String guildid = args[0];
-            Guild targetGuild = FlareBot.getInstance().getGuildByID(guildid);
+            Guild targetGuild = FlareBot.getInstance().getGuildById(GeneralUtils.getLong(args[0], -1));
             if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {

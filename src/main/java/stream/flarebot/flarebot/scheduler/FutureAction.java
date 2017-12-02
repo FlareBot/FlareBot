@@ -161,7 +161,8 @@ public class FutureAction {
 
     public void queue() {
         // I have to minus here since this has the complete end time.
-        Scheduler.delayTask(this::execute, getExpires().minus(System.currentTimeMillis()).getMillis());
+        Scheduler.delayTask(this::execute, "FutureTask-" + action.name() + "-" + expires.toString(),
+                getExpires().minus(System.currentTimeMillis()).getMillis());
         if (update == null) update = CassandraController.prepare("UPDATE flarebot.future_tasks SET responsible = ?, " +
                 "target = ?, content = ?, expires_at = ?, action = ? WHERE guild_id = ? AND channel_id = ? " +
                 "AND created_at = ?");

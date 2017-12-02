@@ -21,7 +21,7 @@ public class RestActionTask implements Runnable {
     }
 
     public void delay(long delay) {
-        Scheduler.delayTask(this, delay);
+        //Scheduler.delayTask(this, delay);
     }
 
     public boolean cancel() {

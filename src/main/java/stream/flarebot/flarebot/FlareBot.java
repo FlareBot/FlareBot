@@ -32,12 +32,10 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.ISnowflake;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.webhook.WebhookClient;
@@ -54,9 +52,7 @@ import org.slf4j.LoggerFactory;
 import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.automod.*;
 import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
@@ -65,13 +61,15 @@ import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.*;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
@@ -85,7 +83,9 @@ import stream.flarebot.flarebot.web.ApiFactory;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -94,6 +94,7 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -102,6 +103,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -116,21 +118,24 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class FlareBot {
 
     private static final Map<String, Logger> LOGGERS;
     public static final Logger LOGGER;
     public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
-
-    private static FlareBot instance;
-    private static String youtubeApi;
+    public static final char COMMAND_CHAR = '_';
 
     static {
-        new File("latest.log").delete();
+        handleLogArchive();
         LOGGERS = new ConcurrentHashMap<>();
         LOGGER = getLog(FlareBot.class);
     }
+
+    private static FlareBot instance;
+    private static String youtubeApi;
 
     private static JSONConfig config;
     private FlareBotManager manager;
@@ -141,7 +146,11 @@ public class FlareBot {
     public static final String OFFICIAL_GUILD = "226785954537406464";
     public static final String FLAREBOT_API = "https://api.flarebot.stream/";
 
-    public static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
+    public static final long DEVELOPER_ID = 226788297156853771L;
+    public static final long CONTRIBUTOR_ID = 272324832279003136L;
+    public static final long STAFF_ID = 320327762881675264L;
+
+    private static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
 
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
@@ -178,6 +187,9 @@ public class FlareBot {
         required.add("cassandra.username");
         required.add("cassandra.password");
         required.add("misc.yt");
+        required.add("redis.host");
+        required.add("redis.port");
+        required.add("redis.password");
 
         boolean good = true;
         for (String req : required) {
@@ -199,7 +211,8 @@ public class FlareBot {
 
         String tkn = config.getString("bot.token").get();
 
-        new CassandraController().init(config);
+        new CassandraController(config);
+        new RedisController(config);
 
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
@@ -232,8 +245,6 @@ public class FlareBot {
             e.printStackTrace();
         }
     }
-
-    public static final char COMMAND_CHAR = '_';
 
     public static String getToken() {
         return token;
@@ -418,7 +429,7 @@ public class FlareBot {
         registerCommand(new LeaveCommand());
         registerCommand(new InfoCommand());
         registerCommand(new ResumeCommand());
-        registerCommand(new PlayCommand(this));
+        registerCommand(new PlayCommand());
         registerCommand(new PauseCommand(this));
         registerCommand(new StopCommand(this));
         registerCommand(new SkipCommand(this));
@@ -487,6 +498,7 @@ public class FlareBot {
 		registerCommand(new StatusCommand());
 		registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
+        registerCommand(new UpdateJDACommand());
 
         ApiFactory.bind();
 
@@ -555,7 +567,7 @@ public class FlareBot {
         new FlareBotTask("spam" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                Events.spamMap.clear();
+                events.getSpamMap().clear();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
 
@@ -585,6 +597,16 @@ public class FlareBot {
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
         setupUpdate();
+    }
+
+    /**
+     * This will always return the main shard or just the client itself.
+     * For reference the main shard will always be shard 0 - the shard responsible for DMs
+     *
+     * @return The main shard or actual client in the case of only 1 shard.
+     */
+    public JDA getClient() {
+        return clients[0];
     }
 
     private void loadFutureTasks() {
@@ -642,7 +664,7 @@ public class FlareBot {
     }
 
     private void setupUpdate() {
-        new FlareBotTask("Auto-Update" + System.currentTimeMillis()) {
+        new FlareBotTask("Auto-Update") {
             @Override
             public void run() {
                 quit(true);
@@ -657,6 +679,7 @@ public class FlareBot {
     private void sendData() {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
+				//.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
                 .put("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
@@ -795,17 +818,23 @@ public class FlareBot {
         this.commands.add(command);
     }
 
-    public Command getCommand(String s, Member member) {
-        boolean creator = FlareBotManager.getInstance().getGuild(member.getGuild().getId()).getPermissions()
-                .isCreator(member.getUser());
+    public Command getCommand(String s, User user) {
+        Command tmp = null;
         for (Command cmd : getCommands()) {
-            if (cmd.getType() == CommandType.SECRET && !creator) continue;
+            if (cmd.getType() == CommandType.SECRET && (isTestBot() && !PerGuildPermissions.isContributor(user))
+                    && !PerGuildPermissions.isCreator(user)) {
+                if (cmd.getCommand().equalsIgnoreCase(s))
+                    tmp = cmd;
+                for (String alias : cmd.getAliases())
+                    if (alias.equalsIgnoreCase(s)) tmp = cmd;
+                continue;
+            }
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
                 if (alias.equalsIgnoreCase(s)) return cmd;
         }
-        return null;
+        return tmp;
     }
 
     public Set<Command> getCommands() {
@@ -860,7 +889,7 @@ public class FlareBot {
 
     public void setStatus(String status) {
         if (clients.length == 1) {
-            clients[0].getPresence().setGame(Game.of(status, "https://www.twitch.tv/discordflarebot"));
+            clients[0].getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
 
@@ -978,6 +1007,10 @@ public class FlareBot {
         return youtubeApi;
     }
 
+    public List<VoiceChannel> getVoiceChannels() {
+        return Arrays.stream(clients).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
+    }
+
     public long getActiveVoiceChannels() {
         return getConnectedVoiceChannels().stream()
                 .map(VoiceChannel::getGuild)
@@ -1036,10 +1069,6 @@ public class FlareBot {
         return clients;
     }
 
-    public List<VoiceChannel> getVoiceChannels() {
-        return getGuilds().stream().flatMap(g -> g.getVoiceChannels().stream()).collect(Collectors.toList());
-    }
-
     public List<Channel> getChannels() {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
@@ -1080,17 +1109,7 @@ public class FlareBot {
     }
 
     public User retrieveUserById(long id) {
-        return Arrays.stream(clients).map(jda -> {
-            try {
-                return jda.retrieveUserById(id).complete();
-            } catch (ErrorResponseException ex) {
-            }
-            return null;
-        }).filter(Objects::nonNull).findFirst().orElse(null);
-    }
-
-    public DateTimeFormatter getTimeFormatter() {
-        return this.timeFormat;
+        return getClient().retrieveUserById(id).complete();
     }
 
     public String formatTime(LocalDateTime dateTime) {
@@ -1139,7 +1158,7 @@ public class FlareBot {
 
 	private WebhookClient importantHook;
 
-    public WebhookClient getImportantWebhook() {
+    private WebhookClient getImportantWebhook() {
         if (importantHookUrl == null) return null;
         if (importantHook == null)
             importantHook = new WebhookClientBuilder(importantHookUrl).build();
@@ -1148,5 +1167,40 @@ public class FlareBot {
 
     public Guild getOfficialGuild() {
         return getGuildByID(OFFICIAL_GUILD);
+    }
+
+    private static void handleLogArchive() {
+        try {
+            byte[] buffer = new byte[1024];
+            String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
+
+            File dir = new File("logs");
+            if(!dir.exists())
+                if(!dir.mkdir())
+                    LOGGER.error("Failed to create directory for latest log!");
+            File f = new File(dir, "latest.log " + time + ".zip");
+            File latestLog = new File("latest.log");
+
+            FileOutputStream fos = new FileOutputStream(f);
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            ZipEntry entry = new ZipEntry(latestLog.getName());
+            zos.putNextEntry(entry);
+            FileInputStream in = new FileInputStream(latestLog);
+
+            int len;
+            while ((len = in.read(buffer)) > 0)
+                zos.write(buffer, 0, len);
+
+            in.close();
+            zos.closeEntry();
+            zos.close();
+            fos.close();
+
+            if(!latestLog.delete()) {
+                throw new IllegalStateException("Failed to delete the old log file!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
