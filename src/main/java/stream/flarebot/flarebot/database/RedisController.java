@@ -69,13 +69,6 @@ public class RedisController {
         return jedisPool;
     }
 
-    public static String queryRedis(String key) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            return jedis.get(key);
-        }
-    }
-
-
     /**
      * Expires a key after a certain amount of time
      *
