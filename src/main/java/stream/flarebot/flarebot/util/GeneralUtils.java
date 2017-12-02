@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -20,15 +21,16 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -474,4 +476,29 @@ public class GeneralUtils {
 
         else MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
     }
+
+    /**
+     * Message fields:
+     *  - Message ID
+     *  - Author ID
+     *  - Channel ID
+     *  - Guild ID
+     *  - Raw Content
+     *  - Timestamp (Epoch seconds)
+     *
+     * @param message The message to serialise
+     * @return The serialised message
+     */
+    public static String getRedisMessage(Message message) {
+        JSONObject object = new JSONObject();
+        object.put("id", message.getId());
+        object.put("author_id", message.getAuthor().getId());
+        object.put("channel_id", message.getChannel().getId());
+        object.put("guild_id", message.getGuild().getId());
+        object.put("content", message.getRawContent());
+        object.put("timestamp", message.getCreationTime().toEpochSecond());
+        return object.toString();
+    }
+
+
 }

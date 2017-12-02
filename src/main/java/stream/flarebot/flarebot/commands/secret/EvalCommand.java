@@ -41,6 +41,7 @@ public class EvalCommand implements Command {
             "stream.flarebot.flarebot.mod",
             "stream.flarebot.flarebot.mod.events",
             "stream.flarebot.flarebot.scheduler",
+            "stream.flarebot.flarebot.database",
             "stream.flarebot.flarebot.permissions",
             "stream.flarebot.flarebot.commands",
             "stream.flarebot.flarebot.music.extractors",
