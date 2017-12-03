@@ -185,10 +185,18 @@ public class FlareBotManager {
                     + guildId + "'");
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
-            if (row != null)
-                wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-            else
-                wrapper = new GuildWrapperBuilder(id).build();
+            try {
+                if (row != null)
+                    wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
+                else
+                    wrapper = new GuildWrapperBuilder(id).build();
+            } catch(Exception e) {
+                // Make this a tag dev marker in 4.1
+                FlareBot.LOGGER.error("Failed to load guild data!" +
+                        "\nJSON: " + (row != null ? MessageUtils.hastebin(row.getString("data")) : "New guild data!") +
+                        "\nGuild ID: " + id);
+                return null;
+            }
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
           
