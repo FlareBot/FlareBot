@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.music;
 
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -17,11 +18,16 @@ public class SongNickCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (guild.isSongnickEnabled()) {
             guild.setSongnick(false);
-            if(GeneralUtils.canChangeNick(guild.getGuildId()))
+            if (GeneralUtils.canChangeNick(guild.getGuildId()))
                 channel.getGuild().getController().setNickname(channel.getGuild().getSelfMember(), null).queue();
             MessageUtils.sendSuccessMessage("Disabled changing nickname with song!", channel, sender);
             return;
         } else {
+            if (!GeneralUtils.canChangeNick(guild.getGuildId())) {
+                MessageUtils.sendErrorMessage("FlareBot can't change it's nickname so SongNick hasn't been enabled",
+                        channel);
+                return;
+            }
             guild.setSongnick(true);
             if (FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack() != null) {
                 Track track = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();

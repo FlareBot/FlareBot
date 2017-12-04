@@ -8,6 +8,8 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
@@ -15,16 +17,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -119,11 +121,11 @@ public class MessageUtils {
                 String key = new JSONObject(body.string()).getString("key");
                 return "https://paste.flarebot.stream/" + key;
             } else {
-                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Hastebin is down");
+                FlareBot.LOGGER.error("Local instance of hastebin is down");
                 return null;
             }
         } catch (IOException | JSONException e) {
-            FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
+            FlareBot.LOGGER.error("Could not make POST request to paste!", e);
             return null;
         }
     }
@@ -282,15 +284,19 @@ public class MessageUtils {
 
     public static void sendUsage(Command command, TextChannel channel, User user, String[] args) {
         String title = capitalize(command.getCommand()) + " Usage";
-        String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        if (command.getPermission() != null) {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .addField("Permission", command.getPermission() + "\n" +
-                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED).build()).queue();
-        } else {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .setColor(Color.RED).build()).queue();
+        List<String> usages = UsageParser.matchUsage(command, args);
+
+        String usage = GeneralUtils.formatCommandPrefix(channel, usages.stream().collect(Collectors.joining("\n")));
+        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
+        if (command.getExtraInfo() != null) {
+            b.addField("Extra Info", command.getExtraInfo(), false);
         }
+        if (command.getPermission() != null) {
+            b.addField("Permission", command.getPermission() + "\n" +
+                    "**Default permission: **" + command.isDefaultPermission(), false);
+        }
+        channel.sendMessage(b.build()).queue();
+
     }
 
     private static String capitalize(String s) {

@@ -30,7 +30,7 @@ public class SearchCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}search <URL/words>";
+        return "`{%}search <URL/words>` - Searches for a song on YouTube.";
     }
 
     @Override

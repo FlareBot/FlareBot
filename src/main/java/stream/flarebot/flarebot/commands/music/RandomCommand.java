@@ -47,7 +47,7 @@ public class RandomCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}random [amount]";
+        return "`{%}random [amount]` - Gives you some random songs [of an amount]. (DISABLED)";
     }
 
     @Override
@@ -57,6 +57,6 @@ public class RandomCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"SHOWMEWHATYOUGOT"};
+        return new String[]{"SHOWMEWHATYOUGOT"};
     }
 }

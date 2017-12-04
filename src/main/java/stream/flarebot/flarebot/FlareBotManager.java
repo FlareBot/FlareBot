@@ -16,7 +16,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
@@ -80,10 +80,21 @@ public class FlareBotManager {
                 "scope varchar, " +
                 "times_played int, " +
                 "PRIMARY KEY(playlist_name, guild_id))");
-
         // Can't seem to cluster this because times_played is a bitch to have as a primary key.
         //"PRIMARY KEY((playlist_name, guild_id), times_played)) " +
         //"WITH CLUSTERING ORDER BY (times_played DESC)");
+
+        // Also used in FutureAction - Make sure to update if changes are done.
+        CassandraController.executeAsync("CREATE TABLE IF NOT EXISTS future_tasks (" +
+                "guild_id bigint, " +
+                "channel_id bigint, " +
+                "responsible bigint, " +
+                "target bigint, " +
+                "content text, " +
+                "expires_at timestamp, " +
+                "created_at timestamp, " +
+                "action varchar, " +
+                "PRIMARY KEY(guild_id, channel_id, created_at))");
 
         initGuildSaving();
     }
@@ -207,7 +218,7 @@ public class FlareBotManager {
                 wrapper = new GuildWrapperBuilder(id).build();
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
-          
+
             if (total >= 200) {
                 FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
                         .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)

@@ -108,9 +108,11 @@ public class Events extends ListenerAdapter {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
-        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).isBlocked()) return;
+        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
+        if (wrapper == null) return;
+        if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
-            Welcome welcome = flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome();
+            Welcome welcome = wrapper.getWelcome();
             if ((welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
                 if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
@@ -133,12 +135,11 @@ public class Events extends ListenerAdapter {
                     MessageUtils.sendPM(event.getMember().getUser(), welcome.getRandomDmMessage()
                             .replace("%user%", event.getMember().getUser().getName())
                             .replace("%guild%", event.getGuild().getName())
-                            .replace("%mention%", event.getMember().getUser().getAsMention());
-                    MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+                            .replace("%mention%", event.getMember().getUser().getAsMention()));
                 }
             } else welcome.setGuildEnabled(false);
         }
-        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
+        if (event.getMember().getUser().isBot()) return;
         if (!wrapper.getAutoAssignRoles().isEmpty()) {
             Set<String> autoAssignRoles = wrapper.getAutoAssignRoles();
             List<Role> roles = new ArrayList<>();

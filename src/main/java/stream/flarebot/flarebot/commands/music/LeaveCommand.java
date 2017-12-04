@@ -40,7 +40,7 @@ public class LeaveCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}leave` - Makes FlareBot leave its current channel";
+        return "`{%}leave` - Makes FlareBot leave its current channel.";
     }
 
     @Override

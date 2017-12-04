@@ -56,6 +56,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GeneralUtils {
 
@@ -63,6 +64,21 @@ public class GeneralUtils {
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
     private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
     private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
+
+    private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+
+    private static final PeriodFormatter prettyTime = new PeriodFormatterBuilder()
+            .appendDays().appendSuffix("Day ", "Days ")
+            .appendHours().appendSuffix(" Hour ", " Hours ")
+            .appendMinutes().appendSuffix(" Minute ", " Minutes ")
+            .appendSeconds().appendSuffix(" Second", " Seconds")
+            .toFormatter();
+    private static final PeriodFormatter periodParser = new PeriodFormatterBuilder()
+            .appendHours().appendSuffix("h")
+            .appendMinutes().appendSuffix("m")
+            .appendSeconds().appendSuffix("s")
+            .toFormatter();
+    private static final int LEVENSHTEIN_DISTANCE = 8;
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -87,7 +103,7 @@ public class GeneralUtils {
         eb.addField("Message", "```" + report.getMessage() + "```", false);
         StringBuilder builder = new StringBuilder("The last 5 messages by the reported user: ```\n");
         for (ReportMessage m : report.getMessages()) {
-            builder.append("[" + m.getTime().toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " GMT/BST] ")
+            builder.append("[").append(m.getTime().toLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"))).append(" GMT/BST] ")
                     .append(GeneralUtils.truncate(100, m.getMessage()))
                     .append("\n");
         }
@@ -248,14 +264,38 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId) {
-        Role role = FlareBot.getInstance().getGuildByID(guildId).getRoles().stream()
+        return getRole(s, guildId, null);
+    }
+
+    public static Role getRole(String s, String guildId, TextChannel channel) {
+        Guild guild = FlareBot.getInstance().getGuildByID(guildId);
+        Role role = guild.getRoles().stream()
                 .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
         if (role != null) return role;
         try {
-            role = FlareBot.getInstance().getGuildByID(guildId).getRoleById(Long.parseLong(s.replaceAll("[^0-9]", "")));
+            role = guild.getRoleById(Long.parseLong(s.replaceAll("[^0-9]", "")));
             if (role != null) return role;
         } catch (NumberFormatException | NullPointerException ignored) {
+        }
+        if (channel != null) {
+            if (guild.getRolesByName(s, true).isEmpty()) {
+                String closest = null;
+                int distance = LEVENSHTEIN_DISTANCE;
+                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.getInstance().getGuild(guildId).getSelfAssignRoles()
+                        .contains(role1.getId())).collect(Collectors.toList())) {
+                    int currentDistance = StringUtils.getLevenshteinDistance(role1.getName(), s);
+                    if (currentDistance < distance) {
+                        distance = currentDistance;
+                        closest = role1.getName();
+                    }
+                }
+                MessageUtils.sendErrorMessage("That role does not exist! "
+                        + (closest != null ? "Maybe you mean `" + closest + "`" : ""), channel);
+                return null;
+            } else {
+                return guild.getRolesByName(s, true).get(0);
+            }
         }
         return null;
     }
@@ -300,7 +340,7 @@ public class GeneralUtils {
 
     public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
         List<T> list = new ArrayList<>(strings);
-        Collections.sort(list, Comparable::compareTo);
+        list.sort(Comparable::compareTo);
         return list;
     }
 
@@ -360,7 +400,7 @@ public class GeneralUtils {
         printWriter.close();
         return writer.toString();
     }
-    
+
     public static int getInt(String s, int defaultValue) {
         try {
             return Integer.parseInt(s);

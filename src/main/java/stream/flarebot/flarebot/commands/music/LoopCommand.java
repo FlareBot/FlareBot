@@ -36,7 +36,7 @@ public class LoopCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}loop` - Toggles looping of current playlist";
+        return "`{%}loop` - Toggles looping of current playlist.";
     }
 
     @Override
@@ -51,6 +51,6 @@ public class LoopCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"andagainandagainandagainandagain"};
+        return new String[]{"andagainandagainandagainandagain"};
     }
 }
