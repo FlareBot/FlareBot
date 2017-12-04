@@ -9,8 +9,7 @@ public abstract class FlarebotTask implements Runnable {
 
     private String taskName;
 
-    protected FlarebotTask() {
-    }
+    private FlareBotTask() {}
 
     public FlarebotTask(String taskName) {
         this.taskName = taskName;
@@ -21,7 +20,7 @@ public abstract class FlarebotTask implements Runnable {
     }
 
     public void delay(long delay) {
-        Scheduler.delayTask(this, delay);
+        Scheduler.delayTask(this, taskName, delay);
     }
 
     public boolean cancel() {

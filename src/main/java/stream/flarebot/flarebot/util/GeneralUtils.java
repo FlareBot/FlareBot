@@ -16,14 +16,22 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Markers;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
+import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
@@ -36,11 +44,13 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,6 +61,8 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
+    private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
 
     public static String getShardId(JDA jda) {
         return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
@@ -356,4 +368,97 @@ public class GeneralUtils {
             return defaultValue;
         }
     }
+
+    public static long getLong(String s, long defaultValue) {
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    public static String getCurrentTime(boolean seconds) {
+        return ZonedDateTime.now(Clock.systemDefaultZone().getZone()).format(DateTimeFormatter.ofPattern("HH:mm:ss z"));
+    }
+
+    /**
+     * Get a Joda Period from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
+     * Joda Period.
+     *
+     * @param input The input string to parse.
+     * @return The joda Period or null if the format is not correct.
+     */
+    public static Period getTimeFromInput(String input, TextChannel channel) {
+        try {
+            return periodParser.parsePeriod(input);
+        } catch (IllegalArgumentException e) {
+            MessageUtils.sendErrorMessage("The duration is not in the correct format! Try something like `1d`",
+                    channel);
+            return null;
+        }
+    }
+
+    public static String formatJodaTime(Period period) {
+        return period.toString(prettyTime).trim();
+    }
+
+    /**
+     * This will format a Joda Period into a precise timestamp (yyyy-MM-dd HH:mm:ss.SS).
+     *
+     * @param period Period to format onto the current date
+     * @return The date in a precise format. Example: 2017-10-13 21:56:33.681
+     */
+    public static String formatPrecisely(Period period) {
+        return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
+    }
+
+    /**
+     * This is to handle "multi-selection commands" for example the info and stats commands which take one or more
+     * arguments and get select data from an enum
+     */
+    public static void handleMultiSelectionCommand(User sender, TextChannel channel, String[] args,
+                                                   MultiSelectionContent<String, String, Boolean>[] providedContent) {
+        String search = FlareBot.getMessage(args);
+        String[] fields = search.split(",");
+        EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
+        boolean valid = false;
+        for (String string : fields) {
+            String s = string.trim();
+            for (MultiSelectionContent<String, String, Boolean> content : providedContent) {
+                if (s.equalsIgnoreCase(content.getName()) || s.replaceAll("_", " ")
+                        .equalsIgnoreCase(content.getName())) {
+                    builder.addField(content.getName(), content.getReturn(), content.isAlign());
+                    valid = true;
+                }
+            }
+        }
+        if (valid) channel.sendMessage(builder.build()).queue();
+
+        else MessageUtils.sendErrorMessage("That piece of information could not be found!", channel);
+    }
+
+    /**
+     * Message fields:
+     *  - Message ID
+     *  - Author ID
+     *  - Channel ID
+     *  - Guild ID
+     *  - Raw Content
+     *  - Timestamp (Epoch seconds)
+     *
+     * @param message The message to serialise
+     * @return The serialised message
+     */
+    public static String getRedisMessage(Message message) {
+        JSONObject object = new JSONObject();
+        object.put("id", message.getId());
+        object.put("author_id", message.getAuthor().getId());
+        object.put("channel_id", message.getChannel().getId());
+        object.put("guild_id", message.getGuild().getId());
+        object.put("content", message.getRawContent());
+        object.put("timestamp", message.getCreationTime().toEpochSecond());
+        return object.toString();
+    }
+
+
 }

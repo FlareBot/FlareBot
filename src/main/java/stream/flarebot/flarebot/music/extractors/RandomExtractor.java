@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class RandomExtractor implements Extractor {
+
     @Override
     public Class<? extends AudioSourceManager> getSourceManagerClass() {
         return YoutubeAudioSourceManager.class;

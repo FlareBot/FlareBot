@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.MessageType;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -31,18 +33,20 @@ public class SelfAssignCommand implements Command {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
                     MessageUtils.sendUsage(this, channel, sender);
                 } else {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender), 5000, channel);
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                            channel, sender, 5000);
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
                     MessageUtils.sendUsage(this, channel, sender);
                 } else {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender),
-                            5000, channel);
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                            channel, sender, 5000);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
                 if (guild.getSelfAssignRoles().isEmpty()) {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("There are no self-assignable roles!", channel, sender), 5000, channel);
+                    MessageUtils.sendMessage(MessageType.ERROR, "There are no self-assignable roles!",
+                            channel, sender, 5000);
                     return;
                 }
                 StringBuilder base = new StringBuilder("**Self assignable roles**\n```\n");
@@ -60,13 +64,8 @@ public class SelfAssignCommand implements Command {
                 base.append("```");
                 channel.sendMessage(base.toString()).queue();
             } else {
-                long roleId;
-                try {
-                    roleId = Long.parseLong(args[0]);
-                } catch (NumberFormatException e) {
-                    if (handleRoleName(args[0], guild, channel) == null) return;
-                    roleId = channel.getGuild().getRolesByName(args[0], true).get(0).getIdLong();
-                }
+                Role role = GeneralUtils.getRole(args[0], guild.getGuildId(), channel);
+                if (role == null) return;
 
                 if (guild.getSelfAssignRoles().contains(String.valueOf(roleId))) {
                     handleRole(member, channel, roleId);
@@ -80,8 +79,8 @@ public class SelfAssignCommand implements Command {
             if (args[0].equalsIgnoreCase("add")) {
                 if (!guild.getPermissions()
                         .hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender),
-                            5000, channel);
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                            channel, sender, 5000);
                     return;
                 }
 
@@ -103,8 +102,8 @@ public class SelfAssignCommand implements Command {
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (!guild.getPermissions()
                         .hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendAutoDeletedMessage(MessageUtils.sendErrorMessage("You need `flarebot.selfassign.admin` in order to do this!", channel, sender),
-                            5000, channel);
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                            channel, sender, 5000);
                     return;
                 }
                 String roleId = args[1];
@@ -117,9 +116,8 @@ public class SelfAssignCommand implements Command {
                 } else
                     MessageUtils.sendErrorMessage("That role does not exist!", channel);
             } else {
-                if (handleRoleName(MessageUtils.getMessage(args, 0), guild, channel) == null) return;
-                long roleId = channel.getGuild().getRolesByName(MessageUtils.getMessage(args, 0), true).get(0).getIdLong();
-
+                Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
+                if (role == null) return;
                 // TODO: Move these to Long
                 if (guild.getSelfAssignRoles().contains(String.valueOf(roleId))) {
                     handleRole(member, channel, roleId);
@@ -201,5 +199,10 @@ public class SelfAssignCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.GENERAL;
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"sa", "iam", "giverole"};
     }
 }

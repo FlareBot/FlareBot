@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -25,9 +26,8 @@ public class ServerInfoCommand implements Command {
         if(args.length == 0){
             sendGuildInfo(guild.getGuild(), channel);
         } else {
-            String guildid = args[0];
-            Guild targetGuild = FlareBot.getInstance().getGuildByID(guildid);
-            if(targetGuild != null){
+            Guild targetGuild = FlareBot.getInstance().getGuildById(GeneralUtils.getLong(args[0], -1));
+            if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {
                 MessageUtils.sendErrorMessage("We couldn't find that guild.", channel);
@@ -46,7 +46,7 @@ public class ServerInfoCommand implements Command {
                 guild.getMembers().stream().filter(member -> !member.getOnlineStatus().equals(OnlineStatus.OFFLINE)).count() + "\n" +
                 "\n" +
                 "**Owner:** " +
-                guild.getOwner().getUser().getName() +  "#" + guild.getOwner().getUser().getDiscriminator(), true);
+                MessageUtils.getTag(guild.getOwner().getUser()), true);
         String afk = guild.getAfkChannel() == null ? "" :
                 "**AFK:**\n" +
                         "Channel: " +

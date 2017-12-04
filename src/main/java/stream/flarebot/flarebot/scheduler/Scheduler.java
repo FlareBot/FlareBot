@@ -39,14 +39,15 @@ public class Scheduler {
         return true;
     }
 
-    public static void delayTask(Runnable task, long delay) {
-        timer.schedule(task, delay, TimeUnit.MILLISECONDS);
+    public static void delayTask(Runnable task, String taskName, long delay) {
+        tasks.put(taskName, timer.schedule(task, delay, TimeUnit.MILLISECONDS));
     }
 
     public static boolean cancelTask(String taskName) {
         Iterator<Map.Entry<String, ScheduledFuture<?>>> i = tasks.entrySet().iterator();
         while (i.hasNext()) {
             Map.Entry<String, ScheduledFuture<?>> next = i.next();
+            if (next.getKey() == null) continue;
             if (next.getKey().equals(taskName)) {
                 next.getValue().cancel(false);
                 i.remove();

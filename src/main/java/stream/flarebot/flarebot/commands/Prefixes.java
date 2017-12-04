@@ -56,7 +56,7 @@ public class Prefixes {
         array.add(guildObj);
 
         //TODO: Move to new API
-        FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
+        //FlareBot.getInstance().postToApi("updatePrefixes", "prefixes", array);
     }
 
     public Map<String, Character> getPrefixes() {

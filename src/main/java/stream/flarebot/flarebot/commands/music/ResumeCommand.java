@@ -13,9 +13,10 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 public class ResumeCommand implements Command {
 
+    private final PlayerManager musicManager = FlareBot.getInstance().getMusicManager();
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        PlayerManager musicManager = FlareBot.getInstance().getMusicManager();
         if (musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null &&
                 (musicManager.getPlayer(channel.getGuild().getId()).getPaused())) {
             MessageUtils.sendErrorMessage("There is no music playing!", channel);

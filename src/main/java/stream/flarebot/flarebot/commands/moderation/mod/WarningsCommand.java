@@ -12,7 +12,6 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
-import java.lang.Math;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

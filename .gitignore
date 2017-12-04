@@ -1,7 +1,15 @@
 imgs/
 .idea
-target
+target/
 latest.log
 *.json
 *.iml
-tags
+tags/
+logs/
+
+# Gradle can use hashes
+gradle/
+gradlew
+gradlew.bat
+settings.gradle
+build.gradle

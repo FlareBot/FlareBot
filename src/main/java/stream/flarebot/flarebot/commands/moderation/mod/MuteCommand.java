@@ -31,9 +31,9 @@ public class MuteCommand implements Command {
             }
             try {
                 guild.getAutoModGuild().muteUser(guild.getGuild(), guild.getGuild().getMember(user));
-            } catch(HierarchyException e) {
-                MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the role hierarchy.", 
-                    channel);
+            } catch (HierarchyException e) {
+                MessageUtils.sendErrorMessage("Cannot apply the Muted role, make sure it is below FlareBot in the role hierarchy.",
+                        channel);
                 return;
             }
             String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;

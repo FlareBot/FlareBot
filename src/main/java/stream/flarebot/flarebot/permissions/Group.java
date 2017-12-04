@@ -6,6 +6,7 @@ import java.util.Set;
 
 
 public class Group {
+
     private final Set<String> permissions = new ConcurrentHashSet<>();
     private String name;
     private String roleId;

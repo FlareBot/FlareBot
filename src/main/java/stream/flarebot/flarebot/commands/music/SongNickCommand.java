@@ -23,6 +23,19 @@ public class SongNickCommand implements Command {
             return;
         } else {
             guild.setSongnick(true);
+            if (FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack() != null) {
+                Track track = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
+                String str = null;
+                if (track != null) {
+                    str = track.getTrack().getInfo().title;
+                    if (str.length() > 32)
+                        str = str.substring(0, 32);
+                    str = str.substring(0, str.lastIndexOf(' ') + 1);
+                } // Even I couldn't make this a one-liner
+                guild.getGuild().getController()
+                        .setNickname(guild.getGuild().getSelfMember(), str)
+                        .queue();
+            }
             MessageUtils.sendSuccessMessage("Enabled changing nickname with song!", channel, sender);
             return;
         }

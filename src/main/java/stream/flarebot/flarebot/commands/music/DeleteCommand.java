@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 
 public class DeleteCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
