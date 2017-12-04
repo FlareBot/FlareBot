@@ -33,6 +33,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
@@ -233,7 +234,7 @@ public class GeneralUtils {
                         .findFirst().orElse(null);
             } else {
                 try {
-                    return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                    return FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                             .findFirst().orElse(null);
@@ -246,7 +247,7 @@ public class GeneralUtils {
                 tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
                         .map(Member::getUser)
                         .filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
@@ -257,7 +258,7 @@ public class GeneralUtils {
                 if (guildId == null || guildId.isEmpty()) {
                     tmp = FlareBot.getInstance().getUserById(l);
                 } else {
-                    Member temMember = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l);
+                    Member temMember = FlareBot.getInstance().getGuildById(guildId).getMemberById(l);
                     if (temMember != null) {
                         tmp = temMember.getUser();
                     }
@@ -278,7 +279,7 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId, TextChannel channel) {
-        Guild guild = FlareBot.getInstance().getGuildByID(guildId);
+        Guild guild = FlareBot.getInstance().getGuildById(guildId);
         Role role = guild.getRoles().stream()
                 .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
@@ -308,6 +309,25 @@ public class GeneralUtils {
             }
         }
         return null;
+    }
+
+    public static TextChannel getChannel(String arg) {
+        return getChannel(arg, null);
+    }
+
+    public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
+        try {
+            long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
+            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
+        } catch(NumberFormatException e) {
+            if(wrapper != null) {
+                List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
+                if (!tcs.isEmpty()) {
+                    return tcs.get(0);
+                }
+            }
+            return null;
+        }
     }
 
     public static boolean validPerm(String perm) {
@@ -396,9 +416,9 @@ public class GeneralUtils {
     }
 
     public static boolean canChangeNick(String guildId) {
-        if (FlareBot.getInstance().getGuildByID(guildId) != null) {
-            return FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                    FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
+        if (FlareBot.getInstance().getGuildById(guildId) != null) {
+            return FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                    FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
         } else
             return false;
     }

@@ -1,7 +1,5 @@
 package stream.flarebot.flarebot;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.ActionType;
@@ -34,9 +32,9 @@ import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.database.RedisMessage;
-import stream.flarebot.flarebot.mod.ModlogAction;
-import stream.flarebot.flarebot.mod.ModlogEvent;
-import stream.flarebot.flarebot.mod.Punishment;
+import stream.flarebot.flarebot.mod.modlog.ModAction;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
+import stream.flarebot.flarebot.mod.automod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
@@ -56,7 +54,7 @@ public class ModlogEvents extends ListenerAdapter {
         if (!checkModlog(event.getGuild())) return;
         Guild guild = event.getGuild();
         AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
-        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
+        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModAction.BAN), true);
     }
 
     @Override
@@ -402,10 +400,12 @@ public class ModlogEvents extends ListenerAdapter {
         wrapper.getAutoModConfig().postToModLog(builder.build(), ModlogEvent.CHANNEL_DELETE);
     }
 
+    // TODO: Change
     public static boolean checkModlog(Guild guild) {
-        if (FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().hasModLog() && guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
+        return false;
+        /*if (FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().hasModLog() && guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
                 return true;
         }
-        return false;
+        return false;*/
     }
 }

@@ -12,7 +12,7 @@ public enum DataProviders {
     SONGS((req, res) -> Songs.get()),
     GETPERMISSIONS((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())
             .getPermissions(),
-            new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null));
+            new Require("guildid", gid -> FlareBot.getInstance().getGuildById(gid) != null));
 
     private Route consumer;
     private Require[] requires;

@@ -44,7 +44,7 @@ public class GuildCommand implements Command {
             } else if (args[0].equalsIgnoreCase("status")) {
                 GuildWrapper wrapper = guild;
                 if (args.length == 2) {
-                    if (FlareBot.getInstance().getGuildByID(args[1]) == null) {
+                    if (FlareBot.getInstance().getGuildById(args[1]) == null) {
                         MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
                         return;
                     }
@@ -126,7 +126,7 @@ public class GuildCommand implements Command {
     }
 
     private void handleBlock(TextChannel channel, String guildId, String reason) {
-        Guild guild1 = FlareBot.getInstance().getGuildByID(guildId);
+        Guild guild1 = FlareBot.getInstance().getGuildById(guildId);
         if (guild1 == null) {
             MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
             return;
@@ -141,7 +141,7 @@ public class GuildCommand implements Command {
     }
 
     private void handleUnblock(TextChannel channel, String guildId) {
-        Guild guild1 = FlareBot.getInstance().getGuildByID(guildId);
+        Guild guild1 = FlareBot.getInstance().getGuildById(guildId);
         if (guild1 == null) {
             MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
             return;

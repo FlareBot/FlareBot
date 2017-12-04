@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation.mod;
 
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,28 +12,18 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.util.EnumSet;
-
-public class KickCommand implements Command {
+public class UnbanCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length >= 1) {
-            User user = GeneralUtils.getUser(args[0]);
-            if (user == null) {
-                MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
-                return;
-            }
-            Member target = guild.getGuild().getMember(user);
+        if (args.length == 1) {
+            User target = GeneralUtils.getUser(args[0]);
             if (target == null) {
-                MessageUtils.sendErrorMessage("That user is not on this server therefore cannot be kicked!",
+                MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.",
                         channel, sender);
                 return;
             }
-            String reason = null;
-            if (args.length >= 2)
-                reason = MessageUtils.getMessage(args, 1);
-            ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.KICK, reason);
+            ModlogHandler.getInstance().handleAction(guild, channel, sender, target, ModAction.UNBAN, null);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
@@ -42,26 +31,21 @@ public class KickCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "kick";
+        return "unban";
     }
 
     @Override
     public String getDescription() {
-        return "Kicks a user";
+        return "Unban a user from the server";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}kick <user> [reason]` - Kicks a user with an optional reason.";
+        return "`{%}unban <user>` - Unbans a user";
     }
 
     @Override
     public CommandType getType() {
         return CommandType.MODERATION;
-    }
-
-    @Override
-    public EnumSet<Permission> getDiscordPermission() {
-        return EnumSet.of(Permission.KICK_MEMBERS);
     }
 }

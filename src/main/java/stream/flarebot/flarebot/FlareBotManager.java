@@ -15,7 +15,6 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -215,7 +214,7 @@ public class FlareBotManager {
                     return null;
                 }
             } else
-                wrapper = new GuildWrapperBuilder(id).build();
+                wrapper = new GuildWrapper(id);
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 

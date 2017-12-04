@@ -29,7 +29,6 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.WebSocketCode;
 import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.EntityBuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.ISnowflake;
@@ -54,7 +53,6 @@ import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.automod.*;
 import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.*;
@@ -67,7 +65,6 @@ import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.github.GithubListener;
-import stream.flarebot.flarebot.mod.AutoModTracker;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
@@ -266,13 +263,12 @@ public class FlareBot {
     private long startTime;
     private static String secret = null;
     private static Prefixes prefixes;
-    private AutoModTracker tracker;
 
     public static Prefixes getPrefixes() {
         return prefixes;
     }
 
-    public void init(String tkn) throws InterruptedException, UnirestException, FileNotFoundException {
+    public void init(String tkn) throws InterruptedException {
         LOGGER.info("Starting init!");
         token = tkn;
         manager = new FlareBotManager();
@@ -313,7 +309,7 @@ public class FlareBot {
                 public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
                         if (GeneralUtils.canChangeNick(player.getGuildId())) {
-                            Guild c = getGuildByID(player.getGuildId());
+                            Guild c = getGuildById(player.getGuildId());
                             if (c == null) {
                                 manager.getGuild(player.getGuildId()).setSongnick(false);
                             } else {
@@ -322,7 +318,7 @@ public class FlareBot {
                             }
                         } else {
                             if (!GeneralUtils.canChangeNick(player.getGuildId())) {
-                                MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
+                                MessageUtils.sendPM(getGuildById(player.getGuildId()).getOwner().getUser(),
                                         "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
                         }
@@ -359,11 +355,11 @@ public class FlareBot {
                         }
                     }
                     if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
-                        Guild c = getGuildByID(player.getGuildId());
+                        Guild c = getGuildById(player.getGuildId());
                         if (c == null || !GeneralUtils.canChangeNick(player.getGuildId())) {
                             manager.getGuild(player.getGuildId()).setSongnick(false);
                             if (!GeneralUtils.canChangeNick(player.getGuildId())) {
-                                MessageUtils.sendPM(getGuildByID(player.getGuildId()).getOwner().getUser(),
+                                MessageUtils.sendPM(getGuildById(player.getGuildId()).getOwner().getUser(),
                                         "FlareBot can't change it's nickname so SongNick has been disabled!");
                             }
                         } else {
@@ -678,7 +674,7 @@ public class FlareBot {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
                 //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
-                .put("official_guild_users", getGuildByID(OFFICIAL_GUILD).getMembers().size())
+                .put("official_guild_users", getGuildById(OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
                 .put("connected_voice_channels", getConnectedVoiceChannels().size())
@@ -948,10 +944,6 @@ public class FlareBot {
         return config.getString("bot.statusHook").isPresent() ? config.getString("bot.statusHook").get() : null;
     }
 
-    public AutoModTracker getAutoModTracker() {
-        return tracker;
-    }
-
     public String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
         long totalSeconds = 0;
         if (durUnit == TimeUnit.MILLISECONDS)
@@ -1035,7 +1027,7 @@ public class FlareBot {
         return getGuilds().stream().map(g -> g.getTextChannelById(id)).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
-    public Guild getGuildByID(String id) {
+    public Guild getGuildById(String id) {
         return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
     }
 
@@ -1141,7 +1133,7 @@ public class FlareBot {
     }
 
     public Guild getOfficialGuild() {
-        return getGuildByID(OFFICIAL_GUILD);
+        return getGuildById(OFFICIAL_GUILD);
     }
 
     private static void handleLogArchive() {

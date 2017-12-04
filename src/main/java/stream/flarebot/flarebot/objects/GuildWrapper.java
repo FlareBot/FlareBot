@@ -6,14 +6,16 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
-import stream.flarebot.flarebot.mod.AutoModConfig;
-import stream.flarebot.flarebot.mod.AutoModGuild;
-import stream.flarebot.flarebot.mod.ModlogEvent;
+import stream.flarebot.flarebot.mod.Moderation;
+import stream.flarebot.flarebot.mod.automod.AutoModConfig;
+import stream.flarebot.flarebot.mod.automod.AutoModGuild;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,32 +27,37 @@ import java.util.concurrent.ExecutionException;
 public class GuildWrapper {
 
     private String guildId;
-    private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = new Welcome();
     private PerGuildPermissions permissions = new PerGuildPermissions();
     private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new HashSet<>();
     private Set<String> selfAssignRoles = new HashSet<>();
     private Language.Locales locale = Language.Locales.ENGLISH_UK;
-    private boolean blocked = false;
     private boolean songnick = false;
+    // Should be moved to their own manager.
+    private boolean blocked = false;
     private long unBlockTime = -1;
     private String blockReason = null;
+    // TODO: Move to Moderation fully - This will be a breaking change so we will basically just refer to the new location
     private String mutedRoleID = null;
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
-    private Map<ModlogEvent, Boolean> modlogEventMap;
+    private Moderation moderation;
 
     // oooo special!
     private boolean betaAccess = false;
 
-    protected GuildWrapper(String guildId) {
+    /**
+     * <b>Do not use</b>
+     * @param guildId Guild Id of the desired new GuildWrapper
+     */
+    public GuildWrapper(String guildId) {
         this.guildId = guildId;
     }
 
     public Guild getGuild() {
-        return FlareBot.getInstance().getGuildByID(guildId);
+        return FlareBot.getInstance().getGuildById(guildId);
     }
 
     public String getGuildId() {
@@ -61,21 +68,6 @@ public class GuildWrapper {
         return Long.parseLong(this.guildId);
     }
 
-    public AutoModGuild getAutoModGuild() {
-        if (autoModGuild == null) autoModGuild = new AutoModGuild();
-        return this.autoModGuild;
-    }
-
-    protected void setAutoModGuild(AutoModGuild autoModGuild) {
-        this.autoModGuild = autoModGuild;
-    }
-
-    public AutoModConfig getAutoModConfig() {
-        if (this.autoModGuild == null)
-            this.autoModGuild = new AutoModGuild();
-        return this.autoModGuild.getConfig();
-    }
-
     public Welcome getWelcome() {
         if (welcome == null) {
             welcome = new Welcome();
@@ -83,10 +75,6 @@ public class GuildWrapper {
             welcome.setGuildEnabled(false);
         }
         return this.welcome;
-    }
-
-    protected void setWelcome(Welcome welcome) {
-        this.welcome = welcome;
     }
 
     public PerGuildPermissions getPermissions() {
@@ -104,40 +92,20 @@ public class GuildWrapper {
         return this.polls;
     }
 
-    protected void setPolls(LinkedList<Poll> polls) {
-        this.polls = polls;
-    }
-
     public Set<String> getAutoAssignRoles() {
         return this.autoAssignRoles;
-    }
-
-    protected void setAutoAssignRoles(Set<String> roles) {
-        this.autoAssignRoles = roles;
     }
 
     public Set<String> getSelfAssignRoles() {
         return this.selfAssignRoles;
     }
 
-    protected void setSelfAssignRoles(Set<String> roles) {
-        this.selfAssignRoles = roles;
-    }
-
     public Language.Locales getLocale() {
         return this.locale;
     }
 
-    protected void setLocale(Language.Locales locale) {
-        this.locale = locale;
-    }
-
     public boolean isBlocked() {
         return this.blocked;
-    }
-
-    protected void setBlocked(boolean blocked) {
-        this.blocked = blocked;
     }
 
     public void addBlocked(String reason) {
@@ -214,10 +182,6 @@ public class GuildWrapper {
         return reportManager;
     }
 
-    public void setReportManager(ReportManager reportManager) {
-        this.reportManager = reportManager;
-    }
-
     public List<String> getUserWarnings(User user) {
         if (warnings == null) warnings = new ConcurrentHashMap<>();
         return warnings.getOrDefault(user.getId(), new ArrayList<>());
@@ -250,70 +214,47 @@ public class GuildWrapper {
         return tags;
     }
 
-    public boolean isEventEnabled(ModlogEvent event) {
-            checkEventsArray();
-        return modlogEventMap.containsKey(event);
+    public Moderation getModeration() {
+        if(this.moderation == null) this.moderation = new Moderation();
+        return this.moderation;
     }
 
-    public void enableEvent(ModlogEvent event) {
-        checkEventsArray();
-        if (!modlogEventMap.containsKey(event)) {
-            modlogEventMap.put(event, false);
-        }
+    public Moderation getModConfig() {
+        return getModeration();
     }
 
-    public void disableEvent(ModlogEvent event) {
-        checkEventsArray();
-        if (modlogEventMap.containsKey(event)) {
-            modlogEventMap.remove(event);
-        }
+    // DELETE ALL THIS CRAP
+
+    public AutoModGuild getAutoModGuild() {
+        return null;
+    }
+
+    public AutoModConfig getAutoModConfig() {
+        return null;
+    }
+
+    public List<ModlogEvent> getEnabledEvents() {
+        return null;
+    }
+
+    /*public boolean isEventEnabled(ModlogEvent modlogEvent) {
+        return false;
+    }*/
+
+    public boolean isEventCompact(ModlogEvent modlogEvent) {
+        return false;
+    }
+
+    /*public void enableEvent(ModlogEvent modlogEvent) {
+    }
+
+    public void disableEvent(ModlogEvent modlogEvent) {
+    }*/
+
+    public void setCompact(ModlogEvent modlogEvents, boolean b) {
     }
 
     public boolean toggleCompactEvent(ModlogEvent event) {
-        checkEventsArray();
-        if (modlogEventMap.containsKey(event)) {
-            if (modlogEventMap.get(event)) {
-                modlogEventMap.put(event, false);
-                return false;
-            } else {
-                modlogEventMap.put(event, true);
-                return true;
-            }
-        }
         return false;
-    }
-
-    public Set<ModlogEvent> getEnabledEvents() {
-        checkEventsArray();
-        return modlogEventMap.keySet();
-    }
-
-    public boolean isEventCompact(ModlogEvent event) {
-        checkEventsArray();
-        if (modlogEventMap.containsKey(event)) {
-            return modlogEventMap.get(event);
-        }
-        return false;
-    }
-
-    public void setCompact(ModlogEvent event, boolean compact) {
-        checkEventsArray();
-        if (modlogEventMap.containsKey(event)) {
-            modlogEventMap.put(event, compact);
-        }
-    }
-
-    private void checkEventsArray() {
-        if (modlogEventMap == null) {
-            modlogEventMap = new ConcurrentHashMap<>();
-            modlogEventMap.put(ModlogEvent.MEMBER_ROLE_GIVE, false);
-            modlogEventMap.put(ModlogEvent.MEMBER_ROLE_REMOVE, false);
-            modlogEventMap.put(ModlogEvent.ROLE_CREATE, false);
-            modlogEventMap.put(ModlogEvent.ROLE_DELETE, false);
-            modlogEventMap.put(ModlogEvent.CHANNEL_CREATE, false);
-            modlogEventMap.put(ModlogEvent.CHANNEL_DELETE, false);
-            modlogEventMap.put(ModlogEvent.MESSAGE_EDIT, false);
-            modlogEventMap.put(ModlogEvent.MESSAGE_DELETE, false);
-        }
     }
 }

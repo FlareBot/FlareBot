@@ -104,7 +104,8 @@ public class PurgeCommand implements Command {
             eb.addField("Responsible moderator", sender.getAsMention(), true);
             eb.addField("Messages purged", String.valueOf((i - 1)), true);
 
-            guild.getAutoModConfig().postToModLog(eb.build());
+            // TODO: Replace with a new way
+            //guild.getAutoModConfig().postToModLog(eb.build());
             MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Deleted `%s` messages!", i - 1)).build(),
                     TimeUnit.SECONDS.toMillis(5), channel);

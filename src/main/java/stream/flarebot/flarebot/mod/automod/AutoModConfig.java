@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.mod;
+package stream.flarebot.flarebot.mod.automod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -7,7 +7,9 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.mod.Option;
+import stream.flarebot.flarebot.mod.modlog.ModAction;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.awt.Color;
@@ -16,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
 public class AutoModConfig {
 
     //TODO: Disable by default. Enabled for testing
@@ -24,8 +27,6 @@ public class AutoModConfig {
     private String modLogChannel;
     //TODO: Implement this
     private boolean showMessageInModlog;
-    private Map<Action, Integer> actions = new ConcurrentHashMap<>();
-    private Map<Action, ConcurrentHashSet<String>> whitelist = new ConcurrentHashMap<>();
     private Map<Integer, Punishment> punishments = new ConcurrentHashMap<>();
     private int maxMessagesPerMinute = 10;
 
@@ -55,19 +56,6 @@ public class AutoModConfig {
         this.modLogChannel = modLogChannel;
     }
 
-    public Map<Action, Integer> getActions() {
-        return this.actions;
-    }
-
-    public ConcurrentHashSet<String> getWhitelist(Action action) {
-        if (!whitelist.containsKey(action))
-            whitelist.put(action, new ConcurrentHashSet<>());
-        return this.whitelist.get(action);
-    }
-
-    public Map<Action, ConcurrentHashSet<String>> getWhitelist() {
-        return this.whitelist;
-    }
 
     public int getMaxMessagesPerMinute() {
         return this.maxMessagesPerMinute;
@@ -78,37 +66,21 @@ public class AutoModConfig {
     }
 
     public void resetPunishments() {
-        punishments.put(3, new Punishment(ModlogAction.TEMP_MUTE, 259200));
-        punishments.put(5, new Punishment(ModlogAction.TEMP_BAN, 604800));
-        punishments.put(10, new Punishment(ModlogAction.BAN));
+        punishments.put(3, new Punishment(ModAction.TEMP_MUTE, 259200));
+        punishments.put(5, new Punishment(ModAction.TEMP_BAN, 604800));
+        punishments.put(10, new Punishment(ModAction.BAN));
     }
 
     public boolean hasModLog() {
         return modLogChannel != null && !modLogChannel.isEmpty() && getModLogChannel() != null;
     }
 
-    public void postToModLog(TextChannel channel, User user, Action action, Message message) {
-        if (hasModLog()) {
-            getModLogChannel()
-                    .sendMessage(new EmbedBuilder().setTitle("FlareBot AutoMod", null)
-                            .setDescription("Message sent by "
-                                    + user
-                                    .getAsMention() + " has been automatically deleted in " + channel
-                                    .getAsMention() + " and has been given " + getActions()
-                                    .get(action) + " points.")
-                            .addField("Reason", action.getName(), true)
-                            .addField("Message", message.getContent(), true)
-                            .setColor(Color.white)
-                            .build()).queue();
-        }
-    }
-
     public void postToModLog(User user, User responsible, Punishment punishment, String reason) {
-        postToModLog(punishment.getActionEmbed(user, responsible, reason));
+        //postToModLog(punishment.getActionEmbed(user, responsible, reason));
     }
 
     public void postToModLog(User user, User responsible, Punishment punishment, boolean showNoReason) {
-        postToModLog(punishment.getActionEmbed(user, responsible, null, !showNoReason));
+        //postToModLog(punishment.getActionEmbed(user, responsible, null, !showNoReason));
     }
 
     // Shouldn't really be used - Good for stuff like the purge command though
@@ -139,24 +111,24 @@ public class AutoModConfig {
 
     public void postToModLog(MessageEmbed embed, ModlogEvent event) {
         if (hasModLog()) {
-            if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).isEventEnabled(event)) {
+            /*if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).isEventEnabled(event)) {
                 if (FlareBotManager.getInstance().getGuild(getModLogChannel().getGuild().getId()).isEventCompact(event)) {
                     postToModLog(GeneralUtils.embedToText(embed));
                 } else {
                     postToModLog(embed);
                 }
-            }
+            }*/
         }
     }
 
     public void postAutoModAction(User user, Punishment punishment) {
-        if (hasModLog())
-            getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, null)).queue();
+        //if (hasModLog())
+            //getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, null)).queue();
     }
 
     public void postAutoModAction(User user, Punishment punishment, String reason) {
-        if (hasModLog())
-            getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, reason)).queue();
+        //if (hasModLog())
+            //getModLogChannel().sendMessage(punishment.getActionEmbed(user, null, reason)).queue();
     }
 
     public Option getOption(String s) {
