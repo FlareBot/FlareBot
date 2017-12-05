@@ -74,6 +74,7 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final Pattern timeRegex = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$");
     private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
     private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
 
@@ -320,8 +321,8 @@ public class GeneralUtils {
         try {
             long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
             return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
-        } catch(NumberFormatException e) {
-            if(wrapper != null) {
+        } catch (NumberFormatException e) {
+            if (wrapper != null) {
                 List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
                 if (!tcs.isEmpty()) {
                     return tcs.get(0);
@@ -646,20 +647,18 @@ public class GeneralUtils {
     }
 
     public static Long parseTime(String time) {
-        List<String> toReverse = Arrays.asList(time.split(":"));
-        Collections.reverse(toReverse);
-        String timeToUse = toReverse.stream().collect(Collectors.joining(":"));
-        Matcher digitMatcher = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$").matcher(timeToUse);
+        Matcher digitMatcher = timeRegex.matcher(time);
         if (digitMatcher.matches()) {
-            int seconds = GeneralUtils.getInt(digitMatcher.group(1), -1);
-            int minutes = GeneralUtils.getInt(digitMatcher.group(2), -1);
-            int hours = GeneralUtils.getInt(digitMatcher.group(3), -1);
-            if (hours != -1 && minutes != -1 && seconds != -1) {
-                return (long) (((hours * 60 * 60) + (minutes * 60) + seconds) * 1000);
-            } else if (minutes != -1 && seconds != -1) {
-                return (long) (((minutes * 60) + seconds) * 1000);
-            } else if (seconds != -1) {
-                return (long) (seconds * 1000);
+            try {
+                return new PeriodFormatterBuilder()
+                        .appendHours().appendSuffix(":")
+                        .appendMinutes().appendSuffix(":")
+                        .appendSeconds()
+                        .toFormatter()
+                        .parsePeriod(time)
+                        .toStandardDuration().getMillis();
+            } catch (IllegalArgumentException e) {
+                return null;
             }
         }
         PeriodFormatter formatter = new PeriodFormatterBuilder()
