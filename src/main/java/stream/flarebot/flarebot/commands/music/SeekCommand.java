@@ -5,7 +5,9 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.joda.time.Duration;
 import org.joda.time.Period;
+import org.joda.time.PeriodType;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.FlareBot;
@@ -15,24 +17,17 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+
 public class SeekCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
-            PeriodFormatter formatter = new PeriodFormatterBuilder()
-                    .appendHours().appendSuffix("h")
-                    .appendMinutes().appendSuffix("m")
-                    .appendSeconds().appendSuffix("s")
-                    .toFormatter();
-            Period period;
-            try {
-                period = formatter.parsePeriod(args[0]);
-            } catch (IllegalArgumentException e) {
-                MessageUtils.sendErrorMessage("The duration is not in the correct format!", channel);
+            Long millis = GeneralUtils.parseTime(args[0]);
+            if (millis == null || millis > Integer.MAX_VALUE) {
+                MessageUtils.sendErrorMessage("You have entered an invalid duration to skip to!\n" + getExtraInfo(), channel);
                 return;
             }
-            long millis = period.toStandardDuration().getMillis();
             Track t = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
             if (t == null) {
                 MessageUtils.sendErrorMessage("There is no song currently playing!", channel);
@@ -50,7 +45,7 @@ public class SeekCommand implements Command {
                         return;
                     } else {
                         t.getTrack().setPosition(millis);
-                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + GeneralUtils.formatJodaTime(period), channel);
+                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + GeneralUtils.formatJodaTime(new Duration(millis).toPeriod()), channel);
                         return;
                     }
                 }
@@ -72,6 +67,14 @@ public class SeekCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}seek <time>` - Seeks to a specific time in the currently playing video.";
+    }
+
+    @Override
+    public String getExtraInfo() {
+        return "**Time formatting**\n" +
+                "`h:m:s` - Skip to a specific amount of hours, minutes and seconds\n" +
+                "`m:s` - Skip to a specific amount of minutes and seconds\n" +
+                "`s` - Skip to a specific amount of seconds";
     }
 
     @Override

@@ -234,7 +234,7 @@ public class ModlogEvents extends ListenerAdapter {
                 .addField("Old Message", "```\n" + old.get("content").getAsString() + "\n```", false)
                 .addField("New Message", "```\n" + event.getMessage().getContent() + "\n```", false)
                 .build(), ModlogEvent.MESSAGE_EDIT);
-        RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessage(event.getMessage()), "xx", "ex", 61200);
+        RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
     }
 
     @Override

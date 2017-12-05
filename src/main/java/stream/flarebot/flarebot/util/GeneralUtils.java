@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -511,7 +512,7 @@ public class GeneralUtils {
             }
         }
         for (Permission newPerm : newPerms) {
-            if(!oldPerms.contains(newPerm)) {
+            if (!oldPerms.contains(newPerm)) {
                 added.add(newPerm);
             }
         }
@@ -547,11 +548,11 @@ public class GeneralUtils {
 
     /**
      * Checks if paths exist in the given json
-     *
+     * <p>
      * Key of the {@link Pair} is a list of the paths that exist in the JSON
      * Value of the {@link Pair} is a list of the paths that don't exist in the JSON
      *
-     * @param json The JSON to check <b>Mustn't be null</b>
+     * @param json  The JSON to check <b>Mustn't be null</b>
      * @param paths The paths to check <b>Mustn't be null or empty</b>
      * @return
      */
@@ -605,7 +606,7 @@ public class GeneralUtils {
                 "guildID",
                 "content",
                 "timestamp"
-                );
+        );
         if (paths.getKey().size() != 6) {
             throw new IllegalArgumentException("Malformed JSON! Missing paths: " +
                     Arrays.toString(paths.getValue().toArray(new String[paths.getValue().size()])));
@@ -623,4 +624,36 @@ public class GeneralUtils {
                 return level.toString().charAt(0) + level.toString().substring(1).toLowerCase();
         }
     }
+
+    public static Long parseTime(String time) {
+        List<String> toReverse = Arrays.asList(time.split(":"));
+        Collections.reverse(toReverse);
+        String timeToUse = toReverse.stream().collect(Collectors.joining(":"));
+        Matcher digitMatcher = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$").matcher(timeToUse);
+        if (digitMatcher.matches()) {
+            int seconds = GeneralUtils.getInt(digitMatcher.group(1), -1);
+            int minutes = GeneralUtils.getInt(digitMatcher.group(2), -1);
+            int hours = GeneralUtils.getInt(digitMatcher.group(3), -1);
+            if (hours != -1 && minutes != -1 && seconds != -1) {
+                return (long) (((hours * 60 * 60) + (minutes * 60) + seconds) * 1000);
+            } else if (minutes != -1 && seconds != -1) {
+                return (long) (((minutes * 60) + seconds) * 1000);
+            } else if (seconds != -1) {
+                return (long) (seconds * 1000);
+            }
+        }
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendHours().appendSuffix("h")
+                .appendMinutes().appendSuffix("m")
+                .appendSeconds().appendSuffix("s")
+                .toFormatter();
+        Period period;
+        try {
+            period = formatter.parsePeriod(time);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        return period.toStandardDuration().getMillis();
+    }
+
 }
