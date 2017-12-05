@@ -33,7 +33,7 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.RedisController;
-import stream.flarebot.flarebot.mod.ModlogEvent;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
@@ -160,7 +160,8 @@ public class Events extends ListenerAdapter {
                 }
                 sb.append("```");
                 FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(
-                        ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE.getEventEmbed(event.getUser(), null).addField("Roles", sb.toString(), false).build(), ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE);
+                        ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE.getEventEmbed(event.getUser(), null)
+                                .addField("Roles", sb.toString(), false).build(), ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE);
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }

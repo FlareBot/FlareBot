@@ -1,7 +1,5 @@
 package stream.flarebot.flarebot;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.ActionType;
@@ -33,9 +31,10 @@ import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.database.RedisController;
-import stream.flarebot.flarebot.mod.ModlogAction;
-import stream.flarebot.flarebot.mod.ModlogEvent;
-import stream.flarebot.flarebot.mod.Punishment;
+import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.mod.modlog.ModAction;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
+import stream.flarebot.flarebot.mod.automod.Punishment;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
@@ -55,7 +54,7 @@ public class ModlogEvents extends ListenerAdapter {
         if (!checkModlog(event.getGuild())) return;
         Guild guild = event.getGuild();
         AuditLogEntry entry = guild.getAuditLogs().complete().get(0);
-        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModlogAction.BAN), true);
+        FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().postToModLog(event.getUser(), entry.getUser(), new Punishment(ModAction.BAN), true);
     }
 
     @Override
@@ -228,10 +227,11 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
-        JsonObject old = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
+        if (!RedisController.exists(event.getMessageId())) return;
+        RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
         ModlogEvent.MESSAGE_EDIT.getEventEmbed(event.getAuthor(), null)
-                .addField("Old Message", "```\n" + old.get("content").getAsString() + "\n```", false)
+                .addField("Old Message", "```\n" + old.getContent() + "\n```", false)
                 .addField("New Message", "```\n" + event.getMessage().getContent() + "\n```", false)
                 .build(), ModlogEvent.MESSAGE_EDIT);
         RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
@@ -243,15 +243,16 @@ public class ModlogEvents extends ListenerAdapter {
         if(entry.getUser().isBot()) return;
         if(!RedisController.exists(event.getMessageId())) return;
         User responsible = null;
-        JsonObject deleted = new JsonParser().parse(RedisController.get(event.getMessageId())).getAsJsonObject();
+        RedisMessage deleted = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         if (entry.getType() == ActionType.MESSAGE_DELETE) {
-            if(entry.getTargetId().equals(deleted.get("author_id").getAsString())) {
+            if(entry.getTargetId().equals(deleted.getAuthorID())) {
+                if(entry.getUser().isBot()) return;
                 responsible = entry.getUser();
             }
         }
         FlareBotManager.getInstance().getGuild(event.getTextChannel().getGuild().getId()).getAutoModConfig().postToModLog(
-                ModlogEvent.MESSAGE_DELETE.getEventEmbed(GeneralUtils.getUser(deleted.get("author_id").getAsString(), true), responsible)
-                .addField("Message", "```\n" + deleted.get("content").getAsString() + "\n```", false)
+                ModlogEvent.MESSAGE_DELETE.getEventEmbed(GeneralUtils.getUser(deleted.getAuthorID(), true), responsible)
+                .addField("Message", "```\n" + deleted.getContent() + "\n```", false)
                 .build(), ModlogEvent.MESSAGE_DELETE);
         RedisController.del(event.getMessageId());
     }
@@ -378,25 +379,33 @@ public class ModlogEvents extends ListenerAdapter {
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
         if (!checkModlog(wrapper.getGuild())) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
-        wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_CREATE.getEventEmbed(null, entry.getUser())
+        EmbedBuilder builder = ModlogEvent.CHANNEL_CREATE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
-                .addField("Name", channel.getName(), true)
-                .build(), ModlogEvent.CHANNEL_CREATE);
+                .addField("Name", channel.getName(), true);
+        if (channel.getParent() != null) {
+            builder.addField("Category", channel.getParent().getName(), true);
+        }
+        wrapper.getAutoModConfig().postToModLog(builder.build(), ModlogEvent.CHANNEL_CREATE);
     }
 
     private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
         if (!checkModlog(wrapper.getGuild())) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
-        wrapper.getAutoModConfig().postToModLog(ModlogEvent.CHANNEL_DELETE.getEventEmbed(null, entry.getUser())
+        EmbedBuilder builder = ModlogEvent.CHANNEL_DELETE.getEventEmbed(null, entry.getUser())
                 .addField("Type", channel.getType().name().toLowerCase(), true)
-                .addField("Name", channel.getName(), true)
-                .build(), ModlogEvent.CHANNEL_DELETE);
+                .addField("Name", channel.getName(), true);
+        if (channel.getParent() != null) {
+            builder.addField("Category", channel.getParent().getName(), true);
+        }
+        wrapper.getAutoModConfig().postToModLog(builder.build(), ModlogEvent.CHANNEL_DELETE);
     }
 
+    // TODO: Change
     public static boolean checkModlog(Guild guild) {
-        if (FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().hasModLog() && guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
+        return false;
+        /*if (FlareBotManager.getInstance().getGuild(guild.getId()).getAutoModConfig().hasModLog() && guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
                 return true;
         }
-        return false;
+        return false;*/
     }
 }

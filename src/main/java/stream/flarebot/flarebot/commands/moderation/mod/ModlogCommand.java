@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.automod;
+package stream.flarebot.flarebot.commands.moderation.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -9,7 +9,8 @@ import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.mod.ModlogEvent;
+import stream.flarebot.flarebot.mod.Moderation;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -33,8 +34,8 @@ public class ModlogCommand implements Command {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
                 int pageSize = 15;
-                int pages =
-                        guild.getEnabledEvents().size() < pageSize ? 1 : (guild.getEnabledEvents().size() / pageSize) + (guild.getEnabledEvents().size() % pageSize != 0 ? 1 : 0);
+                int pages = guild.getEnabledEvents().size() < pageSize ? 1 : (guild.getEnabledEvents().size() / pageSize)
+                        + (guild.getEnabledEvents().size() % pageSize != 0 ? 1 : 0);
 
                 int start;
                 int end;
@@ -58,7 +59,7 @@ public class ModlogCommand implements Command {
 
                     List<List<String>> body = new ArrayList<>();
                     for (ModlogEvent modlogEvent : events) {
-                        if (guild.isEventEnabled(modlogEvent)) {
+                        if (guild.getModeration().isEventEnabled(guild, modlogEvent)) {
                             List<String> part = new ArrayList<>();
                             part.add(modlogEvent.toString());
                             part.add(String.valueOf(guild.isEventCompact(modlogEvent)));
@@ -105,37 +106,49 @@ public class ModlogCommand implements Command {
                 return;
             }
         }
-        if (args.length >= 2) {
+        if (args.length >= 3) {
+            TextChannel tc = GeneralUtils.getChannel(args[1], guild);
+            if (tc == null) {
+                MessageUtils.sendErrorMessage("I cannot find the channel `" + args[1] + "` try to mention the channel " +
+                        "or use the channel ID", channel);
+                return;
+            }
+            long channelId = tc.getIdLong();
+
             ModlogEvent event = null;
             boolean all = false;
             try {
-                event = ModlogEvent.valueOf(MessageUtils.getMessage(args, 1).toUpperCase().replace(" ", "_"));
+                event = ModlogEvent.valueOf(MessageUtils.getMessage(args, 2).toUpperCase().replace(" ", "_"));
             } catch (IllegalArgumentException e) {
                 if (args[1].equalsIgnoreCase("all")) {
                     all = true;
                 } else {
                     EmbedBuilder errorBuilder = new EmbedBuilder();
                     errorBuilder.setDescription("Invalid Event: `" + MessageUtils.getMessage(args, 1) + "`");
-                    errorBuilder.addField("Events", "`" + Arrays.stream(ModlogEvent.values()).map(ModlogEvent::toString).collect(Collectors.joining("`\n`")) + "`", false);
+                    errorBuilder.addField("Events", "`" + Arrays.stream(ModlogEvent.values()).map(ModlogEvent::toString)
+                            .collect(Collectors.joining("`\n`")) + "`", false);
                     MessageUtils.sendErrorMessage(errorBuilder, channel);
                     return;
                 }
             }
+            Moderation moderation = guild.getModeration();
             if (args[0].equalsIgnoreCase("enable")) {
                 if (!guild.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) {
                     MessageUtils.sendErrorMessage("I don't have permission to view audit logs so you can't use Modlog events!", channel);
                     return;
                 }
                 if (all) {
-                    for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                        guild.enableEvent(modlogEvent);
-                    }
-                    MessageUtils.sendSuccessMessage("Successfully enabled all events", channel, sender);
+                    moderation.enableAllEvents(guild, channelId);
+                    MessageUtils.sendSuccessMessage("Successfully enabled all events in " + tc.getAsMention(),
+                            channel, sender);
                     return;
                 } else {
-                    if (!guild.isEventEnabled(event)) {
-                        guild.enableEvent(event);
-                        MessageUtils.sendSuccessMessage("Successfully enabled event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
+                    if (!moderation.isEventEnabled(guild, event)) {
+                        moderation.enableEvent(guild, channelId, event);
+                        MessageUtils.sendSuccessMessage("Successfully enabled event `" +
+                                        WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " "))
+                                        + "`\nThis event will be displayed in the " + tc.getAsMention() + " channel.",
+                                channel, sender);
                         return;
                     } else {
                         MessageUtils.sendErrorMessage("Error enabling event (Probably already enabled)", channel, sender);
@@ -146,12 +159,12 @@ public class ModlogCommand implements Command {
             if (args[0].equalsIgnoreCase("disable")) {
                 if (all) {
                     for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                        guild.disableEvent(modlogEvent);
+                        moderation.disableEvent(modlogEvent);
                     }
                     MessageUtils.sendSuccessMessage("Successfully disabled all events", channel, sender);
                 } else {
-                    if (guild.isEventEnabled(event)) {
-                        guild.disableEvent(event);
+                    if (moderation.isEventEnabled(guild, event)) {
+                        moderation.disableEvent(event);
                         MessageUtils.sendSuccessMessage("Successfully disabled event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
                         return;
                     } else {
@@ -165,7 +178,7 @@ public class ModlogCommand implements Command {
                     int compact = 0;
                     int uncompact = 0;
                     for (ModlogEvent modlogEvent : ModlogEvent.values()) {
-                        if (guild.isEventEnabled(modlogEvent)) {
+                        if (moderation.isEventEnabled(guild, modlogEvent)) {
                             if (guild.isEventCompact(modlogEvent)) {
                                 compact++;
                             } else {
@@ -187,7 +200,7 @@ public class ModlogCommand implements Command {
                         }
                     }
                 } else {
-                    if (guild.isEventEnabled(event)) {
+                    if (moderation.isEventEnabled(guild, event)) {
                         boolean compact = guild.toggleCompactEvent(event);
                         if (compact) {
                             MessageUtils.sendSuccessMessage("Compacted event `" + WordUtils.capitalize(event.getTitle().toLowerCase().replaceAll("_", " ")) + "`", channel, sender);
@@ -202,17 +215,7 @@ public class ModlogCommand implements Command {
                     }
                 }
             }
-            if (args[0].equalsIgnoreCase("setchannel")) {
-                if (all) {
-                    guild.getAutoModConfig().setModLogChannel(channel.getId());
-                    MessageUtils.sendSuccessMessage("Set the modlog channel for ALL to " + channel.getAsMention(), channel, sender);
-                    return;
-                } else {
-                    //Walshy
-                }
-            }
         }
-
         MessageUtils.sendUsage(this, channel, member.getUser(), args);
     }
 
@@ -228,11 +231,17 @@ public class ModlogCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}modlog enable|disable <feature>` - Enables or disables a modlog feature.\n" +
+        return "`{%}modlog enable|disable <channel> <feature>` - Enables or disables a modlog feature.\n" +
                 "`{%}modlog compact <feature>` - Toggles the compacting of modlog features (Compacted is plain text).\n" +
-                "`{%}modlog setchannel <feature>` - Sets the modlog channel.\n" +
                 "`{%}modlog list [page]` - List enabled events.\n" +
                 "`{%}modlog features` - Lists all the modlog features you can enable.";
+    }
+
+    @Override
+    public String getExtraInfo() {
+        return "**Note**" +
+                "\nEvents can only be set to one channel at a time, if an event is already enabled and you enable it " +
+                "again in a different channel it **will overwrite** the channel ID with the new one.";
     }
 
     @Override

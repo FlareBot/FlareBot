@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.mod;
+package stream.flarebot.flarebot.mod.automod;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -9,18 +9,12 @@ import stream.flarebot.flarebot.FlareBotManager;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
 public class AutoModGuild {
 
     private AutoModConfig config;
 
     private Map<String, Integer> userPoints = new ConcurrentHashMap<>();
-
-    public AutoModGuild() {
-        config = new AutoModConfig();
-        for (Action action : Action.values)
-            config.getActions().put(action, action.getDefaultPoints());
-        config.resetPunishments();
-    }
 
     public AutoModConfig getConfig() {
         return config;
@@ -65,7 +59,6 @@ public class AutoModGuild {
                         else
                             return "Unable to kick user! (ID: " + userId + ") I do not have the 'Kick Members' permission!";
                         break;
-                    case PURGE:
 
                 }
                 config.postAutoModAction(guild.getMemberById(userId).getUser(), punishment);
