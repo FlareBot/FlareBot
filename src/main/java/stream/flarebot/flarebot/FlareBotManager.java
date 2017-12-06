@@ -41,7 +41,6 @@ public class FlareBotManager {
 
     private static FlareBotManager instance;
 
-    private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
     // Command - reason
     private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
 
@@ -161,16 +160,6 @@ public class FlareBotManager {
             channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(ownerId))
                     .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
         });
-    }
-
-    public JSONConfig loadLang(Language.Locales l) {
-        return configs.computeIfAbsent(l, locale -> new JSONConfig(getClass().getResourceAsStream("/langs/" + l.getCode() + ".json")));
-    }
-
-    public String getLang(Language lang, String id) {
-        String path = lang.name().toLowerCase().replaceAll("_", ".");
-        JSONConfig config = loadLang(getGuild(id).getLocale());
-        return config.getString(path).isPresent() ? config.getString(path).get() : "";
     }
 
     public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {

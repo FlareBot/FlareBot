@@ -27,7 +27,6 @@ public class GuildWrapper {
     private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new HashSet<>();
     private Set<String> selfAssignRoles = new HashSet<>();
-    private Language.Locales locale = Language.Locales.ENGLISH_UK;
     private boolean songnick = false;
     // Should be moved to their own manager.
     private boolean blocked = false;
@@ -93,10 +92,6 @@ public class GuildWrapper {
 
     public Set<String> getSelfAssignRoles() {
         return this.selfAssignRoles;
-    }
-
-    public Language.Locales getLocale() {
-        return this.locale;
     }
 
     public boolean isBlocked() {
