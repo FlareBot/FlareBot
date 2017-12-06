@@ -45,6 +45,8 @@ public class MessageUtils {
     private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
     private static final Pattern SPACE = Pattern.compile(" ");
 
+    public static final String ZERO_WIDTH_SPACE = "\u200B";
+
     public static int getLength(EmbedBuilder embed) {
         int len = 0;
         MessageEmbed e = embed.build();
@@ -142,6 +144,10 @@ public class MessageUtils {
 
     public static String getTag(User user) {
         return user.getName() + '#' + user.getDiscriminator();
+    }
+
+    public static String getUserAndId(User user) {
+        return getTag(user) + " (" + user.getId() + ")";
     }
 
     public static EmbedBuilder getEmbed(User user) {

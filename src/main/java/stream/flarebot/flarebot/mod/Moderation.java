@@ -2,13 +2,11 @@ package stream.flarebot.flarebot.mod;
 
 import io.netty.util.internal.ConcurrentSet;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
-import org.eclipse.jetty.util.ConcurrentHashSet;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.mod.modlog.ModlogAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
+import java.util.Iterator;
 import java.util.Set;
 
 public class Moderation {
@@ -66,35 +64,56 @@ public class Moderation {
      * @return This will either return true or false which indicated if it was successful.
      */
     public boolean enableEvent(GuildWrapper wrapper, long channelId, ModlogEvent event) {
-        if (!isEventEnabled(wrapper, event)) {
-            if (channelId == -1) return false;
-            TextChannel tc = FlareBot.getInstance().getChannelById(channelId);
-            if (tc != null && wrapper.getGuild().getTextChannelById(channelId) != null) {
-                getEnabledActions().add(event.getAction(channelId));
-                return true;
-            }
-        }
-        return false;
+        if (channelId == -1) return false;
+        if (!isValidChannelId(wrapper, channelId)) return false;
+        return getEnabledActions().add(event.getAction(channelId));
     }
 
     public void enableAllEvents(GuildWrapper wrapper, long channelId) {
-        for (ModlogEvent event : ModlogEvent.values())
+        for (ModlogEvent event : ModlogEvent.values)
             enableEvent(wrapper, channelId, event);
     }
 
+    public void enableDefaultEvents(GuildWrapper guild, long channelId) {
+        for (ModlogEvent event : ModlogEvent.values) {
+            if (event.isDefaultEvent())
+                enableEvent(guild, channelId, event);
+        }
+    }
+
     public void disableEvent(ModlogEvent event) {
-        for (ModlogAction action : getEnabledActions()) {
+        Iterator<ModlogAction> itr = getEnabledActions().iterator();
+        ModlogAction action;
+        while ((action = itr.next()) != null) {
             if (action.getEvent() == event)
                 getEnabledActions().remove(action);
         }
     }
 
-    private void initDefaultActions(long channelId) {
-        Set<ModlogAction> actions = new ConcurrentHashSet<>();
-        for (ModlogEvent event : ModlogEvent.values())
+    public void disableAllEvents() {
+        this.enabledActions = new ConcurrentSet<>();
+    }
+
+    public void disableDefaultEvents() {
+        for (ModlogEvent event : ModlogEvent.values) {
             if (event.isDefaultEvent())
-                actions.add(event.getAction(channelId));
-        this.enabledActions = actions;
+                disableEvent(event);
+        }
+    }
+
+    public boolean isEventCompacted(ModlogEvent modlogEvent) {
+        for (ModlogAction action : getEnabledActions()) {
+            if (action.getEvent() == modlogEvent)
+                return action.isCompacted();
+        }
+        return false;
+    }
+
+    public boolean setEventCompact(ModlogEvent modlogEvent, boolean b) {
+        for(ModlogAction action : getEnabledActions())
+            if(action.getEvent() == modlogEvent)
+                action.setCompacted(b);
+        return b;
     }
 
     public void muteUser(GuildWrapper guild, Member member) {

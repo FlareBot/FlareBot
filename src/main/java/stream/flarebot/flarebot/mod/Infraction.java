@@ -1,44 +1,52 @@
 package stream.flarebot.flarebot.mod;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.annotations.DoNotUse;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
-
-import java.awt.Color;
-import java.util.concurrent.TimeUnit;
 
 public class Infraction {
 
+    private int caseId;
     private ModAction action;
+    private long user;
+    private long responsible;
+    private String reason;
     private long duration;
-    private int points;
 
-    public Infraction(ModAction action, int points) {
+    @DoNotUse
+    protected Infraction(ModAction action, long user, long responsible, String reason) {
+        this(action, user, responsible, reason, -1);
+    }
+
+    @DoNotUse
+    protected Infraction(ModAction action, long user, long responsible, String reason, long duration) {
         this.action = action;
-        this.points = points;
+        this.user = user;
+        this.responsible = responsible;
+        this.reason = reason;
+        this.duration = duration;
     }
 
-    public int getPoints() {
-        return this.points;
+    public int getCaseId() {
+        return caseId;
     }
 
-    public MessageEmbed getActionEmbed(User user, User responsible, String reason) {
-        return getActionEmbed(user, responsible, reason, true);
+    public ModAction getAction() {
+        return action;
     }
 
-    public MessageEmbed getActionEmbed(User user, User responsible, String reason, boolean showReason) {
-        EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(action.toString());
-        eb.setColor(Color.WHITE);
-        eb.addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true);
-        if (responsible != null)
-            eb.addField("Responsible moderator", responsible.getAsMention(), true);
-        if ((responsible != null || reason != null) && showReason)
-            eb.addField("Reason", (reason != null ? reason : "No reason given!"), true);
-        if (action.name().startsWith("TEMP"))
-            eb.addField("Duration", FlareBot.getInstance().formatTime(duration, TimeUnit.MILLISECONDS, true, false), true);
-        return eb.build();
+    public long getUser() {
+        return user;
+    }
+
+    public long getResponsible() {
+        return responsible;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public long getDuration() {
+        return duration;
     }
 }

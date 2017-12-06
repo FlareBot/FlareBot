@@ -1,5 +1,8 @@
 package stream.flarebot.flarebot.mod.modlog;
 
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+
 public class ModlogAction {
 
     // Modlog channel ID
@@ -33,5 +36,9 @@ public class ModlogAction {
 
     public void setModlogChannelId(long channelId) {
         this.modlogChannelId = channelId;
+    }
+
+    public TextChannel getModlogChannel(Guild guild) {
+        return guild.getTextChannelById(modlogChannelId);
     }
 }

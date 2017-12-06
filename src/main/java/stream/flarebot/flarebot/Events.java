@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -18,7 +19,6 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
@@ -34,6 +34,7 @@ import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
+import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
@@ -153,15 +154,13 @@ public class Events extends ListenerAdapter {
             try {
                 event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
                 }, e1 -> handle(e1, event, roles));
-                if (!ModlogEvents.checkModlog(event.getGuild())) return;
                 StringBuilder sb = new StringBuilder("```\n");
                 for (Role role : roles) {
                     sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
                 }
                 sb.append("```");
-                FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModConfig().postToModLog(
-                        ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE.getEventEmbed(event.getUser(), null)
-                                .addField("Roles", sb.toString(), false).build(), ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE);
+                ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE, event.getUser(),
+                                new MessageEmbed.Field("Roles", sb.toString(), false));
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
@@ -377,17 +376,15 @@ public class Events extends ListenerAdapter {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
 
-                if (!ModlogEvents.checkModlog(event.getGuild())) return;
-
-                EmbedBuilder commandEmbed = ModlogEvent.FLAREBOT_COMMAND.getEventEmbed(event.getAuthor(), null)
-                        .addField("Command", cmd.getCommand(), true);
+                MessageEmbed.Field field = null;
                 if (args.length > 0) {
                     String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
                     if (s.length() > 1000)
                         s = s.substring(0, 1000) + "...";
-                    commandEmbed.addField("Args", "`" + s + "`", false);
+                    field = new MessageEmbed.Field("Args", "`" + s + "`", false);
                 }
-                guild.getAutoModConfig().postToModLog(commandEmbed.build(), ModlogEvent.FLAREBOT_COMMAND);
+                ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
+                        new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
@@ -456,19 +453,6 @@ public class Events extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
-        long messageID = event.getMessageIdLong();
-        if (removedByMe.contains(messageID)) {
-            removedByMe.remove(messageID);
-            return;
-        }
-        long discordEpoch = (messageID >> 22) + 1420070400000L;
-        long difference = System.currentTimeMillis() - discordEpoch;
-        if (difference < TimeUnit.DAYS.toMillis(14))
-            durations.add(difference);
-    }
-
-    @Override
     public void onGenericEvent(Event e) {
         shardEventTime.put(e.getJDA().getShardInfo() == null ? 0 : e.getJDA().getShardInfo().getShardId(), System.currentTimeMillis());
     }
@@ -479,5 +463,9 @@ public class Events extends ListenerAdapter {
 
     Map<String, Integer> getSpamMap() {
         return spamMap;
+    }
+
+    public List<Long> getRemovedByMeList() {
+        return removedByMe;
     }
 }

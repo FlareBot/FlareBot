@@ -3,10 +3,13 @@ package stream.flarebot.flarebot.commands.general;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
+import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
@@ -32,8 +35,8 @@ public class ReportCommand implements Command {
                 return;
             }
 
-            Report report =
-                    new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1), sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
+            Report report =  new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1),
+                    sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
             List<Message> messages = channel.getHistory()
                     .retrievePast(100)
@@ -45,20 +48,19 @@ public class ReportCommand implements Command {
                 messages = messages.subList(0, Math.min(5, messages.size() - 1));
                 List<ReportMessage> reportMessages = new ArrayList<>();
                 for (Message userMessage : messages) {
-                    reportMessages.add(new ReportMessage(userMessage.getContent(), Timestamp.valueOf(userMessage.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())));
+                    reportMessages.add(new ReportMessage(userMessage.getContent(), Timestamp.valueOf(userMessage
+                            .getCreationTime().atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime())));
                 }
                 report.setMessages(reportMessages);
             }
 
             guild.getReportManager().report(report);
 
-            guild.getAutoModConfig().postToModLog(new EmbedBuilder()
-                    .addField("Responsible", sender.getAsMention(), true)
-                    .addField("User", user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")", true)
-                    .addField("Reason", MessageUtils.getMessage(args, 1), false)
-                    .setColor(Color.WHITE).build());
+            ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.REPORT_SUBMITTED, user, null, MessageUtils.getMessage(args, 1),
+                     new MessageEmbed.Field("Reported By", MessageUtils.getTag(sender), true));
 
-            MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report).setDescription("Successfully reported the user"));
+            MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report)
+                    .setDescription("Successfully reported the user"));
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }

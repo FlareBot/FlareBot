@@ -28,7 +28,7 @@ public class ForceBanCommand implements Command {
             String reason = null;
             if (args.length >= 2)
                 reason = MessageUtils.getMessage(args, 1);
-            ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.BAN, reason);
+            ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.FORCE_BAN, reason);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }

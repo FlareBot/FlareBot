@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.mod.modlog;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
@@ -43,12 +44,35 @@ public class ModlogHandler {
         return null;
     }
 
-    public void postToModlog(GuildWrapper wrapper, ModlogEvent event, User responsible, User target, String reason) {
+    public void postToModlog(GuildWrapper wrapper, ModlogEvent event, User user) {
+        postToModlog(wrapper, event, user, null, null, new MessageEmbed.Field[0]);
+    }
+
+    public void postToModlog(GuildWrapper wrapper, ModlogEvent event, User user, MessageEmbed.Field... fields) {
+        postToModlog(wrapper, event, user, null, null, fields);
+    }
+
+    public void postToModlog(GuildWrapper wrapper, ModlogEvent event, User user, EmbedBuilder builder) {
+        postToModlog(wrapper, event, user, null, null, builder.getFields().toArray(new
+                MessageEmbed.Field[builder.getFields().size()]));
+    }
+
+    public void postToModlog(GuildWrapper wrapper, ModlogEvent event, User target, User responsible, String reason) {
+        postToModlog(wrapper, event, target, responsible, reason, new MessageEmbed.Field[0]);
+    }
+
+    public void postToModlog(GuildWrapper wrapper, ModlogEvent event, User target, User responsible, String reason,
+                             MessageEmbed.Field... extraFields) {
         if (!wrapper.getModeration().isEventEnabled(wrapper, event)) return;
         TextChannel tc = getModlogChannel(wrapper, event);
         // They either don't have a channel or set it to another guild.
         if (tc != null) {
-            tc.sendMessage(event.getEventEmbed(responsible, target, reason).build()).queue();
+            EmbedBuilder eb = event.getEventEmbed(target, responsible, reason);
+            if(extraFields != null && extraFields.length > 0) {
+                for(MessageEmbed.Field field : extraFields)
+                    eb.addField(field);
+            }
+            tc.sendMessage(eb.build()).queue();
         }
     }
 
@@ -76,13 +100,13 @@ public class ModlogHandler {
                              String reason, long duration) {
         String rsn = (reason == null ? "" : "(`" + reason.replaceAll("`", "'") + "`)");
         Member member = wrapper.getGuild().getMember(target);
-        if (member == null) {
+        if (member == null && modAction != ModAction.FORCE_BAN) {
             MessageUtils.sendErrorMessage("That user isn't in this guild! You can try to forceban the user if needed.", channel);
             return;
         }
 
         // Make sure the target user isn't the guild owner
-        if (member.isOwner()) {
+        if (member != null && member.isOwner()) {
             MessageUtils.sendErrorMessage(String.format("Cannot %s **%s** because they're the guild owner!",
                     modAction.getLowercaseName(), MessageUtils.getTag(target)), channel);
             return;
@@ -100,7 +124,7 @@ public class ModlogHandler {
 
         // Check if there role is higher therefore we can't take action, this should be something applied to everything
         // not just kick, ban etc.
-        if (!wrapper.getGuild().getSelfMember().canInteract(member)) {
+        if (member != null && !wrapper.getGuild().getSelfMember().canInteract(member)) {
             MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
                             "Their highest role is higher than my highest role or they're the guild owner.",
                     MessageUtils.getTag(target)), channel);
@@ -113,6 +137,14 @@ public class ModlogHandler {
                 channel.getGuild().getController().ban(target, 7, reason).queue(aVoid ->
                         channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
                                 .setDescription("The ban hammer has been struck on " + target.getName()
+                                        + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
+                                .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
+                                        "https://flarebot.stream/img/banhammer.png" : null)
+                                .build()).queue());
+            } else if (modAction == ModAction.FORCE_BAN) {
+                channel.getGuild().getController().ban(target.getId(), 7, reason).queue(aVoid ->
+                        channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
+                                .setDescription("The ban hammer has been forcefully struck on " + target.getName()
                                         + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
                                 .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
                                         "https://flarebot.stream/img/banhammer.png" : null)

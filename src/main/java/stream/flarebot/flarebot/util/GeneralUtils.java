@@ -207,7 +207,8 @@ public class GeneralUtils {
     }
 
     public static String truncate(int length, String string, boolean ellipse) {
-        return string.substring(0, Math.min(string.length(), length)) + (string.length() > length ? "..." : "");
+        return string.substring(0, Math.min(string.length(), length - (ellipse ? 3 : 0))) + (string.length() >
+                length - (ellipse ? 3 : 0) && ellipse ? "..." : "");
     }
 
     public static List<Role> getRole(String string, Guild guild) {
@@ -613,7 +614,7 @@ public class GeneralUtils {
                 message.getChannel().getId(),
                 message.getGuild().getId(),
                 message.getRawContent(),
-                message.getCreationTime().toEpochSecond()
+                message.getCreationTime().toInstant().toEpochMilli()
         ));
     }
 

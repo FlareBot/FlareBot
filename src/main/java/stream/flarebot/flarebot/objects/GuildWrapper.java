@@ -7,15 +7,11 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Language;
 import stream.flarebot.flarebot.mod.Moderation;
-import stream.flarebot.flarebot.mod.automod.AutoModConfig;
-import stream.flarebot.flarebot.mod.automod.AutoModGuild;
-import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -221,40 +217,5 @@ public class GuildWrapper {
 
     public Moderation getModConfig() {
         return getModeration();
-    }
-
-    // DELETE ALL THIS CRAP
-
-    public AutoModGuild getAutoModGuild() {
-        return null;
-    }
-
-    public AutoModConfig getAutoModConfig() {
-        return null;
-    }
-
-    public List<ModlogEvent> getEnabledEvents() {
-        return null;
-    }
-
-    /*public boolean isEventEnabled(ModlogEvent modlogEvent) {
-        return false;
-    }*/
-
-    public boolean isEventCompact(ModlogEvent modlogEvent) {
-        return false;
-    }
-
-    /*public void enableEvent(ModlogEvent modlogEvent) {
-    }
-
-    public void disableEvent(ModlogEvent modlogEvent) {
-    }*/
-
-    public void setCompact(ModlogEvent modlogEvents, boolean b) {
-    }
-
-    public boolean toggleCompactEvent(ModlogEvent event) {
-        return false;
     }
 }

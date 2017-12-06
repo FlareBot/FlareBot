@@ -27,7 +27,7 @@ public class RedisController {
                 config.getString("redis.host").get(),
                 Integer.parseInt(config.getString("redis.port").get()),
                 3000,
-                config.getString("redis.password").get());
+                config.getString("redis.password").get().isEmpty() ? null : config.getString("redis.password").get());
         try (Jedis jedis = jedisPool.getResource()) {
             String response = jedis.ping();
             if (!("PONG".equals(response))) throw new IOException("Ping to server failed!");

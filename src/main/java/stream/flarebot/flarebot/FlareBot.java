@@ -346,6 +346,7 @@ public class FlareBot {
                                                         .get("requester")), false)
                                         .addField("Next up", playlist.isEmpty() ? "Nothing" :
                                                 SongCommand.getLink(playlist.peek()), false)
+                                        .setImage("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/0.jpg")
                                         .build()).queue();
                             } else {
                                 MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
@@ -470,10 +471,11 @@ public class FlareBot {
         registerCommand(new KickCommand());
         registerCommand(new ForceBanCommand());
         registerCommand(new BanCommand());
+        registerCommand(new TempBanCommand());
+        registerCommand(new UnbanCommand());
         registerCommand(new MuteCommand());
         registerCommand(new TempMuteCommand());
         registerCommand(new UnmuteCommand());
-        registerCommand(new TempBanCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
