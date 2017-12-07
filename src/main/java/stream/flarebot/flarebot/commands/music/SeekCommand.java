@@ -72,9 +72,14 @@ public class SeekCommand implements Command {
     @Override
     public String getExtraInfo() {
         return "**Time formatting**\n" +
+                "**All letters should be replaced by numbers**" +
                 "`h:m:s` - Skip to a specific amount of hours, minutes and seconds\n" +
                 "`m:s` - Skip to a specific amount of minutes and seconds\n" +
-                "`s` - Skip to a specific amount of seconds";
+                "`s` - Skip to a specific amount of seconds\n\n" +
+                "**All ?s should be replaced with numbers**\n" +
+                "`?h?m?s` - Skip to a specific amount of hours, minutes and seconds\n" +
+                "`?m?s` - Skip to a specific amount of minutes and seconds\n" +
+                "`?s` - Skip to a specific amount of seconds";
     }
 
     @Override
