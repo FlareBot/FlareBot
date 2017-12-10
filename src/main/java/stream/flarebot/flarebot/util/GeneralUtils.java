@@ -66,6 +66,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -73,6 +74,7 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final Pattern timeRegex = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$");
     private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
     private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
 
@@ -320,8 +322,8 @@ public class GeneralUtils {
         try {
             long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
             return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
-        } catch(NumberFormatException e) {
-            if(wrapper != null) {
+        } catch (NumberFormatException e) {
+            if (wrapper != null) {
                 List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
                 if (!tcs.isEmpty()) {
                     return tcs.get(0);
@@ -532,7 +534,7 @@ public class GeneralUtils {
             }
         }
         for (Permission newPerm : newPerms) {
-            if(!oldPerms.contains(newPerm)) {
+            if (!oldPerms.contains(newPerm)) {
                 added.add(newPerm);
             }
         }
@@ -572,7 +574,7 @@ public class GeneralUtils {
      * Key of the {@link Pair} is a list of the paths that exist in the JSON
      * Value of the {@link Pair} is a list of the paths that don't exist in the JSON
      *
-     * @param json The JSON to check <b>Mustn't be null</b>
+     * @param json  The JSON to check <b>Mustn't be null</b>
      * @param paths The paths to check <b>Mustn't be null or empty</b>
      * @return
      */
@@ -626,7 +628,7 @@ public class GeneralUtils {
                 "guildID",
                 "content",
                 "timestamp"
-                );
+        );
         if (paths.getKey().size() != 6) {
             throw new IllegalArgumentException("Malformed JSON! Missing paths: " +
                     Arrays.toString(paths.getValue().toArray(new String[paths.getValue().size()])));
@@ -644,4 +646,34 @@ public class GeneralUtils {
                 return level.toString().charAt(0) + level.toString().substring(1).toLowerCase();
         }
     }
+
+    public static Long parseTime(String time) {
+        Matcher digitMatcher = timeRegex.matcher(time);
+        if (digitMatcher.matches()) {
+            try {
+                return new PeriodFormatterBuilder()
+                        .appendHours().appendSuffix(":")
+                        .appendMinutes().appendSuffix(":")
+                        .appendSeconds()
+                        .toFormatter()
+                        .parsePeriod(time)
+                        .toStandardDuration().getMillis();
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendHours().appendSuffix("h")
+                .appendMinutes().appendSuffix("m")
+                .appendSeconds().appendSuffix("s")
+                .toFormatter();
+        Period period;
+        try {
+            period = formatter.parsePeriod(time);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        return period.toStandardDuration().getMillis();
+    }
+
 }
