@@ -18,9 +18,9 @@
     <dependencies>
         <!-- JDA -->
         <dependency>
-            <groupId>net.dv8tion</groupId>
+            <groupId>com.github.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.3.1_307</version>
+            <version>development-SNAPSHOT</version>
         </dependency>
 
         <!-- Lavaplayer related -->
