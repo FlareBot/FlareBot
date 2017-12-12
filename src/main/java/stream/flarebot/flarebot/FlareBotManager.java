@@ -207,8 +207,8 @@ public class FlareBotManager {
             if (row != null) {
                 try {
                     wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                } catch (JsonSyntaxException e) {
-                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
+                } catch (Exception e) {
+                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
                             "Guild ID: " + id + "\n" +
                             "Guild JSON: " + row.getString("data") + "\n" +
                             "Error: " + e.getMessage(), e);
