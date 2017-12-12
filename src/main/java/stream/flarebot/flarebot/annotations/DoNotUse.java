@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
  * piece of code annotated with this.
  */
 @Documented
-@Target(value = { ElementType.METHOD, ElementType.CONSTRUCTOR })
+@Target(value = {ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)
-public @interface DoNotUse {}
+public @interface DoNotUse {
+
+}

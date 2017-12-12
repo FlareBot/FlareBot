@@ -1,6 +1,6 @@
 package stream.flarebot.flarebot.api;
 
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.Constants;
 
 import static stream.flarebot.flarebot.api.Method.GET;
 import static stream.flarebot.flarebot.api.Method.PATCH;
@@ -43,6 +43,6 @@ public enum ApiRoute {
     }
 
     public String getFullUrl() {
-        return FlareBot.FLAREBOT_API + route;
+        return Constants.FLAREBOT_API + route;
     }
 }

@@ -44,6 +44,7 @@ public class GuildWrapper {
 
     /**
      * <b>Do not use</b>
+     *
      * @param guildId Guild Id of the desired new GuildWrapper
      */
     public GuildWrapper(String guildId) {
@@ -205,7 +206,7 @@ public class GuildWrapper {
     }
 
     public Moderation getModeration() {
-        if(this.moderation == null) this.moderation = new Moderation();
+        if (this.moderation == null) this.moderation = new Moderation();
         return this.moderation;
     }
 

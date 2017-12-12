@@ -4,7 +4,8 @@ public abstract class FlareBotTask implements Runnable {
 
     private String taskName;
 
-    private FlareBotTask() {}
+    private FlareBotTask() {
+    }
 
     public FlareBotTask(String taskName) {
         this.taskName = taskName;

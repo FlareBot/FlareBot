@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Methods with this annotation are declaring they are not to be overridden.
  */
 @Documented
-@Target(value = { ElementType.METHOD, ElementType.CONSTRUCTOR })
+@Target(value = {ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)
 public @interface NoOverride {
 

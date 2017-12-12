@@ -27,7 +27,6 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -103,7 +102,7 @@ public class MessageUtils {
         String trace = sw.toString();
         pw.close();
         channel.sendMessage(new MessageBuilder().append(
-                flareBot.getOfficialGuild().getRoleById(FlareBot.DEVELOPER_ID).getAsMention())
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s + "\n**Stack trace**: " + paste(trace))
                         .build()).build()).queue();
     }
@@ -168,7 +167,7 @@ public class MessageUtils {
 
     public static void sendFatalErrorMessage(String s, TextChannel channel) {
         channel.sendMessage(new MessageBuilder().append(
-                flareBot.getOfficialGuild().getRoleById(FlareBot.DEVELOPER_ID).getAsMention())
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s).build()).build()).queue();
     }
 
@@ -188,7 +187,7 @@ public class MessageUtils {
         EmbedBuilder builder = (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
                 .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                 .setDescription(GeneralUtils.formatCommandPrefix(channel, message));
-        if(autoDeleteDelay > 0)
+        if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
         else
             sendMessage(builder.build(), channel);
@@ -399,14 +398,14 @@ public class MessageUtils {
     }
 
     public static String getNextArgument(String message, String from) {
-        if(!message.contains(from)) return null;
+        if (!message.contains(from)) return null;
 
         String[] args = SPACE.split(message);
-        if(args.length == 0) return message;
-        for(int i = 0; i < args.length; i++) {
-            if(args.length <= (i + 1)) return null;
-            if(args[i].equals(from))
-                if(args[i + 1] != null && !args[i + 1].isEmpty())
+        if (args.length == 0) return message;
+        for (int i = 0; i < args.length; i++) {
+            if (args.length <= (i + 1)) return null;
+            if (args[i].equals(from))
+                if (args[i + 1] != null && !args[i + 1].isEmpty())
                     return args[i + 1];
                 else
                     return null;

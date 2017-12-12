@@ -28,7 +28,7 @@ public class StatusCommand implements Command {
         int noVoiceConnections = 0;
         int highResponseTime = 0;
 
-        for(int shardId = 0; shardId < fb.getClients().length; shardId++) {
+        for (int shardId = 0; shardId < fb.getClients().length; shardId++) {
             JDA jda = fb.getClients()[shardId];
             if (jda == null) {
                 connecting++;
@@ -36,44 +36,44 @@ public class StatusCommand implements Command {
             }
 
             boolean reconnect = ShardUtils.isReconnecting(shardId);
-            if(ShardUtils.isDead(shardId))
+            if (ShardUtils.isDead(shardId))
                 deadShard++;
             if (reconnect)
                 reconnecting++;
             if (jda.getVoiceChannelCache().stream().filter(vc -> vc.getMembers().contains(vc.getGuild().getSelfMember())).count() == 0)
                 noVoiceConnections++;
-            if(ShardUtils.getLastEventTime(shardId) >= 1500 && !reconnect)
+            if (ShardUtils.getLastEventTime(shardId) >= 1500 && !reconnect)
                 highResponseTime++;
         }
         StringBuilder sb = new StringBuilder();
-        if(reconnecting > Math.min(quaterShards, 10))
+        if (reconnecting > Math.min(quaterShards, 10))
             sb.append("⚠ WARNING: A lot of shards are currently reconnecting! This could mean the bot is unable to be " +
                     "used on several thousand servers for a few minutes! (").append(reconnecting).append(" shards reconnecting)").append("\n");
-        if(highResponseTime > Math.min(quaterShards, 20))
+        if (highResponseTime > Math.min(quaterShards, 20))
             sb.append("⚠ WARNING: We seem to be experiencing a high event time on quite a few shards, this is usually " +
                     "down to Discord not wanting to co-op with us :( please be patient while these ")
                     .append(highResponseTime).append(" shards go back to normal!").append("\n");
-        if(deadShard > 5)
+        if (deadShard > 5)
             sb.append(" SEVERE: We have quite a few dead shards! Please report this on the [Support Server](")
                     .append(FlareBot.INVITE_URL).append(")").append("\n");
 
         String status = deadShard == 0 && highResponseTime == 0 && reconnecting < (Math.max(quaterShards, 5))
                 ? "Good! :)" : "Issues :/";
-        if(deadShard > 5)
+        if (deadShard > 5)
             status = "Severe issues! Discord could be dying! @EVERYONE RUN!";
         sb.append("Bot Status: ").append(status).append("\n\n");
 
         sb.append(String.format("FlareBot Version: %s\n" +
-                "JDA Version: %s\n" +
-                "Current Shard: %s\n" +
-                "* Average Ping: %s\n" +
-                "* Ping By Shard: %s\n" +
-                "* Dead Shards: %s shards\n" +
-                "* No Voice Connections: %s shards\n" +
-                "* Shards Reconnecting: %s shards\n" +
-                "* Shards Connecting: %s shards\n" +
-                "* High Last Event Time: %s shards\n" +
-                "Guilds: %d | Users: %d | Connected VCs: %d | Active VCs: %d",
+                        "JDA Version: %s\n" +
+                        "Current Shard: %s\n" +
+                        "* Average Ping: %s\n" +
+                        "* Ping By Shard: %s\n" +
+                        "* Dead Shards: %s shards\n" +
+                        "* No Voice Connections: %s shards\n" +
+                        "* Shards Reconnecting: %s shards\n" +
+                        "* Shards Connecting: %s shards\n" +
+                        "* High Last Event Time: %s shards\n" +
+                        "Guilds: %d | Users: %d | Connected VCs: %d | Active VCs: %d",
                 fb.getVersion(),
                 JDAInfo.VERSION,
                 channel.getJDA().getShardInfo() == null ? 0 : channel.getJDA().getShardInfo().getShardId(),
@@ -85,7 +85,7 @@ public class StatusCommand implements Command {
                 connecting,
                 highResponseTime,
                 fb.getGuilds().size(), fb.getUsers().size(), fb.getConnectedVoiceChannels().size(), fb.getActiveVoiceChannels()
-                ));
+        ));
 
         channel.sendMessage("**FlareBot's Status**\n```prolog\n" + sb.toString() + "\n```").queue();
     }

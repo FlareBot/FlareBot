@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.util;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import io.github.binaryoverload.JSONConfig;
@@ -25,7 +24,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
@@ -570,7 +568,7 @@ public class GeneralUtils {
 
     /**
      * Checks if paths exist in the given json
-     *
+     * <p>
      * Key of the {@link Pair} is a list of the paths that exist in the JSON
      * Value of the {@link Pair} is a list of the paths that don't exist in the JSON
      *

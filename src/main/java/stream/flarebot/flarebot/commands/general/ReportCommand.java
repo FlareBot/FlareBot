@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.general;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -17,7 +16,6 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -35,7 +33,7 @@ public class ReportCommand implements Command {
                 return;
             }
 
-            Report report =  new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1),
+            Report report = new Report((guild.getReportManager().getLastId() + 1), MessageUtils.getMessage(args, 1),
                     sender.getId(), user.getId(), new Timestamp(System.currentTimeMillis()), ReportStatus.OPEN);
 
             List<Message> messages = channel.getHistory()
@@ -57,7 +55,7 @@ public class ReportCommand implements Command {
             guild.getReportManager().report(report);
 
             ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.REPORT_SUBMITTED, user, null, MessageUtils.getMessage(args, 1),
-                     new MessageEmbed.Field("Reported By", MessageUtils.getTag(sender), true));
+                    new MessageEmbed.Field("Reported By", MessageUtils.getTag(sender), true));
 
             MessageUtils.sendPM(channel, sender, GeneralUtils.getReportEmbed(sender, report)
                     .setDescription("Successfully reported the user"));

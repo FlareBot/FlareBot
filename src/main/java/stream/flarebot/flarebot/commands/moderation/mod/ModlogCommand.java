@@ -211,16 +211,16 @@ public class ModlogCommand implements Command {
                 } else if (defaultEvents) {
                     int compact = 0;
                     int uncompact = 0;
-                    for(ModlogEvent modlogEvent : ModlogEvent.values) {
+                    for (ModlogEvent modlogEvent : ModlogEvent.values) {
                         if (modlogEvent.isDefaultEvent() && moderation.isEventEnabled(guild, modlogEvent)) {
-                            if(moderation.isEventCompacted(modlogEvent))
+                            if (moderation.isEventCompacted(modlogEvent))
                                 compact++;
                             else
                                 uncompact++;
                         }
                     }
                     for (ModlogEvent modlogEvent : ModlogEvent.values) {
-                        if(modlogEvent.isDefaultEvent())
+                        if (modlogEvent.isDefaultEvent())
                             moderation.setEventCompact(modlogEvent, compact >= uncompact);
                     }
                     MessageUtils.sendSuccessMessage((compact >= uncompact ? "Un-compacted" : "compacted") +

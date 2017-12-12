@@ -110,8 +110,8 @@ public class Moderation {
     }
 
     public boolean setEventCompact(ModlogEvent modlogEvent, boolean b) {
-        for(ModlogAction action : getEnabledActions())
-            if(action.getEvent() == modlogEvent)
+        for (ModlogAction action : getEnabledActions())
+            if (action.getEvent() == modlogEvent)
                 action.setCompacted(b);
         return b;
     }

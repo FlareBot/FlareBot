@@ -8,10 +8,10 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.joda.time.Period;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -68,8 +68,8 @@ public class ModlogHandler {
         // They either don't have a channel or set it to another guild.
         if (tc != null) {
             EmbedBuilder eb = event.getEventEmbed(target, responsible, reason);
-            if(extraFields != null && extraFields.length > 0) {
-                for(MessageEmbed.Field field : extraFields)
+            if (extraFields != null && extraFields.length > 0) {
+                for (MessageEmbed.Field field : extraFields)
                     eb.addField(field);
             }
             tc.sendMessage(eb.build()).queue();
@@ -138,7 +138,7 @@ public class ModlogHandler {
                         channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
                                 .setDescription("The ban hammer has been struck on " + target.getName()
                                         + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
-                                .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
+                                .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
                                         "https://flarebot.stream/img/banhammer.png" : null)
                                 .build()).queue());
             } else if (modAction == ModAction.FORCE_BAN) {
@@ -146,7 +146,7 @@ public class ModlogHandler {
                         channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
                                 .setDescription("The ban hammer has been forcefully struck on " + target.getName()
                                         + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
-                                .setImage(channel.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD) ?
+                                .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
                                         "https://flarebot.stream/img/banhammer.png" : null)
                                 .build()).queue());
             } else if (modAction == ModAction.TEMP_BAN) {
@@ -156,7 +156,7 @@ public class ModlogHandler {
                             .setDescription("The ban hammer has been struck on " + target.getName() + " for "
                                     + GeneralUtils.formatJodaTime(period) + "\nReason: `" + rsn + "`")
                             .setImage(channel.getGuild().getId()
-                                    .equals(FlareBot.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
+                                    .equals(Constants.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
                             .setColor(Color.WHITE).build()).queue();
                     Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
                             target.getIdLong(), reason, period, FutureAction.Action.TEMP_BAN);
@@ -204,7 +204,7 @@ public class ModlogHandler {
                     MessageUtils.sendErrorMessage("That user isn't muted!!", channel);
                 }
 
-            // KICK and WARN
+                // KICK and WARN
             } else if (modAction == ModAction.KICK) {
                 channel.getGuild().getController().kick(member, reason).queue(aVoid ->
                         MessageUtils.sendSuccessMessage(target.getName() + " has been kicked from the server!" + rsn,

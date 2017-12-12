@@ -6,8 +6,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.impl.GuildImpl;
-import net.dv8tion.jda.core.entities.impl.MemberImpl;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -43,10 +41,10 @@ public class UserInfoCommand implements Command {
             return;
         }
         String id = user.getId();
-        if(channel.getGuild().getMember(user) == null) {
+        if (channel.getGuild().getMember(user) == null) {
             Guild memberGuild = FlareBot.getInstance().getGuilds().stream().filter(g -> g.getMemberById(user.getId()) != null)
-                .findFirst().orElse(null);
-            if(memberGuild == null)
+                    .findFirst().orElse(null);
+            if (memberGuild == null)
                 member = null;
             else
                 memberGuild.getMember(user);
@@ -67,7 +65,7 @@ public class UserInfoCommand implements Command {
                                 .getMemberById(id) == null ? "The user is not in this server." : channel
                                 .getGuild().getMember(user).getRoles().stream()
                                 .map(Role::getName).collect(Collectors.joining(", "))) +
-                                (member!= null && member.getGame() != null ? "\nStatus" +
+                                (member != null && member.getGame() != null ? "\nStatus" +
                                         (member.getUser()
                                                 .isBot() ? " (Current Shard)" : "") + ": " +
                                         (member.getGame().getUrl() == null ? "`" + member

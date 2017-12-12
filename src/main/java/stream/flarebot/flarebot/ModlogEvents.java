@@ -250,7 +250,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
-        if(cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_DELETE)) return;
+        if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_DELETE)) return;
         AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
         if (entry.getUser().isBot()) return;
         User responsible = null;

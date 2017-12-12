@@ -72,7 +72,8 @@ public enum ModlogEvent {
     private boolean showReason;
 
     // GSONs needs
-    ModlogEvent(){}
+    ModlogEvent() {
+    }
 
     ModlogEvent(String title, String description, Color color, boolean defaultEvent) {
         this.title = title;
@@ -103,13 +104,13 @@ public enum ModlogEvent {
     }
 
     public EmbedBuilder getEventEmbed(User user, User responsible, String reason) {
-        if(user == null && responsible == null) {
+        if (user == null && responsible == null) {
             throw new IllegalArgumentException("User or the responsible user has to be not-null! Event: " + this.getName());
         }
         EmbedBuilder eb = new EmbedBuilder()
                 .setAuthor(WordUtils.capitalize(getTitle()), null, user == null ? responsible.getEffectiveAvatarUrl()
                         : user.getEffectiveAvatarUrl());
-        if(user != null)
+        if (user != null)
             eb.addField("User", user.getAsMention() + " " + MessageUtils.getTag(user), true);
         eb.setFooter("ID: " + (user == null ? responsible.getId() : user.getId()), null)
                 .setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
@@ -122,7 +123,7 @@ public enum ModlogEvent {
         eb.setColor(color);
 
         // Custom event changes.
-        if(this == ModlogEvent.FLAREBOT_PURGE)
+        if (this == ModlogEvent.FLAREBOT_PURGE)
             eb.setAuthor(user != null ? "User Purge" : "Chat Purge", null, user == null ? responsible.getEffectiveAvatarUrl()
                     : user.getEffectiveAvatarUrl());
         return eb;
@@ -145,8 +146,8 @@ public enum ModlogEvent {
     }
 
     public static ModlogEvent getEvent(String arg) {
-        for(ModlogEvent event : values()) {
-            if(event.getName().equalsIgnoreCase(arg) || event.getTitle().equalsIgnoreCase(arg)) {
+        for (ModlogEvent event : values()) {
+            if (event.getName().equalsIgnoreCase(arg) || event.getTitle().equalsIgnoreCase(arg)) {
                 return event;
             }
         }

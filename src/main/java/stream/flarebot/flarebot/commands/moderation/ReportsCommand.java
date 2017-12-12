@@ -17,7 +17,6 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -117,7 +116,7 @@ public class ReportsCommand implements Command {
                             return;
                         }
                         Report report = guild.getReportManager().getReport(id);
-                        if(report == null) {
+                        if (report == null) {
                             MessageUtils.sendErrorMessage("Invalid report ID!", channel);
                             return;
                         }

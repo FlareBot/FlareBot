@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,15 +89,15 @@ public class PerGuildPermissions {
     }
 
     public static boolean isCreator(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, FlareBot.DEVELOPER_ID);
+        return checkOfficialGuildForRole(user, Constants.DEVELOPER_ID);
     }
 
     public static boolean isContributor(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, FlareBot.CONTRIBUTOR_ID);
+        return checkOfficialGuildForRole(user, Constants.CONTRIBUTOR_ID);
     }
 
     public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, FlareBot.STAFF_ID);
+        return checkOfficialGuildForRole(user, Constants.STAFF_ID);
     }
 
     public void createDefaultGroup() {
