@@ -20,7 +20,8 @@ public class CassandraController {
     // Cassandra sessions should be kept open, these handle the pooling per node internally.
     private static Session session;
 
-    private CassandraController(){}
+    private CassandraController() {
+    }
 
     public CassandraController(JSONConfig config) {
         Cluster.Builder builder = Cluster.builder().withClusterName("FlareBot Nodes")

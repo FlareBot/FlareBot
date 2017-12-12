@@ -41,7 +41,7 @@ public class ApiRequester {
 
     /* Root methods */
     public static Response request(ApiRoute route, JSONObject object, Method method) {
-        if(!FlareBot.getInstance().isApiEnabled()) return null;
+        if (FlareBot.getInstance().isApiDisabled()) return null;
         try {
             FlareBot.LOGGER.trace("Sending request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                     object.toString() : false));
@@ -53,7 +53,7 @@ public class ApiRequester {
     }
 
     public static void requestAsync(ApiRoute route, JSONObject object, Method method, Callback callback) {
-        if(!FlareBot.getInstance().isApiEnabled()) return;
+        if (FlareBot.getInstance().isApiDisabled()) return;
         FlareBot.LOGGER.trace("Sending async request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                 object.toString() : false));
         if (callback == null) callback = new DefaultCallback();

@@ -1,30 +1,52 @@
 package stream.flarebot.flarebot.mod;
 
+import stream.flarebot.flarebot.annotations.DoNotUse;
+import stream.flarebot.flarebot.mod.modlog.ModAction;
+
 public class Infraction {
 
-    private Action action;
-    private int points;
-    private Punishment solePunishment;
+    private int caseId;
+    private ModAction action;
+    private long user;
+    private long responsible;
+    private String reason;
+    private long duration;
 
-    public Infraction(Action action, int points) {
+    @DoNotUse
+    protected Infraction(ModAction action, long user, long responsible, String reason) {
+        this(action, user, responsible, reason, -1);
+    }
+
+    @DoNotUse
+    protected Infraction(ModAction action, long user, long responsible, String reason, long duration) {
         this.action = action;
-        this.points = points;
+        this.user = user;
+        this.responsible = responsible;
+        this.reason = reason;
+        this.duration = duration;
     }
 
-    public Infraction(Action action, Punishment punishment) {
-        this.action = action;
-        this.solePunishment = punishment;
+    public int getCaseId() {
+        return caseId;
     }
 
-    public Action getAction() {
-        return this.action;
+    public ModAction getAction() {
+        return action;
     }
 
-    public int getPoints() {
-        return this.points;
+    public long getUser() {
+        return user;
     }
 
-    public Punishment getSolePunishment() {
-        return solePunishment;
+    public long getResponsible() {
+        return responsible;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public long getDuration() {
+        return duration;
     }
 }

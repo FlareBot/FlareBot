@@ -2,8 +2,10 @@ package stream.flarebot.flarebot.util;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import com.google.gson.JsonElement;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
+import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
@@ -11,6 +13,7 @@ import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -21,13 +24,14 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
@@ -46,15 +50,21 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -62,6 +72,7 @@ public class GeneralUtils {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
+    private static final Pattern timeRegex = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$");
     private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
     private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
 
@@ -196,7 +207,8 @@ public class GeneralUtils {
     }
 
     public static String truncate(int length, String string, boolean ellipse) {
-        return string.substring(0, Math.min(string.length(), length)) + (string.length() > length ? "..." : "");
+        return string.substring(0, Math.min(string.length(), length - (ellipse ? 3 : 0))) + (string.length() >
+                length - (ellipse ? 3 : 0) && ellipse ? "..." : "");
     }
 
     public static List<Role> getRole(String string, Guild guild) {
@@ -223,7 +235,7 @@ public class GeneralUtils {
                         .findFirst().orElse(null);
             } else {
                 try {
-                    return FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                    return FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                             .findFirst().orElse(null);
@@ -236,7 +248,7 @@ public class GeneralUtils {
                 tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                tmp = FlareBot.getInstance().getGuildByID(guildId).getMembers().stream()
+                tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
                         .map(Member::getUser)
                         .filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
@@ -247,7 +259,7 @@ public class GeneralUtils {
                 if (guildId == null || guildId.isEmpty()) {
                     tmp = FlareBot.getInstance().getUserById(l);
                 } else {
-                    Member temMember = FlareBot.getInstance().getGuildByID(guildId).getMemberById(l);
+                    Member temMember = FlareBot.getInstance().getGuildById(guildId).getMemberById(l);
                     if (temMember != null) {
                         tmp = temMember.getUser();
                     }
@@ -268,7 +280,7 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId, TextChannel channel) {
-        Guild guild = FlareBot.getInstance().getGuildByID(guildId);
+        Guild guild = FlareBot.getInstance().getGuildById(guildId);
         Role role = guild.getRoles().stream()
                 .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
@@ -298,6 +310,25 @@ public class GeneralUtils {
             }
         }
         return null;
+    }
+
+    public static TextChannel getChannel(String arg) {
+        return getChannel(arg, null);
+    }
+
+    public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
+        try {
+            long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
+            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
+        } catch (NumberFormatException e) {
+            if (wrapper != null) {
+                List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
+                if (!tcs.isEmpty()) {
+                    return tcs.get(0);
+                }
+            }
+            return null;
+        }
     }
 
     public static boolean validPerm(String perm) {
@@ -386,9 +417,9 @@ public class GeneralUtils {
     }
 
     public static boolean canChangeNick(String guildId) {
-        if (FlareBot.getInstance().getGuildByID(guildId) != null) {
-            return FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                    FlareBot.getInstance().getGuildByID(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
+        if (FlareBot.getInstance().getGuildById(guildId) != null) {
+            return FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                    FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
         } else
             return false;
     }
@@ -452,6 +483,64 @@ public class GeneralUtils {
         return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
     }
 
+    private static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
+
+    public static String formatTime(LocalDateTime dateTime) {
+        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
+        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
+                .format(timeFormat) + " UTC";
+    }
+
+    private static String getDayOfMonthSuffix(final int n) {
+        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
+        if (n >= 11 && n <= 13) {
+            return "th";
+        }
+        switch (n % 10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
+        }
+    }
+
+    public static String embedToText(MessageEmbed embed) {
+        StringBuilder sb = new StringBuilder();
+        if (embed.getTitle() != null)
+            sb.append("**").append(embed.getTitle()).append("**: ");
+        if (embed.getDescription() != null)
+            sb.append(embed.getDescription()).append(" ");
+        for (MessageEmbed.Field field : embed.getFields()) {
+            sb.append("**").append(field.getName()).append("**: ").append(field.getValue()).append(" ");
+        }
+        if (embed.getFooter() != null)
+            sb.append("*").append(embed.getFooter()).append("*");
+        return sb.toString();
+    }
+
+    public static Map<Boolean, List<Permission>> getChangedPerms(List<Permission> oldPerms, List<Permission> newPerms) {
+        Map<Boolean, List<Permission>> changes = new HashMap<>();
+        List<Permission> removed = new ArrayList<>();
+        List<Permission> added = new ArrayList<>();
+        for (Permission oldPerm : oldPerms) {
+            if (!newPerms.contains(oldPerm)) {
+                removed.add(oldPerm);
+            }
+        }
+        for (Permission newPerm : newPerms) {
+            if (!oldPerms.contains(newPerm)) {
+                added.add(newPerm);
+            }
+        }
+        changes.put(true, added);
+        changes.put(false, removed);
+        return changes;
+    }
+
     /**
      * This is to handle "multi-selection commands" for example the info and stats commands which take one or more
      * arguments and get select data from an enum
@@ -478,27 +567,111 @@ public class GeneralUtils {
     }
 
     /**
+     * Checks if paths exist in the given json
+     * <p>
+     * Key of the {@link Pair} is a list of the paths that exist in the JSON
+     * Value of the {@link Pair} is a list of the paths that don't exist in the JSON
+     *
+     * @param json  The JSON to check <b>Mustn't be null</b>
+     * @param paths The paths to check <b>Mustn't be null or empty</b>
+     * @return
+     */
+    public static Pair<List<String>, List<String>> jsonContains(String json, String... paths) {
+        Objects.requireNonNull(json);
+        Objects.requireNonNull(paths);
+        if (paths.length == 0)
+            throw new IllegalArgumentException("Paths cannot be empty!");
+        JsonElement jelem = FlareBot.GSON.fromJson(json, JsonElement.class);
+        JSONConfig config = new JSONConfig(jelem.getAsJsonObject());
+        List<String> contains = new ArrayList<>();
+        List<String> notContains = new ArrayList<>();
+        for (String path : paths) {
+            if (path == null) continue;
+            if (config.getElement(path).isPresent())
+                contains.add(path);
+            else
+                notContains.add(path);
+        }
+        return new Pair<>(Collections.unmodifiableList(contains), Collections.unmodifiableList(notContains));
+    }
+
+    /**
      * Message fields:
-     *  - Message ID
-     *  - Author ID
-     *  - Channel ID
-     *  - Guild ID
-     *  - Raw Content
-     *  - Timestamp (Epoch seconds)
+     * - Message ID
+     * - Author ID
+     * - Channel ID
+     * - Guild ID
+     * - Raw Content
+     * - Timestamp (Epoch seconds)
      *
      * @param message The message to serialise
      * @return The serialised message
      */
-    public static String getRedisMessage(Message message) {
-        JSONObject object = new JSONObject();
-        object.put("id", message.getId());
-        object.put("author_id", message.getAuthor().getId());
-        object.put("channel_id", message.getChannel().getId());
-        object.put("guild_id", message.getGuild().getId());
-        object.put("content", message.getRawContent());
-        object.put("timestamp", message.getCreationTime().toEpochSecond());
-        return object.toString();
+    public static String getRedisMessageJson(Message message) {
+        return FlareBot.GSON.toJson(new RedisMessage(
+                message.getId(),
+                message.getAuthor().getId(),
+                message.getChannel().getId(),
+                message.getGuild().getId(),
+                message.getRawContent(),
+                message.getCreationTime().toInstant().toEpochMilli()
+        ));
     }
 
+    public static RedisMessage toRedisMessage(String json) {
+        Pair<List<String>, List<String>> paths = jsonContains(json,
+                "messageID",
+                "authorID",
+                "channelID",
+                "guildID",
+                "content",
+                "timestamp"
+        );
+        if (paths.getKey().size() != 6) {
+            throw new IllegalArgumentException("Malformed JSON! Missing paths: " +
+                    Arrays.toString(paths.getValue().toArray(new String[paths.getValue().size()])));
+        }
+        return FlareBot.GSON.fromJson(json, RedisMessage.class);
+    }
+
+    public static String getVerificationString(Guild.VerificationLevel level) {
+        switch (level) {
+            case HIGH:
+                return "(\u256F\u00B0\u25A1\u00B0\uFF09\u256F\uFE35 \u253B\u2501\u253B"; //(╯°□°）╯︵ ┻━┻
+            case VERY_HIGH:
+                return "\u253B\u2501\u253B\u5F61 \u30FD(\u0CA0\u76CA\u0CA0)\u30CE\u5F61\u253B\u2501\u253B"; //┻━┻彡 ヽ(ಠ益ಠ)ノ彡┻━┻
+            default:
+                return level.toString().charAt(0) + level.toString().substring(1).toLowerCase();
+        }
+    }
+
+    public static Long parseTime(String time) {
+        Matcher digitMatcher = timeRegex.matcher(time);
+        if (digitMatcher.matches()) {
+            try {
+                return new PeriodFormatterBuilder()
+                        .appendHours().appendSuffix(":")
+                        .appendMinutes().appendSuffix(":")
+                        .appendSeconds()
+                        .toFormatter()
+                        .parsePeriod(time)
+                        .toStandardDuration().getMillis();
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+        PeriodFormatter formatter = new PeriodFormatterBuilder()
+                .appendHours().appendSuffix("h")
+                .appendMinutes().appendSuffix("m")
+                .appendSeconds().appendSuffix("s")
+                .toFormatter();
+        Period period;
+        try {
+            period = formatter.parsePeriod(time);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        return period.toStandardDuration().getMillis();
+    }
 
 }
