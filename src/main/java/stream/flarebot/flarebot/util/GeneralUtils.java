@@ -107,7 +107,7 @@ public class GeneralUtils {
     public static String getProgressBar(Track track) {
         float percentage = (100f / track.getTrack().getDuration() * track.getTrack().getPosition());
         return "[" + StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)) +
-                "]()" +
+                "](https://github.com/FlareBot)" +
                 StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)) +
                 " " + GeneralUtils.percentageFormat.format(percentage) + "%";
     }
