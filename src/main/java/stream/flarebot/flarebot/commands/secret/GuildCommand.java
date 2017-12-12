@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageType;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -63,19 +64,16 @@ public class GuildCommand implements Command {
                             .setColor(guild.getBetaAccess() ? Color.GREEN : Color.RED)
                             .setDescription("This guild has successfully been " + (guild.getBetaAccess() ? "given" : "removed from") + " beta access!")
                             .build()).queue();
-                    return;
                 } else if (args.length == 2) {
                     GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[1]);
                     if (guildWrapper == null) {
                         MessageUtils.sendErrorMessage("That guild does not exist!", channel);
-                        return;
                     } else {
                         guildWrapper.setBetaAccess(!guildWrapper.getBetaAccess());
                         channel.sendMessage(MessageUtils.getEmbed(sender)
                                 .setColor(guildWrapper.getBetaAccess() ? Color.GREEN : Color.RED)
                                 .setDescription("The guild `" + guildWrapper.getGuild().getName() + "` has successfully been " + (guildWrapper.getBetaAccess() ? "given" : "removed from") + " beta access!")
                                 .build()).queue();
-                        return;
                     }
                 }
             } else if (args[0].equalsIgnoreCase("data")) {
@@ -84,7 +82,6 @@ public class GuildCommand implements Command {
                     wrapper = FlareBotManager.getInstance().getGuild(args[1]);
                 if (wrapper == null) {
                     MessageUtils.sendErrorMessage("That guild does not exist!", channel);
-                    return;
                 } else {
                     try {
                         PrintWriter out = new PrintWriter("data.json");
@@ -136,7 +133,6 @@ public class GuildCommand implements Command {
         }
         FlareBotManager.getInstance().getGuild(guild1.getId()).addBlocked(reason);
         MessageUtils.sendErrorMessage("Guild has been blocked!", channel);
-        return;
     }
 
     private void handleUnblock(TextChannel channel, String guildId) {
@@ -150,6 +146,6 @@ public class GuildCommand implements Command {
             return;
         }
         FlareBotManager.getInstance().getGuild(guild1.getId()).revokeBlock();
-        MessageUtils.autoDeleteMessage(MessageUtils.sendSuccessMessage("Guild has been unblocked!", channel), 5000);
+        MessageUtils.sendMessage(MessageType.SUCCESS, "Guild has been unblocked!", channel, null, 5000);
     }
 }

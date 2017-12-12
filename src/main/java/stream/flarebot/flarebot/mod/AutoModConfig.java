@@ -1,8 +1,8 @@
 package stream.flarebot.flarebot.mod;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -94,7 +94,7 @@ public class AutoModConfig {
                                     .getAsMention() + " and has been given " + getActions()
                                     .get(action) + " points.")
                             .addField("Reason", action.getName(), true)
-                            .addField("Message", message.getContent(), true)
+                            .addField("Message", message.getContentDisplay(), true)
                             .setColor(Color.white)
                             .build()).queue();
         }

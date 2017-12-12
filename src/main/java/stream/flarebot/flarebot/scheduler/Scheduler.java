@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -39,8 +38,8 @@ public class Scheduler {
         return true;
     }
 
-    public static void delayTask(Runnable task, long delay) {
-        tasks.put(task.toString() + System.currentTimeMillis(), timer.schedule(task, delay, TimeUnit.MILLISECONDS));
+    public static void delayTask(Runnable task, String taskName, long delay) {
+        tasks.put(taskName, timer.schedule(task, delay, TimeUnit.MILLISECONDS));
     }
 
     public static void delayTask(FutureAction action) {

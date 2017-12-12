@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.currency;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -17,11 +17,8 @@ import stream.flarebot.flarebot.util.currency.CurrencyConversionUtil;
 import java.awt.Color;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Random;
 
 public class ConvertCommand implements Command {
-
-    private Random random = new Random();
 
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.#################");
 
@@ -46,17 +43,6 @@ public class ConvertCommand implements Command {
                     return;
                 }
 
-                CurrencyComparison comparison;
-                if (from.equalsIgnoreCase(to)) {
-                    if ((random.nextInt(100) + 1) == 100) {
-                        channel.sendMessage("I had hoped you didn't need me for that...").complete();
-                        FlareBot.getInstance().logEG("Convert a currency to itself...", this, guild.getGuild(), sender);
-                    }
-                    comparison = new CurrencyComparison(from, to, (double) 1);
-                } else {
-                    comparison = CurrencyConversionUtil.getCurrencyComparison(from, to);
-                }
-
                 Double amount;
                 try {
                     amount = Double.parseDouble(args[0]);
@@ -64,7 +50,8 @@ public class ConvertCommand implements Command {
                     MessageUtils.sendErrorMessage("That is not a valid amount!", channel);
                     return;
                 }
-                channel.sendMessage(getCurrencyConversionEmbed(sender, comparison, amount)).queue();
+                channel.sendMessage(getCurrencyConversionEmbed(sender,
+                        CurrencyConversionUtil.getCurrencyComparison(channel, sender, this, from, to), amount)).queue();
 
                 return;
             } catch (IOException e) {
@@ -92,7 +79,7 @@ public class ConvertCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.GENERAL;
+        return CommandType.CURRENCY;
     }
 
     @Override

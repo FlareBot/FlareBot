@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot;
+package stream.flarebot.flarebot.util.errorhandling;
 
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
@@ -11,7 +11,8 @@ import java.util.Iterator;
  */
 @SuppressWarnings("deprecation")
 public enum Markers implements Marker {
-    NO_ANNOUNCE;
+    NO_ANNOUNCE,
+    TAG_DEVELOPER;
 
     final Marker marker;
 

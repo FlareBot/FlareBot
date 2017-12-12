@@ -1,14 +1,10 @@
 package stream.flarebot.flarebot.util;
 
-import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
-import stream.flarebot.flarebot.commands.general.PollCommand;
-import stream.flarebot.flarebot.commands.general.TagsCommand;
+import stream.flarebot.flarebot.commands.useful.PollCommand;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +76,10 @@ public class UsageParser {
 
             if (applicable) strings.add(usage);
         }
+        if (strings.isEmpty() || strings.stream().filter(String::isEmpty).count() == strings.size()) {
+            Collections.addAll(strings, usages);
+            return strings;
+        }
         return strings;
     }
 
@@ -100,7 +100,7 @@ public class UsageParser {
         SINGLE_SUB_COMMAND(Pattern.compile("^[A-Za-z]+$")),
         MULTIPLE_SUB_COMMAND(Pattern.compile("^[A-z]+(\\|+[A-z]+)+$")),
         REQUIRED_ARG(Pattern.compile("^<.+>$")),
-        OPTIONAL_ARG(Pattern.compile("^\\[.+\\]$"));
+        OPTIONAL_ARG(Pattern.compile("^\\[.+]$"));
 
         private Pattern regex;
 

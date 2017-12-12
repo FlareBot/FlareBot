@@ -332,10 +332,8 @@ public enum Language {
     }
 
     public EmbedBuilder getErrorEmbed(Optional<User> user, String guildId, Object... args) {
-        if (user.isPresent())
-            return MessageUtils.getEmbed(user.get()).setDescription(get(guildId, this, args));
-        else
-            return MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(this, guildId));
+        return user.map(user1 -> MessageUtils.getEmbed(user1).setDescription(get(guildId, this, args)))
+                .orElseGet(() -> MessageUtils.getEmbed().setDescription(FlareBotManager.getInstance().getLang(this, guildId)));
     }
 
     public Message send(MessageChannel channel, String guildId, Object... args) {

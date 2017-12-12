@@ -5,6 +5,7 @@ import stream.flarebot.flarebot.util.objects.ApiRoute;
 public class CurrencyApiRoutes {
 
     public static class NormalApi {
+
         private static final String BASE_URL = "https://api.fixer.io";
 
         public static final ApiRoute LATEST_ALL = new ApiRoute(BASE_URL + "/latest");
@@ -21,6 +22,7 @@ public class CurrencyApiRoutes {
     }
 
     public static class CrytoApi {
+
         private static final String BASE_URL = "https://api.cryptonator.com/api";
 
         public static final ApiRoute BASIC_TICKER = new ApiRoute(BASE_URL + "/ticker/{from}-{to}");

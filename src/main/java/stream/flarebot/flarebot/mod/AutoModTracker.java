@@ -34,14 +34,14 @@ public class AutoModTracker extends ListenerAdapter {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (event.getMessage() == null || event.getAuthor().isBot() || event.getAuthor().isFake() || event
-                .getGuild() == null || event.getMessage().getRawContent().isEmpty()) return;
-        String message = event.getMessage().getRawContent();
+                .getGuild() == null || event.getMessage().getContentRaw().isEmpty()) return;
+        String message = event.getMessage().getContentRaw();
         // 218ns performance :thumbsup:
         String command = message.substring(1);
         int index = message.indexOf(' ');
         if (index > 0)
             command = command.substring(0, index - 1);
-        if (FlareBot.getInstance().getCommand(command) != null) return;
+        if (FlareBot.getInstance().getCommand(command, event.getAuthor()) != null) return;
 
         String userId = event.getAuthor().getId();
         AutoModGuild guild = FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getAutoModGuild();
@@ -57,7 +57,7 @@ public class AutoModTracker extends ListenerAdapter {
         for (Action action : Action.values) {
             if (action.check(event.getMessage(), guild.getConfig())) {
                 if (action == Action.LINKS) {
-                    if (event.getMessage().getContent()
+                    if (event.getMessage().getContentRaw()
                             .startsWith(FlareBot.getPrefix(event.getGuild().getId()) + "search")) {
                         if (MessageUtils.hasYouTubeLink(event.getMessage())) {
                             return;
@@ -67,7 +67,7 @@ public class AutoModTracker extends ListenerAdapter {
 
                 if (action == Action.LINKS || action == Action.INVITE_LINKS || action == Action.PROFANITY) {
                     for (String whitelistItem : guild.getConfig().getWhitelist(action))
-                        if (event.getMessage().getContent().contains(whitelistItem))
+                        if (event.getMessage().getContentRaw().contains(whitelistItem))
                             continue outer;
                 }
 

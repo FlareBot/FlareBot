@@ -24,7 +24,7 @@ repositories {
     maven { url "http://repo.maven.apache.org/maven2" }
 }
 dependencies {
-    compile group: 'com.github.DV8FromTheWorld', name: 'JDA', version: 'f18b535'
+    compile group: 'com.github.DV8FromTheWorld', name: 'JDA', version: 'development-SNAPSHOT'
 
     compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.39'
     compile(group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.5') {

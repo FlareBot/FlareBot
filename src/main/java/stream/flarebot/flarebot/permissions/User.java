@@ -5,6 +5,7 @@ import org.eclipse.jetty.util.ConcurrentHashSet;
 import java.util.Set;
 
 public class User {
+
     private final Set<String> groups = new ConcurrentHashSet<>();
     private final Set<String> permissions = new ConcurrentHashSet<>();
 

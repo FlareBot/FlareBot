@@ -23,7 +23,6 @@ public class AutoModCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel, sender, args);
-            return;
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("config")) {
                 AutoModConfig config = guild.getAutoModConfig();

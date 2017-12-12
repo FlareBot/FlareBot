@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.scheduler;
 
 import com.datastax.driver.core.PreparedStatement;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
@@ -12,9 +11,6 @@ import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.mod.ModlogAction;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 public class FutureAction {
 
@@ -165,7 +161,8 @@ public class FutureAction {
 
     public void queue() {
         // I have to minus here since this has the complete end time.
-        Scheduler.delayTask(this::execute, getExpires().minus(System.currentTimeMillis()).getMillis());
+        Scheduler.delayTask(this::execute, "FutureTask-" + action.name() + "-" + expires.toString(),
+                getExpires().minus(System.currentTimeMillis()).getMillis());
         if (update == null) update = CassandraController.prepare("UPDATE flarebot.future_tasks SET responsible = ?, " +
                 "target = ?, content = ?, expires_at = ?, action = ? WHERE guild_id = ? AND channel_id = ? " +
                 "AND created_at = ?");
