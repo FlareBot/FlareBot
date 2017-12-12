@@ -191,18 +191,17 @@ public class FlareBotManager {
                     + guildId + "'");
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
-            if (row != null) {
-                try {
+            try {
+                if (row != null)
                     wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                } catch (JsonSyntaxException e) {
-                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
-                            "Guild ID: " + id + "\n" +
-                            "Guild JSON: " + row.getString("data") + "\n" +
-                            "Error: " + e.getMessage(), e);
-                    return null;
-                }
-            } else
-                wrapper = new GuildWrapper(id);
+                else
+                    wrapper = new GuildWrapper(id);
+            } catch(Exception e) {
+                FlareBot.LOGGER.error("Failed to load guild data!" +
+                        "\nJSON: " + (row != null ? MessageUtils.paste(row.getString("data")) : "New guild data!") +
+                        "\nGuild ID: " + id, Markers.TAG_DEVELOPER);
+                return null;
+            }
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 
