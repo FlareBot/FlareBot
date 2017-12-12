@@ -14,7 +14,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -73,17 +72,18 @@ import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
+import stream.flarebot.flarebot.web.DataInterceptor;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -102,7 +102,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -140,15 +139,6 @@ public class FlareBot {
 
     public static final Gson GSON = new GsonBuilder().create();
 
-    public static final String OFFICIAL_GUILD = "226785954537406464";
-    public static final String FLAREBOT_API = "https://api.flarebot.stream/";
-
-    public static final long DEVELOPER_ID = 226788297156853771L;
-    public static final long CONTRIBUTOR_ID = 272324832279003136L;
-    public static final long STAFF_ID = 320327762881675264L;
-
-    private static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
-
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
@@ -159,9 +149,10 @@ public class FlareBot {
     private static boolean testBot = false;
 
     private static OkHttpClient client =
-            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
+                    .addInterceptor(new DataInterceptor()).build();
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Spark.port(8080);
         Sentry.init();
         try {
@@ -214,9 +205,7 @@ public class FlareBot {
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
         if (config.getArray("options").isPresent()) {
-            Iterator<JsonElement> it = config.getArray("options").get().iterator();
-            while (it.hasNext()) {
-                JsonElement em = it.next();
+            for (JsonElement em : config.getArray("options").get()) {
                 if (em.getAsString() != null) {
                     if (em.getAsString().equals("tb")) {
                         FlareBot.testBot = true;
@@ -284,13 +273,13 @@ public class FlareBot {
 
         latch = new CountDownLatch(1);
         events = new Events(this);
-        //tracker = new AutoModTracker();
         LOGGER.info("Starting builders");
         try {
             JDABuilder builder = new JDABuilder(AccountType.BOT)
                     .addEventListener(events)
                     .addEventListener(new ModlogEvents())
                     .setToken(tkn)
+                    .setHttpClientBuilder(client.newBuilder())
                     .setAudioSendFactory(new NativeAudioSendFactory());
             if (clients.length == 1) {
                 clients[0] = builder.buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
@@ -404,7 +393,7 @@ public class FlareBot {
         }
         System.setErr(new PrintStream(new OutputStream() {
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
             }
         })); // No operation STDERR. Will not do much of anything, except to filter out some Jsoup spam
 
@@ -559,7 +548,7 @@ public class FlareBot {
             public void run() {
                 sendData();
             }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(30));
+        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
 
         new FlareBotTask("spam" + System.currentTimeMillis()) {
             @Override
@@ -677,7 +666,7 @@ public class FlareBot {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
                 //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
-                .put("official_guild_users", getGuildById(OFFICIAL_GUILD).getMembers().size())
+                .put("official_guild_users", getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
                 .put("connected_voice_channels", getConnectedVoiceChannels().size())
@@ -686,7 +675,8 @@ public class FlareBot {
                         .mapToInt(guild -> musicManager.getPlayer(guild.getId())
                                 .getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
-                .put("uptime", getUptime());
+                .put("uptime", getUptime())
+                .put("http_requests", DataInterceptor.getRequests().intValue());
 
         ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data);
     }
@@ -971,15 +961,15 @@ public class FlareBot {
     }
 
     public TextChannel getErrorLogChannel() {
-        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("226786557862871040"));
+        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("226786557862871040"));
     }
 
     public TextChannel getGuildLogChannel() {
-        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("260401007685664768"));
+        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("260401007685664768"));
     }
 
     public TextChannel getEGLogChannel() {
-        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
+        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
     }
 
     public void logEG(String eg, Command command, Guild guild, User user) {
@@ -992,7 +982,7 @@ public class FlareBot {
     }
 
     public TextChannel getImportantLogChannel() {
-        return (testBot ? getChannelByID(FLARE_TEST_BOT_CHANNEL) : getChannelByID("358978253966278657"));
+        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("358978253966278657"));
     }
 
 
@@ -1122,8 +1112,8 @@ public class FlareBot {
         }
     }
 
-    public boolean isApiEnabled() {
-        return apiEnabled;
+    public boolean isApiDisabled() {
+        return !apiEnabled;
     }
 
     private WebhookClient importantHook;
@@ -1136,7 +1126,7 @@ public class FlareBot {
     }
 
     public Guild getOfficialGuild() {
-        return getGuildById(OFFICIAL_GUILD);
+        return getGuildById(Constants.OFFICIAL_GUILD);
     }
 
     private static void handleLogArchive() {
