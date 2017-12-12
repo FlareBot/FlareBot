@@ -21,6 +21,7 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import io.github.binaryoverload.JSONConfig;
+import io.sentry.Sentry;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -162,7 +163,7 @@ public class FlareBot {
 
     public static void main(String[] args) throws Exception {
         Spark.port(8080);
-
+        Sentry.init();
         try {
             File file = new File("config.json");
             if (!file.exists())
