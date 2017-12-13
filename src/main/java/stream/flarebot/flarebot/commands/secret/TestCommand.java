@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -32,8 +33,7 @@ public class TestCommand implements Command {
         buttons.addButton(FlareBot.getInstance().getOfficialGuild().getEmoteById("355776081384570881"), new ButtonRunnable() {
             @Override
             public void run(User user) {
-                channel.sendMessage(user.getAsMention() + " I think you're addicted");
-                FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuild().getId()).skip();
+                channel.sendMessage(user.getAsMention() + " I think you're addicted").queue();
             }
         });
         ButtonUtil.sendButtonedMessage(channel, "Buttons test", buttons);

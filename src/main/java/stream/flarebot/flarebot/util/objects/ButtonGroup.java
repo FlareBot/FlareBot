@@ -3,14 +3,14 @@ package stream.flarebot.flarebot.util.objects;
 import net.dv8tion.jda.core.entities.Emote;
 import stream.flarebot.flarebot.util.ButtonRunnable;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class ButtonGroup {
     Map<Emote, ButtonRunnable> buttons;
     public ButtonGroup() {
-        buttons = new HashMap<>();
+        buttons = new LinkedHashMap<>();
     }
 
     public boolean addButton(Emote emoje, ButtonRunnable runnable) {
