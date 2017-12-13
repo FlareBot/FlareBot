@@ -17,19 +17,19 @@ public class TestCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         ButtonGroup buttons = new ButtonGroup();
-        buttons.addButton(guild.getGuild().getEmoteById("368861419602575364"), new ButtonRunnable() {
+        buttons.addButton(FlareBot.getInstance().getOfficialGuild().getEmoteById("368861419602575364"), new ButtonRunnable() {
             @Override
             public void run(User user) {
                 channel.sendMessage(user.getAsMention() + " ban hammer clicked").queue();
             }
         });
-        buttons.addButton(guild.getGuild().getEmoteById("355776056092917761"), new ButtonRunnable() {
+        buttons.addButton(FlareBot.getInstance().getOfficialGuild().getEmoteById("355776056092917761"), new ButtonRunnable() {
             @Override
             public void run(User user) {
                 channel.sendMessage(user.getAsMention() + " tick clicked").queue();
             }
         });
-        buttons.addButton(guild.getGuild().getEmoteById("355776081384570881"), new ButtonRunnable() {
+        buttons.addButton(FlareBot.getInstance().getOfficialGuild().getEmoteById("355776081384570881"), new ButtonRunnable() {
             @Override
             public void run(User user) {
                 channel.sendMessage(user.getAsMention() + " I think you're addicted");
