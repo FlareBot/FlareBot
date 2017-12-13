@@ -96,7 +96,7 @@ public class Events extends ListenerAdapter {
             ButtonGroup buttons = ButtonUtil.getButtonGroup(event.getMessageId());
             for (Emote emote: buttons.getButtonEmotes()) {
                 if (event.getReactionEmote().getEmote().equals(emote)) {
-                    buttons.getRunnable(emote).run();
+                    buttons.getRunnable(emote).run(event.getUser());
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for(MessageReaction reaction: message.getReactions()) {
                             if(reaction.getReactionEmote().getEmote().equals(emote)) {

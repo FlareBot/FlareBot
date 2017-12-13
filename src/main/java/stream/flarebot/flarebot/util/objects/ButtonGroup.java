@@ -1,18 +1,19 @@
 package stream.flarebot.flarebot.util.objects;
 
 import net.dv8tion.jda.core.entities.Emote;
+import stream.flarebot.flarebot.util.ButtonRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class ButtonGroup {
-    Map<Emote, Runnable> buttons;
+    Map<Emote, ButtonRunnable> buttons;
     public ButtonGroup() {
         buttons = new HashMap<>();
     }
 
-    public boolean addButton(Emote emoje, Runnable runnable) {
+    public boolean addButton(Emote emoje, ButtonRunnable runnable) {
         if (!buttons.containsKey(emoje)) {
             buttons.put(emoje, runnable);
             return true;
@@ -25,7 +26,7 @@ public class ButtonGroup {
         return buttons.keySet();
     }
 
-    public Runnable getRunnable(Emote emote) {
+    public ButtonRunnable getRunnable(Emote emote) {
         return buttons.get(emote);
     }
 }
