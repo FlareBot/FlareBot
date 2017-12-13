@@ -14,9 +14,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
+import io.sentry.Sentry;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -48,20 +48,18 @@ import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.automod.*;
+import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
-import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.*;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
@@ -70,17 +68,18 @@ import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
+import stream.flarebot.flarebot.web.DataInterceptor;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -94,8 +93,6 @@ import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,15 +134,6 @@ public class FlareBot {
 
     public static final Gson GSON = new GsonBuilder().create();
 
-    public static final String OFFICIAL_GUILD = "226785954537406464";
-    public static final String FLAREBOT_API = "https://api.flarebot.stream/";
-
-    public static final long DEVELOPER_ID = 226788297156853771L;
-    public static final long CONTRIBUTOR_ID = 272324832279003136L;
-    public static final long STAFF_ID = 320327762881675264L;
-
-    private static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
-
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
@@ -153,11 +141,12 @@ public class FlareBot {
     private static boolean testBot = false;
 
     private static OkHttpClient client =
-            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
+                    .addInterceptor(new DataInterceptor()).build();
 
     public static void main(String[] args) {
         Spark.port(8080);
-
+        Sentry.init();
         try {
             File file = new File("config.json");
             if (!file.exists())
@@ -178,6 +167,9 @@ public class FlareBot {
         required.add("cassandra.username");
         required.add("cassandra.password");
         required.add("misc.yt");
+        required.add("redis.host");
+        required.add("redis.port");
+        required.add("redis.password");
 
         boolean good = true;
         for (String req : required) {
@@ -197,7 +189,8 @@ public class FlareBot {
             System.exit(1);
         }
 
-        new CassandraController().init(config);
+        new CassandraController(config);
+        new RedisController(config);
 
         FlareBot.youtubeApi = config.getString("misc.yt").get();
 
@@ -241,8 +234,6 @@ public class FlareBot {
     private String version = null;
     private ShardManager shardManager;
 
-    private DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
-
     private Set<Command> commands = ConcurrentHashMap.newKeySet();
     private PlayerManager musicManager;
     private long startTime;
@@ -270,6 +261,7 @@ public class FlareBot {
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setShardsTotal(2)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
+					.setHttpClientBuilder(client.newBuilder())
                     .build();
 
             prefixes = new Prefixes();
@@ -363,10 +355,11 @@ public class FlareBot {
         registerCommand(new KickCommand());
         registerCommand(new ForceBanCommand());
         registerCommand(new BanCommand());
+        registerCommand(new TempBanCommand());
+        registerCommand(new UnbanCommand());
         registerCommand(new MuteCommand());
         registerCommand(new TempMuteCommand());
         registerCommand(new UnmuteCommand());
-        registerCommand(new TempBanCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
@@ -382,8 +375,8 @@ public class FlareBot {
 
         registerCommand(new TagsCommand());
         registerCommand(new PostUpdateCommand());
-		registerCommand(new StatusCommand());
-		registerCommand(new RemindCommand());
+        registerCommand(new StatusCommand());
+        registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
 
@@ -456,7 +449,7 @@ public class FlareBot {
             public void run() {
                 sendData();
             }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(30));
+        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
 
         new FlareBotTask("spam" + System.currentTimeMillis()) {
             @Override
@@ -580,8 +573,8 @@ public class FlareBot {
     private void sendData() {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
-				//.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
-                .put("official_guild_users", getGuildById(OFFICIAL_GUILD).getMembers().size())
+                //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
+                .put("official_guild_users", getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
                 .put("connected_voice_channels", getConnectedVoiceChannels())
@@ -590,7 +583,8 @@ public class FlareBot {
                         .mapToInt(guild -> musicManager.getPlayer(guild.getId())
                                 .getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
-                .put("uptime", getUptime());
+                .put("uptime", getUptime())
+                .put("http_requests", DataInterceptor.getRequests().intValue());
 
         ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data);
     }
@@ -862,15 +856,15 @@ public class FlareBot {
     }
 
     public TextChannel getErrorLogChannel() {
-        return (testBot ? getChannelById(FLARE_TEST_BOT_CHANNEL) : getChannelById("226786557862871040"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("226786557862871040"));
     }
 
     public TextChannel getGuildLogChannel() {
-        return (testBot ? getChannelById(FLARE_TEST_BOT_CHANNEL) : getChannelById("260401007685664768"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("260401007685664768"));
     }
 
     public TextChannel getEGLogChannel() {
-        return (testBot ? getChannelById(FLARE_TEST_BOT_CHANNEL) : getChannelById("358950369642151937"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("358950369642151937"));
     }
 
     public void logEG(String eg, Command command, Guild guild, User user) {
@@ -883,7 +877,7 @@ public class FlareBot {
     }
 
     public TextChannel getImportantLogChannel() {
-        return (testBot ? getChannelById(FLARE_TEST_BOT_CHANNEL) : getChannelById("358978253966278657"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("358978253966278657"));
     }
 
 
@@ -980,29 +974,6 @@ public class FlareBot {
         return getClient().retrieveUserById(id).complete();
     }
 
-    public String formatTime(LocalDateTime dateTime) {
-        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
-        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
-                .format(timeFormat) + " UTC";
-    }
-
-    private String getDayOfMonthSuffix(final int n) {
-        if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
-        if (n >= 11 && n <= 13) {
-            return "th";
-        }
-        switch (n % 10) {
-            case 1:
-                return "st";
-            case 2:
-                return "nd";
-            case 3:
-                return "rd";
-            default:
-                return "th";
-        }
-    }
-
     public boolean isTestBot() {
         return testBot;
     }
@@ -1031,11 +1002,11 @@ public class FlareBot {
         return shardManager;
     }
 
-    public boolean isApiEnabled() {
-        return apiEnabled;
-    }
+    public boolean isApiDisabled() {
+        return !apiEnabled;
+	}
 
-	private WebhookClient importantHook;
+    private WebhookClient importantHook;
 
     private WebhookClient getImportantWebhook() {
         if(!config.getString("bot.importantHook").isPresent())
@@ -1046,7 +1017,7 @@ public class FlareBot {
     }
 
     public Guild getOfficialGuild() {
-        return getGuildById(OFFICIAL_GUILD);
+        return getGuildById(Constants.OFFICIAL_GUILD);
     }
 
     private static void handleLogArchive() {
@@ -1055,8 +1026,8 @@ public class FlareBot {
             String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
 
             File dir = new File("logs");
-            if(!dir.exists())
-                if(!dir.mkdir())
+            if (!dir.exists())
+                if (!dir.mkdir())
                     LOGGER.error("Failed to create directory for latest log!");
             File f = new File(dir, "latest.log " + time + ".zip");
             File latestLog = new File("latest.log");
@@ -1076,7 +1047,7 @@ public class FlareBot {
             zos.close();
             fos.close();
 
-            if(!latestLog.delete()) {
+            if (!latestLog.delete()) {
                 throw new IllegalStateException("Failed to delete the old log file!");
             }
         } catch (IOException e) {

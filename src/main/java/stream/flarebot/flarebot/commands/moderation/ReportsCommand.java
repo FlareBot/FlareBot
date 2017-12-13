@@ -3,18 +3,20 @@ package stream.flarebot.flarebot.commands.moderation;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
+import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.awt.Color;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -108,23 +110,28 @@ public class ReportsCommand implements Command {
                         } catch (IllegalArgumentException e) {
                             EmbedBuilder errorBuilder = new EmbedBuilder();
                             errorBuilder.setDescription("Invalid status: `" + args[2] + "`");
-                            errorBuilder.addField("Statuses", "**" + Arrays.stream(ReportStatus.values()).map(ReportStatus::getMessage).collect(Collectors.joining("**\n**")) + "**", false);
+                            errorBuilder.addField("Statuses", "**" + Arrays.stream(ReportStatus.values())
+                                    .map(ReportStatus::getMessage).collect(Collectors.joining("**\n**")) + "**", false);
                             MessageUtils.sendErrorMessage(errorBuilder, channel);
                             return;
                         }
-                        if (guild.getReportManager().getReport(id).getStatus().equals(status)) {
+                        Report report = guild.getReportManager().getReport(id);
+                        if (report == null) {
+                            MessageUtils.sendErrorMessage("Invalid report ID!", channel);
+                            return;
+                        }
+
+                        if (report.getStatus() == status) {
                             MessageUtils.sendInfoMessage("Current status is: **" + status.getMessage() + "**", channel, sender);
                         } else {
-                            ReportStatus old = guild.getReportManager().getReport(id).getStatus();
-                            guild.getReportManager().getReport(id).setStatus(status);
+                            ReportStatus old = report.getStatus();
+                            report.setStatus(status);
                             MessageUtils.sendSuccessMessage(String.format("Changed status of Report with ID: **%d** to **%s**", id, status.getMessage()), channel, sender);
-                            guild.getAutoModConfig().postToModLog(new EmbedBuilder()
-                                    .setTitle("Report edited")
-                                    .setColor(Color.WHITE)
-                                    .addField("Report ID", String.valueOf(id), true)
-                                    .addField("Old Status", old.getMessage(), true)
-                                    .addField("New Status", guild.getReportManager().getReport(id).getStatus().getMessage(), true)
-                                    .addField("Responsible moderator", sender.getAsMention(), true).build());
+                            ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.REPORT_EDITED, null, sender, null,
+                                    new MessageEmbed.Field("Report ID", String.valueOf(id), true),
+                                    new MessageEmbed.Field("Old Status", old.getMessage(), true),
+                                    new MessageEmbed.Field("New Status", report.getStatus().getMessage(), true),
+                                    new MessageEmbed.Field("Responsible moderator", sender.getAsMention(), true));
                         }
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);

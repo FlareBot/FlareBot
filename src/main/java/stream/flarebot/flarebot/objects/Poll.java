@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -78,7 +79,7 @@ public class Poll {
         getPollOptions().forEach(option -> builder.addField("Option " + (getPollOptions().indexOf(option) + 1), option.getOption() + "\nVotes: " + option.getVotes(), true));
         builder.setColor(pollColor)
                 .addBlankField(false)
-                .addField("End", (isClosed() ? "Closed" : "The poll will be ending at `" + FlareBot.getInstance().formatTime(getEndTime()) + "`"), false)
+                .addField("End", (isClosed() ? "Closed" : "The poll will be ending at `" + GeneralUtils.formatTime(getEndTime()) + "`"), false)
                 .addField("Total Votes", String.valueOf(getPollOptions().stream().mapToInt(PollOption::getVotes).sum()), true);
         return builder;
     }

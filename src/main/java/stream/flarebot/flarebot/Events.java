@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -18,7 +19,6 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
@@ -30,13 +30,16 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
+import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -74,8 +77,8 @@ public class Events extends ListenerAdapter {
 
     static final List<Long> durations = new ArrayList<>();
 
-	private final Map<Integer, Long> shardEventTime = new HashMap<>();
-	private final AtomicInteger commandCounter = new AtomicInteger(0);
+    private final Map<Integer, Long> shardEventTime = new HashMap<>();
+    private final AtomicInteger commandCounter = new AtomicInteger(0);
 
     Events(FlareBot bot) {
         this.flareBot = bot;
@@ -84,7 +87,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
-        if (!event.getGuild().getId().equals(FlareBot.OFFICIAL_GUILD)) return;
+        if (!event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)) return;
         if (!event.getReactionEmote().getName().equals("\uD83D\uDCCC")) return; // Check if it's a :pushpin:
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
             MessageReaction reaction =
@@ -152,6 +155,13 @@ public class Events extends ListenerAdapter {
             try {
                 event.getGuild().getController().addRolesToMember(event.getMember(), roles).queue((n) -> {
                 }, e1 -> handle(e1, event, roles));
+                StringBuilder sb = new StringBuilder("```\n");
+                for (Role role : roles) {
+                    sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
+                }
+                sb.append("```");
+                ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE, event.getUser(),
+                                new MessageEmbed.Field("Roles", sb.toString(), false));
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
@@ -275,6 +285,9 @@ public class Events extends ListenerAdapter {
                             .build()).queue();
                 }
             }
+            if (!event.getMessage().getRawContent().isEmpty()) {
+                RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 61200);
+            }
         }
     }
 
@@ -363,6 +376,16 @@ public class Events extends ListenerAdapter {
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
+
+                MessageEmbed.Field field = null;
+                if (args.length > 0) {
+                    String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
+                    if (s.length() > 1000)
+                        s = s.substring(0, 1000) + "...";
+                    field = new MessageEmbed.Field("Args", "`" + s + "`", false);
+                }
+                ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
+                        new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
             } catch (Exception ex) {
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
@@ -387,9 +410,9 @@ public class Events extends ListenerAdapter {
         if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
-                        .setDescription("You are missing the permission ``"
-                                + cmd
-                                .getPermission() + "`` which is required for use of this command!").build(), 5000,
+                                .setDescription("You are missing the permission ``"
+                                        + cmd
+                                        .getPermission() + "`` which is required for use of this command!").build(), 5000,
                         e.getChannel());
                 delete(e.getMessage());
                 return true;
@@ -431,19 +454,6 @@ public class Events extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
-        long messageID = event.getMessageIdLong();
-        if (removedByMe.contains(messageID)) {
-            removedByMe.remove(messageID);
-            return;
-        }
-        long discordEpoch = (messageID >> 22) + 1420070400000L;
-        long difference = System.currentTimeMillis() - discordEpoch;
-        if (difference < TimeUnit.DAYS.toMillis(14))
-            durations.add(difference);
-    }
-
-    @Override
     public void onGenericEvent(Event e) {
         shardEventTime.put(e.getJDA().getShardInfo() == null ? 0 : e.getJDA().getShardInfo().getShardId(), System.currentTimeMillis());
     }
@@ -454,5 +464,9 @@ public class Events extends ListenerAdapter {
 
     Map<String, Integer> getSpamMap() {
         return spamMap;
+    }
+
+    public List<Long> getRemovedByMeList() {
+        return removedByMe;
     }
 }
