@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
@@ -39,10 +40,12 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.ButtonUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -87,6 +90,24 @@ public class Events extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
+        if (event.getUser().isBot()) return;
+        System.out.println(event.getReactionEmote().getId());
+        if (ButtonUtil.isButtonMessage(event.getMessageId())) {
+            ButtonGroup buttons = ButtonUtil.getButtonGroup(event.getMessageId());
+            for (Emote emote: buttons.getButtonEmotes()) {
+                if (event.getReactionEmote().getEmote().equals(emote)) {
+                    buttons.getRunnable(emote).run();
+                    event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                        for(MessageReaction reaction: message.getReactions()) {
+                            if(reaction.getReactionEmote().getEmote().equals(emote)) {
+                                reaction.removeReaction(event.getUser()).queue();
+                            }
+                        }
+                    });
+                    return;
+                }
+            }
+        }
         if (!event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)) return;
         if (!event.getReactionEmote().getName().equals("\uD83D\uDCCC")) return; // Check if it's a :pushpin:
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
