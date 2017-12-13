@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -26,6 +27,13 @@ public class TestCommand implements Command {
             @Override
             public void run(User user) {
                 channel.sendMessage(user.getAsMention() + " tick clicked").queue();
+            }
+        });
+        buttons.addButton(guild.getGuild().getEmoteById("355776081384570881"), new ButtonRunnable() {
+            @Override
+            public void run(User user) {
+                channel.sendMessage(user.getAsMention() + " I think you're addicted");
+                FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuild().getId()).skip();
             }
         });
         ButtonUtil.sendButtonedMessage(channel, "Buttons test", buttons);

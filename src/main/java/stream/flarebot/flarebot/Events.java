@@ -94,12 +94,12 @@ public class Events extends ListenerAdapter {
         System.out.println(event.getReactionEmote().getId());
         if (ButtonUtil.isButtonMessage(event.getMessageId())) {
             ButtonGroup buttons = ButtonUtil.getButtonGroup(event.getMessageId());
-            for (Emote emote: buttons.getButtonEmotes()) {
+            for (Emote emote : buttons.getButtonEmotes()) {
                 if (event.getReactionEmote().getEmote().equals(emote)) {
                     buttons.getRunnable(emote).run(event.getUser());
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
-                        for(MessageReaction reaction: message.getReactions()) {
-                            if(reaction.getReactionEmote().getEmote().equals(emote)) {
+                        for (MessageReaction reaction : message.getReactions()) {
+                            if (reaction.getReactionEmote().getEmote().equals(emote)) {
                                 reaction.removeReaction(event.getUser()).queue();
                             }
                         }
@@ -182,7 +182,7 @@ public class Events extends ListenerAdapter {
                 }
                 sb.append("```");
                 ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE, event.getUser(),
-                                new MessageEmbed.Field("Roles", sb.toString(), false));
+                        new MessageEmbed.Field("Roles", sb.toString(), false));
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
