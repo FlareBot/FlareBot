@@ -38,12 +38,12 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                     throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
                 }
                 if (throwable != null) {
-                    if(event.getMarker() == Markers.TAG_DEVELOPER)
+                    if (event.getMarker() == Markers.TAG_DEVELOPER)
                         MessageUtils.sendFatalException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
                     else
                         MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
                 } else {
-                    if(event.getMarker() == Markers.TAG_DEVELOPER)
+                    if (event.getMarker() == Markers.TAG_DEVELOPER)
                         MessageUtils.sendFatalErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
                     else
                         MessageUtils.sendErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());

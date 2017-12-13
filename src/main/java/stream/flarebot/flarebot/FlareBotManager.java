@@ -5,7 +5,6 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.common.util.concurrent.Runnables;
 import com.google.gson.JsonSyntaxException;
-import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
@@ -15,7 +14,6 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -42,7 +40,6 @@ public class FlareBotManager {
 
     private static FlareBotManager instance;
 
-    private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
     // Command - reason
     private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
 
@@ -164,16 +161,6 @@ public class FlareBotManager {
         });
     }
 
-    public JSONConfig loadLang(Language.Locales l) {
-        return configs.computeIfAbsent(l, locale -> new JSONConfig(getClass().getResourceAsStream("/langs/" + l.getCode() + ".json")));
-    }
-
-    public String getLang(Language lang, String id) {
-        String path = lang.name().toLowerCase().replaceAll("_", ".");
-        JSONConfig config = loadLang(getGuild(id).getLocale());
-        return config.getString(path).isPresent() ? config.getString(path).get() : "";
-    }
-
     public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {
         final ArrayList<String> list = new ArrayList<>();
         CassandraController.runTask(session -> {
@@ -215,7 +202,7 @@ public class FlareBotManager {
                     return null;
                 }
             } else
-                wrapper = new GuildWrapperBuilder(id).build();
+                wrapper = new GuildWrapper(id);
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 

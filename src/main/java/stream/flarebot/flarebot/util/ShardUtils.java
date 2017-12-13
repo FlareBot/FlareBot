@@ -20,7 +20,7 @@ public class ShardUtils {
     }
 
     public static boolean isReconnecting(int shardId) {
-        if(shardId < 0 || shardId > getShardCount()) return false;
+        if (shardId < 0 || shardId > getShardCount()) return false;
         return flareBot.getClients()[shardId].getStatus() == JDA.Status.RECONNECT_QUEUED ||
                 flareBot.getClients()[shardId].getStatus() == JDA.Status.ATTEMPTING_TO_RECONNECT;
     }
@@ -30,13 +30,13 @@ public class ShardUtils {
     }
 
     public static boolean isDead(int shardId) {
-        if(shardId < 0 || shardId > getShardCount()) return false;
+        if (shardId < 0 || shardId > getShardCount()) return false;
         return getLastEventTime(shardId) >= 5000 && !isReconnecting(shardId);
     }
 
     public static long[] getPingsForShards() {
         long[] pings = new long[flareBot.getClients().length];
-        for(int shardId = 0; shardId < pings.length; shardId++)
+        for (int shardId = 0; shardId < pings.length; shardId++)
             pings[shardId] = flareBot.getClients()[shardId].getPing();
         return pings;
     }

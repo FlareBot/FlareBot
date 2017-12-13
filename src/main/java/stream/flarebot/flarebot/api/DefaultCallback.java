@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.api;
 import okhttp3.Call;
 import okhttp3.Response;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.Constants;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
@@ -11,9 +12,9 @@ public class DefaultCallback implements Callback {
 
     @Override
     @ParametersAreNonnullByDefault
-    public void onResponse(Call call, Response response) throws IOException {
+    public void onResponse(Call call, Response response) {
         FlareBot.LOGGER.trace("[" + response.code() + "] - " + call.request().url().toString()
-                .replaceFirst(FlareBot.FLAREBOT_API, ""));
+                .replaceFirst(Constants.FLAREBOT_API, ""));
         response.close();
     }
 }
