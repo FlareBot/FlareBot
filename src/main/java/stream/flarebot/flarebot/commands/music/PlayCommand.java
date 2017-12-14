@@ -48,7 +48,8 @@ public class PlayCommand implements Command {
                 String term = MessageUtils.getMessage(args, 0);
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
-        }
+        }else
+            MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override
@@ -58,12 +59,12 @@ public class PlayCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Resumes your playlist or searches for songs on YouTube";
+        return "Searches for songs on YouTube";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}play [search_term/URL]` - Resumes the playlist [or searches for a song on YouTube].";
+        return "`{%}play <search_term/URL>` - Searches for a song on YouTube.";
     }
 
     @Override

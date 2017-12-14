@@ -44,6 +44,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -248,7 +249,7 @@ public class FlareBot {
     private String version = null;
     private JDA[] clients;
 
-    private Set<Command> commands = ConcurrentHashMap.newKeySet();
+    private Set<Command> commands = new ConcurrentHashSet<>();
     private PlayerManager musicManager;
     private long startTime;
     private static String secret = null;
@@ -292,7 +293,7 @@ public class FlareBot {
                 }
             }
             prefixes = new Prefixes();
-            commands = ConcurrentHashMap.newKeySet();
+            commands = new ConcurrentHashSet<>();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
@@ -466,6 +467,7 @@ public class FlareBot {
         registerCommand(new MuteCommand());
         registerCommand(new TempMuteCommand());
         registerCommand(new UnmuteCommand());
+        registerCommand(new LockChatCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
@@ -806,22 +808,35 @@ public class FlareBot {
     }
 
     public Command getCommand(String s, User user) {
-        Command tmp = null;
+        Command tmp = getCommandsByType(CommandType.SECRET).stream().filter(cmd -> cmd.getCommand().equalsIgnoreCase(s))
+                .findFirst().orElse(null);
+        if(tmp != null && (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))))
+            return tmp;
         for (Command cmd : getCommands()) {
-            if (cmd.getType() == CommandType.SECRET && (isTestBot() && !PerGuildPermissions.isContributor(user))
-                    && !PerGuildPermissions.isCreator(user)) {
-                if (cmd.getCommand().equalsIgnoreCase(s))
-                    tmp = cmd;
-                for (String alias : cmd.getAliases())
-                    if (alias.equalsIgnoreCase(s)) tmp = cmd;
-                continue;
-            }
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
                 if (alias.equalsIgnoreCase(s)) return cmd;
         }
-        return tmp;
+        return null;
+    }
+
+    public Command getCommand2(String s, User user) {
+        if(PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
+            for (Command cmd : getCommandsByType(CommandType.SECRET)) {
+                if (cmd.getCommand().equalsIgnoreCase(s))
+                    return cmd;
+                for (String alias : cmd.getAliases())
+                    if (alias.equalsIgnoreCase(s)) return cmd;
+            }
+        }
+        for (Command cmd : getCommands()) {
+            if (cmd.getCommand().equalsIgnoreCase(s))
+                return cmd;
+            for (String alias : cmd.getAliases())
+                if (alias.equalsIgnoreCase(s)) return cmd;
+        }
+        return null;
     }
 
     public Set<Command> getCommands() {
