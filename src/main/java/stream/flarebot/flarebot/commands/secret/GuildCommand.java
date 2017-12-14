@@ -110,6 +110,7 @@ public class GuildCommand implements Command {
                     return;
                 }
                 FlareBotManager.getInstance().saveGuild(args[1], wrapper, -1);
+                MessageUtils.sendSuccessMessage("Saved " + args[1] + "'s guild data!", channel);
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         }

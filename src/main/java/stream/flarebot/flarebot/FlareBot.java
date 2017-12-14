@@ -80,6 +80,7 @@ import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
+import sun.misc.Perf;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -259,7 +260,7 @@ public class FlareBot {
         return prefixes;
     }
 
-    public void init(String tkn) throws InterruptedException {
+    private void init(String tkn) throws InterruptedException {
         LOGGER.info("Starting init!");
         token = tkn;
         manager = new FlareBotManager();
@@ -779,7 +780,7 @@ public class FlareBot {
         System.exit(0);
     }
 
-    protected void stop() {
+    private void stop() {
         if (EXITING.get()) return;
         LOGGER.info("Saving data.");
         EXITING.set(true);
@@ -807,21 +808,9 @@ public class FlareBot {
         this.commands.add(command);
     }
 
+    // https://bots.are-pretty.sexy/214501.png
+    // New way to process commands, this way has been proven to be quicker overall.
     public Command getCommand(String s, User user) {
-        Command tmp = getCommandsByType(CommandType.SECRET).stream().filter(cmd -> cmd.getCommand().equalsIgnoreCase(s))
-                .findFirst().orElse(null);
-        if(tmp != null && (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))))
-            return tmp;
-        for (Command cmd : getCommands()) {
-            if (cmd.getCommand().equalsIgnoreCase(s))
-                return cmd;
-            for (String alias : cmd.getAliases())
-                if (alias.equalsIgnoreCase(s)) return cmd;
-        }
-        return null;
-    }
-
-    public Command getCommand2(String s, User user) {
         if(PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
             for (Command cmd : getCommandsByType(CommandType.SECRET)) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
@@ -843,8 +832,8 @@ public class FlareBot {
         return this.commands;
     }
 
-    public List<Command> getCommandsByType(CommandType type) {
-        return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toList());
+    public Set<Command> getCommandsByType(CommandType type) {
+        return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
     }
 
     public static FlareBot getInstance() {
@@ -882,7 +871,9 @@ public class FlareBot {
                 clients[0].getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
                         Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
                         Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
-                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE));
+                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE,
+                        Permission.MANAGE_PERMISSIONS, Permission.VIEW_AUDIT_LOGS, Permission.MESSAGE_HISTORY,
+                        Permission.MANAGE_WEBHOOKS, Permission.MANAGE_SERVER, Permission.MESSAGE_ADD_REACTION));
     }
 
     public static char getPrefix(String id) {
