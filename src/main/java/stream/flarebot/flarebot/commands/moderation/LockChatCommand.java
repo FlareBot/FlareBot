@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.moderation;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -8,6 +9,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -26,17 +28,21 @@ public class LockChatCommand implements Command {
                 reason = MessageUtils.getMessage(args, 0);
         }
 
-        if (!guild.getGuild().getSelfMember().hasPermission(Permission.MANAGE_CHANNEL)) {
+        if (!guild.getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
             MessageUtils.sendErrorMessage("I can't lock the chat due to lack of permissions! " +
                     "I need the `Manage Channels` permission", channel);
             return;
         }
         if (tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {
-            tc.createPermissionOverride(guild.getGuild().getPublicRole()).setDeny(Permission.MESSAGE_WRITE).queue();
-            channel.sendMessage("Locked channel " + tc.getAsMention() + " - Reason: " + reason).queue();
+            tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().grant(Permission.MESSAGE_WRITE).queue();
+            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.GREEN)
+                    .setDescription("The chat has been unlocked!" + (reason != null ? "\nReason: " + reason : ""))
+                    .build()).queue();
         } else {
-            tc.createPermissionOverride(guild.getGuild().getPublicRole()).setAllow(Permission.MESSAGE_WRITE).queue();
-            channel.sendMessage("Unlocked channel " + tc.getAsMention() + " - Reason: " + reason).queue();
+            tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().deny(Permission.MESSAGE_WRITE).queue();
+            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
+                    .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
+                    .build()).queue();
         }
     }
 

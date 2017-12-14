@@ -109,8 +109,8 @@ public class GuildCommand implements Command {
                     MessageUtils.sendErrorMessage("Invalid guild ID!", channel);
                     return;
                 }
-                FlareBotManager.getInstance().saveGuild(args[1], wrapper, -1);
-                MessageUtils.sendSuccessMessage("Saved " + args[1] + "'s guild data!", channel);
+                FlareBotManager.getInstance().saveGuild(wrapper.getGuildId(), wrapper, -1);
+                MessageUtils.sendSuccessMessage("Saved " + wrapper.getGuildId() + "'s guild data!", channel);
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         }
