@@ -30,8 +30,7 @@ public class PostUpdateCommand implements Command {
             }
 
             Role r = guild.getGuild().getRoleById(320304080926801922L);
-            // TODO: Change back
-            r.getManager().setMentionable(false).queue(aVoid -> {
+            r.getManager().setMentionable(true).queue(aVoid -> {
                 if (args[0].startsWith("pr:")) {
                     String prNum = args[0].substring(3);
 
