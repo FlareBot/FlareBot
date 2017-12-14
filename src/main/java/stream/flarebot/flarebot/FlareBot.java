@@ -879,22 +879,9 @@ public class FlareBot {
             clients[0].getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
-
-        // Let's have some fun :p
-
-        JSONObject obj = new JSONObject();
-        JSONObject game = new JSONObject();
-        game.put("url", "https://www.twitch.tv/discordflarebot");
-        game.put("type", 3);
-        obj.put("afk", false);
-        obj.put("status", OnlineStatus.ONLINE.getKey());
-        obj.put("since", System.currentTimeMillis());
-        for (JDA jda : clients) {
-            //jda.getPresence().setGame(Game.of(status + " | Shard: " + (jda.getShardInfo().getShardId() + 1) + "/" +
-            //        clients.length, "https://www.twitch.tv/discordflarebot"));
-            game.put("name", "over shard " + (jda.getShardInfo().getShardId() + 1) + "/" + clients.length + " | " + status);
-            obj.put("game", game);
-            ((JDAImpl) jda).getClient().send(new JSONObject().put("d", obj).put("op", WebSocketCode.PRESENCE).toString());
+        for(JDA jda : clients) {
+            jda.getPresence().setGame(Game.streaming(status + " | " + (jda.getShardInfo().getShardId() + 1) + "/"
+                    + clients.length, "https://www.twitch.tv/discordflarebot"));
         }
     }
 
