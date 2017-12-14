@@ -394,6 +394,7 @@ public class FlareBot {
             return;
         }
         System.setErr(new PrintStream(new OutputStream() {
+            // Nothing really so all good.
             @Override
             public void write(int b) {
             }

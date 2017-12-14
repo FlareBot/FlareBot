@@ -179,7 +179,6 @@ public class FlareBotManager {
     }
 
     public synchronized GuildWrapper getGuild(String id) {
-
         if (guilds == null) return null; //This is if it's ran before even being loaded
         guilds.computeIfAbsent(id, guildId -> {
             long start = System.currentTimeMillis();
@@ -187,18 +186,19 @@ public class FlareBotManager {
                     + guildId + "'");
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
-            if (row != null) {
-                try {
+            try {
+                if (row != null) {
                     wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                } catch (JsonSyntaxException e) {
-                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
-                            "Guild ID: " + id + "\n" +
-                            "Guild JSON: " + row.getString("data") + "\n" +
-                            "Error: " + e.getMessage(), e);
-                    return null;
-                }
-            } else
-                wrapper = new GuildWrapper(id);
+                } else
+                    wrapper = new GuildWrapper(id);
+            } catch (Exception e) {
+                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
+                        "Guild ID: " + id + "\n" +
+                        "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
+                        "Error: " + e.getMessage(), e);
+                return null;
+            }
+
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 
