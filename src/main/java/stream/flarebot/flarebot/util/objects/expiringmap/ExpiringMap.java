@@ -9,18 +9,20 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 
 public class ExpiringMap<K, V> {
 
     // Expire time, Pair<ConcurrentMap<K, V>, Last retrieved>
-    private final TreeMap<Long, Pair<ConcurrentMap<K, V>, Long>> elem;
+    private final ConcurrentSkipListMap<Long, Pair<ConcurrentMap<K, V>, Long>> elem;
     private final long expireAfterMS;
     private final ExpiredEvent<K, V> expiredEvent;
 
     public ExpiringMap(long expireAfterMS) {
         this.expireAfterMS = expireAfterMS;
-        elem = new TreeMap<>();
+        elem = new ConcurrentSkipListMap<>();
         this.expiredEvent = new ExpiredEvent<K, V>() {
             @Override
             public void run(K k, V v, long expired, long last_retrieved) {
@@ -30,7 +32,7 @@ public class ExpiringMap<K, V> {
 
     public ExpiringMap(long expireAfterMS, ExpiredEvent<K, V> expiredEvent) {
         this.expireAfterMS = expireAfterMS;
-        elem = new TreeMap<>();
+        elem = new ConcurrentSkipListMap<>();
         this.expiredEvent = expiredEvent;
     }
 
@@ -70,35 +72,26 @@ public class ExpiringMap<K, V> {
     }
 
     public boolean containsKey(K k) {
-        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
-            if (pair.getKey().containsKey(k))
-                return true;
-        }
-        return false;
+        return get(k) != null;
     }
 
     public boolean containsValue(V v) {
-        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
-            if (pair.getKey().containsValue(v))
-                return true;
+        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
+        while (pairIterator.hasNext()) {
+            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
+            return pair.getKey().containsValue(v);
         }
         return false;
     }
 
     public V get(K k) {
-        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
+        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
+        while (pairIterator.hasNext()) {
+            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
             if (pair.getKey().containsKey(k))
                 return pair.getKey().get(k);
         }
         return null;
-    }
-
-    public long getValue(K k) {
-        for (Long l : elem.keySet()) {
-            if (elem.get(l).getKey().get(k) != null)
-                return l;
-        }
-        return -1;
     }
 
     public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
@@ -106,9 +99,8 @@ public class ExpiringMap<K, V> {
             throw new NullPointerException();
         }
 
-        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
-            if (pair.getKey().get(key) != null)
-                return pair.getKey().get(key);
+        if (containsKey(key)) {
+            return get(key);
         }
 
         V val = mappingFunction.apply(key);
@@ -118,7 +110,9 @@ public class ExpiringMap<K, V> {
     }
 
     public void remove(K k) {
-        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
+        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
+        while (pairIterator.hasNext()) {
+            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
             if (pair.getKey().containsKey(k))
                 pair.getKey().remove(k);
         }
@@ -126,22 +120,28 @@ public class ExpiringMap<K, V> {
 
     public Set<K> keySet() {
         Set<K> set = new HashSet<>();
-        for (long l : this.elem.keySet()) {
+        Iterator<Long> longIterator = elem.keySet().iterator();
+        while (longIterator.hasNext()) {
+            Long l = longIterator.next();
             set.addAll(this.elem.get(l).getKey().keySet());
         }
         return set;
     }
 
     public long getLastRetrieved(K k) {
-        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
-            if (pair.getKey().equals(k))
-                return pair.getValue();
+        Iterator<Long> longIterator = elem.keySet().iterator();
+        while (longIterator.hasNext()) {
+            Long l = longIterator.next();
+            if (elem.get(l).getKey().get(k) != null)
+                return l;
         }
         return -1;
     }
 
     public void resetTime(K k) {
-        for (long l : this.elem.keySet()) {
+        Iterator<Long> longIterator = elem.keySet().iterator();
+        while (longIterator.hasNext()) {
+            Long l = longIterator.next();
             if (this.elem.get(l).getKey().containsKey(k)) {
                 this.elem.put(System.currentTimeMillis() + expireAfterMS, this.elem.get(l));
                 this.elem.remove(l);
@@ -151,7 +151,9 @@ public class ExpiringMap<K, V> {
 
     public int size() {
         int size = 0;
-        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
+        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
+        while (pairIterator.hasNext()) {
+            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
             size += pair.getKey().size();
         }
         return size;
