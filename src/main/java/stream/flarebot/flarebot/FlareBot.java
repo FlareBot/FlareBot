@@ -419,7 +419,6 @@ public class FlareBot {
         registerCommand(new ChangeAvatarCommand());
         registerCommand(new RandomCommand());
         registerCommand(new UserInfoCommand());
-        registerCommand(new PollCommand());
         registerCommand(new PinCommand());
         registerCommand(new ShardRestartCommand());
         registerCommand(new QueryCommand());
