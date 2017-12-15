@@ -420,6 +420,10 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     private boolean cannotHandle(Guild guild, ModlogEvent event) {
+        System.out.println(guild);
+        System.out.println(getGuild(guild));
+        System.out.println(getGuild(guild).getModeration());
+        System.out.println(guild.getSelfMember());
         return getGuild(guild) == null || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
                 || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS);
     }
