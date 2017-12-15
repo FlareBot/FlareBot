@@ -8,25 +8,25 @@ import java.util.Map;
 import java.util.Set;
 
 public class ButtonGroup {
-    Map<Emote, ButtonRunnable> buttons;
+    Map<String, ButtonRunnable> buttons;
     public ButtonGroup() {
         buttons = new LinkedHashMap<>();
     }
 
-    public boolean addButton(Emote emoje, ButtonRunnable runnable) {
-        if (!buttons.containsKey(emoje)) {
-            buttons.put(emoje, runnable);
+    public boolean addButton(String unicode, ButtonRunnable runnable) {
+        if (!buttons.containsKey(unicode)) {
+            buttons.put(unicode, runnable);
             return true;
         } else {
             return false;
         }
     }
 
-    public Set<Emote> getButtonEmotes() {
+    public Set<String> getButtonEmotes() {
         return buttons.keySet();
     }
 
-    public ButtonRunnable getRunnable(Emote emote) {
-        return buttons.get(emote);
+    public ButtonRunnable getRunnable(String unicode) {
+        return buttons.get(unicode);
     }
 }

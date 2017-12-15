@@ -22,22 +22,20 @@ public class TestCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         ButtonGroup buttons = new ButtonGroup();
-        buttons.addButton(FlareBot.getInstance().getOfficialGuild().getEmoteById("368861419602575364"), new ButtonRunnable() {
+        buttons.addButton("\u2714", new ButtonRunnable() {
             @Override
             public void run(User user) {
-                channel.sendMessage(user.getAsMention() + " ban hammer clicked").queue();
+                channel.sendMessage("this still works!").queue();
             }
         });
-        buttons.addButton(FlareBot.getInstance().getOfficialGuild().getEmoteById("355776056092917761"), new ButtonRunnable() {
+        buttons.addButton("\u274C", new ButtonRunnable() {
             @Override
             public void run(User user) {
-                channel.sendMessage(user.getAsMention() + " tick clicked").queue();
             }
         });
-        buttons.addButton(FlareBot.getInstance().getOfficialGuild().getEmoteById("355776081384570881"), new ButtonRunnable() {
+        buttons.addButton("\u23ED", new ButtonRunnable() {
             @Override
             public void run(User user) {
-                channel.sendMessage(user.getAsMention() + " I think you're addicted").queue();
             }
         });
         ButtonUtil.sendButtonedMessage(channel, "Buttons test", buttons);
