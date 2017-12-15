@@ -202,6 +202,7 @@ public class SkipCommand implements Command {
                 @Override
                 public void run(User user) {
                     if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), "flarebot.skip.force")) {
+                        musicManager.getPlayer(channel.getGuild().getId()).skip();
                         skips.put(channel.getGuild().getId(), true);
                     } else {
                         channel.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this button!")
