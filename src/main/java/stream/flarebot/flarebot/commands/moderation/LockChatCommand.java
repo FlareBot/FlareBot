@@ -33,6 +33,12 @@ public class LockChatCommand implements Command {
                     "I need the `Manage Roles` permission", channel);
             return;
         }
+        if (tc.getPermissionOverride(guild.getGuild().getPublicRole()) == null) {
+            tc.createPermissionOverride(guild.getGuild().getPublicRole()).setDeny(Permission.MESSAGE_WRITE).queue();
+            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
+                    .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
+                    .build()).queue();
+        }
         if (tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {
             tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().grant(Permission.MESSAGE_WRITE).queue();
             channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.GREEN)
