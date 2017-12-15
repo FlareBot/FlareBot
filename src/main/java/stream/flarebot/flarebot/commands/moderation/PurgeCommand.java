@@ -8,7 +8,6 @@ import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
@@ -90,7 +89,7 @@ public class PurgeCommand implements Command {
                     if ((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
                         toDelete.add(msg);
                         // This is to fix stuff like purges being logged.
-                        FlareBot.getInstance().getEvents().getRemovedByMeList().add(msg.getIdLong());
+                        //FlareBot.getInstance().getEvents().getRemovedByMeList().add(msg.getIdLong());
                         i++;
                         toRetrieve--;
                     }
@@ -104,7 +103,8 @@ public class PurgeCommand implements Command {
             MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
                             .setDescription(String.format("Deleted `%s` messages!", i - 1)).build(),
                     TimeUnit.SECONDS.toMillis(5), channel);
-        }
+        } else
+            MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override

@@ -1,9 +1,6 @@
 package stream.flarebot.flarebot;
 
 import ch.qos.logback.classic.Level;
-import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
-import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
-import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.player.Track;
@@ -62,7 +59,6 @@ import stream.flarebot.flarebot.commands.secret.internal.*;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
-import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
@@ -79,7 +75,6 @@ import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -99,7 +94,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -152,7 +146,6 @@ public class FlareBot {
     private Set<Command> commands = new ConcurrentHashSet<>();
     private PlayerManager musicManager;
     private long startTime;
-    private static String secret = null;
     private static Prefixes prefixes;
 
     private static OkHttpClient client =
@@ -277,7 +270,8 @@ public class FlareBot {
                     .addEventListener(new ModlogEvents())
                     .setToken(tkn)
                     .setHttpClientBuilder(client.newBuilder())
-                    .setAudioSendFactory(new NativeAudioSendFactory());
+                    .setAudioSendFactory(new NativeAudioSendFactory())
+                    .setBulkDeleteSplittingEnabled(false);
             if (clients.length == 1) {
                 clients[0] = builder.buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
                 Thread.sleep(5000);
@@ -366,22 +360,6 @@ public class FlareBot {
                     }
                 }
             }));
-            try {
-                new WebhooksBuilder()
-                        .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
-                            Map<String, String> headers = new HashMap<>();
-                            request1.headers().forEach(s -> headers.put(s, request1.headers(s)));
-                            Response res = webhooks.callHooks(new HTTPRequest("POST",
-                                    new ByteArrayInputStream(request1.bodyAsBytes()),
-                                    headers));
-                            response.status(res.getCode());
-                            return res.getResponse();
-                        }))
-                        .withSecret(secret)
-                        .addListener(new GithubListener()).forRequest("/payload").onPort(8080).build();
-            } catch (IOException e) {
-                LOGGER.error("Could not set up webhooks!", e);
-            }
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
             Thread.sleep(500);
@@ -883,11 +861,6 @@ public class FlareBot {
             jda.getPresence().setGame(Game.streaming(status + " | " + (jda.getShardInfo().getShardId() + 1) + "/"
                     + clients.length, "https://www.twitch.tv/discordflarebot"));
         }
-    }
-
-    public boolean isReady() {
-        return Arrays.stream(clients).mapToInt(c -> (c.getStatus() == JDA.Status.CONNECTED ? 1 : 0))
-                .sum() == clients.length;
     }
 
     public static String getMessage(String[] args) {

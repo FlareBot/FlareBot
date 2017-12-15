@@ -27,6 +27,7 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -271,20 +272,15 @@ public class MessageUtils {
     }
 
     public static void autoDeleteMessage(Message message, long delay) {
-        new FlareBotTask("AutoDeleteTask-" + message.getId()) {
-            @Override
-            public void run() {
-                message.delete().queue();
-            }
-        }.delay(delay);
+        message.delete().queueAfter(delay, TimeUnit.MILLISECONDS);
     }
 
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
-        channel.sendMessage(message).queue(msg -> autoDeleteMessage(message, delay));
+        channel.sendMessage(message).queue(msg -> autoDeleteMessage(msg, delay));
     }
 
     public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel) {
-        sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
+        channel.sendMessage(messageEmbed).queue(msg -> autoDeleteMessage(msg, delay));
     }
 
     public static void sendUsage(Command command, TextChannel channel, User user, String[] args) {
