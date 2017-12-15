@@ -6,7 +6,6 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.util.Constants;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
 
 public class DefaultCallback implements Callback {
 

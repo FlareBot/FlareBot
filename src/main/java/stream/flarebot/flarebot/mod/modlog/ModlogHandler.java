@@ -67,21 +67,43 @@ public class ModlogHandler {
         TextChannel tc = getModlogChannel(wrapper, event);
         // They either don't have a channel or set it to another guild.
         if (tc != null) {
-            EmbedBuilder eb = event.getEventEmbed(target, responsible, reason);
-            if (extraFields != null && extraFields.length > 0) {
-                for (MessageEmbed.Field field : extraFields)
-                    eb.addField(field);
+            if (!wrapper.getModeration().isEventCompacted(event)) {
+                EmbedBuilder eb = event.getEventEmbed(target, responsible, reason);
+                if (extraFields != null && extraFields.length > 0) {
+                    for (MessageEmbed.Field field : extraFields)
+                        eb.addField(field);
+                }
+
+                tc.sendMessage(eb.build()).queue();
+            } else {
+                StringBuilder sb = new StringBuilder(event.getEventText(target, responsible, reason));
+                if (extraFields != null && extraFields.length > 0) {
+                    sb.append("\n");
+                    for (MessageEmbed.Field field : extraFields) {
+                        if (field == null) continue;
+                        sb.append("**").append(field.getName()).append("**: ").append(field.getValue()).append("\t");
+                    }
+                }
+
+                tc.sendMessage(sb.toString().trim()).queue();
             }
-            tc.sendMessage(eb.build()).queue();
         }
     }
 
     /**
-     * @param channel
-     * @param target
-     * @param sender
-     * @param modAction
-     * @param reason
+     * Handle a ModAction, this will do a bunch of checks and if they pass it will handle said action. For example if
+     * you want to ban someone it will do checks like if you can ban that user, ig they're the owner, if you're trying
+     * to ban yourself etc. After those pass it will then do the actual banning, post to the modlog and handle any tmp
+     * stuff if needed. <br />
+     * This will run the {@link #handleAction(GuildWrapper, TextChannel, User, User, ModAction, String, long)} method
+     * with a -1 duration.
+     *
+     * @param wrapper   The GuildWrapper of the guild this is being done in.
+     * @param channel   The channel this was executed, this is used for failire messages in the checks.
+     * @param sender    The person who sent that said action, the user responsible.
+     * @param target    The target user to have the action taken against.
+     * @param modAction The ModAction to be performed.
+     * @param reason    The reason this was done, if this is null it will default to "No Reason Given".
      */
     public void handleAction(GuildWrapper wrapper, TextChannel channel, User sender, User target, ModAction modAction,
                              String reason) {
@@ -89,12 +111,19 @@ public class ModlogHandler {
     }
 
     /**
-     * @param channel
-     * @param target
-     * @param sender
-     * @param modAction
-     * @param reason
-     * @param duration
+     * Handle a ModAction, this will do a bunch of checks and if they pass it will handle said action. For example if
+     * you want to ban someone it will do checks like if you can ban that user, ig they're the owner, if you're trying
+     * to ban yourself etc. After those pass it will then do the actual banning, post to the modlog and handle any tmp
+     * stuff if needed.<br />
+     * See also {@link #handleAction(GuildWrapper, TextChannel, User, User, ModAction, String)}
+     *
+     * @param wrapper   The GuildWrapper of the guild this is being done in.
+     * @param channel   The channel this was executed, this is used for failire messages in the checks.
+     * @param sender    The person who sent that said action, the user responsible.
+     * @param target    The target user to have the action taken against.
+     * @param modAction The ModAction to be performed.
+     * @param reason    The reason this was done, if this is null it will default to "No Reason Given".
+     * @param duration  The duration of said action, this only applies to temp actions, -1 should be passed otherwise.
      */
     public void handleAction(GuildWrapper wrapper, TextChannel channel, User sender, User target, ModAction modAction,
                              String reason, long duration) {
@@ -120,11 +149,15 @@ public class ModlogHandler {
         }
 
         // Check if the person is below the target in role hierarchy
-        // TODO: ^
+        if (member != null && member.getRoles().get(0).getPosition() > wrapper.getGuild().getMember(target).getRoles().get(0).getPosition()) {
+            MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
+                    modAction.getLowercaseName()), channel);
+            return;
+        }
 
         // Check if there role is higher therefore we can't take action, this should be something applied to everything
         // not just kick, ban etc.
-        if (member != null && !wrapper.getGuild().getSelfMember().canInteract(member)) {
+        if (!wrapper.getGuild().getSelfMember().canInteract(member)) {
             MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
                             "Their highest role is higher than my highest role or they're the guild owner.",
                     MessageUtils.getTag(target)), channel);

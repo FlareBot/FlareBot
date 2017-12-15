@@ -7,7 +7,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
@@ -49,10 +48,8 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,31 +70,24 @@ public class GeneralUtils {
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
     private static final Pattern timeRegex = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$");
-    private static final DateTimeFormatter longTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
-    private static final DateTimeFormatter shortTime = DateTimeFormatter.ofPattern("HH:mm:ss z");
+
+    private static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
 
     private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 
     private static final PeriodFormatter prettyTime = new PeriodFormatterBuilder()
-            .appendDays().appendSuffix("Day ", "Days ")
+            .appendDays().appendSuffix(" Day ", " Days ")
             .appendHours().appendSuffix(" Hour ", " Hours ")
             .appendMinutes().appendSuffix(" Minute ", " Minutes ")
             .appendSeconds().appendSuffix(" Second", " Seconds")
             .toFormatter();
     private static final PeriodFormatter periodParser = new PeriodFormatterBuilder()
+            .appendDays().appendSuffix("d")
             .appendHours().appendSuffix("h")
             .appendMinutes().appendSuffix("m")
             .appendSeconds().appendSuffix("s")
             .toFormatter();
     private static final int LEVENSHTEIN_DISTANCE = 8;
-
-    public static String getShardId(JDA jda) {
-        return jda.getShardInfo() == null ? "1" : String.valueOf(jda.getShardInfo().getShardId() + 1);
-    }
-
-    public static int getShardIdAsInt(JDA jda) {
-        return jda.getShardInfo() == null ? 1 : jda.getShardInfo().getShardId() + 1;
-    }
 
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
@@ -390,16 +380,15 @@ public class GeneralUtils {
     public static void sendImage(String fileUrl, String fileName, User user) {
         try {
             File dir = new File("imgs");
-            if (!dir.exists())
-                dir.mkdir();
-            File trap = new File("imgs" + File.separator + fileName);
-            if (!trap.exists()) {
-                trap.createNewFile();
+            if (!dir.exists() && !dir.mkdir())
+                throw new IllegalStateException("Cannot create 'imgs' folder!");
+            File image = new File("imgs" + File.separator + fileName);
+            if (!image.exists() && image.createNewFile()) {
                 URL url = new URL(fileUrl);
                 HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
                 conn.setRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
                 InputStream is = conn.getInputStream();
-                OutputStream os = new FileOutputStream(trap);
+                OutputStream os = new FileOutputStream(image);
                 byte[] b = new byte[2048];
                 int length;
                 while ((length = is.read(b)) != -1) {
@@ -408,20 +397,17 @@ public class GeneralUtils {
                 is.close();
                 os.close();
             }
-            user.openPrivateChannel().complete().sendFile(trap, fileName, null)
+            user.openPrivateChannel().complete().sendFile(image, fileName, null)
                     .queue();
         } catch (IOException | ErrorResponseException e) {
-            FlareBot.LOGGER.error("Unable to send image", e);
+            FlareBot.LOGGER.error("Unable to send image '" + fileName + "'", e);
         }
-        return;
     }
 
     public static boolean canChangeNick(String guildId) {
-        if (FlareBot.getInstance().getGuildById(guildId) != null) {
-            return FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                    FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE);
-        } else
-            return false;
+        return FlareBot.getInstance().getGuildById(guildId) != null &&
+                (FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                        FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE));
     }
 
     public static String getStackTrace(Throwable e) {
@@ -446,10 +432,6 @@ public class GeneralUtils {
         } catch (NumberFormatException e) {
             return defaultValue;
         }
-    }
-
-    public static String getCurrentTime(boolean seconds) {
-        return ZonedDateTime.now(Clock.systemDefaultZone().getZone()).format(DateTimeFormatter.ofPattern("HH:mm:ss z"));
     }
 
     /**
@@ -483,11 +465,9 @@ public class GeneralUtils {
         return preciseFormat.format(DateTime.now(DateTimeZone.UTC).plus(period).toDate());
     }
 
-    private static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
-
     public static String formatTime(LocalDateTime dateTime) {
-        dateTime = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
-        return dateTime.getDayOfMonth() + getDayOfMonthSuffix(dateTime.getDayOfMonth()) + " " + dateTime
+        LocalDateTime time = LocalDateTime.from(dateTime.atOffset(ZoneOffset.UTC));
+        return time.getDayOfMonth() + getDayOfMonthSuffix(time.getDayOfMonth()) + " " + time
                 .format(timeFormat) + " UTC";
     }
 
@@ -510,6 +490,7 @@ public class GeneralUtils {
 
     public static String embedToText(MessageEmbed embed) {
         StringBuilder sb = new StringBuilder();
+
         if (embed.getTitle() != null)
             sb.append("**").append(embed.getTitle()).append("**: ");
         if (embed.getDescription() != null)
@@ -518,7 +499,7 @@ public class GeneralUtils {
             sb.append("**").append(field.getName()).append("**: ").append(field.getValue()).append(" ");
         }
         if (embed.getFooter() != null)
-            sb.append("*").append(embed.getFooter()).append("*");
+            sb.append("*").append(embed.getFooter().getText()).append("*");
         return sb.toString();
     }
 

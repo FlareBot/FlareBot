@@ -12,12 +12,12 @@ public class Infraction {
     private String reason;
     private long duration;
 
-    @DoNotUse
+    @DoNotUse(expressUse = "//TODO")
     protected Infraction(ModAction action, long user, long responsible, String reason) {
         this(action, user, responsible, reason, -1);
     }
 
-    @DoNotUse
+    @DoNotUse(expressUse = "//TODO")
     protected Infraction(ModAction action, long user, long responsible, String reason, long duration) {
         this.action = action;
         this.user = user;
