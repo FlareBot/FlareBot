@@ -260,11 +260,9 @@ public class ModlogEvents extends ListenerAdapter {
         }
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage deleted = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
-        if (entry.getType() == ActionType.MESSAGE_DELETE) {
-            if (entry.getTargetId().equals(deleted.getAuthorID())) {
-                if (entry.getUser().isBot()) return;
-                responsible = entry.getUser();
-            }
+        if (entry.getType() == ActionType.MESSAGE_DELETE && entry.getTargetId().equals(deleted.getAuthorID())) {
+            if (entry.getUser().isBot()) return;
+            responsible = entry.getUser();
         }
         User sender = GeneralUtils.getUser(deleted.getAuthorID());
         ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MESSAGE_DELETE, sender,

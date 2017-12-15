@@ -48,7 +48,7 @@ public class PlayCommand implements Command {
                 String term = MessageUtils.getMessage(args, 0);
                 VideoThread.getSearchThread(term, channel, sender).start();
             }
-        }else
+        } else
             MessageUtils.sendUsage(this, channel, sender, args);
     }
 

@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.useful;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -13,7 +12,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import javax.xml.soap.Text;
 import java.awt.Color;
 
 public class TagsCommand implements Command {
@@ -54,7 +52,7 @@ public class TagsCommand implements Command {
                         "\n\nView the usage for variables you can use!", channel);
             } else {
                 User target = GeneralUtils.getUser(args[1], guild.getGuildId());
-                if(target != null) {
+                if (target != null) {
                     if (guild.getTags().containsKey(args[0].toLowerCase()))
                         sendTag(guild, args[0].toLowerCase(), target, channel);
                     else
@@ -123,12 +121,12 @@ public class TagsCommand implements Command {
     public String getExtraInfo() {
         return "**Variables**\n" +
                 "`%user%` - Display the username of the person the tag is directed at, you can put a user in the second " +
-                    "argument to direct a tag at them. Example `_tag helpful_tag Walshy#9060`\n" +
+                "argument to direct a tag at them. Example `_tag helpful_tag Walshy#9060`\n" +
                 "`%mention%` - Just like %user% but instead it will tag the user.\n" +
                 "`%prefix%` and `{%}` - These will put the server prefix, so you could so something like `Run {%}song " +
-                    "to see what song is currently playing!` and it would print something like `Run !song to see...`\n" +
+                "to see what song is currently playing!` and it would print something like `Run !song to see...`\n" +
                 "`%tag%` - This will put what tag is being used, if you want to make it easier for users to know what " +
-                    "tag is what you can put this anywhere to show what tag was run.";
+                "tag is what you can put this anywhere to show what tag was run.";
     }
 
     @Override
