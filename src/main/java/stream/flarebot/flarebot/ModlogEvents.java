@@ -53,6 +53,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildBan(GuildBanEvent event) {
+        if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
         event.getGuild().getAuditLogs().limit(1).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
