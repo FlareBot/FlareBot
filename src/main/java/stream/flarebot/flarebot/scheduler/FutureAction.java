@@ -159,6 +159,8 @@ public class FutureAction {
                             GeneralUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
                             .queue();
                 break;
+            default:
+                break;
         }
         delete();
     }

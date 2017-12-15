@@ -60,8 +60,8 @@ public class PostUpdateCommand implements Command {
 
                     EmbedBuilder embed = new EmbedBuilder();
                     boolean hasTitle = false;
-                    for (int i = 0; i < array.length; i++) {
-                        String value = array[i].replaceAll("\n\\* ", "\n\u2022 ");
+                    for (String anArray : array) {
+                        String value = anArray.replaceAll("\n\\* ", "\n\u2022 ");
                         String header = value.replace("## ", "").substring(0, value.indexOf("\n") - 4).replace("\n", "");
 
                         value = value.replace("## " + header, "");

@@ -4,12 +4,12 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.util.ColorUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -115,8 +115,8 @@ public enum ModlogEvent {
                 .setAuthor(WordUtils.capitalize(getTitle()), null, user == null ? responsible.getEffectiveAvatarUrl()
                         : user.getEffectiveAvatarUrl());
         if (user != null)
-            eb.addField("User", user.getAsMention() + " " + MessageUtils.getTag(user), true);
-        eb.setFooter("ID: " + (user == null ? responsible.getId() : user.getId()), null)
+            eb.addField("User", user.getAsMention() + " | " + MessageUtils.getTag(user), true);
+        eb.setFooter("User ID: " + (user == null ? responsible.getId() : user.getId()), null)
                 .setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
         if (responsible != null) {
             eb.addField("Responsible", MessageUtils.getTag(responsible), true);
@@ -131,6 +131,32 @@ public enum ModlogEvent {
             eb.setAuthor(user != null ? "User Purge" : "Chat Purge", null, user == null ? responsible.getEffectiveAvatarUrl()
                     : user.getEffectiveAvatarUrl());
         return eb;
+    }
+
+    public String getEventText(User user, User responsible, String reason) {
+        if (user == null && responsible == null) {
+            throw new IllegalArgumentException("User or the responsible user has to be not-null! Event: " + this.getName());
+        }
+        String title = WordUtils.capitalize(getTitle());
+        // Custom event changes.
+        if (this == ModlogEvent.FLAREBOT_PURGE)
+            title = user != null ? "User Purge" : "Chat Purge";
+
+        StringBuilder sb = new StringBuilder()
+                .append(title)
+                .append(" (").append(GeneralUtils.formatTime(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime()))
+                .append(")\n");
+
+        if (user != null)
+            sb.append("**User**: `").append(MessageUtils.getTag(user)).append("` (").append(user.getId()).append(") ");
+        if (responsible != null) {
+            sb.append("**Responsible**: `").append(MessageUtils.getTag(responsible)).append("` (")
+                    .append(responsible.getId()).append(") ");
+        }
+        if (showReason) {
+            sb.append("**Reason**: ").append(reason == null || reason.isEmpty() ? "No Reason Given!" : reason);
+        }
+        return sb.toString().trim();
     }
 
     public String getTitle() {

@@ -1,9 +1,6 @@
 package stream.flarebot.flarebot;
 
 import ch.qos.logback.classic.Level;
-import com.arsenarsen.githubwebhooks4j.WebhooksBuilder;
-import com.arsenarsen.githubwebhooks4j.web.HTTPRequest;
-import com.arsenarsen.githubwebhooks4j.web.Response;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
 import com.arsenarsen.lavaplayerbridge.player.Track;
@@ -25,9 +22,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.WebSocketCode;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Game;
@@ -36,7 +31,6 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import net.dv8tion.jda.webhook.WebhookClient;
@@ -66,7 +60,6 @@ import stream.flarebot.flarebot.commands.secret.internal.*;
 import stream.flarebot.flarebot.commands.useful.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
-import stream.flarebot.flarebot.github.GithubListener;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
@@ -81,10 +74,8 @@ import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
-import sun.misc.Perf;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -104,7 +95,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -130,7 +120,7 @@ public class FlareBot {
     static {
         handleLogArchive();
         LOGGERS = new ConcurrentHashMap<>();
-        LOGGER = getLog(FlareBot.class);
+        LOGGER = getLog(FlareBot.class);	
     }
 
     private static FlareBot instance;
@@ -146,10 +136,18 @@ public class FlareBot {
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     protected CountDownLatch latch;
-    private static String importantHookUrl;
     private static String token;
 
     private static boolean testBot = false;
+
+    private Events events;
+    private String version = null;
+    private JDA[] clients;
+
+    private Set<Command> commands = new ConcurrentHashSet<>();
+    private PlayerManager musicManager;
+    private long startTime;
+    private static Prefixes prefixes;
 
     private static OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
@@ -157,11 +155,10 @@ public class FlareBot {
 
     public static void main(String[] args) {
         Spark.port(8080);
-        Sentry.init();
         try {
             File file = new File("config.json");
-            if (!file.exists())
-                file.createNewFile();
+            if (!file.exists() && !file.createNewFile())
+                throw new IllegalStateException("Can't create config file!");
             try {
                 config = new JSONConfig("config.json");
             } catch (NullPointerException e) {
@@ -181,6 +178,7 @@ public class FlareBot {
         required.add("redis.host");
         required.add("redis.port");
         required.add("redis.password");
+        required.add("sentry.dsn");
 
         boolean good = true;
         for (String req : required) {
@@ -199,6 +197,8 @@ public class FlareBot {
             LOGGER.error("One or more of the required JSON objects where missing. Exiting to prevent problems");
             System.exit(1);
         }
+
+        Sentry.init(config.getString("sentry.dsn").get());
 
         String tkn = config.getString("bot.token").get();
 
@@ -247,16 +247,6 @@ public class FlareBot {
         return events;
     }
 
-    private Events events;
-    private String version = null;
-    private JDA[] clients;
-
-    private Set<Command> commands = new ConcurrentHashSet<>();
-    private PlayerManager musicManager;
-    private long startTime;
-    private static String secret = null;
-    private static Prefixes prefixes;
-
     public static Prefixes getPrefixes() {
         return prefixes;
     }
@@ -283,7 +273,8 @@ public class FlareBot {
                     .addEventListener(new ModlogEvents())
                     .setToken(tkn)
                     .setHttpClientBuilder(client.newBuilder())
-                    .setAudioSendFactory(new NativeAudioSendFactory());
+                    .setAudioSendFactory(new NativeAudioSendFactory())
+                    .setBulkDeleteSplittingEnabled(false);
             if (clients.length == 1) {
                 clients[0] = builder.buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
                 Thread.sleep(5000);
@@ -372,22 +363,6 @@ public class FlareBot {
                     }
                 }
             }));
-            try {
-                new WebhooksBuilder()
-                        .withBinder((request, ip, port, webhooks) -> Spark.post(request, (request1, response) -> {
-                            Map<String, String> headers = new HashMap<>();
-                            request1.headers().forEach(s -> headers.put(s, request1.headers(s)));
-                            Response res = webhooks.callHooks(new HTTPRequest("POST",
-                                    new ByteArrayInputStream(request1.bodyAsBytes()),
-                                    headers));
-                            response.status(res.getCode());
-                            return res.getResponse();
-                        }))
-                        .withSecret(secret)
-                        .addListener(new GithubListener()).forRequest("/payload").onPort(8080).build();
-            } catch (IOException e) {
-                LOGGER.error("Could not set up webhooks!", e);
-            }
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
             Thread.sleep(500);
@@ -407,7 +382,6 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
 
-        latch.await();
         run();
     }
 
@@ -446,7 +420,6 @@ public class FlareBot {
         registerCommand(new ChangeAvatarCommand());
         registerCommand(new RandomCommand());
         registerCommand(new UserInfoCommand());
-        registerCommand(new PollCommand());
         registerCommand(new PinCommand());
         registerCommand(new ShardRestartCommand());
         registerCommand(new QueryCommand());
@@ -515,7 +488,7 @@ public class FlareBot {
             public void run() {
                 if (config.getString("botlists.discordBots").isPresent()) {
                     postToBotList(config.getString("botlists.discordBots").get(), String
-                            .format("https://bots.discord.pw/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                            .format("https://bots.discord.pw/api/bots/%s/stats", getClient().getSelfUser().getId()));
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
@@ -525,7 +498,7 @@ public class FlareBot {
             public void run() {
                 if (config.getString("botlists.botlist").isPresent()) {
                     postToBotList(config.getString("botlists.botlist").get(), String
-                            .format("https://discordbots.org/api/bots/%s/stats", clients[0].getSelfUser().getId()));
+                            .format("https://discordbots.org/api/bots/%s/stats", getClient().getSelfUser().getId()));
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
@@ -573,14 +546,16 @@ public class FlareBot {
         new FlareBotTask("DeadShard-Checker") {
             @Override
             public void run() {
+                if (getImportantWebhook() == null) {
+                    LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
+                    cancel();
+                    return;
+                }
                 if (getClients().length == 1) return;
                 Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
                         .filter(ShardUtils::isDead).collect(Collectors.toSet());
                 if (deadShards.size() > 0) {
-                    if (getImportantWebhook() == null) {
-                        FlareBot.LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
-                        cancel();
-                    }
+
                     getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
                             deadShards.toString());
                 }
@@ -612,9 +587,10 @@ public class FlareBot {
                         FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
                 if (new DateTime().isAfter(fa.getExpires()))
                     fa.execute();
-                else
+                else {
                     fa.queue();
-                loaded[0]++;
+                    loaded[0]++;
+                }
             }
         });
 
@@ -788,10 +764,6 @@ public class FlareBot {
         EXITING.set(true);
         getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
                 .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
-                .queue();
-        getImportantLogChannel().sendMessage("Average delete messages of this session (mins): "
-                + (Events.durations.stream().mapToLong(v -> v).average().orElse(0) / 60000)
-                + "\nHighest time: " + (Events.durations.stream().mapToLong(v -> v).max().orElse(0) / 60000))
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
@@ -870,7 +842,7 @@ public class FlareBot {
 
     public String getInvite() {
         return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=%s",
-                clients[0].getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
+                getClient().getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
                         Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
                         Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
                         Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE,
@@ -884,18 +856,13 @@ public class FlareBot {
 
     public void setStatus(String status) {
         if (clients.length == 1) {
-            clients[0].getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
+            getClient().getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
         for(JDA jda : clients) {
             jda.getPresence().setGame(Game.streaming(status + " | " + (jda.getShardInfo().getShardId() + 1) + "/"
                     + clients.length, "https://www.twitch.tv/discordflarebot"));
         }
-    }
-
-    public boolean isReady() {
-        return Arrays.stream(clients).mapToInt(c -> (c.getStatus() == JDA.Status.CONNECTED ? 1 : 0))
-                .sum() == clients.length;
     }
 
     public static String getMessage(String[] args) {
@@ -919,11 +886,12 @@ public class FlareBot {
     }
 
     // Disabled for now.
-    // TODO: Make sure the API has a way to hadle this and also update that page.
+    // TODO: Make sure the API has a way to handle this and also update that page.
     public static void reportError(TextChannel channel, String s, Exception e) {
         JsonObject message = new JsonObject();
         message.addProperty("message", s);
         message.addProperty("exception", GeneralUtils.getStackTrace(e));
+        MessageUtils.sendErrorMessage(s, channel);
         //String id = instance.postToApi("postReport", "error", message);
         //MessageUtils.sendErrorMessage(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id, channel);
     }
@@ -963,7 +931,7 @@ public class FlareBot {
         return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("260401007685664768"));
     }
 
-    public TextChannel getEGLogChannel() {
+    private TextChannel getEGLogChannel() {
         return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
     }
 
@@ -1044,7 +1012,7 @@ public class FlareBot {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
 
-    public List<VoiceChannel> getVoiceChannels() {
+    private List<VoiceChannel> getVoiceChannels() {
         return Arrays.stream(getClients()).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
     }
 
@@ -1121,9 +1089,9 @@ public class FlareBot {
     private WebhookClient importantHook;
 
     private WebhookClient getImportantWebhook() {
-        if (importantHookUrl == null) return null;
+        if (!config.getString("bot.importantWebhookUrl").isPresent()) return null;
         if (importantHook == null)
-            importantHook = new WebhookClientBuilder(importantHookUrl).build();
+            importantHook = new WebhookClientBuilder(config.getString("bot.importantWebhookUrl").get()).build();
         return importantHook;
     }
 
@@ -1137,9 +1105,8 @@ public class FlareBot {
             String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
 
             File dir = new File("logs");
-            if (!dir.exists())
-                if (!dir.mkdir())
-                    LOGGER.error("Failed to create directory for latest log!");
+            if (!dir.exists() && !dir.mkdir())
+                LOGGER.error("Failed to create directory for latest log!");
             File f = new File(dir, "latest.log " + time + ".zip");
             File latestLog = new File("latest.log");
 

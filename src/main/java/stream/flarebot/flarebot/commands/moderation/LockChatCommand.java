@@ -30,7 +30,7 @@ public class LockChatCommand implements Command {
 
         if (!guild.getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES)) {
             MessageUtils.sendErrorMessage("I can't lock the chat due to lack of permissions! " +
-                    "I need the `Manage Channels` permission", channel);
+                    "I need the `Manage Roles` permission", channel);
             return;
         }
         if (tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {

@@ -4,7 +4,6 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.common.util.concurrent.Runnables;
-import com.google.gson.JsonSyntaxException;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
@@ -192,7 +191,7 @@ public class FlareBotManager {
                 } else
                     wrapper = new GuildWrapper(id);
             } catch (Exception e) {
-                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
+                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load guild JSON!\n" +
                         "Guild ID: " + id + "\n" +
                         "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
                         "Error: " + e.getMessage(), e);
