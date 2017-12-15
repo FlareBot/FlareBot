@@ -9,6 +9,9 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.awt.Color;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public enum ModlogEvent {
 
@@ -64,6 +67,7 @@ public enum ModlogEvent {
     FLAREBOT_PURGE("Purge", "Triggers when a user does a purge with FlareBot.", ColorUtils.FLAREBOT_BLUE, false);
 
     public static final ModlogEvent[] values = values();
+    public static final List<ModlogEvent> events = Arrays.asList(values);
 
     private String title;
     private String description;
@@ -153,4 +157,6 @@ public enum ModlogEvent {
         }
         return null;
     }
+
+
 }

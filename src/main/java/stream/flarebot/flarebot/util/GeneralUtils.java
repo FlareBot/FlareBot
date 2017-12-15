@@ -79,12 +79,13 @@ public class GeneralUtils {
     private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 
     private static final PeriodFormatter prettyTime = new PeriodFormatterBuilder()
-            .appendDays().appendSuffix("Day ", "Days ")
+            .appendDays().appendSuffix(" Day ", " Days ")
             .appendHours().appendSuffix(" Hour ", " Hours ")
             .appendMinutes().appendSuffix(" Minute ", " Minutes ")
             .appendSeconds().appendSuffix(" Second", " Seconds")
             .toFormatter();
     private static final PeriodFormatter periodParser = new PeriodFormatterBuilder()
+            .appendDays().appendSuffix("d")
             .appendHours().appendSuffix("h")
             .appendMinutes().appendSuffix("m")
             .appendSeconds().appendSuffix("s")
@@ -139,7 +140,7 @@ public class GeneralUtils {
     public static String getProgressBar(Track track) {
         float percentage = (100f / track.getTrack().getDuration() * track.getTrack().getPosition());
         return "[" + StringUtils.repeat("▬", (int) Math.round((double) percentage / 10)) +
-                "]()" +
+                "](https://github.com/FlareBot)" +
                 StringUtils.repeat("▬", 10 - (int) Math.round((double) percentage / 10)) +
                 " " + GeneralUtils.percentageFormat.format(percentage) + "%";
     }

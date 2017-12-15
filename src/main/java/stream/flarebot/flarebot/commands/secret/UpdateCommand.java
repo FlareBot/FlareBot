@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.io.BufferedReader;
@@ -30,7 +31,7 @@ public class UpdateCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender)) {
+        if (PerGuildPermissions.isCreator(sender)) {
             if (args.length == 0) {
                 update(false, channel);
             } else if (args.length == 1) {

@@ -38,15 +38,17 @@ public class PostUpdateCommand implements Command {
                     try {
                         Response res = WebUtils.get("https://api.github.com/repos/FlareBot/FlareBot/pulls/" + prNum);
                         ResponseBody body = res.body();
-                        res.close();
+
                         if (body != null) {
                             obj = new JSONObject(body.string());
                             body.close();
                         } else {
+                            res.close();
                             MessageUtils.sendErrorMessage("GitHub returned an empty response - Code " + res.code(),
                                     channel, sender);
                             return;
                         }
+                        res.close();
                     } catch (IOException e) {
                         MessageUtils.sendErrorMessage("Error getting the PR info!\n" +
                                 e.getMessage(), channel, sender);
@@ -59,7 +61,7 @@ public class PostUpdateCommand implements Command {
                     EmbedBuilder embed = new EmbedBuilder();
                     boolean hasTitle = false;
                     for (int i = 0; i < array.length; i++) {
-                        String value = array[i].replaceAll("\n\\* ", "\n� ");
+                        String value = array[i].replaceAll("\n\\* ", "\n\u2022 ");
                         String header = value.replace("## ", "").substring(0, value.indexOf("\n") - 4).replace("\n", "");
 
                         value = value.replace("## " + header, "");

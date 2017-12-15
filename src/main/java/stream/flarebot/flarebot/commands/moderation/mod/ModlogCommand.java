@@ -77,39 +77,57 @@ public class ModlogCommand implements Command {
                 }
             }
             if (args[0].equalsIgnoreCase("features")) {
-                StringBuilder sb = new StringBuilder();
-                Map<String, List<ModlogEvent>> groups = new HashMap<>();
-                for (ModlogEvent modlogEvent : ModlogEvent.values) {
-                    String name = modlogEvent.getName();
-                    String[] split = name.split(" ");
-                    String groupKey = split[0];
-                    if (groups.containsKey(groupKey)) {
-                        List<ModlogEvent> group = groups.get(groupKey);
-                        group.add(modlogEvent);
-                        groups.put(groupKey, group);
-                    } else {
-                        List<ModlogEvent> group = new ArrayList<>();
-                        group.add(modlogEvent);
-                        groups.put(groupKey, group);
-                    }
+                int page = 1;
+                if (args.length == 2) {
+                    page = GeneralUtils.getInt(args[1], 1);
                 }
+                int pageSize = 15;
+                Set<ModlogAction> actions = guild.getModeration().getEnabledActions();
+                int pages = actions.size() < pageSize ? 1 : (actions.size() / pageSize)
+                        + (actions.size() % pageSize != 0 ? 1 : 0);
 
-                Iterator<Map.Entry<String, List<ModlogEvent>>> it = groups.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry<String, List<ModlogEvent>> pair = it.next();
-                    for (ModlogEvent event : pair.getValue()) {
-                        sb.append("`").append(event.getTitle()).append("` - ").append(event.getDescription()).append("\n");
+                int start;
+                int end;
+
+                start = pageSize * (page - 1);
+                end = Math.min(start + pageSize, actions.size());
+
+                if (page > pages || page < 0) {
+                    MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+                    return;
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    Map<String, List<ModlogEvent>> groups = new HashMap<>();
+                    for (ModlogEvent modlogEvent : ModlogEvent.events.subList(start, end)) {
+                        String name = modlogEvent.getName();
+                        String[] split = name.split(" ");
+                        String groupKey = split[0];
+                        if (groups.containsKey(groupKey)) {
+                            List<ModlogEvent> group = groups.get(groupKey);
+                            group.add(modlogEvent);
+                            groups.put(groupKey, group);
+                        } else {
+                            List<ModlogEvent> group = new ArrayList<>();
+                            group.add(modlogEvent);
+                            groups.put(groupKey, group);
+                        }
                     }
-                    sb.append("\n");
-                    it.remove();
+
+                    Iterator<Map.Entry<String, List<ModlogEvent>>> it = groups.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry<String, List<ModlogEvent>> pair = it.next();
+                        for (ModlogEvent event : pair.getValue()) {
+                            sb.append("`").append(event.getTitle()).append("` - ").append(event.getDescription()).append("\n");
+                        }
+                        sb.append("\n");
+                        it.remove();
+                    }
+                    sb.append("`Default` - Is for all the normal default events\n");
+                    sb.append("`All` - Is for targeting all events");
+                    channel.sendMessage(new EmbedBuilder().setTitle("Features").setDescription(sb.toString())
+                            .setFooter("Page " + page + "/" + pages, null).build()).queue();
+                    return;
                 }
-                sb.append("`Default` - Is for all the normal default events");
-                sb.append("`All` - Is for targeting all events");
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.setTitle("Features");
-                eb.setDescription(sb.toString());
-                channel.sendMessage(eb.build()).queue();
-                return;
             }
         }
         if (args.length >= 2) {
@@ -268,8 +286,7 @@ public class ModlogCommand implements Command {
 
     @Override
     public String getExtraInfo() {
-        return "**Note**" +
-                "\nEvents can only be set to one channel at a time, if an event is already enabled and you enable it " +
+        return "Events can only be set to one channel at a time, if an event is already enabled and you enable it " +
                 "again in a different channel it **will overwrite** the channel ID with the new one.";
     }
 

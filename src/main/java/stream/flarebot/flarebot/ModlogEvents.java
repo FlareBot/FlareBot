@@ -421,8 +421,8 @@ public class ModlogEvents extends ListenerAdapter {
                 builder);
     }
 
-    public boolean cannotHandle(Guild guild, ModlogEvent event) {
-        return !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
+    private boolean cannotHandle(Guild guild, ModlogEvent event) {
+        return guild == null || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
                 || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS);
     }
 

@@ -44,6 +44,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -79,6 +80,7 @@ import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
+import sun.misc.Perf;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -248,7 +250,7 @@ public class FlareBot {
     private String version = null;
     private JDA[] clients;
 
-    private Set<Command> commands = ConcurrentHashMap.newKeySet();
+    private Set<Command> commands = new ConcurrentHashSet<>();
     private PlayerManager musicManager;
     private long startTime;
     private static String secret = null;
@@ -258,7 +260,7 @@ public class FlareBot {
         return prefixes;
     }
 
-    public void init(String tkn) throws InterruptedException {
+    private void init(String tkn) throws InterruptedException {
         LOGGER.info("Starting init!");
         token = tkn;
         manager = new FlareBotManager();
@@ -292,7 +294,7 @@ public class FlareBot {
                 }
             }
             prefixes = new Prefixes();
-            commands = ConcurrentHashMap.newKeySet();
+            commands = new ConcurrentHashSet<>();
             musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
             musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
                 @Override
@@ -392,6 +394,7 @@ public class FlareBot {
             return;
         }
         System.setErr(new PrintStream(new OutputStream() {
+            // Nothing really so all good.
             @Override
             public void write(int b) {
             }
@@ -466,6 +469,7 @@ public class FlareBot {
         registerCommand(new MuteCommand());
         registerCommand(new TempMuteCommand());
         registerCommand(new UnmuteCommand());
+        registerCommand(new LockChatCommand());
 
         registerCommand(new ReportsCommand());
         registerCommand(new ReportCommand());
@@ -777,7 +781,7 @@ public class FlareBot {
         System.exit(0);
     }
 
-    protected void stop() {
+    private void stop() {
         if (EXITING.get()) return;
         LOGGER.info("Saving data.");
         EXITING.set(true);
@@ -805,31 +809,32 @@ public class FlareBot {
         this.commands.add(command);
     }
 
+    // https://bots.are-pretty.sexy/214501.png
+    // New way to process commands, this way has been proven to be quicker overall.
     public Command getCommand(String s, User user) {
-        Command tmp = null;
-        for (Command cmd : getCommands()) {
-            if (cmd.getType() == CommandType.SECRET && (isTestBot() && !PerGuildPermissions.isContributor(user))
-                    && !PerGuildPermissions.isCreator(user)) {
+        if(PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
+            for (Command cmd : getCommandsByType(CommandType.SECRET)) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
-                    tmp = cmd;
+                    return cmd;
                 for (String alias : cmd.getAliases())
-                    if (alias.equalsIgnoreCase(s)) tmp = cmd;
-                continue;
+                    if (alias.equalsIgnoreCase(s)) return cmd;
             }
+        }
+        for (Command cmd : getCommands()) {
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
                 if (alias.equalsIgnoreCase(s)) return cmd;
         }
-        return tmp;
+        return null;
     }
 
     public Set<Command> getCommands() {
         return this.commands;
     }
 
-    public List<Command> getCommandsByType(CommandType type) {
-        return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toList());
+    public Set<Command> getCommandsByType(CommandType type) {
+        return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
     }
 
     public static FlareBot getInstance() {
@@ -867,7 +872,9 @@ public class FlareBot {
                 clients[0].getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
                         Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
                         Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
-                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE));
+                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE,
+                        Permission.MANAGE_PERMISSIONS, Permission.VIEW_AUDIT_LOGS, Permission.MESSAGE_HISTORY,
+                        Permission.MANAGE_WEBHOOKS, Permission.MANAGE_SERVER, Permission.MESSAGE_ADD_REACTION));
     }
 
     public static char getPrefix(String id) {
@@ -879,22 +886,9 @@ public class FlareBot {
             clients[0].getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
-
-        // Let's have some fun :p
-
-        JSONObject obj = new JSONObject();
-        JSONObject game = new JSONObject();
-        game.put("url", "https://www.twitch.tv/discordflarebot");
-        game.put("type", 3);
-        obj.put("afk", false);
-        obj.put("status", OnlineStatus.ONLINE.getKey());
-        obj.put("since", System.currentTimeMillis());
-        for (JDA jda : clients) {
-            //jda.getPresence().setGame(Game.of(status + " | Shard: " + (jda.getShardInfo().getShardId() + 1) + "/" +
-            //        clients.length, "https://www.twitch.tv/discordflarebot"));
-            game.put("name", "over shard " + (jda.getShardInfo().getShardId() + 1) + "/" + clients.length + " | " + status);
-            obj.put("game", game);
-            ((JDAImpl) jda).getClient().send(new JSONObject().put("d", obj).put("op", WebSocketCode.PRESENCE).toString());
+        for(JDA jda : clients) {
+            jda.getPresence().setGame(Game.streaming(status + " | " + (jda.getShardInfo().getShardId() + 1) + "/"
+                    + clients.length, "https://www.twitch.tv/discordflarebot"));
         }
     }
 

@@ -156,7 +156,7 @@ public class FutureAction {
                 if (FlareBot.getInstance().getChannelById(channelId) != null)
                     FlareBot.getInstance().getChannelById(channelId).sendMessage(FlareBot.getInstance()
                             .getUserById(responsible).getAsMention() + " You asked me to remind you " +
-                            GeneralUtils.formatJodaTime(delay) + " ago about: `" + content.replaceAll("`", "'") + "`")
+                            GeneralUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
                             .queue();
                 break;
         }

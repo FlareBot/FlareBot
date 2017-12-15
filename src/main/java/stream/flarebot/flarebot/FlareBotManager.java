@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import stream.flarebot.flarebot.annotations.DoNotUse;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
@@ -26,10 +27,8 @@ import java.awt.Color;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -122,7 +121,8 @@ public class FlareBotManager {
     }
 
     // Do not use this method!
-    protected void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved) {
+    @DoNotUse(expressUse = "GuildCommand save")
+    public void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved) {
         long last_r = (last_retrieved == -1 ? System.currentTimeMillis() : last_retrieved);
         CassandraController.runTask(session -> {
             if (saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE " + GUILD_DATA_TABLE
@@ -178,11 +178,6 @@ public class FlareBotManager {
         return list;
     }
 
-    public Set<String> getProfanity() {
-        // TODO: This will need to be done at some point. Not sure if I want to get this from the API or if I want to have a JSON file or something yet.
-        return new HashSet<>();
-    }
-
     public synchronized GuildWrapper getGuild(String id) {
         if (guilds == null) return null; //This is if it's ran before even being loaded
         guilds.computeIfAbsent(id, guildId -> {
@@ -191,18 +186,19 @@ public class FlareBotManager {
                     + guildId + "'");
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
-            if (row != null) {
-                try {
+            try {
+                if (row != null) {
                     wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                } catch (JsonSyntaxException e) {
-                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
-                            "Guild ID: " + id + "\n" +
-                            "Guild JSON: " + row.getString("data") + "\n" +
-                            "Error: " + e.getMessage(), e);
-                    return null;
-                }
-            } else
-                wrapper = new GuildWrapper(id);
+                } else
+                    wrapper = new GuildWrapper(id);
+            } catch (Exception e) {
+                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
+                        "Guild ID: " + id + "\n" +
+                        "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
+                        "Error: " + e.getMessage(), e);
+                return null;
+            }
+
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 
