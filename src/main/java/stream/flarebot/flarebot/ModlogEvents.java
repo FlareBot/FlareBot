@@ -420,7 +420,7 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     private boolean cannotHandle(Guild guild, ModlogEvent event) {
-        return guild == null || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
+        return getGuild(guild) == null || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
                 || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS);
     }
 

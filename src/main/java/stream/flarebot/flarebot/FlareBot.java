@@ -177,6 +177,7 @@ public class FlareBot {
         required.add("redis.host");
         required.add("redis.port");
         required.add("redis.password");
+        required.add("sentry.dsn");
 
         boolean good = true;
         for (String req : required) {
