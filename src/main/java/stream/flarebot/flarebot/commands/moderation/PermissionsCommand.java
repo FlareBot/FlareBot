@@ -62,20 +62,16 @@ public class PermissionsCommand implements Command {
                             }
                         }
                     } else if (args[2].equalsIgnoreCase("create")) {
-                        if (args.length == 3) {
-                            if (getPermissions(channel).addGroup(groupString)) {
-                                MessageUtils.sendSuccessMessage("Successfully created group: `" + groupString + "`", channel, sender);
-                                return;
-                            } else {
-                                MessageUtils.sendErrorMessage("That group already exists!!", channel);
-                                return;
-                            }
-                        }
-                    } else if (args[2].equalsIgnoreCase("delete")) {
-                        if (args.length == 3) {
-                            getPermissions(channel).deleteGroup(groupString);
+                        if (getPermissions(channel).addGroup(groupString)) {
+                            MessageUtils.sendSuccessMessage("Successfully created group: `" + groupString + "`", channel, sender);
+                            return;
+                        } else {
+                            MessageUtils.sendErrorMessage("That group already exists!!", channel);
                             return;
                         }
+                    } else if (args[2].equalsIgnoreCase("delete")) {
+                        getPermissions(channel).deleteGroup(groupString);
+                        return;
                     } else if (args[2].equalsIgnoreCase("link")) {
                         if (args.length == 4) {
                             Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
@@ -89,19 +85,17 @@ public class PermissionsCommand implements Command {
                             }
                         }
                     } else if (args[2].equalsIgnoreCase("unlink")) {
-                        if (args.length == 3) {
-                            Role role;
-                            if (group.getRoleId() == null || (role = guild.getGuild().getRoleById(group.getRoleId())) == null) {
-                                MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
-                                return;
-                            } else {
-                                group.linkRole(null);
-                                MessageUtils.sendSuccessMessage("Successfully unlinked the role " + role.getName() + " from the group " + group.getName(), channel, sender);
-                                return;
-                            }
+                        Role role;
+                        if (group.getRoleId() == null || (role = guild.getGuild().getRoleById(group.getRoleId())) == null) {
+                            MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
+                            return;
+                        } else {
+                            group.linkRole(null);
+                            MessageUtils.sendSuccessMessage("Successfully unlinked the role " + role.getName() + " from the group " + group.getName(), channel, sender);
+                            return;
                         }
                     } else if (args[2].equalsIgnoreCase("list")) {
-                        if (args.length == 3 || args.length == 4) {
+                        if (args.length <= 4) {
                             int page = args.length == 4 ? Integer.valueOf(args[3]) : 1;
                             Set<String> perms = group.getPermissions();
                             List<String> permList = GeneralUtils.orderList(perms);
