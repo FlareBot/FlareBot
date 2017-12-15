@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.util.objects;
 
-import net.dv8tion.jda.core.entities.Emote;
 import stream.flarebot.flarebot.util.ButtonRunnable;
 
 import java.util.LinkedHashMap;
@@ -8,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ButtonGroup {
-    Map<String, ButtonRunnable> buttons;
+    private Map<String, ButtonRunnable> buttons;
     public ButtonGroup() {
         buttons = new LinkedHashMap<>();
     }
