@@ -32,7 +32,7 @@ public class PermissionsCommand implements Command {
                 Group group = getPermissions(channel).getGroup(groupString);
                 if (args.length >= 3) {
                     if (group == null && !args[2].equalsIgnoreCase("create")) {
-                        MessageUtils.sendErrorMessage("That group doesn't exist! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                        MessageUtils.sendErrorMessage("That group doesn't exist! You can create it with `{%}permissions group " + groupString + " create`", channel);
                         return;
                     }
                     if (args[2].equalsIgnoreCase("add")) {
