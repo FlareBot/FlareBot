@@ -12,6 +12,13 @@ public class ButtonGroup {
         buttons = new LinkedHashMap<>();
     }
 
+    /**
+     * Adds a button to the button group.
+     *
+     * @param unicode The unicode string for this emojie.
+     * @param runnable A ButtonRunnable that is called when the button is clicked.
+     * @return If adding the button was successful.
+     */
     public boolean addButton(String unicode, ButtonRunnable runnable) {
         if (!buttons.containsKey(unicode)) {
             buttons.put(unicode, runnable);
@@ -21,10 +28,21 @@ public class ButtonGroup {
         }
     }
 
+    /**
+     * Gets all the emojies in this button group.
+     *
+     * @return a Set<String> containg all the emojies in this button group.
+     */
     public Set<String> getButtonEmotes() {
         return buttons.keySet();
     }
 
+    /**
+     * Gets the runnable associated with this button.
+     *
+     * @param unicode The unicode of the button.
+     * @return The ButtonRunnable for this button.
+     */
     public ButtonRunnable getRunnable(String unicode) {
         return buttons.get(unicode);
     }
