@@ -154,7 +154,6 @@ public class FlareBot {
 
     public static void main(String[] args) {
         Spark.port(8080);
-        Sentry.init();
         try {
             File file = new File("config.json");
             if (!file.exists() && !file.createNewFile())
@@ -196,6 +195,8 @@ public class FlareBot {
             LOGGER.error("One or more of the required JSON objects where missing. Exiting to prevent problems");
             System.exit(1);
         }
+
+        Sentry.init(config.getString("sentry.dsn").get());
 
         String tkn = config.getString("bot.token").get();
 
