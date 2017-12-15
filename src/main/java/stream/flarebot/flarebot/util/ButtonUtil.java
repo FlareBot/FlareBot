@@ -22,12 +22,8 @@ public class ButtonUtil {
             if (!channel.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                 MessageUtils.sendErrorMessage("We don't have permission to manage reactions so you won't be getting the best experience with buttons", channel);
             }
-            for (Object emote : buttons.getButtonEmotes()) {
-                if (emote instanceof Emote) {
-                    message.addReaction((Emote) emote).queue();
-                } else if (emote instanceof String) {
-                    message.addReaction((String) emote).queue();
-                }
+            for (String emote : buttons.getButtonEmotes()) {
+                message.addReaction(emote).queue();
             }
             buttonMessages.put(message.getId(), buttons);
         });
@@ -42,12 +38,8 @@ public class ButtonUtil {
             if (!channel.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                 MessageUtils.sendErrorMessage("We don't have permission to manage reactions so you won't be getting the best experience with buttons", channel);
             }
-            for (Object emote : buttons.getButtonEmotes()) {
-                if (emote instanceof Emote) {
-                    message.addReaction((Emote) emote).queue();
-                } else if (emote instanceof String) {
-                    message.addReaction((String) emote).queue();
-                }
+            for (String emote : buttons.getButtonEmotes()) {
+                message.addReaction(emote).queue();
             }
             buttonMessages.put(message.getId(), buttons);
         });
