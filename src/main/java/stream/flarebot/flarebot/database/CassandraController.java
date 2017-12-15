@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.database;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.PoolingOptions;
@@ -7,7 +8,6 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.ResultSetFuture;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.driver.core.exceptions.QueryValidationException;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,7 +20,10 @@ public class CassandraController {
     // Cassandra sessions should be kept open, these handle the pooling per node internally.
     private static Session session;
 
-    public void init(JSONConfig config) {
+    private CassandraController() {
+    }
+
+    public CassandraController(JSONConfig config) {
         Cluster.Builder builder = Cluster.builder().withClusterName("FlareBot Nodes")
                 .withCredentials(config.getString("cassandra.username").get(), config.getString("cassandra.password").get())
                 .withPoolingOptions(new PoolingOptions().setConnectionsPerHost(HostDistance.LOCAL, 2, 4).setConnectionsPerHost(HostDistance.REMOTE, 2, 4));
@@ -42,7 +45,7 @@ public class CassandraController {
     }
 
     public static ResultSet execute(String query) {
-        try{
+        try {
             return session.execute(query);
         } catch (QueryExecutionException | QueryValidationException e) {
             FlareBot.LOGGER.error("Failed to execute Cassandra query", e);
@@ -52,6 +55,10 @@ public class CassandraController {
 
     public static ResultSetFuture executeAsync(String query) {
         return session.executeAsync(query);
+    }
+
+    public static ResultSetFuture executeAsync(BoundStatement statement) {
+        return session.executeAsync(statement);
     }
 
     public static PreparedStatement prepare(String query) {

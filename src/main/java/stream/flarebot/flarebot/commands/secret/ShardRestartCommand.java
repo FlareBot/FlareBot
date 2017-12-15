@@ -17,9 +17,10 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import javax.security.auth.login.LoginException;
 
 public class ShardRestartCommand implements Command {
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(member)) {
+        if (getPermissions(channel).isCreator(sender)) {
             int shard = Integer.parseInt(args[0]);
             try {
                 synchronized (FlareBot.getInstance().getClients()) {
