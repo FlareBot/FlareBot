@@ -57,7 +57,7 @@ public class PruneCommand implements Command {
                 return;
             }
         }
-        MessageUtils.sendUsage(this, channel, sender);
+        MessageUtils.sendUsage(this, channel, sender, args);
     }
 
     @Override
@@ -73,8 +73,8 @@ public class PruneCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}prune server <days>` - Prunes the entire server." +
-                " Only members inactive longer than the specified amount of days will be removed\n" +
-                "`{%}prune confirm` - Confirms a user's actions";
+                " Only members inactive longer than the specified amount of days will be removed.\n" +
+                "`{%}prune confirm` - Confirms a user's actions.";
     }
 
     @Override

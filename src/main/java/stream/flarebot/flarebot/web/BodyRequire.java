@@ -7,6 +7,7 @@ import spark.Request;
 import java.util.function.Predicate;
 
 public class BodyRequire extends Require {
+
     private Predicate<JsonElement> eTest = r -> true;
     JsonParser parser = new JsonParser();
 

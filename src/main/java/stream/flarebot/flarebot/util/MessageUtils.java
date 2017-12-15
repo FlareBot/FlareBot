@@ -8,30 +8,32 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Markers;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.awt.Color;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MessageUtils {
+
+    private static FlareBot flareBot = FlareBot.getInstance();
 
     private static final Pattern INVITE_REGEX = Pattern
             .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
@@ -41,11 +43,9 @@ public class MessageUtils {
             .compile("(http(s)?://)?(www\\.)?youtu(be\\.com)?(\\.be)?/(watch\\?v=)?[a-zA-Z0-9-_]+");
 
     private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
+    private static final Pattern SPACE = Pattern.compile(" ");
 
-    public static <T> Consumer<T> noOpConsumer() {
-        return t -> {
-        };
-    }
+    public static final String ZERO_WIDTH_SPACE = "\u200B";
 
     public static int getLength(EmbedBuilder embed) {
         int len = 0;
@@ -62,56 +62,72 @@ public class MessageUtils {
         return len;
     }
 
-    public static Message sendPM(User user, String message) {
+    public static void sendPM(User user, String message) {
         try {
-            return user.openPrivateChannel().complete()
-                    .sendMessage(message.substring(0, Math.min(message.length(), 1999))).complete();
-        } catch (ErrorResponseException e) {
-            return null;
+            user.openPrivateChannel().complete()
+                    .sendMessage(message.substring(0, Math.min(message.length(), 1999))).queue();
+        } catch (ErrorResponseException ignored) {
         }
     }
 
-    public static Message sendPM(MessageChannel channel, User user, String message) {
+    public static void sendPM(TextChannel channel, User user, String message) {
         try {
-            return user.openPrivateChannel().complete()
-                    .sendMessage(message.substring(0, Math.min(message.length(), 1999))).complete();
+            user.openPrivateChannel().complete()
+                    .sendMessage(message.substring(0, Math.min(message.length(), 1999))).queue();
         } catch (ErrorResponseException e) {
             channel.sendMessage(message).queue();
-            return null;
         }
     }
 
-    public static Message sendPM(MessageChannel channel, User user, EmbedBuilder message) {
+    public static void sendPM(TextChannel channel, User user, EmbedBuilder message) {
         try {
-            return user.openPrivateChannel().complete().sendMessage(message.build()).complete();
+            user.openPrivateChannel().complete().sendMessage(message.build()).complete();
         } catch (ErrorResponseException e) {
             channel.sendMessage(message.build()).queue();
-            return null;
         }
     }
 
-    public static Message sendException(String s, Throwable e, MessageChannel channel) {
+    public static void sendException(String s, Throwable e, TextChannel channel) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         String trace = sw.toString();
         pw.close();
-        return sendErrorMessage(getEmbed().setDescription(s + "\n**Stack trace**: " + hastebin(trace)), channel);
+        sendErrorMessage(getEmbed().setDescription(s + "\n**Stack trace**: " + paste(trace)), channel);
     }
 
-    public static String hastebin(String trace) {
+    public static void sendFatalException(String s, Throwable e, TextChannel channel) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String trace = sw.toString();
+        pw.close();
+        channel.sendMessage(new MessageBuilder().append(
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
+                .setEmbed(getEmbed().setColor(Color.red).setDescription(s + "\n**Stack trace**: " + paste(trace))
+                        .build()).build()).queue();
+    }
+
+    public static String paste(String trace) {
+        if (flareBot.getPasteKey() == null || flareBot.getPasteKey().isEmpty()) {
+            FlareBot.LOGGER.warn("Paste server key is missing! Pastes will not work!");
+            return null;
+        }
         try {
-            Response response = WebUtils.post("https://hastebin.com/documents", WebUtils.APPLICATION_JSON, trace);
+            Response response = WebUtils.post(new Request.Builder().url("https://paste.flarebot.stream/documents")
+                    .addHeader("Authorization", flareBot.getPasteKey()).post(RequestBody
+                            .create(WebUtils.APPLICATION_JSON, trace)));
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            if(response.body() != null) {
-                String key = new JSONObject(response.body().string()).getString("key");
-                return "https://hastebin.com/" + key;
+            ResponseBody body = response.body();
+            if (body != null) {
+                String key = new JSONObject(body.string()).getString("key");
+                return "https://paste.flarebot.stream/" + key;
             } else {
-                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Hastebin is down");
+                FlareBot.LOGGER.error("Local instance of hastebin is down");
                 return null;
             }
         } catch (IOException | JSONException e) {
-            FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Could not make POST request to hastebin!", e);
+            FlareBot.LOGGER.error("Could not make POST request to paste!", e);
             return null;
         }
     }
@@ -120,19 +136,18 @@ public class MessageUtils {
         message.editMessage(content).queue();
     }
 
-    public static Message sendFile(MessageChannel channel, String s, String fileContent, String filename) {
-        ByteArrayInputStream stream = new ByteArrayInputStream(fileContent.getBytes());
-        return channel.sendFile(stream, filename, new MessageBuilder().append(s).build()).complete();
-    }
-
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", FlareBot.getInstance().getClients()[0]
+                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", flareBot.getClient()
                         .getSelfUser().getEffectiveAvatarUrl());
     }
 
     public static String getTag(User user) {
         return user.getName() + '#' + user.getDiscriminator();
+    }
+
+    public static String getUserAndId(User user) {
+        return getTag(user) + " (" + user.getId() + ")";
     }
 
     public static EmbedBuilder getEmbed(User user) {
@@ -147,70 +162,84 @@ public class MessageUtils {
         return user.getDefaultAvatarUrl();
     }
 
-    public static Message sendErrorMessage(EmbedBuilder builder, MessageChannel channel) {
-        return channel.sendMessage(builder.setColor(Color.RED).build()).complete();
+    public static void sendErrorMessage(EmbedBuilder builder, MessageChannel channel) {
+        channel.sendMessage(builder.setColor(Color.RED).build()).queue();
     }
 
-    private static Message sendMessage(MessageEmbed embed, TextChannel channel) {
-        return channel.sendMessage(embed).complete();
+    public static void sendFatalErrorMessage(String s, TextChannel channel) {
+        channel.sendMessage(new MessageBuilder().append(
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
+                .setEmbed(getEmbed().setColor(Color.red).setDescription(s).build()).build()).queue();
     }
 
-    public static Message sendMessage(MessageType type, String message, TextChannel channel) {
-        return sendMessage(type, message, channel, null);
+    private static void sendMessage(MessageEmbed embed, TextChannel channel) {
+        channel.sendMessage(embed).queue();
     }
 
-    public static Message sendMessage(MessageType type, String message, TextChannel channel, User sender) {
+    public static void sendMessage(MessageType type, String message, TextChannel channel) {
+        sendMessage(type, message, channel, null);
+    }
+
+    public static void sendMessage(MessageType type, String message, TextChannel channel, User sender) {
+        sendMessage(type, message, channel, sender, 0);
+    }
+
+    public static void sendMessage(MessageType type, String message, TextChannel channel, User sender, long autoDeleteDelay) {
         EmbedBuilder builder = (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
-                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()));
-        return sendMessage(builder.setDescription(GeneralUtils.formatCommandPrefix(channel, message)).build(), channel);
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .setDescription(GeneralUtils.formatCommandPrefix(channel, message));
+        if (autoDeleteDelay > 0)
+            sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
+        else
+            sendMessage(builder.build(), channel);
     }
 
-    public static Message sendMessage(String message, TextChannel channel) {
-        return sendMessage(MessageType.NEUTRAL, message, channel);
+    public static void sendMessage(String message, TextChannel channel) {
+        sendMessage(MessageType.NEUTRAL, message, channel);
     }
 
-    public static Message sendMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.NEUTRAL, message, channel, sender);
+    public static void sendMessage(String message, TextChannel channel, User sender) {
+        sendMessage(MessageType.NEUTRAL, message, channel, sender);
     }
 
-    public static Message sendErrorMessage(String message, TextChannel channel) {
-        return sendMessage(MessageType.ERROR, message, channel);
+    public static void sendErrorMessage(String message, TextChannel channel) {
+        sendMessage(MessageType.ERROR, message, channel);
     }
 
-    public static Message sendErrorMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.ERROR, message, channel, sender);
+    public static void sendErrorMessage(String message, TextChannel channel, User sender) {
+        sendMessage(MessageType.ERROR, message, channel, sender);
     }
 
-    public static Message sendWarningMessage(String message, TextChannel channel) {
-        return sendMessage(MessageType.WARNING, message, channel);
+    public static void sendWarningMessage(String message, TextChannel channel) {
+        sendMessage(MessageType.WARNING, message, channel);
     }
 
-    public static Message sendWarningMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.WARNING, message, channel, sender);
+    public static void sendWarningMessage(String message, TextChannel channel, User sender) {
+        sendMessage(MessageType.WARNING, message, channel, sender);
     }
 
-    public static Message sendSuccessMessage(String message, TextChannel channel) {
-        return sendMessage(MessageType.SUCCESS, message, channel);
+    public static void sendSuccessMessage(String message, TextChannel channel) {
+        sendMessage(MessageType.SUCCESS, message, channel);
     }
 
-    public static Message sendSuccessMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.SUCCESS, message, channel, sender);
+    public static void sendSuccessMessage(String message, TextChannel channel, User sender) {
+        sendMessage(MessageType.SUCCESS, message, channel, sender);
     }
 
-    public static Message sendInfoMessage(String message, TextChannel channel) {
-        return sendMessage(MessageType.INFO, message, channel);
+    public static void sendInfoMessage(String message, TextChannel channel) {
+        sendMessage(MessageType.INFO, message, channel);
     }
 
-    public static Message sendInfoMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.INFO, message, channel, sender);
+    public static void sendInfoMessage(String message, TextChannel channel, User sender) {
+        sendMessage(MessageType.INFO, message, channel, sender);
     }
-    
-    public static Message sendModMessage(String message, TextChannel channel) {
-        return sendMessage(MessageType.MODERATION, message, channel);
+
+    public static void sendModMessage(String message, TextChannel channel) {
+        sendMessage(MessageType.MODERATION, message, channel);
     }
-    
-    public static Message sendModMessage(String message, TextChannel channel, User sender) {
-        return sendMessage(MessageType.MODERATION, message, channel, sender);
+
+    public static void sendModMessage(String message, TextChannel channel, User sender) {
+        sendMessage(MessageType.MODERATION, message, channel, sender);
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {
@@ -242,40 +271,33 @@ public class MessageUtils {
         return YOUTUBE_LINK_REGEX.matcher(message.getRawContent()).find();
     }
 
-    public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel) {
-        sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
-    }
-
     public static void autoDeleteMessage(Message message, long delay) {
-        new FlarebotTask("AutoDeleteTask") {
-            @Override
-            public void run() {
-                message.delete().queue();
-            }
-        }.delay(delay);
+        message.delete().queueAfter(delay, TimeUnit.MILLISECONDS);
     }
 
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
-        Message msg = channel.sendMessage(message).complete();
-        new FlarebotTask("AutoDeleteTask") {
-            @Override
-            public void run() {
-                msg.delete().queue();
-            }
-        }.delay(delay);
+        channel.sendMessage(message).queue(msg -> autoDeleteMessage(msg, delay));
     }
 
-    public static void sendUsage(Command command, TextChannel channel, User user) {
+    public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel) {
+        channel.sendMessage(messageEmbed).queue(msg -> autoDeleteMessage(msg, delay));
+    }
+
+    public static void sendUsage(Command command, TextChannel channel, User user, String[] args) {
         String title = capitalize(command.getCommand()) + " Usage";
-        String usage = GeneralUtils.formatCommandPrefix(channel, command.getUsage());
-        if (command.getPermission() != null) {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .addField("Permission", command.getPermission() + "\n" +
-                            "**Default permission: **" + command.isDefaultPermission(), false).setColor(Color.RED).build()).queue();
-        } else {
-            channel.sendMessage(getEmbed(user).setTitle(title, null).addField("Usage", usage, false)
-                    .setColor(Color.RED).build()).queue();
+        List<String> usages = UsageParser.matchUsage(command, args);
+
+        String usage = GeneralUtils.formatCommandPrefix(channel, usages.stream().collect(Collectors.joining("\n")));
+        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
+        if (command.getExtraInfo() != null) {
+            b.addField("Extra Info", command.getExtraInfo(), false);
         }
+        if (command.getPermission() != null) {
+            b.addField("Permission", command.getPermission() + "\n" +
+                    "**Default permission: **" + command.isDefaultPermission(), false);
+        }
+        channel.sendMessage(b.build()).queue();
+
     }
 
     private static String capitalize(String s) {
@@ -285,7 +307,6 @@ public class MessageUtils {
     public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, String footer) {
         return makeAsciiTable(headers, table, footer, "");
     }
-
 
     public static String makeAsciiTable(java.util.List<String> headers, java.util.List<java.util.List<String>> table, String footer, String lang) {
         StringBuilder sb = new StringBuilder();
@@ -308,16 +329,16 @@ public class MessageUtils {
             }
         }
         sb.append("```").append(lang).append("\n");
-        String formatLine = "|";
+        StringBuilder formatLine = new StringBuilder("|");
         for (int width : widths) {
-            formatLine += " %-" + width + "s |";
+            formatLine.append(" %-").append(width).append("s |");
         }
-        formatLine += "\n";
+        formatLine.append("\n");
         sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
-        sb.append(String.format(formatLine, headers.toArray()));
+        sb.append(String.format(formatLine.toString(), headers.toArray()));
         sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
         for (java.util.List<String> row : table) {
-            sb.append(String.format(formatLine, row.toArray()));
+            sb.append(String.format(formatLine.toString(), row.toArray()));
         }
         if (footer != null) {
             sb.append(appendSeparatorLine("+", "+", "+", padding, widths));
@@ -372,5 +393,19 @@ public class MessageUtils {
         return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
     }
 
+    public static String getNextArgument(String message, String from) {
+        if (!message.contains(from)) return null;
 
+        String[] args = SPACE.split(message);
+        if (args.length == 0) return message;
+        for (int i = 0; i < args.length; i++) {
+            if (args.length <= (i + 1)) return null;
+            if (args[i].equals(from))
+                if (args[i + 1] != null && !args[i + 1].isEmpty())
+                    return args[i + 1];
+                else
+                    return null;
+        }
+        return null;
+    }
 }

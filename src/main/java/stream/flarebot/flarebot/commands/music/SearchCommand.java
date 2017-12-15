@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -14,17 +13,8 @@ public class SearchCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        MessageUtils.sendWarningMessage("This is deprecated! Please use _play instead!", channel, sender);
-        if (args.length > 0) {
-            if (args[0].startsWith("http") || args[0].startsWith("www.")) {
-                VideoThread.getThread(args[0], channel, sender).start();
-            } else {
-                String term = MessageUtils.getMessage(args, 0);
-                VideoThread.getSearchThread(term, channel, sender).start();
-            }
-        } else {
-            MessageUtils.sendUsage(this, channel, sender);
-        }
+        MessageUtils.sendWarningMessage("This command is deprecated and will be fully removed and re-tooled next update! " +
+                "**Please use `{%}play` instead!**", channel, sender);
     }
 
     @Override
@@ -39,7 +29,7 @@ public class SearchCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}search <URL/words>";
+        return "`{%}search <URL/words>` - Searches for a song on YouTube.";
     }
 
     @Override

@@ -12,7 +12,6 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if (type != CommandType.SECRET && !getPermissions(channel).isCreator(member)) {
+            if (type != CommandType.SECRET && !getPermissions(channel).isCreator(sender)) {
                 EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
                 embedBuilder.setDescription("***FlareBot " + type + " commands!***");
                 List<String> help = type.getCommands()
@@ -72,11 +71,11 @@ public class HelpCommand implements Command {
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
                     .stream().filter(cmd -> cmd.getPermission() != null &&
-                                    FlareBotManager.getInstance().getGuild(guild.getId())
-                            .getPermissions()
-                            .hasPermission(guild
-                                    .getMember(sender), cmd
-                                    .getPermission()))
+                            FlareBotManager.getInstance().getGuild(guild.getId())
+                                    .getPermissions()
+                                    .hasPermission(guild
+                                            .getMember(sender), cmd
+                                            .getPermission()))
                     .map(command -> get(guild) + command.getCommand() + " - " + command
                             .getDescription() + '\n')
                     .collect(Collectors.toList());
@@ -112,8 +111,8 @@ public class HelpCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}help [here]` - Gives a list of commands [in this channel]\n"
-                + "`{%}help <category>` - Gives a list of commands in a specific category";
+        return "`{%}help` - Gives a list of commands.\n"
+                + "`{%}help <category>` - Gives a list of commands in a specific category.";
     }
 
     @Override

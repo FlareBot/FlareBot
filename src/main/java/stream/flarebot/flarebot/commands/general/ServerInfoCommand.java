@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -22,12 +23,11 @@ public class ServerInfoCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 0){
+        if (args.length == 0) {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
-            String guildid = args[0];
-            Guild targetGuild = FlareBot.getInstance().getGuildByID(guildid);
-            if(targetGuild != null){
+            Guild targetGuild = FlareBot.getInstance().getGuildById(GeneralUtils.getLong(args[0], -1));
+            if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {
                 MessageUtils.sendErrorMessage("We couldn't find that guild.", channel);
@@ -35,7 +35,7 @@ public class ServerInfoCommand implements Command {
         }
     }
 
-    private void sendGuildInfo(Guild guild, TextChannel channel){
+    private void sendGuildInfo(Guild guild, TextChannel channel) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(guild.getName());
         eb.setThumbnail(guild.getIconUrl());
@@ -46,7 +46,7 @@ public class ServerInfoCommand implements Command {
                 guild.getMembers().stream().filter(member -> !member.getOnlineStatus().equals(OnlineStatus.OFFLINE)).count() + "\n" +
                 "\n" +
                 "**Owner:** " +
-                guild.getOwner().getUser().getName() +  "#" + guild.getOwner().getUser().getDiscriminator(), true);
+                MessageUtils.getTag(guild.getOwner().getUser()), true);
         String afk = guild.getAfkChannel() == null ? "" :
                 "**AFK:**\n" +
                         "Channel: " +
@@ -75,21 +75,10 @@ public class ServerInfoCommand implements Command {
                 guild.getRegion().getName() + "\n" +
                 "\n" +
                 "**Verification Level:** " +
-                getVerificationString(guild.getVerificationLevel()), true);
+                GeneralUtils.getVerificationString(guild.getVerificationLevel()), true);
         eb.setFooter("ID: " + guild.getId(), null);
         eb.setColor(Color.CYAN);
         channel.sendMessage(eb.build()).queue();
-    }
-
-    private String getVerificationString(Guild.VerificationLevel level){
-        switch (level){
-            case HIGH:
-                return "(\u256F\u00B0\u25A1\u00B0\uFF09\u256F\uFE35 \u253B\u2501\u253B"; //(╯°□°）╯︵ ┻━┻
-            case VERY_HIGH:
-                return "\u253B\u2501\u253B\u5F61 \u30FD(\u0CA0\u76CA\u0CA0)\u30CE\u5F61\u253B\u2501\u253B"; //┻━┻彡 ヽ(ಠ益ಠ)ノ彡┻━┻
-            default:
-                return level.toString().charAt(0) + level.toString().substring(1).toLowerCase();
-        }
     }
 
     @Override
@@ -104,7 +93,7 @@ public class ServerInfoCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}serverinfo [guild id]` - Gets the info on a guild (server)";
+        return "`{%}serverinfo [guild_id]` - Gets the info on a guild (server).";
     }
 
     @Override
@@ -114,6 +103,6 @@ public class ServerInfoCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"guildinfo"};
+        return new String[]{"guildinfo"};
     }
 }

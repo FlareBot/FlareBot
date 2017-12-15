@@ -5,9 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Language;
-import stream.flarebot.flarebot.mod.AutoModConfig;
-import stream.flarebot.flarebot.mod.AutoModGuild;
+import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
@@ -24,49 +22,45 @@ import java.util.concurrent.ExecutionException;
 public class GuildWrapper {
 
     private String guildId;
-    private AutoModGuild autoModGuild = new AutoModGuild();
     private Welcome welcome = new Welcome();
     private PerGuildPermissions permissions = new PerGuildPermissions();
     private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new HashSet<>();
     private Set<String> selfAssignRoles = new HashSet<>();
-    private Language.Locales locale = Language.Locales.ENGLISH_UK;
-    private boolean blocked = false;
     private boolean songnick = false;
+    // Should be moved to their own manager.
+    private boolean blocked = false;
     private long unBlockTime = -1;
     private String blockReason = null;
+    // TODO: Move to Moderation fully - This will be a breaking change so we will basically just refer to the new location
     private String mutedRoleID = null;
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+    private Moderation moderation;
 
     // oooo special!
     private boolean betaAccess = false;
 
-    protected GuildWrapper(String guildId) {
+    /**
+     * <b>Do not use</b>
+     *
+     * @param guildId Guild Id of the desired new GuildWrapper
+     */
+    public GuildWrapper(String guildId) {
         this.guildId = guildId;
     }
 
     public Guild getGuild() {
-        return FlareBot.getInstance().getGuildByID(guildId);
+        return FlareBot.getInstance().getGuildById(guildId);
     }
 
     public String getGuildId() {
         return this.guildId;
     }
 
-    public AutoModGuild getAutoModGuild() {
-        return this.autoModGuild;
-    }
-
-    protected void setAutoModGuild(AutoModGuild autoModGuild) {
-        this.autoModGuild = autoModGuild;
-    }
-
-    public AutoModConfig getAutoModConfig() {
-        if (this.autoModGuild == null)
-            this.autoModGuild = new AutoModGuild();
-        return this.autoModGuild.getConfig();
+    public long getGuildIdLong() {
+        return Long.parseLong(this.guildId);
     }
 
     public Welcome getWelcome() {
@@ -78,10 +72,6 @@ public class GuildWrapper {
         return this.welcome;
     }
 
-    protected void setWelcome(Welcome welcome) {
-        this.welcome = welcome;
-    }
-
     public PerGuildPermissions getPermissions() {
         if (permissions == null) {
             permissions = new PerGuildPermissions();
@@ -89,7 +79,7 @@ public class GuildWrapper {
         return permissions;
     }
 
-    protected void setPermissions(PerGuildPermissions permissions) {
+    public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
     }
 
@@ -97,40 +87,16 @@ public class GuildWrapper {
         return this.polls;
     }
 
-    protected void setPolls(LinkedList<Poll> polls) {
-        this.polls = polls;
-    }
-
     public Set<String> getAutoAssignRoles() {
         return this.autoAssignRoles;
-    }
-
-    protected void setAutoAssignRoles(Set<String> roles) {
-        this.autoAssignRoles = roles;
     }
 
     public Set<String> getSelfAssignRoles() {
         return this.selfAssignRoles;
     }
 
-    protected void setSelfAssignRoles(Set<String> roles) {
-        this.selfAssignRoles = roles;
-    }
-
-    public Language.Locales getLocale() {
-        return this.locale;
-    }
-
-    protected void setLocale(Language.Locales locale) {
-        this.locale = locale;
-    }
-
     public boolean isBlocked() {
         return this.blocked;
-    }
-
-    protected void setBlocked(boolean blocked) {
-        this.blocked = blocked;
     }
 
     public void addBlocked(String reason) {
@@ -203,20 +169,17 @@ public class GuildWrapper {
     }
 
     public ReportManager getReportManager() {
-        if(reportManager == null) reportManager = new ReportManager();
+        if (reportManager == null) reportManager = new ReportManager();
         return reportManager;
     }
 
-    public void setReportManager(ReportManager reportManager) {
-        this.reportManager = reportManager;
-    }
-
     public List<String> getUserWarnings(User user) {
-        return warnings.get(user.getId());
+        if (warnings == null) warnings = new ConcurrentHashMap<>();
+        return warnings.getOrDefault(user.getId(), new ArrayList<>());
     }
 
     public void addWarning(User user, String reason) {
-        List<String> warningsList = warnings.getOrDefault(user.getId(), new ArrayList<>());
+        List<String> warningsList = getUserWarnings(user);
         warningsList.add(reason);
         warnings.put(user.getId(), warningsList);
     }
@@ -240,5 +203,14 @@ public class GuildWrapper {
     public Map<String, String> getTags() {
         if (tags == null) tags = new ConcurrentHashMap<>();
         return tags;
+    }
+
+    public Moderation getModeration() {
+        if (this.moderation == null) this.moderation = new Moderation();
+        return this.moderation;
+    }
+
+    public Moderation getModConfig() {
+        return getModeration();
     }
 }

@@ -93,7 +93,7 @@ public class FixCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}fix` - Fixes common issues";
+        return "`{%}fix` - Fixes common issues.";
     }
 
     @Override

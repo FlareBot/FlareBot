@@ -1,7 +1,21 @@
-imgs/
+# IntelliJ
 .idea
-target
-latest.log
-*.json
+target/
 *.iml
-tags
+
+# Other editors
+tags/
+
+# Our files
+imgs/
+logs/
+/src/main/resources/sentry.properties
+*.log
+*.json
+
+# Gradle can use hashes
+gradle/
+gradlew
+gradlew.bat
+settings.gradle
+build.gradle

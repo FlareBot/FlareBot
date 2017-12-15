@@ -1,6 +1,6 @@
 package stream.flarebot.flarebot.api;
 
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.Constants;
 
 import static stream.flarebot.flarebot.api.Method.GET;
 import static stream.flarebot.flarebot.api.Method.PATCH;
@@ -13,7 +13,8 @@ public enum ApiRoute {
     COMMANDS(POST, "commands"),
 
     // Stats route
-    DATA(POST, "stats/data"),
+    UPDATE_DATA(POST, "stats/data"),
+    DISPATCH_COMMAND(POST, "stats/command"),
 
     // Guild route
     UPDATE_PREFIX(PATCH, "guild/prefix"),
@@ -42,6 +43,6 @@ public enum ApiRoute {
     }
 
     public String getFullUrl() {
-        return FlareBot.FLAREBOT_API + route;
+        return Constants.FLAREBOT_API + route;
     }
 }
