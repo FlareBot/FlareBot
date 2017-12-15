@@ -27,7 +27,7 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -44,6 +44,8 @@ public class MessageUtils {
 
     private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
     private static final Pattern SPACE = Pattern.compile(" ");
+
+    public static final String ZERO_WIDTH_SPACE = "\u200B";
 
     public static int getLength(EmbedBuilder embed) {
         int len = 0;
@@ -101,7 +103,7 @@ public class MessageUtils {
         String trace = sw.toString();
         pw.close();
         channel.sendMessage(new MessageBuilder().append(
-                flareBot.getOfficialGuild().getRoleById(FlareBot.DEVELOPER_ID).getAsMention())
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s + "\n**Stack trace**: " + paste(trace))
                         .build()).build()).queue();
     }
@@ -136,12 +138,16 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", flareBot.getClients()[0]
+                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", flareBot.getClient()
                         .getSelfUser().getEffectiveAvatarUrl());
     }
 
     public static String getTag(User user) {
         return user.getName() + '#' + user.getDiscriminator();
+    }
+
+    public static String getUserAndId(User user) {
+        return getTag(user) + " (" + user.getId() + ")";
     }
 
     public static EmbedBuilder getEmbed(User user) {
@@ -162,7 +168,7 @@ public class MessageUtils {
 
     public static void sendFatalErrorMessage(String s, TextChannel channel) {
         channel.sendMessage(new MessageBuilder().append(
-                flareBot.getOfficialGuild().getRoleById(FlareBot.DEVELOPER_ID).getAsMention())
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s).build()).build()).queue();
     }
 
@@ -182,7 +188,7 @@ public class MessageUtils {
         EmbedBuilder builder = (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
                 .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                 .setDescription(GeneralUtils.formatCommandPrefix(channel, message));
-        if(autoDeleteDelay > 0)
+        if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
         else
             sendMessage(builder.build(), channel);
@@ -266,20 +272,15 @@ public class MessageUtils {
     }
 
     public static void autoDeleteMessage(Message message, long delay) {
-        new FlareBotTask("AutoDeleteTask-" + message.getId()) {
-            @Override
-            public void run() {
-                message.delete().queue();
-            }
-        }.delay(delay);
+        message.delete().queueAfter(delay, TimeUnit.MILLISECONDS);
     }
 
     public static void sendAutoDeletedMessage(Message message, long delay, MessageChannel channel) {
-        channel.sendMessage(message).queue(msg -> autoDeleteMessage(message, delay));
+        channel.sendMessage(message).queue(msg -> autoDeleteMessage(msg, delay));
     }
 
     public static void sendAutoDeletedMessage(MessageEmbed messageEmbed, long delay, MessageChannel channel) {
-        sendAutoDeletedMessage(new MessageBuilder().setEmbed(messageEmbed).build(), delay, channel);
+        channel.sendMessage(messageEmbed).queue(msg -> autoDeleteMessage(msg, delay));
     }
 
     public static void sendUsage(Command command, TextChannel channel, User user, String[] args) {
@@ -393,14 +394,14 @@ public class MessageUtils {
     }
 
     public static String getNextArgument(String message, String from) {
-        if(!message.contains(from)) return null;
+        if (!message.contains(from)) return null;
 
         String[] args = SPACE.split(message);
-        if(args.length == 0) return message;
-        for(int i = 0; i < args.length; i++) {
-            if(args.length <= (i + 1)) return null;
-            if(args[i].equals(from))
-                if(args[i + 1] != null && !args[i + 1].isEmpty())
+        if (args.length == 0) return message;
+        for (int i = 0; i < args.length; i++) {
+            if (args.length <= (i + 1)) return null;
+            if (args[i].equals(from))
+                if (args[i + 1] != null && !args[i + 1].isEmpty())
                     return args[i + 1];
                 else
                     return null;
