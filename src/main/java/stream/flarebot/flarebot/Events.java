@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
@@ -40,7 +39,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.ButtonUtil;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -91,15 +90,14 @@ public class Events extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
         if (event.getUser().isBot()) return;
-        System.out.println(event.getReactionEmote().getId());
         if (ButtonUtil.isButtonMessage(event.getMessageId())) {
-            ButtonGroup buttons = ButtonUtil.getButtonGroup(event.getMessageId());
-            for (String unicode : buttons.getButtonEmotes()) {
-                if (event.getReactionEmote().getName().equals(unicode)) {
-                    buttons.getRunnable(unicode).run(event.getUser());
+            for (ButtonGroup.Button button : ButtonUtil.getButtonGroup(event.getMessageId()).getButtons()) {
+                if (event.getReactionEmote().getId() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
+                        || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
+                    button.onClick(event.getUser());
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for (MessageReaction reaction : message.getReactions()) {
-                            if (reaction.getReactionEmote().getName().equals(unicode)) {
+                            if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
                                 reaction.removeReaction(event.getUser()).queue();
                             }
                         }

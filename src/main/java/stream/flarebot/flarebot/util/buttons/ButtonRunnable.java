@@ -1,7 +1,8 @@
-package stream.flarebot.flarebot.util;
+package stream.flarebot.flarebot.util.buttons;
 
 import net.dv8tion.jda.core.entities.User;
 
 public interface ButtonRunnable {
-    public void run(User user);
+
+    void run(User user);
 }

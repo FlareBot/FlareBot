@@ -1,44 +1,20 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.ButtonRunnable;
-import stream.flarebot.flarebot.util.ButtonUtil;
+import stream.flarebot.flarebot.util.buttons.ButtonRunnable;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        ButtonGroup buttons = new ButtonGroup();
-        buttons.addButton("\u2714", new ButtonRunnable() {
-            @Override
-            public void run(User user) {
-                channel.sendMessage("this still works!").queue();
-            }
-        });
-        buttons.addButton("\u274C", new ButtonRunnable() {
-            @Override
-            public void run(User user) {
-            }
-        });
-        buttons.addButton("\u23ED", new ButtonRunnable() {
-            @Override
-            public void run(User user) {
-            }
-        });
-        ButtonUtil.sendButtonedMessage(channel, "Buttons test", buttons);
         // Served it's purpose once again :) Now it's free to be reused... no memes pls
     }
 
