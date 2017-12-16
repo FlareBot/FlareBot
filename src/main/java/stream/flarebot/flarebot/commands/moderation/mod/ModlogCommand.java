@@ -81,13 +81,8 @@ public class ModlogCommand implements Command {
                 if (args.length == 2) {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
-<<<<<<< HEAD
                 listEvents(channel, page, guild, false);
                 return;
-=======
-                
-                listEvents(channel, page, guild, false);
->>>>>>> 87715b7e7bbccf90dfbb6eaa6d8d025e084d0a23
             }
         }
         if (args.length >= 2) {
