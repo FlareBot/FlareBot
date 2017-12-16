@@ -82,15 +82,15 @@ public class ModlogCommand implements Command {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
                 int pageSize = 15;
-                Set<ModlogAction> actions = guild.getModeration().getEnabledActions();
-                int pages = actions.size() < pageSize ? 1 : (actions.size() / pageSize)
-                        + (actions.size() % pageSize != 0 ? 1 : 0);
+                List<ModlogEvent> events = ModlogEvent.events;
+                int pages = events.size() < pageSize ? 1 : (events.size() / pageSize)
+                        + (events.size() % pageSize != 0 ? 1 : 0);
 
                 int start;
                 int end;
 
                 start = pageSize * (page - 1);
-                end = Math.min(start + pageSize, actions.size());
+                end = Math.min(start + pageSize, events.size());
 
                 if (page > pages || page < 0) {
                     MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
@@ -98,29 +98,17 @@ public class ModlogCommand implements Command {
                 } else {
                     StringBuilder sb = new StringBuilder();
                     Map<String, List<ModlogEvent>> groups = new HashMap<>();
+                    String groupKey;
                     for (ModlogEvent modlogEvent : ModlogEvent.events.subList(start, end)) {
                         String name = modlogEvent.getName();
                         String[] split = name.split(" ");
-                        String groupKey = split[0];
-                        if (groups.containsKey(groupKey)) {
-                            List<ModlogEvent> group = groups.get(groupKey);
-                            group.add(modlogEvent);
-                            groups.put(groupKey, group);
-                        } else {
-                            List<ModlogEvent> group = new ArrayList<>();
-                            group.add(modlogEvent);
-                            groups.put(groupKey, group);
-                        }
-                    }
-
-                    Iterator<Map.Entry<String, List<ModlogEvent>>> it = groups.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry<String, List<ModlogEvent>> pair = it.next();
-                        for (ModlogEvent event : pair.getValue()) {
-                            sb.append("`").append(event.getTitle()).append("` - ").append(event.getDescription()).append("\n");
-                        }
-                        sb.append("\n");
-                        it.remove();
+                        if(groupKey == null || groupKey.isEmpty())
+                            groupKey = split[0];
+                        
+                        if(!groupKey.equals(split[0]))
+                            sb.append('\n');
+                        
+                        sb.append("`").append(event.getTitle()).append("` - ").append(event.getDescription()).append('\n');
                     }
                     sb.append("`Default` - Is for all the normal default events\n");
                     sb.append("`All` - Is for targeting all events");
