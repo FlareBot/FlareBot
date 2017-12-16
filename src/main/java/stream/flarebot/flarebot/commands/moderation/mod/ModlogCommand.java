@@ -81,8 +81,8 @@ public class ModlogCommand implements Command {
                 if (args.length == 2) {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
-                
-                listFeatures(channel, page, guild, false);
+                listEvents(channel, page, guild, false);
+                return;
             }
         }
         if (args.length >= 2) {
@@ -254,7 +254,7 @@ public class ModlogCommand implements Command {
         int pageSize = 15;
         List<ModlogEvent> events;
         if (enabledEvents)
-            events = wrapper.getModeration().getEnabledActions().map(action -> action.getEvent()).collect(Collectors.toList());
+            events = wrapper.getModeration().getEnabledActions().stream().map(action -> action.getEvent()).collect(Collectors.toList());
         else
             events = ModlogEvent.events;
         int pages = events.size() < pageSize ? 1 : (events.size() / pageSize)
@@ -272,7 +272,7 @@ public class ModlogCommand implements Command {
         } else {
             StringBuilder sb = new StringBuilder();
             Map<String, List<ModlogEvent>> groups = new HashMap<>();
-            String groupKey;
+            String groupKey = null;
             for (ModlogEvent modlogEvent : ModlogEvent.events.subList(start, end)) {
                 String name = modlogEvent.getName();
                 String[] split = name.split(" ");
@@ -282,7 +282,7 @@ public class ModlogCommand implements Command {
                 if (!groupKey.equals(split[0]))
                      sb.append('\n');
                         
-                sb.append("`").append(event.getTitle()).append("` - ").append(event.getDescription()).append('\n');
+                sb.append("`").append(modlogEvent.getTitle()).append("` - ").append(modlogEvent.getDescription()).append('\n');
             }
             if (!enabledEvents) {
                 sb.append("`Default` - Is for all the normal default events\n");
