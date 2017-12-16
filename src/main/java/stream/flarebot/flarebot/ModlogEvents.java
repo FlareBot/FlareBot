@@ -53,6 +53,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildBan(GuildBanEvent event) {
+        if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
         event.getGuild().getAuditLogs().limit(1).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
@@ -292,8 +293,8 @@ public class ModlogEvents extends ListenerAdapter {
         if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_NICK_CHANGE)) return;
         ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MEMBER_NICK_CHANGE,
                 event.getMember().getUser(),
-                new MessageEmbed.Field("Previous nick", event.getPrevNick(), true),
-                new MessageEmbed.Field("New nick", event.getNewNick(), true));
+                new MessageEmbed.Field("Previous nick", event.getPrevNick() != null ? event.getPrevNick() : event.getUser().getName(), true),
+                new MessageEmbed.Field("New nick", event.getNewNick() != null ? event.getNewNick() : event.getUser().getName(), true));
     }
 
     @Override
