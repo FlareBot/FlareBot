@@ -81,6 +81,7 @@ public class ModlogCommand implements Command {
                 if (args.length == 2) {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
+                
                 listEvents(channel, page, guild, false);
                 return;
             }
@@ -279,8 +280,10 @@ public class ModlogCommand implements Command {
                 if (groupKey == null || groupKey.isEmpty())
                      groupKey = split[0];
                         
-                if (!groupKey.equals(split[0]))
-                     sb.append('\n');
+                if (!groupKey.equals(split[0])) {
+                    sb.append('\n');
+                    groupKey = split[0];
+                }
                         
                 sb.append("`").append(modlogEvent.getTitle()).append("` - ").append(modlogEvent.getDescription()).append('\n');
             }
