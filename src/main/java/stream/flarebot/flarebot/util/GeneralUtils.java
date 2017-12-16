@@ -162,6 +162,7 @@ public class GeneralUtils {
                 if (e.getMessage().contains("Vevo")) {
                     throw new IllegalStateException(Jsoup.clean(cause.getMessage(), Whitelist.none()), cause);
                 }
+                FlareBot.LOGGER.error(Markers.NO_ANNOUNCE, "Cannot get video '" + input + "'");
                 try {
                     Thread.sleep(backoff);
                 } catch (InterruptedException ignored) {
