@@ -13,7 +13,7 @@ public enum ModAction {
     MUTE(true, ModlogEvent.USER_MUTED),
     UNMUTE(false, ModlogEvent.USER_UNMUTED),
 
-    WARN(true, ModlogEvent.USER_WARN);
+    WARN(true, ModlogEvent.USER_WARNED);
 
     private boolean infraction;
     private ModlogEvent event;
