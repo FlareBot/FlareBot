@@ -254,7 +254,7 @@ public class ModlogCommand implements Command {
         int pageSize = 15;
         List<ModlogEvent> events;
         if (enabledEvents)
-            events = wrapper.getModeration().getEnabledActions().map(ModlogAction::getEvent).collect(Collectors.toList());
+            events = wrapper.getModeration().getEnabledActions().map(action -> action.getEvent()).collect(Collectors.toList());
         else
             events = ModlogEvent.events;
         int pages = events.size() < pageSize ? 1 : (events.size() / pageSize)
