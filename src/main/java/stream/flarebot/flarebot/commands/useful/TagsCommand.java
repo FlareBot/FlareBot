@@ -39,6 +39,10 @@ public class TagsCommand implements Command {
                         + "Usage: `{%}tags add " + args[1] + " <tag_message>`" +
                         "\n\nView the usage for variables you can use!", channel);
             } else if (args[0].equalsIgnoreCase("remove")) {
+                if (!getPermissions(channel).hasPermission(member, "flarebot.tags.admin")) {
+                    MessageUtils.sendErrorMessage("You need the permission `flarebot.tags.admin` to do this!", channel, sender);
+                    return;
+                }
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
                     guild.getTags().remove(args[1]);
                     MessageUtils.sendSuccessMessage("You successfully removed the tag `" + args[1] + "`!",
@@ -62,15 +66,22 @@ public class TagsCommand implements Command {
             }
         } else {
             if (args[0].equalsIgnoreCase("add")) {
-                if (guild.getTags().containsKey(args[1].toLowerCase())) {
-                    MessageUtils.sendErrorMessage("This tag already exists!", channel);
+                if (!getPermissions(channel).hasPermission(member, "flarebot.tags.admin")) {
+                    MessageUtils.sendErrorMessage("You need the permission `flarebot.tags.admin` to do this!", channel, sender);
                     return;
                 }
+                if (guild.getTags().containsKey(args[1].toLowerCase())) {
+                    MessageUtils.sendErrorMessage("This tag already exists!", channel);
+                    return;}
 
                 guild.getTags().put(args[1].toLowerCase(), MessageUtils.getMessage(args, 2));
                 MessageUtils.sendSuccessMessage("You successfully added the tag `" + args[1] + "`!", channel,
                         sender);
             } else if (args[0].equalsIgnoreCase("edit")) {
+                if (!getPermissions(channel).hasPermission(member, "flarebot.tags.admin")) {
+                    MessageUtils.sendErrorMessage("You need the permission `flarebot.tags.admin` to do this!", channel, sender);
+                    return;
+                }
                 if (!guild.getTags().containsKey(args[1].toLowerCase())) {
                     MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
                     return;
