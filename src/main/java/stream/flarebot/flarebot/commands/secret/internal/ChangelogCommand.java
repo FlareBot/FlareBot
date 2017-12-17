@@ -82,7 +82,7 @@ public class ChangelogCommand implements Command {
                 } else {
                     String message = msg.getRawContent();
                     message = message.substring(message.indexOf(" ") + 1);
-                    channel.sendMessage(r.getAsMention() + "\n" + message).complete();
+                    channel.sendMessage(message).queue();
                 }
         }
     }
