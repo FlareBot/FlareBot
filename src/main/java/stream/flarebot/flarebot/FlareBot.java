@@ -462,6 +462,7 @@ public class FlareBot {
         registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
+        registerCommand(new ChangelogCommand());
 
         ApiFactory.bind();
 
