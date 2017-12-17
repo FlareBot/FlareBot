@@ -463,18 +463,25 @@ public class FlareBot {
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
         registerCommand(new ChangelogCommand());
+        
+        LOGGER.info("Loaded " + commands.size() + " commands!");
 
         ApiFactory.bind();
+        LOGGER.info("Bound API");
 
         manager.executeCreations();
+        LOGGER.info("Executed creations");
 
         loadFutureTasks();
+        LOGGER.info("Loaded future tasks");
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
         sendCommands();
+        LOGGER.info("Sent commands to site");
 
+        LOGGER.info("Starting tasks");
         new FlareBotTask("FixThatStatus") {
             @Override
             public void run() {
@@ -563,6 +570,7 @@ public class FlareBot {
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
         setupUpdate();
+        LOGGER.info("Started all tasks, run complete!");
     }
 
     /**
