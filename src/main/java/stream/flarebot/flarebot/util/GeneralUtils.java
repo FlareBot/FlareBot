@@ -238,7 +238,7 @@ public class GeneralUtils {
                 tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                if(FlareBot.getInstance().getGuildById(guildId) != null) {
+                if (FlareBot.getInstance().getGuildById(guildId) != null) {
                     tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> user.getName().equalsIgnoreCase(s))

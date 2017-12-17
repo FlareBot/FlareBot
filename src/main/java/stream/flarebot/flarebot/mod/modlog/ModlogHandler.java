@@ -268,7 +268,7 @@ public class ModlogHandler {
                         + modAction.toString());
             }
         } catch (PermissionException e) {
-            if(channel != null) {
+            if (channel != null) {
                 MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
                                 "I do not have the `" + e.getPermission().getName() + "` permission!",
                         MessageUtils.getTag(target)), channel);
