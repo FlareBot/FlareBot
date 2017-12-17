@@ -19,7 +19,7 @@ import stream.flarebot.flarebot.util.WebUtils;
 
 import java.io.IOException;
 
-public class PostUpdateCommand implements Command {
+public class ChangelogCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {
