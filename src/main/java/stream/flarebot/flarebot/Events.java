@@ -323,6 +323,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onRoleDelete(RoleDeleteEvent event) {
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId() == null) return;
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
