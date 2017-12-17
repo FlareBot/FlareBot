@@ -35,7 +35,7 @@ public class LockChatCommand implements Command {
         }
         if (tc.getPermissionOverride(guild.getGuild().getPublicRole()) == null) {
             tc.createPermissionOverride(guild.getGuild().getPublicRole()).setDeny(Permission.MESSAGE_WRITE).queue();
-            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE).queue();
+            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
             channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
                     .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();
@@ -48,7 +48,7 @@ public class LockChatCommand implements Command {
                     .build()).queue();
         } else {
             tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().deny(Permission.MESSAGE_WRITE).queue();
-            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE).queue();
+            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
             channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
                     .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();

@@ -72,7 +72,8 @@ public class TagsCommand implements Command {
                 }
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
                     MessageUtils.sendErrorMessage("This tag already exists!", channel);
-                    return;}
+                    return;
+                }
 
                 guild.getTags().put(args[1].toLowerCase(), MessageUtils.getMessage(args, 2));
                 MessageUtils.sendSuccessMessage("You successfully added the tag `" + args[1] + "`!", channel,
