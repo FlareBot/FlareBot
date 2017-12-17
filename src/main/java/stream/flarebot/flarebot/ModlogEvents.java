@@ -240,6 +240,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
+        if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_EDIT)) return;
         if (event.getAuthor().isBot()) return;
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
