@@ -462,106 +462,28 @@ public class FlareBot {
         registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
+        registerCommand(new ChangelogCommand());
+        
+        LOGGER.info("Loaded " + commands.size() + " commands!");
 
         ApiFactory.bind();
+        LOGGER.info("Bound API");
 
         manager.executeCreations();
+        LOGGER.info("Executed creations");
 
         loadFutureTasks();
+        LOGGER.info("Loaded future tasks");
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
         sendCommands();
+        LOGGER.info("Sent commands to site");
 
-        new FlareBotTask("FixThatStatus") {
-            @Override
-            public void run() {
-                if (!UpdateCommand.UPDATING.get())
-                    setStatus("_help | _invite");
-            }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(32));
-
-        new FlareBotTask("PostDbotsData") {
-            @Override
-            public void run() {
-                if (config.getString("botlists.discordBots").isPresent()) {
-                    postToBotList(config.getString("botlists.discordBots").get(), String
-                            .format("https://bots.discord.pw/api/bots/%s/stats", getClient().getSelfUser().getId()));
-                }
-            }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("PostBotlistData") {
-            @Override
-            public void run() {
-                if (config.getString("botlists.botlist").isPresent()) {
-                    postToBotList(config.getString("botlists.botlist").get(), String
-                            .format("https://discordbots.org/api/bots/%s/stats", getClient().getSelfUser().getId()));
-                }
-            }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("PostCarbonData") {
-            @Override
-            public void run() {
-                if (config.getString("botlists.carbon").isPresent()) {
-                    try {
-                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
-                                new JSONObject()
-                                        .put("key", config.getString("botlists.carbon").get())
-                                        .put("servercount", getGuilds().size())
-                                        .put("shardcount", clients.length)
-                                        .toString());
-                    } catch (IOException e) {
-                        LOGGER.error("Failed to update carbon!", e);
-                    }
-                }
-            }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                sendData();
-            }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
-
-        new FlareBotTask("spam" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                events.getSpamMap().clear();
-            }
-        }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
-
-        new FlareBotTask("ClearConfirmMap" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                ConfirmUtil.clearConfirmMap();
-            }
-
-        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
-
-        new FlareBotTask("DeadShard-Checker") {
-            @Override
-            public void run() {
-                if (getImportantWebhook() == null) {
-                    LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
-                    cancel();
-                    return;
-                }
-                if (getClients().length == 1) return;
-                Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
-                        .filter(ShardUtils::isDead).collect(Collectors.toSet());
-                if (deadShards.size() > 0) {
-
-                    getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
-                            deadShards.toString());
-                }
-            }
-        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
-
-        setupUpdate();
+        LOGGER.info("Starting tasks");
+        runTasks();
+        LOGGER.info("Started all tasks, run complete!");
     }
 
     /**
@@ -1123,5 +1045,96 @@ public class FlareBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    public void runTasks() {
+        new FlareBotTask("FixThatStatus") {  
+            @Override
+            public void run() {
+                if (!UpdateCommand.UPDATING.get())
+                    setStatus("_help | _invite");
+            }
+        }.repeat(10, TimeUnit.SECONDS.toMillis(32));
+
+        new FlareBotTask("PostDbotsData") {
+            @Override
+            public void run() {
+                if (config.getString("botlists.discordBots").isPresent()) {
+                    postToBotList(config.getString("botlists.discordBots").get(), String
+                            .format("https://bots.discord.pw/api/bots/%s/stats", getClient().getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
+        new FlareBotTask("PostBotlistData") {
+            @Override
+            public void run() {
+                if (config.getString("botlists.botlist").isPresent()) {
+                    postToBotList(config.getString("botlists.botlist").get(), String
+                            .format("https://discordbots.org/api/bots/%s/stats", getClient().getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
+        new FlareBotTask("PostCarbonData") {
+            @Override
+            public void run() {
+                if (config.getString("botlists.carbon").isPresent()) {
+                    try {
+                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
+                                new JSONObject()
+                                        .put("key", config.getString("botlists.carbon").get())
+                                        .put("servercount", getGuilds().size())
+                                        .put("shardcount", clients.length)
+                                        .toString());
+                    } catch (IOException e) {
+                        LOGGER.error("Failed to update carbon!", e);
+                    }
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
+        new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                sendData();
+            }
+        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
+
+        new FlareBotTask("spam" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                events.getSpamMap().clear();
+            }
+        }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
+
+        new FlareBotTask("ClearConfirmMap" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                ConfirmUtil.clearConfirmMap();
+            }
+
+        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+
+        new FlareBotTask("DeadShard-Checker") {
+            @Override
+            public void run() {
+                if (getImportantWebhook() == null) {
+                    LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
+                    cancel();
+                    return;
+                }
+                if (getClients().length == 1) return;
+                Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
+                        .filter(ShardUtils::isDead).collect(Collectors.toSet());
+                if (deadShards.size() > 0) {
+
+                    getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
+                            deadShards.toString());
+                }
+            }
+        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+
+        setupUpdate();
     }
 }

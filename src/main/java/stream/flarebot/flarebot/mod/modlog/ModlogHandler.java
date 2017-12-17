@@ -149,7 +149,7 @@ public class ModlogHandler {
         }
 
         // Check if the person is below the target in role hierarchy
-        if (member != null && member.getRoles().get(0).getPosition() > wrapper.getGuild().getMember(target).getRoles().get(0).getPosition()) {
+        if (member != null && !member.getRoles().isEmpty() && member.getRoles().get(0).getPosition() > wrapper.getGuild().getMember(target).getRoles().get(0).getPosition()) {
             MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
                     modAction.getLowercaseName()), channel);
             return;
