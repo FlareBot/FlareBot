@@ -35,17 +35,20 @@ public class LockChatCommand implements Command {
         }
         if (tc.getPermissionOverride(guild.getGuild().getPublicRole()) == null) {
             tc.createPermissionOverride(guild.getGuild().getPublicRole()).setDeny(Permission.MESSAGE_WRITE).queue();
+            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
             channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
                     .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();
         }
         if (tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {
             tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().grant(Permission.MESSAGE_WRITE).queue();
+            tc.getPermissionOverride(guild.getGuild().getSelfMember()).delete().queue();
             channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.GREEN)
                     .setDescription("The chat has been unlocked!" + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();
         } else {
             tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().deny(Permission.MESSAGE_WRITE).queue();
+            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
             channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
                     .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();

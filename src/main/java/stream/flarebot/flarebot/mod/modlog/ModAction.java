@@ -10,10 +10,10 @@ public enum ModAction {
     KICK(true, ModlogEvent.USER_KICKED),
 
     TEMP_MUTE(true, ModlogEvent.USER_TEMP_MUTED),
-    MUTE(true, ModlogEvent.USER_TEMP_MUTED),
-    UNMUTE(false, ModlogEvent.USER_TEMP_MUTED),
+    MUTE(true, ModlogEvent.USER_MUTED),
+    UNMUTE(false, ModlogEvent.USER_UNMUTED),
 
-    WARN(true, ModlogEvent.USER_TEMP_MUTED);
+    WARN(true, ModlogEvent.USER_WARNED);
 
     private boolean infraction;
     private ModlogEvent event;
