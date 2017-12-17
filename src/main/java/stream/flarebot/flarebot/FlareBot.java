@@ -506,7 +506,6 @@ public class FlareBot {
                         row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
                         new DateTime(row.getTimestamp("created_at")),
                         FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
-                System.out.println(new DateTime().isAfter(fa.getExpires()));
                 if (new DateTime().isAfter(fa.getExpires()))
                     fa.execute();
                 else {
