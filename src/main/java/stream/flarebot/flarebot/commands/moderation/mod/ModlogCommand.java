@@ -272,7 +272,6 @@ public class ModlogCommand implements Command {
             return;
         } else {
             StringBuilder sb = new StringBuilder();
-            Map<String, List<ModlogEvent>> groups = new HashMap<>();
             String groupKey = null;
             for (ModlogEvent modlogEvent : ModlogEvent.events.subList(start, end)) {
                 String name = modlogEvent.getName();
