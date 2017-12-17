@@ -78,7 +78,7 @@ public class ChangelogCommand implements Command {
 
                         embed.addField(header, value, false);
                     }
-                    channel.sendMessage(new MessageBuilder().setEmbed(embed.build()).append(r.getAsMention()).build()).queue();
+                    channel.sendMessage(new MessageBuilder().setEmbed(embed.build()).build()).queue();
                 } else {
                     String message = msg.getRawContent();
                     message = message.substring(message.indexOf(" ") + 1);
