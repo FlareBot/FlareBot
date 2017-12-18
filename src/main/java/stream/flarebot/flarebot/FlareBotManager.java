@@ -183,20 +183,20 @@ public class FlareBotManager {
             long start = System.currentTimeMillis();
             ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
                     + guildId + "'");
-            GuildWrapper wrapper = null;
+            GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
-                try {
-                    if (row != null)
-                        wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                    else
-                        wrapper = new GuildWrapper(id);
-                } catch (Exception e) {
-                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
-                            "Guild ID: " + id + "\n" +
-                            "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
-                            "Error: " + e.getMessage(), e);
-                    return null;
-                }
+            try {
+                if (row != null)
+                    wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
+                else
+                    wrapper = new GuildWrapper(id);
+            } catch (Exception e) {
+                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                        "Guild ID: " + id + "\n" +
+                        "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
+                        "Error: " + e.getMessage(), e);
+                return null;
+            }
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 

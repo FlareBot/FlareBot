@@ -24,9 +24,9 @@
         </dependency>
         <!-- JDA -->
         <dependency>
-            <groupId>com.github.DV8FromTheWorld</groupId>
+            <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>development-SNAPSHOT</version>
+            <version>3.3.1_316</version>
         </dependency>
 
         <!-- Lavaplayer related -->
