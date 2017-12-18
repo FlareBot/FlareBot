@@ -98,11 +98,9 @@ public class ModlogCommand implements Command {
                 else if (eventArgument.equalsIgnoreCase("default"))
                     defaultEvents = true;
                 else {
-                    EmbedBuilder errorBuilder = new EmbedBuilder();
-                    errorBuilder.setDescription("Invalid Event: `" + eventArgument + "`\n"
+                    MessageUtils.sendErrorMessage("Invalid Event: `" + eventArgument + "`\n"
                                     + "For a list of all events do `{%}modlog features`, "
-                                    + "for a list of all enabled events do `{%}modlog list`.");
-                    MessageUtils.sendErrorMessage(errorBuilder, channel);
+                                    + "for a list of all enabled events do `{%}modlog list`.", channel);
                     return;
                 }
             }
