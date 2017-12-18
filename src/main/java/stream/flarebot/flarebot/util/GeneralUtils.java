@@ -238,10 +238,13 @@ public class GeneralUtils {
                 tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
-                        .map(Member::getUser)
-                        .filter(user -> user.getName().equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
+                if (FlareBot.getInstance().getGuildById(guildId) != null) {
+                    tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
+                            .map(Member::getUser)
+                            .filter(user -> user.getName().equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } else
+                    tmp = null;
             }
             if (tmp != null) return tmp;
             try {

@@ -80,9 +80,7 @@ public class Moderation {
     }
 
     public void disableEvent(ModlogEvent event) {
-        Iterator<ModlogAction> itr = getEnabledActions().iterator();
-        ModlogAction action;
-        while ((action = itr.next()) != null) {
+        for (ModlogAction action : getEnabledActions()) {
             if (action.getEvent() == event)
                 getEnabledActions().remove(action);
         }
