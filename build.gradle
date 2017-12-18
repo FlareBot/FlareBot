@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'stream.flarebot.flarebot'
-version = '4.1.0'
+version = '4.1.1'
 
 description = "Cool Java music bot"
 
@@ -24,7 +24,7 @@ repositories {
     maven { url "http://repo.maven.apache.org/maven2" }
 }
 dependencies {
-    compile group: 'com.github.DV8FromTheWorld', name: 'JDA', version: 'development-SNAPSHOT'
+    compile group: 'net.dv8tion', name: 'JDA', version: '3.3.1_316'
 
     compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.39'
     compile(group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.5') {

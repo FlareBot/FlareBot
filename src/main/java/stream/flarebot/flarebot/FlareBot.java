@@ -896,7 +896,7 @@ public class FlareBot {
         return shardManager.getShards();
     }
 
-    public JDA[] getShardsArray() {
+    private JDA[] getShardsArray() {
         return shardManager.getShards().toArray(new JDA[shardManager.getShards().size()]);
     }
 
