@@ -37,7 +37,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
                     throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
                 }
-                if(event.getLevel() == Level.WARN) {
+                if (event.getLevel() == Level.WARN) {
                     // Warnings should not have a throwable!
                     MessageUtils.sendWarningMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
                     return;

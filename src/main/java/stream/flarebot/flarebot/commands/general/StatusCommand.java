@@ -28,7 +28,7 @@ public class StatusCommand implements Command {
         int noVoiceConnections = 0;
         int highResponseTime = 0;
 
-        for(int shardId = 0; shardId < fb.getShards().size(); shardId++) {
+        for (int shardId = 0; shardId < fb.getShards().size(); shardId++) {
             JDA jda = ShardUtils.getShardById(shardId);
             if (jda == null) {
                 connecting++;

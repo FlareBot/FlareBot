@@ -6,7 +6,6 @@ import stream.flarebot.flarebot.mod.modlog.ModlogAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
-import java.util.Iterator;
 import java.util.Set;
 
 public class Moderation {

@@ -33,9 +33,9 @@ public class ShardUtils {
         return getShardId(jda) + 1;
     }
 
-	public static JDA getShardById(int shardId) {
+    public static JDA getShardById(int shardId) {
         return flareBot.getShardManager().getShardById(shardId);
-    }	
+    }
 
     public static long getLastEventTime(int shardId) {
         return System.currentTimeMillis() - FlareBot.getInstance().getEvents().getShardEventTime().get(shardId);

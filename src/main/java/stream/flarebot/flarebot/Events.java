@@ -30,8 +30,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
@@ -102,7 +103,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        if(FlareBot.getInstance().isReady())
+        if (FlareBot.getInstance().isReady())
             FlareBot.getInstance().run();
     }
 
@@ -160,7 +161,7 @@ public class Events extends ListenerAdapter {
                 }
                 sb.append("```");
                 ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE, event.getUser(),
-                                new MessageEmbed.Field("Roles", sb.toString(), false));
+                        new MessageEmbed.Field("Roles", sb.toString(), false));
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }

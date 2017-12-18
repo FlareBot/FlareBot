@@ -17,7 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -182,7 +181,7 @@ public class MessageUtils {
 
     // Final root of sendMessage
     public static void sendMessage(MessageType type, EmbedBuilder builder, TextChannel channel, long autoDeleteDelay) {
-        if(builder.build().getColor() == null)
+        if (builder.build().getColor() == null)
             builder.setColor(type.getColor());
         if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);

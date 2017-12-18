@@ -66,8 +66,8 @@ public class WebUtils {
                 .header("Authorization", "Bot " + token);
         Response response = get(request);
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-        ResponseBody body= response.body();
-        if(body == null)
+        ResponseBody body = response.body();
+        if (body == null)
             return -1;
         String jsonString = body.string();
         body.close();

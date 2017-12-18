@@ -9,12 +9,12 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.codec.binary.StringUtils;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;

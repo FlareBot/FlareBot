@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.commands.secret;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
@@ -17,10 +16,10 @@ public class ShardRestartCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
             int shard = Integer.parseInt(args[0]);
-            if(shard >= 0 && shard < FlareBot.getInstance().getShards().size()) {
+            if (shard >= 0 && shard < FlareBot.getInstance().getShards().size()) {
                 FlareBot.getInstance().getShardManager().restart(shard);
                 MessageUtils.sendSuccessMessage("Restarting shard " + shard, channel);
-            }else
+            } else
                 MessageUtils.sendErrorMessage("Invalid shard ID!", channel);
         }
     }
