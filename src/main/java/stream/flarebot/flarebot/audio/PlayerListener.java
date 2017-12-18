@@ -22,11 +22,9 @@ import java.util.Queue;
 
 public class PlayerListener extends AudioEventAdapter {
 
-    private PlayerManager manager;
     private Player player;
 
-    public PlayerListener(PlayerManager manager, Player player) {
-        this.manager = manager;
+    public PlayerListener(Player player) {
         this.player = player;
     }
 

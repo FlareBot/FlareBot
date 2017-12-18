@@ -371,7 +371,7 @@ public class FlareBot {
         ApiFactory.bind();
         LOGGER.info("Bound API");
 
-        musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(musicManager, player)));
+        musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(player)));
 
         manager.executeCreations();
         LOGGER.info("Executed creations");

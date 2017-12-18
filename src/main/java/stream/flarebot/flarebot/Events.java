@@ -248,9 +248,9 @@ public class Events extends ListenerAdapter {
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
 
-        if (FlareBot.getPrefixes() == null) return;
-        if (event.getMessage().getContentRaw().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
-                && !event.getAuthor().isBot()) {
+        if (FlareBot.getPrefixes() == null || event.getAuthor().isBot()) return;
+        String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
+        if (message.startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))) {
             List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
             if (!perms.contains(Permission.ADMINISTRATOR)) {
                 if (!perms.contains(Permission.MESSAGE_WRITE)) {
@@ -264,7 +264,6 @@ public class Events extends ListenerAdapter {
                 }
             }
 
-            String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
@@ -275,16 +274,14 @@ public class Events extends ListenerAdapter {
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
-            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
-                    && !event.getAuthor().isBot()) {
-                if (event.getMessage().getContentRaw().startsWith("_prefix")) {
+            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR &&
+                    (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
                     event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
                             .setDescription("The server prefix is `" + FlareBot
                                     .getPrefixes().get(getGuildId(event)) + "`")
                             .build()).queue();
-                }
             }
-            if (!event.getMessage().getRawContent().isEmpty()) {
+            if (!message.isEmpty()) {
                 RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 61200);
             }
         }
