@@ -20,6 +20,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.SelfUser;
@@ -834,6 +835,13 @@ public class FlareBot {
 
     public Guild getGuildById(long id) {
         return getGuilds().stream().filter(g -> g.getIdLong() == id).findFirst().orElse(null);
+    }
+
+    public Emote getEmoteById(long emoteId) {
+        for(Guild g : getGuilds())
+            if(g.getEmoteById(emoteId) != null)
+                return g.getEmoteById(emoteId);
+        return null;
     }
 
     // getXs

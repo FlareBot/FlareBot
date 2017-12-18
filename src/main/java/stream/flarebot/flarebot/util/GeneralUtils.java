@@ -143,7 +143,9 @@ public class GeneralUtils {
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
         String prefix = String.valueOf(getPrefix(channel));
-        return usage.replaceAll("\\{%}", prefix);
+        if(usage.contains("{%}"))
+            return usage.replaceAll("\\{%}", prefix);
+        return usage;
     }
 
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
