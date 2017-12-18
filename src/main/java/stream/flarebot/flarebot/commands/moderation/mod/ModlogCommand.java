@@ -87,7 +87,8 @@ public class ModlogCommand implements Command {
             }
         }
         if (args.length >= 2) {
-            String eventArgument = MessageUtils.getMessage(args, 1, Math.max(2, args.length - 1));
+            String eventArgument = MessageUtils.getMessage(args, 1, 
+                            args[0].equalsIgnoreCase("enable") ? Math.max(2, args.length - 1) : args.length);
             ModlogEvent event = ModlogEvent.getEvent(eventArgument);
             boolean all = false;
             boolean defaultEvents = false;
