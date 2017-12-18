@@ -73,6 +73,7 @@ public class PlayerListener extends AudioEventAdapter {
                                             .get("requester")), false)
                             .addField("Next up", playlist.isEmpty() ? "Nothing" :
                                     SongCommand.getLink(playlist.peek()), false)
+                            .setImage("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg")
                             .build()).queue();
                 } else {
                     MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());

@@ -276,6 +276,11 @@ public class FlareBot {
         manager = new FlareBotManager();
         manager.executeCreations();
 
+        try {
+            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
+        } catch (UnknownBindingException e) {
+            LOGGER.error("Failed to initialize musicManager", e);
+        }
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
     }
@@ -365,11 +370,6 @@ public class FlareBot {
         ApiFactory.bind();
         LOGGER.info("Bound API");
 
-        try {
-            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
-        } catch (UnknownBindingException e) {
-            LOGGER.error("Failed to initialize musicManager", e);
-        }
         musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(musicManager, player)));
 
         manager.executeCreations();
