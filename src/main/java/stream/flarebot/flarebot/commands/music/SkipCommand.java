@@ -10,7 +10,10 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.util.buttons.ButtonRunnable;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -42,6 +45,7 @@ public class SkipCommand implements Command {
             channel.sendMessage("You must be in the channel in order to skip songs!").queue();
             return;
         }
+
         if (args.length != 1) {
             if (votes.containsKey(channel.getGuild().getId())) {
                 String yes = String.valueOf(votes.get(channel.getGuild().getId()).values().stream()
@@ -52,8 +56,8 @@ public class SkipCommand implements Command {
                                 .count());
                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("Can't start a vote right now! " +
-                                "Another one in progress! Please use " + FlareBot
-                                .getPrefix(channel.getGuild().getId()) + "skip YES|NO to vote!")
+                                "Another one in progress! Please use `" + FlareBot
+                                .getPrefix(channel.getGuild().getId()) + "skip YES|NO` to vote!")
                         .addField("Votes for YES:", yes, true)
                         .addField("Votes for NO:", no, true).build()).queue();
             } else getVotes(channel, member);
@@ -142,10 +146,14 @@ public class SkipCommand implements Command {
                     votes.remove(s);
                 }
             }.delay(TimeUnit.SECONDS.toMillis(20));
-            channel.sendMessage(MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
+
+            ButtonGroup buttons = new ButtonGroup();
+            addButtons(buttons, channel);
+
+            ButtonUtil.sendButtonedMessage(channel, MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
                     + "** has started!\nUse " + FlareBot.getPrefix(channel.getGuild().getId()) + "skip YES|NO to vote!")
-                    .build()).queue();
+                    .build(), buttons);
             return new HashMap<>();
         });
     }
@@ -181,5 +189,63 @@ public class SkipCommand implements Command {
         public String toString() {
             return Character.toUpperCase(name().charAt(0)) + name().substring(1);
         }
+    }
+
+    private void addButtons(ButtonGroup buttons, TextChannel channel) {
+        buttons.addButton(new ButtonGroup.Button(355776056092917761L, user -> {
+            if (votes.containsKey(channel.getGuild().getId())) {
+                Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
+                if (voteMap.containsKey(user.getId())) {
+                    channel.sendMessage(MessageUtils.getEmbed(user).setColor(new Color(229, 45, 39))
+                            .setDescription("***\u26A0 You already voted! \u26A0***")
+                            .addField("Your vote: ", voteMap.get(user.getId()).toString(), true)
+                            .build()).queue();
+                } else {
+                    voteMap.put(user.getId(), Vote.YES);
+                    votes.put(channel.getGuild().getId(), voteMap);
+                    Vote vote = Vote.YES;
+                    channel.sendMessage(MessageUtils.getEmbed(user)
+                            .setDescription(String.format("***Voted for %s***", vote))
+                            .addField("Current votes for " + vote, String
+                                    .valueOf(votes.get(channel.getGuild().getId())
+                                            .values().stream().filter(v -> v == vote)
+                                            .count()), true).build()).queue();
+                }
+            } else {
+                MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
+            }
+        }));
+        buttons.addButton(new ButtonGroup.Button(355776081384570881L, user -> {
+            if (votes.containsKey(channel.getGuild().getId())) {
+                Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
+                if (voteMap.containsKey(user.getId())) {
+                    channel.sendMessage(MessageUtils.getEmbed(user).setColor(new Color(229, 45, 39))
+                            .setDescription("***\u26A0 You already voted! \u26A0***")
+                            .addField("Your vote: ", voteMap.get(user.getId()).toString(), true)
+                            .build()).queue();
+                } else {
+                    voteMap.put(user.getId(), Vote.NO);
+                    votes.put(channel.getGuild().getId(), voteMap);
+                    Vote vote = Vote.NO;
+                    channel.sendMessage(MessageUtils.getEmbed(user)
+                            .setDescription(String.format("***Voted for %s***", vote))
+                            .addField("Current votes for " + vote, String
+                                    .valueOf(votes.get(channel.getGuild().getId())
+                                            .values().stream().filter(v -> v == vote)
+                                            .count()), true).build()).queue();
+                }
+            } else {
+                MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
+            }
+        }));
+        buttons.addButton(new ButtonGroup.Button("\u23ED", user -> {
+            if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), "flarebot.skip.force")) {
+                musicManager.getPlayer(channel.getGuild().getId()).skip();
+                skips.put(channel.getGuild().getId(), true);
+            } else {
+                channel.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this button!")
+                        .queue();
+            }
+        }));
     }
 }

@@ -39,10 +39,12 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -85,6 +87,23 @@ public class Events extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
+        if (event.getUser().isBot()) return;
+        if (ButtonUtil.isButtonMessage(event.getMessageId())) {
+            for (ButtonGroup.Button button : ButtonUtil.getButtonGroup(event.getMessageId()).getButtons()) {
+                if (event.getReactionEmote().getId() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
+                        || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
+                    button.onClick(event.getUser());
+                    event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                        for (MessageReaction reaction : message.getReactions()) {
+                            if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
+                                reaction.removeReaction(event.getUser()).queue();
+                            }
+                        }
+                    });
+                    return;
+                }
+            }
+        }
         if (!event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)) return;
         if (!event.getReactionEmote().getName().equals("\uD83D\uDCCC")) return; // Check if it's a :pushpin:
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
@@ -159,7 +178,7 @@ public class Events extends ListenerAdapter {
                 }
                 sb.append("```");
                 ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE, event.getUser(),
-                                new MessageEmbed.Field("Roles", sb.toString(), false));
+                        new MessageEmbed.Field("Roles", sb.toString(), false));
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
