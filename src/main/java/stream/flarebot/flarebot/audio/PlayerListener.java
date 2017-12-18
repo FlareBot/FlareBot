@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.audio;
 
-import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
