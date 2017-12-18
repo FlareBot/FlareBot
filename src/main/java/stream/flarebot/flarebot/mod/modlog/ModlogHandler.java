@@ -236,7 +236,7 @@ public class ModlogHandler {
 
                 Period period = new Period(duration);
                 Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
-                        target.getIdLong(), reason, period, FutureAction.Action.TEMP_BAN);
+                        target.getIdLong(), reason, period, FutureAction.Action.TEMP_MUTE);
 
                 MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
                         + GeneralUtils.formatJodaTime(period) + (reason == null ? "" : " (`" +
