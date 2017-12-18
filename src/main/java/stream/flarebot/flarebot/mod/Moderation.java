@@ -64,9 +64,7 @@ public class Moderation {
      * @return This will either return true or false which indicated if it was successful.
      */
     public boolean enableEvent(GuildWrapper wrapper, long channelId, ModlogEvent event) {
-        if (channelId == -1) return false;
-        if (!isValidChannelId(wrapper, channelId)) return false;
-        return getEnabledActions().add(event.getAction(channelId));
+        return channelId != -1 && isValidChannelId(wrapper, channelId) && getEnabledActions().add(event.getAction(channelId));
     }
 
     public void enableAllEvents(GuildWrapper wrapper, long channelId) {
@@ -82,9 +80,7 @@ public class Moderation {
     }
 
     public void disableEvent(ModlogEvent event) {
-        Iterator<ModlogAction> itr = getEnabledActions().iterator();
-        ModlogAction action;
-        while ((action = itr.next()) != null) {
+        for (ModlogAction action : getEnabledActions()) {
             if (action.getEvent() == event)
                 getEnabledActions().remove(action);
         }

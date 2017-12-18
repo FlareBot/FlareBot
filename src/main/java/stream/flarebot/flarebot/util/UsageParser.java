@@ -2,7 +2,7 @@ package stream.flarebot.flarebot.util;
 
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.useful.PollCommand;
+import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class UsageParser {
 
     public static void test(String... ss) {
-        for (String s : matchUsage(new PollCommand(), ss)) {
+        for (String s : matchUsage(new WelcomeCommand(), ss)) {
             FlareBot.getInstance().getImportantLogChannel().sendMessage(s).queue();
         }
     }

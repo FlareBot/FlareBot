@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import stream.flarebot.flarebot.annotations.DoNotUse;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
@@ -25,10 +26,8 @@ import java.awt.Color;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -121,7 +120,8 @@ public class FlareBotManager {
     }
 
     // Do not use this method!
-    protected void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved) {
+    @DoNotUse(expressUse = "GuildCommand save")
+    public void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved) {
         long last_r = (last_retrieved == -1 ? System.currentTimeMillis() : last_retrieved);
         CassandraController.runTask(session -> {
             if (saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE " + GUILD_DATA_TABLE
@@ -183,7 +183,7 @@ public class FlareBotManager {
             long start = System.currentTimeMillis();
             ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
                     + guildId + "'");
-            GuildWrapper wrapper;
+            GuildWrapper wrapper = null;
             Row row = set != null ? set.one() : null;
                 try {
                     if (row != null)

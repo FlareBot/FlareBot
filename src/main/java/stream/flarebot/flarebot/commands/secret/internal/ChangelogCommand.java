@@ -19,18 +19,15 @@ import stream.flarebot.flarebot.util.WebUtils;
 
 import java.io.IOException;
 
-public class PostUpdateCommand implements Command {
+public class ChangelogCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {
-        if (guild.getGuildId().equals("226785954537406464") && PerGuildPermissions.isStaff(sender)) {
+        if (PerGuildPermissions.isStaff(sender)) {
             if (args.length == 0) {
-                channel.sendMessage("You kinda need like.... a message to announce... like yeah...").queue();
+                channel.sendMessage("Specify a version or PR to post about!").queue();
                 return;
             }
-
-            Role r = guild.getGuild().getRoleById(320304080926801922L);
-            r.getManager().setMentionable(true).queue(aVoid -> {
                 if (args[0].startsWith("pr:")) {
                     String prNum = args[0].substring(3);
 
@@ -81,30 +78,28 @@ public class PostUpdateCommand implements Command {
 
                         embed.addField(header, value, false);
                     }
-                    channel.sendMessage(new MessageBuilder().setEmbed(embed.build()).append(r.getAsMention()).build()).queue();
+                    channel.sendMessage(new MessageBuilder().setEmbed(embed.build()).build()).queue();
                 } else {
-                    String message = msg.getContentRaw();
+                    String message = msg.getRawContent();
                     message = message.substring(message.indexOf(" ") + 1);
-                    channel.sendMessage(r.getAsMention() + "\n" + message).complete();
+                    channel.sendMessage(message).queue();
                 }
-            });
-            r.getManager().setMentionable(false).queue();
         }
     }
 
     @Override
     public String getCommand() {
-        return "postupdate";
+        return "changelog";
     }
 
     @Override
     public String getDescription() {
-        return "Dev only command";
+        return "Get version changelogs";
     }
 
     @Override
     public String getUsage() {
-        return "{%}announcement [message]";
+        return "{%}changelog <version>\n`{%}changelog pr:<prNum>`";
     }
 
     @Override

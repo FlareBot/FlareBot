@@ -11,8 +11,8 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,18 +27,20 @@ public class ShardInfoCommand implements Command {
         headers.add("Status");
         headers.add("Ping");
         headers.add("Guild Count");
-        headers.add("VCs");
+        headers.add("Connected VCs");
 
         List<List<String>> table = new ArrayList<>();
         List<JDA> shards = new ArrayList<>(FlareBot.getInstance().getShards());
         Collections.reverse(shards);
         for (JDA jda : shards) {
             List<String> row = new ArrayList<>();
-            row.add(GeneralUtils.getShardId(jda) + (GeneralUtils.getShardIdAsInt(channel.getJDA()) == GeneralUtils.getShardIdAsInt(jda) ? " (You)" : ""));
+            row.add(ShardUtils.getDisplayShardId(jda) +
+                    (ShardUtils.getShardId(channel.getJDA()) == ShardUtils.getShardId(jda) ? " (You)" : ""));
             row.add(WordUtils.capitalizeFully(jda.getStatus().toString().replace("_", " ")));
             row.add(String.valueOf(jda.getPing()));
             row.add(String.valueOf(jda.getGuilds().size()));
-            row.add(String.valueOf(jda.getVoiceChannels().stream().filter(vc -> vc.getMembers().contains(vc.getGuild().getSelfMember())).count()));
+            row.add(String.valueOf(jda.getVoiceChannels().stream().filter(vc -> vc.getMembers().contains(vc.getGuild()
+                    .getSelfMember())).count()));
             table.add(row);
         }
 

@@ -75,8 +75,6 @@ public class Events extends ListenerAdapter {
 
     private Map<String, Integer> spamMap = new ConcurrentHashMap<>();
 
-    static final List<Long> durations = new ArrayList<>();
-
     private final Map<Integer, Long> shardEventTime = new HashMap<>();
     private final AtomicInteger commandCounter = new AtomicInteger(0);
 
@@ -215,10 +213,9 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-        if (event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
-            if (flareBot.getMusicManager().hasPlayer(event.getGuild().getId())) {
-                flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
-            }
+        if (event.getMember().getUser().equals(event.getJDA().getSelfUser()) && flareBot.getMusicManager()
+                .hasPlayer(event.getGuild().getId())) {
+            flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
         }
     }
 
@@ -326,6 +323,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onRoleDelete(RoleDeleteEvent event) {
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()) == null) return;
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
@@ -339,13 +337,11 @@ public class Events extends ListenerAdapter {
             }
         }
         handleSpamDetection(event, guild);
-        if (cmd.getType() == CommandType.SECRET) {
-            if (!PerGuildPermissions.isCreator(event.getAuthor()) && !(flareBot.isTestBot()
-                    && PerGuildPermissions.isContributor(event.getAuthor()))) {
-                GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
-                flareBot.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
-                return;
-            }
+        if (cmd.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(event.getAuthor()) && !(flareBot.isTestBot()
+                && PerGuildPermissions.isContributor(event.getAuthor()))) {
+            GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
+            flareBot.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
+            return;
         }
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
         if (handleMissingPermission(cmd, event)) return;
@@ -438,7 +434,8 @@ public class Events extends ListenerAdapter {
             allowed = allowed == 0 ? 1 : allowed;
             if (messages > allowed) {
                 if (!guild.isBlocked()) {
-                    MessageUtils.sendErrorMessage("We detected command spam in this guild. No commands will be able to be run in this guild for a little bit.", event.getChannel());
+                    MessageUtils.sendErrorMessage("We detected command spam in this guild. No commands will be able to " +
+                            "be run in this guild for a little bit.", event.getChannel());
                     guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
                 }
             } else {
@@ -462,7 +459,7 @@ public class Events extends ListenerAdapter {
         return this.shardEventTime;
     }
 
-    Map<String, Integer> getSpamMap() {
+    public Map<String, Integer> getSpamMap() {
         return spamMap;
     }
 
