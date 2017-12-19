@@ -50,9 +50,4 @@ public class ChangelogCommand implements Command {
     public CommandType getType() {
         return CommandType.INTERNAL;
     }
-
-    @Override
-    public String[] getAliases() {
-        return new String[]{"announcement"};
-    }
 }

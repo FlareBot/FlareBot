@@ -49,16 +49,11 @@ public class PostUpdateCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}announcement [message]";
+        return "{%}postupdate [message]";
     }
 
     @Override
     public CommandType getType() {
         return CommandType.INTERNAL;
-    }
-
-    @Override
-    public String[] getAliases() {
-        return new String[]{"announcement"};
     }
 }
