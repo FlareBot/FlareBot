@@ -26,7 +26,12 @@ public class PostUpdateCommand implements Command {
             r.getManager().setMentionable(true).queue(aVoid -> {
                 if (args[0].startsWith("pr:")) {
                     channel.sendMessage(new MessageBuilder().setEmbed(GitHubUtils.getEmbedForPR(args[0].substring(3))
-                            .build()).append(r.getAsMention()).build()).queue();
+                            .build()).append(r.getAsMention()).build()).queue(bVoid ->
+                            channel.sendMessage("make sure to report any bugs over to be <#242206261767176192> channel " +
+                                    "and if you need any support we're happy to help over in the <#226786463440699392> " +
+                                    "channel!").queue()
+                    );
+
                 } else {
                     String message = msg.getContentRaw();
                     message = message.substring(message.indexOf(" ") + 1);
