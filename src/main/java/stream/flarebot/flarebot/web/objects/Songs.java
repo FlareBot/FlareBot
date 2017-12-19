@@ -50,8 +50,7 @@ public class Songs {
 
         Songs songs = (Songs) o;
 
-        if (!identifier.equals(songs.identifier)) return false;
-        return requester.equals(songs.requester);
+        return identifier.equals(songs.identifier) && requester.equals(songs.requester);
     }
 
     @Override

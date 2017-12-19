@@ -98,7 +98,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -737,16 +736,23 @@ public class FlareBot {
 
     public String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
         long totalSeconds = 0;
-        if (durUnit == TimeUnit.MILLISECONDS)
-            totalSeconds = duration / 1000;
-        else if (durUnit == TimeUnit.SECONDS)
-            totalSeconds = duration;
-        else if (durUnit == TimeUnit.MINUTES)
-            totalSeconds = duration * 60;
-        else if (durUnit == TimeUnit.HOURS)
-            totalSeconds = (duration * 60) * 60;
-        else if (durUnit == TimeUnit.DAYS)
-            totalSeconds = ((duration * 60) * 60) * 24;
+        switch (durUnit) {
+            case MILLISECONDS:
+                totalSeconds = duration / 1000;
+                break;
+            case SECONDS:
+                totalSeconds = duration;
+                break;
+            case MINUTES:
+                totalSeconds = duration * 60;
+                break;
+            case HOURS:
+                totalSeconds = (duration * 60) * 60;
+                break;
+            case DAYS:
+                totalSeconds = ((duration * 60) * 60) * 24;
+                break;
+        }
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;
         long hours = (totalSeconds / 3600) % 24;

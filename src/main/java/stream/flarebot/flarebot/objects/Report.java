@@ -1,5 +1,7 @@
 package stream.flarebot.flarebot.objects;
 
+import com.sun.istack.internal.NotNull;
+
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

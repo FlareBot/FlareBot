@@ -599,7 +599,7 @@ public class GeneralUtils {
                 message.getAuthor().getId(),
                 message.getChannel().getId(),
                 message.getGuild().getId(),
-                message.getRawContent(),
+                message.getContentRaw(),
                 message.getCreationTime().toInstant().toEpochMilli()
         ));
     }

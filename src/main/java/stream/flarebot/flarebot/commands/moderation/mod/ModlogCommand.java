@@ -250,7 +250,7 @@ public class ModlogCommand implements Command {
         int pageSize = 15;
         List<ModlogEvent> events;
         if (enabledEvents)
-            events = wrapper.getModeration().getEnabledActions().stream().map(action -> action.getEvent()).collect(Collectors.toList());
+            events = wrapper.getModeration().getEnabledActions().stream().map(ModlogAction::getEvent).collect(Collectors.toList());
         else
             events = ModlogEvent.events;
         int pages = events.size() < pageSize ? 1 : (events.size() / pageSize)
@@ -264,7 +264,6 @@ public class ModlogCommand implements Command {
 
         if (page > pages || page < 0) {
             MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-            return;
         } else {
             StringBuilder sb = new StringBuilder();
             String groupKey = null;
@@ -287,7 +286,6 @@ public class ModlogCommand implements Command {
             }
             channel.sendMessage(new EmbedBuilder().setTitle("Features").setDescription(sb.toString())
                     .setFooter("Page " + page + "/" + pages, null).build()).queue();
-            return;
         }
     }
 }

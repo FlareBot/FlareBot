@@ -84,8 +84,8 @@ public class PerGuildPermissions {
     }
 
     private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
-        if (fb.getOfficialGuild().getMember(user) == null) return false;
-        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(roleId));
+        return fb.getOfficialGuild().getMember(user) != null && fb.getOfficialGuild().getMember(user).getRoles()
+                .contains(fb.getOfficialGuild().getRoleById(roleId));
     }
 
     public static boolean isCreator(net.dv8tion.jda.core.entities.User user) {
