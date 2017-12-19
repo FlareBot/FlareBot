@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.util;
 
+import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
@@ -11,104 +12,133 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class PaginationList<T> implements Iterable<List<T>> {
+public class PaginationList<T> {
 
-    private int pageSize = 10;
     private List<T> list;
+    private List<PageGroup> groups;
 
+    /**
+     * Creates a PagnationList without groups
+     *
+     * @param list The list of pages
+     */
     public PaginationList(List<T> list) {
         Objects.requireNonNull(list);
         this.list = list;
-        list.stream();
     }
 
-    public PaginationList(List<T> list, int pageSize) {
+    /**
+     * Creates a PagnationList with groups
+     *
+     * @param list The list of pages
+     * @param groupSize the size of the group
+     */
+    public PaginationList(List<T> list, int groupSize) {
+        Objects.requireNonNull(list);
         this.list = list;
-        this.pageSize = pageSize;
+        createGroups(groupSize);
     }
 
+    /**
+     * Gets the amount of pages we have
+     *
+     * @return the amount of pages we have
+     */
     public int getPages() {
-        return (this.list.size() / this.pageSize) + (this.list.size() % this.pageSize != 0 ? 1 : 0);
+        return list.size();
     }
 
-    public Pair<Integer, Integer> getIndexes(int page) {
-        if (page >= getPages())
-            throw new NoSuchElementException();
-        int start = this.pageSize * (page);
-        int end = Math.min(start + this.pageSize, this.list.size());
-        return new Pair<>(start, end);
+    /**
+     * creates page groups
+     *
+     * @param groupSize The amount of pages in the group to put.
+     * @throws IllegalArgumentException
+     */
+    public void createGroups(int groupSize) throws IllegalArgumentException {
+        if (groupSize > getPages()) {
+            throw new IllegalArgumentException("Can't create groups bigger then the page amount");
+        }
+        List<PageGroup> groups = new ArrayList<>();
+        for (int i = 0; i < groupSize; i++) {
+            int start = groupSize * (i - 1);
+            int end = Math.min(start + groupSize, list.size());
+            groups.add(new PageGroup(list.subList(start, end)));
+        }
+        this.groups = groups;
     }
 
-    @Override
-    public Iterator<List<T>> iterator() {
-        return new Iterator<List<T>>() {
-            int cursor;
+    /**
+     * Gets the specified page as a string
+     *
+     * @param page the position of the page to get
+     * @return The page as a string
+     */
+    public String getPage(int page) {
+        return list.get(page).toString();
+    }
 
-            @Override
-            public boolean hasNext() {
-                return !(cursor >= getPages());
+    /**
+     * Tells if this list has groups
+     *
+     * @return if this list has groups
+     */
+    public boolean hasGroups() {
+        return groups != null;
+    }
+
+    /**
+     * Gets the groups that this list has
+     *
+     * @return The groups
+     */
+    public List<PageGroup> getGroups() {
+        return groups;
+    }
+
+    /**
+     * Gets a group at the specified position
+     *
+     * @param pos The position of the group
+     * @return The PageGroup
+     */
+    public PageGroup getGroup(int pos) {
+        return groups.get(pos);
+    }
+
+    public class PageGroup {
+        private List<T> group;
+
+        /**
+         * Makes a new PageGroup
+         *
+         * @param group The list of the group.
+         */
+        public PageGroup(List<T> group) {
+            this.group = group;
+        }
+
+        /**
+         * Gets the group as a string
+         * Useful for if you want to use the groups as pages
+         *
+         * @return The group as a string.
+         */
+        public String getGroupAsString() {
+            StringBuilder builder = new StringBuilder();
+            for (T page: group) {
+                builder.append(page.toString()).append("\n");
             }
+            return builder.toString();
+        }
 
-            @Override
-            public List<T> next() {
-                int i = cursor;
-                if (i >= getPages())
-                    throw new NoSuchElementException();
-                Pair<Integer, Integer> indexes = getIndexes(i);
-                List<T> elementData = PaginationList.this.list.subList(indexes.getKey(), indexes.getValue());
-                if (i >= getPages())
-                    throw new ConcurrentModificationException();
-                cursor = i + 1;
-                return elementData;
-            }
-
-            @Override
-            public void forEachRemaining(Consumer<? super List<T>> consumer) {
-                Objects.requireNonNull(consumer);
-                final int size = getPages();
-                int i = cursor;
-
-                if (i >= getPages())
-                    throw new ConcurrentModificationException();
-                while (i != size) {
-                    Pair<Integer, Integer> indexes = getIndexes(i++);
-                    List<T> elementData = PaginationList.this.list.subList(indexes.getKey(), indexes.getValue());
-                    consumer.accept(elementData);
-                }
-                cursor = i;
-            }
-
-        };
+        /**
+         * Gets the page in the group as a String
+         *
+         * @param pos The position of the page
+         * @return The page as a String
+         */
+        public String getPageInGroup(int pos) {
+            return list.get(pos).toString();
+        }
     }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-
-    public List<T> getPage(int index) {
-        Pair<Integer, Integer> indexes = getIndexes(index);
-        return PaginationList.this.list.subList(indexes.getKey(), indexes.getValue());
-    }
-
-    public boolean hasPage(int index) {
-        return (getPages() >= index) && !(index < 0);
-    }
-
-    public void setList(List<T> list) {
-        this.list = list;
-    }
-
-    public Stream<List<T>> stream() {
-        return StreamSupport.stream(spliterator(), false);
-    }
-
-    public String[] convertToStringPage(Function<? super T, ? extends String> mapper) {
-        return this.stream().map(l -> l.stream().map(mapper).collect(Collectors.joining("\n"))).toArray(String[]::new);
-    }
-
 }

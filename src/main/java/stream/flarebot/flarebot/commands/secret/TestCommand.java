@@ -7,11 +7,20 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.PaginationUtil;
 
 public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList("Page 1\n" +
+                "info\n" +
+                "info\n" +
+                "info\n" +
+                "Page 2\n" +
+                "info\n" +
+                "info\n" +
+                "info", PaginationUtil.SplitMethod.NEW_LINES, 4), 0);
         // Served it's purpose once again :) Now it's free to be reused... no memes pls
     }
 

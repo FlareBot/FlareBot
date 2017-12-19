@@ -67,7 +67,7 @@ public class RolesCommand implements Command {
             int page = 1;
             if(args.length == 1)
                 page = Integer.parseInt(args[0]);
-            PaginationUtil.sendPagedMessage(channel, sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000, page, true);
+            //PaginationUtil.sendPagedMessage(channel, sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000, page, true);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
