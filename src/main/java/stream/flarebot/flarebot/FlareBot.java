@@ -278,6 +278,14 @@ public class FlareBot {
     }
 
     protected void run() {
+        try {
+            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
+        } catch (UnknownBindingException e) {
+            LOGGER.error("Failed to initialize musicManager", e);
+        }
+        musicManager.getPlayerCreateHooks()
+                .register(player -> player.getQueueHookManager().register(new QueueListener()));
+
         registerCommand(new HelpCommand());
         registerCommand(new SearchCommand());
         registerCommand(new JoinCommand());
@@ -357,14 +365,6 @@ public class FlareBot {
         registerCommand(new UpdateJDACommand());
         registerCommand(new ChangelogCommand());
 
-        try {
-            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
-        } catch (UnknownBindingException e) {
-            LOGGER.error("Failed to initialize musicManager", e);
-        }
-        musicManager.getPlayerCreateHooks()
-                .register(player -> player.getQueueHookManager().register(new QueueListener()));
-        
         LOGGER.info("Loaded " + commands.size() + " commands!");
 
         ApiFactory.bind();
@@ -1020,7 +1020,8 @@ public class FlareBot {
         new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
             @Override
             public void run() {
-                sendData();
+                if (!isTestBot())
+                    sendData();
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(5));
 

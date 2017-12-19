@@ -20,6 +20,8 @@ public class StopCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        System.out.println(musicManager);
+        System.out.println(musicManager.getPlayer(channel.getGuild().getId()));
         musicManager.getPlayer(channel.getGuild().getId()).stop();
     }
 
