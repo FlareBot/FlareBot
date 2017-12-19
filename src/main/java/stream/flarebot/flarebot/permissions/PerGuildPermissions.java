@@ -84,6 +84,7 @@ public class PerGuildPermissions {
     }
 
     private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
+        if (!FlareBot.getInstance().isReady() || fb.getOfficialGuild() == null) return false;
         return fb.getOfficialGuild().getMember(user) != null && fb.getOfficialGuild().getMember(user).getRoles()
                 .contains(fb.getOfficialGuild().getRoleById(roleId));
     }

@@ -696,8 +696,7 @@ public class FlareBot {
     }
 
     public boolean isReady() {
-        return shardManager.getShards().size() == shardManager.getShardsTotal() &&
-                shardManager.getShards().stream().filter(c -> c.getStatus() != JDA.Status.CONNECTED).count()-1 == 0;
+        return shardManager.getShards().size() == shardManager.getShardsTotal();
     }
 
     public static String getMessage(String[] args) {
