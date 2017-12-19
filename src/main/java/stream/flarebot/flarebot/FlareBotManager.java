@@ -4,18 +4,16 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.common.util.concurrent.Runnables;
-import com.google.gson.JsonSyntaxException;
-import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import stream.flarebot.flarebot.annotations.DoNotUse;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.objects.GuildWrapperBuilder;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -28,10 +26,8 @@ import java.awt.Color;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +38,6 @@ public class FlareBotManager {
 
     private static FlareBotManager instance;
 
-    private Map<Language.Locales, JSONConfig> configs = new ConcurrentHashMap<>();
     // Command - reason
     private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
 
@@ -125,7 +120,8 @@ public class FlareBotManager {
     }
 
     // Do not use this method!
-    protected void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved) {
+    @DoNotUse(expressUse = "GuildCommand save")
+    public void saveGuild(String guildId, GuildWrapper guildWrapper, final long last_retrieved) {
         long last_r = (last_retrieved == -1 ? System.currentTimeMillis() : last_retrieved);
         CassandraController.runTask(session -> {
             if (saveGuildStatement == null) saveGuildStatement = session.prepare("UPDATE " + GUILD_DATA_TABLE
@@ -164,16 +160,6 @@ public class FlareBotManager {
         });
     }
 
-    public JSONConfig loadLang(Language.Locales l) {
-        return configs.computeIfAbsent(l, locale -> new JSONConfig(getClass().getResourceAsStream("/langs/" + l.getCode() + ".json")));
-    }
-
-    public String getLang(Language lang, String id) {
-        String path = lang.name().toLowerCase().replaceAll("_", ".");
-        JSONConfig config = loadLang(getGuild(id).getLocale());
-        return config.getString(path).isPresent() ? config.getString(path).get() : "";
-    }
-
     public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {
         final ArrayList<String> list = new ArrayList<>();
         CassandraController.runTask(session -> {
@@ -191,11 +177,6 @@ public class FlareBotManager {
         return list;
     }
 
-    public Set<String> getProfanity() {
-        // TODO: This will need to be done at some point. Not sure if I want to get this from the API or if I want to have a JSON file or something yet.
-        return new HashSet<>();
-    }
-
     public synchronized GuildWrapper getGuild(String id) {
         if (guilds == null) return null; //This is if it's ran before even being loaded
         guilds.computeIfAbsent(id, guildId -> {
@@ -204,18 +185,19 @@ public class FlareBotManager {
                     + guildId + "'");
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
-            if (row != null) {
-                try {
+            try {
+                if (row != null) {
                     wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                } catch (JsonSyntaxException e) {
-                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
-                            "Guild ID: " + id + "\n" +
-                            "Guild JSON: " + row.getString("data") + "\n" +
-                            "Error: " + e.getMessage(), e);
-                    return null;
-                }
-            } else
-                wrapper = new GuildWrapperBuilder(id).build();
+                } else
+                    wrapper = new GuildWrapper(id);
+            } catch (Exception e) {
+                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load guild JSON!\n" +
+                        "Guild ID: " + id + "\n" +
+                        "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
+                        "Error: " + e.getMessage(), e);
+                return null;
+            }
+
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 

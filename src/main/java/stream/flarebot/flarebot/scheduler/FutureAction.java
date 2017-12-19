@@ -1,14 +1,14 @@
 package stream.flarebot.flarebot.scheduler;
 
 import com.datastax.driver.core.PreparedStatement;
-import net.dv8tion.jda.core.Permission;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.mod.ModlogAction;
+import stream.flarebot.flarebot.mod.modlog.ModAction;
+import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
@@ -132,28 +132,34 @@ public class FutureAction {
     }
 
     public void execute() {
+        GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
         switch (action) {
             case TEMP_MUTE:
-                GuildWrapper guild = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
-                if (guild.getMutedRole() != null && guild.getGuild().getMemberById(target).getRoles().contains(guild.getMutedRole()))
-                    guild.getGuild().getController().removeSingleRoleFromMember(guild.getGuild().getMemberById(target),
-                            guild.getMutedRole()).queue(aVoid -> guild.getAutoModConfig().postAutoModAction(
-                            FlareBot.getInstance().getUserById(target), ModlogAction.UNMUTE.toPunishment()));
+                ModlogHandler.getInstance().handleAction(gw,
+                        ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNMUTE.getEvent()),
+                        null,
+                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
+                        ModAction.UNMUTE,
+                        "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
+                );
                 break;
             case TEMP_BAN:
-                GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
-                if (gw.getGuild().getSelfMember().hasPermission(Permission.BAN_MEMBERS))
-                    gw.getGuild().getController().unban(String.valueOf(target)).queue(aVoid -> gw.getAutoModConfig()
-                            .postAutoModAction(GeneralUtils.getUser(String.valueOf(target), null, true),
-                                    ModlogAction.UNBAN.toPunishment(), "Temporary ban expired, was banned for "
-                                            + GeneralUtils.formatJodaTime(delay)));
+                ModlogHandler.getInstance().handleAction(gw,
+                        ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNBAN.getEvent()),
+                        null,
+                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
+                        ModAction.UNBAN,
+                        "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
+                );
                 break;
             case REMINDER:
                 if (FlareBot.getInstance().getChannelById(channelId) != null)
                     FlareBot.getInstance().getChannelById(channelId).sendMessage(FlareBot.getInstance()
                             .getUserById(responsible).getAsMention() + " You asked me to remind you " +
-                            GeneralUtils.formatJodaTime(delay) + " ago about: `" + content.replaceAll("`", "'") + "`")
+                            GeneralUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
                             .queue();
+                break;
+            default:
                 break;
         }
         delete();

@@ -24,7 +24,7 @@ public class RemindCommand implements Command {
             Period period;
             if ((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
             String reminder = FlareBot.getMessage(args, 1);
-            channel.sendMessage("\uD83D\uDC4D I will remind you in " + GeneralUtils.formatJodaTime(period) + " (at "
+            channel.sendMessage("\uD83D\uDC4D I will remind you in " + GeneralUtils.formatJodaTime(period).toLowerCase() + " (at "
                     + GeneralUtils.formatPrecisely(period) + ") to `" + reminder + "`").queue();
 
             Scheduler.queueFutureAction(guild.getGuildIdLong(), channel.getIdLong(), sender.getIdLong(), reminder.substring(0,
