@@ -30,7 +30,7 @@ public class TempBanCommand implements Command {
             Period period = GeneralUtils.getTimeFromInput(args[1], channel);
             if (period == null) return;
 
-            ModlogHandler.getInstance().handleAction(guild, channel, user, sender, ModAction.TEMP_BAN, reason,
+            ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.TEMP_BAN, reason,
                     period.toStandardDuration().getMillis());
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
