@@ -24,10 +24,7 @@ public class UnmuteCommand implements Command {
             }
             if (guild.getMutedRole() == null) {
                 MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
-                return;
             }
-
-
         }
     }
 

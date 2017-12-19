@@ -179,93 +179,105 @@ public class ModlogHandler {
 
         try {
             // BAN
-            if (modAction == ModAction.BAN) {
-                channel.getGuild().getController().ban(target, 7, reason).queue(aVoid ->
-                        channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
-                                .setDescription("The ban hammer has been struck on " + target.getName()
-                                        + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
-                                .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
-                                        "https://flarebot.stream/img/banhammer.png" : null)
-                                .build()).queue());
-            } else if (modAction == ModAction.FORCE_BAN) {
-                channel.getGuild().getController().ban(target.getId(), 7, reason).queue(aVoid ->
-                        channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
-                                .setDescription("The ban hammer has been forcefully struck on " + target.getName()
-                                        + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
-                                .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
-                                        "https://flarebot.stream/img/banhammer.png" : null)
-                                .build()).queue());
-            } else if (modAction == ModAction.TEMP_BAN) {
-                Period period = new Period(duration);
-                channel.getGuild().getController().ban(channel.getGuild().getMember(target), 7, reason).queue(aVoid -> {
-                    channel.sendMessage(new EmbedBuilder()
-                            .setDescription("The ban hammer has been struck on " + target.getName() + " for "
-                                    + GeneralUtils.formatJodaTime(period) + "\nReason: `" + rsn + "`")
-                            .setImage(channel.getGuild().getId()
-                                    .equals(Constants.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
-                            .setColor(Color.WHITE).build()).queue();
+            switch (modAction) {
+                case BAN:
+                    channel.getGuild().getController().ban(target, 7, reason).queue(aVoid ->
+                            channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
+                                    .setDescription("The ban hammer has been struck on " + target.getName()
+                                            + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
+                                    .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
+                                            "https://flarebot.stream/img/banhammer.png" : null)
+                                    .build()).queue());
+                    break;
+                case FORCE_BAN:
+                    channel.getGuild().getController().ban(target.getId(), 7, reason).queue(aVoid ->
+                            channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
+                                    .setDescription("The ban hammer has been forcefully struck on " + target.getName()
+                                            + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
+                                    .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
+                                            "https://flarebot.stream/img/banhammer.png" : null)
+                                    .build()).queue());
+                    break;
+                case TEMP_BAN: {
+                    Period period = new Period(duration);
+                    channel.getGuild().getController().ban(channel.getGuild().getMember(target), 7, reason).queue(aVoid -> {
+                        channel.sendMessage(new EmbedBuilder()
+                                .setDescription("The ban hammer has been struck on " + target.getName() + " for "
+                                        + GeneralUtils.formatJodaTime(period) + "\nReason: `" + rsn + "`")
+                                .setImage(channel.getGuild().getId()
+                                        .equals(Constants.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
+                                .setColor(Color.WHITE).build()).queue();
+                        Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
+                                target.getIdLong(), reason, period, FutureAction.Action.TEMP_BAN);
+                    });
+                    break;
+                }
+                case UNBAN:
+                    wrapper.getGuild().getController().unban(target).queue();
+
+                    MessageUtils.sendSuccessMessage("Unbanned " + target.getAsMention() + "!", channel, sender);
+                    // MUTE
+                    break;
+                case MUTE:
+                    try {
+                        wrapper.getModeration().muteUser(wrapper, wrapper.getGuild().getMember(target));
+                    } catch (HierarchyException e) {
+                        MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the " +
+                                        "role hierarchy.",
+                                channel);
+                        return;
+                    }
+
+                    MessageUtils.sendSuccessMessage("Muted " + target.getAsMention() + (reason == null ? "" : " (`"
+                            + reason.replaceAll("`", "'") + "`)"), channel, sender);
+                    break;
+                case TEMP_MUTE: {
+                    try {
+                        wrapper.getModeration().muteUser(wrapper, wrapper.getGuild().getMember(target));
+                    } catch (HierarchyException e) {
+                        MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the " +
+                                        "role hierarchy.",
+                                channel);
+                        return;
+                    }
+
+                    Period period = new Period(duration);
                     Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
                             target.getIdLong(), reason, period, FutureAction.Action.TEMP_BAN);
-                });
-            } else if (modAction == ModAction.UNBAN) {
-                wrapper.getGuild().getController().unban(target).queue();
 
-                MessageUtils.sendSuccessMessage("Unbanned " + target.getAsMention() + "!", channel, sender);
-                // MUTE
-            } else if (modAction == ModAction.MUTE) {
-                try {
-                    wrapper.getModeration().muteUser(wrapper, wrapper.getGuild().getMember(target));
-                } catch (HierarchyException e) {
-                    MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the " +
-                                    "role hierarchy.",
-                            channel);
-                    return;
+                    MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
+                            + GeneralUtils.formatJodaTime(period) + (reason == null ? "" : " (`" +
+                            reason.replaceAll("`", "'") + "`)"), channel, sender);
+                    break;
                 }
+                case UNMUTE:
+                    if (wrapper.getGuild().getMember(target).getRoles().contains(wrapper.getMutedRole())) {
+                        wrapper.getGuild().getController().removeSingleRoleFromMember(wrapper.getGuild().getMember(target),
+                                wrapper.getMutedRole()).queue();
+                        MessageUtils.sendSuccessMessage("Unmuted " + target.getAsMention(), channel, sender);
+                    } else {
+                        MessageUtils.sendErrorMessage("That user isn't muted!!", channel);
+                    }
 
-                MessageUtils.sendSuccessMessage("Muted " + target.getAsMention() + (reason == null ? "" : " (`"
-                        + reason.replaceAll("`", "'") + "`)"), channel, sender);
-            } else if (modAction == ModAction.TEMP_MUTE) {
-                try {
-                    wrapper.getModeration().muteUser(wrapper, wrapper.getGuild().getMember(target));
-                } catch (HierarchyException e) {
-                    MessageUtils.sendErrorMessage("Cannot apply the mute role, make sure it is below FlareBot in the " +
-                                    "role hierarchy.",
-                            channel);
-                    return;
-                }
-
-                Period period = new Period(duration);
-                Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
-                        target.getIdLong(), reason, period, FutureAction.Action.TEMP_MUTE);
-
-                MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
-                        + GeneralUtils.formatJodaTime(period) + (reason == null ? "" : " (`" +
-                        reason.replaceAll("`", "'") + "`)"), channel, sender);
-            } else if (modAction == ModAction.UNMUTE) {
-                if (wrapper.getGuild().getMember(target).getRoles().contains(wrapper.getMutedRole())) {
-                    wrapper.getGuild().getController().removeSingleRoleFromMember(wrapper.getGuild().getMember(target),
-                            wrapper.getMutedRole()).queue();
-                    MessageUtils.sendSuccessMessage("Unmuted " + target.getAsMention(), channel, sender);
-                } else {
-                    MessageUtils.sendErrorMessage("That user isn't muted!!", channel);
-                }
-
-                // KICK and WARN
-            } else if (modAction == ModAction.KICK) {
-                channel.getGuild().getController().kick(member, reason).queue(aVoid ->
-                        MessageUtils.sendSuccessMessage(target.getName() + " has been kicked from the server!" + rsn,
-                                channel, sender));
-            } else if (modAction == ModAction.WARN) {
-                wrapper.addWarning(target, (reason != null ? reason : "No reason provided - action done by "
-                        + sender.getName()));
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(target)
-                        + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
-                        .setColor(Color.WHITE);
-                channel.sendMessage(eb.build()).queue();
-            } else {
-                throw new IllegalArgumentException("An illegal ModAction was attempted to be handled - "
-                        + modAction.toString());
+                    // KICK and WARN
+                    break;
+                case KICK:
+                    channel.getGuild().getController().kick(member, reason).queue(aVoid ->
+                            MessageUtils.sendSuccessMessage(target.getName() + " has been kicked from the server!" + rsn,
+                                    channel, sender));
+                    break;
+                case WARN:
+                    wrapper.addWarning(target, (reason != null ? reason : "No reason provided - action done by "
+                            + sender.getName()));
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(target)
+                            + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
+                            .setColor(Color.WHITE);
+                    channel.sendMessage(eb.build()).queue();
+                    break;
+                default:
+                    throw new IllegalArgumentException("An illegal ModAction was attempted to be handled - "
+                            + modAction.toString());
             }
         } catch (PermissionException e) {
             if (channel != null) {

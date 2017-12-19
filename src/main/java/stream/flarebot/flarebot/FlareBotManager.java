@@ -155,7 +155,7 @@ public class FlareBotManager {
                     "scope, times_played) VALUES (?, ?, ?, ?, ?, ?)").bind()
                     .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, ownerId).setList(3, songs)
                     .setString(4, "local").setInt(5, 0));
-            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(ownerId))
+            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserById(ownerId))
                     .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
         });
     }
@@ -186,18 +186,17 @@ public class FlareBotManager {
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
             try {
-                if (row != null) {
+                if (row != null)
                     wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                } else
+                else
                     wrapper = new GuildWrapper(id);
             } catch (Exception e) {
-                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to parse guild JSON!\n" +
+                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
                         "Guild ID: " + id + "\n" +
                         "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
                         "Error: " + e.getMessage(), e);
                 return null;
             }
-
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 

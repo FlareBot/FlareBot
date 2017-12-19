@@ -29,7 +29,7 @@ public class SongCommand implements Command {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             EmbedBuilder eb = MessageUtils.getEmbed(sender)
                     .addField("Current Song", getLink(track), false)
-                    .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/0.jpg");
+                    .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg");
             if (track.getTrack().getInfo().isStream)
                 eb.addField("Amount Played", "Issa livestream ;)", false);
             else

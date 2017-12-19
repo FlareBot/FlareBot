@@ -17,11 +17,7 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -81,14 +77,14 @@ public class ModlogCommand implements Command {
                 if (args.length == 2) {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
-                
+
                 listEvents(channel, page, guild, false);
                 return;
             }
         }
         if (args.length >= 2) {
-            String eventArgument = MessageUtils.getMessage(args, 1, 
-                            args[0].equalsIgnoreCase("enable") ? Math.max(2, args.length - 1) : args.length);
+            String eventArgument = MessageUtils.getMessage(args, 1,
+                    args[0].equalsIgnoreCase("enable") ? Math.max(2, args.length - 1) : args.length);
             ModlogEvent event = ModlogEvent.getEvent(eventArgument);
             boolean all = false;
             boolean defaultEvents = false;
@@ -99,8 +95,8 @@ public class ModlogCommand implements Command {
                     defaultEvents = true;
                 else {
                     MessageUtils.sendErrorMessage("Invalid Event: `" + eventArgument + "`\n"
-                                    + "For a list of all events do `{%}modlog features`, "
-                                    + "for a list of all enabled events do `{%}modlog list`.", channel);
+                            + "For a list of all events do `{%}modlog features`, "
+                            + "for a list of all enabled events do `{%}modlog list`.", channel);
                     return;
                 }
             }
@@ -249,12 +245,12 @@ public class ModlogCommand implements Command {
     public CommandType getType() {
         return CommandType.MODERATION;
     }
-    
+
     private void listEvents(TextChannel channel, int page, GuildWrapper wrapper, boolean enabledEvents) {
         int pageSize = 15;
         List<ModlogEvent> events;
         if (enabledEvents)
-            events = wrapper.getModeration().getEnabledActions().stream().map(action -> action.getEvent()).collect(Collectors.toList());
+            events = wrapper.getModeration().getEnabledActions().stream().map(ModlogAction::getEvent).collect(Collectors.toList());
         else
             events = ModlogEvent.events;
         int pages = events.size() < pageSize ? 1 : (events.size() / pageSize)
@@ -268,7 +264,6 @@ public class ModlogCommand implements Command {
 
         if (page > pages || page < 0) {
             MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-            return;
         } else {
             StringBuilder sb = new StringBuilder();
             String groupKey = null;
@@ -276,13 +271,13 @@ public class ModlogCommand implements Command {
                 String name = modlogEvent.getName();
                 String[] split = name.split(" ");
                 if (groupKey == null || groupKey.isEmpty())
-                     groupKey = split[0];
-                        
+                    groupKey = split[0];
+
                 if (!groupKey.equals(split[0])) {
                     sb.append('\n');
                     groupKey = split[0];
                 }
-                        
+
                 sb.append("`").append(modlogEvent.getTitle()).append("` - ").append(modlogEvent.getDescription()).append('\n');
             }
             if (!enabledEvents) {
@@ -291,7 +286,6 @@ public class ModlogCommand implements Command {
             }
             channel.sendMessage(new EmbedBuilder().setTitle("Features").setDescription(sb.toString())
                     .setFooter("Page " + page + "/" + pages, null).build()).queue();
-            return;
         }
     }
 }

@@ -246,7 +246,7 @@ public class ModlogEvents extends ListenerAdapter {
         RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MESSAGE_EDIT, event.getAuthor(),
                 new MessageEmbed.Field("Old Message", GeneralUtils.truncate(1024, old.getContent(), true), false),
-                new MessageEmbed.Field("New Message", GeneralUtils.truncate(1024, event.getMessage().getContent(), true), false),
+                new MessageEmbed.Field("New Message", GeneralUtils.truncate(1024, event.getMessage().getContentDisplay(), true), false),
                 new MessageEmbed.Field("Channel", event.getTextChannel().getName() + " (" + event.getTextChannel().getId() + ")", true));
         RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
     }

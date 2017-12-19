@@ -62,7 +62,7 @@ public class StatsCommand implements Command {
 
         SERVERS("Servers", () -> FlareBot.getInstance().getGuilds().size()),
         TOTAL_USERS("Total Users", () -> FlareBot.getInstance().getUsers().size()),
-        VOICE_CONNECTIONS("Voice Connections", () -> FlareBot.getInstance().getConnectedVoiceChannels().size()),
+        VOICE_CONNECTIONS("Voice Connections", () -> FlareBot.getInstance().getConnectedVoiceChannels()),
         ACTIVE_CHANNELS("Channels Playing Music", () -> FlareBot.getInstance().getActiveVoiceChannels()),
         TEXT_CHANNELS("Text Channels", () -> FlareBot.getInstance().getChannels().size()),
         LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.getInstance().getGuilds().size()),

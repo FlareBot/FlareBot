@@ -17,7 +17,7 @@ public class ConfirmUtil {
     public static void pushAction(String userID, RunnableWrapper action) {
         if (confirmMap.containsKey(userID)) {
             Set<RunnableWrapper> actions = confirmMap.get(userID);
-            if (actions.stream().filter(wrapper -> wrapper.getOrigin().equals(action.getOrigin())).count() == 0) {
+            if (actions.stream().noneMatch(wrapper -> wrapper.getOrigin().equals(action.getOrigin()))) {
                 actions.add(action);
             }
         } else {
@@ -55,7 +55,7 @@ public class ConfirmUtil {
     public static boolean checkExists(String userID, Class<? extends Command> command) {
         if (confirmMap.containsKey(userID)) {
             Set<RunnableWrapper> wrappers = confirmMap.get(userID);
-            return wrappers.stream().filter(wrapper -> wrapper.getOrigin().equals(command)).count() > 0;
+            return wrappers.stream().anyMatch(wrapper -> wrapper.getOrigin().equals(command));
         }
         return false;
     }

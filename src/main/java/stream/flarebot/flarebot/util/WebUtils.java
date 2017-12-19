@@ -65,14 +65,13 @@ public class WebUtils {
                 .url("https://discordapp.com/api/gateway/bot")
                 .header("Authorization", "Bot " + token);
         Response response = get(request);
-        if (!response.isSuccessful())
-            throw new IOException("Unexpected code " + response.code() + " when getting shards");
-        int shards = -1;
+        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
         ResponseBody body = response.body();
-        if (body != null)
-            shards = new JSONObject(body.string()).getInt("shards");
-        response.close();
-        return shards;
+        if (body == null)
+            return -1;
+        String jsonString = body.string();
+        body.close();
+        return new JSONObject(jsonString).getInt("shards");
     }
 
     public static boolean pingHost(String host, int timeout) {

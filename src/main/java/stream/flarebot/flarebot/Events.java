@@ -30,8 +30,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
@@ -102,7 +103,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        flareBot.latch.countDown();
+        if (FlareBot.getInstance().isReady())
+            FlareBot.getInstance().run();
     }
 
     @Override
@@ -114,10 +116,10 @@ public class Events extends ListenerAdapter {
         if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = wrapper.getWelcome();
-            if ((welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null)
+            if ((welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
-                if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
-                    TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
+                if (welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null) {
+                    TextChannel channel = flareBot.getChannelById(welcome.getChannelId());
                     if (!channel.canTalk()) {
                         welcome.setGuildEnabled(false);
                         MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
@@ -159,7 +161,7 @@ public class Events extends ListenerAdapter {
                 }
                 sb.append("```");
                 ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.FLAREBOT_AUTOASSIGN_ROLE, event.getUser(),
-                                new MessageEmbed.Field("Roles", sb.toString(), false));
+                        new MessageEmbed.Field("Roles", sb.toString(), false));
             } catch (Exception e1) {
                 handle(e1, event, roles);
             }
@@ -246,9 +248,9 @@ public class Events extends ListenerAdapter {
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
 
-        if (FlareBot.getPrefixes() == null) return;
-        if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
-                && !event.getAuthor().isBot()) {
+        if (FlareBot.getPrefixes() == null || event.getAuthor().isBot()) return;
+        String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
+        if (message.startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))) {
             List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
             if (!perms.contains(Permission.ADMINISTRATOR)) {
                 if (!perms.contains(Permission.MESSAGE_WRITE)) {
@@ -262,7 +264,6 @@ public class Events extends ListenerAdapter {
                 }
             }
 
-            String message = multiSpace.matcher(event.getMessage().getRawContent()).replaceAll(" ");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
@@ -273,16 +274,14 @@ public class Events extends ListenerAdapter {
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
-            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
-                    && !event.getAuthor().isBot()) {
-                if (event.getMessage().getRawContent().startsWith("_prefix")) {
+            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR &&
+                    (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
                     event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
                             .setDescription("The server prefix is `" + FlareBot
                                     .getPrefixes().get(getGuildId(event)) + "`")
                             .build()).queue();
-                }
             }
-            if (!event.getMessage().getRawContent().isEmpty()) {
+            if (!message.isEmpty()) {
                 RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 61200);
             }
         }

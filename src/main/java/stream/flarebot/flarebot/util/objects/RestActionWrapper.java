@@ -28,8 +28,7 @@ public class RestActionWrapper {
 
         RestActionWrapper wrapper = (RestActionWrapper) o;
 
-        if (!getAction().equals(wrapper.getAction())) return false;
-        return getOrigin().equals(wrapper.getOrigin());
+        return getAction().equals(wrapper.getAction()) && getOrigin().equals(wrapper.getOrigin());
     }
 
     @Override

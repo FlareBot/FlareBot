@@ -19,8 +19,8 @@ public class StatusCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         FlareBot fb = FlareBot.getInstance();
-        int quaterShards = fb.getClients().length / 4;
-        double ping = Arrays.stream(fb.getClients()).mapToLong(JDA::getPing).average().orElse(-1);
+        int quaterShards = fb.getShards().size() / 4;
+        double ping = fb.getShards().stream().mapToLong(JDA::getPing).average().orElse(-1);
 
         int deadShard = 0;
         int reconnecting = 0;
@@ -28,8 +28,8 @@ public class StatusCommand implements Command {
         int noVoiceConnections = 0;
         int highResponseTime = 0;
 
-        for (int shardId = 0; shardId < fb.getClients().length; shardId++) {
-            JDA jda = fb.getClients()[shardId];
+        for (int shardId = 0; shardId < fb.getShards().size(); shardId++) {
+            JDA jda = ShardUtils.getShardById(shardId);
             if (jda == null) {
                 connecting++;
                 continue;
@@ -40,7 +40,7 @@ public class StatusCommand implements Command {
                 deadShard++;
             if (reconnect)
                 reconnecting++;
-            if (jda.getVoiceChannelCache().stream().filter(vc -> vc.getMembers().contains(vc.getGuild().getSelfMember())).count() == 0)
+            if (jda.getVoiceChannelCache().stream().noneMatch(vc -> vc.getMembers().contains(vc.getGuild().getSelfMember())))
                 noVoiceConnections++;
             if (ShardUtils.getLastEventTime(shardId) >= 1500 && !reconnect)
                 highResponseTime++;
@@ -51,7 +51,7 @@ public class StatusCommand implements Command {
                     "used on several thousand servers for a few minutes! (").append(reconnecting).append(" shards reconnecting)").append("\n");
         if (highResponseTime > Math.min(quaterShards, 20))
             sb.append("⚠ WARNING: We seem to be experiencing a high event time on quite a few shards, this is usually " +
-                    "down to Discord not wanting to co-op with us :( please be patient while these ")
+                    "down to discord not wanting to co-op with us :( please be patient while these ")
                     .append(highResponseTime).append(" shards go back to normal!").append("\n");
         if (deadShard > 5)
             sb.append(" SEVERE: We have quite a few dead shards! Please report this on the [Support Server](")
@@ -84,7 +84,7 @@ public class StatusCommand implements Command {
                 reconnecting,
                 connecting,
                 highResponseTime,
-                fb.getGuilds().size(), fb.getUsers().size(), fb.getConnectedVoiceChannels().size(), fb.getActiveVoiceChannels()
+                fb.getGuilds().size(), fb.getUsers().size(), fb.getConnectedVoiceChannels(), fb.getActiveVoiceChannels()
         ));
 
         channel.sendMessage("**FlareBot's Status**\n```prolog\n" + sb.toString() + "\n```").queue();

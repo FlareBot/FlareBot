@@ -91,8 +91,8 @@ public class GeneralUtils {
 
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+        User reporter = FlareBot.getInstance().getUserById(String.valueOf(report.getReporterId()));
+        User reported = FlareBot.getInstance().getUserById(String.valueOf(report.getReportedId()));
 
         eb.addField("Report ID", String.valueOf(report.getId()), true);
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
@@ -143,7 +143,9 @@ public class GeneralUtils {
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
         String prefix = String.valueOf(getPrefix(channel));
-        return usage.replaceAll("\\{%}", prefix);
+        if(usage.contains("{%}"))
+            return usage.replaceAll("\\{%}", prefix);
+        return usage;
     }
 
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
@@ -597,7 +599,7 @@ public class GeneralUtils {
                 message.getAuthor().getId(),
                 message.getChannel().getId(),
                 message.getGuild().getId(),
-                message.getRawContent(),
+                message.getContentRaw(),
                 message.getCreationTime().toInstant().toEpochMilli()
         ));
     }
