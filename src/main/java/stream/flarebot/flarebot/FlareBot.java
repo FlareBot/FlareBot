@@ -624,6 +624,7 @@ public class FlareBot {
             }
         }
         for (Command cmd : getCommands()) {
+            if (cmd.getType() == CommandType.SECRET) continue;
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
