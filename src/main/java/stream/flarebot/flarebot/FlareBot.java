@@ -250,12 +250,13 @@ public class FlareBot {
         try {
             shardManager = new DefaultShardManagerBuilder()
                     .addEventListeners(events)
+		    .addEventListeners(new ModlogEvents())
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setShardsTotal(-1)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
-					.setHttpClientBuilder(client.newBuilder())
-					.setBulkDeleteSplittingEnabled(false)
+		    .setHttpClientBuilder(client.newBuilder())
+		    .setBulkDeleteSplittingEnabled(false)
                     .build();
 
             prefixes = new Prefixes();
