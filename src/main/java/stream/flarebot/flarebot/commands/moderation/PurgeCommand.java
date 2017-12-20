@@ -152,6 +152,11 @@ public class PurgeCommand implements Command {
     }
 
     @Override
+    public boolean deleteMessage() {
+        return false;
+    }
+
+    @Override
     public EnumSet<Permission> getDiscordPermission() {
         return EnumSet.of(Permission.MESSAGE_MANAGE);
     }
