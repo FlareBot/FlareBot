@@ -135,7 +135,7 @@ public class GeneralUtils {
     }
 
     private static char getPrefix(TextChannel channel) {
-        if (channel.getGuild() != null) {
+        if (channel != null) {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
         return FlareBot.getPrefixes().get(null);
