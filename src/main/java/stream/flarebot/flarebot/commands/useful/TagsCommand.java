@@ -134,6 +134,7 @@ public class TagsCommand implements Command {
     public String getUsage() {
         return "`{%}tags` - Lists the existing tags.\n" +
                 "`{%}tags <tag_name>` - Sends the tag message.\n" +
+                "`{%}tags raw <tag_name>` - Displays the raw content of a tag.\n" +
                 "`{%}tags add <tag_name> <tag_message>` - Adds a tag to the guild.\n" +
                 "`{%}tags edit <tag_name> <tag_message>` - Edits an already existing tag.\n" +
                 "`{%}tags remove <tag_name>` - Removes a tag from the guild.";
