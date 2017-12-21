@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.mod.modlog;
 
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -67,6 +68,14 @@ public class ModlogHandler {
         TextChannel tc = getModlogChannel(wrapper, event);
         // They either don't have a channel or set it to another guild.
         if (tc != null) {
+            if (!tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+                tc.getGuild().getOwner().getUser().openPrivateChannel().queue(pc -> {
+                    pc.sendMessage("Please give me permission to read message, write messages and embed links in the modlog channel: "
+                            + tc.getAsMention()
+                            + " or set the modlog channel to one I have access to!").queue();
+                });
+                return;
+            }
             if (!wrapper.getModeration().isEventCompacted(event)) {
                 EmbedBuilder eb = event.getEventEmbed(target, responsible, reason);
                 if (extraFields != null && extraFields.length > 0) {
