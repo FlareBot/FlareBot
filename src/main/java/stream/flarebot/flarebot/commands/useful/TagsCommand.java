@@ -54,6 +54,16 @@ public class TagsCommand implements Command {
                 MessageUtils.sendErrorMessage("This seems to be invalid ¯\\_(ツ)_/¯\n"
                         + "Usage: `{%}tags edit " + args[1] + " <tag_message>`" +
                         "\n\nView the usage for variables you can use!", channel);
+            } else if (args[0].equalsIgnoreCase("raw")) {
+                if (guild.getTags().containsKey(args[1].toLowerCase())) {
+                    channel.sendMessage(MessageUtils.getEmbed(sender)
+                            .setColor(Color.CYAN)
+                            .addField("Tag", args[1].toLowerCase(), false)
+                            .addField("Content", "```" + guild.getTags().get(args[1].toLowerCase()) + "```", false)
+                            .build()).queue();
+                } else {
+                    MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
+                }
             } else {
                 User target = GeneralUtils.getUser(args[1], guild.getGuildId());
                 if (target != null) {
