@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
@@ -95,14 +96,31 @@ public class PurgeCommand implements Command {
                     }
                     if (toRetrieve == 0) break;
                 }
-                channel.deleteMessages(toDelete).complete();
+                try {
+                    if (toDelete.size() == 0) break;
+                    if (toDelete.size() == 1) {
+                        channel.deleteMessageById(toDelete.get(0).getId()).complete();
+                        break;
+                    }
+                    channel.deleteMessages(toDelete).complete();
+                } catch (PermissionException e) {
+                    MessageUtils.sendErrorMessage("There was a permissions error encountered when trying to do this!\n" + e.getMessage(), channel, sender);
+                    return;
+                } catch (ErrorResponseException e) {
+                    MessageUtils.sendErrorMessage("There was an unknown error when trying to do this!\n" + e.getMeaning(), channel, sender);
+                    return;
+                }
                 toDelete.clear();
             }
-            ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_PURGE, targetUser, sender, null,
-                    new MessageEmbed.Field("Messages purged", String.valueOf((i - 1)), true));
-            MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
-                            .setDescription(String.format("Deleted `%s` messages!", i - 1)).build(),
-                    TimeUnit.SECONDS.toMillis(5), channel);
+            if (i > 0) {
+                ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_PURGE, targetUser, sender, null,
+                        new MessageEmbed.Field("Messages purged", String.valueOf((i - 1)), true));
+                MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
+                                .setDescription(String.format("Deleted `%s` messages!", i - 1)).build(),
+                        TimeUnit.SECONDS.toMillis(5), channel);
+            } else {
+                MessageUtils.sendInfoMessage("We couldn't find any messages to purge!", channel, sender);
+            }
         } else
             MessageUtils.sendUsage(this, channel, sender, args);
     }
@@ -131,6 +149,11 @@ public class PurgeCommand implements Command {
     @Override
     public String[] getAliases() {
         return new String[]{"clean"};
+    }
+
+    @Override
+    public boolean deleteMessage() {
+        return false;
     }
 
     @Override
