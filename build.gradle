@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'stream.flarebot.flarebot'
-version = '4.1.3'
+version = '4.1.4'
 
 description = "Cool Java music bot"
 
