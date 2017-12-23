@@ -373,21 +373,25 @@ public class FlareBot {
 
         musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(player)));
 
-        manager.executeCreations();
-        LOGGER.info("Executed creations");
+        GeneralUtils.methodErrorHandler(LOGGER, null,
+                "Executed creations!", "Failed to execute creations!",
+                () -> manager.executeCreations());
 
-        loadFutureTasks();
-        LOGGER.info("Loaded future tasks");
+        GeneralUtils.methodErrorHandler(LOGGER, null,
+                "Loaded future tasks!", "Failed to load future tasks!",
+                this::loadFutureTasks);
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        sendCommands();
-        LOGGER.info("Sent commands to site");
+        GeneralUtils.methodErrorHandler(LOGGER, null,
+                "Sent commands to site!", "Failed to send commands to site!",
+                this::sendCommands);
 
-        LOGGER.info("Starting tasks");
-        runTasks();
-        LOGGER.info("Started all tasks, run complete!");
+        GeneralUtils.methodErrorHandler(LOGGER, "Starting tasks!",
+                "Started all tasks, run complete!", "Failed to start all tasks!",
+                this::runTasks);
+
     }
 
     /**

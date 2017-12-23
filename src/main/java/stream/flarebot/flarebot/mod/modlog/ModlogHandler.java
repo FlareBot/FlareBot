@@ -141,48 +141,39 @@ public class ModlogHandler {
         if (target != null) {
             member = wrapper.getGuild().getMember(target);
         }
+        if (channel == null) return;
         if (member == null && modAction != ModAction.FORCE_BAN) {
-            if (channel != null) {
-                MessageUtils.sendErrorMessage("That user isn't in this guild! You can try to forceban the user if needed.", channel);
-            }
+            MessageUtils.sendErrorMessage("That user isn't in this guild! You can try to forceban the user if needed.", channel);
             return;
         }
 
         // Make sure the target user isn't the guild owner
         if (member != null && member.isOwner()) {
-            if (channel != null) {
-                MessageUtils.sendErrorMessage(String.format("Cannot %s **%s** because they're the guild owner!",
-                        modAction.getLowercaseName(), MessageUtils.getTag(target)), channel);
-            }
+            MessageUtils.sendErrorMessage(String.format("Cannot %s **%s** because they're the guild owner!",
+                    modAction.getLowercaseName(), MessageUtils.getTag(target)), channel);
             return;
         }
 
         // Make sure the target user isn't themselves
         if (target != null && sender != null && target.getIdLong() == sender.getIdLong()) {
-            if (channel != null) {
-                MessageUtils.sendErrorMessage(String.format("You cannot %s yourself you daft person!",
-                        modAction.getLowercaseName()), channel);
-            }
+            MessageUtils.sendErrorMessage(String.format("You cannot %s yourself you daft person!",
+                    modAction.getLowercaseName()), channel);
             return;
         }
 
         // Check if the person is below the target in role hierarchy
         if (member != null && !member.getRoles().isEmpty() && member.getRoles().get(0).getPosition() > wrapper.getGuild().getMember(target).getRoles().get(0).getPosition()) {
-            if (channel != null) {
-                MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
-                        modAction.getLowercaseName()), channel);
-            }
+            MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
+                    modAction.getLowercaseName()), channel);
             return;
         }
 
         // Check if there role is higher therefore we can't take action, this should be something applied to everything
         // not just kick, ban etc.
         if (member != null && !wrapper.getGuild().getSelfMember().canInteract(member)) {
-            if (channel != null) {
-                MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
-                                "Their highest role is higher than my highest role or they're the guild owner.",
-                        MessageUtils.getTag(target)), channel);
-            }
+            MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
+                            "Their highest role is higher than my highest role or they're the guild owner.",
+                    MessageUtils.getTag(target)), channel);
             return;
         }
 
@@ -289,11 +280,9 @@ public class ModlogHandler {
                             + modAction.toString());
             }
         } catch (PermissionException e) {
-            if (channel != null) {
-                MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
-                                "I do not have the `" + e.getPermission().getName() + "` permission!",
-                        MessageUtils.getTag(target)), channel);
-            }
+            MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
+                            "I do not have the `" + e.getPermission().getName() + "` permission!",
+                    MessageUtils.getTag(target)), channel);
         }
         // TODO: Infraction
         postToModlog(wrapper, modAction.getEvent(), sender, target, rsn);
