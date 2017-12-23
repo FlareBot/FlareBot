@@ -34,7 +34,6 @@ import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
-import stream.flarebot.flarebot.util.errorhandling.ExceptionWrapper;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
@@ -443,12 +442,12 @@ public class GeneralUtils {
 
     public static void methodErrorHandler(Logger logger, String startMessage,
                                           String successMessage, String errorMessage,
-                                          ExceptionWrapper wrapper) {
+                                          Runnable runnable) {
         Objects.requireNonNull(successMessage);
         Objects.requireNonNull(errorMessage);
         if (startMessage != null) logger.info(startMessage);
         try {
-            wrapper.run();
+            runnable.run();
             logger.info(successMessage);
         } catch (Exception e) {
             logger.error(errorMessage, e);
