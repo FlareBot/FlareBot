@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
@@ -233,12 +235,21 @@ public class Events extends ListenerAdapter {
                 UpdateCommand.update(true, null);
             }
         } else {
-            if (event.getChannelLeft().getMembers().contains(event.getGuild().getSelfMember()) &&
-                    (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
-                            .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size())) {
-                event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
-            }
+            handleVoiceConnectivity(event.getChannelLeft());
         }
+    }
+
+    private void handleVoiceConnectivity(VoiceChannel channel) {
+        if (channel.getMembers().contains(channel.getGuild().getSelfMember()) &&
+                (channel.getMembers().size() < 2 || channel.getMembers()
+                        .stream().filter(m -> m.getUser().isBot()).count() == channel.getMembers().size())) {
+            channel.getGuild().getAudioManager().closeAudioConnection();
+        }
+    }
+
+    @Override
+    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        handleVoiceConnectivity(event.getChannelLeft());
     }
 
     @Override

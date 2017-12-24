@@ -25,6 +25,7 @@ import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
@@ -143,7 +144,7 @@ public class GeneralUtils {
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
         String prefix = String.valueOf(getPrefix(channel));
-        if(usage.contains("{%}"))
+        if (usage.contains("{%}"))
             return usage.replaceAll("\\{%}", prefix);
         return usage;
     }
@@ -436,6 +437,20 @@ public class GeneralUtils {
             return Long.parseLong(s);
         } catch (NumberFormatException e) {
             return defaultValue;
+        }
+    }
+
+    public static void methodErrorHandler(Logger logger, String startMessage,
+                                          String successMessage, String errorMessage,
+                                          Runnable runnable) {
+        Objects.requireNonNull(successMessage);
+        Objects.requireNonNull(errorMessage);
+        if (startMessage != null) logger.info(startMessage);
+        try {
+            runnable.run();
+            logger.info(successMessage);
+        } catch (Exception e) {
+            logger.error(errorMessage, e);
         }
     }
 
