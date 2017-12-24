@@ -93,7 +93,7 @@ public class ModlogHandler {
                         sb.append("**").append(field.getName()).append("**: ").append(field.getValue()).append("\t");
                     }
                 }
-
+                sb.append("\n** **");
                 tc.sendMessage(sb.toString().trim()).queue();
             }
         }
