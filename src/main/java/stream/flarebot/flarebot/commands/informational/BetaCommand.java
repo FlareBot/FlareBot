@@ -25,7 +25,7 @@ public class BetaCommand implements Command {
                 .collect(Collectors.joining("\n")));
         String betaMessage = guild.isBetaAccess() ?
                 "Thank you for being apart of our beta program! Please report any bugs or give us suggestions over at the [support discord](" + FlareBot.INVITE_URL + ")!"
-                : "Listed below are the commands you can gain access to by being apart of our beta program! To join the beta program, you will either need to win " +
+                : "Listed below are the commands you can gain access to by being a part of our beta program! To join the beta program, you will either need to win " +
                 "beta access through a giveaway (Make sure you are in the [support server](" + FlareBot.INVITE_URL + ") to hear of these!) or you can become apart of the " +
                 "Donator tier or higher on our [patreon page](https://www.patreon.com/flarebot)!";
         EmbedBuilder builder = MessageUtils.getEmbed(sender);

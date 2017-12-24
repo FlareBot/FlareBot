@@ -19,7 +19,7 @@ public class DonateCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         EmbedBuilder builder = MessageUtils.getEmbed(sender);
         builder.setColor(Color.CYAN);
-        builder.setDescription("Thank for you taking the time to see how you can donate to the project! This project relies solely upon user donations so every little helps! \uD83D\uDE0A");
+        builder.setDescription("Thank for you taking the time to see how you can donate to the project! This project relies heavily upon user donations so every little helps! \uD83D\uDE0A");
         builder.addField("Patreon", "The most common way to donate is through our [Patreon page](https://www.patreon.com/flarebot)! Through here you can donate the amount you want and also get rewarded for it!", false);
         builder.addField("PayPal", "If you cannot donate through Patreon or don't like the idea of a monthly subscription then this option is for you! Simply join our [support server](" + FlareBot.INVITE_URL + ") and our amazing staff will assist you in doing this!", false);
         channel.sendMessage(builder.build()).queue();
