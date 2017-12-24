@@ -294,6 +294,7 @@ public class FlareBot {
         registerCommand(new LeaveCommand());
         registerCommand(new InfoCommand());
         registerCommand(new BetaCommand());
+        registerCommand(new DonateCommand());
         registerCommand(new ResumeCommand());
         registerCommand(new PlayCommand());
         registerCommand(new PauseCommand(this));
