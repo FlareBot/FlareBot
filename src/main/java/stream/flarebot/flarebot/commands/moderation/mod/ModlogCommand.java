@@ -172,9 +172,9 @@ public class ModlogCommand implements Command {
                         }
                     }
                     for (ModlogEvent modlogEvents : ModlogEvent.values) {
-                        moderation.setEventCompact(modlogEvents, compact >= uncompact);
+                        moderation.setEventCompact(modlogEvents, uncompact >= compact);
                     }
-                    MessageUtils.sendSuccessMessage((compact >= uncompact ? "Un-compacted" : "compacted") +
+                    MessageUtils.sendSuccessMessage((uncompact >= compact ? "Compacted" : "Un-compacted") +
                             " all the modlog events", channel, sender);
                     return;
                 } else if (defaultEvents) {
