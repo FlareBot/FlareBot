@@ -298,7 +298,8 @@ public class MessageUtils {
         }
         if (command.getPermission() != null) {
             b.addField("Permission", command.getPermission() + "\n" +
-                    "**Default permission: **" + command.isDefaultPermission(), false);
+                    "**Default Permission: **" + command.isDefaultPermission() + "\n" +
+                    "**Beta Command: **" + command.isBetaTesterCommand(), false);
         }
         channel.sendMessage(b.build()).queue();
 
