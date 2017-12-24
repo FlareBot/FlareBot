@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.commands.informational;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
