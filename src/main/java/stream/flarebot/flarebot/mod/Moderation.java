@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.mod.modlog.ModlogAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
+import java.util.Iterator;
 import java.util.Set;
 
 public class Moderation {
@@ -63,6 +64,7 @@ public class Moderation {
      * @return This will either return true or false which indicated if it was successful.
      */
     public boolean enableEvent(GuildWrapper wrapper, long channelId, ModlogEvent event) {
+        disableEvent(event);
         return channelId != -1 && isValidChannelId(wrapper, channelId) && getEnabledActions().add(event.getAction(channelId));
     }
 
@@ -79,10 +81,7 @@ public class Moderation {
     }
 
     public void disableEvent(ModlogEvent event) {
-        for (ModlogAction action : getEnabledActions()) {
-            if (action.getEvent() == event)
-                getEnabledActions().remove(action);
-        }
+        getEnabledActions().removeIf(action -> action.getEvent() == event);
     }
 
     public void disableAllEvents() {
