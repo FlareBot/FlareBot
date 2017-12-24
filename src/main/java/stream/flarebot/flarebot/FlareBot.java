@@ -46,6 +46,7 @@ import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.informational.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
@@ -292,6 +293,7 @@ public class FlareBot {
         registerCommand(new JoinCommand());
         registerCommand(new LeaveCommand());
         registerCommand(new InfoCommand());
+        registerCommand(new BetaCommand());
         registerCommand(new ResumeCommand());
         registerCommand(new PlayCommand());
         registerCommand(new PauseCommand(this));
