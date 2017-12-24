@@ -192,7 +192,7 @@ public class ModlogCommand implements Command {
                         if (modlogEvent.isDefaultEvent())
                             moderation.setEventCompact(modlogEvent, compact >= uncompact);
                     }
-                    MessageUtils.sendSuccessMessage((compact >= uncompact ? "Un-compacted" : "compacted") +
+                    MessageUtils.sendSuccessMessage((compact >= uncompact ? "Un-compacted" : "Compacted") +
                             " all the default modlog events", channel, sender);
                 } else {
                     if (moderation.isEventEnabled(guild, event)) {
