@@ -14,12 +14,6 @@ import java.util.regex.Pattern;
 
 public class UsageParser {
 
-    public static void test(String... ss) {
-        for (String s : matchUsage(new WelcomeCommand(), ss)) {
-            FlareBot.getInstance().getImportantLogChannel().sendMessage(s).queue();
-        }
-    }
-
     public static List<String> matchUsage(Command c, String[] args) {
         List<String> strings = new ArrayList<>();
         String[] usages = c.getUsage().split("\n");
