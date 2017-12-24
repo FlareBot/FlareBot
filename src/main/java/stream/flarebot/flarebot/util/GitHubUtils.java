@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class GitHubUtils {
 
@@ -33,20 +34,20 @@ public class GitHubUtils {
         String body = obj.getString("body");
         String[] array = body.split("\r\n\r\n");
 
+        String title = array[0].split("\r\n")[0].replace("### ", "");
+        String description = array[0].split("\r\n")[1];
+
         EmbedBuilder embed = new EmbedBuilder();
-        boolean hasTitle = false;
+        embed.setTitle(title, null);
+        embed.setDescription(description);
+
+        array = Arrays.copyOfRange(array, 1, array.length);
+
         for (String anArray : array) {
             String value = anArray.replaceAll("\n\\* ", "\n\u2022 ");
             String header = value.replace("## ", "").substring(0, value.indexOf("\n") - 4).replace("\n", "");
 
             value = value.replace("## " + header, "");
-
-            if (!hasTitle) {
-                embed.setTitle(header, null);
-                embed.setDescription(value);
-                hasTitle = true;
-                continue;
-            }
 
             if (value.length() > 1024) {
                 embed.addField(header, value.substring(0, value.substring(0, 1024).lastIndexOf("\n")), false);
