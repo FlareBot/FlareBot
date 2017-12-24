@@ -285,6 +285,6 @@ public class ModlogHandler {
                     MessageUtils.getTag(target)), channel);
         }
         // TODO: Infraction
-        postToModlog(wrapper, modAction.getEvent(), sender, target, rsn);
+        postToModlog(wrapper, modAction.getEvent(), target, sender, rsn);
     }
 }
