@@ -9,8 +9,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -76,8 +75,9 @@ public class PurgeCommand implements Command {
                 return;
             }
             MessageHistory history = new MessageHistory(channel);
-            int toRetrieve = amount + 1;
+            int toRetrieve = amount;
             int i = 0;
+            message.delete().complete();
             outer:
             while (toRetrieve > 0) {
                 if (history.retrievePast((targetUser == null ? Math.min(toRetrieve, 100) : 100)).complete().isEmpty()) {
@@ -87,6 +87,7 @@ public class PurgeCommand implements Command {
                 List<Message> toDelete = new ArrayList<>();
                 for (Message msg : history.getRetrievedHistory()) {
                     if (msg.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())) break outer;
+                    if (msg.getId().equals(message.getId())) continue;
                     if ((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
                         toDelete.add(msg);
                         // This is to fix stuff like purges being logged.
@@ -114,9 +115,9 @@ public class PurgeCommand implements Command {
             }
             if (i > 0) {
                 ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_PURGE, targetUser, sender, null,
-                        new MessageEmbed.Field("Messages purged", String.valueOf((i - 1)), true));
+                        new MessageEmbed.Field("Messages purged", String.valueOf((i)), true));
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(sender)
-                                .setDescription(String.format("Deleted `%s` messages!", i - 1)).build(),
+                                .setDescription(String.format("Deleted `%s` messages!", i)).build(),
                         TimeUnit.SECONDS.toMillis(5), channel);
             } else {
                 MessageUtils.sendInfoMessage("We couldn't find any messages to purge!", channel, sender);
