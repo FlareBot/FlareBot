@@ -20,16 +20,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SkipCommand implements Command {
 
-    private PlayerManager musicManager;
     private Map<String, Map<String, Vote>> votes = new HashMap<>();
     private Map<String, Boolean> skips = new HashMap<>();
 
-    public SkipCommand(FlareBot bot) {
-        this.musicManager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager musicManager = FlareBot.getInstance().getMusicManager();
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
             channel.sendMessage("I am not playing anything!").queue();
@@ -104,6 +100,7 @@ public class SkipCommand implements Command {
     }
 
     private Map<String, Vote> getVotes(TextChannel channel, Member sender) {
+        PlayerManager musicManager = FlareBot.getInstance().getMusicManager();
         return this.votes.computeIfAbsent(channel.getGuild().getId(), s -> {
             AtomicBoolean bool = new AtomicBoolean(false);
             channel.getGuild().getVoiceChannels().stream().filter(c -> c.equals(sender.getVoiceState().getChannel()))
@@ -132,7 +129,7 @@ public class SkipCommand implements Command {
                     long yesCount = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
                             .count();
-                    boolean skip =  yesCount > (votes.get(s).size() - yesCount);
+                    boolean skip = yesCount > (votes.get(s).size() - yesCount);
                     channel.sendMessage(MessageUtils.getEmbed()
                             .setDescription("The votes are in!")
                             .addField("Results: ", (skip ? "Skip!" : "Keep!"), false).build())

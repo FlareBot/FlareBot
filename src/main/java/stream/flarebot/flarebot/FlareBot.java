@@ -46,12 +46,12 @@ import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.informational.*;
-import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
+import stream.flarebot.flarebot.commands.informational.*;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
+import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.*;
@@ -251,13 +251,13 @@ public class FlareBot {
         try {
             shardManager = new DefaultShardManagerBuilder()
                     .addEventListeners(events)
-		    .addEventListeners(new ModlogEvents())
+                    .addEventListeners(new ModlogEvents())
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setShardsTotal(-1)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
-		    .setHttpClientBuilder(client.newBuilder())
-		    .setBulkDeleteSplittingEnabled(false)
+                    .setHttpClientBuilder(client.newBuilder())
+                    .setBulkDeleteSplittingEnabled(false)
                     .build();
 
             prefixes = new Prefixes();
@@ -281,7 +281,8 @@ public class FlareBot {
 
     protected void run() {
         try {
-            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
+            musicManager =
+                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
         } catch (UnknownBindingException e) {
             LOGGER.error("Failed to initialize musicManager", e);
         }
@@ -297,12 +298,12 @@ public class FlareBot {
         registerCommand(new DonateCommand());
         registerCommand(new ResumeCommand());
         registerCommand(new PlayCommand());
-        registerCommand(new PauseCommand(this));
+        registerCommand(new PauseCommand());
         registerCommand(new StopCommand());
-        registerCommand(new SkipCommand(this));
-        registerCommand(new ShuffleCommand(this));
-        registerCommand(new PlaylistCommand(this));
-        registerCommand(new SongCommand(this));
+        registerCommand(new SkipCommand());
+        registerCommand(new ShuffleCommand());
+        registerCommand(new PlaylistCommand());
+        registerCommand(new SongCommand());
         registerCommand(new InviteCommand());
         registerCommand(new AutoAssignCommand());
         registerCommand(new QuitCommand());
@@ -407,7 +408,7 @@ public class FlareBot {
         return shardManager.getShards().get(0);
     }
 
-	public SelfUser getSelfUser() {
+    public SelfUser getSelfUser() {
         return getClient().getSelfUser();
     }
 
@@ -417,10 +418,11 @@ public class FlareBot {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
             Row row;
             while ((row = set.one()) != null) {
-                FutureAction fa = new FutureAction(row.getLong("guild_id"), row.getLong("channel_id"), row.getLong("responsible"),
-                        row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
-                        new DateTime(row.getTimestamp("created_at")),
-                        FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
+                FutureAction fa =
+                        new FutureAction(row.getLong("guild_id"), row.getLong("channel_id"), row.getLong("responsible"),
+                                row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
+                                new DateTime(row.getTimestamp("created_at")),
+                                FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
                 if (new DateTime().isAfter(fa.getExpires()))
                     fa.execute();
                 else {
@@ -623,7 +625,7 @@ public class FlareBot {
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
     public Command getCommand(String s, User user) {
-        if(PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
+        if (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
             for (Command cmd : getCommandsByType(CommandType.SECRET)) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
                     return cmd;
@@ -852,8 +854,8 @@ public class FlareBot {
     }
 
     public Emote getEmoteById(long emoteId) {
-        for(Guild g : getGuilds())
-            if(g.getEmoteById(emoteId) != null)
+        for (Guild g : getGuilds())
+            if (g.getEmoteById(emoteId) != null)
                 return g.getEmoteById(emoteId);
         return null;
     }
@@ -914,7 +916,8 @@ public class FlareBot {
             return null;
         }
     }
-	public List<JDA> getShards() {
+
+    public List<JDA> getShards() {
         return shardManager.getShards();
     }
 
@@ -928,12 +931,12 @@ public class FlareBot {
 
     public boolean isApiDisabled() {
         return !apiEnabled;
-	}
+    }
 
     private WebhookClient importantHook;
 
     private WebhookClient getImportantWebhook() {
-        if(!config.getString("bot.importantHook").isPresent())
+        if (!config.getString("bot.importantHook").isPresent())
             return null;
         if (importantHook == null)
             importantHook = new WebhookClientBuilder(config.getString("bot.importantHook").get()).build();
@@ -977,9 +980,9 @@ public class FlareBot {
             e.printStackTrace();
         }
     }
-    
+
     public void runTasks() {
-        new FlareBotTask("FixThatStatus") {  
+        new FlareBotTask("FixThatStatus") {
             @Override
             public void run() {
                 if (!UpdateCommand.UPDATING.get())
