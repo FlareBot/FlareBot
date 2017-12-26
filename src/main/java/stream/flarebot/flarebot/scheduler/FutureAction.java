@@ -149,7 +149,7 @@ public class FutureAction {
                         null,
                         GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
                         ModAction.UNBAN,
-                        "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
+                        "Temporary ban expired, was banned for " + GeneralUtils.formatJodaTime(delay)
                 );
                 break;
             case REMINDER:

@@ -157,7 +157,7 @@ public class ReportsCommand implements Command {
         for (Report report : reports) {
             ArrayList<String> row = new ArrayList<>();
             row.add(String.valueOf(report.getId()));
-            row.add(MessageUtils.getTag(FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()))));
+            row.add(MessageUtils.getTag(FlareBot.getInstance().getUserById(String.valueOf(report.getReportedId()))));
 
             row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST");
 

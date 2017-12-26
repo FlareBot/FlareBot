@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -54,6 +55,7 @@ public class EvalCommand implements Command {
             "net.dv8tion.jda.core.managers",
             "net.dv8tion.jda.core.entities.impl",
             "net.dv8tion.jda.core.entities",
+            "net.dv8tion.jda.core.utils",
             "java.util.streams",
             "java.util",
             "java.lang",
@@ -146,6 +148,7 @@ public class EvalCommand implements Command {
                             .addField("Code:", "```js\n" + finalCode + "```", false)
                             .addField("Result: ", eResult, false).build()).queue();
             } catch (Exception e) {
+                FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e, Markers.NO_ANNOUNCE);
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("Code:", "```js\n" + finalCode + "```", false)
                         .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();

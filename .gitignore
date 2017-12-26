@@ -12,8 +12,10 @@ logs/
 /src/main/resources/sentry.properties
 *.log
 *.json
+out/
 
 # Gradle can use hashes
+.gradle/
 gradle/
 gradlew
 gradlew.bat

@@ -74,18 +74,14 @@ public class ExpiringMap<K, V> {
     }
 
     public boolean containsValue(V v) {
-        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
-        while (pairIterator.hasNext()) {
-            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
+        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
             return pair.getKey().containsValue(v);
         }
         return false;
     }
 
     public V get(K k) {
-        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
-        while (pairIterator.hasNext()) {
-            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
+        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
             if (pair.getKey().containsKey(k))
                 return pair.getKey().get(k);
         }
@@ -108,9 +104,7 @@ public class ExpiringMap<K, V> {
     }
 
     public void remove(K k) {
-        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
-        while (pairIterator.hasNext()) {
-            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
+        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
             if (pair.getKey().containsKey(k))
                 pair.getKey().remove(k);
         }
@@ -118,18 +112,14 @@ public class ExpiringMap<K, V> {
 
     public Set<K> keySet() {
         Set<K> set = new HashSet<>();
-        Iterator<Long> longIterator = elem.keySet().iterator();
-        while (longIterator.hasNext()) {
-            Long l = longIterator.next();
+        for (Long l : elem.keySet()) {
             set.addAll(this.elem.get(l).getKey().keySet());
         }
         return set;
     }
 
     public long getLastRetrieved(K k) {
-        Iterator<Long> longIterator = elem.keySet().iterator();
-        while (longIterator.hasNext()) {
-            Long l = longIterator.next();
+        for (Long l : elem.keySet()) {
             if (elem.get(l).getKey().get(k) != null)
                 return l;
         }
@@ -137,9 +127,7 @@ public class ExpiringMap<K, V> {
     }
 
     public void resetTime(K k) {
-        Iterator<Long> longIterator = elem.keySet().iterator();
-        while (longIterator.hasNext()) {
-            Long l = longIterator.next();
+        for (Long l : elem.keySet()) {
             if (this.elem.get(l).getKey().containsKey(k)) {
                 this.elem.put(System.currentTimeMillis() + expireAfterMS, this.elem.get(l));
                 this.elem.remove(l);
@@ -149,9 +137,7 @@ public class ExpiringMap<K, V> {
 
     public int size() {
         int size = 0;
-        Iterator<Pair<ConcurrentMap<K, V>, Long>> pairIterator = elem.values().iterator();
-        while (pairIterator.hasNext()) {
-            Pair<ConcurrentMap<K, V>, Long> pair = pairIterator.next();
+        for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
             size += pair.getKey().size();
         }
         return size;

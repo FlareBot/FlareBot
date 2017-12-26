@@ -48,8 +48,7 @@ public class SkipCommand implements Command {
                         .filter(vote -> vote == Vote.YES)
                         .count());
                 String no = String
-                        .valueOf(votes.get(channel.getGuild().getId()).values().stream().filter(vote -> vote == Vote.NO)
-                                .count());
+                        .valueOf(votes.get(channel.getGuild().getId()).size() - Long.valueOf(yes));
                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("Can't start a vote right now! " +
                                 "Another one in progress! Please use " + FlareBot
@@ -130,9 +129,10 @@ public class SkipCommand implements Command {
                         votes.remove(s);
                         return;
                     }
-                    boolean skip = votes.get(s).entrySet().stream()
+                    long yesCount = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
-                            .count() > (votes.size() / 2.0f);
+                            .count();
+                    boolean skip =  yesCount > (votes.get(s).size() - yesCount);
                     channel.sendMessage(MessageUtils.getEmbed()
                             .setDescription("The votes are in!")
                             .addField("Results: ", (skip ? "Skip!" : "Keep!"), false).build())

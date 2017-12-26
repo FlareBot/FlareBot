@@ -65,19 +65,25 @@ public class ApiRequester {
         request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
         request.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
         RequestBody body = RequestBody.create(JSON, (object == null ? new JSONObject().toString() : object.toString()));
-        if (method == Method.GET) {
-            request = request.get();
-        } else if (method == Method.PATCH) {
-            request = request.patch(body);
-        } else if (method == Method.POST) {
-            request = request.post(body);
-        } else if (method == Method.PUT) {
-            request = request.put(body);
-        } else if (method == Method.DELETE) {
-            request = request.delete(body);
-        } else {
-            throw new IllegalArgumentException("The route " + route.name() + " is using an unsupported method! Method: "
-                    + method.name());
+        switch (method) {
+            case GET:
+                request = request.get();
+                break;
+            case PATCH:
+                request = request.patch(body);
+                break;
+            case POST:
+                request = request.post(body);
+                break;
+            case PUT:
+                request = request.put(body);
+                break;
+            case DELETE:
+                request = request.delete(body);
+                break;
+            default:
+                throw new IllegalArgumentException("The route " + route.name() + " is using an unsupported method! Method: "
+                        + method.name());
         }
         return request.build();
     }

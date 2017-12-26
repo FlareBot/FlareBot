@@ -17,7 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -45,22 +44,7 @@ public class MessageUtils {
     private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
     private static final Pattern SPACE = Pattern.compile(" ");
 
-    public static final String ZERO_WIDTH_SPACE = "\u200B";
-
-    public static int getLength(EmbedBuilder embed) {
-        int len = 0;
-        MessageEmbed e = embed.build();
-        if (e.getTitle() != null) len += e.getTitle().length();
-        if (e.getDescription() != null) len += e.getDescription().length();
-        if (e.getAuthor() != null) len += e.getAuthor().getName().length();
-        if (e.getFooter() != null) len += e.getFooter().getText().length();
-        if (e.getFields() != null) {
-            for (MessageEmbed.Field f : e.getFields()) {
-                len += f.getName().length() + f.getValue().length();
-            }
-        }
-        return len;
-    }
+    private static final String ZERO_WIDTH_SPACE = "\u200B";
 
     public static void sendPM(User user, String message) {
         try {
@@ -138,8 +122,8 @@ public class MessageUtils {
 
     public static EmbedBuilder getEmbed() {
         return new EmbedBuilder()
-                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", flareBot.getClient()
-                        .getSelfUser().getEffectiveAvatarUrl());
+                .setAuthor("FlareBot", "https://github.com/FlareBot/FlareBot", flareBot.getSelfUser()
+                        .getEffectiveAvatarUrl());
     }
 
     public static String getTag(User user) {
@@ -162,10 +146,6 @@ public class MessageUtils {
         return user.getDefaultAvatarUrl();
     }
 
-    public static void sendErrorMessage(EmbedBuilder builder, MessageChannel channel) {
-        channel.sendMessage(builder.setColor(Color.RED).build()).queue();
-    }
-
     public static void sendFatalErrorMessage(String s, TextChannel channel) {
         channel.sendMessage(new MessageBuilder().append(
                 flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
@@ -173,6 +153,7 @@ public class MessageUtils {
     }
 
     private static void sendMessage(MessageEmbed embed, TextChannel channel) {
+        if (channel == null) return;
         channel.sendMessage(embed).queue();
     }
 
@@ -184,10 +165,29 @@ public class MessageUtils {
         sendMessage(type, message, channel, sender, 0);
     }
 
+    public static void sendMessage(MessageType type, String message, TextChannel channel, long autoDeleteDelay) {
+        sendMessage(type, message, channel, null, autoDeleteDelay);
+    }
+
     public static void sendMessage(MessageType type, String message, TextChannel channel, User sender, long autoDeleteDelay) {
-        EmbedBuilder builder = (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
+        sendMessage(type, (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
                 .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
-                .setDescription(GeneralUtils.formatCommandPrefix(channel, message));
+                .setDescription(GeneralUtils.formatCommandPrefix(channel, message)), channel, autoDeleteDelay);
+    }
+
+    // Root of sendMessage(Type, Builder, channel)
+    public static void sendMessage(MessageType type, EmbedBuilder builder, TextChannel channel) {
+        sendMessage(type, builder, channel, 0);
+    }
+
+    // Final root of sendMessage
+    public static void sendMessage(MessageType type, EmbedBuilder builder, TextChannel channel, long autoDeleteDelay) {
+        if (builder.build().getColor() == null)
+            builder.setColor(type.getColor());
+        if(type == MessageType.ERROR)
+            builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
+                    "[Support Server](" + FlareBot.INVITE_URL + ")! Our staff can support on any issue you may have! "
+                    + FlareBot.getInstance().getEmoteById(386550693294768129L).getAsMention());
         if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
         else
@@ -208,6 +208,10 @@ public class MessageUtils {
 
     public static void sendErrorMessage(String message, TextChannel channel, User sender) {
         sendMessage(MessageType.ERROR, message, channel, sender);
+    }
+
+    public static void sendErrorMessage(EmbedBuilder builder, TextChannel channel) {
+        sendMessage(MessageType.ERROR, builder, channel);
     }
 
     public static void sendWarningMessage(String message, TextChannel channel) {
@@ -243,16 +247,16 @@ public class MessageUtils {
     }
 
     public static void editMessage(EmbedBuilder embed, Message message) {
-        editMessage(message.getRawContent(), embed, message);
+        editMessage(message.getContentRaw(), embed, message);
     }
 
     public static void editMessage(String s, EmbedBuilder embed, Message message) {
         if (message != null)
-            message.editMessage(new MessageBuilder().append(s).setEmbed(embed.build()).build()).queue();
+            message.editMessage(new MessageBuilder().setContent((s == null ? ZERO_WIDTH_SPACE : s)).setEmbed(embed.build()).build()).queue();
     }
 
     public static boolean hasInvite(Message message) {
-        return INVITE_REGEX.matcher(message.getRawContent()).find();
+        return INVITE_REGEX.matcher(message.getContentRaw()).find();
     }
 
     public static boolean hasInvite(String message) {
@@ -260,7 +264,7 @@ public class MessageUtils {
     }
 
     public static boolean hasLink(Message message) {
-        return LINK_REGEX.matcher(message.getRawContent()).find();
+        return LINK_REGEX.matcher(message.getContentRaw()).find();
     }
 
     public static boolean hasLink(String message) {
@@ -268,7 +272,7 @@ public class MessageUtils {
     }
 
     public static boolean hasYouTubeLink(Message message) {
-        return YOUTUBE_LINK_REGEX.matcher(message.getRawContent()).find();
+        return YOUTUBE_LINK_REGEX.matcher(message.getContentRaw()).find();
     }
 
     public static void autoDeleteMessage(Message message, long delay) {
@@ -294,7 +298,8 @@ public class MessageUtils {
         }
         if (command.getPermission() != null) {
             b.addField("Permission", command.getPermission() + "\n" +
-                    "**Default permission: **" + command.isDefaultPermission(), false);
+                    "**Default Permission: **" + command.isDefaultPermission() + "\n" +
+                    "**Beta Command: **" + command.isBetaTesterCommand(), false);
         }
         channel.sendMessage(b.build()).queue();
 
