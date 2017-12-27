@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ShardInfoCommand implements Command {
@@ -28,7 +29,9 @@ public class ShardInfoCommand implements Command {
         headers.add("Connected VCs");
 
         List<List<String>> table = new ArrayList<>();
-        for (JDA jda : FlareBot.getInstance().getClients()) {
+        List<JDA> shards = new ArrayList<>(FlareBot.getInstance().getShards());
+        Collections.reverse(shards);
+        for (JDA jda : shards) {
             List<String> row = new ArrayList<>();
             row.add(ShardUtils.getDisplayShardId(jda) +
                     (ShardUtils.getShardId(channel.getJDA()) == ShardUtils.getShardId(jda) ? " (You)" : ""));

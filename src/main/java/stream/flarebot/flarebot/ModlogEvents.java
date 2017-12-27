@@ -53,6 +53,7 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildBan(GuildBanEvent event) {
+        if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
         event.getGuild().getAuditLogs().limit(1).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
@@ -239,12 +240,14 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
+        if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_EDIT)) return;
         if (event.getAuthor().isBot()) return;
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MESSAGE_EDIT, event.getAuthor(),
                 new MessageEmbed.Field("Old Message", GeneralUtils.truncate(1024, old.getContent(), true), false),
-                new MessageEmbed.Field("New Message", GeneralUtils.truncate(1024, event.getMessage().getContent(), true), false));
+                new MessageEmbed.Field("New Message", GeneralUtils.truncate(1024, event.getMessage().getContentDisplay(), true), false),
+                new MessageEmbed.Field("Channel", event.getTextChannel().getName() + " (" + event.getTextChannel().getId() + ")", true));
         RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
     }
 
@@ -292,8 +295,8 @@ public class ModlogEvents extends ListenerAdapter {
         if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_NICK_CHANGE)) return;
         ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MEMBER_NICK_CHANGE,
                 event.getMember().getUser(),
-                new MessageEmbed.Field("Previous nick", event.getPrevNick(), true),
-                new MessageEmbed.Field("New nick", event.getNewNick(), true));
+                new MessageEmbed.Field("Previous nick", event.getPrevNick() != null ? event.getPrevNick() : event.getUser().getName(), true),
+                new MessageEmbed.Field("New nick", event.getNewNick() != null ? event.getNewNick() : event.getUser().getName(), true));
     }
 
     @Override
@@ -420,7 +423,8 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     private boolean cannotHandle(Guild guild, ModlogEvent event) {
-        return getGuild(guild) == null || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
+        return guild == null || getGuild(guild) == null 
+                || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
                 || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS);
     }
 

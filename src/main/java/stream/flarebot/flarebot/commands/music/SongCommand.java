@@ -20,19 +20,14 @@ import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 public class SongCommand implements Command {
 
-    private PlayerManager manager;
-
-    public SongCommand(FlareBot bot) {
-        this.manager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager manager = FlareBot.getInstance().getMusicManager();
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             EmbedBuilder eb = MessageUtils.getEmbed(sender)
                     .addField("Current Song", getLink(track), false)
-                    .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/0.jpg");
+                    .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg");
             if (track.getTrack().getInfo().isStream)
                 eb.addField("Amount Played", "Issa livestream ;)", false);
             else

@@ -27,7 +27,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
             msg = "null";
         if (event.getMarker() != Markers.NO_ANNOUNCE
                 && FlareBot.getInstance() != null
-                && event.getLevel() == Level.ERROR) {
+                && event.getLevel() == Level.ERROR || event.getLevel() == Level.WARN) {
             String finalMsg = msg;
             if (event.getThreadName().startsWith("lava-daemon-pool")) {
                 return FilterReply.NEUTRAL;
@@ -36,6 +36,11 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 Throwable throwable = null;
                 if (event.getThrowableProxy() != null && event.getThrowableProxy() instanceof ThrowableProxy) {
                     throwable = ((ThrowableProxy) event.getThrowableProxy()).getThrowable();
+                }
+                if (event.getLevel() == Level.WARN) {
+                    // Warnings should not have a throwable!
+                    MessageUtils.sendWarningMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
+                    return;
                 }
                 if (throwable != null) {
                     if (event.getMarker() == Markers.TAG_DEVELOPER)

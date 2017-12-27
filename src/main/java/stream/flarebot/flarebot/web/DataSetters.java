@@ -14,12 +14,12 @@ import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 import java.util.Arrays;
 
 public enum DataSetters {
-    ADDPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())
+    ADDPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelById(request.queryParams("guildid")).getGuild().getId())
             .getPermissions().getGroup(request.queryParams("group")).addPermission(request.queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildById(gid) != null),
             new Require("group"),
             new Require("permission")),
-    REMOVEPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())
+    REMOVEPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelById(request.queryParams("guildid")).getGuild().getId())
             .getPermissions().getGroup(request.queryParams("group"))
             .removePermission(request.queryParams("permission")),
             new Require("guildid", gid -> FlareBot.getInstance().getGuildById(gid) != null),

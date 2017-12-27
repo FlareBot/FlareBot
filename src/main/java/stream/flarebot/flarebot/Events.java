@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
@@ -30,8 +32,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
@@ -121,7 +124,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        flareBot.latch.countDown();
+        if (FlareBot.getInstance().isReady())
+            FlareBot.getInstance().run();
     }
 
     @Override
@@ -133,10 +137,10 @@ public class Events extends ListenerAdapter {
         if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
             Welcome welcome = wrapper.getWelcome();
-            if ((welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null)
+            if ((welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
-                if (welcome.getChannelId() != null && flareBot.getChannelByID(welcome.getChannelId()) != null) {
-                    TextChannel channel = flareBot.getChannelByID(welcome.getChannelId());
+                if (welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null) {
+                    TextChannel channel = flareBot.getChannelById(welcome.getChannelId());
                     if (!channel.canTalk()) {
                         welcome.setGuildEnabled(false);
                         MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
@@ -250,12 +254,21 @@ public class Events extends ListenerAdapter {
                 UpdateCommand.update(true, null);
             }
         } else {
-            if (event.getChannelLeft().getMembers().contains(event.getGuild().getSelfMember()) &&
-                    (event.getChannelLeft().getMembers().size() < 2 || event.getChannelLeft().getMembers()
-                            .stream().filter(m -> m.getUser().isBot()).count() == event.getChannelLeft().getMembers().size())) {
-                event.getChannelLeft().getGuild().getAudioManager().closeAudioConnection();
-            }
+            handleVoiceConnectivity(event.getChannelLeft());
         }
+    }
+
+    private void handleVoiceConnectivity(VoiceChannel channel) {
+        if (channel.getMembers().contains(channel.getGuild().getSelfMember()) &&
+                (channel.getMembers().size() < 2 || channel.getMembers()
+                        .stream().filter(m -> m.getUser().isBot()).count() == channel.getMembers().size())) {
+            channel.getGuild().getAudioManager().closeAudioConnection();
+        }
+    }
+
+    @Override
+    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        handleVoiceConnectivity(event.getChannelLeft());
     }
 
     @Override
@@ -265,9 +278,9 @@ public class Events extends ListenerAdapter {
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
 
-        if (FlareBot.getPrefixes() == null) return;
-        if (event.getMessage().getRawContent().startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))
-                && !event.getAuthor().isBot()) {
+        if (FlareBot.getPrefixes() == null || event.getAuthor().isBot()) return;
+        String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
+        if (message.startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))) {
             List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
             if (!perms.contains(Permission.ADMINISTRATOR)) {
                 if (!perms.contains(Permission.MESSAGE_WRITE)) {
@@ -281,7 +294,6 @@ public class Events extends ListenerAdapter {
                 }
             }
 
-            String message = multiSpace.matcher(event.getMessage().getRawContent()).replaceAll(" ");
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
@@ -292,17 +304,15 @@ public class Events extends ListenerAdapter {
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
-            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR
-                    && !event.getAuthor().isBot()) {
-                if (event.getMessage().getRawContent().startsWith("_prefix")) {
+            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR &&
+                    (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
                     event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
                             .setDescription("The server prefix is `" + FlareBot
                                     .getPrefixes().get(getGuildId(event)) + "`")
                             .build()).queue();
-                }
             }
-            if (!event.getMessage().getRawContent().isEmpty()) {
-                RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 61200);
+            if (!message.isEmpty()) {
+                RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 86400);
             }
         }
     }
@@ -342,6 +352,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onRoleDelete(RoleDeleteEvent event) {
+        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()) == null) return;
         if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
             FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }

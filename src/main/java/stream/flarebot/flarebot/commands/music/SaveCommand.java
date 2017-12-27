@@ -42,12 +42,10 @@ public class SaveCommand implements Command {
 
         channel.sendTyping().complete();
 
-        List<String> tracks = new ArrayList<>();
-        tracks.addAll(playlist.stream()
+        List<String> tracks = playlist.stream()
                 .map(track -> track
                         .getTrack()
-                        .getIdentifier())
-                .collect(Collectors.toList()));
+                        .getIdentifier()).collect(Collectors.toList());
         if (currentlyPlaying != null) {
             tracks.add(currentlyPlaying.getTrack().getIdentifier());
         }

@@ -25,6 +25,7 @@ import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
@@ -91,8 +92,8 @@ public class GeneralUtils {
 
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+        User reporter = FlareBot.getInstance().getUserById(String.valueOf(report.getReporterId()));
+        User reported = FlareBot.getInstance().getUserById(String.valueOf(report.getReportedId()));
 
         eb.addField("Report ID", String.valueOf(report.getId()), true);
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
@@ -135,7 +136,7 @@ public class GeneralUtils {
     }
 
     private static char getPrefix(TextChannel channel) {
-        if (channel.getGuild() != null) {
+        if (channel != null) {
             return FlareBot.getPrefixes().get(channel.getGuild().getId());
         }
         return FlareBot.getPrefixes().get(null);
@@ -143,7 +144,9 @@ public class GeneralUtils {
 
     public static String formatCommandPrefix(TextChannel channel, String usage) {
         String prefix = String.valueOf(getPrefix(channel));
-        return usage.replaceAll("\\{%}", prefix);
+        if (usage.contains("{%}"))
+            return usage.replaceAll("\\{%}", prefix);
+        return usage;
     }
 
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
@@ -238,10 +241,13 @@ public class GeneralUtils {
                 tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
-                        .map(Member::getUser)
-                        .filter(user -> user.getName().equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
+                if (FlareBot.getInstance().getGuildById(guildId) != null) {
+                    tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
+                            .map(Member::getUser)
+                            .filter(user -> user.getName().equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } else
+                    tmp = null;
             }
             if (tmp != null) return tmp;
             try {
@@ -434,6 +440,20 @@ public class GeneralUtils {
         }
     }
 
+    public static void methodErrorHandler(Logger logger, String startMessage,
+                                          String successMessage, String errorMessage,
+                                          Runnable runnable) {
+        Objects.requireNonNull(successMessage);
+        Objects.requireNonNull(errorMessage);
+        if (startMessage != null) logger.info(startMessage);
+        try {
+            runnable.run();
+            logger.info(successMessage);
+        } catch (Exception e) {
+            logger.error(errorMessage, e);
+        }
+    }
+
     /**
      * Get a Joda Period from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
      * Joda Period.
@@ -594,7 +614,7 @@ public class GeneralUtils {
                 message.getAuthor().getId(),
                 message.getChannel().getId(),
                 message.getGuild().getId(),
-                message.getRawContent(),
+                message.getContentRaw(),
                 message.getCreationTime().toInstant().toEpochMilli()
         ));
     }

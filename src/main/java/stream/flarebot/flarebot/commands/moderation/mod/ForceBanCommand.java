@@ -41,12 +41,13 @@ public class ForceBanCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Bans a user that is potentially not on the server.";
+        return "Force bans a user that is potentially not on the server, if someone leaves " 
+                + "this is a great way to make sure they do indeed still get banned.";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}ban <user> [reason]` - Bans a user with an optional reason.";
+        return "`{%}forceban <user> [reason]` - Bans a user with an optional reason.";
     }
 
     @Override

@@ -3,7 +3,7 @@ package stream.flarebot.flarebot;
 import ch.qos.logback.classic.Level;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.libraries.LibraryFactory;
-import com.arsenarsen.lavaplayerbridge.player.Track;
+import com.arsenarsen.lavaplayerbridge.libraries.UnknownBindingException;
 import com.arsenarsen.lavaplayerbridge.utils.JDAMultiShard;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -12,27 +12,23 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
-import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.requests.SessionReconnectQueue;
+import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
 import okhttp3.ConnectionPool;
@@ -48,12 +44,14 @@ import org.slf4j.LoggerFactory;
 import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.currency.*;
 import stream.flarebot.flarebot.commands.general.*;
+import stream.flarebot.flarebot.commands.informational.*;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
+import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.*;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.*;
@@ -99,10 +97,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -120,7 +116,7 @@ public class FlareBot {
     static {
         handleLogArchive();
         LOGGERS = new ConcurrentHashMap<>();
-        LOGGER = getLog(FlareBot.class);	
+        LOGGER = getLog(FlareBot.class.getName());
     }
 
     private static FlareBot instance;
@@ -135,14 +131,12 @@ public class FlareBot {
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
-    protected CountDownLatch latch;
-    private static String token;
 
     private static boolean testBot = false;
 
     private Events events;
     private String version = null;
-    private JDA[] clients;
+    private ShardManager shardManager;
 
     private Set<Command> commands = new ConcurrentHashSet<>();
     private PlayerManager musicManager;
@@ -199,9 +193,6 @@ public class FlareBot {
         }
 
         Sentry.init(config.getString("sentry.dsn").get());
-
-        String tkn = config.getString("bot.token").get();
-
         new CassandraController(config);
         new RedisController(config);
 
@@ -229,14 +220,10 @@ public class FlareBot {
         Thread.currentThread()
                 .setUncaughtExceptionHandler(((t, e) -> LOGGER.error("Uncaught exception in thread " + t, e)));
         try {
-            (instance = new FlareBot()).init(tkn);
+            (instance = new FlareBot()).init();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public static String getToken() {
-        return token;
     }
 
     public static OkHttpClient getOkHttpClient() {
@@ -251,118 +238,30 @@ public class FlareBot {
         return prefixes;
     }
 
-    private void init(String tkn) throws InterruptedException {
+    public void init() throws InterruptedException {
         LOGGER.info("Starting init!");
-        token = tkn;
         manager = new FlareBotManager();
         RestAction.DEFAULT_FAILURE = t -> {
         };
-        try {
-            clients = new JDA[WebUtils.getShards(tkn)];
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
-        latch = new CountDownLatch(1);
         events = new Events(this);
         LOGGER.info("Starting builders");
+
         try {
-            JDABuilder builder = new JDABuilder(AccountType.BOT)
-                    .addEventListener(events)
-                    .addEventListener(new ModlogEvents())
-                    .setToken(tkn)
-                    .setHttpClientBuilder(client.newBuilder())
+            shardManager = new DefaultShardManagerBuilder()
+                    .addEventListeners(events)
+                    .addEventListeners(new ModlogEvents())
+                    .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
-                    .setBulkDeleteSplittingEnabled(false);
-            if (clients.length == 1) {
-                clients[0] = builder.buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
-                Thread.sleep(5000);
-            } else {
-                builder = builder.setReconnectQueue(new SessionReconnectQueue());
-                for (int i = 0; i < clients.length; i++) {
-                    clients[i] = builder.useSharding(i, clients.length).buildBlocking(JDA.Status.AWAITING_LOGIN_CONFIRMATION);
-                    Thread.sleep(5000); // 5 second backoff
-                }
-            }
+                    .setShardsTotal(-1)
+                    //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
+                    .setHttpClientBuilder(client.newBuilder())
+                    .setBulkDeleteSplittingEnabled(false)
+                    .build();
+
             prefixes = new Prefixes();
             commands = new ConcurrentHashSet<>();
-            musicManager = PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(clients)));
-            musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new AudioEventAdapter() {
-                @Override
-                public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
-                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
-                        if (GeneralUtils.canChangeNick(player.getGuildId())) {
-                            Guild c = getGuildById(player.getGuildId());
-                            if (c == null) {
-                                manager.getGuild(player.getGuildId()).setSongnick(false);
-                            } else {
-                                if (player.getPlaylist().isEmpty())
-                                    c.getController().setNickname(c.getSelfMember(), null).queue();
-                            }
-                        } else {
-                            if (!GeneralUtils.canChangeNick(player.getGuildId())) {
-                                MessageUtils.sendPM(getGuildById(player.getGuildId()).getOwner().getUser(),
-                                        "FlareBot can't change it's nickname so SongNick has been disabled!");
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
-                    if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
-                        TextChannel c =
-                                getChannelByID(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
-                        if (c != null) {
-                            if (c.getGuild().getSelfMember().hasPermission(c,
-                                    Permission.MESSAGE_EMBED_LINKS,
-                                    Permission.MESSAGE_READ,
-                                    Permission.MESSAGE_WRITE)) {
-                                Track track = player.getPlayingTrack();
-                                Queue<Track> playlist = player.getPlaylist();
-                                c.sendMessage(MessageUtils.getEmbed()
-                                        .addField("Now Playing", SongCommand.getLink(track), false)
-                                        .addField("Duration", GeneralUtils
-                                                .formatDuration(track.getTrack().getDuration()), false)
-                                        .addField("Requested by",
-                                                String.format("<@!%s>", track.getMeta()
-                                                        .get("requester")), false)
-                                        .addField("Next up", playlist.isEmpty() ? "Nothing" :
-                                                SongCommand.getLink(playlist.peek()), false)
-                                        .setImage("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/0.jpg")
-                                        .build()).queue();
-                            } else {
-                                MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
-                            }
-                        } else {
-                            MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
-                        }
-                    }
-                    if (manager.getGuild(player.getGuildId()).isSongnickEnabled()) {
-                        Guild c = getGuildById(player.getGuildId());
-                        if (c == null || !GeneralUtils.canChangeNick(player.getGuildId())) {
-                            manager.getGuild(player.getGuildId()).setSongnick(false);
-                            if (!GeneralUtils.canChangeNick(player.getGuildId())) {
-                                MessageUtils.sendPM(getGuildById(player.getGuildId()).getOwner().getUser(),
-                                        "FlareBot can't change it's nickname so SongNick has been disabled!");
-                            }
-                        } else {
-                            Track track = player.getPlayingTrack();
-                            String str = null;
-                            if (track != null) {
-                                str = track.getTrack().getInfo().title;
-                                if (str.length() > 32)
-                                    str = str.substring(0, 32);
-                                str = str.substring(0, str.lastIndexOf(' ') + 1);
-                            } // Even I couldn't make this a one-liner
-                            c.getController()
-                                    .setNickname(c.getSelfMember(), str)
-                                    .queue();
-                        }
-                    }
-                }
-            }));
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
             Thread.sleep(500);
@@ -378,27 +277,33 @@ public class FlareBot {
 
         manager = new FlareBotManager();
         manager.executeCreations();
-
-        musicManager.getPlayerCreateHooks()
-                .register(player -> player.getQueueHookManager().register(new QueueListener()));
-
-        run();
     }
 
     protected void run() {
+        try {
+            musicManager =
+                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
+        } catch (UnknownBindingException e) {
+            LOGGER.error("Failed to initialize musicManager", e);
+        }
+        musicManager.getPlayerCreateHooks()
+                .register(player -> player.getQueueHookManager().register(new QueueListener()));
+
         registerCommand(new HelpCommand());
         registerCommand(new SearchCommand());
         registerCommand(new JoinCommand());
         registerCommand(new LeaveCommand());
         registerCommand(new InfoCommand());
+        registerCommand(new BetaCommand());
+        registerCommand(new DonateCommand());
         registerCommand(new ResumeCommand());
         registerCommand(new PlayCommand());
-        registerCommand(new PauseCommand(this));
-        registerCommand(new StopCommand(this));
-        registerCommand(new SkipCommand(this));
-        registerCommand(new ShuffleCommand(this));
-        registerCommand(new PlaylistCommand(this));
-        registerCommand(new SongCommand(this));
+        registerCommand(new PauseCommand());
+        registerCommand(new StopCommand());
+        registerCommand(new SkipCommand());
+        registerCommand(new ShuffleCommand());
+        registerCommand(new PlaylistCommand());
+        registerCommand(new SongCommand());
         registerCommand(new InviteCommand());
         registerCommand(new AutoAssignCommand());
         registerCommand(new QuitCommand());
@@ -463,106 +368,34 @@ public class FlareBot {
         registerCommand(new RemindCommand());
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
+        registerCommand(new ChangelogCommand());
+
+        LOGGER.info("Loaded " + commands.size() + " commands!");
 
         ApiFactory.bind();
+        LOGGER.info("Bound API");
 
-        manager.executeCreations();
+        musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(player)));
 
-        loadFutureTasks();
+        GeneralUtils.methodErrorHandler(LOGGER, null,
+                "Executed creations!", "Failed to execute creations!",
+                () -> manager.executeCreations());
+
+        GeneralUtils.methodErrorHandler(LOGGER, null,
+                "Loaded future tasks!", "Failed to load future tasks!",
+                this::loadFutureTasks);
 
         startTime = System.currentTimeMillis();
         LOGGER.info("FlareBot v" + getVersion() + " booted!");
 
-        sendCommands();
+        GeneralUtils.methodErrorHandler(LOGGER, null,
+                "Sent commands to site!", "Failed to send commands to site!",
+                this::sendCommands);
 
-        new FlareBotTask("FixThatStatus") {
-            @Override
-            public void run() {
-                if (!UpdateCommand.UPDATING.get())
-                    setStatus("_help | _invite");
-            }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(32));
+        GeneralUtils.methodErrorHandler(LOGGER, "Starting tasks!",
+                "Started all tasks, run complete!", "Failed to start all tasks!",
+                this::runTasks);
 
-        new FlareBotTask("PostDbotsData") {
-            @Override
-            public void run() {
-                if (config.getString("botlists.discordBots").isPresent()) {
-                    postToBotList(config.getString("botlists.discordBots").get(), String
-                            .format("https://bots.discord.pw/api/bots/%s/stats", getClient().getSelfUser().getId()));
-                }
-            }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("PostBotlistData") {
-            @Override
-            public void run() {
-                if (config.getString("botlists.botlist").isPresent()) {
-                    postToBotList(config.getString("botlists.botlist").get(), String
-                            .format("https://discordbots.org/api/bots/%s/stats", getClient().getSelfUser().getId()));
-                }
-            }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("PostCarbonData") {
-            @Override
-            public void run() {
-                if (config.getString("botlists.carbon").isPresent()) {
-                    try {
-                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
-                                new JSONObject()
-                                        .put("key", config.getString("botlists.carbon").get())
-                                        .put("servercount", getGuilds().size())
-                                        .put("shardcount", clients.length)
-                                        .toString());
-                    } catch (IOException e) {
-                        LOGGER.error("Failed to update carbon!", e);
-                    }
-                }
-            }
-        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                sendData();
-            }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
-
-        new FlareBotTask("spam" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                events.getSpamMap().clear();
-            }
-        }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
-
-        new FlareBotTask("ClearConfirmMap" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                ConfirmUtil.clearConfirmMap();
-            }
-
-        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
-
-        new FlareBotTask("DeadShard-Checker") {
-            @Override
-            public void run() {
-                if (getImportantWebhook() == null) {
-                    LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
-                    cancel();
-                    return;
-                }
-                if (getClients().length == 1) return;
-                Set<Integer> deadShards = Arrays.stream(getClients()).map(c -> c.getShardInfo().getShardId())
-                        .filter(ShardUtils::isDead).collect(Collectors.toSet());
-                if (deadShards.size() > 0) {
-
-                    getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
-                            deadShards.toString());
-                }
-            }
-        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
-
-        setupUpdate();
     }
 
     /**
@@ -572,7 +405,11 @@ public class FlareBot {
      * @return The main shard or actual client in the case of only 1 shard.
      */
     public JDA getClient() {
-        return clients[0];
+        return shardManager.getShards().get(0);
+    }
+
+    public SelfUser getSelfUser() {
+        return getClient().getSelfUser();
     }
 
     private void loadFutureTasks() {
@@ -581,10 +418,11 @@ public class FlareBot {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
             Row row;
             while ((row = set.one()) != null) {
-                FutureAction fa = new FutureAction(row.getLong("guild_id"), row.getLong("channel_id"), row.getLong("responsible"),
-                        row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
-                        new DateTime(row.getTimestamp("created_at")),
-                        FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
+                FutureAction fa =
+                        new FutureAction(row.getLong("guild_id"), row.getLong("channel_id"), row.getLong("responsible"),
+                                row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
+                                new DateTime(row.getTimestamp("created_at")),
+                                FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
                 if (new DateTime().isAfter(fa.getExpires()))
                     fa.execute();
                 else {
@@ -597,9 +435,10 @@ public class FlareBot {
         LOGGER.info("Loaded " + loaded[0] + " future tasks");
     }
 
+    // TODO: Spread this out a little so we don't just burst.
     private void postToBotList(String auth, String url) {
-        for (JDA client : clients) {
-            if (clients.length == 1) {
+        for (JDA client : shardManager.getShards()) {
+            if (shardManager.getShardsTotal() == 1) {
                 Request.Builder request = new Request.Builder()
                         .url(url)
                         .addHeader("Authorization", auth)
@@ -621,13 +460,13 @@ public class FlareBot {
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
                 WebUtils.postAsync(request.post(body));
 
-                // Gonna spread these out just a bit so we don't burst 15 requests all at once
+                // Gonna spread these out just a bit so we don't burst (insert shard number here) requests all at once
                 Thread.sleep(20_000);
             } catch (Exception e1) {
                 FlareBot.LOGGER.error("Could not POST data to a botlist", e1);
             }
         }
-        LOGGER.debug("Sent " + clients.length + " requests to " + url);
+        LOGGER.debug("Sent " + shardManager.getShardsTotal() + " requests to " + url);
     }
 
     private void setupUpdate() {
@@ -650,7 +489,7 @@ public class FlareBot {
                 .put("official_guild_users", getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", getChannels().size())
                 .put("voice_channels", getVoiceChannels().size())
-                .put("connected_voice_channels", getConnectedVoiceChannels().size())
+                .put("connected_voice_channels", getConnectedVoiceChannels())
                 .put("active_voice_channels", getActiveVoiceChannels())
                 .put("num_queued_songs", getGuilds().stream()
                         .mapToInt(guild -> musicManager.getPlayer(guild.getId())
@@ -767,14 +606,15 @@ public class FlareBot {
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
-        for (JDA client : clients)
+        for (JDA client : shardManager.getShards())
             client.removeEventListener(events); //todo: Make a replacement for the array
         sendData();
         for (String s : manager.getGuilds().keySet()) {
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
         }
+        shardManager.shutdown();
         LOGGER.info("Finished saving!");
-        for (JDA client : clients)
+        for (JDA client : shardManager.getShards())
             client.shutdown();
     }
 
@@ -785,7 +625,7 @@ public class FlareBot {
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
     public Command getCommand(String s, User user) {
-        if(PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
+        if (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
             for (Command cmd : getCommandsByType(CommandType.SECRET)) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
                     return cmd;
@@ -794,6 +634,7 @@ public class FlareBot {
             }
         }
         for (Command cmd : getCommands()) {
+            if (cmd.getType() == CommandType.SECRET) continue;
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
@@ -842,7 +683,7 @@ public class FlareBot {
 
     public String getInvite() {
         return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=%s",
-                getClient().getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
+                getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
                         Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
                         Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
                         Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE,
@@ -855,14 +696,17 @@ public class FlareBot {
     }
 
     public void setStatus(String status) {
-        if (clients.length == 1) {
-            getClient().getPresence().setGame(Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
+        //TODO: Check if we're actually streaming or not.
+        if (shardManager.getShardsTotal() == 1) {
+            shardManager.setGameProvider(shardId -> Game.streaming(status, "https://www.twitch.tv/discordflarebot"));
             return;
         }
-        for(JDA jda : clients) {
-            jda.getPresence().setGame(Game.streaming(status + " | " + (jda.getShardInfo().getShardId() + 1) + "/"
-                    + clients.length, "https://www.twitch.tv/discordflarebot"));
-        }
+        shardManager.setGameProvider(shardId -> Game.streaming(status + " | Shard: " + shardId + "/" + shardManager.getShardsTotal(),
+                "https://www.twitch.tv/discordflarebot"));
+    }
+
+    public boolean isReady() {
+        return shardManager.getShards().size() == shardManager.getShardsTotal();
     }
 
     public static String getMessage(String[] args) {
@@ -902,16 +746,23 @@ public class FlareBot {
 
     public String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
         long totalSeconds = 0;
-        if (durUnit == TimeUnit.MILLISECONDS)
-            totalSeconds = duration / 1000;
-        else if (durUnit == TimeUnit.SECONDS)
-            totalSeconds = duration;
-        else if (durUnit == TimeUnit.MINUTES)
-            totalSeconds = duration * 60;
-        else if (durUnit == TimeUnit.HOURS)
-            totalSeconds = (duration * 60) * 60;
-        else if (durUnit == TimeUnit.DAYS)
-            totalSeconds = ((duration * 60) * 60) * 24;
+        switch (durUnit) {
+            case MILLISECONDS:
+                totalSeconds = duration / 1000;
+                break;
+            case SECONDS:
+                totalSeconds = duration;
+                break;
+            case MINUTES:
+                totalSeconds = duration * 60;
+                break;
+            case HOURS:
+                totalSeconds = (duration * 60) * 60;
+                break;
+            case DAYS:
+                totalSeconds = ((duration * 60) * 60) * 24;
+                break;
+        }
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;
         long hours = (totalSeconds / 3600) % 24;
@@ -924,15 +775,15 @@ public class FlareBot {
     }
 
     public TextChannel getErrorLogChannel() {
-        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("226786557862871040"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("226786557862871040"));
     }
 
     public TextChannel getGuildLogChannel() {
-        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("260401007685664768"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("260401007685664768"));
     }
 
     private TextChannel getEGLogChannel() {
-        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("358950369642151937"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("358950369642151937"));
     }
 
     public void logEG(String eg, Command command, Guild guild, User user) {
@@ -945,12 +796,23 @@ public class FlareBot {
     }
 
     public TextChannel getImportantLogChannel() {
-        return (testBot ? getChannelByID(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelByID("358978253966278657"));
+        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("358978253966278657"));
     }
 
 
     public static String getYoutubeKey() {
         return youtubeApi;
+    }
+
+    public List<VoiceChannel> getVoiceChannels() {
+        return shardManager.getVoiceChannels();
+    }
+
+    public long getActiveVoiceChannels() {
+        return getConnectedVoiceChannelList().stream()
+                .map(vc -> getMusicManager().getPlayer(vc.getGuild().getId()))
+                .filter(p -> p != null && p.getPlayingTrack() != null && !p.getPaused())
+                .count();
     }
 
     public FlareBotManager getManager() {
@@ -970,9 +832,9 @@ public class FlareBot {
         return getLog(clazz.getName());
     }
 
-    // getXByID
+    // getXById
 
-    public TextChannel getChannelByID(String id) {
+    public TextChannel getChannelById(String id) {
         return getGuilds().stream()
                 .map(g -> g.getTextChannelById(id))
                 .filter(Objects::nonNull)
@@ -992,8 +854,8 @@ public class FlareBot {
     }
 
     public Emote getEmoteById(long emoteId) {
-        for(Guild g : getGuilds())
-            if(g.getEmoteById(emoteId) != null)
+        for (Guild g : getGuilds())
+            if (g.getEmoteById(emoteId) != null)
                 return g.getEmoteById(emoteId);
         return null;
     }
@@ -1001,64 +863,37 @@ public class FlareBot {
     // getXs
 
     public List<Guild> getGuilds() {
-        return Arrays.stream(clients).flatMap(j -> j.getGuilds().stream()).collect(Collectors.toList());
+        return shardManager.getGuilds();
     }
 
-    public JDA[] getClients() {
-        return clients;
+    public SnowflakeCacheView<Guild> getGuildsCache() {
+        return shardManager.getGuildCache();
     }
 
     public List<Channel> getChannels() {
         return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
     }
 
-    private List<VoiceChannel> getVoiceChannels() {
-        return Arrays.stream(getClients()).flatMap(c -> c.getVoiceChannels().stream()).collect(Collectors.toList());
+    public long getConnectedVoiceChannels() {
+        return getGuilds().stream().filter(c -> c.getAudioManager().getConnectedChannel() != null).count();
     }
 
-    public List<VoiceChannel> getConnectedVoiceChannels() {
-        return Arrays.stream(getClients()).flatMap(c -> c.getGuilds().stream())
-                .map(c -> c.getAudioManager().getConnectedChannel())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public long getActiveVoiceChannels() {
-        return getConnectedVoiceChannels().stream()
-                .map(VoiceChannel::getGuild)
-                .map(ISnowflake::getId)
-                .filter(gid -> FlareBot.getInstance().getMusicManager().hasPlayer(gid))
-                .map(g -> FlareBot.getInstance().getMusicManager().getPlayer(g))
-                .filter(p -> p.getPlayingTrack() != null)
-                .filter(p -> !p.getPaused()).count();
+    public List<VoiceChannel> getConnectedVoiceChannelList() {
+        return getGuilds().stream().map(g -> g.getAudioManager().getConnectedChannel())
+                .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public Set<User> getUsers() {
-        return Arrays.stream(clients).flatMap(jda -> jda.getUsers().stream())
-                .distinct().collect(Collectors.toSet());
+        return shardManager.getUserCache().asSet();
     }
 
-    public User getUserByID(String id) {
-        return Arrays.stream(clients).map(jda -> {
-            try {
-                return jda.getUserById(id);
-            } catch (Exception ignored) {
-            }
-            return null;
-        })
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+    public User getUserById(String id) {
+        return shardManager.getUserById(id);
     }
 
     // Keep consistent with the naming of JDA.
     public User getUserById(long id) {
-        return Arrays.stream(clients).map(jda -> {
-            try {
-                return jda.getUserById(id);
-            } catch (Exception ignored) {
-            }
-            return null;
-        }).filter(Objects::nonNull).findFirst().orElse(null);
+        return shardManager.getUserById(id);
     }
 
     public User retrieveUserById(long id) {
@@ -1082,6 +917,18 @@ public class FlareBot {
         }
     }
 
+    public List<JDA> getShards() {
+        return shardManager.getShards();
+    }
+
+    private JDA[] getShardsArray() {
+        return shardManager.getShards().toArray(new JDA[shardManager.getShards().size()]);
+    }
+
+    public ShardManager getShardManager() {
+        return shardManager;
+    }
+
     public boolean isApiDisabled() {
         return !apiEnabled;
     }
@@ -1089,9 +936,10 @@ public class FlareBot {
     private WebhookClient importantHook;
 
     private WebhookClient getImportantWebhook() {
-        if (!config.getString("bot.importantWebhookUrl").isPresent()) return null;
+        if (!config.getString("bot.importantHook").isPresent())
+            return null;
         if (importantHook == null)
-            importantHook = new WebhookClientBuilder(config.getString("bot.importantWebhookUrl").get()).build();
+            importantHook = new WebhookClientBuilder(config.getString("bot.importantHook").get()).build();
         return importantHook;
     }
 
@@ -1131,5 +979,101 @@ public class FlareBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void runTasks() {
+        new FlareBotTask("FixThatStatus") {
+            @Override
+            public void run() {
+                if (!UpdateCommand.UPDATING.get())
+                    setStatus("_help | _invite");
+            }
+        }.repeat(10, TimeUnit.SECONDS.toMillis(32));
+
+        new FlareBotTask("PostDbotsData") {
+            @Override
+            public void run() {
+                if (config.getString("botlists.discordBots").isPresent()) {
+                    postToBotList(config.getString("botlists.discordBots").get(), String
+                            .format("https://bots.discord.pw/api/bots/%s/stats", getClient().getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
+        new FlareBotTask("PostBotlistData") {
+            @Override
+            public void run() {
+                if (config.getString("botlists.botlist").isPresent()) {
+                    postToBotList(config.getString("botlists.botlist").get(), String
+                            .format("https://discordbots.org/api/bots/%s/stats", getClient().getSelfUser().getId()));
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
+        new FlareBotTask("PostCarbonData") {
+            @Override
+            public void run() {
+                if (config.getString("botlists.carbon").isPresent()) {
+                    try {
+                        WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
+                                new JSONObject()
+                                        .put("key", config.getString("botlists.carbon").get())
+                                        .put("servercount", getGuilds().size())
+                                        .put("shardcount", getShards().size())
+                                        .toString());
+                    } catch (IOException e) {
+                        LOGGER.error("Failed to update carbon!", e);
+                    }
+                }
+            }
+        }.repeat(10, TimeUnit.MINUTES.toMillis(10));
+
+        new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                if (!isTestBot())
+                    sendData();
+            }
+        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
+
+        new FlareBotTask("spam" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                events.getSpamMap().clear();
+            }
+        }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
+
+        new FlareBotTask("ClearConfirmMap" + System.currentTimeMillis()) {
+            @Override
+            public void run() {
+                ConfirmUtil.clearConfirmMap();
+            }
+
+        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+
+        new FlareBotTask("DeadShard-Checker") {
+            @Override
+            public void run() {
+                if (getImportantWebhook() == null) {
+                    LOGGER.warn("No webhook for the important-log channel! Due to this the dead shard checker has been disabled!");
+                    cancel();
+                    return;
+                }
+                if (getShards().size() == 1) {
+                    LOGGER.warn("Single sharded bot, the DeadShard-Checker has been disabled!");
+                    cancel();
+                    return;
+                }
+                Set<Integer> deadShards = getShards().stream().map(c -> c.getShardInfo().getShardId())
+                        .filter(ShardUtils::isDead).collect(Collectors.toSet());
+                if (deadShards.size() > 0) {
+
+                    getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
+                            deadShards.toString());
+                }
+            }
+        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+
+        setupUpdate();
     }
 }

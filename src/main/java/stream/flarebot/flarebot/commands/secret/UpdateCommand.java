@@ -40,7 +40,7 @@ public class UpdateCommand implements Command {
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
                     channel.sendMessage("I will now update to the latest version when no channels are playing music!")
                             .queue();
-                    if (flareBot.getConnectedVoiceChannels().size() == 0) {
+                    if (flareBot.getConnectedVoiceChannels() == 0) {
                         update(true, channel);
                     } else {
                         if (!queued.getAndSet(true)) {

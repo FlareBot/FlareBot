@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.music;
 
-import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -12,15 +11,9 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 
 public class StopCommand implements Command {
 
-    private PlayerManager musicManager;
-
-    public StopCommand(FlareBot bot) {
-        this.musicManager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        musicManager.getPlayer(channel.getGuild().getId()).stop();
+        FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).stop();
     }
 
     @Override

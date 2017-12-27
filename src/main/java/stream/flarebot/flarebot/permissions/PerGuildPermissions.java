@@ -38,6 +38,8 @@ public class PerGuildPermissions {
         if (isContributor(user.getUser()) && FlareBot.getInstance().isTestBot())
             return true;
         PermissionNode node = new PermissionNode(permission);
+        if (getUser(user).hasPermission(node))
+            return true;
         for (Group g : getGroups().values()) {
             if (!g.hasPermission(node)) continue;
             if (getUser(user).getGroups().contains(g.getName())) return true;
@@ -84,8 +86,9 @@ public class PerGuildPermissions {
     }
 
     private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
-        if (fb.getOfficialGuild().getMember(user) == null) return false;
-        return fb.getOfficialGuild().getMember(user).getRoles().contains(fb.getOfficialGuild().getRoleById(roleId));
+        if (!FlareBot.getInstance().isReady() || fb.getOfficialGuild() == null) return false;
+        return fb.getOfficialGuild().getMember(user) != null && fb.getOfficialGuild().getMember(user).getRoles()
+                .contains(fb.getOfficialGuild().getRoleById(roleId));
     }
 
     public static boolean isCreator(net.dv8tion.jda.core.entities.User user) {
