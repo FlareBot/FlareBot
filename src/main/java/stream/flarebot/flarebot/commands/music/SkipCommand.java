@@ -6,13 +6,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
-import stream.flarebot.flarebot.util.buttons.ButtonRunnable;
-import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -189,6 +187,7 @@ public class SkipCommand implements Command {
     }
 
     private void addButtons(ButtonGroup buttons, TextChannel channel) {
+        PlayerManager musicManager = FlareBot.getInstance().getMusicManager();
         buttons.addButton(new ButtonGroup.Button(355776056092917761L, user -> {
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
