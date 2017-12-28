@@ -142,7 +142,7 @@ public class ModlogHandler {
             member = wrapper.getGuild().getMember(target);
         }
         if (channel == null) return;
-        if (member == null && modAction != ModAction.FORCE_BAN) {
+        if (member == null && modAction != ModAction.FORCE_BAN && modAction != ModAction.UNBAN) {
             MessageUtils.sendErrorMessage("That user isn't in this guild! You can try to forceban the user if needed.", channel);
             return;
         }
