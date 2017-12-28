@@ -32,9 +32,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
@@ -42,7 +41,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -88,7 +86,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (!event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_READ)) return;
-        if (!event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)) return;
+        if (!FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getBetaAccess()) return;
         if (!event.getReactionEmote().getName().equals("\uD83D\uDCCC")) return; // Check if it's a :pushpin:
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
             MessageReaction reaction =
@@ -287,10 +285,10 @@ public class Events extends ListenerAdapter {
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR &&
                     (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
-                    event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
-                            .setDescription("The server prefix is `" + FlareBot
-                                    .getPrefixes().get(getGuildId(event)) + "`")
-                            .build()).queue();
+                event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
+                        .setDescription("The server prefix is `" + FlareBot
+                                .getPrefixes().get(getGuildId(event)) + "`")
+                        .build()).queue();
             }
             if (!message.isEmpty()) {
                 RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 86400);
