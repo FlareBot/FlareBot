@@ -50,7 +50,7 @@ public class LockChatCommand implements Command {
             channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
                     .setDescription(tc.getAsMention() + " has been " + (locked ? "locked" : "unlocked") + "!")
                     .build()).queue();
-        if (tc.hasPermission(guild.getGuild().getSelfMember(), Permission.MESSAGE_WRITE))
+        if (guild.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_WRITE))
             channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
                     .setDescription("The chat has been "  + (locked ? "locked" : "unlocked") + " by a staff member!" 
                                     + (reason != null ? "\nReason: " + reason : ""))
