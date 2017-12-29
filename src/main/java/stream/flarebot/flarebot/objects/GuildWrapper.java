@@ -178,7 +178,7 @@ public class GuildWrapper {
         getGuild().getTextChannels().forEach(channel -> {
             if (channel.getPermissionOverride(muteRole) != null && 
                     !channel.getPermissionOverride(muteRole).getDenied().contains(Permission.MESSAGE_WRITE))
-                channel.getPermissionOverride(muteRole).setDeny(Permission.MESSAGE_WRITE).queue();
+                channel.getPermissionOverride(muteRole).getManager().deny(Permission.MESSAGE_WRITE).queue();
             else
                 channel.createPermissionOverride(muteRole).setDeny(Permission.MESSAGE_WRITE).queue();
         });
