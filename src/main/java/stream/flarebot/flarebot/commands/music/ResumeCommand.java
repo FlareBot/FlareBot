@@ -18,7 +18,7 @@ public class ResumeCommand implements Command {
         if (player.getPlayingTrack() == null) {
             MessageUtils.sendErrorMessage("There is no music playing!", channel);
         } else if (!player.getPaused()) {
-            MessageUtils.sendErrorMessage("The music is only playing!", channel);
+            MessageUtils.sendErrorMessage("The music is already playing!", channel);
         } else {
             player.play();
             MessageUtils.sendSuccessMessage("Resuming...!", channel);
