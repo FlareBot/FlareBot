@@ -46,9 +46,13 @@ public class LockChatCommand implements Command {
             tc.getPermissionOverride(guild.getGuild().getSelfMember()).delete().queue();
             locked = false;
         }
-        channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
-                    .setDescription((tc.getIdLong() == channel.getIdLong() ? "The chat" : tc.getAsMention()) + " has been " 
-                                    + (locked ? "locked" : "unlocked") + !" 
+        if (tc.getIdLong() != channel.getIdLong())
+            channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
+                    .setDescription(tc.getAsMention() + " has been " + (locked ? "locked" : "unlocked") + "!")
+                    .build()).queue();
+        if (tc.hasPermission(guild.getGuild().getSelfMember(), Permission.MESSAGE_WRITE))
+            channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
+                    .setDescription("The chat has been "  + (locked ? "locked" : "unlocked") + " by a staff member!" 
                                     + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();
     }
