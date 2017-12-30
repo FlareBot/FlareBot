@@ -168,7 +168,7 @@ public class GuildWrapper {
             }
         }
     }
-    
+
     /**
      * This will go through all the channels in a guild, if there is no permission override or it doesn't block message write then deny it.
      *
@@ -176,10 +176,11 @@ public class GuildWrapper {
      */
     private void handleMuteChannels(Role muteRole) {
         getGuild().getTextChannels().forEach(channel -> {
-            if (channel.getPermissionOverride(muteRole) != null && 
+            if (!getGuild().getSelfMember().hasPermission(channel, Permission.MANAGE_PERMISSIONS)) return;
+            if (channel.getPermissionOverride(muteRole) != null &&
                     !channel.getPermissionOverride(muteRole).getDenied().contains(Permission.MESSAGE_WRITE))
                 channel.getPermissionOverride(muteRole).getManager().deny(Permission.MESSAGE_WRITE).queue();
-            else
+            else if (channel.getPermissionOverride(muteRole) == null)
                 channel.createPermissionOverride(muteRole).setDeny(Permission.MESSAGE_WRITE).queue();
         });
     }
