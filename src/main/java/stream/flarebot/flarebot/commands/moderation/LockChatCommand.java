@@ -23,7 +23,8 @@ public class LockChatCommand implements Command {
             TextChannel tmp = GeneralUtils.getChannel(args[args.length - 1], guild);
             if (tmp != null) {
                 tc = tmp;
-                reason = MessageUtils.getMessage(args, 0, args.length - 1);
+                if (args.length >= 2)
+                    reason = MessageUtils.getMessage(args, 0, args.length - 1);
             } else
                 reason = MessageUtils.getMessage(args, 0);
         }
@@ -33,26 +34,27 @@ public class LockChatCommand implements Command {
                     "I need the `Manage Roles` permission", channel);
             return;
         }
-        if (tc.getPermissionOverride(guild.getGuild().getPublicRole()) == null) {
+        
+        boolean locked;
+        if (tc.getPermissionOverride(guild.getGuild().getPublicRole()) == null || 
+                tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {
             tc.createPermissionOverride(guild.getGuild().getPublicRole()).setDeny(Permission.MESSAGE_WRITE).queue();
             tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
-            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
-                    .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
-                    .build()).queue();
-        }
-        if (tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {
+            locked = true;
+        } else {
             tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().grant(Permission.MESSAGE_WRITE).queue();
             tc.getPermissionOverride(guild.getGuild().getSelfMember()).delete().queue();
-            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.GREEN)
-                    .setDescription("The chat has been unlocked!" + (reason != null ? "\nReason: " + reason : ""))
-                    .build()).queue();
-        } else {
-            tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().deny(Permission.MESSAGE_WRITE).queue();
-            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
-            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
-                    .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
-                    .build()).queue();
+            locked = false;
         }
+        if (tc.getIdLong() != channel.getIdLong())
+            channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
+                    .setDescription(tc.getAsMention() + " has been " + (locked ? "locked" : "unlocked") + "!")
+                    .build()).queue();
+        if (guild.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_WRITE))
+            channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
+                    .setDescription("The chat has been "  + (locked ? "locked" : "unlocked") + " by a staff member!" 
+                                    + (reason != null ? "\nReason: " + reason : ""))
+                    .build()).queue();
     }
 
     @Override

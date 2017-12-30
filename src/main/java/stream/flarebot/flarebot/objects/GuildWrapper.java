@@ -145,9 +145,8 @@ public class GuildWrapper {
                     if (!getGuild().getSelfMember().getRoles().isEmpty())
                         getGuild().getController().modifyRolePositions().selectPosition(mutedRole)
                                 .moveTo(getGuild().getSelfMember().getRoles().get(0).getPosition() - 1).queue();
-                    Role finalMutedRole = mutedRole;
-                    getGuild().getTextChannels().forEach(channel -> channel.createPermissionOverride(finalMutedRole).setDeny(Permission.MESSAGE_WRITE).queue());
                     mutedRoleID = mutedRole.getId();
+                    handleMuteChannels(mutedRole);
                     return mutedRole;
                 } catch (InterruptedException | ExecutionException e) {
                     FlareBot.LOGGER.error("Error creating role!", e);
@@ -155,6 +154,7 @@ public class GuildWrapper {
                 }
             } else {
                 mutedRoleID = mutedRole.getId();
+                handleMuteChannels(mutedRole);
                 return mutedRole;
             }
         } else {
@@ -163,9 +163,26 @@ public class GuildWrapper {
                 mutedRoleID = null;
                 return getMutedRole();
             } else {
+                handleMuteChannels(mutedRole);
                 return mutedRole;
             }
         }
+    }
+
+    /**
+     * This will go through all the channels in a guild, if there is no permission override or it doesn't block message write then deny it.
+     *
+     * @param muteRole This is the muted role of the server, the role which will have MESSAGE_WRITE denied.
+     */
+    private void handleMuteChannels(Role muteRole) {
+        getGuild().getTextChannels().forEach(channel -> {
+            if (!getGuild().getSelfMember().hasPermission(channel, Permission.MANAGE_PERMISSIONS)) return;
+            if (channel.getPermissionOverride(muteRole) != null &&
+                    !channel.getPermissionOverride(muteRole).getDenied().contains(Permission.MESSAGE_WRITE))
+                channel.getPermissionOverride(muteRole).getManager().deny(Permission.MESSAGE_WRITE).queue();
+            else if (channel.getPermissionOverride(muteRole) == null)
+                channel.createPermissionOverride(muteRole).setDeny(Permission.MESSAGE_WRITE).queue();
+        });
     }
 
     public ReportManager getReportManager() {
