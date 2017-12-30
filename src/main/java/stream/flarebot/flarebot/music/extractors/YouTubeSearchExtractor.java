@@ -23,7 +23,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
                         "?q=%s&part=snippet&key=%s&type=video,playlist",
                 URLEncoder.encode(input, "UTF-8"), FlareBot.getYoutubeKey()));
         
-        resoonse.close();
+        response.close();
         if (response.code() == 403) {
             // \uD83E\uDD15 = :head_bandage:
             MessageUtils.editMessage(null, MessageUtils.getEmbed(user)
