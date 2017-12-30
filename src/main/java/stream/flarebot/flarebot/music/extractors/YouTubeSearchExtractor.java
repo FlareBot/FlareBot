@@ -22,6 +22,14 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
         Response response = WebUtils.get(String.format("https://www.googleapis.com/youtube/v3/search" +
                         "?q=%s&part=snippet&key=%s&type=video,playlist",
                 URLEncoder.encode(input, "UTF-8"), FlareBot.getYoutubeKey()));
+        
+        resoonse.close();
+        if (response.code() == 403) {
+            // \uD83E\uDD15 = :head_bandage:
+            MessageUtils.editMessage(null, MessageUtils.getEmbed(user)
+                    .setDescription("We seem to have hit the YouTube API ratelimit \uD83E\uDD15 we're sorry about the"
+                                        + "inconvenience please try searching again later or using a URL!"), message);
+        }
         if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
         JSONArray results = new JSONObject(response.body().string()).getJSONArray("items");
         String link = null;
