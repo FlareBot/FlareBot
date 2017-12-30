@@ -142,7 +142,7 @@ public class ModlogHandler {
             member = wrapper.getGuild().getMember(target);
         }
         if (channel == null) return;
-        if (member == null && modAction != ModAction.FORCE_BAN) {
+        if (member == null && modAction != ModAction.FORCE_BAN && modAction != ModAction.UNBAN) {
             MessageUtils.sendErrorMessage("That user isn't in this guild! You can try to forceban the user if needed.", channel);
             return;
         }
@@ -243,7 +243,7 @@ public class ModlogHandler {
 
                     Period period = new Period(duration);
                     Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
-                            target.getIdLong(), reason, period, FutureAction.Action.TEMP_BAN);
+                            target.getIdLong(), reason, period, FutureAction.Action.TEMP_MUTE);
 
                     MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
                             + GeneralUtils.formatJodaTime(period) + (reason == null ? "" : " (`" +

@@ -17,14 +17,9 @@ import stream.flarebot.flarebot.util.MessageUtils;
 
 public class SongCommand implements Command {
 
-    private PlayerManager manager;
-
-    public SongCommand(FlareBot bot) {
-        this.manager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager manager = FlareBot.getInstance().getMusicManager();
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             EmbedBuilder eb = MessageUtils.getEmbed(sender)

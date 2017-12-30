@@ -23,14 +23,9 @@ import java.util.Queue;
 
 public class PlaylistCommand implements Command {
 
-    private PlayerManager manager;
-
-    public PlaylistCommand(FlareBot flareBot) {
-        this.manager = flareBot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager manager = FlareBot.getInstance().getMusicManager();
         if (args.length < 1 || args.length > 2) {
             send(member.getUser().openPrivateChannel().complete(), channel, member);
         } else {
@@ -82,6 +77,7 @@ public class PlaylistCommand implements Command {
     }
 
     private void send(MessageChannel mchannel, TextChannel channel, Member sender) {
+        PlayerManager manager = FlareBot.getInstance().getMusicManager();
         Track currentTrack = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
         if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
                 || currentTrack != null) {
