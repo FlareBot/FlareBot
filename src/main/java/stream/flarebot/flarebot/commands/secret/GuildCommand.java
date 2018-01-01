@@ -68,7 +68,7 @@ public class GuildCommand implements Command {
                             .build()).queue();
                 } else if (args.length == 2) {
                     GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuild(args[1]);
-                    if (guildWrapper == null) {
+                    if (guildWrapper.getGuild() == null) {
                         MessageUtils.sendErrorMessage("That guild does not exist!", channel);
                     } else {
                         guildWrapper.setBetaAccess(!guildWrapper.getBetaAccess());
@@ -83,7 +83,7 @@ public class GuildCommand implements Command {
                 GuildWrapper wrapper = guild;
                 if (args.length == 2)
                     wrapper = FlareBotManager.getInstance().getGuild(args[1]);
-                if (wrapper == null) {
+                if (wrapper.getGuild() == null) {
                     MessageUtils.sendErrorMessage("That guild does not exist!", channel);
                 } else {
                     try {
@@ -101,7 +101,7 @@ public class GuildCommand implements Command {
                 if (args.length >= 2) {
                     wrapper = FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getGuildById(args[1]).getId());
                 }
-                if (wrapper == null) {
+                if (wrapper.getGuild() == null) {
                     MessageUtils.sendErrorMessage("Invalid guild ID!", channel);
                     return;
                 }
