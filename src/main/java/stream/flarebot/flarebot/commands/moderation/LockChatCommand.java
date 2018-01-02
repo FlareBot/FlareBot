@@ -48,7 +48,7 @@ public class LockChatCommand implements Command {
                 tc.getPermissionOverride(guild.getGuild().getSelfMember()).getManager().grant(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
             locked = true;
         } else {
-            everyoneOve.getManager().grant(Permission.MESSAGE_WRITE).queue();
+            everyoneOvr.getManager().grant(Permission.MESSAGE_WRITE).queue();
             if (tc.getPermissionOverride(guild.getGuild().getSelfMember()) != null)
                 tc.getPermissionOverride(guild.getGuild().getSelfMember()).delete().queue();
             locked = false;
