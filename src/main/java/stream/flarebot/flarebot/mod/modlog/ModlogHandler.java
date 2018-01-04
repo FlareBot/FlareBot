@@ -228,7 +228,7 @@ public class ModlogHandler {
                         return;
                     }
 
-                    MessageUtils.sendSuccessMessage("Muted " + target.getAsMention() + "\nReason: " + rsn), channel, sender);
+                    MessageUtils.sendSuccessMessage("Muted " + target.getAsMention() + "\nReason: " + rsn, channel, sender);
                     break;
                 case TEMP_MUTE: {
                     try {
@@ -245,7 +245,7 @@ public class ModlogHandler {
                             target.getIdLong(), reason, period, FutureAction.Action.TEMP_MUTE);
 
                     MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
-                            + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn), channel, sender);
+                            + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn, channel, sender);
                     break;
                 }
                 case UNMUTE:
