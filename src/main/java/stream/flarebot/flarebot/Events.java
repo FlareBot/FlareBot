@@ -32,8 +32,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
@@ -41,11 +42,11 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -208,7 +209,7 @@ public class Events extends ListenerAdapter {
     public void onGuildJoin(GuildJoinEvent event) {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
                 event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now()))
-            flareBot.getGuildLogChannel().sendMessage(new EmbedBuilder()
+            Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
                     .setColor(new Color(96, 230, 144))
                     .setThumbnail(event.getGuild().getIconUrl())
                     .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
@@ -221,7 +222,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        flareBot.getGuildLogChannel().sendMessage(new EmbedBuilder()
+        Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
                 .setColor(new Color(244, 23, 23))
                 .setThumbnail(event.getGuild().getIconUrl())
                 .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
@@ -248,7 +249,7 @@ public class Events extends ListenerAdapter {
                 flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
             }
             if (flareBot.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
-                flareBot.getImportantLogChannel()
+                Constants.getImportantLogChannel()
                         .sendMessage("I am now updating, there are no voice channels active!").queue();
                 UpdateCommand.update(true, null);
             }
@@ -303,7 +304,7 @@ public class Events extends ListenerAdapter {
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
-            if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR &&
+            if (FlareBot.getPrefixes().get(getGuildId(event)) != Constants.COMMAND_CHAR &&
                     (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
                 event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
                         .setDescription("The server prefix is `" + FlareBot
@@ -368,7 +369,7 @@ public class Events extends ListenerAdapter {
         if (cmd.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(event.getAuthor()) && !(flareBot.isTestBot()
                 && PerGuildPermissions.isContributor(event.getAuthor()))) {
             GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
-            flareBot.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
+            Constants.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
             return;
         }
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;

@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ConfirmUtil;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
@@ -77,7 +78,7 @@ public class FixCommand implements Command {
 
         channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(
                 (rolesAdded == 0 && !nickReset ? "No fix needed!\n" +
-                        "If you are still having issues, please join our support server here: " + FlareBot.INVITE_URL :
+                        "If you are still having issues, please join our support server here: " + Constants.INVITE_URL :
                         "Added " + rolesAdded + " roles. Fixed nick: " + nickReset)).build()).queue();
     }
 

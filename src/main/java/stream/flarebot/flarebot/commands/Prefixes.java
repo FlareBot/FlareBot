@@ -4,8 +4,8 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.util.Constants;
 
 import java.util.List;
 import java.util.Map;
@@ -31,12 +31,12 @@ public class Prefixes {
 
     public char get(String guildId) {
         if (guildId == null)
-            return FlareBot.COMMAND_CHAR;
-        return prefixes.getOrDefault(guildId, FlareBot.COMMAND_CHAR);
+            return Constants.COMMAND_CHAR;
+        return prefixes.getOrDefault(guildId, Constants.COMMAND_CHAR);
     }
 
     public void set(String guildId, char character) {
-        if (character == FlareBot.COMMAND_CHAR) {
+        if (character == Constants.COMMAND_CHAR) {
             prefixes.remove(guildId);
             CassandraController.execute("DELETE FROM flarebot.prefixes WHERE guild_id = '" + guildId + "'");
             update(guildId, character);

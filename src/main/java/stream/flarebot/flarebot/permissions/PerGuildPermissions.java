@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.permissions;
 
-import com.google.gson.annotations.Expose;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import stream.flarebot.flarebot.FlareBot;
@@ -16,9 +15,6 @@ public class PerGuildPermissions {
 
     private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
-
-    @Expose(deserialize = false, serialize = false)
-    private static final FlareBot fb = FlareBot.getInstance();
 
     public PerGuildPermissions() {
         if (!hasGroup("Default")) {
@@ -86,9 +82,9 @@ public class PerGuildPermissions {
     }
 
     private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
-        if (!FlareBot.getInstance().isReady() || fb.getOfficialGuild() == null) return false;
-        return fb.getOfficialGuild().getMember(user) != null && fb.getOfficialGuild().getMember(user).getRoles()
-                .contains(fb.getOfficialGuild().getRoleById(roleId));
+        if (!FlareBot.getInstance().isReady() || Constants.getOfficialGuild() == null) return false;
+        return Constants.getOfficialGuild().getMember(user) != null && Constants.getOfficialGuild().getMember(user).getRoles()
+                .contains(Constants.getOfficialGuild().getRoleById(roleId));
     }
 
     public static boolean isCreator(net.dv8tion.jda.core.entities.User user) {

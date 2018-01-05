@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class StatusCommand implements Command {
                     .append(highResponseTime).append(" shards go back to normal!").append("\n");
         if (deadShard > 5)
             sb.append(" SEVERE: We have quite a few dead shards! Please report this on the [Support Server](")
-                    .append(FlareBot.INVITE_URL).append(")").append("\n");
+                    .append(Constants.INVITE_URL).append(")").append("\n");
 
         String status = deadShard == 0 && highResponseTime == 0 && reconnecting < (Math.max(quaterShards, 5))
                 ? "Good! :)" : "Issues :/";

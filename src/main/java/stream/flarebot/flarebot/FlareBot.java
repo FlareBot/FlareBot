@@ -16,7 +16,6 @@ import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
@@ -45,17 +44,63 @@ import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
-import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.currency.*;
-import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.informational.*;
-import stream.flarebot.flarebot.commands.moderation.*;
-import stream.flarebot.flarebot.commands.moderation.mod.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.commands.currency.ConvertCommand;
+import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
+import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
+import stream.flarebot.flarebot.commands.general.HelpCommand;
+import stream.flarebot.flarebot.commands.general.InfoCommand;
+import stream.flarebot.flarebot.commands.general.InviteCommand;
+import stream.flarebot.flarebot.commands.general.ReportCommand;
+import stream.flarebot.flarebot.commands.general.SelfAssignCommand;
+import stream.flarebot.flarebot.commands.general.ServerInfoCommand;
+import stream.flarebot.flarebot.commands.general.ShardInfoCommand;
+import stream.flarebot.flarebot.commands.general.StatsCommand;
+import stream.flarebot.flarebot.commands.general.StatusCommand;
+import stream.flarebot.flarebot.commands.general.UserInfoCommand;
+import stream.flarebot.flarebot.commands.informational.BetaCommand;
+import stream.flarebot.flarebot.commands.informational.DonateCommand;
+import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
+import stream.flarebot.flarebot.commands.moderation.FixCommand;
+import stream.flarebot.flarebot.commands.moderation.LockChatCommand;
+import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
+import stream.flarebot.flarebot.commands.moderation.PinCommand;
+import stream.flarebot.flarebot.commands.moderation.PruneCommand;
+import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
+import stream.flarebot.flarebot.commands.moderation.ReportsCommand;
+import stream.flarebot.flarebot.commands.moderation.RolesCommand;
+import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.ForceBanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.KickCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.ModlogCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.TempBanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.TempMuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.UnbanCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.WarnCommand;
+import stream.flarebot.flarebot.commands.moderation.mod.WarningsCommand;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.random.*;
-import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.secret.internal.*;
-import stream.flarebot.flarebot.commands.useful.*;
+import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.secret.ChangeAvatarCommand;
+import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
+import stream.flarebot.flarebot.commands.secret.EvalCommand;
+import stream.flarebot.flarebot.commands.secret.GuildCommand;
+import stream.flarebot.flarebot.commands.secret.LogsCommand;
+import stream.flarebot.flarebot.commands.secret.QueryCommand;
+import stream.flarebot.flarebot.commands.secret.QuitCommand;
+import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.TestCommand;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.UpdateJDACommand;
+import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
+import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.useful.RemindCommand;
+import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -86,7 +131,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -110,8 +154,6 @@ public class FlareBot {
 
     private static final Map<String, Logger> LOGGERS;
     public static final Logger LOGGER;
-    public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
-    public static final char COMMAND_CHAR = '_';
 
     static {
         handleLogArchive();
@@ -119,7 +161,7 @@ public class FlareBot {
         LOGGER = getLog(FlareBot.class.getName());
     }
 
-    private static FlareBot instance;
+    public static FlareBot instance;
     private static String youtubeApi;
 
     private static JSONConfig config;
@@ -605,7 +647,7 @@ public class FlareBot {
         if (EXITING.get()) return;
         LOGGER.info("Saving data.");
         EXITING.set(true);
-        getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
+        Constants.getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
                 .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
@@ -778,31 +820,6 @@ public class FlareBot {
                 .trim();
     }
 
-    public TextChannel getErrorLogChannel() {
-        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("226786557862871040"));
-    }
-
-    public TextChannel getGuildLogChannel() {
-        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("260401007685664768"));
-    }
-
-    private TextChannel getEGLogChannel() {
-        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("358950369642151937"));
-    }
-
-    public void logEG(String eg, Command command, Guild guild, User user) {
-        EmbedBuilder builder = new EmbedBuilder().setTitle("Found `" + eg + "`")
-                .addField("Guild", guild.getId() + " (`" + guild.getName() + "`) ", true)
-                .addField("User", user.getAsMention() + " (`" + user.getName() + "#" + user.getDiscriminator() + "`)", true)
-                .setTimestamp(LocalDateTime.now(Clock.systemUTC()));
-        if (command != null) builder.addField("Command", command.getCommand(), true);
-        getEGLogChannel().sendMessage(builder.build()).queue();
-    }
-
-    public TextChannel getImportantLogChannel() {
-        return (testBot ? getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) : getChannelById("358978253966278657"));
-    }
-
 
     public static String getYoutubeKey() {
         return youtubeApi;
@@ -945,10 +962,6 @@ public class FlareBot {
         if (importantHook == null)
             importantHook = new WebhookClientBuilder(config.getString("bot.importantHook").get()).build();
         return importantHook;
-    }
-
-    public Guild getOfficialGuild() {
-        return getGuildById(Constants.OFFICIAL_GUILD);
     }
 
     private static void handleLogArchive() {

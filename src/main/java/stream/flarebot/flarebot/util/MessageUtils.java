@@ -87,7 +87,7 @@ public class MessageUtils {
         String trace = sw.toString();
         pw.close();
         channel.sendMessage(new MessageBuilder().append(
-                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
+                Constants.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s + "\n**Stack trace**: " + paste(trace))
                         .build()).build()).queue();
     }
@@ -148,7 +148,7 @@ public class MessageUtils {
 
     public static void sendFatalErrorMessage(String s, TextChannel channel) {
         channel.sendMessage(new MessageBuilder().append(
-                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
+                Constants.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s).build()).build()).queue();
     }
 
@@ -184,9 +184,9 @@ public class MessageUtils {
     public static void sendMessage(MessageType type, EmbedBuilder builder, TextChannel channel, long autoDeleteDelay) {
         if (builder.build().getColor() == null)
             builder.setColor(type.getColor());
-        if(type == MessageType.ERROR)
+        if (type == MessageType.ERROR)
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
-                    "[Support Server](" + FlareBot.INVITE_URL + ")! Our staff can support on any issue you may have! "
+                    "[Support Server](" + Constants.INVITE_URL + ")! Our staff can support on any issue you may have! "
                     + FlareBot.getInstance().getEmoteById(386550693294768129L).getAsMention());
         if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
