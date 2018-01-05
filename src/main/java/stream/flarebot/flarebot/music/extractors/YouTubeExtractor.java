@@ -11,7 +11,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -81,7 +80,7 @@ public class YouTubeExtractor implements Extractor {
             name = track.getInfo().title;
             if (track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000) + 1) == 1000) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", user);
-                FlareBot.getInstance().logEG("You can't rick roll me!", null, message.getGuild(), user);
+                Constants.logEG("You can't rick roll me!", null, message.getGuild(), user);
             }
         }
         if (name != null) {

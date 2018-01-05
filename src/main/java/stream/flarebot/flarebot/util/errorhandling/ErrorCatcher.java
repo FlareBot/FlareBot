@@ -6,6 +6,7 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.concurrent.ExecutorService;
@@ -39,19 +40,19 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 }
                 if (event.getLevel() == Level.WARN) {
                     // Warnings should not have a throwable!
-                    MessageUtils.sendWarningMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
+                    MessageUtils.sendWarningMessage(finalMsg, Constants.getErrorLogChannel());
                     return;
                 }
                 if (throwable != null) {
                     if (event.getMarker() == Markers.TAG_DEVELOPER)
-                        MessageUtils.sendFatalException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
+                        MessageUtils.sendFatalException(finalMsg, throwable, Constants.getErrorLogChannel());
                     else
-                        MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
+                        MessageUtils.sendException(finalMsg, throwable, Constants.getErrorLogChannel());
                 } else {
                     if (event.getMarker() == Markers.TAG_DEVELOPER)
-                        MessageUtils.sendFatalErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
+                        MessageUtils.sendFatalErrorMessage(finalMsg, Constants.getErrorLogChannel());
                     else
-                        MessageUtils.sendErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
+                        MessageUtils.sendErrorMessage(finalMsg, Constants.getErrorLogChannel());
                 }
             });
         }

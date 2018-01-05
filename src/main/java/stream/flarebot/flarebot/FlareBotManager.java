@@ -16,6 +16,7 @@ import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
@@ -139,10 +140,12 @@ public class FlareBotManager {
 
     public void savePlaylist(Command command, TextChannel channel, String ownerId, boolean overwriteAllowed, String name, List<String> songs) {
         CassandraController.runTask(session -> {
-            if(savePlaylistStatement == null) savePlaylistStatement = session.prepare("SELECT * FROM flarebot.playlist " +
-                    "WHERE playlist_name = ? AND guild_id = ?");
+            if (savePlaylistStatement == null)
+                savePlaylistStatement = session.prepare("SELECT * FROM flarebot.playlist " +
+                        "WHERE playlist_name = ? AND guild_id = ?");
 
-            ResultSet set = session.execute(savePlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            ResultSet set =
+                    session.execute(savePlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             if (set.one() != null) {
                 if (ConfirmUtil.checkExists(ownerId, command.getClass())) {
                     MessageUtils.sendWarningMessage("Overwriting playlist!", channel);
@@ -155,8 +158,9 @@ public class FlareBotManager {
                     return;
                 }
             }
-            if(insertPlaylistStatement == null) insertPlaylistStatement = session.prepare("INSERT INTO flarebot.playlist" +
-                    " (playlist_name, guild_id, owner, songs, scope, times_played) VALUES (?, ?, ?, ?, ?, ?)");
+            if (insertPlaylistStatement == null)
+                insertPlaylistStatement = session.prepare("INSERT INTO flarebot.playlist" +
+                        " (playlist_name, guild_id, owner, songs, scope, times_played) VALUES (?, ?, ?, ?, ?, ?)");
 
             session.execute(insertPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId())
                     .setString(2, ownerId).setList(3, songs).setString(4, "local").setInt(5, 0));
@@ -168,10 +172,11 @@ public class FlareBotManager {
     public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {
         final ArrayList<String> list = new ArrayList<>();
         CassandraController.runTask(session -> {
-            if(loadPlaylistStatement == null) loadPlaylistStatement = session.prepare("SELECT songs FROM " +
+            if (loadPlaylistStatement == null) loadPlaylistStatement = session.prepare("SELECT songs FROM " +
                     "flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
 
-            ResultSet set = session.execute(loadPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            ResultSet set =
+                    session.execute(loadPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             Row row = set.one();
             if (row != null) {
                 list.addAll(row.getList("songs", String.class));
@@ -206,7 +211,7 @@ public class FlareBotManager {
             loadTimes.add(total);
 
             if (total >= 200) {
-                FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
+                Constants.getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
                         .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)
                         .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis()
                                 + "\nTime: " + LocalDateTime.now().toString(), false)
