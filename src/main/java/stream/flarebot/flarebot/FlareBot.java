@@ -128,6 +128,7 @@ public class FlareBot {
 
     public static final Gson GSON = new GsonBuilder().create();
 
+    public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
 
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
@@ -280,6 +281,9 @@ public class FlareBot {
     }
 
     protected void run() {
+        if (RUNNING.getAndSet(true))
+            return;
+        LOGGER.info("Starting run sequence");
         try {
             musicManager =
                     PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));

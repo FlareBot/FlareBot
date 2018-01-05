@@ -97,7 +97,7 @@ public class YouTubeExtractor implements Extractor {
             EmbedBuilder builder = MessageUtils.getEmbed(user);
             builder.setDescription(String.format("%s added the %s [`%s`](%s)", user.getAsMention(), audioTracks
                             .size() == 1 ? "song" : "playlist",
-                    name, input));
+                    name.replace("`", "'"), input));
             if (audioTracks.size() > 1)
                 builder.addField("Song count:", String.valueOf(audioTracks.size()), true);
             MessageUtils.editMessage(null, builder, message);
