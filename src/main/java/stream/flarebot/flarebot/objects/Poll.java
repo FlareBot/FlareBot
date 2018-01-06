@@ -3,7 +3,7 @@ package stream.flarebot.flarebot.objects;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.text.WordUtils;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
 import java.awt.Color;
@@ -58,9 +58,9 @@ public class Poll {
         }
         this.status = status;
         if (status == PollStatus.OPEN) {
-            FlareBot.getInstance().getChannelByID(pollChannel).sendMessage(getPollEmbed("New Poll", "A new poll has been opened!").build()).queue();
+            Getters.getChannelById(pollChannel).sendMessage(getPollEmbed("New Poll", "A new poll has been opened!").build()).queue();
         } else {
-            FlareBot.getInstance().getChannelByID(pollChannel).sendMessage(getClosedPollEmbed("Poll Closed!", "The poll has been closed!").build()).queue();
+            Getters.getChannelById(pollChannel).sendMessage(getClosedPollEmbed("Poll Closed!", "The poll has been closed!").build()).queue();
         }
     }
 

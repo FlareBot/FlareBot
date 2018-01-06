@@ -25,8 +25,10 @@ import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.RedisMessage;
@@ -61,6 +63,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -91,8 +94,8 @@ public class GeneralUtils {
 
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserByID(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserByID(String.valueOf(report.getReportedId()));
+        User reporter = Getters.getUserById(String.valueOf(report.getReporterId()));
+        User reported = Getters.getUserById(String.valueOf(report.getReportedId()));
 
         eb.addField("Report ID", String.valueOf(report.getId()), true);
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
@@ -134,16 +137,26 @@ public class GeneralUtils {
                 " " + GeneralUtils.percentageFormat.format(percentage) + "%";
     }
 
-    private static char getPrefix(TextChannel channel) {
-        if (channel.getGuild() != null) {
-            return FlareBot.getPrefixes().get(channel.getGuild().getId());
-        }
-        return FlareBot.getPrefixes().get(null);
+    private static char getPrefix(Guild guild) {
+        return guild == null ? Constants.COMMAND_CHAR : FlareBotManager.instance().getGuild(guild.getId()).getPrefix();
     }
 
-    public static String formatCommandPrefix(TextChannel channel, String usage) {
-        String prefix = String.valueOf(getPrefix(channel));
-        return usage.replaceAll("\\{%}", prefix);
+    public static String formatCommandPrefix(Guild guild, String usage) {
+        String prefix = String.valueOf(getPrefix(guild));
+        if (usage.contains("{%}"))
+            return usage.replaceAll("\\{%}", prefix);
+        return usage;
+    }
+
+    private static char getPrefix(GuildWrapper guild) {
+        return guild == null ? Constants.COMMAND_CHAR : guild.getPrefix();
+    }
+
+    public static String formatCommandPrefix(GuildWrapper guild, String usage) {
+        String prefix = String.valueOf(getPrefix(guild));
+        if (usage.contains("{%}"))
+            return usage.replaceAll("\\{%}", prefix);
+        return usage;
     }
 
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
@@ -220,12 +233,12 @@ public class GeneralUtils {
     public static User getUser(String s, String guildId, boolean forceGet) {
         if (userDiscrim.matcher(s).find()) {
             if (guildId == null || guildId.isEmpty()) {
-                return FlareBot.getInstance().getUsers().stream()
+                return Getters.getUsers().stream()
                         .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
                 try {
-                    return FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
+                    return Getters.getGuildById(guildId).getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                             .findFirst().orElse(null);
@@ -235,21 +248,24 @@ public class GeneralUtils {
         } else {
             User tmp;
             if (guildId == null || guildId.isEmpty()) {
-                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+                tmp = Getters.getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
-                        .map(Member::getUser)
-                        .filter(user -> user.getName().equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
+                if (Getters.getGuildById(guildId) != null) {
+                    tmp = Getters.getGuildById(guildId).getMembers().stream()
+                            .map(Member::getUser)
+                            .filter(user -> user.getName().equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } else
+                    tmp = null;
             }
             if (tmp != null) return tmp;
             try {
                 long l = Long.parseLong(s.replaceAll("[^0-9]", ""));
                 if (guildId == null || guildId.isEmpty()) {
-                    tmp = FlareBot.getInstance().getUserById(l);
+                    tmp = Getters.getUserById(l);
                 } else {
-                    Member temMember = FlareBot.getInstance().getGuildById(guildId).getMemberById(l);
+                    Member temMember = Getters.getGuildById(guildId).getMemberById(l);
                     if (temMember != null) {
                         tmp = temMember.getUser();
                     }
@@ -257,7 +273,7 @@ public class GeneralUtils {
                 if (tmp != null) {
                     return tmp;
                 } else if (forceGet) {
-                    return FlareBot.getInstance().retrieveUserById(l);
+                    return Getters.retrieveUserById(l);
                 }
             } catch (NumberFormatException | NullPointerException ignored) {
             }
@@ -270,7 +286,7 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId, TextChannel channel) {
-        Guild guild = FlareBot.getInstance().getGuildById(guildId);
+        Guild guild = Getters.getGuildById(guildId);
         Role role = guild.getRoles().stream()
                 .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
@@ -284,7 +300,7 @@ public class GeneralUtils {
             if (guild.getRolesByName(s, true).isEmpty()) {
                 String closest = null;
                 int distance = LEVENSHTEIN_DISTANCE;
-                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.getInstance().getGuild(guildId).getSelfAssignRoles()
+                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.instance().getGuild(guildId).getSelfAssignRoles()
                         .contains(role1.getId())).collect(Collectors.toList())) {
                     int currentDistance = StringUtils.getLevenshteinDistance(role1.getName(), s);
                     if (currentDistance < distance) {
@@ -309,7 +325,7 @@ public class GeneralUtils {
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
         try {
             long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
-            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
+            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : Getters.getChannelById(channelId);
         } catch (NumberFormatException e) {
             if (wrapper != null) {
                 List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
@@ -326,7 +342,7 @@ public class GeneralUtils {
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
-            for (Command c : FlareBot.getInstance().getCommands()) {
+            for (Command c : FlareBot.instance().getCommandManager().getCommands()) {
                 if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
                     return true;
                 }
@@ -366,7 +382,7 @@ public class GeneralUtils {
     }
 
     public static Emote getEmoteById(long l) {
-        return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
+        return Getters.getGuilds().stream().map(g -> g.getEmoteById(l))
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
@@ -405,9 +421,9 @@ public class GeneralUtils {
     }
 
     public static boolean canChangeNick(String guildId) {
-        return FlareBot.getInstance().getGuildById(guildId) != null &&
-                (FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                        FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE));
+        return Getters.getGuildById(guildId) != null &&
+                (Getters.getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                        Getters.getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE));
     }
 
     public static String getStackTrace(Throwable e) {
@@ -431,6 +447,20 @@ public class GeneralUtils {
             return Long.parseLong(s);
         } catch (NumberFormatException e) {
             return defaultValue;
+        }
+    }
+
+    public static void methodErrorHandler(Logger logger, String startMessage,
+                                          String successMessage, String errorMessage,
+                                          Runnable runnable) {
+        Objects.requireNonNull(successMessage);
+        Objects.requireNonNull(errorMessage);
+        if (startMessage != null) logger.info(startMessage);
+        try {
+            runnable.run();
+            logger.info(successMessage);
+        } catch (Exception e) {
+            logger.error(errorMessage, e);
         }
     }
 
@@ -528,7 +558,7 @@ public class GeneralUtils {
      */
     public static void handleMultiSelectionCommand(User sender, TextChannel channel, String[] args,
                                                    MultiSelectionContent<String, String, Boolean>[] providedContent) {
-        String search = FlareBot.getMessage(args);
+        String search = MessageUtils.getMessage(args);
         String[] fields = search.split(",");
         EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
         boolean valid = false;
@@ -594,7 +624,7 @@ public class GeneralUtils {
                 message.getAuthor().getId(),
                 message.getChannel().getId(),
                 message.getGuild().getId(),
-                message.getRawContent(),
+                message.getContentRaw(),
                 message.getCreationTime().toInstant().toEpochMilli()
         ));
     }
@@ -655,4 +685,33 @@ public class GeneralUtils {
         return period.toStandardDuration().getMillis();
     }
 
+    public static String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
+        long totalSeconds = 0;
+        switch (durUnit) {
+            case MILLISECONDS:
+                totalSeconds = duration / 1000;
+                break;
+            case SECONDS:
+                totalSeconds = duration;
+                break;
+            case MINUTES:
+                totalSeconds = duration * 60;
+                break;
+            case HOURS:
+                totalSeconds = (duration * 60) * 60;
+                break;
+            case DAYS:
+                totalSeconds = ((duration * 60) * 60) * 24;
+                break;
+        }
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = (totalSeconds / 3600) % 24;
+        long days = (totalSeconds / 86400);
+        return (days > 0 ? (append0 && days < 10 ? "0" + days : days) + (fullUnits ? " days " : "d ") : "")
+                + (hours > 0 ? (append0 && hours < 10 ? "0" + hours : hours) + (fullUnits ? " hours " : "h ") : "")
+                + (minutes > 0 ? (append0 && minutes < 10 ? "0" + minutes : minutes) + (fullUnits ? " minutes" : "m ") : "")
+                + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "")
+                .trim();
+    }
 }

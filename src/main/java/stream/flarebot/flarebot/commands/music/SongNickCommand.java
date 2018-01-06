@@ -21,7 +21,6 @@ public class SongNickCommand implements Command {
             if (GeneralUtils.canChangeNick(guild.getGuildId()))
                 channel.getGuild().getController().setNickname(channel.getGuild().getSelfMember(), null).queue();
             MessageUtils.sendSuccessMessage("Disabled changing nickname with song!", channel, sender);
-            return;
         } else {
             if (!GeneralUtils.canChangeNick(guild.getGuildId())) {
                 MessageUtils.sendErrorMessage("FlareBot can't change it's nickname so SongNick hasn't been enabled",
@@ -29,8 +28,8 @@ public class SongNickCommand implements Command {
                 return;
             }
             guild.setSongnick(true);
-            if (FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack() != null) {
-                Track track = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
+            if (FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack() != null) {
+                Track track = FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
                 String str = null;
                 if (track != null) {
                     str = track.getTrack().getInfo().title;
@@ -43,7 +42,6 @@ public class SongNickCommand implements Command {
                         .queue();
             }
             MessageUtils.sendSuccessMessage("Enabled changing nickname with song!", channel, sender);
-            return;
         }
     }
 

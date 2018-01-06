@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.PermissionOverride;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -23,7 +24,8 @@ public class LockChatCommand implements Command {
             TextChannel tmp = GeneralUtils.getChannel(args[args.length - 1], guild);
             if (tmp != null) {
                 tc = tmp;
-                reason = MessageUtils.getMessage(args, 0, args.length - 1);
+                if (args.length >= 2)
+                    reason = MessageUtils.getMessage(args, 0, args.length - 1);
             } else
                 reason = MessageUtils.getMessage(args, 0);
         }
@@ -33,17 +35,33 @@ public class LockChatCommand implements Command {
                     "I need the `Manage Roles` permission", channel);
             return;
         }
-        if (tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {
-            tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().grant(Permission.MESSAGE_WRITE).queue();
-            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.GREEN)
-                    .setDescription("The chat has been unlocked!" + (reason != null ? "\nReason: " + reason : ""))
-                    .build()).queue();
+        
+        boolean locked;
+        PermissionOverride everyoneOvr = tc.getPermissionOverride(guild.getGuild().getPublicRole());
+        if (everyoneOvr == null)
+            tc.createPermissionOverride(guild.getGuild().getPublicRole()).complete();
+        if (!everyoneOvr.getDenied().contains(Permission.MESSAGE_WRITE)) {
+            everyoneOvr.getManager().deny(Permission.MESSAGE_WRITE).queue();
+            if (tc.getPermissionOverride(guild.getGuild().getSelfMember()) == null)
+                tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+            else
+                tc.getPermissionOverride(guild.getGuild().getSelfMember()).getManager().grant(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+            locked = true;
         } else {
-            tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().deny(Permission.MESSAGE_WRITE).queue();
-            channel.sendMessage(new EmbedBuilder().setColor(ColorUtils.RED)
-                    .setDescription("The chat has been locked by a staff member!" + (reason != null ? "\nReason: " + reason : ""))
-                    .build()).queue();
+            everyoneOvr.getManager().grant(Permission.MESSAGE_WRITE).queue();
+            if (tc.getPermissionOverride(guild.getGuild().getSelfMember()) != null)
+                tc.getPermissionOverride(guild.getGuild().getSelfMember()).delete().queue();
+            locked = false;
         }
+        if (tc.getIdLong() != channel.getIdLong())
+            channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
+                    .setDescription(tc.getAsMention() + " has been " + (locked ? "locked" : "unlocked") + "!")
+                    .build()).queue();
+        if (guild.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_WRITE))
+            channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
+                    .setDescription("The chat has been "  + (locked ? "locked" : "unlocked") + " by a staff member!" 
+                                    + (reason != null ? "\nReason: " + reason : ""))
+                    .build()).queue();
     }
 
     @Override

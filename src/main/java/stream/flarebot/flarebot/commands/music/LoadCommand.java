@@ -11,6 +11,8 @@ import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.util.List;
+
 public class LoadCommand implements Command {
 
     @Override
@@ -21,10 +23,11 @@ public class LoadCommand implements Command {
         }
         String name = MessageUtils.getMessage(args, 0);
 
-        channel.sendTyping().complete();
+        List<String> playlist = FlareBot.instance().getManager().loadPlaylist(channel, sender, name);
+        if (!playlist.isEmpty())
+            VideoThread.getThread(name + '\u200B' + playlist.toString(), channel, sender).start();
 
-        VideoThread.getThread(name + '\u200B' + FlareBot.getInstance().getManager()
-                .loadPlaylist(channel, sender, name), channel, sender).start();
+
     }
 
     @Override

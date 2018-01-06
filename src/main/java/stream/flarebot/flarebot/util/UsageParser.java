@@ -14,12 +14,6 @@ import java.util.regex.Pattern;
 
 public class UsageParser {
 
-    public static void test(String... ss) {
-        for (String s : matchUsage(new WelcomeCommand(), ss)) {
-            FlareBot.getInstance().getImportantLogChannel().sendMessage(s).queue();
-        }
-    }
-
     public static List<String> matchUsage(Command c, String[] args) {
         List<String> strings = new ArrayList<>();
         String[] usages = c.getUsage().split("\n");
@@ -45,29 +39,37 @@ public class UsageParser {
             if (args.length > map.size()) { // If there are more args than symbols it wouldn't be applicable
                 continue;
             }
+            label:
             for (Map.Entry<Integer, Pair<Symbol, String>> entry : map.entrySet()) {
-                if (entry.getValue().getKey() == Symbol.SINGLE_SUB_COMMAND) {
-                    if (args[entry.getKey()].equalsIgnoreCase(entry.getValue().getValue())) {
-                        applicable = true; // Sub command matches arg
-                    } else {
-                        applicable = false;
-                        break; // We don't want to check any other args if this fails
-                    }
-                } else if (entry.getValue().getKey() == Symbol.MULTIPLE_SUB_COMMAND) {
-                    boolean valid = false;
-                    for (String cmd : entry.getValue().getValue().split("\\|")) {
-                        if (args[entry.getKey()].equalsIgnoreCase(cmd)) {
-                            applicable = true;
-                            valid = true;
-                            break;
+                switch (entry.getValue().getKey()) {
+                    case SINGLE_SUB_COMMAND:
+                        if (args[entry.getKey()].equalsIgnoreCase(entry.getValue().getValue())) {
+                            applicable = true; // Sub command matches arg
+
+                        } else {
+                            applicable = false;
+                            break label;
+
                         }
-                    }
-                    if (!valid) {
-                        applicable = false;
-                        break; // Check nothing else if this fails
-                    }
-                } else {
-                    applicable = true;
+                        break;
+                    case MULTIPLE_SUB_COMMAND:
+                        boolean valid = false;
+                        for (String cmd : entry.getValue().getValue().split("\\|")) {
+                            if (args[entry.getKey()].equalsIgnoreCase(cmd)) {
+                                applicable = true;
+                                valid = true;
+                                break;
+                            }
+                        }
+                        if (!valid) {
+                            applicable = false;
+                            break label;
+
+                        }
+                        break;
+                    default:
+                        applicable = true;
+                        break;
                 }
                 if (args.length - 1 >= entry.getKey()) {
                     break;
@@ -100,7 +102,7 @@ public class UsageParser {
         SINGLE_SUB_COMMAND(Pattern.compile("^[A-Za-z]+$")),
         MULTIPLE_SUB_COMMAND(Pattern.compile("^[A-z]+(\\|+[A-z]+)+$")),
         REQUIRED_ARG(Pattern.compile("^<.+>$")),
-        OPTIONAL_ARG(Pattern.compile("^\\[.+\\]$"));
+        OPTIONAL_ARG(Pattern.compile("^\\[.+]$"));
 
         private Pattern regex;
 

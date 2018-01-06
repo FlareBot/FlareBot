@@ -13,7 +13,7 @@ public enum CommandType {
     USEFUL,
     CURRENCY,
     RANDOM,
-    SECRET;
+    SECRET, INFORMATIONAL;
 
     public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();
@@ -24,6 +24,6 @@ public enum CommandType {
     }
 
     public Set<Command> getCommands() {
-        return FlareBot.getInstance().getCommandsByType(this);
+        return FlareBot.instance().getCommandManager().getCommandsByType(this);
     }
 }

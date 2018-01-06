@@ -6,13 +6,13 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
-import stream.flarebot.flarebot.util.buttons.ButtonRunnable;
-import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -23,16 +23,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SkipCommand implements Command {
 
-    private PlayerManager musicManager;
     private Map<String, Map<String, Vote>> votes = new HashMap<>();
     private Map<String, Boolean> skips = new HashMap<>();
 
-    public SkipCommand(FlareBot bot) {
-        this.musicManager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager musicManager = FlareBot.instance().getMusicManager();
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
             channel.sendMessage("I am not playing anything!").queue();
@@ -52,12 +48,10 @@ public class SkipCommand implements Command {
                         .filter(vote -> vote == Vote.YES)
                         .count());
                 String no = String
-                        .valueOf(votes.get(channel.getGuild().getId()).values().stream().filter(vote -> vote == Vote.NO)
-                                .count());
+                        .valueOf(votes.get(channel.getGuild().getId()).size() - Long.valueOf(yes));
                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("Can't start a vote right now! " +
-                                "Another one in progress! Please use `" + FlareBot
-                                .getPrefix(channel.getGuild().getId()) + "skip YES|NO` to vote!")
+                                "Another one in progress! Please use `" + guild.getPrefix() + "skip YES|NO` to vote!")
                         .addField("Votes for YES:", yes, true)
                         .addField("Votes for NO:", no, true).build()).queue();
             } else getVotes(channel, member);
@@ -109,6 +103,7 @@ public class SkipCommand implements Command {
     }
 
     private Map<String, Vote> getVotes(TextChannel channel, Member sender) {
+        PlayerManager musicManager = FlareBot.instance().getMusicManager();
         return this.votes.computeIfAbsent(channel.getGuild().getId(), s -> {
             AtomicBoolean bool = new AtomicBoolean(false);
             channel.getGuild().getVoiceChannels().stream().filter(c -> c.equals(sender.getVoiceState().getChannel()))
@@ -134,9 +129,10 @@ public class SkipCommand implements Command {
                         votes.remove(s);
                         return;
                     }
-                    boolean skip = votes.get(s).entrySet().stream()
+                    long yesCount = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
-                            .count() > (votes.size() / 2.0f);
+                            .count();
+                    boolean skip = yesCount > (votes.get(s).size() - yesCount);
                     channel.sendMessage(MessageUtils.getEmbed()
                             .setDescription("The votes are in!")
                             .addField("Results: ", (skip ? "Skip!" : "Keep!"), false).build())
@@ -152,7 +148,7 @@ public class SkipCommand implements Command {
 
             ButtonUtil.sendButtonedMessage(channel, MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
-                    + "** has started!\nUse " + FlareBot.getPrefix(channel.getGuild().getId()) + "skip YES|NO to vote!")
+                    + "** has started!\nUse " + FlareBotManager.instance().getGuild(channel.getGuild().getId()).getPrefix() + "skip YES|NO to vote!")
                     .build(), buttons);
             return new HashMap<>();
         });
@@ -193,6 +189,7 @@ public class SkipCommand implements Command {
 
     private void addButtons(ButtonGroup buttons, TextChannel channel) {
         buttons.addButton(new ButtonGroup.Button(355776056092917761L, (user, message) -> {
+
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
                 if (voteMap.containsKey(user.getId())) {

@@ -1,20 +1,15 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
-
-import javax.security.auth.login.LoginException;
 
 public class ShardRestartCommand implements Command {
 
@@ -22,19 +17,11 @@ public class ShardRestartCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (getPermissions(channel).isCreator(sender)) {
             int shard = Integer.parseInt(args[0]);
-            try {
-                synchronized (FlareBot.getInstance().getClients()) {
-                    FlareBot.getInstance().getClients()[shard].shutdown();
-                    FlareBot.getInstance().getClients()[shard] = new JDABuilder(AccountType.BOT)
-                            .addEventListener(FlareBot.getInstance().getEvents())
-                            .useSharding(shard, FlareBot.getInstance().getClients().length)
-                            .setToken(FlareBot.getToken())
-                            .setAudioSendFactory(new NativeAudioSendFactory())
-                            .buildAsync();
-                }
-            } catch (LoginException | RateLimitedException e) {
-                MessageUtils.sendException("", e, channel);
-            }
+            if (shard >= 0 && shard < Getters.getShards().size()) {
+                FlareBot.instance().getShardManager().restart(shard);
+                MessageUtils.sendSuccessMessage("Restarting shard " + shard, channel);
+            } else
+                MessageUtils.sendErrorMessage("Invalid shard ID!", channel);
         }
     }
 

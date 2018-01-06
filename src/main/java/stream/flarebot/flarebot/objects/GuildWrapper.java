@@ -5,8 +5,10 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
@@ -22,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class GuildWrapper {
 
     private String guildId;
+    private char prefix = Constants.COMMAND_CHAR;
     private Welcome welcome = new Welcome();
     private PerGuildPermissions permissions = new PerGuildPermissions();
     private LinkedList<Poll> polls = new LinkedList<>();
@@ -37,6 +40,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+    private String musicAnnounceChannelId = null;
     private Moderation moderation;
 
     // oooo special!
@@ -52,7 +56,7 @@ public class GuildWrapper {
     }
 
     public Guild getGuild() {
-        return FlareBot.getInstance().getGuildById(guildId);
+        return Getters.getGuildById(guildId);
     }
 
     public String getGuildId() {
@@ -145,9 +149,8 @@ public class GuildWrapper {
                     if (!getGuild().getSelfMember().getRoles().isEmpty())
                         getGuild().getController().modifyRolePositions().selectPosition(mutedRole)
                                 .moveTo(getGuild().getSelfMember().getRoles().get(0).getPosition() - 1).queue();
-                    Role finalMutedRole = mutedRole;
-                    getGuild().getTextChannels().forEach(channel -> channel.createPermissionOverride(finalMutedRole).setDeny(Permission.MESSAGE_WRITE).queue());
                     mutedRoleID = mutedRole.getId();
+                    handleMuteChannels(mutedRole);
                     return mutedRole;
                 } catch (InterruptedException | ExecutionException e) {
                     FlareBot.LOGGER.error("Error creating role!", e);
@@ -155,6 +158,7 @@ public class GuildWrapper {
                 }
             } else {
                 mutedRoleID = mutedRole.getId();
+                handleMuteChannels(mutedRole);
                 return mutedRole;
             }
         } else {
@@ -163,9 +167,26 @@ public class GuildWrapper {
                 mutedRoleID = null;
                 return getMutedRole();
             } else {
+                handleMuteChannels(mutedRole);
                 return mutedRole;
             }
         }
+    }
+
+    /**
+     * This will go through all the channels in a guild, if there is no permission override or it doesn't block message write then deny it.
+     *
+     * @param muteRole This is the muted role of the server, the role which will have MESSAGE_WRITE denied.
+     */
+    private void handleMuteChannels(Role muteRole) {
+        getGuild().getTextChannels().forEach(channel -> {
+            if (!getGuild().getSelfMember().hasPermission(channel, Permission.MANAGE_PERMISSIONS)) return;
+            if (channel.getPermissionOverride(muteRole) != null &&
+                    !channel.getPermissionOverride(muteRole).getDenied().contains(Permission.MESSAGE_WRITE))
+                channel.getPermissionOverride(muteRole).getManager().deny(Permission.MESSAGE_WRITE).queue();
+            else if (channel.getPermissionOverride(muteRole) == null)
+                channel.createPermissionOverride(muteRole).setDeny(Permission.MESSAGE_WRITE).queue();
+        });
     }
 
     public ReportManager getReportManager() {
@@ -212,5 +233,21 @@ public class GuildWrapper {
 
     public Moderation getModConfig() {
         return getModeration();
+    }
+
+    public char getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(char prefix) {
+        this.prefix = prefix;
+    }
+
+    public String getMusicAnnounceChannelId() {
+        return musicAnnounceChannelId;
+    }
+
+    public void setMusicAnnounceChannelId(String musicAnnounceChannelId) {
+        this.musicAnnounceChannelId = musicAnnounceChannelId;
     }
 }

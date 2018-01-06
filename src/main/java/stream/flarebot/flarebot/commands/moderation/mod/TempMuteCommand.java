@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.joda.time.Period;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
@@ -33,7 +32,7 @@ public class TempMuteCommand implements Command {
 
             Period period;
             if ((period = GeneralUtils.getTimeFromInput(args[1], channel)) == null) return;
-            String reason = args.length >= 3 ? FlareBot.getMessage(args, 2) : null;
+            String reason = args.length >= 3 ? MessageUtils.getMessage(args, 2) : null;
 
             ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.TEMP_MUTE, reason,
                     period.toStandardDuration().getMillis());

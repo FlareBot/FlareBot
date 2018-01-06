@@ -60,21 +60,6 @@ public class WebUtils {
         FlareBot.getOkHttpClient().newCall(builder.build()).enqueue(defaultCallback);
     }
 
-    public static int getShards(String token) throws IOException {
-        Request.Builder request = new Request.Builder()
-                .url("https://discordapp.com/api/gateway/bot")
-                .header("Authorization", "Bot " + token);
-        Response response = get(request);
-        if (!response.isSuccessful())
-            throw new IOException("Unexpected code " + response.code() + " when getting shards");
-        int shards = -1;
-        ResponseBody body = response.body();
-        if (body != null)
-            shards = new JSONObject(body.string()).getInt("shards");
-        response.close();
-        return shards;
-    }
-
     public static boolean pingHost(String host, int timeout) {
         return pingHost(host, 80, timeout);
     }

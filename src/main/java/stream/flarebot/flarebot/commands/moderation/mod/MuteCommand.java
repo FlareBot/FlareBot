@@ -4,7 +4,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
@@ -29,7 +28,7 @@ public class MuteCommand implements Command {
                 MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
                 return;
             }
-            String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
+            String reason = args.length > 1 ? MessageUtils.getMessage(args, 1) : null;
             ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.MUTE, reason);
         }
     }

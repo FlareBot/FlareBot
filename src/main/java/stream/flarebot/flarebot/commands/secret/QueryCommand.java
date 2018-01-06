@@ -16,7 +16,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class QueryCommand implements Command {
@@ -32,9 +31,7 @@ public class QueryCommand implements Command {
                 for (int i = 0; i < columnsCount; i++) {
                     header.add(set.getColumnDefinitions().getName(i));
                 }
-                Iterator<Row> setIT = set.iterator();
-                while (setIT.hasNext()) {
-                    Row setRow = setIT.next();
+                for (Row setRow : set) {
                     List<String> row = new ArrayList<>();
                     for (int i = 0; i < columnsCount; i++) {
                         String value = setRow.getObject(i).toString();

@@ -13,7 +13,7 @@ public class QuitCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        FlareBot.getInstance().quit(false);
+        FlareBot.instance().quit(false);
     }
 
     @Override

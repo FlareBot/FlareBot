@@ -2,13 +2,14 @@ package stream.flarebot.flarebot.util;
 
 import net.dv8tion.jda.core.JDA;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 
 public class ShardUtils {
 
-    private static final FlareBot flareBot = FlareBot.getInstance();
+    private static final FlareBot flareBot = FlareBot.instance();
 
     private static int getShardCount() {
-        return flareBot.getClients().length;
+        return flareBot.getShardManager().getShards().size();
     }
 
     /**
@@ -33,8 +34,12 @@ public class ShardUtils {
         return getShardId(jda) + 1;
     }
 
+    public static JDA getShardById(int shardId) {
+        return flareBot.getShardManager().getShardById(shardId);
+    }
+
     public static long getLastEventTime(int shardId) {
-        return System.currentTimeMillis() - FlareBot.getInstance().getEvents().getShardEventTime().get(shardId);
+        return System.currentTimeMillis() - FlareBot.instance().getEvents().getShardEventTime().get(shardId);
     }
 
     public static boolean isReconnecting(JDA jda) {
@@ -42,9 +47,8 @@ public class ShardUtils {
     }
 
     public static boolean isReconnecting(int shardId) {
-        return shardId >= 0 && shardId <= getShardCount() &&
-                (flareBot.getClients()[shardId].getStatus() == JDA.Status.RECONNECT_QUEUED ||
-                        flareBot.getClients()[shardId].getStatus() == JDA.Status.ATTEMPTING_TO_RECONNECT);
+        return shardId >= 0 && shardId <= getShardCount() && (getShardById(shardId).getStatus() ==
+                JDA.Status.RECONNECT_QUEUED || getShardById(shardId).getStatus() == JDA.Status.ATTEMPTING_TO_RECONNECT);
     }
 
     public static boolean isDead(JDA jda) {
@@ -52,13 +56,13 @@ public class ShardUtils {
     }
 
     public static boolean isDead(int shardId) {
-        return shardId >= 0 && shardId <= getShardCount() && getLastEventTime(shardId) >= 5000 && !isReconnecting(shardId);
+        return shardId >= 0 && shardId <= getShardCount() && getLastEventTime(shardId) >= 15000 && !isReconnecting(shardId);
     }
 
     public static long[] getPingsForShards() {
-        long[] pings = new long[flareBot.getClients().length];
+        long[] pings = new long[Getters.getShards().size()];
         for (int shardId = 0; shardId < pings.length; shardId++)
-            pings[shardId] = flareBot.getClients()[shardId].getPing();
+            pings[shardId] = getShardById(shardId).getPing();
         return pings;
     }
 }

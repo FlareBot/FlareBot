@@ -12,27 +12,21 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.buttons.ButtonRunnable;
-import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 public class SongCommand implements Command {
 
-    private PlayerManager manager;
-
-    public SongCommand(FlareBot bot) {
-        this.manager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager manager = FlareBot.instance().getMusicManager();
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             EmbedBuilder eb = MessageUtils.getEmbed(sender)
                     .addField("Current Song", getLink(track), false)
-                    .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/0.jpg");
+                    .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg");
             if (track.getTrack().getInfo().isStream)
                 eb.addField("Amount Played", "Issa livestream ;)", false);
             else
@@ -62,7 +56,7 @@ public class SongCommand implements Command {
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message1) -> {
                 if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), "flarebot.skip")) {
-                    Command cmd = FlareBot.getInstance().getCommand("skip", user);
+                    Command cmd = FlareBot.instance().getCommand("skip", user);
                     cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
                 }
             }));
@@ -75,7 +69,7 @@ public class SongCommand implements Command {
     }
 
     public static String getLink(Track track) {
-        String name = String.valueOf(track.getTrack().getInfo().title);
+        String name = String.valueOf(track.getTrack().getInfo().title).replace("`", "'");
         String link = YouTubeExtractor.WATCH_URL + track.getTrack().getIdentifier();
         return String.format("[`%s`](%s)", name, link);
     }

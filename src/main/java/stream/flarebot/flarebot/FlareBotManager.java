@@ -16,6 +16,7 @@ import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
@@ -50,13 +51,16 @@ public class FlareBotManager {
     private final String GUILD_DATA_TABLE;
 
     private PreparedStatement saveGuildStatement;
+    private PreparedStatement loadPlaylistStatement;
+    private PreparedStatement savePlaylistStatement;
+    private PreparedStatement insertPlaylistStatement;
 
     public FlareBotManager() {
         instance = this;
-        GUILD_DATA_TABLE = (FlareBot.getInstance().isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
+        GUILD_DATA_TABLE = (FlareBot.instance().isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
     }
 
-    public static FlareBotManager getInstance() {
+    public static FlareBotManager instance() {
         return instance;
     }
 
@@ -136,9 +140,12 @@ public class FlareBotManager {
 
     public void savePlaylist(Command command, TextChannel channel, String ownerId, boolean overwriteAllowed, String name, List<String> songs) {
         CassandraController.runTask(session -> {
-            PreparedStatement exists = session
-                    .prepare("SELECT * FROM flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
-            ResultSet set = session.execute(exists.bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            if (savePlaylistStatement == null)
+                savePlaylistStatement = session.prepare("SELECT * FROM flarebot.playlist " +
+                        "WHERE playlist_name = ? AND guild_id = ?");
+
+            ResultSet set =
+                    session.execute(savePlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             if (set.one() != null) {
                 if (ConfirmUtil.checkExists(ownerId, command.getClass())) {
                     MessageUtils.sendWarningMessage("Overwriting playlist!", channel);
@@ -151,11 +158,13 @@ public class FlareBotManager {
                     return;
                 }
             }
-            session.execute(session.prepare("INSERT INTO flarebot.playlist (playlist_name, guild_id, owner, songs, " +
-                    "scope, times_played) VALUES (?, ?, ?, ?, ?, ?)").bind()
-                    .setString(0, name).setString(1, channel.getGuild().getId()).setString(2, ownerId).setList(3, songs)
-                    .setString(4, "local").setInt(5, 0));
-            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserByID(ownerId))
+            if (insertPlaylistStatement == null)
+                insertPlaylistStatement = session.prepare("INSERT INTO flarebot.playlist" +
+                        " (playlist_name, guild_id, owner, songs, scope, times_played) VALUES (?, ?, ?, ?, ?, ?)");
+
+            session.execute(insertPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId())
+                    .setString(2, ownerId).setList(3, songs).setString(4, "local").setInt(5, 0));
+            channel.sendMessage(MessageUtils.getEmbed(Getters.getUserById(ownerId))
                     .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
         });
     }
@@ -163,16 +172,17 @@ public class FlareBotManager {
     public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {
         final ArrayList<String> list = new ArrayList<>();
         CassandraController.runTask(session -> {
-            ResultSet set = session.execute(session
-                    .prepare("SELECT songs FROM flarebot.playlist WHERE playlist_name = ?").bind()
-                    .setString(0, name));
+            if (loadPlaylistStatement == null) loadPlaylistStatement = session.prepare("SELECT songs FROM " +
+                    "flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
 
+            ResultSet set =
+                    session.execute(loadPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             Row row = set.one();
             if (row != null) {
                 list.addAll(row.getList("songs", String.class));
             } else
                 channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription("*That playlist does not exist!*").build()).queue();
+                        .setDescription("That playlist does not exist!").build()).queue();
         });
         return list;
     }
@@ -186,23 +196,22 @@ public class FlareBotManager {
             GuildWrapper wrapper;
             Row row = set != null ? set.one() : null;
             try {
-                if (row != null) {
+                if (row != null)
                     wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                } else
+                else
                     wrapper = new GuildWrapper(id);
             } catch (Exception e) {
-                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load guild JSON!\n" +
+                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
                         "Guild ID: " + id + "\n" +
                         "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
                         "Error: " + e.getMessage(), e);
                 return null;
             }
-
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 
             if (total >= 200) {
-                FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
+                Constants.getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
                         .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)
                         .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis()
                                 + "\nTime: " + LocalDateTime.now().toString(), false)
