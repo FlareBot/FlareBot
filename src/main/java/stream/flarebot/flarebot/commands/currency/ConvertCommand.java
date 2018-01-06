@@ -20,7 +20,7 @@ import java.text.DecimalFormat;
 
 public class ConvertCommand implements Command {
 
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.#################");
+    static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.#################");
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {

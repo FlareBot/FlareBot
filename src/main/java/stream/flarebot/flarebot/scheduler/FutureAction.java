@@ -132,7 +132,7 @@ public class FutureAction {
     }
 
     public void execute() {
-        GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
+        GuildWrapper gw = FlareBotManager.instance().getGuild(String.valueOf(guildId));
         switch (action) {
             case TEMP_MUTE:
                 ModlogHandler.getInstance().handleAction(gw,

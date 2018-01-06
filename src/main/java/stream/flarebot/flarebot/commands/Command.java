@@ -41,7 +41,7 @@ public interface Command {
     }
 
     default PerGuildPermissions getPermissions(TextChannel chan) {
-        return FlareBotManager.getInstance().getGuild(chan.getGuild().getId()).getPermissions();
+        return FlareBotManager.instance().getGuild(chan.getGuild().getId()).getPermissions();
     }
 
     default boolean isDefaultPermission() {
@@ -58,6 +58,6 @@ public interface Command {
     }
 
     default char getPrefix(Guild guild) {
-        return FlareBotManager.getInstance().getGuild(guild.getId()).getPrefix();
+        return FlareBotManager.instance().getGuild(guild.getId()).getPrefix();
     }
 }

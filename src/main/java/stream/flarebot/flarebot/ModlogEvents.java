@@ -429,6 +429,6 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     private GuildWrapper getGuild(Guild guild) {
-        return FlareBotManager.getInstance().getGuild(guild.getId());
+        return FlareBotManager.instance().getGuild(guild.getId());
     }
 }

@@ -60,7 +60,7 @@ public class FlareBotManager {
         GUILD_DATA_TABLE = (FlareBot.instance().isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
     }
 
-    public static FlareBotManager getInstance() {
+    public static FlareBotManager instance() {
         return instance;
     }
 

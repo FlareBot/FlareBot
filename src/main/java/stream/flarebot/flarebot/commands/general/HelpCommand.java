@@ -63,12 +63,12 @@ public class HelpCommand implements Command {
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
                     .stream().filter(cmd -> cmd.getPermission() != null &&
-                            FlareBotManager.getInstance().getGuild(guild.getId())
+                            FlareBotManager.instance().getGuild(guild.getId())
                                     .getPermissions()
                                     .hasPermission(guild
                                             .getMember(sender), cmd
                                             .getPermission()))
-                    .map(command -> FlareBotManager.getInstance().getGuild(guild.getId()).getPrefix() + command.getCommand() + " - " + command
+                    .map(command -> FlareBotManager.instance().getGuild(guild.getId()).getPrefix() + command.getCommand() + " - " + command
                             .getDescription() + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();

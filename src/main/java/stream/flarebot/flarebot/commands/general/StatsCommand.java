@@ -66,7 +66,7 @@ public class StatsCommand implements Command {
         VOICE_CONNECTIONS("Voice Connections", Getters::getConnectedVoiceChannels),
         ACTIVE_CHANNELS("Channels Playing Music", Getters::getActiveVoiceChannels),
         TEXT_CHANNELS("Text Channels", () -> Getters.getChannels().size()),
-        LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.getInstance().getGuilds().size()),
+        LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.instance().getGuilds().size()),
         COMMANDS_EXECUTED("Commands Executed", () -> FlareBot.instance().getEvents().getCommandCount()),
         UPTIME("Uptime", () -> FlareBot.instance().getUptime()),
         MEM_USAGE("Memory Usage", () -> getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),

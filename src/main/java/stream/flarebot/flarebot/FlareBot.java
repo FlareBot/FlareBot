@@ -458,7 +458,7 @@ public class FlareBot {
     private void sendData() {
         JSONObject data = new JSONObject()
                 .put("guilds", Getters.getGuilds().size())
-                //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
+                //.put("loaded_guilds", FlareBotManager.instance().getGuilds().size())
                 .put("official_guild_users", Getters.getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
                 .put("text_channels", Getters.getChannels().size())
                 .put("voice_channels", Getters.getVoiceChannels().size())
@@ -790,7 +790,7 @@ public class FlareBot {
             ResultSet set = session.execute("SELECT * FROM flarebot.announces");
             Row row;
             while ((row = set.one()) != null) {
-                FlareBotManager.getInstance().getGuild(row.getString(0)).setMusicAnnounceChannelId(row.getString(1));
+                FlareBotManager.instance().getGuild(row.getString(0)).setMusicAnnounceChannelId(row.getString(1));
             }
             session.execute("CREATE TABLE IF NOT EXISTS flarebot.prefixes (" +
                     "guild_id varchar PRIMARY KEY, " +
@@ -798,7 +798,7 @@ public class FlareBot {
                     ")");
             set = session.execute("SELECT * FROM flarebot.prefixes;");
             while ((row = set.one()) != null) {
-                FlareBotManager.getInstance().getGuild(row.getString(0)).setPrefix(row.getString(1).charAt(0));
+                FlareBotManager.instance().getGuild(row.getString(0)).setPrefix(row.getString(1).charAt(0));
             }
         });
     }

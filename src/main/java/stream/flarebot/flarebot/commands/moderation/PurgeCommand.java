@@ -91,7 +91,7 @@ public class PurgeCommand implements Command {
                     if ((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
                         toDelete.add(msg);
                         // This is to fix stuff like purges being logged.
-                        //FlareBot.getInstance().getEvents().getRemovedByMeList().add(msg.getIdLong());
+                        //FlareBot.instance().getEvents().getRemovedByMeList().add(msg.getIdLong());
                         i++;
                         toRetrieve--;
                     }

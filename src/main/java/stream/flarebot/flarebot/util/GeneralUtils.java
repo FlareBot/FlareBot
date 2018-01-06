@@ -138,7 +138,7 @@ public class GeneralUtils {
     }
 
     private static char getPrefix(Guild guild) {
-        return guild == null ? Constants.COMMAND_CHAR : FlareBotManager.getInstance().getGuild(guild.getId()).getPrefix();
+        return guild == null ? Constants.COMMAND_CHAR : FlareBotManager.instance().getGuild(guild.getId()).getPrefix();
     }
 
     public static String formatCommandPrefix(Guild guild, String usage) {
@@ -300,7 +300,7 @@ public class GeneralUtils {
             if (guild.getRolesByName(s, true).isEmpty()) {
                 String closest = null;
                 int distance = LEVENSHTEIN_DISTANCE;
-                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.getInstance().getGuild(guildId).getSelfAssignRoles()
+                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.instance().getGuild(guildId).getSelfAssignRoles()
                         .contains(role1.getId())).collect(Collectors.toList())) {
                     int currentDistance = StringUtils.getLevenshteinDistance(role1.getName(), s);
                     if (currentDistance < distance) {

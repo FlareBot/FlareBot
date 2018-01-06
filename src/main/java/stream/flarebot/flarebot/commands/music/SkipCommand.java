@@ -148,7 +148,7 @@ public class SkipCommand implements Command {
 
             ButtonUtil.sendButtonedMessage(channel, MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
-                    + "** has started!\nUse " + FlareBotManager.getInstance().getGuild(channel.getGuild().getId()).getPrefix() + "skip YES|NO to vote!")
+                    + "** has started!\nUse " + FlareBotManager.instance().getGuild(channel.getGuild().getId()).getPrefix() + "skip YES|NO to vote!")
                     .build(), buttons);
             return new HashMap<>();
         });

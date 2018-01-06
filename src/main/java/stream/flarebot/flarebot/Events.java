@@ -107,7 +107,7 @@ public class Events extends ListenerAdapter {
                 }
             }
         }
-        if (!FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getBetaAccess()) return;
+        if (!FlareBotManager.instance().getGuild(event.getGuild().getId()).getBetaAccess()) return;
         if (!event.getReactionEmote().getName().equals("\uD83D\uDCCC")) return; // Check if it's a :pushpin:
         event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
             MessageReaction reaction =
@@ -132,7 +132,7 @@ public class Events extends ListenerAdapter {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
-        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(event.getGuild().getId());
+        GuildWrapper wrapper = FlareBotManager.instance().getGuild(event.getGuild().getId());
         if (wrapper == null) return;
         if (wrapper.isBlocked()) return;
         if (flareBot.getManager().getGuild(event.getGuild().getId()).getWelcome() != null) {
@@ -280,7 +280,7 @@ public class Events extends ListenerAdapter {
 
         if (event.getAuthor().isBot()) return;
         String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
-        if (message.startsWith("" + FlareBotManager.getInstance().getGuild(getGuildId(event)).getPrefix())) {
+        if (message.startsWith("" + FlareBotManager.instance().getGuild(getGuildId(event)).getPrefix())) {
             List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
             if (!perms.contains(Permission.ADMINISTRATOR)) {
                 if (!perms.contains(Permission.MESSAGE_WRITE)) {
@@ -304,11 +304,11 @@ public class Events extends ListenerAdapter {
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
-            if (FlareBotManager.getInstance().getGuild(getGuildId(event)).getPrefix() != Constants.COMMAND_CHAR &&
+            if (FlareBotManager.instance().getGuild(getGuildId(event)).getPrefix() != Constants.COMMAND_CHAR &&
                     (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
                 event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
                         .setDescription("The server prefix is `" + FlareBotManager
-                                .getInstance().getGuild(getGuildId(event)).getPrefix() + "`")
+                                .instance().getGuild(getGuildId(event)).getPrefix() + "`")
                         .build()).queue();
             }
             if (!message.isEmpty()) {
@@ -352,9 +352,9 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onRoleDelete(RoleDeleteEvent event) {
-        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()) == null) return;
-        if (FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
-            FlareBotManager.getInstance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
+        if (FlareBotManager.instance().getGuild(event.getGuild().getId()) == null) return;
+        if (FlareBotManager.instance().getGuild(event.getGuild().getId()).getSelfAssignRoles().contains(event.getRole().getId())) {
+            FlareBotManager.instance().getGuild(event.getGuild().getId()).getSelfAssignRoles().remove(event.getRole().getId());
         }
     }
 
