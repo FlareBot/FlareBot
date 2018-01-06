@@ -40,7 +40,6 @@ import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandManager;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
@@ -101,7 +100,6 @@ public class FlareBot {
     private static JSONConfig config;
     private static boolean apiEnabled = true;
     private static boolean testBot = false;
-    private static Prefixes prefixes;
     private static OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
                     .addInterceptor(new DataInterceptor()).build();
@@ -320,8 +318,6 @@ public class FlareBot {
                     .setHttpClientBuilder(client.newBuilder())
                     .setBulkDeleteSplittingEnabled(false)
                     .build();
-
-            prefixes = new Prefixes();
             commandManager = new CommandManager();
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
@@ -785,4 +781,26 @@ public class FlareBot {
     public CommandManager getCommandManager() {
         return commandManager;
     }
+
+    public void migrations() {
+        CassandraController.runTask(session -> {
+            session.execute("CREATE TABLE IF NOT EXISTS flarebot.announces (" +
+                    "guild_id varchar PRIMARY KEY," +
+                    "channel_id varchar)");
+            ResultSet set = session.execute("SELECT * FROM flarebot.announces");
+            Row row;
+            while ((row = set.one()) != null) {
+                FlareBotManager.getInstance().getGuild(row.getString(0)).setMusicAnnounceChannelId(row.getString(1));
+            }
+            session.execute("CREATE TABLE IF NOT EXISTS flarebot.prefixes (" +
+                    "guild_id varchar PRIMARY KEY, " +
+                    "prefix varchar" +
+                    ")");
+            set = session.execute("SELECT * FROM flarebot.prefixes;");
+            while ((row = set.one()) != null) {
+                FlareBotManager.getInstance().getGuild(row.getString(0)).setPrefix(row.getString(1).charAt(0));
+            }
+        });
+    }
+
 }
