@@ -152,8 +152,20 @@ import java.util.zip.ZipOutputStream;
 
 public class FlareBot {
 
-    private static final Map<String, Logger> LOGGERS;
     public static final Logger LOGGER;
+    public static final Gson GSON = new GsonBuilder().create();
+    public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
+    public static final AtomicBoolean EXITING = new AtomicBoolean(false);
+    private static final Map<String, Logger> LOGGERS;
+    public static FlareBot instance;
+    private static String youtubeApi;
+    private static JSONConfig config;
+    private static boolean apiEnabled = true;
+    private static boolean testBot = false;
+    private static Prefixes prefixes;
+    private static OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
+                    .addInterceptor(new DataInterceptor()).build();
 
     static {
         handleLogArchive();
@@ -161,34 +173,16 @@ public class FlareBot {
         LOGGER = getLog(FlareBot.class.getName());
     }
 
-    public static FlareBot instance;
-    private static String youtubeApi;
-
-    private static JSONConfig config;
     private FlareBotManager manager;
-    private static boolean apiEnabled = true;
-
-    public static final Gson GSON = new GsonBuilder().create();
-
-    public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
-    public static final AtomicBoolean EXITING = new AtomicBoolean(false);
-
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
-
-    private static boolean testBot = false;
-
     private Events events;
     private String version = null;
     private ShardManager shardManager;
-
     private Set<Command> commands = new ConcurrentHashSet<>();
     private PlayerManager musicManager;
     private long startTime;
-    private static Prefixes prefixes;
-
-    private static OkHttpClient client =
-            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
-                    .addInterceptor(new DataInterceptor()).build();
+    private Runtime runtime = Runtime.getRuntime();
+    private WebhookClient importantHook;
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -273,12 +267,101 @@ public class FlareBot {
         return client;
     }
 
-    public Events getEvents() {
-        return events;
-    }
-
     public static Prefixes getPrefixes() {
         return prefixes;
+    }
+
+    public static FlareBot getInstance() {
+        return instance;
+    }
+
+    public static char getPrefix(String id) {
+        return getPrefixes().get(id);
+    }
+
+    public static String getMessage(String[] args) {
+        StringBuilder msg = new StringBuilder();
+        for (String arg : args) {
+            msg.append(arg).append(" ");
+        }
+        return msg.toString().trim();
+    }
+
+    public static String getMessage(String[] args, int min) {
+        return Arrays.stream(args).skip(min).collect(Collectors.joining(" ")).trim();
+    }
+
+    public static String getMessage(String[] args, int min, int max) {
+        StringBuilder message = new StringBuilder();
+        for (int index = min; index < max; index++) {
+            message.append(args[index]).append(" ");
+        }
+        return message.toString().trim();
+    }
+
+    // Disabled for now.
+    // TODO: Make sure the API has a way to handle this and also update that page.
+    public static void reportError(TextChannel channel, String s, Exception e) {
+        JsonObject message = new JsonObject();
+        message.addProperty("message", s);
+        message.addProperty("exception", GeneralUtils.getStackTrace(e));
+        MessageUtils.sendErrorMessage(s, channel);
+        //String id = instance.postToApi("postReport", "error", message);
+        //MessageUtils.sendErrorMessage(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id, channel);
+    }
+
+    public static String getStatusHook() {
+        return config.getString("bot.statusHook").isPresent() ? config.getString("bot.statusHook").get() : null;
+    }
+
+    public static String getYoutubeKey() {
+        return youtubeApi;
+    }
+
+    private static Logger getLog(String name) {
+        return LOGGERS.computeIfAbsent(name, LoggerFactory::getLogger);
+    }
+
+    public static Logger getLog(Class<?> clazz) {
+        return getLog(clazz.getName());
+    }
+
+    private static void handleLogArchive() {
+        try {
+            byte[] buffer = new byte[1024];
+            String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
+
+            File dir = new File("logs");
+            if (!dir.exists() && !dir.mkdir())
+                LOGGER.error("Failed to create directory for latest log!");
+            File f = new File(dir, "latest.log " + time + ".zip");
+            File latestLog = new File("latest.log");
+
+            FileOutputStream fos = new FileOutputStream(f);
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            ZipEntry entry = new ZipEntry(latestLog.getName());
+            zos.putNextEntry(entry);
+            FileInputStream in = new FileInputStream(latestLog);
+
+            int len;
+            while ((len = in.read(buffer)) > 0)
+                zos.write(buffer, 0, len);
+
+            in.close();
+            zos.closeEntry();
+            zos.close();
+            fos.close();
+
+            if (!latestLog.delete()) {
+                throw new IllegalStateException("Failed to delete the old log file!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Events getEvents() {
+        return events;
     }
 
     public void init() throws InterruptedException {
@@ -526,8 +609,6 @@ public class FlareBot {
                 .atTime(13, 0, 0), ChronoUnit.MILLIS));
     }
 
-    private Runtime runtime = Runtime.getRuntime();
-
     private void sendData() {
         JSONObject data = new JSONObject()
                 .put("guilds", getGuilds().size())
@@ -697,10 +778,6 @@ public class FlareBot {
         return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
     }
 
-    public static FlareBot getInstance() {
-        return instance;
-    }
-
     public String getUptime() {
         long totalSeconds = (System.currentTimeMillis() - startTime) / 1000;
         long seconds = totalSeconds % 60;
@@ -737,10 +814,6 @@ public class FlareBot {
                         Permission.MANAGE_WEBHOOKS, Permission.MANAGE_SERVER, Permission.MESSAGE_ADD_REACTION));
     }
 
-    public static char getPrefix(String id) {
-        return getPrefixes().get(id);
-    }
-
     public void setStatus(String status) {
         //TODO: Check if we're actually streaming or not.
         if (shardManager.getShardsTotal() == 1) {
@@ -753,41 +826,6 @@ public class FlareBot {
 
     public boolean isReady() {
         return shardManager.getShards().size() == shardManager.getShardsTotal();
-    }
-
-    public static String getMessage(String[] args) {
-        StringBuilder msg = new StringBuilder();
-        for (String arg : args) {
-            msg.append(arg).append(" ");
-        }
-        return msg.toString().trim();
-    }
-
-    public static String getMessage(String[] args, int min) {
-        return Arrays.stream(args).skip(min).collect(Collectors.joining(" ")).trim();
-    }
-
-    public static String getMessage(String[] args, int min, int max) {
-        StringBuilder message = new StringBuilder();
-        for (int index = min; index < max; index++) {
-            message.append(args[index]).append(" ");
-        }
-        return message.toString().trim();
-    }
-
-    // Disabled for now.
-    // TODO: Make sure the API has a way to handle this and also update that page.
-    public static void reportError(TextChannel channel, String s, Exception e) {
-        JsonObject message = new JsonObject();
-        message.addProperty("message", s);
-        message.addProperty("exception", GeneralUtils.getStackTrace(e));
-        MessageUtils.sendErrorMessage(s, channel);
-        //String id = instance.postToApi("postReport", "error", message);
-        //MessageUtils.sendErrorMessage(s + "\nThe error has been reported! You can follow the report on the website, https://flarebot.stream/report?id=" + id, channel);
-    }
-
-    public static String getStatusHook() {
-        return config.getString("bot.statusHook").isPresent() ? config.getString("bot.statusHook").get() : null;
     }
 
     public String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
@@ -820,11 +858,6 @@ public class FlareBot {
                 .trim();
     }
 
-
-    public static String getYoutubeKey() {
-        return youtubeApi;
-    }
-
     public List<VoiceChannel> getVoiceChannels() {
         return shardManager.getVoiceChannels();
     }
@@ -836,6 +869,8 @@ public class FlareBot {
                 .count();
     }
 
+    // getXById
+
     public FlareBotManager getManager() {
         return this.manager;
     }
@@ -844,16 +879,6 @@ public class FlareBot {
         this.playerCache.computeIfAbsent(userId, k -> new PlayerCache(userId, null, null, null));
         return this.playerCache.get(userId);
     }
-
-    private static Logger getLog(String name) {
-        return LOGGERS.computeIfAbsent(name, LoggerFactory::getLogger);
-    }
-
-    public static Logger getLog(Class<?> clazz) {
-        return getLog(clazz.getName());
-    }
-
-    // getXById
 
     public TextChannel getChannelById(String id) {
         return getGuilds().stream()
@@ -870,6 +895,8 @@ public class FlareBot {
         return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
     }
 
+    // getXs
+
     public Guild getGuildById(long id) {
         return getGuilds().stream().filter(g -> g.getIdLong() == id).findFirst().orElse(null);
     }
@@ -880,8 +907,6 @@ public class FlareBot {
                 return g.getEmoteById(emoteId);
         return null;
     }
-
-    // getXs
 
     public List<Guild> getGuilds() {
         return shardManager.getGuilds();
@@ -954,48 +979,12 @@ public class FlareBot {
         return !apiEnabled;
     }
 
-    private WebhookClient importantHook;
-
     private WebhookClient getImportantWebhook() {
         if (!config.getString("bot.importantHook").isPresent())
             return null;
         if (importantHook == null)
             importantHook = new WebhookClientBuilder(config.getString("bot.importantHook").get()).build();
         return importantHook;
-    }
-
-    private static void handleLogArchive() {
-        try {
-            byte[] buffer = new byte[1024];
-            String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
-
-            File dir = new File("logs");
-            if (!dir.exists() && !dir.mkdir())
-                LOGGER.error("Failed to create directory for latest log!");
-            File f = new File(dir, "latest.log " + time + ".zip");
-            File latestLog = new File("latest.log");
-
-            FileOutputStream fos = new FileOutputStream(f);
-            ZipOutputStream zos = new ZipOutputStream(fos);
-            ZipEntry entry = new ZipEntry(latestLog.getName());
-            zos.putNextEntry(entry);
-            FileInputStream in = new FileInputStream(latestLog);
-
-            int len;
-            while ((len = in.read(buffer)) > 0)
-                zos.write(buffer, 0, len);
-
-            in.close();
-            zos.closeEntry();
-            zos.close();
-            fos.close();
-
-            if (!latestLog.delete()) {
-                throw new IllegalStateException("Failed to delete the old log file!");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void runTasks() {
