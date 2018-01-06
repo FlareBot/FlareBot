@@ -18,7 +18,7 @@ public class ShardRestartCommand implements Command {
         if (getPermissions(channel).isCreator(sender)) {
             int shard = Integer.parseInt(args[0]);
             if (shard >= 0 && shard < Getters.getShards().size()) {
-                FlareBot.getInstance().getShardManager().restart(shard);
+                FlareBot.instance.getShardManager().restart(shard);
                 MessageUtils.sendSuccessMessage("Restarting shard " + shard, channel);
             } else
                 MessageUtils.sendErrorMessage("Invalid shard ID!", channel);

@@ -75,7 +75,7 @@ public class StatusCommand implements Command {
                         "* Shards Connecting: %s shards\n" +
                         "* High Last Event Time: %s shards\n" +
                         "Guilds: %d | Users: %d | Connected VCs: %d | Active VCs: %d",
-                FlareBot.getInstance().getVersion(),
+                FlareBot.instance.getVersion(),
                 JDAInfo.VERSION,
                 channel.getJDA().getShardInfo() == null ? 0 : channel.getJDA().getShardInfo().getShardId(),
                 ping,

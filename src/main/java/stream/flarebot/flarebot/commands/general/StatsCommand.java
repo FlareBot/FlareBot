@@ -26,7 +26,7 @@ public class StatsCommand implements Command {
         if (args.length == 0) {
             EmbedBuilder bld = MessageUtils.getEmbed(sender).setColor(Color.CYAN)
                     .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
-            bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " stats");
+            bld.setDescription("FlareBot v" + FlareBot.instance.getVersion() + " stats");
             for (MultiSelectionContent<String, String, Boolean> content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
@@ -67,8 +67,8 @@ public class StatsCommand implements Command {
         ACTIVE_CHANNELS("Channels Playing Music", Getters::getActiveVoiceChannels),
         TEXT_CHANNELS("Text Channels", () -> Getters.getChannels().size()),
         LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.getInstance().getGuilds().size()),
-        COMMANDS_EXECUTED("Commands Executed", () -> FlareBot.getInstance().getEvents().getCommandCount()),
-        UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
+        COMMANDS_EXECUTED("Commands Executed", () -> FlareBot.instance.getEvents().getCommandCount()),
+        UPTIME("Uptime", () -> FlareBot.instance.getUptime()),
         MEM_USAGE("Memory Usage", () -> getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
         MEM_FREE("Memory Free", () -> getMb(Runtime.getRuntime().freeMemory())),
         VIDEO_THREADS("Video Threads", VideoThread.VIDEO_THREADS::activeCount),

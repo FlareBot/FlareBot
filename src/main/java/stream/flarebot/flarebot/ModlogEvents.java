@@ -257,8 +257,8 @@ public class ModlogEvents extends ListenerAdapter {
         AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
         if (entry.getUser().isBot()) return;
         User responsible = null;
-        if (FlareBot.getInstance().getEvents().getRemovedByMeList().contains(event.getMessageIdLong())) {
-            FlareBot.getInstance().getEvents().getRemovedByMeList().remove(event.getMessageIdLong());
+        if (FlareBot.instance.getEvents().getRemovedByMeList().contains(event.getMessageIdLong())) {
+            FlareBot.instance.getEvents().getRemovedByMeList().remove(event.getMessageIdLong());
             return;
         }
         if (!RedisController.exists(event.getMessageId())) return;

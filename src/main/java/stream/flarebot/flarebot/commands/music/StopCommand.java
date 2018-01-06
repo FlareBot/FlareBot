@@ -13,7 +13,7 @@ public class StopCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).stop();
+        FlareBot.instance.getMusicManager().getPlayer(channel.getGuild().getId()).stop();
     }
 
     @Override

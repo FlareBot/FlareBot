@@ -29,19 +29,19 @@ public class Constants {
     }
 
     public static TextChannel getErrorLogChannel() {
-        return (FlareBot.getInstance().isTestBot() ?
+        return (FlareBot.instance.isTestBot() ?
                 Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
                 Getters.getChannelById("226786557862871040"));
     }
 
     public static TextChannel getGuildLogChannel() {
-        return (FlareBot.getInstance().isTestBot() ?
+        return (FlareBot.instance.isTestBot() ?
                 Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
                 Getters.getChannelById("260401007685664768"));
     }
 
     private static TextChannel getEGLogChannel() {
-        return (FlareBot.getInstance().isTestBot() ?
+        return (FlareBot.instance.isTestBot() ?
                 Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
                 Getters.getChannelById("358950369642151937"));
     }
@@ -56,7 +56,7 @@ public class Constants {
     }
 
     public static TextChannel getImportantLogChannel() {
-        return (FlareBot.getInstance().isTestBot() ?
+        return (FlareBot.instance.isTestBot() ?
                 Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
                 Getters.getChannelById("358978253966278657"));
     }

@@ -21,7 +21,7 @@ public class SongCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        PlayerManager manager = FlareBot.getInstance().getMusicManager();
+        PlayerManager manager = FlareBot.instance.getMusicManager();
         if (manager.getPlayer(channel.getGuild().getId()).getPlayingTrack() != null) {
             Track track = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
             EmbedBuilder eb = MessageUtils.getEmbed(sender)
@@ -56,7 +56,7 @@ public class SongCommand implements Command {
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23ED", user -> {
                 if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), "flarebot.skip")) {
-                    Command cmd = FlareBot.getInstance().getCommand("skip", user);
+                    Command cmd = FlareBot.instance.getCommand("skip", user);
                     cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
                 }
             }));

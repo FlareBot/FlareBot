@@ -18,7 +18,7 @@ public class CommandUsageCommand implements Command {
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
-            Command c = FlareBot.getInstance().getCommand(args[0], sender);
+            Command c = FlareBot.instance.getCommand(args[0], sender);
             if (c == null || (c.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(sender))) {
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
             } else {

@@ -28,7 +28,7 @@ public class UpdateCommand implements Command {
     private static AtomicBoolean queued = new AtomicBoolean(false);
     public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
 
-    private FlareBot flareBot = FlareBot.getInstance();
+    private FlareBot flareBot = FlareBot.instance;
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -89,7 +89,7 @@ public class UpdateCommand implements Command {
      */
     public static void update(boolean force, TextChannel channel) {
         if (force) {
-            doTheUpdate(channel, "latest", FlareBot.getInstance().getVersion());
+            doTheUpdate(channel, "latest", FlareBot.instance.getVersion());
             return;
         }
         try {
@@ -101,7 +101,7 @@ public class UpdateCommand implements Command {
                 if (line != null && (line.contains("<version>") && line.contains("</version>"))) {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "")
                             .replaceAll("\t", "");
-                    String currentVersion = FlareBot.getInstance().getVersion();
+                    String currentVersion = FlareBot.instance.getVersion();
                     if (isHigher(latestVersion, currentVersion)) {
                         doTheUpdate(channel, latestVersion, currentVersion);
                     } else {
@@ -118,11 +118,11 @@ public class UpdateCommand implements Command {
     }
 
     private static void doTheUpdate(TextChannel channel, String latestVersion, String currentVersion) {
-        FlareBot.getInstance().setStatus("Updating..");
+        FlareBot.instance.setStatus("Updating..");
         if (channel != null)
             channel.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`").queue();
         UPDATING.set(true);
-        FlareBot.getInstance().quit(true);
+        FlareBot.instance.quit(true);
     }
 
 

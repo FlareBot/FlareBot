@@ -31,7 +31,7 @@ public class PerGuildPermissions {
         if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
         // Change done by Walshy: Internal review needed
-        if (isContributor(user.getUser()) && FlareBot.getInstance().isTestBot())
+        if (isContributor(user.getUser()) && FlareBot.instance.isTestBot())
             return true;
         PermissionNode node = new PermissionNode(permission);
         if (getUser(user).hasPermission(node))
@@ -82,7 +82,7 @@ public class PerGuildPermissions {
     }
 
     private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
-        if (!FlareBot.getInstance().isReady() || Constants.getOfficialGuild() == null) return false;
+        if (!FlareBot.instance.isReady() || Constants.getOfficialGuild() == null) return false;
         return Constants.getOfficialGuild().getMember(user) != null && Constants.getOfficialGuild().getMember(user).getRoles()
                 .contains(Constants.getOfficialGuild().getRoleById(roleId));
     }
@@ -104,7 +104,7 @@ public class PerGuildPermissions {
             deleteGroup("Default");
         }
         Group defaults = new Group("Default");
-        for (Command command : FlareBot.getInstance().getCommandManager().getCommands()) {
+        for (Command command : FlareBot.instance.getCommandManager().getCommands()) {
             if (command.isDefaultPermission()) {
                 defaults.addPermission(command.getPermission());
             }

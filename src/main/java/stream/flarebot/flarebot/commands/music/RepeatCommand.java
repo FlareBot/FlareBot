@@ -21,7 +21,7 @@ public class RepeatCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId());
+        Player player = FlareBot.instance.getMusicManager().getPlayer(channel.getGuild().getId());
         if (player.getPlayingTrack() == null) {
             MessageUtils.sendErrorMessage("Can't repeat when their is no song to repeat!", channel);
         } else {

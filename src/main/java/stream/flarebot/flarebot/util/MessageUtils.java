@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class MessageUtils {
 
-    private static FlareBot flareBot = FlareBot.getInstance();
+    private static FlareBot flareBot = FlareBot.instance;
 
     private static final Pattern INVITE_REGEX = Pattern
             .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");

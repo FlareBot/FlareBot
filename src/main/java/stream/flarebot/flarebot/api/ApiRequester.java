@@ -41,7 +41,7 @@ public class ApiRequester {
 
     /* Root methods */
     public static Response request(ApiRoute route, JSONObject object, Method method) {
-        if (FlareBot.getInstance().isApiDisabled()) return null;
+        if (FlareBot.instance.isApiDisabled()) return null;
         try {
             FlareBot.LOGGER.trace("Sending request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                     object.toString() : false));
@@ -53,7 +53,7 @@ public class ApiRequester {
     }
 
     public static void requestAsync(ApiRoute route, JSONObject object, Method method, Callback callback) {
-        if (FlareBot.getInstance().isApiDisabled()) return;
+        if (FlareBot.instance.isApiDisabled()) return;
         FlareBot.LOGGER.trace("Sending async request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                 object.toString() : false));
         if (callback == null) callback = new DefaultCallback();
@@ -62,7 +62,7 @@ public class ApiRequester {
 
     private static Request getRequest(ApiRoute route, JSONObject object, Method method) {
         Request.Builder request = new Request.Builder().url(route.getFullUrl());
-        request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
+        request.addHeader("Authorization", FlareBot.instance.getApiKey());
         request.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
         RequestBody body = RequestBody.create(JSON, (object == null ? new JSONObject().toString() : object.toString()));
         switch (method) {

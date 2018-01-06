@@ -24,7 +24,7 @@ public class SeekCommand implements Command {
                 MessageUtils.sendErrorMessage("You have entered an invalid duration to skip to!\n" + getExtraInfo(), channel);
                 return;
             }
-            Track t = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
+            Track t = FlareBot.instance.getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
             if (t == null) {
                 MessageUtils.sendErrorMessage("There is no song currently playing!", channel);
                 return;

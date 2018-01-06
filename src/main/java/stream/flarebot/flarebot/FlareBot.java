@@ -210,10 +210,6 @@ public class FlareBot {
         return prefixes;
     }
 
-    public static FlareBot getInstance() {
-        return instance;
-    }
-
     public static char getPrefix(String id) {
         return getPrefixes().get(id);
     }

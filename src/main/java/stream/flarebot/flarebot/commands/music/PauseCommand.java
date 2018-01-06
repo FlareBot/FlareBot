@@ -13,7 +13,7 @@ public class PauseCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).setPaused(true);
+        FlareBot.instance.getMusicManager().getPlayer(channel.getGuild().getId()).setPaused(true);
     }
 
     @Override

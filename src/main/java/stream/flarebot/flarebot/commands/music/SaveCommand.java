@@ -11,7 +11,6 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
@@ -31,14 +30,14 @@ public class SaveCommand implements Command {
             MessageUtils.sendErrorMessage("Name can only be a maximum of 20 characters!", channel);
             return;
         }
-        if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
+        if (!FlareBot.instance.getMusicManager().hasPlayer(channel.getGuild().getId())) {
             MessageUtils.sendErrorMessage("Your playlist is empty!", channel);
             return;
         }
-        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId())
+        Queue<Track> playlist = FlareBot.instance.getMusicManager().getPlayer(guild.getGuildId())
                 .getPlaylist();
         Track currentlyPlaying =
-                FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
+                FlareBot.instance.getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
 
         channel.sendTyping().complete();
 
@@ -55,7 +54,7 @@ public class SaveCommand implements Command {
             return;
         }
 
-        FlareBot.getInstance().getManager().savePlaylist(this,
+        FlareBot.instance.getManager().savePlaylist(this,
                 channel,
                 sender.getId(),
                 this.getPermissions(channel).hasPermission(member, "flarebot.playlist.save.overwrite"),
