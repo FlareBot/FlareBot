@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
@@ -60,11 +61,11 @@ public class StatsCommand implements Command {
 
     public enum Content implements MultiSelectionContent<String, String, Boolean> {
 
-        SERVERS("Servers", () -> FlareBot.getInstance().getGuilds().size()),
-        TOTAL_USERS("Total Users", () -> FlareBot.getInstance().getUsers().size()),
-        VOICE_CONNECTIONS("Voice Connections", () -> FlareBot.getInstance().getConnectedVoiceChannels()),
-        ACTIVE_CHANNELS("Channels Playing Music", () -> FlareBot.getInstance().getActiveVoiceChannels()),
-        TEXT_CHANNELS("Text Channels", () -> FlareBot.getInstance().getChannels().size()),
+        SERVERS("Servers", () -> Getters.getGuilds().size()),
+        TOTAL_USERS("Total Users", () -> Getters.getUsers().size()),
+        VOICE_CONNECTIONS("Voice Connections", Getters::getConnectedVoiceChannels),
+        ACTIVE_CHANNELS("Channels Playing Music", Getters::getActiveVoiceChannels),
+        TEXT_CHANNELS("Text Channels", () -> Getters.getChannels().size()),
         LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.getInstance().getGuilds().size()),
         COMMANDS_EXECUTED("Commands Executed", () -> FlareBot.getInstance().getEvents().getCommandCount()),
         UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
@@ -84,14 +85,17 @@ public class StatsCommand implements Command {
             this.returns = returns;
         }
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public String getReturn() {
             return String.valueOf(returns.get());
         }
 
+        @Override
         public Boolean isAlign() {
             return this.align;
         }

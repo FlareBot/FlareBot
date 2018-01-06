@@ -18,16 +18,11 @@ import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
 import okhttp3.ConnectionPool;
@@ -138,7 +133,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -390,7 +384,7 @@ public class FlareBot {
         LOGGER.info("Starting run sequence");
         try {
             musicManager =
-                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
+                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(Getters.getShardsArray())));
         } catch (UnknownBindingException e) {
             LOGGER.error("Failed to initialize musicManager", e);
         }
@@ -590,14 +584,14 @@ public class FlareBot {
 
     private void sendData() {
         JSONObject data = new JSONObject()
-                .put("guilds", getGuilds().size())
+                .put("guilds", Getters.getGuilds().size())
                 //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
-                .put("official_guild_users", getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
-                .put("text_channels", getChannels().size())
-                .put("voice_channels", getVoiceChannels().size())
-                .put("connected_voice_channels", getConnectedVoiceChannels())
-                .put("active_voice_channels", getActiveVoiceChannels())
-                .put("num_queued_songs", getGuilds().stream()
+                .put("official_guild_users", Getters.getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
+                .put("text_channels", Getters.getChannels().size())
+                .put("voice_channels", Getters.getVoiceChannels().size())
+                .put("connected_voice_channels", Getters.getConnectedVoiceChannels())
+                .put("active_voice_channels", Getters.getActiveVoiceChannels())
+                .put("num_queued_songs", Getters.getGuilds().stream()
                         .mapToInt(guild -> musicManager.getPlayer(guild.getId())
                                 .getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
@@ -837,16 +831,6 @@ public class FlareBot {
                 .trim();
     }
 
-    public List<VoiceChannel> getVoiceChannels() {
-        return shardManager.getVoiceChannels();
-    }
-
-    public long getActiveVoiceChannels() {
-        return getConnectedVoiceChannelList().stream()
-                .map(vc -> getMusicManager().getPlayer(vc.getGuild().getId()))
-                .filter(p -> p != null && p.getPlayingTrack() != null && !p.getPaused())
-                .count();
-    }
 
     // getXById
 
@@ -859,71 +843,6 @@ public class FlareBot {
         return this.playerCache.get(userId);
     }
 
-    public TextChannel getChannelById(String id) {
-        return getGuilds().stream()
-                .map(g -> g.getTextChannelById(id))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
-    }
-
-    public TextChannel getChannelById(long id) {
-        return getGuilds().stream().map(g -> g.getTextChannelById(id)).filter(Objects::nonNull).findFirst().orElse(null);
-    }
-
-    public Guild getGuildById(String id) {
-        return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
-    }
-
-    // getXs
-
-    public Guild getGuildById(long id) {
-        return getGuilds().stream().filter(g -> g.getIdLong() == id).findFirst().orElse(null);
-    }
-
-    public Emote getEmoteById(long emoteId) {
-        for (Guild g : getGuilds())
-            if (g.getEmoteById(emoteId) != null)
-                return g.getEmoteById(emoteId);
-        return null;
-    }
-
-    public List<Guild> getGuilds() {
-        return shardManager.getGuilds();
-    }
-
-    public SnowflakeCacheView<Guild> getGuildsCache() {
-        return shardManager.getGuildCache();
-    }
-
-    public List<Channel> getChannels() {
-        return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
-    }
-
-    public long getConnectedVoiceChannels() {
-        return getGuilds().stream().filter(c -> c.getAudioManager().getConnectedChannel() != null).count();
-    }
-
-    public List<VoiceChannel> getConnectedVoiceChannelList() {
-        return getGuilds().stream().map(g -> g.getAudioManager().getConnectedChannel())
-                .filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    public Set<User> getUsers() {
-        return shardManager.getUserCache().asSet();
-    }
-
-    public User getUserById(String id) {
-        return shardManager.getUserById(id);
-    }
-
-    // Keep consistent with the naming of JDA.
-    public User getUserById(long id) {
-        return shardManager.getUserById(id);
-    }
-
-    public User retrieveUserById(long id) {
-        return getClient().retrieveUserById(id).complete();
-    }
 
     public boolean isTestBot() {
         return testBot;
@@ -940,14 +859,6 @@ public class FlareBot {
             apiEnabled = false;
             return null;
         }
-    }
-
-    public List<JDA> getShards() {
-        return shardManager.getShards();
-    }
-
-    private JDA[] getShardsArray() {
-        return shardManager.getShards().toArray(new JDA[shardManager.getShards().size()]);
     }
 
     public ShardManager getShardManager() {
@@ -1003,8 +914,8 @@ public class FlareBot {
                         WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
                                 new JSONObject()
                                         .put("key", config.getString("botlists.carbon").get())
-                                        .put("servercount", getGuilds().size())
-                                        .put("shardcount", getShards().size())
+                                        .put("servercount", Getters.getGuilds().size())
+                                        .put("shardcount", Getters.getShards().size())
                                         .toString());
                     } catch (IOException e) {
                         LOGGER.error("Failed to update carbon!", e);
@@ -1044,12 +955,12 @@ public class FlareBot {
                     cancel();
                     return;
                 }
-                if (getShards().size() == 1) {
+                if (Getters.getShards().size() == 1) {
                     LOGGER.warn("Single sharded bot, the DeadShard-Checker has been disabled!");
                     cancel();
                     return;
                 }
-                Set<Integer> deadShards = getShards().stream().map(c -> c.getShardInfo().getShardId())
+                Set<Integer> deadShards = Getters.getShards().stream().map(c -> c.getShardInfo().getShardId())
                         .filter(ShardUtils::isDead).collect(Collectors.toSet());
                 if (deadShards.size() > 0) {
 

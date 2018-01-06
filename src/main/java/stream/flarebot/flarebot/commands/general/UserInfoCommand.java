@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -42,7 +43,7 @@ public class UserInfoCommand implements Command {
         }
         String id = user.getId();
         if (channel.getGuild().getMember(user) == null) {
-            Guild memberGuild = FlareBot.getInstance().getGuilds().stream().filter(g -> g.getMemberById(user.getId()) != null)
+            Guild memberGuild = Getters.getGuilds().stream().filter(g -> g.getMemberById(user.getId()) != null)
                     .findFirst().orElse(null);
             if (memberGuild == null)
                 member = null;
@@ -58,7 +59,7 @@ public class UserInfoCommand implements Command {
                         "Default Avatar: [`link`](" + MessageUtils
                         .getDefaultAvatar(sender) + ')', true)
                 .addField("General Info",
-                        "Servers: " + FlareBot.getInstance().getGuilds().stream()
+                        "Servers: " + Getters.getGuilds().stream()
                                 .filter(g -> g.getMemberById(id) != null)
                                 .count() + " shared\n" +
                                 "Roles: " + (channel.getGuild()

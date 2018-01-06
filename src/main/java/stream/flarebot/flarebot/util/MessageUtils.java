@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 
 import java.awt.Color;
@@ -187,7 +188,7 @@ public class MessageUtils {
         if (type == MessageType.ERROR)
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
                     "[Support Server](" + Constants.INVITE_URL + ")! Our staff can support on any issue you may have! "
-                    + FlareBot.getInstance().getEmoteById(386550693294768129L).getAsMention());
+                    + Getters.getEmoteById(386550693294768129L).getAsMention());
         if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
         else

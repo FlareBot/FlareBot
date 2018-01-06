@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -26,7 +27,7 @@ public class ServerInfoCommand implements Command {
         if (args.length == 0) {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
-            Guild targetGuild = FlareBot.getInstance().getGuildById(GeneralUtils.getLong(args[0], -1));
+            Guild targetGuild = Getters.getGuildById(GeneralUtils.getLong(args[0], -1));
             if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {

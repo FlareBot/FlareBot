@@ -2,15 +2,11 @@ package stream.flarebot.flarebot.util.objects;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import org.eclipse.jetty.util.ConcurrentHashSet;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.util.buttons.ButtonRunnable;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ButtonGroup {
 
@@ -59,10 +55,10 @@ public class ButtonGroup {
         }
 
         public void addReaction(Message message) {
-            if(unicode != null)
+            if (unicode != null)
                 message.addReaction(unicode).queue();
             else
-                message.addReaction(FlareBot.getInstance().getEmoteById(emoteId)).queue();
+                message.addReaction(Getters.getEmoteById(emoteId)).queue();
         }
 
         public void onClick(User user) {

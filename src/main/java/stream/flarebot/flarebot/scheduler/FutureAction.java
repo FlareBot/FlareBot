@@ -4,8 +4,8 @@ import com.datastax.driver.core.PreparedStatement;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
@@ -153,8 +153,8 @@ public class FutureAction {
                 );
                 break;
             case REMINDER:
-                if (FlareBot.getInstance().getChannelById(channelId) != null)
-                    FlareBot.getInstance().getChannelById(channelId).sendMessage(FlareBot.getInstance()
+                if (Getters.getChannelById(channelId) != null)
+                    Getters.getChannelById(channelId).sendMessage(Getters
                             .getUserById(responsible).getAsMention() + " You asked me to remind you " +
                             GeneralUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
                             .queue();

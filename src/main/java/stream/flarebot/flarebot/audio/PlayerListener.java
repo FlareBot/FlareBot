@@ -9,8 +9,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.music.MusicAnnounceCommand;
 import stream.flarebot.flarebot.commands.music.SongCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -41,7 +41,7 @@ public class PlayerListener extends AudioEventAdapter {
                 }
             } else {
                 if (!GeneralUtils.canChangeNick(player.getGuildId())) {
-                    MessageUtils.sendPM(FlareBot.getInstance().getGuildById(player.getGuildId()).getOwner().getUser(),
+                    MessageUtils.sendPM(Getters.getGuildById(player.getGuildId()).getOwner().getUser(),
                             "FlareBot can't change it's nickname so SongNick has been disabled!");
                 }
             }
@@ -53,7 +53,7 @@ public class PlayerListener extends AudioEventAdapter {
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(player.getGuildId());
         if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
             TextChannel c =
-                    FlareBot.getInstance().getChannelById(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
+                    Getters.getChannelById(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
             if (c != null) {
                 if (c.getGuild().getSelfMember().hasPermission(c,
                         Permission.MESSAGE_EMBED_LINKS,

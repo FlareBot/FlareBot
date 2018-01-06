@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.util;
 
 import net.dv8tion.jda.core.JDA;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 
 public class ShardUtils {
 
@@ -59,7 +60,7 @@ public class ShardUtils {
     }
 
     public static long[] getPingsForShards() {
-        long[] pings = new long[flareBot.getShards().size()];
+        long[] pings = new long[Getters.getShards().size()];
         for (int shardId = 0; shardId < pings.length; shardId++)
             pings[shardId] = getShardById(shardId).getPing();
         return pings;

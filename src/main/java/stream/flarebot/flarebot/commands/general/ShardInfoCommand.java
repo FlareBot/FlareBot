@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.text.WordUtils;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -29,7 +29,7 @@ public class ShardInfoCommand implements Command {
         headers.add("Connected VCs");
 
         List<List<String>> table = new ArrayList<>();
-        List<JDA> shards = new ArrayList<>(FlareBot.getInstance().getShards());
+        List<JDA> shards = new ArrayList<>(Getters.getShards());
         Collections.reverse(shards);
         for (JDA jda : shards) {
             List<String> row = new ArrayList<>();

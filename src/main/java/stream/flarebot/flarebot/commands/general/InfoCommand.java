@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import spark.utils.IOUtils;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -79,7 +80,7 @@ public class InfoCommand implements Command {
 
     public enum Content implements MultiSelectionContent<String, String, Boolean> {
 
-        SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
+        SERVERS("Servers", () -> String.valueOf(Getters.getGuilds().size())),
         VERSION("Version", FlareBot.getInstance().getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
@@ -118,14 +119,17 @@ public class InfoCommand implements Command {
             this.returns = returns;
         }
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public String getReturn() {
             return returns.get();
         }
 
+        @Override
         public Boolean isAlign() {
             return this.align;
         }

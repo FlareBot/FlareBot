@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 
 import java.time.Clock;
@@ -20,29 +21,29 @@ public class Constants {
     public static final long CONTRIBUTOR_ID = 272324832279003136L;
     public static final long STAFF_ID = 320327762881675264L;
 
-    public static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
+    private static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
     public static final char COMMAND_CHAR = '_';
 
     public static Guild getOfficialGuild() {
-        return FlareBot.getInstance().getGuildById(OFFICIAL_GUILD);
+        return Getters.getGuildById(OFFICIAL_GUILD);
     }
 
     public static TextChannel getErrorLogChannel() {
         return (FlareBot.getInstance().isTestBot() ?
-                FlareBot.getInstance().getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
-                FlareBot.getInstance().getChannelById("226786557862871040"));
+                Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
+                Getters.getChannelById("226786557862871040"));
     }
 
     public static TextChannel getGuildLogChannel() {
         return (FlareBot.getInstance().isTestBot() ?
-                FlareBot.getInstance().getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
-                FlareBot.getInstance().getChannelById("260401007685664768"));
+                Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
+                Getters.getChannelById("260401007685664768"));
     }
 
     private static TextChannel getEGLogChannel() {
         return (FlareBot.getInstance().isTestBot() ?
-                FlareBot.getInstance().getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
-                FlareBot.getInstance().getChannelById("358950369642151937"));
+                Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
+                Getters.getChannelById("358950369642151937"));
     }
 
     public static void logEG(String eg, Command command, Guild guild, User user) {
@@ -56,8 +57,8 @@ public class Constants {
 
     public static TextChannel getImportantLogChannel() {
         return (FlareBot.getInstance().isTestBot() ?
-                FlareBot.getInstance().getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
-                FlareBot.getInstance().getChannelById("358978253966278657"));
+                Getters.getChannelById(Constants.FLARE_TEST_BOT_CHANNEL) :
+                Getters.getChannelById("358978253966278657"));
     }
 
 }

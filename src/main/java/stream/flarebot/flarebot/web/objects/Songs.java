@@ -4,6 +4,7 @@ import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class Songs {
         requester = track.getMeta().getOrDefault("requester", "Unknown").toString();
         length = track.getTrack().getDuration();
         progress = track.getTrack().getPosition();
-        User user = FlareBot.getInstance().getUserById(requester);
+        User user = Getters.getUserById(requester);
         if (user != null) {
             discrim = user.getDiscriminator();
             name = user.getName();

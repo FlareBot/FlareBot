@@ -6,13 +6,14 @@ import spark.Response;
 import spark.Route;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.web.objects.Songs;
 
 public enum DataProviders {
     SONGS((req, res) -> Songs.get()),
-    GETPERMISSIONS((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelById(request.queryParams("guildid")).getGuild().getId())
+    GETPERMISSIONS((request, response) -> FlareBotManager.getInstance().getGuild(Getters.getChannelById(request.queryParams("guildid")).getGuild().getId())
             .getPermissions(),
-            new Require("guildid", gid -> FlareBot.getInstance().getGuildById(gid) != null));
+            new Require("guildid", gid -> Getters.getGuildById(gid) != null));
 
     private Route consumer;
     private Require[] requires;

@@ -28,6 +28,7 @@ import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.RedisMessage;
@@ -92,8 +93,8 @@ public class GeneralUtils {
 
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = FlareBot.getInstance().getUserById(String.valueOf(report.getReporterId()));
-        User reported = FlareBot.getInstance().getUserById(String.valueOf(report.getReportedId()));
+        User reporter = Getters.getUserById(String.valueOf(report.getReporterId()));
+        User reported = Getters.getUserById(String.valueOf(report.getReportedId()));
 
         eb.addField("Report ID", String.valueOf(report.getId()), true);
         eb.addField("Reporter", MessageUtils.getTag(reporter), true);
@@ -223,12 +224,12 @@ public class GeneralUtils {
     public static User getUser(String s, String guildId, boolean forceGet) {
         if (userDiscrim.matcher(s).find()) {
             if (guildId == null || guildId.isEmpty()) {
-                return FlareBot.getInstance().getUsers().stream()
+                return Getters.getUsers().stream()
                         .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
                 try {
-                    return FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
+                    return Getters.getGuildById(guildId).getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                             .findFirst().orElse(null);
@@ -238,11 +239,11 @@ public class GeneralUtils {
         } else {
             User tmp;
             if (guildId == null || guildId.isEmpty()) {
-                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+                tmp = Getters.getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                if (FlareBot.getInstance().getGuildById(guildId) != null) {
-                    tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
+                if (Getters.getGuildById(guildId) != null) {
+                    tmp = Getters.getGuildById(guildId).getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> user.getName().equalsIgnoreCase(s))
                             .findFirst().orElse(null);
@@ -253,9 +254,9 @@ public class GeneralUtils {
             try {
                 long l = Long.parseLong(s.replaceAll("[^0-9]", ""));
                 if (guildId == null || guildId.isEmpty()) {
-                    tmp = FlareBot.getInstance().getUserById(l);
+                    tmp = Getters.getUserById(l);
                 } else {
-                    Member temMember = FlareBot.getInstance().getGuildById(guildId).getMemberById(l);
+                    Member temMember = Getters.getGuildById(guildId).getMemberById(l);
                     if (temMember != null) {
                         tmp = temMember.getUser();
                     }
@@ -263,7 +264,7 @@ public class GeneralUtils {
                 if (tmp != null) {
                     return tmp;
                 } else if (forceGet) {
-                    return FlareBot.getInstance().retrieveUserById(l);
+                    return Getters.retrieveUserById(l);
                 }
             } catch (NumberFormatException | NullPointerException ignored) {
             }
@@ -276,7 +277,7 @@ public class GeneralUtils {
     }
 
     public static Role getRole(String s, String guildId, TextChannel channel) {
-        Guild guild = FlareBot.getInstance().getGuildById(guildId);
+        Guild guild = Getters.getGuildById(guildId);
         Role role = guild.getRoles().stream()
                 .filter(r -> r.getName().equalsIgnoreCase(s))
                 .findFirst().orElse(null);
@@ -315,7 +316,7 @@ public class GeneralUtils {
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
         try {
             long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
-            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
+            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : Getters.getChannelById(channelId);
         } catch (NumberFormatException e) {
             if (wrapper != null) {
                 List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
@@ -372,7 +373,7 @@ public class GeneralUtils {
     }
 
     public static Emote getEmoteById(long l) {
-        return FlareBot.getInstance().getGuilds().stream().map(g -> g.getEmoteById(l))
+        return Getters.getGuilds().stream().map(g -> g.getEmoteById(l))
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
@@ -411,9 +412,9 @@ public class GeneralUtils {
     }
 
     public static boolean canChangeNick(String guildId) {
-        return FlareBot.getInstance().getGuildById(guildId) != null &&
-                (FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                        FlareBot.getInstance().getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE));
+        return Getters.getGuildById(guildId) != null &&
+                (Getters.getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                        Getters.getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE));
     }
 
     public static String getStackTrace(Throwable e) {

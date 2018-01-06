@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -44,7 +45,7 @@ public class GuildCommand implements Command {
             } else if (args[0].equalsIgnoreCase("status")) {
                 GuildWrapper wrapper = guild;
                 if (args.length == 2) {
-                    if (FlareBot.getInstance().getGuildById(args[1]) == null) {
+                    if (Getters.getGuildById(args[1]) == null) {
                         MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
                         return;
                     }
@@ -100,7 +101,7 @@ public class GuildCommand implements Command {
                 GuildWrapper wrapper = guild;
                 if (args.length >= 2) {
                     wrapper =
-                            FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getGuildById(args[1]).getId());
+                            FlareBotManager.getInstance().getGuild(Getters.getGuildById(args[1]).getId());
                 }
                 if (wrapper.getGuild() == null) {
                     MessageUtils.sendErrorMessage("Invalid guild ID!", channel);
@@ -139,7 +140,7 @@ public class GuildCommand implements Command {
     }
 
     private void handleBlock(TextChannel channel, String guildId, String reason) {
-        Guild guild1 = FlareBot.getInstance().getGuildById(guildId);
+        Guild guild1 = Getters.getGuildById(guildId);
         if (guild1 == null) {
             MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
             return;
@@ -153,7 +154,7 @@ public class GuildCommand implements Command {
     }
 
     private void handleUnblock(TextChannel channel, String guildId) {
-        Guild guild1 = FlareBot.getInstance().getGuildById(guildId);
+        Guild guild1 = Getters.getGuildById(guildId);
         if (guild1 == null) {
             MessageUtils.sendErrorMessage("That guild ID is not valid!", channel);
             return;
