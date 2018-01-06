@@ -10,7 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaginationUtil {
-
+    /**
+     * Splits a string into a {@link PaginationList}
+     *
+     * @param content The string to split
+     * @param splitMethod the method by witch to split
+     * @param splitAmount The amount to split
+     * @return {@link PaginationList}
+     */
     public static PaginationList<String> splitStringToList(String content, SplitMethod splitMethod, int splitAmount) {
         List<String> pages = new ArrayList<>();
         if (splitMethod == SplitMethod.CHAR_COUNT) {
@@ -35,6 +42,13 @@ public class PaginationUtil {
         return new PaginationList<>(pages);
     }
 
+    /**
+     * Sends a paged message
+     *
+     * @param textChannel The channel to send it to
+     * @param list The {@link PaginationList} to use
+     * @param page The starting page
+     */
     public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page) {
         Integer[] pages = new Integer[]{page};
         ButtonGroup buttonGroup = new ButtonGroup();
@@ -65,6 +79,14 @@ public class PaginationUtil {
         ButtonUtil.sendButtonedMessage(textChannel, list.getPage(page), buttonGroup);
     }
 
+    /**
+     * Sends a paged message in an embed.
+     * This will automatically handle page counts for you as well
+     *
+     * @param textChannel The channel to send it to
+     * @param list The {@link PaginationList} to use
+     * @param page The starting page
+     */
     public static void sendEmbedPagedMessage(TextChannel textChannel, PaginationList<String> list, int page) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.addField("Info", list.getPage(page), false);
@@ -115,6 +137,14 @@ public class PaginationUtil {
         ButtonUtil.sendButtonedMessage(textChannel, embedBuilder.build(), buttonGroup);
     }
 
+    /**
+     * Builds a {@link PaginationList} as a table
+     *
+     * @param headers The column headers
+     * @param table The table it's self
+     * @param rows The number of rows that should be on each page
+     * @return {@link PaginationList}
+     */
     public static PaginationList<String> buildPagedTable(List<String> headers, List<List<String>> table, int rows) {
         int padding = 1;
         int[] widths = new int[headers.size()];
