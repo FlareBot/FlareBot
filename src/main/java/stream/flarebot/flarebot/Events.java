@@ -432,7 +432,7 @@ public class Events extends ListenerAdapter {
                 if (e.getMember().getPermissions().containsAll(cmd.getDiscordPermission()))
                     return false;
         }
-        if (cmd.getPermission() != null && cmd.getPermission().length() > 0) {
+        if (cmd.getPermission() != null) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
                                 .setDescription("You are missing the permission ``"
@@ -443,7 +443,7 @@ public class Events extends ListenerAdapter {
                 return true;
             }
         }
-        return false;
+        return cmd.getPermission() == null;
     }
 
     private void delete(Message message) {

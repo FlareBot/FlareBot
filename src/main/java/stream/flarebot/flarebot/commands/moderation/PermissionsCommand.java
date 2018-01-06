@@ -86,7 +86,8 @@ public class PermissionsCommand implements Command {
                         }
                     } else if (args[2].equalsIgnoreCase("unlink")) {
                         Role role;
-                        if (group.getRoleId() == null || (role = guild.getGuild().getRoleById(group.getRoleId())) == null) {
+                        if (group.getRoleId() == null || (role =
+                                guild.getGuild().getRoleById(group.getRoleId())) == null) {
                             MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
                             return;
                         } else {
@@ -345,11 +346,6 @@ public class PermissionsCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MODERATION;
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
     }
 
     @Override

@@ -236,7 +236,7 @@ public class GuildWrapper {
     }
 
     public char getPrefix() {
-        return prefix;
+        return prefix == Character.MIN_VALUE ? (prefix = Constants.COMMAND_CHAR) : prefix;
     }
 
     public void setPrefix(char prefix) {

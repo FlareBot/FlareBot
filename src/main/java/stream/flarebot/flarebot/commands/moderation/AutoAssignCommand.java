@@ -117,11 +117,6 @@ public class AutoAssignCommand implements Command {
         return new String[]{"autorole"};
     }
 
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
-
     private Role getRole(Guild guild, String role) {
         // Since I know it is valid I can get the id from the name or just return the id since that will be the only other thing passed.
         for (Role iRole : guild.getRoles()) {

@@ -28,8 +28,8 @@ public interface Command {
         return null;
     }
 
-    default String getPermission() {
-        return getType() == CommandType.SECRET ? null : "flarebot." + getCommand();
+    default stream.flarebot.flarebot.permissions.Permission getPermission() {
+        return stream.flarebot.flarebot.permissions.Permission.getPermission(this.getClass());
     }
 
     default EnumSet<Permission> getDiscordPermission() {
@@ -45,8 +45,7 @@ public interface Command {
     }
 
     default boolean isDefaultPermission() {
-        return (getPermission() != null && getType() != CommandType.SECRET && getType() != CommandType.INTERNAL
-                && getType() != CommandType.MODERATION);
+        return getPermission().isDefaultPerm();
     }
 
     default boolean deleteMessage() {

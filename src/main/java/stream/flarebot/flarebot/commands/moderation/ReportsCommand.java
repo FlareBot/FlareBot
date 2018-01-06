@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -33,7 +34,7 @@ public class ReportsCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
-                    if (getPermissions(channel).hasPermission(member, "flarebot.reports.list")) {
+                    if (getPermissions(channel).hasPermission(member, Permission.REPORTS_LIST)) {
                         List<Report> reports = guild.getReportManager().getReports();
                         int page = 1;
                         final int reportsLength = 15;
@@ -64,7 +65,7 @@ public class ReportsCommand implements Command {
                             }
                         }
                     } else {
-                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
+                        MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_LIST + "`", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
@@ -85,17 +86,17 @@ public class ReportsCommand implements Command {
                         return;
                     }
 
-                    if (getPermissions(channel).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
+                    if (getPermissions(channel).hasPermission(member, Permission.REPORTS_VIEW) || report.getReporterId().equals(sender.getId())) {
                         channel.sendMessage(GeneralUtils.getReportEmbed(sender, report).build()).queue();
                     } else {
-                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
+                        MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_VIEW + "` to do this! Or you need to be the creator of the report", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length >= 3) {
-                    if (getPermissions(channel).hasPermission(member, "flarebot.report.status")) {
+                    if (getPermissions(channel).hasPermission(member, Permission.REPORTS_STATUS)) {
                         int id;
                         try {
                             id = Integer.valueOf(args[1]);
@@ -134,7 +135,7 @@ public class ReportsCommand implements Command {
                                     new MessageEmbed.Field("Responsible moderator", sender.getAsMention(), true));
                         }
                     } else {
-                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
+                        MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_STATUS + "` to do this.", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);

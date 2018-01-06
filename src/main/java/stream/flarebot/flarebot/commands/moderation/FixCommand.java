@@ -102,8 +102,4 @@ public class FixCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
 }

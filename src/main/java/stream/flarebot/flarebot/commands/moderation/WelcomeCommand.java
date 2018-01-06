@@ -182,11 +182,6 @@ public class WelcomeCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
-
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
         int messagesLength = 15;
         int pages =

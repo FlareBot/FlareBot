@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.permissions;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.util.Constants;
 
 import java.util.ArrayList;

@@ -56,11 +56,6 @@ public class SetPrefixCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
-
-    @Override
     public EnumSet<Permission> getDiscordPermission() {
         return EnumSet.of(Permission.MANAGE_SERVER);
     }
