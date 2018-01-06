@@ -11,27 +11,6 @@ import java.util.List;
 
 public class PaginationUtil {
 
-    /*public static void sendPagedMessage(TextChannel channel, String fullContent, SplitMethod splitMethod, int splitAmount,
-                                        int currentPage, boolean reactions) {
-        int maxPages = 1;
-        String subContent = fullContent;
-        if(splitMethod == SplitMethod.CHAR_COUNT) {
-            maxPages = Math.max((int) Math.ceil((double) fullContent.length() / splitAmount), 1);
-            // TODO: Take into account new lines so it doesn't get cut half way
-            subContent = fullContent.substring((currentPage-1) * splitAmount, Math.min(currentPage * splitAmount,
-                    fullContent.length())).substring(0, fullContent.lastIndexOf("\n"));
-        }
-
-        channel.sendMessage(new EmbedBuilder().setColor(Color.ORANGE).setDescription("```\n" + subContent + "```\n\n**Page "
-                + currentPage + "/" + maxPages + "**").build()).queue(message -> {
-                    if(reactions) {
-                        message.addReaction("\u23EE").queue(); // :track_previous: ⏮
-                        message.addReaction("\u23EA").queue(); // :rewind: ⏪
-                        message.addReaction("\u23E9").queue(); // :fast_forward: ⏩
-                        message.addReaction("\u23ED").queue(); // :track_next: ⏭
-                    }
-        });*/
-
     public static PaginationList<String> splitStringToList(String content, SplitMethod splitMethod, int splitAmount) {
         List<String> pages = new ArrayList<>();
         if (splitMethod == SplitMethod.CHAR_COUNT) {
@@ -193,7 +172,6 @@ public class PaginationUtil {
      */
     public enum SplitMethod {
         CHAR_COUNT,
-        NEW_LINES,
-        TABLE_ROW_COUNT
+        NEW_LINES
     }
 }
