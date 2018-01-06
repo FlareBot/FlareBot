@@ -27,7 +27,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
         if (msg == null)
             msg = "null";
         if (event.getMarker() != Markers.NO_ANNOUNCE
-                && FlareBot.instance != null
+                && FlareBot.instance() != null
                 && event.getLevel() == Level.ERROR || event.getLevel() == Level.WARN) {
             String finalMsg = msg;
             if (event.getThreadName().startsWith("lava-daemon-pool")) {

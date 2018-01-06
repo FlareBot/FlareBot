@@ -6,7 +6,7 @@ import stream.flarebot.flarebot.Getters;
 
 public class ShardUtils {
 
-    private static final FlareBot flareBot = FlareBot.instance;
+    private static final FlareBot flareBot = FlareBot.instance();
 
     private static int getShardCount() {
         return flareBot.getShardManager().getShards().size();
@@ -39,7 +39,7 @@ public class ShardUtils {
     }
 
     public static long getLastEventTime(int shardId) {
-        return System.currentTimeMillis() - FlareBot.instance.getEvents().getShardEventTime().get(shardId);
+        return System.currentTimeMillis() - FlareBot.instance().getEvents().getShardEventTime().get(shardId);
     }
 
     public static boolean isReconnecting(JDA jda) {

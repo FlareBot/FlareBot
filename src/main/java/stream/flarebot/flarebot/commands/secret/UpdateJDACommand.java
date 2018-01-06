@@ -50,7 +50,7 @@ public class UpdateJDACommand implements Command {
                 new FlareBotTask("JDA-Update") {
                     @Override
                     public void run() {
-                        FlareBot.instance.quit(true);
+                        FlareBot.instance().quit(true);
                     }
                 }.delay(TimeUnit.MINUTES.toMillis(10));
                 // _update-jda 3.3.1_306

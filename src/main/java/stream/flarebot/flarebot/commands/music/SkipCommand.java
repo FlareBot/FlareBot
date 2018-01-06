@@ -6,7 +6,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -26,7 +27,7 @@ public class SkipCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        PlayerManager musicManager = FlareBot.instance.getMusicManager();
+        PlayerManager musicManager = FlareBot.instance().getMusicManager();
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
             channel.sendMessage("I am not playing anything!").queue();
@@ -102,7 +103,7 @@ public class SkipCommand implements Command {
     }
 
     private Map<String, Vote> getVotes(TextChannel channel, Member sender) {
-        PlayerManager musicManager = FlareBot.instance.getMusicManager();
+        PlayerManager musicManager = FlareBot.instance().getMusicManager();
         return this.votes.computeIfAbsent(channel.getGuild().getId(), s -> {
             AtomicBoolean bool = new AtomicBoolean(false);
             channel.getGuild().getVoiceChannels().stream().filter(c -> c.equals(sender.getVoiceState().getChannel()))
@@ -187,7 +188,7 @@ public class SkipCommand implements Command {
     }
 
     private void addButtons(ButtonGroup buttons, TextChannel channel) {
-        PlayerManager musicManager = FlareBot.instance.getMusicManager();
+        PlayerManager musicManager = FlareBot.instance().getMusicManager();
         buttons.addButton(new ButtonGroup.Button(355776056092917761L, user -> {
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());

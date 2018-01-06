@@ -13,7 +13,7 @@ public class ShuffleCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        FlareBot.instance.getMusicManager().getPlayer(channel.getGuild().getId()).shuffle();
+        FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).shuffle();
     }
 
     @Override

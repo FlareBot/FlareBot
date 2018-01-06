@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class UserInfoCommand implements Command {
 
-    private FlareBot flareBot = FlareBot.instance;
+    private FlareBot flareBot = FlareBot.instance();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {

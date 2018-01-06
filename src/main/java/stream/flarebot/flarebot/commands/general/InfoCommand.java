@@ -48,7 +48,7 @@ public class InfoCommand implements Command {
             EmbedBuilder bld = MessageUtils.getEmbed()
                     .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()))
                     .setFooter("Made by Walshy#9060 and BinaryOverload#2382", channel.getJDA().getSelfUser().getEffectiveAvatarUrl());
-            bld.setDescription("FlareBot v" + FlareBot.instance.getVersion() + " info")
+            bld.setDescription("FlareBot v" + FlareBot.instance().getVersion() + " info")
                     .setColor(Color.CYAN);
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
@@ -81,11 +81,11 @@ public class InfoCommand implements Command {
     public enum Content implements MultiSelectionContent<String, String, Boolean> {
 
         SERVERS("Servers", () -> String.valueOf(Getters.getGuilds().size())),
-        VERSION("Version", instance.getVersion()),
+        VERSION("Version", FlareBot.getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (git != null ? git : "Unknown")),
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)"),
-        INVITE("Invite", String.format("[`Invite`](%s)", instance.getInvite())),
+        INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInvite())),
         EMPTY("\u200B", "\u200B", false),
         SUPPORT_SERVER("Support Server", "[`Discord`](https://flarebot.stream/support-server)"),
         WEBSITE("Website", "[`FlareBot`](http://flarebot.stream/)"),

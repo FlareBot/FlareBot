@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Getters {
 
     private static FlareBot flareBot() {
-        return FlareBot.instance;
+        return FlareBot.instance();
     }
 
     public static TextChannel getChannelById(String id) {
@@ -105,6 +105,6 @@ public class Getters {
 
 
     public static SelfUser getSelfUser() {
-        return FlareBot.instance.getClient().getSelfUser();
+        return FlareBot.instance().getClient().getSelfUser();
     }
 }

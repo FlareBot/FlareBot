@@ -96,7 +96,7 @@ public class FlareBot {
     public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
     private static final Map<String, Logger> LOGGERS;
-    public static FlareBot instance;
+    private static FlareBot instance;
     private static String youtubeApi;
     private static JSONConfig config;
     private static boolean apiEnabled = true;
@@ -297,6 +297,10 @@ public class FlareBot {
                         Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE,
                         Permission.MANAGE_PERMISSIONS, Permission.VIEW_AUDIT_LOGS, Permission.MESSAGE_HISTORY,
                         Permission.MANAGE_WEBHOOKS, Permission.MANAGE_SERVER, Permission.MESSAGE_ADD_REACTION));
+    }
+
+    public static FlareBot instance() {
+        return instance;
     }
 
     public Events getEvents() {

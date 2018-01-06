@@ -59,7 +59,7 @@ public class FixCommand implements Command {
         }
         boolean nickReset = false;
         if (guild.isSongnickEnabled()) {
-            Player player = FlareBot.instance.getMusicManager().getPlayer(guild.getGuildId());
+            Player player = FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId());
             String nickname = null;
             if (player.getPlayingTrack() != null) {
                 nickname = player.getPlayingTrack().getTrack().getInfo().title;

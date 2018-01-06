@@ -124,8 +124,8 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        if (FlareBot.instance.isReady())
-            FlareBot.instance.run();
+        if (FlareBot.instance().isReady())
+            FlareBot.instance().run();
     }
 
     @Override

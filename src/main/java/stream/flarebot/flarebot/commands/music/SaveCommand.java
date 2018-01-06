@@ -30,14 +30,14 @@ public class SaveCommand implements Command {
             MessageUtils.sendErrorMessage("Name can only be a maximum of 20 characters!", channel);
             return;
         }
-        if (!FlareBot.instance.getMusicManager().hasPlayer(channel.getGuild().getId())) {
+        if (!FlareBot.instance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
             MessageUtils.sendErrorMessage("Your playlist is empty!", channel);
             return;
         }
-        Queue<Track> playlist = FlareBot.instance.getMusicManager().getPlayer(guild.getGuildId())
+        Queue<Track> playlist = FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId())
                 .getPlaylist();
         Track currentlyPlaying =
-                FlareBot.instance.getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
+                FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
 
         channel.sendTyping().complete();
 
@@ -54,7 +54,7 @@ public class SaveCommand implements Command {
             return;
         }
 
-        FlareBot.instance.getManager().savePlaylist(this,
+        FlareBot.instance().getManager().savePlaylist(this,
                 channel,
                 sender.getId(),
                 this.getPermissions(channel).hasPermission(member, "flarebot.playlist.save.overwrite"),

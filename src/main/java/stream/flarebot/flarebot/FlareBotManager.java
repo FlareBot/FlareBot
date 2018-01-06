@@ -57,7 +57,7 @@ public class FlareBotManager {
 
     public FlareBotManager() {
         instance = this;
-        GUILD_DATA_TABLE = (FlareBot.instance.isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
+        GUILD_DATA_TABLE = (FlareBot.instance().isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
     }
 
     public static FlareBotManager getInstance() {
