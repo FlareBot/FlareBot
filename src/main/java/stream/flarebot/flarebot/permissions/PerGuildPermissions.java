@@ -104,7 +104,7 @@ public class PerGuildPermissions {
             deleteGroup("Default");
         }
         Group defaults = new Group("Default");
-        for (Command command : FlareBot.getInstance().getCommands()) {
+        for (Command command : FlareBot.getInstance().getCommandManager().getCommands()) {
             if (command.isDefaultPermission()) {
                 defaults.addPermission(command.getPermission());
             }

@@ -63,6 +63,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -333,7 +334,7 @@ public class GeneralUtils {
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
-            for (Command c : FlareBot.getInstance().getCommands()) {
+            for (Command c : FlareBot.getInstance().getCommandManager().getCommands()) {
                 if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
                     return true;
                 }
@@ -676,4 +677,33 @@ public class GeneralUtils {
         return period.toStandardDuration().getMillis();
     }
 
+    public static String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
+        long totalSeconds = 0;
+        switch (durUnit) {
+            case MILLISECONDS:
+                totalSeconds = duration / 1000;
+                break;
+            case SECONDS:
+                totalSeconds = duration;
+                break;
+            case MINUTES:
+                totalSeconds = duration * 60;
+                break;
+            case HOURS:
+                totalSeconds = (duration * 60) * 60;
+                break;
+            case DAYS:
+                totalSeconds = ((duration * 60) * 60) * 24;
+                break;
+        }
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = (totalSeconds / 3600) % 24;
+        long days = (totalSeconds / 86400);
+        return (days > 0 ? (append0 && days < 10 ? "0" + days : days) + (fullUnits ? " days " : "d ") : "")
+                + (hours > 0 ? (append0 && hours < 10 ? "0" + hours : hours) + (fullUnits ? " hours " : "h ") : "")
+                + (minutes > 0 ? (append0 && minutes < 10 ? "0" + minutes : minutes) + (fullUnits ? " minutes" : "m ") : "")
+                + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "")
+                .trim();
+    }
 }

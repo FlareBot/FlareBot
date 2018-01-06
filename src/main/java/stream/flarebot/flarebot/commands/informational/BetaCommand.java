@@ -20,11 +20,12 @@ public class BetaCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        String betaInfo = GeneralUtils.formatCommandPrefix(channel, FlareBot.getInstance().getCommands()
-                .stream()
-                .filter(Command::isBetaTesterCommand)
-                .map(c -> "`{%}" + c.getCommand() + "` - " + c.getDescription())
-                .collect(Collectors.joining("\n")));
+        String betaInfo =
+                GeneralUtils.formatCommandPrefix(channel, FlareBot.getInstance().getCommandManager().getCommands()
+                        .stream()
+                        .filter(Command::isBetaTesterCommand)
+                        .map(c -> "`{%}" + c.getCommand() + "` - " + c.getDescription())
+                        .collect(Collectors.joining("\n")));
         String betaMessage = guild.isBetaAccess() ?
                 "Thank you for being apart of our beta program! Please report any bugs or give us suggestions over at the [support discord](" + Constants.INVITE_URL + ")!"
                 : "Listed below are the commands you can gain access to by being a part of our beta program! To join the beta program, you will either need to win " +

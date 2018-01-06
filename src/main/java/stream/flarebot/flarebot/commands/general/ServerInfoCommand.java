@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -54,7 +53,7 @@ public class ServerInfoCommand implements Command {
                         guild.getAfkChannel().getName() + "\n" +
                         "\n" +
                         "Timeout: " +
-                        FlareBot.getInstance().formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
+                        GeneralUtils.formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
         eb.addField("Channels", "**Text**\n" +
                 "Total: " +
                 guild.getTextChannels().size() + "\n" +

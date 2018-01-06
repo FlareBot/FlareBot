@@ -19,7 +19,6 @@ import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -29,7 +28,6 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,62 +38,10 @@ import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandManager;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.currency.ConvertCommand;
-import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
-import stream.flarebot.flarebot.commands.general.CommandUsageCommand;
-import stream.flarebot.flarebot.commands.general.HelpCommand;
-import stream.flarebot.flarebot.commands.general.InfoCommand;
-import stream.flarebot.flarebot.commands.general.InviteCommand;
-import stream.flarebot.flarebot.commands.general.ReportCommand;
-import stream.flarebot.flarebot.commands.general.SelfAssignCommand;
-import stream.flarebot.flarebot.commands.general.ServerInfoCommand;
-import stream.flarebot.flarebot.commands.general.ShardInfoCommand;
-import stream.flarebot.flarebot.commands.general.StatsCommand;
-import stream.flarebot.flarebot.commands.general.StatusCommand;
-import stream.flarebot.flarebot.commands.general.UserInfoCommand;
-import stream.flarebot.flarebot.commands.informational.BetaCommand;
-import stream.flarebot.flarebot.commands.informational.DonateCommand;
-import stream.flarebot.flarebot.commands.moderation.AutoAssignCommand;
-import stream.flarebot.flarebot.commands.moderation.FixCommand;
-import stream.flarebot.flarebot.commands.moderation.LockChatCommand;
-import stream.flarebot.flarebot.commands.moderation.PermissionsCommand;
-import stream.flarebot.flarebot.commands.moderation.PinCommand;
-import stream.flarebot.flarebot.commands.moderation.PruneCommand;
-import stream.flarebot.flarebot.commands.moderation.PurgeCommand;
-import stream.flarebot.flarebot.commands.moderation.ReportsCommand;
-import stream.flarebot.flarebot.commands.moderation.RolesCommand;
-import stream.flarebot.flarebot.commands.moderation.SetPrefixCommand;
-import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.BanCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.ForceBanCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.KickCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.ModlogCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.MuteCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.TempBanCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.TempMuteCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.UnbanCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.UnmuteCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.WarnCommand;
-import stream.flarebot.flarebot.commands.moderation.mod.WarningsCommand;
-import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.random.AvatarCommand;
-import stream.flarebot.flarebot.commands.secret.ChangeAvatarCommand;
-import stream.flarebot.flarebot.commands.secret.DisableCommandCommand;
-import stream.flarebot.flarebot.commands.secret.EvalCommand;
-import stream.flarebot.flarebot.commands.secret.GuildCommand;
-import stream.flarebot.flarebot.commands.secret.LogsCommand;
-import stream.flarebot.flarebot.commands.secret.QueryCommand;
-import stream.flarebot.flarebot.commands.secret.QuitCommand;
-import stream.flarebot.flarebot.commands.secret.ShardRestartCommand;
-import stream.flarebot.flarebot.commands.secret.TestCommand;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
-import stream.flarebot.flarebot.commands.secret.UpdateJDACommand;
-import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
-import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
-import stream.flarebot.flarebot.commands.useful.RemindCommand;
-import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -159,6 +105,7 @@ public class FlareBot {
     private static OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
                     .addInterceptor(new DataInterceptor()).build();
+    private static String version = null;
 
     static {
         handleLogArchive();
@@ -169,13 +116,12 @@ public class FlareBot {
     private FlareBotManager manager;
     private Map<String, PlayerCache> playerCache = new ConcurrentHashMap<>();
     private Events events;
-    private String version = null;
     private ShardManager shardManager;
-    private Set<Command> commands = new ConcurrentHashSet<>();
     private PlayerManager musicManager;
     private long startTime;
     private Runtime runtime = Runtime.getRuntime();
     private WebhookClient importantHook;
+    private CommandManager commandManager;
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -333,6 +279,30 @@ public class FlareBot {
         }
     }
 
+    public static String getVersion() {
+        if (version == null) {
+            Properties p = new Properties();
+            try {
+                p.load(FlareBot.class.getClassLoader().getResourceAsStream("version.properties"));
+            } catch (IOException e) {
+                LOGGER.error("There was an error trying to load the version!", e);
+                return null;
+            }
+            version = (String) p.get("version");
+        }
+        return version;
+    }
+
+    public static String getInvite() {
+        return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=%s",
+                Getters.getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
+                        Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
+                        Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
+                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE,
+                        Permission.MANAGE_PERMISSIONS, Permission.VIEW_AUDIT_LOGS, Permission.MESSAGE_HISTORY,
+                        Permission.MANAGE_WEBHOOKS, Permission.MANAGE_SERVER, Permission.MESSAGE_ADD_REACTION));
+    }
+
     public Events getEvents() {
         return events;
     }
@@ -360,7 +330,7 @@ public class FlareBot {
                     .build();
 
             prefixes = new Prefixes();
-            commands = new ConcurrentHashSet<>();
+            commandManager = new CommandManager();
         } catch (Exception e) {
             LOGGER.error("Could not log in!", e);
             Thread.sleep(500);
@@ -391,88 +361,7 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
 
-        registerCommand(new HelpCommand());
-        registerCommand(new SearchCommand());
-        registerCommand(new JoinCommand());
-        registerCommand(new LeaveCommand());
-        registerCommand(new InfoCommand());
-        registerCommand(new BetaCommand());
-        registerCommand(new DonateCommand());
-        registerCommand(new ResumeCommand());
-        registerCommand(new PlayCommand());
-        registerCommand(new PauseCommand());
-        registerCommand(new StopCommand());
-        registerCommand(new SkipCommand());
-        registerCommand(new ShuffleCommand());
-        registerCommand(new PlaylistCommand());
-        registerCommand(new SongCommand());
-        registerCommand(new InviteCommand());
-        registerCommand(new AutoAssignCommand());
-        registerCommand(new QuitCommand());
-        registerCommand(new RolesCommand());
-        registerCommand(new WelcomeCommand());
-        registerCommand(new PermissionsCommand());
-        registerCommand(new UpdateCommand());
-        registerCommand(new LogsCommand());
-        registerCommand(new LoopCommand());
-        registerCommand(new LoadCommand());
-        registerCommand(new SaveCommand());
-        registerCommand(new DeleteCommand());
-        registerCommand(new PlaylistsCommand());
-        registerCommand(new SeekCommand());
-        registerCommand(new PurgeCommand());
-        registerCommand(new EvalCommand());
-        registerCommand(new MusicAnnounceCommand());
-        registerCommand(new SetPrefixCommand());
-        registerCommand(new ChangeAvatarCommand());
-        registerCommand(new RandomCommand());
-        registerCommand(new UserInfoCommand());
-        registerCommand(new PinCommand());
-        registerCommand(new ShardRestartCommand());
-        registerCommand(new QueryCommand());
-        registerCommand(new SelfAssignCommand());
-        registerCommand(new WarnCommand());
-        registerCommand(new WarningsCommand());
-        registerCommand(new CommandUsageCommand());
-        registerCommand(new CurrencyCommand());
-        registerCommand(new ConvertCommand());
-
-//        registerCommand(new AutoModCommand());
-        registerCommand(new ModlogCommand());
-
-        registerCommand(new TestCommand());
-
-        registerCommand(new KickCommand());
-        registerCommand(new ForceBanCommand());
-        registerCommand(new BanCommand());
-        registerCommand(new TempBanCommand());
-        registerCommand(new UnbanCommand());
-        registerCommand(new MuteCommand());
-        registerCommand(new TempMuteCommand());
-        registerCommand(new UnmuteCommand());
-        registerCommand(new LockChatCommand());
-
-        registerCommand(new ReportsCommand());
-        registerCommand(new ReportCommand());
-        registerCommand(new ShardInfoCommand());
-        registerCommand(new SongNickCommand());
-        registerCommand(new StatsCommand());
-        registerCommand(new PruneCommand());
-        registerCommand(new ServerInfoCommand());
-        registerCommand(new FixCommand());
-        registerCommand(new GuildCommand());
-        registerCommand(new RepeatCommand());
-        registerCommand(new DisableCommandCommand());
-
-        registerCommand(new TagsCommand());
-        registerCommand(new PostUpdateCommand());
-        registerCommand(new StatusCommand());
-        registerCommand(new RemindCommand());
-        registerCommand(new AvatarCommand());
-        registerCommand(new UpdateJDACommand());
-        registerCommand(new ChangelogCommand());
-
-        LOGGER.info("Loaded " + commands.size() + " commands!");
+        LOGGER.info("Loaded " + commandManager.count() + " commands!");
 
         ApiFactory.bind();
         LOGGER.info("Bound API");
@@ -508,10 +397,6 @@ public class FlareBot {
      */
     public JDA getClient() {
         return shardManager.getShards().get(0);
-    }
-
-    public SelfUser getSelfUser() {
-        return getClient().getSelfUser();
     }
 
     private void loadFutureTasks() {
@@ -604,7 +489,7 @@ public class FlareBot {
     private void sendCommands() {
         JSONObject obj = new JSONObject();
         JSONArray array = new JSONArray();
-        for (Command cmd : commands) {
+        for (Command cmd : commandManager.getCommands()) {
             JSONObject cmdObj = new JSONObject()
                     .put("command", cmd.getCommand())
                     .put("description", cmd.getDescription())
@@ -718,22 +603,18 @@ public class FlareBot {
             client.shutdown();
     }
 
-    private void registerCommand(Command command) {
-        this.commands.add(command);
-    }
-
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
     public Command getCommand(String s, User user) {
         if (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
-            for (Command cmd : getCommandsByType(CommandType.SECRET)) {
+            for (Command cmd : commandManager.getCommandsByType(CommandType.SECRET)) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
                     return cmd;
                 for (String alias : cmd.getAliases())
                     if (alias.equalsIgnoreCase(s)) return cmd;
             }
         }
-        for (Command cmd : getCommands()) {
+        for (Command cmd : commandManager.getCommands()) {
             if (cmd.getType() == CommandType.SECRET) continue;
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
@@ -741,14 +622,6 @@ public class FlareBot {
                 if (alias.equalsIgnoreCase(s)) return cmd;
         }
         return null;
-    }
-
-    public Set<Command> getCommands() {
-        return this.commands;
-    }
-
-    public Set<Command> getCommandsByType(CommandType type) {
-        return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
     }
 
     public String getUptime() {
@@ -761,30 +634,6 @@ public class FlareBot {
 
     public PlayerManager getMusicManager() {
         return this.musicManager;
-    }
-
-    public String getVersion() {
-        if (version == null) {
-            Properties p = new Properties();
-            try {
-                p.load(getClass().getClassLoader().getResourceAsStream("version.properties"));
-            } catch (IOException e) {
-                LOGGER.error("There was an error trying to load the version!", e);
-                return null;
-            }
-            version = (String) p.get("version");
-        }
-        return version;
-    }
-
-    public String getInvite() {
-        return String.format("https://discordapp.com/oauth2/authorize?client_id=%s&scope=bot&permissions=%s",
-                getSelfUser().getId(), Permission.getRaw(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ,
-                        Permission.MANAGE_ROLES, Permission.MESSAGE_MANAGE, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK,
-                        Permission.VOICE_MOVE_OTHERS, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS,
-                        Permission.MANAGE_CHANNEL, Permission.MESSAGE_EMBED_LINKS, Permission.NICKNAME_CHANGE,
-                        Permission.MANAGE_PERMISSIONS, Permission.VIEW_AUDIT_LOGS, Permission.MESSAGE_HISTORY,
-                        Permission.MANAGE_WEBHOOKS, Permission.MANAGE_SERVER, Permission.MESSAGE_ADD_REACTION));
     }
 
     public void setStatus(String status) {
@@ -801,38 +650,6 @@ public class FlareBot {
         return shardManager.getShards().size() == shardManager.getShardsTotal();
     }
 
-    public String formatTime(long duration, TimeUnit durUnit, boolean fullUnits, boolean append0) {
-        long totalSeconds = 0;
-        switch (durUnit) {
-            case MILLISECONDS:
-                totalSeconds = duration / 1000;
-                break;
-            case SECONDS:
-                totalSeconds = duration;
-                break;
-            case MINUTES:
-                totalSeconds = duration * 60;
-                break;
-            case HOURS:
-                totalSeconds = (duration * 60) * 60;
-                break;
-            case DAYS:
-                totalSeconds = ((duration * 60) * 60) * 24;
-                break;
-        }
-        long seconds = totalSeconds % 60;
-        long minutes = (totalSeconds / 60) % 60;
-        long hours = (totalSeconds / 3600) % 24;
-        long days = (totalSeconds / 86400);
-        return (days > 0 ? (append0 && days < 10 ? "0" + days : days) + (fullUnits ? " days " : "d ") : "")
-                + (hours > 0 ? (append0 && hours < 10 ? "0" + hours : hours) + (fullUnits ? " hours " : "h ") : "")
-                + (minutes > 0 ? (append0 && minutes < 10 ? "0" + minutes : minutes) + (fullUnits ? " minutes" : "m ") : "")
-                + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "")
-                .trim();
-    }
-
-
-    // getXById
 
     public FlareBotManager getManager() {
         return this.manager;
@@ -891,7 +708,7 @@ public class FlareBot {
             public void run() {
                 if (config.getString("botlists.discordBots").isPresent()) {
                     postToBotList(config.getString("botlists.discordBots").get(), String
-                            .format("https://bots.discord.pw/api/bots/%s/stats", getClient().getSelfUser().getId()));
+                            .format("https://bots.discord.pw/api/bots/%s/stats", Getters.getSelfUser().getId()));
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
@@ -901,7 +718,7 @@ public class FlareBot {
             public void run() {
                 if (config.getString("botlists.botlist").isPresent()) {
                     postToBotList(config.getString("botlists.botlist").get(), String
-                            .format("https://discordbots.org/api/bots/%s/stats", getClient().getSelfUser().getId()));
+                            .format("https://discordbots.org/api/bots/%s/stats", Getters.getSelfUser().getId()));
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
@@ -971,5 +788,9 @@ public class FlareBot {
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
 
         setupUpdate();
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 }

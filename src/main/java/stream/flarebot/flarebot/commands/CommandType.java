@@ -24,6 +24,6 @@ public enum CommandType {
     }
 
     public Set<Command> getCommands() {
-        return FlareBot.getInstance().getCommandsByType(this);
+        return FlareBot.getInstance().getCommandManager().getCommandsByType(this);
     }
 }
