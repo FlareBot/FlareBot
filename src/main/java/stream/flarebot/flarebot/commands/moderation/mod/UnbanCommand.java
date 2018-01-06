@@ -16,10 +16,12 @@ public class UnbanCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (args.length == 1) {
-            User target = GeneralUtils.getUser(args[0], true);
+        if (args.length >= 1) {
+            User target = GeneralUtils.getUser(MessageUtils.getMessage(args, 0), null, true);
             if (target == null) {
-                MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.",
+                MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.\n"
+                                + "To get a User ID simply enable developer mode by going to User Settings > Appearance " +
+                                "> Developer Mode then just right click the user and click Copy ID",
                         channel, sender);
                 return;
             }
