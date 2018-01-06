@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -19,21 +18,19 @@ public class SetPrefixCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reset")) {
-                FlareBot.getPrefixes().set(channel.getGuild().getId(), '_');
+                guild.setPrefix('_');
                 MessageUtils.sendInfoMessage("Reset the prefix back to `_`!", channel, sender);
             } else if (args[0].length() == 1) {
-                FlareBot.getPrefixes().set(channel.getGuild().getId(), args[0].charAt(0));
+                guild.setPrefix(args[0].charAt(0));
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .setDescription(String.format("Set the prefix to `%s`", args[0])).build())
                         .queue();
             } else {
                 MessageUtils.sendErrorMessage("Cannot set the prefix to be more that one character long!", channel, sender);
-                return;
             }
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
-                    .setDescription(String.format("Current guild prefix is `%s`!", FlareBot
-                            .getPrefix(channel.getGuild().getId()))).build()).queue();
+                    .setDescription(String.format("Current guild prefix is `%s`!", guild.getPrefix())).build()).queue();
         }
     }
 

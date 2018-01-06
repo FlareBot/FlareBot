@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ApiRequester {
 
-    private static OkHttpClient client = new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
+    private static OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS)).build();
 
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -41,7 +42,7 @@ public class ApiRequester {
 
     /* Root methods */
     public static Response request(ApiRoute route, JSONObject object, Method method) {
-        if(!FlareBot.getInstance().isApiEnabled()) return null;
+        if (FlareBot.instance().isApiDisabled()) return null;
         try {
             FlareBot.LOGGER.trace("Sending request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                     object.toString() : false));
@@ -53,7 +54,7 @@ public class ApiRequester {
     }
 
     public static void requestAsync(ApiRoute route, JSONObject object, Method method, Callback callback) {
-        if(!FlareBot.getInstance().isApiEnabled()) return;
+        if (FlareBot.instance().isApiDisabled()) return;
         FlareBot.LOGGER.trace("Sending async request with route '" + route.getRoute() + "'. Body: " + (object != null ?
                 object.toString() : false));
         if (callback == null) callback = new DefaultCallback();
@@ -62,22 +63,28 @@ public class ApiRequester {
 
     private static Request getRequest(ApiRoute route, JSONObject object, Method method) {
         Request.Builder request = new Request.Builder().url(route.getFullUrl());
-        request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
+        request.addHeader("Authorization", FlareBot.instance().getApiKey());
         request.addHeader("User-Agent", "Mozilla/5.0 FlareBot");
         RequestBody body = RequestBody.create(JSON, (object == null ? new JSONObject().toString() : object.toString()));
-        if (method == Method.GET) {
-            request = request.get();
-        } else if (method == Method.PATCH) {
-            request = request.patch(body);
-        } else if (method == Method.POST) {
-            request = request.post(body);
-        } else if (method == Method.PUT) {
-            request = request.put(body);
-        } else if (method == Method.DELETE) {
-            request = request.delete(body);
-        } else {
-            throw new IllegalArgumentException("The route " + route.name() + " is using an unsupported method! Method: "
-                    + method.name());
+        switch (method) {
+            case GET:
+                request = request.get();
+                break;
+            case PATCH:
+                request = request.patch(body);
+                break;
+            case POST:
+                request = request.post(body);
+                break;
+            case PUT:
+                request = request.put(body);
+                break;
+            case DELETE:
+                request = request.delete(body);
+                break;
+            default:
+                throw new IllegalArgumentException("The route " + route.name() + " is using an unsupported method! Method: "
+                        + method.name());
         }
         return request.build();
     }

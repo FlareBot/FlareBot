@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
+import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -22,14 +23,9 @@ import java.util.Queue;
 
 public class PlaylistCommand implements Command {
 
-    private PlayerManager manager;
-
-    public PlaylistCommand(FlareBot flareBot) {
-        this.manager = flareBot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager manager = FlareBot.instance().getMusicManager();
         if (args.length < 1 || args.length > 2) {
             send(member.getUser().openPrivateChannel().complete(), channel, member);
         } else {
@@ -81,6 +77,7 @@ public class PlaylistCommand implements Command {
     }
 
     private void send(MessageChannel mchannel, TextChannel channel, Member sender) {
+        PlayerManager manager = FlareBot.instance().getMusicManager();
         Track currentTrack = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
         if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
                 || currentTrack != null) {
@@ -111,7 +108,7 @@ public class PlaylistCommand implements Command {
                 int page = i++;
                 EmbedBuilder b = new EmbedBuilder(builder.build());
                 b.addField("Page " + page, s, false);
-                if (MessageUtils.getLength(b) > 4000)
+                if (!b.isValidLength(AccountType.BOT))
                     break;
                 builder.addField("Page " + page, s, false);
             }

@@ -16,7 +16,6 @@ import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -29,7 +28,7 @@ public class UpdateJDACommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 1) {
+        if (args.length == 1) {
             String version = args[0];
 
             try {
@@ -38,9 +37,9 @@ public class UpdateJDACommand implements Command {
 
                 Node jdaNode = doc.getElementsByTagName("dependency").item(0);
                 NodeList children = jdaNode.getChildNodes();
-                for(int i = 0; i < children.getLength(); i++) {
+                for (int i = 0; i < children.getLength(); i++) {
                     Node node = children.item(i);
-                    if(node.getNodeName().equalsIgnoreCase("version"))
+                    if (node.getNodeName().equalsIgnoreCase("version"))
                         node.setTextContent(version);
                 }
 
@@ -51,7 +50,7 @@ public class UpdateJDACommand implements Command {
                 new FlareBotTask("JDA-Update") {
                     @Override
                     public void run() {
-                        FlareBot.getInstance().quit(true);
+                        FlareBot.instance().quit(true);
                     }
                 }.delay(TimeUnit.MINUTES.toMillis(10));
                 // _update-jda 3.3.1_306

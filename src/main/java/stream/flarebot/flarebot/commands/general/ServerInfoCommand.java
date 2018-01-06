@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -26,7 +26,7 @@ public class ServerInfoCommand implements Command {
         if (args.length == 0) {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
-            Guild targetGuild = FlareBot.getInstance().getGuildById(GeneralUtils.getLong(args[0], -1));
+            Guild targetGuild = Getters.getGuildById(GeneralUtils.getLong(args[0], -1));
             if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {
@@ -53,7 +53,7 @@ public class ServerInfoCommand implements Command {
                         guild.getAfkChannel().getName() + "\n" +
                         "\n" +
                         "Timeout: " +
-                        FlareBot.getInstance().formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
+                        GeneralUtils.formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
         eb.addField("Channels", "**Text**\n" +
                 "Total: " +
                 guild.getTextChannels().size() + "\n" +
@@ -75,21 +75,10 @@ public class ServerInfoCommand implements Command {
                 guild.getRegion().getName() + "\n" +
                 "\n" +
                 "**Verification Level:** " +
-                getVerificationString(guild.getVerificationLevel()), true);
+                GeneralUtils.getVerificationString(guild.getVerificationLevel()), true);
         eb.setFooter("ID: " + guild.getId(), null);
         eb.setColor(Color.CYAN);
         channel.sendMessage(eb.build()).queue();
-    }
-
-    private String getVerificationString(Guild.VerificationLevel level) {
-        switch (level) {
-            case HIGH:
-                return "(\u256F\u00B0\u25A1\u00B0\uFF09\u256F\uFE35 \u253B\u2501\u253B"; //(╯°□°）╯︵ ┻━┻
-            case VERY_HIGH:
-                return "\u253B\u2501\u253B\u5F61 \u30FD(\u0CA0\u76CA\u0CA0)\u30CE\u5F61\u253B\u2501\u253B"; //┻━┻彡 ヽ(ಠ益ಠ)ノ彡┻━┻
-            default:
-                return level.toString().charAt(0) + level.toString().substring(1).toLowerCase();
-        }
     }
 
     @Override
