@@ -236,6 +236,7 @@ public class SkipCommand implements Command {
             }
         }));
         buttons.addButton(new ButtonGroup.Button("\u23ED", (user, message) -> {
+            PlayerManager musicManager = FlareBot.instance().getMusicManager();
             if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), "flarebot.skip.force")) {
                 musicManager.getPlayer(channel.getGuild().getId()).skip();
                 skips.put(channel.getGuild().getId(), true);
