@@ -26,7 +26,7 @@ public class YouTubeSearchExtractor extends YouTubeExtractor {
         if (response.code() == 403) {
             // \uD83E\uDD15 = :head_bandage:
             MessageUtils.editMessage(null, MessageUtils.getEmbed(user)
-                    .setDescription("We seem to have hit the YouTube API ratelimit \uD83E\uDD15 we're sorry about the"
+                    .setDescription("We seem to have hit the YouTube API ratelimit \uD83E\uDD15 we're sorry about the "
                                         + "inconvenience please try searching again later or using a URL!"), message);
             response.close();
             return;
