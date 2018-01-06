@@ -33,7 +33,7 @@ public class GuildCommand implements Command {
                 } else if (args.length == 2) {
                     handleBlock(channel, args[1], null);
                 } else {
-                    handleBlock(channel, args[1], FlareBot.getMessage(args, 2));
+                    handleBlock(channel, args[1], MessageUtils.getMessage(args, 2));
                 }
             } else if (args[0].equalsIgnoreCase("unblock")) {
                 if (args.length == 1) {
@@ -99,7 +99,8 @@ public class GuildCommand implements Command {
             } else if (args[0].equalsIgnoreCase("save")) {
                 GuildWrapper wrapper = guild;
                 if (args.length >= 2) {
-                    wrapper = FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getGuildById(args[1]).getId());
+                    wrapper =
+                            FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getGuildById(args[1]).getId());
                 }
                 if (wrapper.getGuild() == null) {
                     MessageUtils.sendErrorMessage("Invalid guild ID!", channel);

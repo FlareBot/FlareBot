@@ -35,7 +35,7 @@ public class DisableCommandCommand implements Command {
                         sb.toString(), false).build()).queue();
                 return;
             }
-            String msg = FlareBot.getMessage(args, 0);
+            String msg = MessageUtils.getMessage(args, 0);
             String reason = "This command is currently disabled! Please check our support server for more info! " +
                     "https://flarebot.stream/support-server";
             if (msg.contains("-"))

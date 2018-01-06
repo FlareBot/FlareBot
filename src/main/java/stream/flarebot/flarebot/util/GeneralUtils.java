@@ -548,7 +548,7 @@ public class GeneralUtils {
      */
     public static void handleMultiSelectionCommand(User sender, TextChannel channel, String[] args,
                                                    MultiSelectionContent<String, String, Boolean>[] providedContent) {
-        String search = FlareBot.getMessage(args);
+        String search = MessageUtils.getMessage(args);
         String[] fields = search.split(",");
         EmbedBuilder builder = MessageUtils.getEmbed(sender).setColor(Color.CYAN);
         boolean valid = false;

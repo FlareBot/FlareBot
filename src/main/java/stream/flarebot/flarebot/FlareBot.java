@@ -135,7 +135,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -277,26 +276,6 @@ public class FlareBot {
 
     public static char getPrefix(String id) {
         return getPrefixes().get(id);
-    }
-
-    public static String getMessage(String[] args) {
-        StringBuilder msg = new StringBuilder();
-        for (String arg : args) {
-            msg.append(arg).append(" ");
-        }
-        return msg.toString().trim();
-    }
-
-    public static String getMessage(String[] args, int min) {
-        return Arrays.stream(args).skip(min).collect(Collectors.joining(" ")).trim();
-    }
-
-    public static String getMessage(String[] args, int min, int max) {
-        StringBuilder message = new StringBuilder();
-        for (int index = min; index < max; index++) {
-            message.append(args[index]).append(" ");
-        }
-        return message.toString().trim();
     }
 
     // Disabled for now.

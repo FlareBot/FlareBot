@@ -394,6 +394,15 @@ public class MessageUtils {
         return message.toString().trim();
     }
 
+
+    public static String getMessage(String[] args) {
+        StringBuilder msg = new StringBuilder();
+        for (String arg : args) {
+            msg.append(arg).append(" ");
+        }
+        return msg.toString().trim();
+    }
+
     public static String escapeMarkdown(String s) {
         return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
     }
