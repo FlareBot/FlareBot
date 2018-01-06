@@ -40,6 +40,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+    private String musicAnnounceChannelId = null;
     private Moderation moderation;
 
     // oooo special!
@@ -240,5 +241,13 @@ public class GuildWrapper {
 
     public void setPrefix(char prefix) {
         this.prefix = prefix;
+    }
+
+    public String getMusicAnnounceChannelId() {
+        return musicAnnounceChannelId;
+    }
+
+    public void setMusicAnnounceChannelId(String musicAnnounceChannelId) {
+        this.musicAnnounceChannelId = musicAnnounceChannelId;
     }
 }

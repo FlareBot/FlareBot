@@ -11,7 +11,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.commands.music.MusicAnnounceCommand;
 import stream.flarebot.flarebot.commands.music.SongCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
@@ -51,9 +50,8 @@ public class PlayerListener extends AudioEventAdapter {
     @Override
     public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(player.getGuildId());
-        if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
-            TextChannel c =
-                    Getters.getChannelById(MusicAnnounceCommand.getAnnouncements().get(player.getGuildId()));
+        if (wrapper.getMusicAnnounceChannelId() != null) {
+            TextChannel c = Getters.getChannelById(wrapper.getMusicAnnounceChannelId());
             if (c != null) {
                 if (c.getGuild().getSelfMember().hasPermission(c,
                         Permission.MESSAGE_EMBED_LINKS,
@@ -73,10 +71,10 @@ public class PlayerListener extends AudioEventAdapter {
                             .setImage("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg")
                             .build()).queue();
                 } else {
-                    MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
+                    wrapper.setMusicAnnounceChannelId(null);
                 }
             } else {
-                MusicAnnounceCommand.getAnnouncements().remove(player.getGuildId());
+                wrapper.setMusicAnnounceChannelId(null);
             }
         }
         if (wrapper.isSongnickEnabled()) {
