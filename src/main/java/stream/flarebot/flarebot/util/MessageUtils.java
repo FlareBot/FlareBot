@@ -349,7 +349,7 @@ public class MessageUtils {
         return sb.toString();
     }
 
-    private static String appendSeparatorLine(String left, String middle, String right, int padding, int... sizes) {
+    public static String appendSeparatorLine(String left, String middle, String right, int padding, int... sizes) {
         boolean first = true;
         StringBuilder ret = new StringBuilder();
         for (int size : sizes) {
