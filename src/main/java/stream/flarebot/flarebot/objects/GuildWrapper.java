@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class GuildWrapper {
 
     private String guildId;
+    private char prefix = Constants.COMMAND_CHAR;
     private Welcome welcome = new Welcome();
     private PerGuildPermissions permissions = new PerGuildPermissions();
     private LinkedList<Poll> polls = new LinkedList<>();
@@ -230,5 +232,13 @@ public class GuildWrapper {
 
     public Moderation getModConfig() {
         return getModeration();
+    }
+
+    public char getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(char prefix) {
+        this.prefix = prefix;
     }
 }

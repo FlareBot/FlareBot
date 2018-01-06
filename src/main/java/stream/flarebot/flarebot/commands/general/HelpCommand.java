@@ -7,7 +7,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -36,7 +35,7 @@ public class HelpCommand implements Command {
                 List<String> help = type.getCommands()
                         .stream().filter(cmd -> getPermissions(channel)
                                 .hasPermission(member, cmd.getPermission()))
-                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
+                        .map(command -> guild.getPrefix() + command.getCommand() + " - " + command
                                 .getDescription() + '\n')
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
@@ -59,13 +58,6 @@ public class HelpCommand implements Command {
         }
     }
 
-    private char get(Guild guild) {
-        if (guild != null) {
-            return FlareBot.getPrefixes().get(guild.getId());
-        }
-        return FlareBot.getPrefixes().get(null);
-    }
-
     private void sendCommands(Guild guild, MessageChannel channel, User sender) {
         EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
         for (CommandType c : CommandType.getTypes()) {
@@ -76,7 +68,7 @@ public class HelpCommand implements Command {
                                     .hasPermission(guild
                                             .getMember(sender), cmd
                                             .getPermission()))
-                    .map(command -> get(guild) + command.getCommand() + " - " + command
+                    .map(command -> FlareBotManager.getInstance().getGuild(guild.getId()).getPrefix() + command.getCommand() + " - " + command
                             .getDescription() + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();

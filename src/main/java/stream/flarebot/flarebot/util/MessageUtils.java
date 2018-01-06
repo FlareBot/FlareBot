@@ -173,7 +173,7 @@ public class MessageUtils {
     public static void sendMessage(MessageType type, String message, TextChannel channel, User sender, long autoDeleteDelay) {
         sendMessage(type, (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
                 .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
-                .setDescription(GeneralUtils.formatCommandPrefix(channel, message)), channel, autoDeleteDelay);
+                .setDescription(GeneralUtils.formatCommandPrefix(channel.getGuild(), message)), channel, autoDeleteDelay);
     }
 
     // Root of sendMessage(Type, Builder, channel)
@@ -292,7 +292,8 @@ public class MessageUtils {
         String title = capitalize(command.getCommand()) + " Usage";
         List<String> usages = UsageParser.matchUsage(command, args);
 
-        String usage = GeneralUtils.formatCommandPrefix(channel, usages.stream().collect(Collectors.joining("\n")));
+        String usage =
+                GeneralUtils.formatCommandPrefix(channel.getGuild(), usages.stream().collect(Collectors.joining("\n")));
         EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
         if (command.getExtraInfo() != null) {
             b.addField("Extra Info", command.getExtraInfo(), false);

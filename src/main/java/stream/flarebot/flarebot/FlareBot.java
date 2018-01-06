@@ -206,14 +206,6 @@ public class FlareBot {
         return client;
     }
 
-    public static Prefixes getPrefixes() {
-        return prefixes;
-    }
-
-    public static char getPrefix(String id) {
-        return getPrefixes().get(id);
-    }
-
     // Disabled for now.
     // TODO: Make sure the API has a way to handle this and also update that page.
     public static void reportError(TextChannel channel, String s, Exception e) {

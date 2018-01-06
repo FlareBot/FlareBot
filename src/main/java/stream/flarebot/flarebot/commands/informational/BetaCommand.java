@@ -21,7 +21,7 @@ public class BetaCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         String betaInfo =
-                GeneralUtils.formatCommandPrefix(channel, FlareBot.instance().getCommandManager().getCommands()
+                GeneralUtils.formatCommandPrefix(guild, FlareBot.instance().getCommandManager().getCommands()
                         .stream()
                         .filter(Command::isBetaTesterCommand)
                         .map(c -> "`{%}" + c.getCommand() + "` - " + c.getDescription())

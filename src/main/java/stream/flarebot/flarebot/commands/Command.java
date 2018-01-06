@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
@@ -46,7 +45,7 @@ public interface Command {
     }
 
     default boolean isDefaultPermission() {
-        return (getPermission() != null && getType() != CommandType.SECRET && getType() != CommandType.INTERNAL 
+        return (getPermission() != null && getType() != CommandType.SECRET && getType() != CommandType.INTERNAL
                 && getType() != CommandType.MODERATION);
     }
 
@@ -59,6 +58,6 @@ public interface Command {
     }
 
     default char getPrefix(Guild guild) {
-        return FlareBot.getPrefix(guild.getId());
+        return FlareBotManager.getInstance().getGuild(guild.getId()).getPrefix();
     }
 }

@@ -278,9 +278,9 @@ public class Events extends ListenerAdapter {
         cache.setLastSeen(LocalDateTime.now());
         cache.setLastSpokeGuild(event.getGuild().getId());
 
-        if (FlareBot.getPrefixes() == null || event.getAuthor().isBot()) return;
+        if (event.getAuthor().isBot()) return;
         String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
-        if (message.startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))) {
+        if (message.startsWith("" + FlareBotManager.getInstance().getGuild(getGuildId(event)).getPrefix())) {
             List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
             if (!perms.contains(Permission.ADMINISTRATOR)) {
                 if (!perms.contains(Permission.MESSAGE_WRITE)) {
@@ -304,11 +304,11 @@ public class Events extends ListenerAdapter {
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
-            if (FlareBot.getPrefixes().get(getGuildId(event)) != Constants.COMMAND_CHAR &&
+            if (FlareBotManager.getInstance().getGuild(getGuildId(event)).getPrefix() != Constants.COMMAND_CHAR &&
                     (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
                 event.getChannel().sendMessage(MessageUtils.getEmbed(event.getAuthor())
-                        .setDescription("The server prefix is `" + FlareBot
-                                .getPrefixes().get(getGuildId(event)) + "`")
+                        .setDescription("The server prefix is `" + FlareBotManager
+                                .getInstance().getGuild(getGuildId(event)).getPrefix() + "`")
                         .build()).queue();
             }
             if (!message.isEmpty()) {

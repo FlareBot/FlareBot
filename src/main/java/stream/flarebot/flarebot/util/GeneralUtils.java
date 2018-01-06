@@ -137,15 +137,23 @@ public class GeneralUtils {
                 " " + GeneralUtils.percentageFormat.format(percentage) + "%";
     }
 
-    private static char getPrefix(TextChannel channel) {
-        if (channel != null) {
-            return FlareBot.getPrefixes().get(channel.getGuild().getId());
-        }
-        return FlareBot.getPrefixes().get(null);
+    private static char getPrefix(Guild guild) {
+        return guild == null ? Constants.COMMAND_CHAR : FlareBotManager.getInstance().getGuild(guild.getId()).getPrefix();
     }
 
-    public static String formatCommandPrefix(TextChannel channel, String usage) {
-        String prefix = String.valueOf(getPrefix(channel));
+    public static String formatCommandPrefix(Guild guild, String usage) {
+        String prefix = String.valueOf(getPrefix(guild));
+        if (usage.contains("{%}"))
+            return usage.replaceAll("\\{%}", prefix);
+        return usage;
+    }
+
+    private static char getPrefix(GuildWrapper guild) {
+        return guild == null ? Constants.COMMAND_CHAR : guild.getPrefix();
+    }
+
+    public static String formatCommandPrefix(GuildWrapper guild, String usage) {
+        String prefix = String.valueOf(getPrefix(guild));
         if (usage.contains("{%}"))
             return usage.replaceAll("\\{%}", prefix);
         return usage;

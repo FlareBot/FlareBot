@@ -38,7 +38,7 @@ public class PruneCommand implements Command {
                 }
 
                 int userSize = guild.getGuild().getPrunableMemberCount(amount).complete();
-                MessageUtils.sendErrorMessage(GeneralUtils.formatCommandPrefix(channel, "Are you sure you want to prune " + userSize + " members?\n" +
+                MessageUtils.sendErrorMessage(GeneralUtils.formatCommandPrefix(guild, "Are you sure you want to prune " + userSize + " members?\n" +
                         "To confirm type `{%}prune confirm` within 1 minute!"), channel);
 
                 ConfirmUtil.pushAction(sender.getId(),

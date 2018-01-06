@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -50,8 +51,7 @@ public class SkipCommand implements Command {
                         .valueOf(votes.get(channel.getGuild().getId()).size() - Long.valueOf(yes));
                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("Can't start a vote right now! " +
-                                "Another one in progress! Please use `" + FlareBot
-                                .getPrefix(channel.getGuild().getId()) + "skip YES|NO` to vote!")
+                                "Another one in progress! Please use `" + guild.getPrefix() + "skip YES|NO` to vote!")
                         .addField("Votes for YES:", yes, true)
                         .addField("Votes for NO:", no, true).build()).queue();
             } else getVotes(channel, member);
@@ -148,7 +148,7 @@ public class SkipCommand implements Command {
 
             ButtonUtil.sendButtonedMessage(channel, MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
                     musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
-                    + "** has started!\nUse " + FlareBot.getPrefix(channel.getGuild().getId()) + "skip YES|NO to vote!")
+                    + "** has started!\nUse " + FlareBotManager.getInstance().getGuild(channel.getGuild().getId()).getPrefix() + "skip YES|NO to vote!")
                     .build(), buttons);
             return new HashMap<>();
         });
