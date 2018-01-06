@@ -35,13 +35,13 @@ public class Group {
         return permissions.remove(permission);
     }
 
-    public boolean hasPermission(String permission) {
-        return hasPermission(new PermissionNode(permission));
-    }
-
-    public boolean hasPermission(PermissionNode node) {
+    public boolean hasPermission(Permission permission) {
         for (String s : permissions) {
-            if (new PermissionNode(s).test(node))
+            if (s.startsWith("-")) {
+                if (new PermissionNode(s.substring(1)).test(permission.getPermission()))
+                    return false;
+            }
+            if (new PermissionNode(s).test(permission.getPermission()))
                 return true;
         }
         return false;

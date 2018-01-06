@@ -16,13 +16,7 @@ public class PerGuildPermissions {
     private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
-    public PerGuildPermissions() {
-        if (!hasGroup("Default")) {
-            createDefaultGroup();
-        }
-    }
-
-    public boolean hasPermission(Member user, String permission) {
+    public boolean hasPermission(Member user, stream.flarebot.flarebot.permissions.Permission permission) {
         // So we can go into servers and figure out any issues they have.
         if (isCreator(user.getUser()))
             return true;
@@ -33,11 +27,10 @@ public class PerGuildPermissions {
         // Change done by Walshy: Internal review needed
         if (isContributor(user.getUser()) && FlareBot.instance().isTestBot())
             return true;
-        PermissionNode node = new PermissionNode(permission);
-        if (getUser(user).hasPermission(node))
+        if (getUser(user).hasPermission(permission))
             return true;
         for (Group g : getGroups().values()) {
-            if (!g.hasPermission(node)) continue;
+            if (!g.hasPermission(permission)) continue;
             if (getUser(user).getGroups().contains(g.getName())) return true;
             if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
                 if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {
@@ -97,20 +90,5 @@ public class PerGuildPermissions {
 
     public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
         return checkOfficialGuildForRole(user, Constants.STAFF_ID);
-    }
-
-    public void createDefaultGroup() {
-        if (hasGroup("Default")) {
-            deleteGroup("Default");
-        }
-        Group defaults = new Group("Default");
-        for (Command command : FlareBot.instance().getCommandManager().getCommands()) {
-            if (command.isDefaultPermission()) {
-                defaults.addPermission(command.getPermission());
-            }
-        }
-        defaults.addPermission("flarebot.userinfo.other");
-        defaults.addPermission("flarebot.playlist.clear");
-        groups.put("Default", defaults);
     }
 }
