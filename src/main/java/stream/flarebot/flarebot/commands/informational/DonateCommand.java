@@ -42,11 +42,6 @@ public class DonateCommand implements Command {
     }
 
     @Override
-    public Permission getPermission() {
-        return null;
-    }
-
-    @Override
     public CommandType getType() {
         return CommandType.INFORMATIONAL;
     }

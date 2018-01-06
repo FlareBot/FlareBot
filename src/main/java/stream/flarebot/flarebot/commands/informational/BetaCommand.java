@@ -55,11 +55,6 @@ public class BetaCommand implements Command {
     }
 
     @Override
-    public Permission getPermission() {
-        return null;
-    }
-
-    @Override
     public CommandType getType() {
         return CommandType.INFORMATIONAL;
     }
