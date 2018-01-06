@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.currency.ConvertCommand;
 import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
@@ -22,28 +23,29 @@ import java.util.stream.Collectors;
 
 public class CommandManager {
 
-    private Set<Command> commands = new ConcurrentHashSet<>();
+    private final Set<Command> commands = new ConcurrentHashSet<>();
+    private final Logger LOGGER = FlareBot.getLog(CommandManager.class);
 
     public CommandManager() {
         int start = count();
         registerMusicCommands();
-        FlareBot.LOGGER.info("[Command Manager] Loaded " + (count() - start) + " music commands!");
+        LOGGER.info("[Command Manager] Loaded " + (count() - start) + " music commands!");
 
         start = count();
         registerGeneralCommands();
-        FlareBot.LOGGER.info("[Command Manager] Loaded " + (count() - start) + " general commands!");
+        LOGGER.info("[Command Manager] Loaded " + (count() - start) + " general commands!");
 
         start = count();
         registerModerationCommands();
-        FlareBot.LOGGER.info("[Command Manager] Loaded " + (count() - start) + " moderation commands!");
+        LOGGER.info("[Command Manager] Loaded " + (count() - start) + " moderation commands!");
 
         start = count();
         registerSecretCommands();
-        FlareBot.LOGGER.info("[Command Manager] Loaded " + (count() - start) + " secret commands!");
+        LOGGER.info("[Command Manager] Loaded " + (count() - start) + " secret commands!");
 
         start = count();
         registerMiscCommands();
-        FlareBot.LOGGER.info("[Command Manager] Loaded " + (count() - start) + " misc commands!");
+        LOGGER.info("[Command Manager] Loaded " + (count() - start) + " misc commands!");
 
     }
 
