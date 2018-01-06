@@ -46,7 +46,7 @@ public class MuteCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}mute <user>` - Mutes a user.";
+        return "`{%}mute <user> [reason]` - Mutes a user.";
     }
 
     @Override
