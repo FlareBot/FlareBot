@@ -40,7 +40,7 @@ public class RolesCommand implements Command {
             StringBuilder sb = new StringBuilder();
             for (Role r : roles)
                 sb.append(r.getName()).append(" (").append(r.getId()).append(")\n");
-            PaginationUtil.sendPagedMessage(channel, PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20), page);
+            PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20), page - 1);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
