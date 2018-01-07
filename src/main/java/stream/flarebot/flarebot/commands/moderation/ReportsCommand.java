@@ -35,16 +35,16 @@ public class ReportsCommand implements Command {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
                     if (getPermissions(channel).hasPermission(member, "flarebot.reports.list")) {
+                        if (guild.getReportManager().getReports().isEmpty()) {
+                            MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
+                            return;
+                        }
+
                         ArrayList<String> header = new ArrayList<>();
                         header.add("Id");
                         header.add("Reported");
                         header.add("Time");
                         header.add("Status");
-
-                        if (guild.getReportManager().getReports().isEmpty()) {
-                            MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
-                            return;
-                        }
 
                         List<Report> reports = guild.getReportManager().getReports();
 
