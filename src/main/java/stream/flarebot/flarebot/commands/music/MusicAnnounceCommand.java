@@ -56,13 +56,4 @@ public class MusicAnnounceCommand implements Command {
         return CommandType.MUSIC;
     }
 
-    @Override
-    public String getPermission() {
-        return "flarebot.songannounce";
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
 }

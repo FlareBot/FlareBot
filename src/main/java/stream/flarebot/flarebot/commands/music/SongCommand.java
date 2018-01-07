@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
@@ -37,11 +38,11 @@ public class SongCommand implements Command {
             buttonGroup.addButton(new ButtonGroup.Button("\u23EF", user -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
                     if (manager.getPlayer(guild.getGuild().getId()).getPaused()) {
-                        if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), "flarebot.resume")) {
+                        if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.RESUME_COMMAND)) {
                             manager.getPlayer(guild.getGuild().getId()).play();
                         }
                     } else {
-                        if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), "flarebot.pause")) {
+                        if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.PAUSE_COMMAND)) {
                             manager.getPlayer(guild.getGuild().getId()).setPaused(true);
                         }
                     }
@@ -49,13 +50,13 @@ public class SongCommand implements Command {
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23F9", user -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
-                    if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), "flarebot.stop")) {
+                    if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
                         manager.getPlayer(guild.getGuildId()).stop();
                     }
                 }
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23ED", user -> {
-                if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), "flarebot.skip")) {
+                if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.SKIP_COMMAND)) {
                     Command cmd = FlareBot.instance().getCommand("skip", user);
                     cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
                 }

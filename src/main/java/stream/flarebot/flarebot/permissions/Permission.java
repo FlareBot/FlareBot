@@ -6,6 +6,10 @@ import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
+import stream.flarebot.flarebot.commands.music.*;
+import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.useful.RemindCommand;
+import stream.flarebot.flarebot.commands.useful.TagsCommand;
 
 public enum Permission {
 
@@ -52,7 +56,40 @@ public enum Permission {
     REPORTS_STATUS("reports.status", false),
     ROLES_COMMAND("roles", false, RolesCommand.class),
     SETPREFIX_COMMAND("setprefix", false, SetPrefixCommand.class),
-    WELCOME_COMMAND("welcome", false, WelcomeCommand.class),;
+    WELCOME_COMMAND("welcome", false, WelcomeCommand.class),
+    // Music
+    DELETE_COMMAND("playlist.delete", false, DeleteCommand.class),
+    JOIN_COMMAND("join", true, JoinCommand.class),
+    JOIN_OTHER("join.other", false),
+    LEAVE_COMMAND("leave", true, LeaveCommand.class),
+    LEAVE_OTHER("leave.other", false),
+    LOAD_COMMAND("playlist.load", true, LoadCommand.class),
+    LOOP_COMMAND("loop", true, LoopCommand.class),
+    MUSICANNOUNCE_COMMAND("songannounce", false, MusicAnnounceCommand.class),
+    PAUSE_COMMAND("pause", true, PauseCommand.class),
+    PLAY_COMMAND("play", true, PlayCommand.class),
+    PLAYLIST_COMMAND("playlist", true, PlaylistCommand.class),
+    PLAYLIST_CLEAR("playlist.clear", true),
+    PLAYLISTS_COMMAND("playlists", true, PlaylistsCommand.class),
+    REPEAT_COMMAND("repeat", true, RepeatCommand.class),
+    RESUME_COMMAND("resume", true, ResumeCommand.class),
+    SAVE_COMMAND("playlist.save", true, SaveCommand.class),
+    SAVE_OVERWRITE("playlist.save.overwrite", false),
+    SEARCH_COMMAND("search", true, SearchCommand.class),
+    SEEK_COMMAND("seek", true, SeekCommand.class),
+    SHUFFLE_COMMAND("shuffle", true, ShuffleCommand.class),
+    SKIP_COMMAND("skip", true, SkipCommand.class),
+    SKIP_FORCE("skip.force", false),
+    SKIP_CANCEL("skip.cancel", false),
+    SONG_COMMAND("song", true, SongCommand.class),
+    SONGNICK_COMMAND("songnick", false, SongNickCommand.class),
+    STOP_COMMAND("stop", false, StopCommand.class),
+    // Misc
+    AVATAR_COMMAND("avatar", true, AvatarCommand.class),
+    AVATAR_OTHER("avatar.other", false),
+    REMIND_COMMAND("remind", true, RemindCommand.class),
+    TAGS_COMMAND("tags", true, TagsCommand.class),
+    TAGS_ADMIN("tags.admin", false);
 
     private String permission;
     private boolean defaultPerm;

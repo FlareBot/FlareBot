@@ -64,14 +64,4 @@ public class SongNickCommand implements Command {
     public CommandType getType() {
         return CommandType.MUSIC;
     }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.songnick";
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
 }

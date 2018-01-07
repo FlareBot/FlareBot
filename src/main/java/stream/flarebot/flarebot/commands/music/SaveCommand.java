@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.List;
@@ -57,7 +58,7 @@ public class SaveCommand implements Command {
         FlareBot.instance().getManager().savePlaylist(this,
                 channel,
                 sender.getId(),
-                this.getPermissions(channel).hasPermission(member, "flarebot.playlist.save.overwrite"),
+                this.getPermissions(channel).hasPermission(member, Permission.SAVE_OVERWRITE),
                 name,
                 tracks);
     }
@@ -75,11 +76,6 @@ public class SaveCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}save <name>` - Saves a playlist.";
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.playlist.save";
     }
 
     @Override
