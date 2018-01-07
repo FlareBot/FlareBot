@@ -20,15 +20,6 @@ public class RolesCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length <= 1) {
-            /*StringBuilder sb = new StringBuilder();
-            sb.append("**Server Roles**\n```json\n");
-            List<Role> roles = new ArrayList<>(channel.getGuild().getRoles());
-            roles.remove(channel.getGuild().getRoleById(channel.getGuild().getId()));
-            int pageSize = 20;
-            int pages =
-                    roles.size() < pageSize ? 1 : (roles.size() / pageSize) + (roles.size() % pageSize != 0 ? 1 : 0);
-            int start;
-            int end;
             int page = 1;
             if (args.length == 1) {
                 try {
@@ -38,36 +29,18 @@ public class RolesCommand implements Command {
                     return;
                 }
             }
-            start = pageSize * (page - 1);
-            end = Math.min(start + pageSize, roles.size());
-            if (page > pages || page < 0) {
-                MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
+
+            List<Role> roles = guild.getGuild().getRoles();
+
+            if (roles.isEmpty()) {
+                MessageUtils.sendInfoMessage("There are no roles in this guild!", channel, sender);
                 return;
-            } else {
-                List<Role> subRoles = roles.subList(start, end);
-                if (roles.isEmpty()) {
-                    MessageUtils.sendInfoMessage("There are no roles in this guild!", channel, sender);
-                    return;
-                } else {
-                    for (Role role : subRoles) {
-                        if (role.getId().equals(guild.getGuildId())) {
-                            continue;
-                        }
-                        sb.append(role.getName()).append(" (").append(role.getId()).append(")\n");
-                    }
-                }
             }
 
-            sb.append("```\n").append("**Page ").append(GeneralUtils.getPageOutOfTotal(page, roles, pageSize)).append("**");
-            MessageUtils.sendInfoMessage(sb.toString(), channel, sender);*/
-
             StringBuilder sb = new StringBuilder();
-            for(Role r : guild.getGuild().getRoles())
+            for (Role r : roles)
                 sb.append(r.getName()).append(" (").append(r.getId()).append(")\n");
-            int page = 1;
-            if(args.length == 1)
-                page = Integer.parseInt(args[0]);
-            //PaginationUtil.sendPagedMessage(channel, sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000, page, true);
+            PaginationUtil.sendPagedMessage(channel, PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20), page);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
