@@ -44,7 +44,7 @@ public class Group {
             if (new PermissionNode(s).test(permission.getPermission()))
                 return true;
         }
-        return false;
+        return permission.isDefaultPerm();
     }
 
     public void linkRole(String roleId) {

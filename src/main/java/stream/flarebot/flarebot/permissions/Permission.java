@@ -120,7 +120,7 @@ public enum Permission {
 
     public static Permission getPermission(Class<? extends Command> command) {
         for (Permission permission : Permission.values()) {
-            if (permission.getCommand().equals(command)) return permission;
+            if (permission.getCommand() != null && permission.getCommand().equals(command)) return permission;
         }
         return null;
     }

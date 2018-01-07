@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
 
@@ -250,7 +251,7 @@ public class PermissionsCommand implements Command {
             }
         } else if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("groups")) {
-                if (this.getPermissions(channel).getListGroups().isEmpty()) {
+                if (this.getPermissions(channel).getGroups().isEmpty()) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setColor(Color.RED)
                             .setDescription("There are no groups for this guild!")
@@ -258,7 +259,8 @@ public class PermissionsCommand implements Command {
                     return;
                 } else {
                     int page = args.length == 2 ? Integer.valueOf(args[1]) : 1;
-                    Set<String> groups = this.getPermissions(channel).getGroups().keySet();
+                    Set<String> groups =
+                            this.getPermissions(channel).getGroups().stream().map(Group::getName).collect(Collectors.toSet());
                     List<String> groupList = GeneralUtils.orderList(groups);
 
                     String list = getStringList(groupList, page);
