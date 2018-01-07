@@ -40,22 +40,18 @@ public class ReportsCommand implements Command {
                         header.add("Reported");
                         header.add("Time");
                         header.add("Status");
-                        List<Report> reports = guild.getReportManager().getReports();
 
-                        if (reports.isEmpty()) {
+                        if (guild.getReportManager().getReports().isEmpty()) {
                             MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
                             return;
                         }
 
+                        List<Report> reports = guild.getReportManager().getReports();
+
                         List<List<String>> body = getReportsTable(reports);
                         int page = 0;
                         if (args.length == 2) {
-                            try {
-                                page = Integer.valueOf(args[1]);
-                            } catch (NumberFormatException e) {
-                                MessageUtils.sendErrorMessage("Invalid page!", channel);
-                                return;
-                            }
+                            page = GeneralUtils.getInt(args[1], 0);
                         }
                         PaginationUtil.sendPagedMessage(channel, PaginationUtil.buildPagedTable(header, body, 10), page);
                     } else {

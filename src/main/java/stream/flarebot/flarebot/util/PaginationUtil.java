@@ -181,7 +181,7 @@ public class PaginationUtil {
         for (int i = 0; i < pagesCount; i++) {
             String[] page = ArrayUtils.subarray(lines, rows * i, (rows * i) + rows);
             StringBuilder sb = new StringBuilder();
-            sb.append("```");
+            sb.append("```\n");
             sb.append(MessageUtils.appendSeparatorLine("+", "+", "+", padding, widths));
             sb.append(headerString);
             sb.append(MessageUtils.appendSeparatorLine("+", "+", "+", padding, widths));
@@ -191,7 +191,7 @@ public class PaginationUtil {
             sb.append(MessageUtils.appendSeparatorLine("+", "+", "+", padding, widths));
             sb.append(MessageUtils.getFooter("Page: " + (i + 1) + "/" + pagesCount, padding, widths));
             sb.append(MessageUtils.appendSeparatorLine("+", "+", "+", padding, widths));
-            sb.append("```");
+            sb.append("\n```");
             pages.add(sb.toString());
         }
         return new PaginationList<>(pages);

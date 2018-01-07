@@ -125,7 +125,7 @@ public class PaginationList<T> {
          */
         public String getGroupAsString() {
             StringBuilder builder = new StringBuilder();
-            for (T page: group) {
+            for (T page : group) {
                 builder.append(page.toString()).append("\n");
             }
             return builder.toString();
