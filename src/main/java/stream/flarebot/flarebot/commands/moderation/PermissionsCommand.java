@@ -277,10 +277,6 @@ public class PermissionsCommand implements Command {
                 guild.setPermissions(new PerGuildPermissions());
                 MessageUtils.sendSuccessMessage("Successfully reset perms", channel, sender);
                 return;
-            } else if (args[0].equalsIgnoreCase("restoredefault")) {
-                guild.getPermissions().createDefaultGroup();
-                MessageUtils.sendSuccessMessage("Successfully restored the Default group", channel, sender);
-                return;
             }
         }
         MessageUtils.sendUsage(this, channel, sender, args);
