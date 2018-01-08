@@ -35,16 +35,16 @@ public class Group {
         return permissions.remove(permission);
     }
 
-    public boolean hasPermission(Permission permission) {
+    public Permission.Reply hasPermission(Permission permission) {
         for (String s : permissions) {
             if (s.startsWith("-")) {
                 if (new PermissionNode(s.substring(1)).test(permission.getPermission()))
-                    return false;
+                    return Permission.Reply.DENY;
             }
             if (new PermissionNode(s).test(permission.getPermission()))
-                return true;
+                return Permission.Reply.ALLOW;
         }
-        return permission.isDefaultPerm();
+        return Permission.Reply.NEUTRAL;
     }
 
     public void linkRole(String roleId) {

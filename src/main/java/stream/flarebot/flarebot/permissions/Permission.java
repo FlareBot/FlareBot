@@ -125,8 +125,26 @@ public enum Permission {
         return null;
     }
 
+    public static Permission getPermission(String permission) {
+        for (Permission perm : Permission.values()) {
+            if (perm.getPermission().equalsIgnoreCase(permission)) return perm;
+        }
+        return null;
+    }
+
+    public static boolean isValidPermission(String permission) {
+        return getPermission(permission.substring(permission.startsWith("-") ? 1 : 0)) != null;
+    }
+
     @Override
     public String toString() {
         return getPermission();
     }
+
+    public enum Reply {
+        ALLOW,
+        DENY,
+        NEUTRAL
+    }
+
 }

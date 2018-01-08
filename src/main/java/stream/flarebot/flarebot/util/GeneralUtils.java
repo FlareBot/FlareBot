@@ -29,8 +29,6 @@ import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
@@ -335,20 +333,6 @@ public class GeneralUtils {
             }
             return null;
         }
-    }
-
-    public static boolean validPerm(String perm) {
-        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
-        if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
-            perm = perm.substring(perm.indexOf(".") + 1);
-            String command = perm.split("\\.")[0];
-            for (Command c : FlareBot.instance().getCommandManager().getCommands()) {
-                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public static void joinChannel(TextChannel channel, Member member) {

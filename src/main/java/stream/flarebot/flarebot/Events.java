@@ -443,7 +443,7 @@ public class Events extends ListenerAdapter {
                 return true;
             }
         }
-        return cmd.getPermission() == null;
+        return cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
     }
 
     private void delete(Message message) {

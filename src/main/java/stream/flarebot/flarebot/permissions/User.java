@@ -29,16 +29,16 @@ public class User {
         return permissions;
     }
 
-    public boolean hasPermission(Permission permission) {
+    public Permission.Reply hasPermission(Permission permission) {
         for (String s : permissions) {
             if (s.startsWith("-")) {
                 if (new PermissionNode(s.substring(1)).test(permission.getPermission()))
-                    return false;
+                    return Permission.Reply.DENY;
             }
             if (new PermissionNode(s).test(permission.getPermission()))
-                return true;
+                return Permission.Reply.ALLOW;
         }
-        return false;
+        return Permission.Reply.NEUTRAL;
     }
 
     public boolean addPermission(String permission) {
