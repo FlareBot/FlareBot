@@ -10,6 +10,9 @@ import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
+import stream.flarebot.flarebot.util.GeneralUtils;
+
+import java.util.Map;
 
 public enum Permission {
 
@@ -95,6 +98,13 @@ public enum Permission {
     private boolean defaultPerm;
     private Class<? extends Command> command;
 
+    private static final Map<Class<? extends Command>, Permission> COMMAND_PERMISSION_MAP = GeneralUtils.getReverseMapping(
+            Permission.class,
+            Permission::getCommand);
+    private static final Map<String, Permission> PERMISSION_MAP = GeneralUtils.getReverseMapping(
+            Permission.class,
+            p -> p.getPermission().toLowerCase());
+
     Permission(String permission, boolean defaultPerm) {
         this.permission = "flarebot." + permission;
         this.defaultPerm = defaultPerm;
@@ -119,17 +129,11 @@ public enum Permission {
     }
 
     public static Permission getPermission(Class<? extends Command> command) {
-        for (Permission permission : Permission.values()) {
-            if (permission.getCommand() != null && permission.getCommand().equals(command)) return permission;
-        }
-        return null;
+        return COMMAND_PERMISSION_MAP.get(command);
     }
 
     public static Permission getPermission(String permission) {
-        for (Permission perm : Permission.values()) {
-            if (perm.getPermission().equalsIgnoreCase(permission)) return perm;
-        }
-        return null;
+        return PERMISSION_MAP.get(permission.toLowerCase());
     }
 
     public static boolean isValidPermission(String permission) {
