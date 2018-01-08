@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -27,8 +28,8 @@ public class JoinCommand implements Command {
                     .equals(member
                             .getVoiceState()
                             .getAudioChannel()
-                            .getId()) && !getPermissions(channel).hasPermission(member, "flarebot.join.other")) {
-                MessageUtils.sendErrorMessage("You need the permission `flarebot.join.other` for me to join your voice channel while I'm in one!", channel);
+                            .getId()) && !getPermissions(channel).hasPermission(member, Permission.JOIN_OTHER)) {
+                MessageUtils.sendErrorMessage("You need the permission `" + Permission.JOIN_OTHER + "` for me to join your voice channel while I'm in one!", channel);
                 return;
             }
             GeneralUtils.joinChannel(channel, member);

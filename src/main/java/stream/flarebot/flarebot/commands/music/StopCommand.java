@@ -35,14 +35,4 @@ public class StopCommand implements Command {
     public CommandType getType() {
         return CommandType.MUSIC;
     }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.stop";
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
 }

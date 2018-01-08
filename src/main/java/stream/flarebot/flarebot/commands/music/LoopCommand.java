@@ -45,11 +45,6 @@ public class LoopCommand implements Command {
     }
 
     @Override
-    public String getPermission() {
-        return "flarebot.loop";
-    }
-
-    @Override
     public String[] getAliases() {
         return new String[]{"andagainandagainandagainandagain"};
     }

@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -28,10 +29,10 @@ public class UserInfoCommand implements Command {
         if (args.length == 0)
             user = sender;
         else {
-            if (getPermissions(channel).hasPermission(member, "flarebot.userinfo.other"))
+            if (getPermissions(channel).hasPermission(member, Permission.USERINFO_OTHER))
                 user = GeneralUtils.getUser(MessageUtils.getMessage(args, 0), true);
             else {
-                MessageUtils.sendErrorMessage("You need the `flarebot.userinfo.other` permission to userinfo other users!",
+                MessageUtils.sendErrorMessage("You need the " + Permission.USERINFO_OTHER + " permission to userinfo other users!",
                         channel);
                 return;
             }

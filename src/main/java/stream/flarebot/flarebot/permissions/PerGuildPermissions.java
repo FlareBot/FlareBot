@@ -1,51 +1,54 @@
 package stream.flarebot.flarebot.permissions;
 
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.util.Constants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PerGuildPermissions {
 
-    private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
+    private final List<Group> groups = Collections.synchronizedList(new ArrayList<>());
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
-    public PerGuildPermissions() {
-        if (!hasGroup("Default")) {
-            createDefaultGroup();
-        }
-    }
-
-    public boolean hasPermission(Member user, String permission) {
+    public boolean hasPermission(Member user, Permission permission) {
         // So we can go into servers and figure out any issues they have.
         if (isCreator(user.getUser()))
             return true;
         if (user.isOwner())
             return true;
-        if (user.getPermissions().contains(Permission.ADMINISTRATOR))
+        if (user.getPermissions().contains(net.dv8tion.jda.core.Permission.ADMINISTRATOR))
             return true;
         // Change done by Walshy: Internal review needed
         if (isContributor(user.getUser()) && FlareBot.instance().isTestBot())
             return true;
-        PermissionNode node = new PermissionNode(permission);
-        if (getUser(user).hasPermission(node))
+        if (getUser(user).hasPermission(permission) == Permission.Reply.ALLOW)
             return true;
-        for (Group g : getGroups().values()) {
-            if (!g.hasPermission(node)) continue;
-            if (getUser(user).getGroups().contains(g.getName())) return true;
-            if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
-                if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {
-                    return true;
+        if (getUser(user).hasPermission(permission) == Permission.Reply.DENY) {
+            return false;
+        }
+        Permission.Reply hasPerm = Permission.Reply.NEUTRAL;
+        synchronized (groups) {
+            for (Group g : groups) {
+                if (g.hasPermission(permission) == Permission.Reply.NEUTRAL) continue;
+                if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
+                    if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {
+                        hasPerm = g.hasPermission(permission);
+                    }
+                }
+                if (getUser(user).getGroups().contains(g.getName())) {
+                    hasPerm = g.hasPermission(permission);
                 }
             }
         }
-        return false;
+        if (hasPerm == Permission.Reply.NEUTRAL) {
+            return permission.isDefaultPerm();
+        } else {
+            return hasPerm == Permission.Reply.ALLOW;
+        }
     }
 
     public User getUser(Member user) {
@@ -53,32 +56,38 @@ public class PerGuildPermissions {
     }
 
     public Group getGroup(String group) {
-        return groups.get(group);
+        synchronized (groups) {
+            for (Group g : groups) {
+                if (g.getName().equals(group)) return g;
+            }
+        }
+        return null;
     }
 
     public boolean addGroup(String group) {
-        if (groups.containsKey(group)) {
+        if (hasGroup(group)) {
             return false;
         } else {
-            groups.put(group, new Group(group));
+            groups.add(new Group(group));
             return true;
         }
     }
 
     public void deleteGroup(String group) {
-        groups.remove(group);
+        groups.remove(getGroup(group));
     }
 
     public boolean hasGroup(String group) {
-        return groups.containsKey(group);
+        synchronized (groups) {
+            for (Group g : groups) {
+                if (g.getName().equals(group)) return true;
+            }
+        }
+        return false;
     }
 
-    public Map<String, Group> getGroups() {
+    public List<Group> getGroups() {
         return groups;
-    }
-
-    public List<Group> getListGroups() {
-        return new ArrayList<>(groups.values());
     }
 
     private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
@@ -97,20 +106,5 @@ public class PerGuildPermissions {
 
     public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
         return checkOfficialGuildForRole(user, Constants.STAFF_ID);
-    }
-
-    public void createDefaultGroup() {
-        if (hasGroup("Default")) {
-            deleteGroup("Default");
-        }
-        Group defaults = new Group("Default");
-        for (Command command : FlareBot.instance().getCommandManager().getCommands()) {
-            if (command.isDefaultPermission()) {
-                defaults.addPermission(command.getPermission());
-            }
-        }
-        defaults.addPermission("flarebot.userinfo.other");
-        defaults.addPermission("flarebot.playlist.clear");
-        groups.put("Default", defaults);
     }
 }

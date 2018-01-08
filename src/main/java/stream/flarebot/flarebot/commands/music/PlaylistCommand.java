@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -31,8 +32,8 @@ public class PlaylistCommand implements Command {
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
-                    if (!this.getPermissions(channel).hasPermission(member, "flarebot.playlist.clear")) {
-                        MessageUtils.sendErrorMessage("You need the `flarebot.playlist.clear` permission to do this!", channel, sender);
+                    if (!this.getPermissions(channel).hasPermission(member, Permission.PLAYLIST_CLEAR)) {
+                        MessageUtils.sendErrorMessage("You need the `" + Permission.PLAYLIST_CLEAR + "` permission to do this!", channel, sender);
                         return;
                     }
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();

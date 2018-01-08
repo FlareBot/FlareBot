@@ -4,6 +4,8 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.google.common.util.concurrent.Runnables;
+import com.google.gson.JsonParser;
+import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
@@ -14,6 +16,7 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.Constants;
@@ -193,7 +196,7 @@ public class FlareBotManager {
             long start = System.currentTimeMillis();
             ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
                     + guildId + "'");
-            GuildWrapper wrapper;
+            GuildWrapper wrapper = null;
             Row row = set != null ? set.one() : null;
             try {
                 if (row != null)
@@ -201,11 +204,28 @@ public class FlareBotManager {
                 else
                     wrapper = new GuildWrapper(id);
             } catch (Exception e) {
-                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
-                        "Guild ID: " + id + "\n" +
-                        "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
-                        "Error: " + e.getMessage(), e);
-                return null;
+                // MIGRATION: This is quite important! :D
+                if (e.getMessage().contains("permission")) {
+                    if (row != null) {
+                        String json = row.getString("data");
+                        JSONConfig config = new JSONConfig(new JsonParser().parse(json).getAsJsonObject());
+                        if (config.getSubConfig("permissions.groups").isPresent()) {
+                            List<Group> groups = new ArrayList<>();
+                            JSONConfig config1 = config.getSubConfig("permissions.groups").get();
+                            for (String s : config1.getKeys(false)) {
+                                groups.add(FlareBot.GSON.fromJson(config1.getElement(s).get().getAsJsonObject().toString(), Group.class));
+                            }
+                            config.set("permissions.groups", groups);
+                        }
+                        wrapper = FlareBot.GSON.fromJson(config.getObject().toString(), GuildWrapper.class);
+                    }
+                } else {
+                    LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                            "Guild ID: " + id + "\n" +
+                            "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
+                            "Error: " + e.getMessage(), e);
+                    return null;
+                }
             }
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);

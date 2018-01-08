@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
@@ -37,7 +38,7 @@ public class SkipCommand implements Command {
         if (member.getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getChannel()
                 .getId()
                 .equals(member.getVoiceState().getChannel().getId())
-                && !getPermissions(channel).hasPermission(member, "flarebot.skip.force")) {
+                && !getPermissions(channel).hasPermission(member, Permission.SKIP_FORCE)) {
             channel.sendMessage("You must be in the channel in order to skip songs!").queue();
             return;
         }
@@ -57,20 +58,20 @@ public class SkipCommand implements Command {
             } else getVotes(channel, member);
         } else {
             if (args[0].equalsIgnoreCase("force")) {
-                if (getPermissions(channel).hasPermission(member, "flarebot.skip.force")) {
+                if (getPermissions(channel).hasPermission(member, Permission.SKIP_FORCE)) {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
                     skips.put(channel.getGuild().getId(), true);
                 } else {
-                    channel.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this command!")
+                    channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this command!")
                             .queue();
                 }
                 return;
             } else if (args[0].equalsIgnoreCase("cancel")) {
 
-                if (getPermissions(channel).hasPermission(member, "flarebot.skip.cancel")) {
+                if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL)) {
                     skips.put(channel.getGuild().getId(), true);
                 } else {
-                    channel.sendMessage("You are missing the permission ``flarebot.skip.cancel`` which is required for use of this command!")
+                    channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
                             .queue();
                 }
                 return;
@@ -188,8 +189,8 @@ public class SkipCommand implements Command {
     }
 
     private void addButtons(ButtonGroup buttons, TextChannel channel) {
-        PlayerManager musicManager = FlareBot.instance().getMusicManager();
-        buttons.addButton(new ButtonGroup.Button(355776056092917761L, user -> {
+        buttons.addButton(new ButtonGroup.Button(355776056092917761L, (user, message) -> {
+
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
                 if (voteMap.containsKey(user.getId())) {
@@ -212,7 +213,7 @@ public class SkipCommand implements Command {
                 MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
             }
         }));
-        buttons.addButton(new ButtonGroup.Button(355776081384570881L, user -> {
+        buttons.addButton(new ButtonGroup.Button(355776081384570881L, (user, message) -> {
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
                 if (voteMap.containsKey(user.getId())) {
@@ -235,12 +236,13 @@ public class SkipCommand implements Command {
                 MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
             }
         }));
-        buttons.addButton(new ButtonGroup.Button("\u23ED", user -> {
-            if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), "flarebot.skip.force")) {
+        buttons.addButton(new ButtonGroup.Button("\u23ED", (user, message) -> {
+            PlayerManager musicManager = FlareBot.instance().getMusicManager();
+            if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
                 musicManager.getPlayer(channel.getGuild().getId()).skip();
                 skips.put(channel.getGuild().getId(), true);
             } else {
-                channel.sendMessage("You are missing the permission ``flarebot.skip.force`` which is required for use of this button!")
+                channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this button!")
                         .queue();
             }
         }));

@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.GuildVoiceState;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -29,8 +30,6 @@ import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
@@ -337,26 +336,19 @@ public class GeneralUtils {
         }
     }
 
-    public static boolean validPerm(String perm) {
-        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
-        if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
-            perm = perm.substring(perm.indexOf(".") + 1);
-            String command = perm.split("\\.")[0];
-            for (Command c : FlareBot.instance().getCommandManager().getCommands()) {
-                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public static void joinChannel(TextChannel channel, Member member) {
+        GuildVoiceState vs = channel.getGuild().getSelfMember().getVoiceState();
+        GuildVoiceState memberVS = member.getVoiceState();
+        if (memberVS.getChannel() == null)
+            return; // They aren't in a VC so we can't join that.
+        if (vs.getChannel() != null && vs.getChannel().getIdLong() == member.getVoiceState().getChannel().getIdLong())
+            return; // Already in the same VC as the user.
+
         if (channel.getGuild().getSelfMember()
-                .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
+                .hasPermission(memberVS.getChannel(), Permission.VOICE_CONNECT) &&
                 channel.getGuild().getSelfMember()
-                        .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
-            if (member.getVoiceState().getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
+                        .hasPermission(memberVS.getChannel(), Permission.VOICE_SPEAK)) {
+            if (memberVS.getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
                     .getMembers().size()
                     >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
                     .hasPermission(member
