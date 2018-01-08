@@ -189,8 +189,8 @@ public class SkipCommand implements Command {
     }
 
     private void addButtons(ButtonGroup buttons, TextChannel channel) {
-        PlayerManager musicManager = FlareBot.instance().getMusicManager();
-        buttons.addButton(new ButtonGroup.Button(355776056092917761L, user -> {
+        buttons.addButton(new ButtonGroup.Button(355776056092917761L, (user, message) -> {
+
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
                 if (voteMap.containsKey(user.getId())) {
@@ -213,7 +213,7 @@ public class SkipCommand implements Command {
                 MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
             }
         }));
-        buttons.addButton(new ButtonGroup.Button(355776081384570881L, user -> {
+        buttons.addButton(new ButtonGroup.Button(355776081384570881L, (user, message) -> {
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
                 if (voteMap.containsKey(user.getId())) {
@@ -236,7 +236,8 @@ public class SkipCommand implements Command {
                 MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
             }
         }));
-        buttons.addButton(new ButtonGroup.Button("\u23ED", user -> {
+        buttons.addButton(new ButtonGroup.Button("\u23ED", (user, message) -> {
+            PlayerManager musicManager = FlareBot.instance().getMusicManager();
             if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
                 musicManager.getPlayer(channel.getGuild().getId()).skip();
                 skips.put(channel.getGuild().getId(), true);

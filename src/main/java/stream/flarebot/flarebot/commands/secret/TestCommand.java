@@ -7,20 +7,11 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.permissions.Permission;
 
 public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        Member mem = guild.getGuild().getMemberById(135081860790222848L);
-        StringBuilder m = new StringBuilder(mem.getEffectiveName() + "\n");
-        for (Permission p : Permission.values()) {
-            if (getPermissions(channel).hasPermission(mem, p)) {
-                m.append(p).append(" ").append(p.isDefaultPerm()).append("\n");
-            }
-        }
-        channel.sendMessage(m.toString()).queue();
         // Served it's purpose once again :) Now it's free to be reused... no memes pls
     }
 

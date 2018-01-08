@@ -35,7 +35,7 @@ public class SongCommand implements Command {
                         .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()),
                                 GeneralUtils.formatDuration(track.getTrack().getDuration())), false);
             ButtonGroup buttonGroup = new ButtonGroup();
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EF", user -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EF", (user, message1) -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
                     if (manager.getPlayer(guild.getGuild().getId()).getPaused()) {
                         if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.RESUME_COMMAND)) {
@@ -48,14 +48,14 @@ public class SongCommand implements Command {
                     }
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23F9", user -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23F9", (user, message1) -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
                     if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
                         manager.getPlayer(guild.getGuildId()).stop();
                     }
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", user -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message1) -> {
                 if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.SKIP_COMMAND)) {
                     Command cmd = FlareBot.instance().getCommand("skip", user);
                     cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));

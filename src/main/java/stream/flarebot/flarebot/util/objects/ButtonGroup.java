@@ -35,6 +35,7 @@ public class ButtonGroup {
         private String unicode;
         private long emoteId;
         private ButtonRunnable runnable;
+        private Message message;
 
         public Button(String unicode, ButtonRunnable runnable) {
             this.unicode = unicode;
@@ -55,6 +56,7 @@ public class ButtonGroup {
         }
 
         public void addReaction(Message message) {
+            this.message = message;
             if (unicode != null)
                 message.addReaction(unicode).queue();
             else
@@ -62,7 +64,7 @@ public class ButtonGroup {
         }
 
         public void onClick(User user) {
-            runnable.run(user);
+            runnable.run(user, message);
         }
     }
 }

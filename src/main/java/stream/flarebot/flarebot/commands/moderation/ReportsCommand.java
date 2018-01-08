@@ -17,6 +17,7 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.PaginationUtil;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -35,35 +36,25 @@ public class ReportsCommand implements Command {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
                     if (getPermissions(channel).hasPermission(member, Permission.REPORTS_LIST)) {
+                        if (guild.getReportManager().getReports().isEmpty()) {
+                            MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
+                            return;
+                        }
+
+                        ArrayList<String> header = new ArrayList<>();
+                        header.add("Id");
+                        header.add("Reported");
+                        header.add("Time");
+                        header.add("Status");
+
                         List<Report> reports = guild.getReportManager().getReports();
-                        int page = 1;
-                        final int reportsLength = 15;
+
+                        List<List<String>> body = getReportsTable(reports);
+                        int page = 0;
                         if (args.length == 2) {
-                            try {
-                                page = Integer.valueOf(args[1]);
-                            } catch (NumberFormatException e) {
-                                MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
-                                return;
-                            }
+                            page = GeneralUtils.getInt(args[1], 0);
                         }
-                        int pages =
-                                reports.size() < reportsLength ? 1 : (reports.size() / reportsLength) + (reports.size() % reportsLength != 0 ? 1 : 0);
-                        int start;
-                        int end;
-
-                        start = reportsLength * (page - 1);
-                        end = Math.min(start + reportsLength, reports.size());
-                        if (page > pages || page < 0) {
-                            MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-                        } else {
-                            List<Report> subReports = reports.subList(start, end);
-
-                            if (reports.isEmpty()) {
-                                MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
-                            } else {
-                                channel.sendMessage(getReportsTable(subReports, " Reports Page " + GeneralUtils.getPageOutOfTotal(page, reports, reportsLength))).queue();
-                            }
-                        }
+                        PaginationUtil.sendPagedMessage(channel, PaginationUtil.buildPagedTable(header, body, 10), page);
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_LIST + "`", channel);
                     }
@@ -147,13 +138,7 @@ public class ReportsCommand implements Command {
 
     }
 
-    private String getReportsTable(List<Report> reports, String footer) {
-        ArrayList<String> header = new ArrayList<>();
-        header.add("Id");
-        header.add("Reported");
-        header.add("Time");
-        header.add("Status");
-
+    private List<List<String>> getReportsTable(List<Report> reports) {
         List<List<String>> table = new ArrayList<>();
         for (Report report : reports) {
             ArrayList<String> row = new ArrayList<>();
@@ -167,7 +152,7 @@ public class ReportsCommand implements Command {
             table.add(row);
         }
 
-        return MessageUtils.makeAsciiTable(header, table, footer, "swift");
+        return table;
     }
 
     @Override
