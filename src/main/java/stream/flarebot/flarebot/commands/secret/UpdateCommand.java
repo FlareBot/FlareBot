@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateCommand implements Command {
 
-    public static final AtomicBoolean UPDATING = new AtomicBoolean(false);
     private static AtomicBoolean queued = new AtomicBoolean(false);
     public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
 
@@ -121,7 +120,7 @@ public class UpdateCommand implements Command {
         FlareBot.instance().setStatus("Updating..");
         if (channel != null)
             channel.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`").queue();
-        UPDATING.set(true);
+        FlareBot.UPDATING.set(true);
         FlareBot.instance().quit(true);
     }
 
