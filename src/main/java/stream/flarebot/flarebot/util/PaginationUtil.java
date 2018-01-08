@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaginationUtil {
+
     /**
      * Splits a string into a {@link PaginationList}
      *
-     * @param content The string to split
+     * @param content     The string to split
      * @param splitMethod the method by witch to split
      * @param splitAmount The amount to split
      * @return {@link PaginationList}
@@ -46,8 +47,8 @@ public class PaginationUtil {
      * Sends a paged message
      *
      * @param textChannel The channel to send it to
-     * @param list The {@link PaginationList} to use
-     * @param page The starting page
+     * @param list        The {@link PaginationList} to use
+     * @param page        The starting page
      */
     public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page) {
         Integer[] pages = new Integer[]{page};
@@ -84,8 +85,8 @@ public class PaginationUtil {
      * This will automatically handle page counts for you as well
      *
      * @param textChannel The channel to send it to
-     * @param list The {@link PaginationList} to use
-     * @param page The starting page
+     * @param list        The {@link PaginationList} to use
+     * @param page        The starting page
      */
     public static void sendEmbedPagedMessage(TextChannel textChannel, PaginationList<String> list, int page) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -141,8 +142,8 @@ public class PaginationUtil {
      * Builds a {@link PaginationList} as a table
      *
      * @param headers The column headers
-     * @param table The table it's self
-     * @param rows The number of rows that should be on each page
+     * @param table   The table it's self
+     * @param rows    The number of rows that should be on each page
      * @return {@link PaginationList}
      */
     public static PaginationList<String> buildPagedTable(List<String> headers, List<List<String>> table, int rows) {
@@ -156,7 +157,7 @@ public class PaginationUtil {
                 widths[i] = headers.get(i).length();
             }
         }
-        for (java.util.List<String> row : table) {
+        for (List<String> row : table) {
             for (int i = 0; i < row.size(); i++) {
                 String cell = row.get(i);
                 if (cell.length() > widths[i]) {

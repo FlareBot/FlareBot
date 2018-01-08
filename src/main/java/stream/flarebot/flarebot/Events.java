@@ -248,7 +248,7 @@ public class Events extends ListenerAdapter {
             if (flareBot.getMusicManager().hasPlayer(event.getGuild().getId())) {
                 flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
             }
-            if (Getters.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
+            if (Getters.getActiveVoiceChannels() == 0 && FlareBot.NOVOICE_UPDATING.get()) {
                 Constants.getImportantLogChannel()
                         .sendMessage("I am now updating, there are no voice channels active!").queue();
                 UpdateCommand.update(true, null);

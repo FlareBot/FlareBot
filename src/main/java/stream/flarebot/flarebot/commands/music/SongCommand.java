@@ -49,10 +49,9 @@ public class SongCommand implements Command {
                 }
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23F9", (user, message1) -> {
-                if (manager.hasPlayer(guild.getGuildId())) {
-                    if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
-                        manager.getPlayer(guild.getGuildId()).stop();
-                    }
+                if (manager.hasPlayer(guild.getGuildId()) &&
+                        getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
+                    manager.getPlayer(guild.getGuildId()).stop();
                 }
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message1) -> {

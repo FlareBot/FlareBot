@@ -98,9 +98,10 @@ public enum Permission {
     private boolean defaultPerm;
     private Class<? extends Command> command;
 
-    private static final Map<Class<? extends Command>, Permission> COMMAND_PERMISSION_MAP = GeneralUtils.getReverseMapping(
-            Permission.class,
-            Permission::getCommand);
+    private static final Map<Class<? extends Command>, Permission> COMMAND_PERMISSION_MAP =
+            GeneralUtils.getReverseMapping(
+                    Permission.class,
+                    Permission::getCommand);
     private static final Map<String, Permission> PERMISSION_MAP = GeneralUtils.getReverseMapping(
             Permission.class,
             p -> p.getPermission().toLowerCase());

@@ -7,9 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ButtonUtil {

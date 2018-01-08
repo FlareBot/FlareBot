@@ -696,6 +696,8 @@ public class GeneralUtils {
             case DAYS:
                 totalSeconds = ((duration * 60) * 60) * 24;
                 break;
+            default:
+                totalSeconds = duration;
         }
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;

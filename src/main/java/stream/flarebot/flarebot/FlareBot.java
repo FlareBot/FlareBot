@@ -91,6 +91,7 @@ public class FlareBot {
     public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
     public static final AtomicBoolean UPDATING = new AtomicBoolean(false);
+    public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
     private static final Map<String, Logger> LOGGERS;
     private static FlareBot instance;
     private static String youtubeApi;
