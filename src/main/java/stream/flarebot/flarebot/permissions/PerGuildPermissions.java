@@ -20,11 +20,11 @@ public class PerGuildPermissions {
             return true;
         if (user.isOwner())
             return true;
-//        if (user.getPermissions().contains(net.dv8tion.jda.core.Permission.ADMINISTRATOR))
-//            return true;
-//        // Change done by Walshy: Internal review needed
-//        if (isContributor(user.getUser()) && FlareBot.instance().isTestBot())
-//            return true;
+        if (user.getPermissions().contains(net.dv8tion.jda.core.Permission.ADMINISTRATOR))
+            return true;
+        // Change done by Walshy: Internal review needed
+        if (isContributor(user.getUser()) && FlareBot.instance().isTestBot())
+            return true;
         if (getUser(user).hasPermission(permission) == Permission.Reply.ALLOW)
             return true;
         if (getUser(user).hasPermission(permission) == Permission.Reply.DENY) {
