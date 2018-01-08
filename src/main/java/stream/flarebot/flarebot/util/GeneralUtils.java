@@ -698,6 +698,7 @@ public class GeneralUtils {
                 break;
             default:
                 totalSeconds = duration;
+                break;
         }
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;

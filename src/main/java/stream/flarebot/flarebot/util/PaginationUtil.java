@@ -172,7 +172,7 @@ public class PaginationUtil {
         formatLine.append("\n");
         String headerString = String.format(formatLine.toString(), headers.toArray());
         StringBuilder bodyBuilder = new StringBuilder();
-        for (java.util.List<String> row : table) {
+        for (List<String> row : table) {
             bodyBuilder.append(String.format(formatLine.toString(), row.toArray()));
         }
         String bodyString = bodyBuilder.toString();

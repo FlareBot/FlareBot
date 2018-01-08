@@ -22,7 +22,7 @@ public class PaginationList<T> {
     /**
      * Creates a PagnationList with groups
      *
-     * @param list The list of pages
+     * @param list      The list of pages
      * @param groupSize the size of the group
      */
     public PaginationList(List<T> list, int groupSize) {
@@ -98,6 +98,7 @@ public class PaginationList<T> {
     }
 
     public class PageGroup {
+
         private List<T> group;
 
         /**
