@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.GuildVoiceState;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -336,11 +337,18 @@ public class GeneralUtils {
     }
 
     public static void joinChannel(TextChannel channel, Member member) {
+        GuildVoiceState vs = channel.getGuild().getSelfMember().getVoiceState();
+        GuildVoiceState memberVS = member.getVoiceState();
+        if (memberVS.getChannel() == null)
+            return; // They aren't in a VC so we can't join that.
+        if (vs.getChannel() != null && vs.getChannel().getIdLong() == member.getVoiceState().getChannel().getIdLong())
+            return; // Already in the same VC as the user.
+
         if (channel.getGuild().getSelfMember()
-                .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
+                .hasPermission(memberVS.getChannel(), Permission.VOICE_CONNECT) &&
                 channel.getGuild().getSelfMember()
-                        .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
-            if (member.getVoiceState().getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
+                        .hasPermission(memberVS.getChannel(), Permission.VOICE_SPEAK)) {
+            if (memberVS.getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
                     .getMembers().size()
                     >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
                     .hasPermission(member
