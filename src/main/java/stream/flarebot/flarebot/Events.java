@@ -260,19 +260,6 @@ public class Events extends ListenerAdapter {
         if (FlareBot.getPrefixes() == null || event.getAuthor().isBot()) return;
         String message = multiSpace.matcher(event.getMessage().getContentRaw()).replaceAll(" ");
         if (message.startsWith(String.valueOf(FlareBot.getPrefixes().get(getGuildId(event))))) {
-            List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
-            if (!perms.contains(Permission.ADMINISTRATOR)) {
-                if (!perms.contains(Permission.MESSAGE_WRITE)) {
-                    return;
-                }
-                if (!perms.contains(Permission.MESSAGE_EMBED_LINKS)) {
-                    event.getChannel().sendMessage("Hey! I can't be used here." +
-                            "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
-                            "\nThanks :D").queue();
-                    return;
-                }
-            }
-
             String command = message.substring(1);
             String[] args = new String[0];
             if (message.contains(" ")) {
@@ -280,8 +267,21 @@ public class Events extends ListenerAdapter {
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
             Command cmd = flareBot.getCommand(command, event.getAuthor());
-            if (cmd != null)
+            if (cmd != null) {
+                List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
+                if (!perms.contains(Permission.ADMINISTRATOR)) {
+                    if (!perms.contains(Permission.MESSAGE_WRITE)) {
+                        return;
+                    }
+                    if (!perms.contains(Permission.MESSAGE_EMBED_LINKS)) {
+                        event.getChannel().sendMessage("Hey! I can't be used here." +
+                                "\nI do not have the `Embed Links` permission! Please go to your permissions and give me Embed Links." +
+                                "\nThanks :D").queue();
+                        return;
+                    }
+                }
                 handleCommand(event, cmd, args);
+            }
         } else {
             if (FlareBot.getPrefixes().get(getGuildId(event)) != FlareBot.COMMAND_CHAR &&
                     (message.startsWith("_prefix")) || message.startsWith(event.getGuild().getSelfMember().getAsMention())) {
