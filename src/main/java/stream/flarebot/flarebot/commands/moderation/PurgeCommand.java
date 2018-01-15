@@ -9,7 +9,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -70,7 +71,7 @@ public class PurgeCommand implements Command {
                 }
             }
 
-            if (!guild.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY)) {
+            if (!guild.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY)) {
                 MessageUtils.sendErrorMessage("I do not have the perms `Manage Messages` and `Read Message History` please make sure I have these and do the command again.", channel);
                 return;
             }
