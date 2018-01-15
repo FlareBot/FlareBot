@@ -56,8 +56,7 @@ public class ModlogEvents extends ListenerAdapter {
         if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.BAN).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
-            boolean validEntry = true;
-            validEntry = entry.getTargetId().equals(event.getUser().getId());
+            boolean validEntry = entry.getTargetId().equals(event.getUser().getId());
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
                     validEntry ? entry.getUser() : null,
                     validEntry ? entry.getReason() : null);
