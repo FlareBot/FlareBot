@@ -15,7 +15,7 @@ import java.util.Map;
 public class GitHandler {
 
     private static final Git GIT;
-    private static final RevCommit LATEST_COMMIT;
+    private static RevCommit LATEST_COMMIT;
 
     static {
 
@@ -27,24 +27,6 @@ public class GitHandler {
             git = null;
         }
         GIT = git;
-
-
-        RevCommit latestCommit = null;
-        if (getRepository() != null) {
-            Repository repo = getRepository();
-            try (RevWalk revWalk = new RevWalk(repo)) {
-                revWalk.sort(RevSort.COMMIT_TIME_DESC);
-                Map<String, Ref> allRefs = repo.getRefDatabase().getRefs(RefDatabase.ALL);
-                for (Ref ref : allRefs.values()) {
-                    RevCommit commit = revWalk.parseCommit(ref.getLeaf().getObjectId());
-                    revWalk.markStart(commit);
-                }
-                latestCommit = revWalk.next();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        LATEST_COMMIT = latestCommit;
     }
 
     public static Repository getRepository() {
@@ -55,6 +37,24 @@ public class GitHandler {
     }
 
     public static RevCommit getLatestCommit() {
+        if (LATEST_COMMIT == null) {
+            RevCommit latestCommit = null;
+            if (getRepository() != null) {
+                Repository repo = getRepository();
+                try (RevWalk revWalk = new RevWalk(repo)) {
+                    revWalk.sort(RevSort.COMMIT_TIME_DESC);
+                    Map<String, Ref> allRefs = repo.getRefDatabase().getRefs(RefDatabase.ALL);
+                    for (Ref ref : allRefs.values()) {
+                        RevCommit commit = revWalk.parseCommit(ref.getLeaf().getObjectId());
+                        revWalk.markStart(commit);
+                    }
+                    latestCommit = revWalk.next();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            LATEST_COMMIT = latestCommit;
+        }
         return LATEST_COMMIT;
     }
 
