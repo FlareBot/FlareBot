@@ -14,14 +14,37 @@ import java.util.Map;
 
 public class GitHandler {
 
-    private static Git GIT;
+    private static final Git GIT;
+    private static final RevCommit LATEST_COMMIT;
 
     static {
+
+        Git git;
         try {
-            GIT = Git.open(new File("."));
+            git = Git.open(new File("."));
         } catch (IOException e) {
             e.printStackTrace();
+            git = null;
         }
+        GIT = git;
+
+
+        RevCommit latestCommit = null;
+        if (getRepository() != null) {
+            Repository repo = getRepository();
+            try (RevWalk revWalk = new RevWalk(repo)) {
+                revWalk.sort(RevSort.COMMIT_TIME_DESC);
+                Map<String, Ref> allRefs = repo.getRefDatabase().getRefs(RefDatabase.ALL);
+                for (Ref ref : allRefs.values()) {
+                    RevCommit commit = revWalk.parseCommit(ref.getLeaf().getObjectId());
+                    revWalk.markStart(commit);
+                }
+                latestCommit = revWalk.next();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        LATEST_COMMIT = latestCommit;
     }
 
     public static Repository getRepository() {
@@ -32,21 +55,7 @@ public class GitHandler {
     }
 
     public static RevCommit getLatestCommit() {
-        if (getRepository() != null) {
-            Repository repo = getRepository();
-            try (RevWalk revWalk = new RevWalk(repo)) {
-                revWalk.sort(RevSort.COMMIT_TIME_DESC);
-                Map<String, Ref> allRefs = repo.getRefDatabase().getRefs(RefDatabase.ALL);
-                for (Ref ref : allRefs.values()) {
-                    RevCommit commit = revWalk.parseCommit(ref.getLeaf().getObjectId());
-                    revWalk.markStart(commit);
-                }
-                return revWalk.next();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
+        return LATEST_COMMIT;
     }
 
 
