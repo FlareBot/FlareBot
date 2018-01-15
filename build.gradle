@@ -22,6 +22,7 @@ repositories {
     maven { url "https://jitpack.io" }
     maven { url "https://repo.arsenarsen.com/content/repositories/snapshots/" }
     maven { url "http://repo.maven.apache.org/maven2" }
+    maven { url "https://repo.eclipse.org/content/groups/releases/" }
 }
 dependencies {
     compile group: 'net.dv8tion', name: 'JDA', version: '3.3.1_316'
@@ -55,6 +56,7 @@ dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
     compile group: 'joda-time', name: 'joda-time', version: '2.8'
     compile group: 'io.sentry', name: 'sentry-logback', version: '1.6.3'
+    compile "org.eclipse.jgit:org.eclipse.jgit:4.9.2.201712150930-r"
 }
 
 compileJava.options.encoding = 'UTF-8'
