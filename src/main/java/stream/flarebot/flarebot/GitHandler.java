@@ -15,10 +15,9 @@ import java.util.Map;
 public class GitHandler {
 
     private static final Git GIT;
-    private static RevCommit LATEST_COMMIT;
+    private static RevCommit latestCommit;
 
     static {
-
         Git git;
         try {
             git = Git.open(new File("."));
@@ -37,7 +36,7 @@ public class GitHandler {
     }
 
     public static RevCommit getLatestCommit() {
-        if (LATEST_COMMIT == null) {
+        if (latestCommit == null) {
             RevCommit latestCommit = null;
             if (getRepository() != null) {
                 Repository repo = getRepository();
@@ -53,9 +52,9 @@ public class GitHandler {
                     e.printStackTrace();
                 }
             }
-            LATEST_COMMIT = latestCommit;
+            GitHandler.latestCommit = latestCommit;
         }
-        return LATEST_COMMIT;
+        return latestCommit;
     }
 
 
