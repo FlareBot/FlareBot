@@ -32,8 +32,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
@@ -44,6 +45,7 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -268,7 +270,8 @@ public class Events extends ListenerAdapter {
             }
             Command cmd = flareBot.getCommand(command, event.getAuthor());
             if (cmd != null) {
-                List<Permission> perms = event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
+                List<Permission> perms =
+                        event.getChannel().getGuild().getSelfMember().getPermissions(event.getChannel());
                 if (!perms.contains(Permission.ADMINISTRATOR)) {
                     if (!perms.contains(Permission.MESSAGE_WRITE)) {
                         return;
@@ -320,11 +323,11 @@ public class Events extends ListenerAdapter {
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
-            LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
                     .getCloseCode(), event
                     .getCloseCode()));
         else
-            LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
                     .getCloseCode(), event
                     .getClientCloseFrame().getCloseReason()));
     }

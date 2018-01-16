@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
+import io.sentry.SentryClient;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -45,17 +46,23 @@ import spark.Spark;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
-import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.currency.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.commands.currency.ConvertCommand;
+import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.informational.*;
+import stream.flarebot.flarebot.commands.informational.BetaCommand;
+import stream.flarebot.flarebot.commands.informational.DonateCommand;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.random.*;
+import stream.flarebot.flarebot.commands.random.AvatarCommand;
 import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.secret.internal.*;
-import stream.flarebot.flarebot.commands.useful.*;
+import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
+import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.useful.RemindCommand;
+import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -192,8 +199,7 @@ public class FlareBot {
             LOGGER.error("One or more of the required JSON objects where missing. Exiting to prevent problems");
             System.exit(1);
         }
-
-        Sentry.init(config.getString("sentry.dsn").get());
+        
         new CassandraController(config);
         new RedisController(config);
 
@@ -213,6 +219,12 @@ public class FlareBot {
                 }
             }
         }
+
+        SentryClient sentryClient =
+                Sentry.init(config.getString("sentry.dsn").get() + "?stacktrace.app.packages=stream.flarebot.flarebot");
+        sentryClient.setEnvironment(testBot ? "TestBot" : "Production");
+        sentryClient.setServerName(testBot ? "Test Server" : "Production Server");
+        sentryClient.setRelease(GitHandler.getLatestCommitId());
 
         if (!config.getString("misc.apiKey").isPresent() || config.getString("misc.apiKey").get().isEmpty())
             apiEnabled = false;
