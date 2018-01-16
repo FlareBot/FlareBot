@@ -249,7 +249,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        handleVoiceConnectivity(event.getChannelLeft());
+        handleVoiceConnectivity(event.getChannelJoined());
     }
 
     @Override
