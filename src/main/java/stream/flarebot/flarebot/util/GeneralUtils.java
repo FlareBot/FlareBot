@@ -63,6 +63,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -695,6 +696,9 @@ public class GeneralUtils {
             case DAYS:
                 totalSeconds = ((duration * 60) * 60) * 24;
                 break;
+            default:
+                totalSeconds = duration;
+                break;
         }
         long seconds = totalSeconds % 60;
         long minutes = (totalSeconds / 60) % 60;
@@ -706,4 +710,24 @@ public class GeneralUtils {
                 + (seconds > 0 ? (append0 && seconds < 10 ? "0" + seconds : seconds) + (fullUnits ? " seconds" : "s") : "")
                 .trim();
     }
+
+    /**
+     * Returns a lookup map for an enum, using the passed transform function.
+     *
+     * @param clazz  The clazz of the enum
+     * @param mapper The mapper. Must be bijective as it otherwise overwrites keys/values.
+     * @param <T>    the enum type
+     * @param <R>    the type of map key
+     * @return a map with the given key and the enum value associated with it
+     */
+    public static <T extends Enum, R> Map<R, T> getReverseMapping(Class<T> clazz, Function<T, R> mapper) {
+        Map<R, T> result = new HashMap<>();
+
+        for (T t : clazz.getEnumConstants()) {
+            result.put(mapper.apply(t), t);
+        }
+
+        return result;
+    }
+
 }

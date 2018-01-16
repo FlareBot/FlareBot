@@ -24,11 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateCommand implements Command {
 
-    public static final AtomicBoolean UPDATING = new AtomicBoolean(false);
     private static AtomicBoolean queued = new AtomicBoolean(false);
-    public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
-
-    private FlareBot flareBot = FlareBot.instance();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -45,7 +41,7 @@ public class UpdateCommand implements Command {
                         update(true, channel);
                     } else {
                         if (!queued.getAndSet(true)) {
-                            NOVOICE_UPDATING.set(true);
+                            FlareBot.NOVOICE_UPDATING.set(true);
                         } else
                             channel.sendMessage("There is already an update queued!").queue();
                     }
@@ -89,7 +85,7 @@ public class UpdateCommand implements Command {
      */
     public static void update(boolean force, TextChannel channel) {
         if (force) {
-            doTheUpdate(channel, "latest", FlareBot.instance().getVersion());
+            doTheUpdate(channel, "latest", FlareBot.getVersion());
             return;
         }
         try {
@@ -101,7 +97,7 @@ public class UpdateCommand implements Command {
                 if (line != null && (line.contains("<version>") && line.contains("</version>"))) {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "")
                             .replaceAll("\t", "");
-                    String currentVersion = FlareBot.instance().getVersion();
+                    String currentVersion = FlareBot.getVersion();
                     if (isHigher(latestVersion, currentVersion)) {
                         doTheUpdate(channel, latestVersion, currentVersion);
                     } else {
@@ -121,7 +117,7 @@ public class UpdateCommand implements Command {
         FlareBot.instance().setStatus("Updating..");
         if (channel != null)
             channel.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`").queue();
-        UPDATING.set(true);
+        FlareBot.UPDATING.set(true);
         FlareBot.instance().quit(true);
     }
 

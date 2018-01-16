@@ -248,7 +248,7 @@ public class Events extends ListenerAdapter {
             if (flareBot.getMusicManager().hasPlayer(event.getGuild().getId())) {
                 flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
             }
-            if (Getters.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
+            if (Getters.getActiveVoiceChannels() == 0 && FlareBot.NOVOICE_UPDATING.get()) {
                 Constants.getImportantLogChannel()
                         .sendMessage("I am now updating, there are no voice channels active!").queue();
                 UpdateCommand.update(true, null);
@@ -300,7 +300,7 @@ public class Events extends ListenerAdapter {
                 command = command.substring(0, message.indexOf(" ") - 1);
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
-            Command cmd = flareBot.getCommand(command, event.getAuthor());
+            Command cmd = FlareBot.getCommandManager().getCommand(command, event.getAuthor());
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
@@ -380,7 +380,7 @@ public class Events extends ListenerAdapter {
                         + cmd.getCommand() + "'!");
             return;
         }
-        if (UpdateCommand.UPDATING.get()) {
+        if (FlareBot.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
         }

@@ -20,7 +20,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
@@ -39,13 +38,10 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandManager;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
@@ -94,6 +90,8 @@ public class FlareBot {
     public static final Gson GSON = new GsonBuilder().create();
     public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
+    public static final AtomicBoolean UPDATING = new AtomicBoolean(false);
+    public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
     private static final Map<String, Logger> LOGGERS;
     private static FlareBot instance;
     private static String youtubeApi;
@@ -515,7 +513,7 @@ public class FlareBot {
                     p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
-                        UpdateCommand.UPDATING.set(false);
+                        UPDATING.set(false);
                         return;
                     }
                 } else {
@@ -532,7 +530,7 @@ public class FlareBot {
                     p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
-                        UpdateCommand.UPDATING.set(false);
+                        UPDATING.set(false);
                         return;
                     }
                 }
@@ -548,7 +546,7 @@ public class FlareBot {
                 }
                 p.waitFor();
                 if (p.exitValue() != 0) {
-                    UpdateCommand.UPDATING.set(false);
+                    UPDATING.set(false);
                     LOGGER.error("Could not update! Log:** {} **", MessageUtils.paste(out));
                     return;
                 }
@@ -562,7 +560,7 @@ public class FlareBot {
             } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
                 setupUpdate();
-                UpdateCommand.UPDATING.set(false);
+                UPDATING.set(false);
             }
         } else
             LOGGER.info("Exiting.");
@@ -589,27 +587,6 @@ public class FlareBot {
         LOGGER.info("Finished saving!");
         for (JDA client : shardManager.getShards())
             client.shutdown();
-    }
-
-    // https://bots.are-pretty.sexy/214501.png
-    // New way to process commands, this way has been proven to be quicker overall.
-    public Command getCommand(String s, User user) {
-        if (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
-            for (Command cmd : commandManager.getCommandsByType(CommandType.SECRET)) {
-                if (cmd.getCommand().equalsIgnoreCase(s))
-                    return cmd;
-                for (String alias : cmd.getAliases())
-                    if (alias.equalsIgnoreCase(s)) return cmd;
-            }
-        }
-        for (Command cmd : commandManager.getCommands()) {
-            if (cmd.getType() == CommandType.SECRET) continue;
-            if (cmd.getCommand().equalsIgnoreCase(s))
-                return cmd;
-            for (String alias : cmd.getAliases())
-                if (alias.equalsIgnoreCase(s)) return cmd;
-        }
-        return null;
     }
 
     public String getUptime() {
@@ -686,7 +663,7 @@ public class FlareBot {
         new FlareBotTask("FixThatStatus") {
             @Override
             public void run() {
-                if (!UpdateCommand.UPDATING.get())
+                if (!UPDATING.get())
                     setStatus("_help | _invite");
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(32));
@@ -778,8 +755,8 @@ public class FlareBot {
         setupUpdate();
     }
 
-    public CommandManager getCommandManager() {
-        return commandManager;
+    public static CommandManager getCommandManager() {
+        return FlareBot.instance().commandManager;
     }
 
     public void migrations() {

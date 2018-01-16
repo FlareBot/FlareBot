@@ -49,15 +49,14 @@ public class SongCommand implements Command {
                 }
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23F9", (user, message1) -> {
-                if (manager.hasPlayer(guild.getGuildId())) {
-                    if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
-                        manager.getPlayer(guild.getGuildId()).stop();
-                    }
+                if (manager.hasPlayer(guild.getGuildId()) &&
+                        getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
+                    manager.getPlayer(guild.getGuildId()).stop();
                 }
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message1) -> {
                 if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.SKIP_COMMAND)) {
-                    Command cmd = FlareBot.instance().getCommand("skip", user);
+                    Command cmd = FlareBot.getCommandManager().getCommand("skip", user);
                     cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
                 }
             }));

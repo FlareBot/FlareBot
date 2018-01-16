@@ -43,7 +43,7 @@ public class DisableCommandCommand implements Command {
             String[] cmds = msg.substring(0, msg.contains("-") ? msg.indexOf("-") : msg.length()).trim().split("\\|");
             StringBuilder sb = new StringBuilder();
             for (String command : cmds) {
-                Command cmd = FlareBot.instance().getCommand(command.trim(), sender);
+                Command cmd = FlareBot.getCommandManager().getCommand(command.trim(), sender);
                 if (cmd == null || cmd.getType() == CommandType.SECRET) continue;
 
                 // If it's already disabled and there's only 1 (with a reason supplied) just update the reason.
