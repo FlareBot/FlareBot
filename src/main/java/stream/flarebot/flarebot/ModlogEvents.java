@@ -54,11 +54,12 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGuildBan(GuildBanEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
-        event.getGuild().getAuditLogs().limit(1).queue(auditLogEntries -> {
+        event.getGuild().getAuditLogs().limit(1).type(ActionType.BAN).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
+            boolean validEntry = entry.getTargetId().equals(event.getUser().getId());
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
-                    entry.getType() == ActionType.BAN ? entry.getUser() : null,
-                    entry.getType() == ActionType.BAN ? entry.getReason() : null);
+                    validEntry ? entry.getUser() : null,
+                    validEntry ? entry.getReason() : null);
         });
     }
 
@@ -71,12 +72,12 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
-        event.getGuild().getAuditLogs().limit(1).queue(auditLogEntries -> {
+        event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
+            // If the user kicked wasn't this person then ignore it
+            if (!entry.getTargetId().equals(event.getUser().getId())) return;
             User responsible = null;
             String reason = null;
-            // We have GuildBanEvent
-            if (entry.getType() == ActionType.BAN) return;
             if (entry.getType() == ActionType.KICK) {
                 responsible = entry.getUser();
                 reason = entry.getReason();
@@ -254,7 +255,7 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_DELETE)) return;
-        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        AuditLogEntry entry = event.getGuild().getAuditLogs().type(ActionType.MESSAGE_DELETE).complete().get(0);
         if (entry.getUser().isBot()) return;
         User responsible = null;
         if (FlareBot.instance().getEvents().getRemovedByMeList().contains(event.getMessageIdLong())) {
@@ -263,7 +264,7 @@ public class ModlogEvents extends ListenerAdapter {
         }
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage deleted = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
-        if (entry.getType() == ActionType.MESSAGE_DELETE && entry.getTargetId().equals(deleted.getAuthorID())) {
+        if (entry.getTargetId().equals(deleted.getAuthorID())) {
             if (entry.getUser().isBot()) return;
             responsible = entry.getUser();
         }

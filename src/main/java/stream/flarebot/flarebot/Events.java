@@ -48,6 +48,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -268,7 +269,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        handleVoiceConnectivity(event.getChannelLeft());
+        handleVoiceConnectivity(event.getChannelJoined());
     }
 
     @Override
@@ -341,11 +342,11 @@ public class Events extends ListenerAdapter {
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
-            LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
                     .getCloseCode(), event
                     .getCloseCode()));
         else
-            LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
                     .getCloseCode(), event
                     .getClientCloseFrame().getCloseReason()));
     }
@@ -380,7 +381,7 @@ public class Events extends ListenerAdapter {
                         + cmd.getCommand() + "'!");
             return;
         }
-        if (FlareBot.UPDATING.get()) {
+        if (UpdateCommand.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
         }
