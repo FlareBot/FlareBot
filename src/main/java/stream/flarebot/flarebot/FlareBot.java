@@ -199,8 +199,7 @@ public class FlareBot {
             LOGGER.error("One or more of the required JSON objects where missing. Exiting to prevent problems");
             System.exit(1);
         }
-
-
+        
         new CassandraController(config);
         new RedisController(config);
 
