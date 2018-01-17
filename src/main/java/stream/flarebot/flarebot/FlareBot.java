@@ -47,6 +47,7 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.currency.*;
+import stream.flarebot.flarebot.commands.custom.CustomCommand;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.informational.*;
 import stream.flarebot.flarebot.commands.moderation.*;
@@ -373,6 +374,8 @@ public class FlareBot {
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
         registerCommand(new ChangelogCommand());
+
+        registerCommand(new CustomCommand());
 
         LOGGER.info("Loaded " + commands.size() + " commands!");
 

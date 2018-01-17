@@ -50,6 +50,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -491,6 +492,12 @@ public class GeneralUtils {
                 .format(timeFormat) + " UTC";
     }
 
+    public static String formatDateTime(OffsetDateTime dateTime) {
+        LocalDateTime time = dateTime.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+        return time.getDayOfMonth() + getDayOfMonthSuffix(time.getDayOfMonth()) + " " +
+                time.format(timeFormat) + " UTC";
+    }
+
     private static String getDayOfMonthSuffix(final int n) {
         if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
         if (n >= 11 && n <= 13) {
@@ -675,4 +682,7 @@ public class GeneralUtils {
         return period.toStandardDuration().getMillis();
     }
 
+    public static String replaceLast(String text, String regex, String replacement) {
+        return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
+    }
 }

@@ -230,4 +230,8 @@ public class GuildWrapper {
     public Moderation getModConfig() {
         return getModeration();
     }
+
+    public char getPrefix() {
+        return FlareBot.getPrefix(getGuildId());
+    }
 }

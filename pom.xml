@@ -22,7 +22,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.3.1_316</version>
+            <version>3.4.0_322</version>
         </dependency>
 
         <!-- Lavaplayer related -->
