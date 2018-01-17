@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.FlareBot;
 public class ShardUtils {
 
     private static final FlareBot flareBot = FlareBot.getInstance();
+    private static final long POSSIBLE_DEAD_SHARD_TIMEOUT = 15_000L;
 
     private static int getShardCount() {
         return flareBot.getShardManager().getShards().size();
@@ -51,11 +52,19 @@ public class ShardUtils {
     }
 
     public static boolean isDead(JDA jda) {
-        return isDead(jda.getShardInfo().getShardId());
+        return isDead(jda.getShardInfo().getShardId(), POSSIBLE_DEAD_SHARD_TIMEOUT);
     }
 
     public static boolean isDead(int shardId) {
-        return shardId >= 0 && shardId <= getShardCount() && getLastEventTime(shardId) >= 15000 && !isReconnecting(shardId);
+        return isDead(shardId, POSSIBLE_DEAD_SHARD_TIMEOUT);
+    }
+
+    public static boolean isDead(JDA jda, long timeout) {
+        return isDead(jda.getShardInfo().getShardId(), timeout);
+    }
+
+    public static boolean isDead(int shardId, long timeout) {
+        return shardId >= 0 && shardId <= getShardCount() && getLastEventTime(shardId) >= timeout && !isReconnecting(shardId);
     }
 
     public static long[] getPingsForShards() {
