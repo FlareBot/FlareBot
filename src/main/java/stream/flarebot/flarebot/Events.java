@@ -47,8 +47,8 @@ import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
-import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
+import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -381,7 +381,7 @@ public class Events extends ListenerAdapter {
                         + cmd.getCommand() + "'!");
             return;
         }
-        if (UpdateCommand.UPDATING.get()) {
+        if (FlareBot.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
         }
