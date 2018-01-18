@@ -283,8 +283,9 @@ public class GeneralUtils {
      *
      * @param json The json to convert
      * @return {@link RedisMessage}
+     * @throws IllegalArgumentException This throws if the json doesn't match what {@link RedisMessage} is expecting.
      */
-    public static RedisMessage toRedisMessage(String json) {
+    public static RedisMessage toRedisMessage(String json) throws IllegalArgumentException {
         Pair<List<String>, List<String>> paths = jsonContains(json,
                 "messageID",
                 "authorID",
@@ -456,10 +457,10 @@ public class GeneralUtils {
     }
 
     /**
-     * Orders a Collection
+     * Orders a Collection alphabetic by whatever {@link String#valueOf(Object)} returns.
      *
-     * @param strings The Collection to order
-     * @return The order List
+     * @param strings The Collection to order.
+     * @return The ordered List.
      */
     public static <T extends Comparable> List<T> orderList(Collection<? extends T> strings) {
         List<T> list = new ArrayList<>(strings);

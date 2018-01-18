@@ -20,8 +20,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class GuildUtils {
+
     private static final Pattern userDiscrim = Pattern.compile(".+#[0-9]{4}");
     private static final int LEVENSHTEIN_DISTANCE = 8;
+
     /**
      * Gets the prefix for the specified {@link Guild}
      *
@@ -43,7 +45,7 @@ public class GuildUtils {
     }
 
     /**
-     * Gets the number of users that the guild has
+     * Gets the number of users that the {@link Guild} has. Not including bots.
      *
      * @param guild The {@link Guild} to get the user count from
      * @return An int of the number of users
@@ -59,11 +61,11 @@ public class GuildUtils {
     }
 
     /**
-     * Gets a list of {@link Role} from a string
+     * Gets a list of {@link Role} that match a string. Case doesn't matter.
      *
-     * @param string The String to get a role from
-     * @param guild The {@link Guild} to get the role from
-     * @return null if the role doesn't, otherwise a list of roles matching the string
+     * @param string The String to get a list of {@link Role} from.
+     * @param guild The {@link Guild} to get the roles from.
+     * @return an empty if no role matches, otherwise a list of roles matching the string.
      */
     public static List<Role> getRole(String string, Guild guild) {
         return guild.getRolesByName(string, true);
@@ -81,11 +83,11 @@ public class GuildUtils {
     }
 
     /**
-     * Gets a {@link Role} from a string
+     * Gets a {@link Role} that matches a string. Case doesn't matter.
      *
      * @param s The String to get a role from
      * @param guildId The id of the {@link Guild} to get the role from
-     * @param channel The channel to use for finding the role.
+     * @param channel The channel to send an error message to if anything goes wrong.
      * @return null if the role doesn't, otherwise a list of roles matching the string
      */
     public static Role getRole(String s, String guildId, TextChannel channel) {
@@ -123,7 +125,8 @@ public class GuildUtils {
     //User
 
     /**
-     * Gets a {@link User} from a string
+     * Gets a {@link User} from a string. Not case sensitive.
+     * The string can eater be their name, their id, or them being mentioned.
      *
      * @param s the string to get the user from
      * @return null if the user wasn't found otherwise a {@link User}
@@ -133,34 +136,38 @@ public class GuildUtils {
     }
 
     /**
-     * Gets a {@link User} from a string
+     * Gets a {@link User} from a string. Not case sensitive.
+     * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s The string to get the user from
-     * @param guildId The id of the {@link Guild} to get the user from
-     * @return null if the user wasn't found otherwise a {@link User}
+     * @param s The string to get the user from.
+     * @param guildId The string id of the {@link Guild} to get the user from.
+     * @return null if the user wasn't found otherwise a {@link User}.
      */
     public static User getUser(String s, String guildId) {
         return getUser(s, guildId, false);
     }
 
     /**
-     * Gets a {@link User} from a string.
+     * Gets a {@link User} from a string. Not case sensitive.
+     * The string can eater be their name, their id, or them being mentioned.
      *
      * @param s The string to get the user from
-     * @param forceGet If you want to get the user from discord instead of from a guild
+     * @param forceGet If you want to get the user from Discord instead of from a guild
      * @return null if the user wasn't found otherwise a {@link User}
+     * @throws
      */
     public static User getUser(String s, boolean forceGet) {
         return getUser(s, null, forceGet);
     }
 
     /**
-     * Gets a {@link User} from a string.
+     * Gets a {@link User} from a string. Not case sensitive.
+     * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s  The string to get the user from
-     * @param guildId The id of the {@link Guild} to get the user from
-     * @param forceGet If you want to get the user from discord instead of from a guild
-     * @return null if the user wasn't found otherwise a {@link User}
+     * @param s  The string to get the user from.
+     * @param guildId The id of the {@link Guild} to get the user from.
+     * @param forceGet If you want to get the user from discord instead of from a guild.
+     * @return null if the user wasn't found otherwise a {@link User}.
      */
     public static User getUser(String s, String guildId, boolean forceGet) {
         if (userDiscrim.matcher(s).find()) {
@@ -215,17 +222,19 @@ public class GuildUtils {
     //Channel
 
     /**
-     * Gets a {@link TextChannel} from a string
+     * Gets a {@link TextChannel} from a string. Not case sensitive.
+     * The string can eater be the channel name, it's id, or it being mentioned.
      *
-     * @param arg The string to get the channel from
-     * @return null if the channel couldn't be found otherwise a {@link TextChannel}
+     * @param arg The string to get the channel from.
+     * @return null if the channel couldn't be found otherwise a {@link TextChannel}.
      */
     public static TextChannel getChannel(String arg) {
         return getChannel(arg, null);
     }
 
     /**
-     * Gets a {@link TextChannel} from a string
+     * Gets a {@link TextChannel} from a string. Not case sensitive.
+     * The string can eater be the channel name, it's id, or it being mentioned.
      *
      * @param channelArg The string to get the channel from
      * @param wrapper The Guild wrapper for the {@link Guild} that you want to get the channel from
@@ -248,10 +257,10 @@ public class GuildUtils {
     //Emote
 
     /**
-     * Gets an {@link Emote}
+     * Gets an {@link Emote} from an id.
      *
-     * @param l the id of the emote
-     * @return null if the id is invalid otherwise a {@link Emote}
+     * @param l the id as a long of the emote
+     * @return null if the id is invalid or wasn't found, otherwise a {@link Emote}
      */
     public static Emote getEmoteById(long l) {
         return Getters.getGuilds().stream().map(g -> g.getEmoteById(l))
@@ -259,10 +268,11 @@ public class GuildUtils {
     }
 
     /**
-     * Gets weather or not the bot can change nick
+     * Gets weather or not the bot can change nick.
+     * This checks for {@link Permission#NICKNAME_CHANGE}. If we don't have the then it checks for {@link Permission#NICKNAME_MANAGE}
      *
-     * @param guildId The guild to check if we can change nick
-     * @return if we change change nick
+     * @param guildId The string guildid to check if we can change nick
+     * @return If we change change nick
      */
     public static boolean canChangeNick(String guildId) {
         return Getters.getGuildById(guildId) != null &&
@@ -271,10 +281,10 @@ public class GuildUtils {
     }
 
     /**
-     * Joins the bot to a channel.
+     * Joins the bot to a {@link TextChannel}.
      *
-     * @param channel The chanel to join the bot to.
-     * @param member The member requesting the join.
+     * @param channel The chanel to send an error message to in case this fails.
+     * @param member The member requesting the join. This is also how we determine what channel to join.
      */
     public static void joinChannel(TextChannel channel, Member member) {
         if (channel.getGuild().getSelfMember()
