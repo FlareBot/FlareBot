@@ -27,9 +27,9 @@ public class FormatUtils {
             .toFormatter();
 
     /**
-     * Formats a duration.
+     * Formats a duration to a readable string
      *
-     * @param duration The duration in millis to format.
+     * @param duration The duration as a long in millis to format.
      * @return A string representing the duration with the format h:m:s
      */
     public static String formatDuration(long duration) {
@@ -87,7 +87,8 @@ public class FormatUtils {
     }
 
     /**
-     * This will format a Joda Period into a precise timestamp (yyyy-MM-dd HH:mm:ss.SS).
+     * This will format a Joda Period into a precise timestamp.
+     * Example: yyyy-MM-dd HH:mm:ss.SS.
      * We also convert it to UTC.
      *
      * @param period Period to format onto the current date
@@ -151,11 +152,11 @@ public class FormatUtils {
     }
 
     /**
-     * Truncates a String to the given length.
-     * With ellipses.
+     * Truncates a String to the given length. With ellipses.
+     * Note that this will truncate the string to three more then the length, because of the ellipses.
      *
      * @param length The amount to add.
-     * @param string The string to add them to.
+     * @param string The string to truncate.
      * @return The truncated String.
      */
     public static String truncate(int length, String string) {
@@ -164,10 +165,11 @@ public class FormatUtils {
 
     /**
      * Truncates a String to the given length.
+     * This truncates from the end
      *
      * @param length The amount to add.
      * @param string The string to add them to.
-     * @param ellipse Weather or not to use ellipses.
+     * @param ellipse Weather or not to use ellipses. If you do use eclipse the length whould be three more then the provided length due to the ellipses.
      * @return The truncated String.
      */
     public static String truncate(int length, String string, boolean ellipse) {

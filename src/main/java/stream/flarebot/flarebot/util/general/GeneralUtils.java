@@ -77,10 +77,10 @@ public class GeneralUtils {
     //Getters
 
     /**
-     * Gets the {@link Report} embed
+     * Gets the {@link Report} embed with all of the info on the report.
      *
      * @param sender The {@link User} who requested the embed
-     * @param report The {@link Report} to get the embed for
+     * @param report The {@link Report} to get the embed of.
      * @return an {@link EmbedBuilder} that contains all the report data
      */
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
@@ -108,22 +108,23 @@ public class GeneralUtils {
     }
 
     /**
-     * Gets the string representing the current page
+     * Gets the string representing the current page out of total.
+     * Example: 6/10.
      *
-     * @param page The current page
-     * @param items The items that are being paged
-     * @param pageLength The page length
-     * @return A string representing the current page out of the total pages. Example: 6/10
+     * @param page The current page.
+     * @param items The items that are being paged.
+     * @param pageLength The page length.
+     * @return A string representing the current page out of the total pages which was calculated from the items and page length.
      */
     public static String getPageOutOfTotal(int page, List<?> items, int pageLength) {
-        return String.valueOf(page) + "/" + String.valueOf(items.size() < pageLength ? 1 : (items.size() / pageLength) + (items.size() % pageLength != 0 ? 1 : 0));
+        return page + "/" + String.valueOf(items.size() < pageLength ? 1 : (items.size() / pageLength) + (items.size() % pageLength != 0 ? 1 : 0));
     }
 
     /**
-     * Gets the progress bar for the current {@link Track}
+     * Gets the progress bar for the current {@link Track} including the percent played.
      *
-     * @param track The {@link Track} to get a progress bar for
-     * @return A string that when discord formats it it looks like a progress bar
+     * @param track The {@link Track} to get a progress bar for.
+     * @return A string the represents a progress bar that represents the time played.
      */
     public static String getProgressBar(Track track) {
         float percentage = (100f / track.getTrack().getDuration() * track.getTrack().getPosition());
@@ -134,10 +135,11 @@ public class GeneralUtils {
     }
 
     /**
-     * Gets a String stacktrace from a {@link Throwable}
+     * Gets a String stacktrace from a {@link Throwable}.
+     * This return the String you'd typical see with printStackTrace()
      *
      * @param e the {@link Throwable}.
-     * @return A string stacktrace
+     * @return A string representing the stacktrace.
      */
     public static String getStackTrace(Throwable e) {
         StringWriter writer = new StringWriter();
@@ -148,11 +150,12 @@ public class GeneralUtils {
     }
 
     /**
-     * Gets an int from a String
+     * Gets an int from a String.
+     * The default value you pass is what it return if their was an error parsing the string.
      *
-     * @param s The string to get an int from.
-     * @param defaultValue The default int value to get in case conversion fails
-     * @return an int
+     * @param s The string to parse an int from.
+     * @param defaultValue The default int value to get in case parsing fails. This happens when the string entered is not a number. for example if you enter in 'no'
+     * @return The int parsed from the string or the default value.
      */
     public static int getInt(String s, int defaultValue) {
         try {
@@ -162,11 +165,12 @@ public class GeneralUtils {
         }
     }
     /**
-     * Gets a long from a String
+     * Gets a long from a String.
+     * The default value you pass is what it return if their was an error parsing the string.
      *
-     * @param s The string to get a long from.
-     * @param defaultValue The default long value to get in case conversion fails
-     * @return an int
+     * @param s The string to parse a long from.
+     * @param defaultValue The default long value to get in case parsing fails. This happens when the string entered is not a number. for example if you enter in 'no'
+     * @return The long parsed from the string or the default value.
      */
     public static long getLong(String s, long defaultValue) {
         try {
@@ -177,11 +181,11 @@ public class GeneralUtils {
     }
 
     /**
-     * Get a Joda Period from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
+     * Get a Joda {@link Period} from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
      * Joda Period.
      *
      * @param input The input string to parse.
-     * @return The joda Period or null if the format is not correct.
+     * @return The joda Period or null if the format is not correct. If the format isn't correct we throw an error message to the channel.
      */
     public static Period getTimeFromInput(String input, TextChannel channel) {
         try {
@@ -195,8 +199,9 @@ public class GeneralUtils {
 
     /**
      * Gets the changes between two lists.
+     * Represented by a map where the true value is the things added and the false is the things removed with the unchanged being left out.
      *
-     * @param oldList The old lis
+     * @param oldList The old list
      * @param newList The new List
      * @return A map where the added objects are true, and the removed objects are false. the values the same are not included.
      */
@@ -220,10 +225,11 @@ public class GeneralUtils {
     }
 
     /**
-     * Gets the suffix the a day in a month
+     * Gets the suffix for the a day in a month
+     * Example: 1st
      *
      * @param n The day in the month to get a suffix.
-     * @return The suffix for they day.
+     * @return The suffix for the day.
      */
     public static String getDayOfMonthSuffix(final int n) {
         if (n < 1 || n > 31) throw new IllegalArgumentException("illegal day of month: " + n);
@@ -266,7 +272,37 @@ public class GeneralUtils {
     }
 
     /**
+     * Coverts the json from redis to a RedisMessage.
+     * Message fields:
+     * - Message ID
+     * - Author ID
+     * - Channel ID
+     * - Guild ID
+     * - Raw Content
+     * - Timestamp (Epoch seconds)
+     *
+     * @param json The json to convert
+     * @return {@link RedisMessage}
+     */
+    public static RedisMessage toRedisMessage(String json) {
+        Pair<List<String>, List<String>> paths = jsonContains(json,
+                "messageID",
+                "authorID",
+                "channelID",
+                "guildID",
+                "content",
+                "timestamp"
+        );
+        if (paths.getKey().size() != 6) {
+            throw new IllegalArgumentException("Malformed JSON! Missing paths: " +
+                    Arrays.toString(paths.getValue().toArray(new String[paths.getValue().size()])));
+        }
+        return FlareBot.GSON.fromJson(json, RedisMessage.class);
+    }
+
+    /**
      * Gets the String representing the verification level.
+     * For {@link Guild.VerificationLevel#HIGH} and {@link Guild.VerificationLevel#VERY_HIGH} we return the unicode characters and not the string it's self.
      *
      * @param level The verification level to get the string version.
      * @return A string representing the verification level.
@@ -284,9 +320,21 @@ public class GeneralUtils {
 
     /**
      * Parses time from string.
+     * The input can be in these formats
+     * s
+     * m:s
+     * h:m:s
+     * XhXmXs
+     * Examples:
+     * 5 - Would be 5 seconds
+     * 5s - Would also be 5 seconds
+     * 1:10 - Would be 1 minute and 10 seconds
+     * 1m10s - Would also be 1 minute and 10 seconds
+     * 1:00:00 - Would be an hour
+     * 1h - Would also be an hour
      *
      * @param time The time string to parse.
-     * @return The long representing the time entered.
+     * @return The long representing the time entered in millis from when this method was ran.
      */
     public static Long parseTime(String time) {
         Matcher digitMatcher = timeRegex.matcher(time);
@@ -318,31 +366,11 @@ public class GeneralUtils {
     }
 
     /**
-     * Coverts the json from redis to a RedisMessage.
+     * Converts an {@link MessageEmbed} into a String.
+     * This will first start with the title in bold. then adds the description.
+     * Then puts in all the fields with the title fallowed by the value. The finally the footer italicized.
      *
-     * @param json The son to convert
-     * @return {@link RedisMessage}
-     */
-    public static RedisMessage toRedisMessage(String json) {
-        Pair<List<String>, List<String>> paths = jsonContains(json,
-                "messageID",
-                "authorID",
-                "channelID",
-                "guildID",
-                "content",
-                "timestamp"
-        );
-        if (paths.getKey().size() != 6) {
-            throw new IllegalArgumentException("Malformed JSON! Missing paths: " +
-                    Arrays.toString(paths.getValue().toArray(new String[paths.getValue().size()])));
-        }
-        return FlareBot.GSON.fromJson(json, RedisMessage.class);
-    }
-
-    /**
-     * Converts an embed into a String
-     *
-     * @param embed The embed to convert
+     * @param embed The {@link MessageEmbed} to convert
      * @return The String containing embed data
      */
     public static String embedToText(MessageEmbed embed) {
@@ -362,12 +390,13 @@ public class GeneralUtils {
 
     /**
      * Resolves an {@link AudioItem} from a string.
+     * This can be a url or search terms
      *
      * @param player The music player
-     * @param input The string to get the AudioItem from/
-     * @return {@link AudioItem}
-     * @throws IllegalArgumentException
-     * @throws IllegalStateException
+     * @param input The string to get the AudioItem from.
+     * @return {@link AudioItem} from the string.
+     * @throws IllegalArgumentException If the Item couldn't be found due to it not existing on Youtube.
+     * @throws IllegalStateException If the Video is unavailable for Flare, for example if it was published by VEVO.
      */
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
         Optional<AudioItem> item = Optional.empty();
@@ -403,6 +432,11 @@ public class GeneralUtils {
 
     /**
      * Checks if a perm is valid.
+     * For a perm to be valid it need to be
+     * 'flarebot.<command>'
+     * 'flarebot.*'
+     * '*'
+     * or any sub perm to 'flarebot.<command>'
      *
      * @param perm The perm to check.
      * @return if it's valid.
