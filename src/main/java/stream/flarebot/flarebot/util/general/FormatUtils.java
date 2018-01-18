@@ -16,10 +16,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 public class FormatUtils {
+
     private static DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMMM yyyy HH:mm:ss");
-
     private static final SimpleDateFormat preciseFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
-
     private static final PeriodFormatter prettyTime = new PeriodFormatterBuilder()
             .appendDays().appendSuffix(" Day ", " Days ")
             .appendHours().appendSuffix(" Hour ", " Hours ")
@@ -31,7 +30,7 @@ public class FormatUtils {
      * Formats a duration.
      *
      * @param duration The duration in millis to format.
-     * @return A string that is the duration.
+     * @return A string representing the duration with the format h:m:s
      */
     public static String formatDuration(long duration) {
         long totalSeconds = duration / 1000;
@@ -43,11 +42,22 @@ public class FormatUtils {
     }
 
     /**
-     * Formats a String to replace {%} with the prefix.
+     * Formats a String to replace {%} with the prefix from the guild wrapper for a {@link Guild}.
+     *
+     * @param guild The guild wrapper for the {@link Guild} the get prefix from.
+     * @param usage The String to format with prefix.
+     * @return The String with the prefix in place of {%}.
+     */
+    public static String formatCommandPrefix(GuildWrapper guild, String usage) {
+        return FormatUtils.formatCommandPrefix(guild.getGuild(), usage);
+    }
+
+    /**
+     * Formats a String to replace {%} with the prefix from the {@link Guild}.
      *
      * @param guild The {@link Guild} the get prefix from.
-     * @param usage The usage String.
-     * @return The String with the prefix instead of {%}.
+     * @param usage The String to format with prefix.
+     * @return The String with the prefix in place of of {%}.
      */
     public static String formatCommandPrefix(Guild guild, String usage) {
         String prefix = String.valueOf(GuildUtils.getPrefix(guild));
@@ -57,35 +67,28 @@ public class FormatUtils {
     }
 
     /**
-     * Formats a String to replace {%} with the prefix.
+     * Formats a color into a hex String.
      *
-     * @param guild The guild wrapper for the {@link Guild} the get prefix from.
-     * @param usage The usage String.
-     * @return The String with the prefix instead of {%}.
-     */
-    public static String formatCommandPrefix(GuildWrapper guild, String usage) {
-        String prefix = String.valueOf(GuildUtils.getPrefix(guild));
-        if (usage.contains("{%}"))
-            return usage.replaceAll("\\{%}", prefix);
-        return usage;
-    }
-
-    /**
-     * Formats a color into a String
-     *
-     * @param color The color to format
-     * @return The hex value of the color
+     * @param color The color to format.
+     * @return The hex value of the color.
      */
     public static String colourFormat(Color color) {
         return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
 
+    /**
+     * Formats a period into JodaTime
+     *
+     * @param period The period to format.
+     * @return The JodaTime String representing the period.
+     */
     public static String formatJodaTime(Period period) {
         return period.toString(FormatUtils.prettyTime).trim();
     }
 
     /**
      * This will format a Joda Period into a precise timestamp (yyyy-MM-dd HH:mm:ss.SS).
+     * We also convert it to UTC.
      *
      * @param period Period to format onto the current date
      * @return The date in a precise format. Example: 2017-10-13 21:56:33.681
@@ -95,7 +98,8 @@ public class FormatUtils {
     }
 
     /**
-     * Formats a {@link LocalDateTime}
+     * Formats a {@link LocalDateTime} into an easily readable string.
+     * Example: 18th January 2018 15:38:15 UTC.
      *
      * @param dateTime The {@link LocalDateTime} to format.
      * @return A String repressing the time.
@@ -107,9 +111,10 @@ public class FormatUtils {
     }
 
     /**
-     * Formats time.
+     * Formats duration with the given options.
+     * Example: 16 minutes 40 seconds
      *
-     * @param duration The duration to format.
+     * @param duration The duration as a long which will be formatted.
      * @param durUnit The unit the duration is in.
      * @param fullUnits Weather not not to return full units. ex days instead of d.
      * @param append0 Weather or not to append 0s
