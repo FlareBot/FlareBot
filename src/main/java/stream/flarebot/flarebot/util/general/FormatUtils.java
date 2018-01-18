@@ -30,7 +30,7 @@ public class FormatUtils {
     /**
      * Formats a duration.
      *
-     * @param duration The duration in mils to format.
+     * @param duration The duration in millis to format.
      * @return A string that is the duration.
      */
     public static String formatDuration(long duration) {
