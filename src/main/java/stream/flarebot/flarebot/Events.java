@@ -43,10 +43,11 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -459,7 +460,7 @@ public class Events extends ListenerAdapter {
     private void handleSpamDetection(GuildMessageReceivedEvent event, GuildWrapper guild) {
         if (spamMap.containsKey(event.getGuild().getId())) {
             int messages = spamMap.get(event.getGuild().getId());
-            double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
+            double allowed = Math.floor(Math.sqrt(GuildUtils.getGuildUserCount(event.getGuild()) / 2.5));
             allowed = allowed == 0 ? 1 : allowed;
             if (messages > allowed) {
                 if (!guild.isBlocked()) {

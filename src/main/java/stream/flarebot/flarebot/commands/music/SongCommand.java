@@ -13,7 +13,8 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
@@ -32,8 +33,8 @@ public class SongCommand implements Command {
                 eb.addField("Amount Played", "Issa livestream ;)", false);
             else
                 eb.addField("Amount Played", GeneralUtils.getProgressBar(track), true)
-                        .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()),
-                                GeneralUtils.formatDuration(track.getTrack().getDuration())), false);
+                        .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
+                                FormatUtils.formatDuration(track.getTrack().getDuration())), false);
             ButtonGroup buttonGroup = new ButtonGroup();
             buttonGroup.addButton(new ButtonGroup.Button("\u23EF", (user, message1) -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
