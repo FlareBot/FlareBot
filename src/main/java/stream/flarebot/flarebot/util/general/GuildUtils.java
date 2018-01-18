@@ -72,7 +72,7 @@ public class GuildUtils {
     }
 
     /**
-     * Gets a {@link Role} from a string
+     * Gets a {@link Role} from a string. Case Doesn't matter.
      *
      * @param s The String to get a role from
      * @param guildId The id of the {@link Guild} to get the role from
