@@ -48,6 +48,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -269,7 +270,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        handleVoiceConnectivity(event.getChannelLeft());
+        handleVoiceConnectivity(event.getChannelJoined());
     }
 
     @Override
@@ -342,11 +343,11 @@ public class Events extends ListenerAdapter {
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
-            LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
                     .getCloseCode(), event
                     .getCloseCode()));
         else
-            LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
                     .getCloseCode(), event
                     .getClientCloseFrame().getCloseReason()));
     }

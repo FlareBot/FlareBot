@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
+import io.sentry.SentryClient;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
@@ -164,7 +165,6 @@ public class FlareBot {
             System.exit(1);
         }
 
-        Sentry.init(config.getString("sentry.dsn").get());
         new CassandraController(config);
         new RedisController(config);
 
@@ -184,6 +184,12 @@ public class FlareBot {
                 }
             }
         }
+
+        SentryClient sentryClient =
+                Sentry.init(config.getString("sentry.dsn").get() + "?stacktrace.app.packages=stream.flarebot.flarebot");
+        sentryClient.setEnvironment(testBot ? "TestBot" : "Production");
+        sentryClient.setServerName(testBot ? "Test Server" : "Production Server");
+        sentryClient.setRelease(GitHandler.getLatestCommitId());
 
         if (!config.getString("misc.apiKey").isPresent() || config.getString("misc.apiKey").get().isEmpty())
             apiEnabled = false;
