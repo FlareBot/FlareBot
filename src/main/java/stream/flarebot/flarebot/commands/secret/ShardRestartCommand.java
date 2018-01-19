@@ -9,13 +9,14 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class ShardRestartCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender)) {
+        if (PerGuildPermissions.isStaff(sender)) {
             int shard = Integer.parseInt(args[0]);
             if (shard >= 0 && shard < Getters.getShards().size()) {
                 FlareBot.instance().getShardManager().restart(shard);
