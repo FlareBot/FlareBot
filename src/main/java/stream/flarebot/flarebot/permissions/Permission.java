@@ -13,10 +13,13 @@ import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.util.GeneralUtils;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 public enum Permission {
 
+    // All Permissions
+    ALL_PERMISSIONS("*"),
     // Categories
     CAGEGORY_GENERAL("category.general", false, CommandType.GENERAL),
     CAGEGORY_MODERATION("category.moderation", false, CommandType.MODERATION),
@@ -102,6 +105,8 @@ public enum Permission {
     TAGS_COMMAND("tags", true, TagsCommand.class),
     TAGS_ADMIN("tags.admin", false);
 
+    public static final Permission[] VALUES = Permission.values();
+
     private String permission;
     private boolean defaultPerm;
     private Class<? extends Command> command;
@@ -136,6 +141,11 @@ public enum Permission {
         this.commandType = commandType;
     }
 
+    Permission(String permission) {
+        this.permission = permission;
+        this.defaultPerm = false;
+    }
+
     public String getPermission() {
         return permission;
     }
@@ -165,6 +175,14 @@ public enum Permission {
     }
 
     public static boolean isValidPermission(String permission) {
+        if (permission.contains("*") && permission.contains(".")) {
+            PermissionNode node = new PermissionNode(permission);
+            for (Permission perm : Permission.VALUES) {
+                if (perm != Permission.ALL_PERMISSIONS) {
+                    if (node.test(perm.getPermission())) return true;
+                }
+            }
+        }
         return getPermission(permission.substring(permission.startsWith("-") ? 1 : 0)) != null;
     }
 
@@ -177,6 +195,24 @@ public enum Permission {
         ALLOW,
         DENY,
         NEUTRAL
+    }
+
+    public static class Presets {
+
+        public static EnumSet<Permission> MODERATION = EnumSet.of(
+                Permission.PURGE_COMMAND,
+                Permission.LOCKCHAT_COMMAND,
+                Permission.PIN_COMMAND,
+                Permission.BAN_COMMAND,
+                Permission.KICK_COMMAND,
+                Permission.MUTE_COMMAND,
+                Permission.TEMPMUTE_COMMAND,
+                Permission.TEMPBAN_COMMAND,
+                Permission.UNBAN_COMMAND,
+                Permission.UNMUTE_COMMAND,
+                Permission.WARN_COMMAND
+        );
+
     }
 
 }
