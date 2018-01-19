@@ -432,31 +432,6 @@ public class GeneralUtils {
     }
 
     /**
-     * Checks if a perm is valid.
-     * For a perm to be valid it need to be
-     * 'flarebot.<command>'
-     * 'flarebot.*'
-     * '*'
-     * or any sub perm to 'flarebot.<command>'
-     *
-     * @param perm The perm to check.
-     * @return if it's valid.
-     */
-    public static boolean validPerm(String perm) {
-        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
-        if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
-            perm = perm.substring(perm.indexOf(".") + 1);
-            String command = perm.split("\\.")[0];
-            for (Command c : FlareBot.instance().getCommandManager().getCommands()) {
-                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Orders a Collection alphabetic by whatever {@link String#valueOf(Object)} returns.
      *
      * @param strings The Collection to order.
