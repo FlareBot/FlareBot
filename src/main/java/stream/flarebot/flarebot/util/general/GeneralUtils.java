@@ -562,6 +562,7 @@ public class GeneralUtils {
      * @param <T>    the enum type
      * @param <R>    the type of map key
      * @return a map with the given key and the enum value associated with it
+     * @apiNote Thanks to I Al Istannen#1564 for this
      */
     public static <T extends Enum, R> Map<R, T> getReverseMapping(Class<T> clazz, Function<T, R> mapper) {
         Map<R, T> result = new HashMap<>();

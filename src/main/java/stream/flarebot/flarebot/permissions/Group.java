@@ -37,7 +37,8 @@ public class Group {
 
     public Permission.Reply hasPermission(Permission permission) {
         for (String s : permissions) {
-            boolean hasPermission = new PermissionNode(s.substring(1)).test(permission.getPermission());
+            boolean hasPermission =
+                    new PermissionNode(s.substring(s.startsWith("-") ? 1 : 0)).test(permission.getPermission());
             if (s.startsWith("-") && hasPermission)
                 return Permission.Reply.DENY;
             if (hasPermission)

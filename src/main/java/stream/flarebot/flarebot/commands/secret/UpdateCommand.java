@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +46,9 @@ public class UpdateCommand implements Command {
                         } else
                             channel.sendMessage("There is already an update queued!").queue();
                     }
+                } else if (args[0].equalsIgnoreCase("schedule")) {
+                    FlareBot.instance().scheduleUpdate();
+                    MessageUtils.sendSuccessMessage("Update scheduled for 12PM GMT!", channel);
                 } else {
                     if (!queued.getAndSet(true)) {
                         Period p;

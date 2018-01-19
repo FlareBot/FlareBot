@@ -445,7 +445,10 @@ public class Events extends ListenerAdapter {
                 return true;
             }
         }
-        return cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
+        return !cmd.getPermissions(e.getChannel()).hasPermission(
+                e.getMember(),
+                stream.flarebot.flarebot.permissions.Permission.getPermission(cmd.getType())
+        ) && cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
     }
 
     private void delete(Message message) {
