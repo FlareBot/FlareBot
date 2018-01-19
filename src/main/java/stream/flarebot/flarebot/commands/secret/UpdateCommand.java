@@ -47,7 +47,7 @@ public class UpdateCommand implements Command {
                             channel.sendMessage("There is already an update queued!").queue();
                     }
                 } else if (args[0].equalsIgnoreCase("schedule")) {
-                    FlareBot.getInstance().scheduleUpdate();
+                    FlareBot.instance().scheduleUpdate();
                     MessageUtils.sendSuccessMessage("Update scheduled for 12PM GMT!", channel);
                 } else {
                     if (!queued.getAndSet(true)) {

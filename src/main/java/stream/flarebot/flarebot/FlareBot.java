@@ -748,17 +748,18 @@ public class FlareBot {
                     return;
                 }
                 // 10 mins without an event... this son bitch is dead.
-                if (getShards().stream().anyMatch(shard -> ShardUtils.isDead(shard, TimeUnit.MINUTES.toMillis(10)))) {
-                    getShards().stream().filter(shard -> ShardUtils.isDead(shard, TimeUnit.MINUTES.toMillis(10)))
+                if (Getters.getShards().stream().anyMatch(shard -> ShardUtils.isDead(shard, TimeUnit.MINUTES.toMillis(10)))) {
+                    Getters.getShards().stream().filter(shard -> ShardUtils.isDead(shard, TimeUnit.MINUTES.toMillis(10)))
                             .forEach(shard -> {
                                 getImportantWebhook().send("Restarting " + ShardUtils.getShardId(shard)
                                         + " as it seems to be dead.");
                                 shardManager.restart(ShardUtils.getShardId(shard));
                             });
                 }
-              
-                Set<Integer> deadShards = getShards().stream().filter(ShardUtils::isDead).map(ShardUtils::getShardId)
-                        .collect(Collectors.toSet());
+
+                Set<Integer> deadShards =
+                        Getters.getShards().stream().filter(ShardUtils::isDead).map(ShardUtils::getShardId)
+                                .collect(Collectors.toSet());
 
                 if (!deadShards.isEmpty()) {
                     getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
