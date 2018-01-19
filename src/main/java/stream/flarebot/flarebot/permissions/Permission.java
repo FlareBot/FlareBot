@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.permissions;
 
 import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.currency.ConvertCommand;
 import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
@@ -16,6 +17,13 @@ import java.util.Map;
 
 public enum Permission {
 
+    // Categories
+    CAGEGORY_GENERAL("category.general", false, CommandType.GENERAL),
+    CAGEGORY_MODERATION("category.moderation", false, CommandType.MODERATION),
+    CAGEGORY_MUSIC("category.music", false, CommandType.MUSIC),
+    CAGEGORY_USEFUL("category.useful", false, CommandType.USEFUL),
+    CAGEGORY_CURRENCY("category.currency", false, CommandType.CURRENCY),
+    CAGEGORY_RANDOM("category.random", false, CommandType.RANDOM),
     // Currency
     CONVERT_COMMAND("convert", true, ConvertCommand.class),
     CURRENCY_COMMAND("currency", true, CurrencyCommand.class),
@@ -97,11 +105,16 @@ public enum Permission {
     private String permission;
     private boolean defaultPerm;
     private Class<? extends Command> command;
+    private CommandType commandType;
 
     private static final Map<Class<? extends Command>, Permission> COMMAND_PERMISSION_MAP =
             GeneralUtils.getReverseMapping(
                     Permission.class,
                     Permission::getCommand);
+    private static final Map<CommandType, Permission> COMMAND_TYPE_MAP =
+            GeneralUtils.getReverseMapping(
+                    Permission.class,
+                    Permission::getCommandType);
     private static final Map<String, Permission> PERMISSION_MAP = GeneralUtils.getReverseMapping(
             Permission.class,
             p -> p.getPermission().toLowerCase());
@@ -117,6 +130,12 @@ public enum Permission {
         this.command = command;
     }
 
+    Permission(String permission, boolean defaultPerm, CommandType commandType) {
+        this.permission = "flarebot." + permission;
+        this.defaultPerm = defaultPerm;
+        this.commandType = commandType;
+    }
+
     public String getPermission() {
         return permission;
     }
@@ -129,8 +148,16 @@ public enum Permission {
         return command;
     }
 
+    public CommandType getCommandType() {
+        return commandType;
+    }
+
     public static Permission getPermission(Class<? extends Command> command) {
         return COMMAND_PERMISSION_MAP.get(command);
+    }
+
+    public static Permission getPermission(CommandType commandType) {
+        return COMMAND_TYPE_MAP.get(commandType);
     }
 
     public static Permission getPermission(String permission) {
