@@ -478,14 +478,13 @@ public class GeneralUtils {
     }
 
     /**
-     * An error handler
-     * (Someone please help me with this ones doc.)
+     * Runs code and catches any errors. It prints success, error and start messages as appropriate to the specified logger.
      *
-     * @param logger
-     * @param startMessage
-     * @param successMessage
-     * @param errorMessage
-     * @param runnable
+     * @param logger The logger to log to.
+     * @param startMessage The start message. Gets sent to the logger when the runnable starts.
+     * @param successMessage The success message. Gets sent to the logger if the runnable finished successfully.
+     * @param errorMessage The error message. Gets sent to the logger if an error is thrown in the runnable.
+     * @param runnable The {@link Runnable} to run.
      */
     public static void methodErrorHandler(Logger logger, String startMessage,
                                           String successMessage, String errorMessage,

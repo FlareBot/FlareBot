@@ -64,7 +64,7 @@ public class GuildUtils {
      * Gets a list of {@link Role} that match a string. Case doesn't matter.
      *
      * @param string The String to get a list of {@link Role} from.
-     * @param guild The {@link Guild} to get the roles from.
+     * @param guild  The {@link Guild} to get the roles from.
      * @return an empty if no role matches, otherwise a list of roles matching the string.
      */
     public static List<Role> getRole(String string, Guild guild) {
@@ -74,7 +74,7 @@ public class GuildUtils {
     /**
      * Gets a {@link Role} from a string. Case Doesn't matter.
      *
-     * @param s The String to get a role from
+     * @param s       The String to get a role from
      * @param guildId The id of the {@link Guild} to get the role from
      * @return null if the role doesn't, otherwise a list of roles matching the string
      */
@@ -85,7 +85,7 @@ public class GuildUtils {
     /**
      * Gets a {@link Role} that matches a string. Case doesn't matter.
      *
-     * @param s The String to get a role from
+     * @param s       The String to get a role from
      * @param guildId The id of the {@link Guild} to get the role from
      * @param channel The channel to send an error message to if anything goes wrong.
      * @return null if the role doesn't, otherwise a list of roles matching the string
@@ -139,7 +139,7 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s The string to get the user from.
+     * @param s       The string to get the user from.
      * @param guildId The string id of the {@link Guild} to get the user from.
      * @return null if the user wasn't found otherwise a {@link User}.
      */
@@ -151,7 +151,7 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s The string to get the user from
+     * @param s        The string to get the user from
      * @param forceGet If you want to get the user from Discord instead of from a guild
      * @return null if the user wasn't found otherwise a {@link User}
      * @throws
@@ -164,8 +164,8 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s  The string to get the user from.
-     * @param guildId The id of the {@link Guild} to get the user from.
+     * @param s        The string to get the user from.
+     * @param guildId  The id of the {@link Guild} to get the user from.
      * @param forceGet If you want to get the user from discord instead of from a guild.
      * @return null if the user wasn't found otherwise a {@link User}.
      */
@@ -237,7 +237,7 @@ public class GuildUtils {
      * The string can eater be the channel name, it's id, or it being mentioned.
      *
      * @param channelArg The string to get the channel from
-     * @param wrapper The Guild wrapper for the {@link Guild} that you want to get the channel from
+     * @param wrapper    The Guild wrapper for the {@link Guild} that you want to get the channel from
      * @return null if the channel couldn't be found otherwise a {@link TextChannel}
      */
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
@@ -275,16 +275,17 @@ public class GuildUtils {
      * @return If we change change nick
      */
     public static boolean canChangeNick(String guildId) {
-        return Getters.getGuildById(guildId) != null &&
-                (Getters.getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
-                        Getters.getGuildById(guildId).getSelfMember().hasPermission(Permission.NICKNAME_MANAGE));
+        Guild guild = Getters.getGuildById(guildId);
+        return guild != null &&
+                (guild.getSelfMember().hasPermission(Permission.NICKNAME_CHANGE) ||
+                        guild.getSelfMember().hasPermission(Permission.NICKNAME_MANAGE));
     }
 
     /**
      * Joins the bot to a {@link TextChannel}.
      *
      * @param channel The chanel to send an error message to in case this fails.
-     * @param member The member requesting the join. This is also how we determine what channel to join.
+     * @param member  The member requesting the join. This is also how we determine what channel to join.
      */
     public static void joinChannel(TextChannel channel, Member member) {
         if (channel.getGuild().getSelfMember()
@@ -294,9 +295,7 @@ public class GuildUtils {
             if (member.getVoiceState().getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
                     .getMembers().size()
                     >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
-                    .hasPermission(member
-                            .getVoiceState()
-                            .getChannel(), Permission.MANAGE_CHANNEL)) {
+                    .hasPermission(member.getVoiceState().getChannel(), Permission.MANAGE_CHANNEL)) {
                 MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
                         "bypass it!", channel);
                 return;
