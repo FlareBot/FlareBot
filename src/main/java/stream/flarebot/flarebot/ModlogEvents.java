@@ -77,16 +77,19 @@ public class ModlogEvents extends ListenerAdapter {
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
-            AuditLogEntry entry = auditLogEntries.get(0);
-            // If the user kicked wasn't this person then ignore it
-            if (!entry.getTargetId().equals(event.getUser().getId())) return;
+            AuditLogEntry entry = null;
+            if (auditLogEntries.size() >= 1) {
+                entry = auditLogEntries.get(0);
+            }
             User responsible = null;
             String reason = null;
-            if (entry.getType() == ActionType.KICK) {
+            if (entry != null) {
+                // If the user kicked wasn't this person then ignore it
+                if (!entry.getTargetId().equals(event.getUser().getId())) return;
                 responsible = entry.getUser();
                 reason = entry.getReason();
             }
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), responsible != null ?
+            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), entry != null ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
                     responsible, reason);
         });
