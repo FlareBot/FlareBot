@@ -122,7 +122,6 @@ public class GuildUtils {
         }
         return null;
     }
-    //User
 
     /**
      * Gets a {@link User} from a string. Not case sensitive.
@@ -139,7 +138,7 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s       The string to get the user from.
+     * @param s The string to get the user from.
      * @param guildId The string id of the {@link Guild} to get the user from.
      * @return null if the user wasn't found otherwise a {@link User}.
      */
@@ -151,7 +150,7 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s        The string to get the user from
+     * @param s The string to get the user from
      * @param forceGet If you want to get the user from Discord instead of from a guild
      * @return null if the user wasn't found otherwise a {@link User}
      * @throws
@@ -164,8 +163,8 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s        The string to get the user from.
-     * @param guildId  The id of the {@link Guild} to get the user from.
+     * @param s The string to get the user from.
+     * @param guildId The id of the {@link Guild} to get the user from.
      * @param forceGet If you want to get the user from discord instead of from a guild.
      * @return null if the user wasn't found otherwise a {@link User}.
      */
@@ -237,7 +236,7 @@ public class GuildUtils {
      * The string can eater be the channel name, it's id, or it being mentioned.
      *
      * @param channelArg The string to get the channel from
-     * @param wrapper    The Guild wrapper for the {@link Guild} that you want to get the channel from
+     * @param wrapper The Guild wrapper for the {@link Guild} that you want to get the channel from
      * @return null if the channel couldn't be found otherwise a {@link TextChannel}
      */
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
@@ -254,7 +253,6 @@ public class GuildUtils {
             return null;
         }
     }
-    //Emote
 
     /**
      * Gets an {@link Emote} from an id.
@@ -269,7 +267,8 @@ public class GuildUtils {
 
     /**
      * Gets weather or not the bot can change nick.
-     * This checks for {@link Permission#NICKNAME_CHANGE}. If we don't have the then it checks for {@link Permission#NICKNAME_MANAGE}
+     * This checks for {@link Permission#NICKNAME_CHANGE}.
+     * If we don't have the then it checks for {@link Permission#NICKNAME_MANAGE}.
      *
      * @param guildId The string guildid to check if we can change nick
      * @return If we change change nick

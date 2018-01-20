@@ -153,7 +153,8 @@ public class FormatUtils {
 
     /**
      * Truncates a String to the given length. With ellipses. This truncates from the end.
-     * Note that this will truncate the string to three less then the length, because of the ellipses (The total length of the string would be the provided length).
+     * Note that this will truncate the string to three less then the length because of the ellipses.
+     * (The total length of the string would be the provided length).
      *
      * @param length The amount to truncate the string to.
      * @param string The string to truncate.
@@ -165,10 +166,12 @@ public class FormatUtils {
 
     /**
      * Truncates a String to the given length. This truncates from the end.
+     * If you do use eclipse the length would be three less then the provided length due to the ellipses.
+     * (The total length of the string would be the provided length).
      *
      * @param length The amount to truncate the string to.
      * @param string The string to add them to.
-     * @param ellipse Weather or not to use ellipses. If you do use eclipse the length would be three less then the provided length due to the ellipses (The total length of the string would be the provided length).
+     * @param ellipse Weather or not to use ellipses.
      * @return The truncated String.
      */
     public static String truncate(int length, String string, boolean ellipse) {

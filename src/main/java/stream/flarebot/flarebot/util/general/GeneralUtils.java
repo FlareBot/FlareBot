@@ -69,8 +69,6 @@ public class GeneralUtils {
             .appendSeconds().appendSuffix("s")
             .toFormatter();
 
-    //Getters
-
     /**
      * Gets the {@link Report} embed with all of the info on the report.
      *
@@ -147,9 +145,10 @@ public class GeneralUtils {
     /**
      * Gets an int from a String.
      * The default value you pass is what it return if their was an error parsing the string.
+     * This happens when the string you enter isn't an int. For example if you enter in 'no'.
      *
      * @param s The string to parse an int from.
-     * @param defaultValue The default int value to get in case parsing fails. This happens when the string entered is not a number. for example if you enter in 'no'
+     * @param defaultValue The default int value to get in case parsing fails.
      * @return The int parsed from the string or the default value.
      */
     public static int getInt(String s, int defaultValue) {
@@ -162,9 +161,10 @@ public class GeneralUtils {
     /**
      * Gets a long from a String.
      * The default value you pass is what it return if their was an error parsing the string.
+     * This happens when the string you enter isn't an int. For example if you enter in 'no'.
      *
      * @param s The string to parse a long from.
-     * @param defaultValue The default long value to get in case parsing fails. This happens when the string entered is not a number. for example if you enter in 'no'
+     * @param defaultValue The default long value to get in case parsing fails.
      * @return The long parsed from the string or the default value.
      */
     public static long getLong(String s, long defaultValue) {
@@ -176,11 +176,12 @@ public class GeneralUtils {
     }
 
     /**
-     * Get a Joda {@link Period} from the input string. This will convert something like `1d20s` to 1 day and 20 seconds in the
-     * Joda Period.
+     * Get a Joda {@link Period} from the input string.
+     * This will convert something like `1d20s` to 1 day and 20 seconds.
+     * If the format isn't correct we throw an error message to the channel.
      *
      * @param input The input string to parse.
-     * @return The joda Period or null if the format is not correct. If the format isn't correct we throw an error message to the channel.
+     * @return The joda Period or null if the format is not correct.
      */
     public static Period getTimeFromInput(String input, TextChannel channel) {
         try {
@@ -194,7 +195,8 @@ public class GeneralUtils {
 
     /**
      * Gets the changes between two lists.
-     * Represented by a map where the true value is the things added and the false is the things removed with the unchanged being left out.
+     * Represented by a map where the true value is the things added and the false
+     * is the things removed with the unchanged being left out.
      *
      * @param oldList The old list
      * @param newList The new List
@@ -298,7 +300,8 @@ public class GeneralUtils {
 
     /**
      * Gets the String representing the verification level.
-     * For {@link Guild.VerificationLevel#HIGH} and {@link Guild.VerificationLevel#VERY_HIGH} we return the unicode characters and not the string it's self.
+     * For {@link Guild.VerificationLevel#HIGH} and {@link Guild.VerificationLevel#VERY_HIGH}
+     * we return the unicode characters and not the string it's self.
      *
      * @param level The verification level to get the string version.
      * @return A string representing the verification level.
