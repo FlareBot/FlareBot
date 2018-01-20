@@ -371,7 +371,7 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +
                 "`{%}permissions user <user> permission list [page]` - list the permmissions this user has (Excluding those obtained from groups).\n" +
-                "`{%}permissions user <user> check <permission>` - Checks if a user has the specified permission\n" +
+                "`{%}permissions user <user> check` - Returns all permissions a user has access to\n" +
                 "`{%}permissions user <user> clear` - Removes all permissions from this user!\n\n" +
                 "`{%}permissions groups` - Lists all the groups in a server.\n" +
                 "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions.";
