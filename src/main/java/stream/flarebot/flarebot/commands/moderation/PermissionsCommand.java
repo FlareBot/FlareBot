@@ -142,6 +142,10 @@ public class PermissionsCommand implements Command {
                             return;
 
                         }
+                    } else if (args[2].equalsIgnoreCase("clear")) {
+                        group.getPermissions().clear();
+                        MessageUtils.sendSuccessMessage("Cleared all permissions from the group: " + group.getName(), channel);
+                        return;
                     }
                 }
             } else if (args[0].equalsIgnoreCase("user")) {
@@ -206,7 +210,7 @@ public class PermissionsCommand implements Command {
                         if (args.length >= 4) {
                             if (args[3].equalsIgnoreCase("add")) {
                                 if (args.length == 5) {
-                                    if (!Permission.isValidPermission(args[3])) {
+                                    if (!Permission.isValidPermission(args[4])) {
                                         MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
                                                 "**Example:** `flarebot.play`\n" +
                                                 "See `_permissions list` for a full list!", channel);
@@ -248,6 +252,26 @@ public class PermissionsCommand implements Command {
                                 return;
                             }
                         }
+                    } else if (args[2].equalsIgnoreCase("check")) {
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.setTitle("Permissions for " + user.getName());
+                        StringBuilder stringBuilder = new StringBuilder();
+                        if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.ALL_PERMISSIONS)) {
+                            stringBuilder.append("**All Permissions!**");
+                        } else {
+                            for (Permission perm : Permission.VALUES) {
+                                if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), perm)) {
+                                    stringBuilder.append("`").append(perm).append("`\n");
+                                }
+                            }
+                        }
+                        builder.setDescription(stringBuilder.toString());
+                        channel.sendMessage(builder.build()).queue();
+                        return;
+                    } else if (args[2].equalsIgnoreCase("clear")) {
+                        permUser.getPermissions().clear();
+                        MessageUtils.sendSuccessMessage("Cleared all permissions from: " + MessageUtils.getTag(user), channel);
+                        return;
                     }
                 }
             }
@@ -283,7 +307,7 @@ public class PermissionsCommand implements Command {
                 for (Permission p : Permission.values()) {
                     m.append("`").append(p).append("` ").append(p.isDefaultPerm()).append("\n");
                 }
-                channel.sendMessage(m.toString()).queue();
+                channel.sendMessage(new EmbedBuilder().setDescription(m.toString()).build()).queue();
                 return;
             } else if (args[0].equalsIgnoreCase("reset")) {
                 guild.setPermissions(new PerGuildPermissions());
@@ -341,11 +365,14 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions group <group> link <role>` - Links the group to a discord role.\n" +
                 "`{%}permissions group <group> unlink` - Unlinks the group from a role.\n" +
                 "`{%}permissions group <group> list [page]` - lists the permissions this group has.\n" +
-                "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n\n" +
+                "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n" +
+                "`{%}permissions group <group> clear` - Removes all permissions from this group!\n\n" +
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +
-                "`{%}permissions user <user> permission list [page]` - list the permmissions this user has (Excluding those obtained from groups).\n\n" +
+                "`{%}permissions user <user> permission list [page]` - list the permmissions this user has (Excluding those obtained from groups).\n" +
+                "`{%}permissions user <user> check <permission>` - Checks if a user has the specified permission\n" +
+                "`{%}permissions user <user> clear` - Removes all permissions from this user!\n\n" +
                 "`{%}permissions groups` - Lists all the groups in a server.\n" +
                 "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions.";
     }
