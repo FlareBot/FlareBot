@@ -218,7 +218,6 @@ public class GuildUtils {
         }
         return null;
     }
-    //Channel
 
     /**
      * Gets a {@link TextChannel} from a string. Not case sensitive.
