@@ -27,7 +27,7 @@ public class FormatUtils {
             .toFormatter();
 
     /**
-     * Formats a duration to a readable string
+     * Formats a duration to a readable string.
      *
      * @param duration The duration as a long in millis to format.
      * @return A string representing the duration with the format h:m:s
@@ -152,10 +152,10 @@ public class FormatUtils {
     }
 
     /**
-     * Truncates a String to the given length. With ellipses.
-     * Note that this will truncate the string to three more then the length, because of the ellipses.
+     * Truncates a String to the given length. With ellipses. This truncates from the end.
+     * Note that this will truncate the string to three less then the length, because of the ellipses (The total length of the string would be the provided length).
      *
-     * @param length The amount to add.
+     * @param length The amount to truncate the string to.
      * @param string The string to truncate.
      * @return The truncated String.
      */
@@ -164,12 +164,11 @@ public class FormatUtils {
     }
 
     /**
-     * Truncates a String to the given length.
-     * This truncates from the end
+     * Truncates a String to the given length. This truncates from the end.
      *
-     * @param length The amount to add.
+     * @param length The amount to truncate the string to.
      * @param string The string to add them to.
-     * @param ellipse Weather or not to use ellipses. If you do use eclipse the length whould be three more then the provided length due to the ellipses.
+     * @param ellipse Weather or not to use ellipses. If you do use eclipse the length would be three less then the provided length due to the ellipses (The total length of the string would be the provided length).
      * @return The truncated String.
      */
     public static String truncate(int length, String string, boolean ellipse) {
