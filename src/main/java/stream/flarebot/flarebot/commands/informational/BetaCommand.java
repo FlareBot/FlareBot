@@ -10,7 +10,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -21,7 +21,7 @@ public class BetaCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         String betaInfo =
-                GeneralUtils.formatCommandPrefix(guild, FlareBot.instance().getCommandManager().getCommands()
+                FormatUtils.formatCommandPrefix(guild, FlareBot.instance().getCommandManager().getCommands()
                         .stream()
                         .filter(Command::isBetaTesterCommand)
                         .map(c -> "`{%}" + c.getCommand() + "` - " + c.getDescription())

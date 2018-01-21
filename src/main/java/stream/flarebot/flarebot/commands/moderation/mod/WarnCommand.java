@@ -9,8 +9,9 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class WarnCommand implements Command {
 
@@ -19,7 +20,7 @@ public class WarnCommand implements Command {
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
-            User user = GeneralUtils.getUser(args[0]);
+            User user = GuildUtils.getUser(args[0]);
             if (user == null) {
                 MessageUtils.sendErrorMessage("We couldn't find that user!!", channel);
                 return;

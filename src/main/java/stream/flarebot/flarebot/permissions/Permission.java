@@ -11,7 +11,7 @@ import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.util.EnumSet;
 import java.util.Map;

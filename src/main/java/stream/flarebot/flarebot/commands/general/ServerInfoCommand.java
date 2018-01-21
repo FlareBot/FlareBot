@@ -11,7 +11,8 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -53,7 +54,7 @@ public class ServerInfoCommand implements Command {
                         guild.getAfkChannel().getName() + "\n" +
                         "\n" +
                         "Timeout: " +
-                        GeneralUtils.formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
+                        FormatUtils.formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
         eb.addField("Channels", "**Text**\n" +
                 "Total: " +
                 guild.getTextChannels().size() + "\n" +

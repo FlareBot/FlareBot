@@ -12,8 +12,9 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -76,7 +77,7 @@ public class PermissionsCommand implements Command {
                         return;
                     } else if (args[2].equalsIgnoreCase("link")) {
                         if (args.length == 4) {
-                            Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
+                            Role role = GuildUtils.getRole(args[3], guild.getGuildId());
                             if (role != null) {
                                 group.linkRole(role.getId());
                                 MessageUtils.sendSuccessMessage("Successfully linked the group `" + groupString + "` to the role `" + role.getName() + "`", channel, sender);
@@ -127,7 +128,7 @@ public class PermissionsCommand implements Command {
                                 roleMembers = channel.getMembers();
                                 roleName = "here";
                             } else {
-                                Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
+                                Role role = GuildUtils.getRole(args[3], guild.getGuildId());
                                 if (role != null) {
                                     roleMembers = guild.getGuild().getMembersWithRoles(role);
                                 } else {
@@ -150,7 +151,7 @@ public class PermissionsCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("user")) {
                 String userString = args[1];
-                User user = GeneralUtils.getUser(userString, guild.getGuildId());
+                User user = GuildUtils.getUser(userString, guild.getGuildId());
                 if (user == null) {
                     MessageUtils.sendErrorMessage("That user doesn't exist!!", channel);
                     return;

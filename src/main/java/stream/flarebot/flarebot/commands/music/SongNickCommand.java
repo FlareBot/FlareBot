@@ -9,8 +9,9 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class SongNickCommand implements Command {
 
@@ -18,11 +19,11 @@ public class SongNickCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (guild.isSongnickEnabled()) {
             guild.setSongnick(false);
-            if (GeneralUtils.canChangeNick(guild.getGuildId()))
+            if (GuildUtils.canChangeNick(guild.getGuildId()))
                 channel.getGuild().getController().setNickname(channel.getGuild().getSelfMember(), null).queue();
             MessageUtils.sendSuccessMessage("Disabled changing nickname with song!", channel, sender);
         } else {
-            if (!GeneralUtils.canChangeNick(guild.getGuildId())) {
+            if (!GuildUtils.canChangeNick(guild.getGuildId())) {
                 MessageUtils.sendErrorMessage("FlareBot can't change it's nickname so SongNick hasn't been enabled",
                         channel);
                 return;

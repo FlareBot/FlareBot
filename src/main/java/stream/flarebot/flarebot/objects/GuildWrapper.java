@@ -9,8 +9,9 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -140,7 +141,7 @@ public class GuildWrapper {
     public Role getMutedRole() {
         if (mutedRoleID == null) {
             Role mutedRole =
-                    GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
+                    GuildUtils.getRole("Muted", getGuild()).isEmpty() ? null : GuildUtils.getRole("Muted", getGuild()).get(0);
             if (mutedRole == null) {
                 if (!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES, Permission.MANAGE_PERMISSIONS))
                     return null;

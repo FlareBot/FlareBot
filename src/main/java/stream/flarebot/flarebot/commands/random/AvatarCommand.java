@@ -8,8 +8,9 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 
@@ -19,7 +20,7 @@ public class AvatarCommand implements Command {
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         User user = sender;
         if (args.length > 0)
-            user = GeneralUtils.getUser(MessageUtils.getMessage(args, 0), guild.getGuildId());
+            user = GuildUtils.getUser(MessageUtils.getMessage(args, 0), guild.getGuildId());
         if (user != null) {
             if (!user.getId().equals(sender.getId()) && !getPermissions(channel).hasPermission(member, Permission.AVATAR_OTHER)) {
                 MessageUtils.sendErrorMessage("You need the permission `" + Permission.AVATAR_OTHER + "` in order to do that command!",

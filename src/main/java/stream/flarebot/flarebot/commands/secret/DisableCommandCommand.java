@@ -10,8 +10,9 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.util.Map;
@@ -88,8 +89,8 @@ public class DisableCommandCommand implements Command {
 
     private String getEmote(boolean b) {
         // tick - enabled (true)
-        return (b ? GeneralUtils.getEmoteById(355776056092917761L).getAsMention()
+        return (b ? GuildUtils.getEmoteById(355776056092917761L).getAsMention()
                 // cross - disabled (false)
-                : GeneralUtils.getEmoteById(355776081384570881L).getAsMention());
+                : GuildUtils.getEmoteById(355776081384570881L).getAsMention());
     }
 }
