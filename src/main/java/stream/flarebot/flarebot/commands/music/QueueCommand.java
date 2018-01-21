@@ -35,8 +35,8 @@ public class QueueCommand implements Command {
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
-                    if (!this.getPermissions(channel).hasPermission(member, Permission.PLAYLIST_CLEAR)) {
-                        MessageUtils.sendErrorMessage("You need the `" + Permission.PLAYLIST_CLEAR + "` permission to do this!", channel, sender);
+                    if (!this.getPermissions(channel).hasPermission(member, Permission.QUEUE_CLEAR)) {
+                        MessageUtils.sendErrorMessage("You need the `" + Permission.QUEUE_CLEAR + "` permission to do this!", channel, sender);
                         return;
                     }
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
