@@ -122,9 +122,10 @@ public class ExpiringMap<K, V> {
      */
     public V get(K k) {
         for (Pair<ConcurrentMap<K, V>, Long> pair : elem.values()) {
-            if (pair.getKey().containsKey(k))
+            if (pair.getKey().containsKey(k)) {
                 pair.setValue(System.currentTimeMillis());
-            return pair.getKey().get(k);
+                return pair.getKey().get(k);
+            }
         }
         return null;
     }
