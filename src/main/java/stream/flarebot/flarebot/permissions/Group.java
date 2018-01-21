@@ -2,8 +2,6 @@ package stream.flarebot.flarebot.permissions;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
-import java.util.Set;
-
 
 public class Group {
 
