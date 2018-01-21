@@ -34,8 +34,7 @@ public class QueueCommand implements Command {
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
-                    if (!this.getPermissions(channel).hasPermission(member, "flarebot.playlist.clear") ||
-                            !this.getPermissions(channel).hasPermission(member, "flarebot.queue.clear")) {
+                    if (!this.getPermissions(channel).hasPermission(member, "flarebot.queue.clear")) {
                         MessageUtils.sendErrorMessage("You need the `flarebot.queue.clear` permission to do this!", channel, sender);
                         return;
                     }
