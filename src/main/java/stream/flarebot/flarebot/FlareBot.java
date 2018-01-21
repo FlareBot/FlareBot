@@ -732,7 +732,7 @@ public class FlareBot {
                 ConfirmUtil.clearConfirmMap();
             }
 
-        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+        }.repeat(10, 5000);
 
         new FlareBotTask("DeadShard-Checker") {
             @Override
