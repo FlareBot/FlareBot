@@ -43,12 +43,12 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -337,7 +337,7 @@ public class Events extends ListenerAdapter {
                         event.getOldStatus(), event.getStatus(),
                         event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
                                 : null)).toString());
-        WebUtils.postAsync(request.post(body));
+        WebUtils.asyncRequest(request.post(body));
     }
 
     @Override

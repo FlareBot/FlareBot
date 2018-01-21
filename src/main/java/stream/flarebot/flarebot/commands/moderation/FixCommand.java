@@ -16,7 +16,6 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
 
 public class FixCommand implements Command {
 
@@ -38,7 +37,7 @@ public class FixCommand implements Command {
                 + "\n\nDo `{%}fix confirm` to confirm you want to do this command!", channel, sender);
 
         ConfirmUtil.pushAction(sender.getId(),
-                new RunnableWrapper(() -> fix(guild, sender, channel), this.getClass()), TimeUnit.MINUTES.toMillis(1));
+                new RunnableWrapper(() -> fix(guild, sender, channel), this.getClass()));
     }
 
     private void fix(GuildWrapper guild, User sender, TextChannel channel) {

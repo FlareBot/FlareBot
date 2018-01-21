@@ -97,7 +97,7 @@ public class CommandManager {
         registerCommand(new StopCommand());
         registerCommand(new SkipCommand());
         registerCommand(new ShuffleCommand());
-        registerCommand(new PlaylistCommand());
+        registerCommand(new QueueCommand());
         registerCommand(new SongCommand());
         registerCommand(new RepeatCommand());
         registerCommand(new MusicAnnounceCommand());

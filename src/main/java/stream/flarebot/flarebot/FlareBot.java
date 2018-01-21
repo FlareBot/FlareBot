@@ -46,9 +46,9 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.MigrationHandler;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
@@ -353,6 +353,10 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
 
+        // Any migration
+        MigrationHandler migrationHandler = new MigrationHandler();
+        //migrationHandler.migrateSinglePermissionForAllGuilds("flarebot.playlist", "flarebot.queue");
+
         LOGGER.info("Loaded " + commandManager.count() + " commands!");
 
         ApiFactory.bind();
@@ -424,7 +428,7 @@ public class FlareBot {
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
                 RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON,
                         new JSONObject().put("server_count", client.getGuilds().size()).toString());
-                WebUtils.postAsync(request.post(body));
+                WebUtils.asyncRequest(request.post(body));
                 return;
             }
             try {
@@ -437,7 +441,7 @@ public class FlareBot {
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
-                WebUtils.postAsync(request.post(body));
+                WebUtils.asyncRequest(request.post(body));
 
                 // Gonna spread these out just a bit so we don't burst (insert shard number here) requests all at once
                 Thread.sleep(20_000);
@@ -577,17 +581,15 @@ public class FlareBot {
         if (EXITING.get()) return;
         LOGGER.info("Saving data.");
         EXITING.set(true);
-        Constants.getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
-                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
+        Constants.getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getGuildWrapperLoader().getLoadTimes()
+                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getGuildWrapperLoader().getLoadTimes().size())
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
         for (JDA client : shardManager.getShards())
             client.removeEventListener(events); //todo: Make a replacement for the array
         sendData();
-        for (String s : manager.getGuilds().keySet()) {
-            manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
-        }
+        manager.getGuilds().invalidateAll();
         shardManager.shutdown();
         LOGGER.info("Finished saving!");
         for (JDA client : shardManager.getShards())
@@ -725,14 +727,6 @@ public class FlareBot {
                 events.getSpamMap().clear();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
-
-        new FlareBotTask("ClearConfirmMap" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                ConfirmUtil.clearConfirmMap();
-            }
-
-        }.repeat(10, 5000);
 
         new FlareBotTask("DeadShard-Checker") {
             @Override

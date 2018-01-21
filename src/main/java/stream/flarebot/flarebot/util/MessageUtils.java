@@ -100,7 +100,7 @@ public class MessageUtils {
             return null;
         }
         try {
-            Response response = WebUtils.post(new Request.Builder().url("https://paste.flarebot.stream/documents")
+            Response response = WebUtils.request(new Request.Builder().url("https://paste.flarebot.stream/documents")
                     .addHeader("Authorization", flareBot.getPasteKey()).post(RequestBody
                             .create(WebUtils.APPLICATION_JSON, trace)));
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
