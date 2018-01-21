@@ -200,7 +200,7 @@ public class FlareBot {
             LOGGER.error("One or more of the required JSON objects where missing. Exiting to prevent problems");
             System.exit(1);
         }
-        
+
         new CassandraController(config);
         new RedisController(config);
 
@@ -323,7 +323,7 @@ public class FlareBot {
         registerCommand(new StopCommand());
         registerCommand(new SkipCommand());
         registerCommand(new ShuffleCommand());
-        registerCommand(new PlaylistCommand());
+        registerCommand(new QueueCommand());
         registerCommand(new SongCommand());
         registerCommand(new InviteCommand());
         registerCommand(new AutoAssignCommand());
@@ -490,7 +490,7 @@ public class FlareBot {
         LOGGER.debug("Sent " + shardManager.getShardsTotal() + " requests to " + url);
     }
 
-    private void setupUpdate() {
+    public void scheduleUpdate() {
         new FlareBotTask("Auto-Update") {
             @Override
             public void run() {
@@ -609,7 +609,6 @@ public class FlareBot {
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
-                setupUpdate();
                 UpdateCommand.UPDATING.set(false);
             }
         } else
@@ -1104,7 +1103,5 @@ public class FlareBot {
                 }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
-
-        setupUpdate();
     }
 }

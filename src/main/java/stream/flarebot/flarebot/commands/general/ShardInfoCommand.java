@@ -41,9 +41,15 @@ public class ShardInfoCommand implements Command {
             row.add(String.valueOf(jda.getVoiceChannels().stream().filter(vc -> vc.getMembers().contains(vc.getGuild()
                     .getSelfMember())).count()));
             table.add(row);
+            // TODO: Replace this hotfix with pagination
+            if (table.size() == 20) {
+                channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
+                table = new ArrayList<>();
+            }
         }
-
-        channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
+        if (table.size() > 0) {
+            channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
+        }
     }
 
     @Override
