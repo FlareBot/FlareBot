@@ -8,10 +8,12 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ConfirmUtil;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.objects.RestActionRunnable;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
+
+import java.util.concurrent.TimeUnit;
 
 public class PruneCommand implements Command {
 
@@ -45,7 +47,7 @@ public class PruneCommand implements Command {
                         new RunnableWrapper(
                                 new RestActionRunnable(guild.getGuild().getController()
                                         .prune(amount)
-                                        .reason("Pruned by user: " + MessageUtils.getTag(sender))), this.getClass()));
+                                        .reason("Pruned by user: " + MessageUtils.getTag(sender))), this.getClass()), TimeUnit.MINUTES.toMillis(1));
                 return;
             } else if (args[0].equalsIgnoreCase("confirm")) {
                 if (ConfirmUtil.checkExists(sender.getId(), this.getClass())) {

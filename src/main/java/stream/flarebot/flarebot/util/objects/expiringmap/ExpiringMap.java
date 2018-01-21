@@ -15,11 +15,9 @@ public class ExpiringMap<K, V> {
 
     // Expire time, Pair<ConcurrentMap<K, V>, Last retrieved>
     private final ConcurrentSkipListMap<Long, Pair<ConcurrentMap<K, V>, Long>> elem;
-    private final long expireAfterMS;
     private final ExpiredEvent<K, V> expiredEvent;
 
-    public ExpiringMap(long expireAfterMS) {
-        this.expireAfterMS = expireAfterMS;
+    public ExpiringMap() {
         elem = new ConcurrentSkipListMap<>();
         this.expiredEvent = new ExpiredEvent<K, V>() {
             @Override
@@ -28,8 +26,7 @@ public class ExpiringMap<K, V> {
         };
     }
 
-    public ExpiringMap(long expireAfterMS, ExpiredEvent<K, V> expiredEvent) {
-        this.expireAfterMS = expireAfterMS;
+    public ExpiringMap(ExpiredEvent<K, V> expiredEvent) {
         elem = new ConcurrentSkipListMap<>();
         this.expiredEvent = expiredEvent;
     }
@@ -56,7 +53,7 @@ public class ExpiringMap<K, V> {
         }
     }
 
-    public void put(K k, V v) {
+    public void put(K k, V v, long expireAfterMS) {
         long ms = System.currentTimeMillis() + expireAfterMS;
         Pair<ConcurrentMap<K, V>, Long> c = elem.get(ms);
         if (c == null) {
@@ -88,7 +85,7 @@ public class ExpiringMap<K, V> {
         return null;
     }
 
-    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+    public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction, long expireAfterMs) {
         if (key == null || mappingFunction == null) {
             throw new NullPointerException();
         }
@@ -99,7 +96,7 @@ public class ExpiringMap<K, V> {
 
         V val = mappingFunction.apply(key);
 
-        this.put(key, val);
+        this.put(key, val, expireAfterMs);
         return val;
     }
 
@@ -126,7 +123,7 @@ public class ExpiringMap<K, V> {
         return -1;
     }
 
-    public void resetTime(K k) {
+    public void resetTime(K k, long expireAfterMS) {
         for (Long l : elem.keySet()) {
             if (this.elem.get(l).getKey().containsKey(k)) {
                 this.elem.put(System.currentTimeMillis() + expireAfterMS, this.elem.get(l));
