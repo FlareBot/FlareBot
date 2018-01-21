@@ -196,7 +196,7 @@ public class ExpiringMap<K, V> {
 
     /**
      * Resets the time for the specified key to expire at. If the key doesn't exist in the map
-     * this method does nothing.     *
+     * this method does nothing.
      *
      * @param k             The key to reset the time for.
      * @param expireAfterMS The time after which the key should expire.
