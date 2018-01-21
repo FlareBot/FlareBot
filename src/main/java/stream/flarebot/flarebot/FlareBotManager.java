@@ -172,6 +172,29 @@ public class FlareBotManager {
         }
     }
 
+    public GuildWrapper getGuildNoCache(String id) {
+        if (guilds == null) return null; //This is if it's ran before even being loaded
+        if (guilds.containsKey(id))
+            return guilds.get(id);
+        ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
+                + id + "'");
+        GuildWrapper wrapper;
+        Row row = set != null ? set.one() : null;
+        try {
+            if (row != null)
+                wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
+            else
+                wrapper = new GuildWrapper(id);
+        } catch (Exception e) {
+            LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                    "Guild ID: " + id + "\n" +
+                    "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
+                    "Error: " + e.getMessage(), e);
+            return null;
+        }
+        return wrapper;
+    }
+
     public LoadingCache<String, GuildWrapper> getGuilds() {
         return guilds;
     }

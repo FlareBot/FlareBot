@@ -48,6 +48,7 @@ import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.MigrationHandler;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
@@ -352,6 +353,10 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
 
+        // Any migration
+        MigrationHandler migrationHandler = new MigrationHandler();
+        //migrationHandler.migrateSinglePermissionForAllGuilds("flarebot.playlist", "flarebot.queue");
+
         LOGGER.info("Loaded " + commandManager.count() + " commands!");
 
         ApiFactory.bind();
@@ -584,9 +589,6 @@ public class FlareBot {
         for (JDA client : shardManager.getShards())
             client.removeEventListener(events); //todo: Make a replacement for the array
         sendData();
-//        for (String s : manager.getGuilds().keySet()) {
-//            manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
-//        }
         manager.getGuilds().invalidateAll();
         shardManager.shutdown();
         LOGGER.info("Finished saving!");
