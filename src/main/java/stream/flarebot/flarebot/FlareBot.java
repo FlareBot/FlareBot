@@ -46,7 +46,6 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ShardUtils;
@@ -577,17 +576,18 @@ public class FlareBot {
         if (EXITING.get()) return;
         LOGGER.info("Saving data.");
         EXITING.set(true);
-        Constants.getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getLoadTimes()
-                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getLoadTimes().size())
+        Constants.getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getGuildWrapperLoader().getLoadTimes()
+                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getGuildWrapperLoader().getLoadTimes().size())
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
         for (JDA client : shardManager.getShards())
             client.removeEventListener(events); //todo: Make a replacement for the array
         sendData();
-        for (String s : manager.getGuilds().keySet()) {
-            manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
-        }
+//        for (String s : manager.getGuilds().keySet()) {
+//            manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
+//        }
+        manager.getGuilds().invalidateAll();
         shardManager.shutdown();
         LOGGER.info("Finished saving!");
         for (JDA client : shardManager.getShards())
@@ -725,14 +725,6 @@ public class FlareBot {
                 events.getSpamMap().clear();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
-
-        new FlareBotTask("ClearConfirmMap" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                ConfirmUtil.clearConfirmMap();
-            }
-
-        }.repeat(10, 5000);
 
         new FlareBotTask("DeadShard-Checker") {
             @Override
