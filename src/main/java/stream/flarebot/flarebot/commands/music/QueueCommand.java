@@ -138,12 +138,12 @@ public class QueueCommand implements Command {
                 " You can use `queue remove #` to remove a song under #.\n" +
                 "To make it not send a DM do `queue here`";
     }
-
-    //TODO: Add alllllll the stuff here
+    
     @Override
     public String getUsage() {
-        return "`{%}queue [option]`\n" +
-                "`{%}queue remove <#>`";
+        return "`{%}queue` - Lists the current items in the queue.\n" +
+                "`{%}queue clear` - Clears the queue\n" +
+                "`{%}queue remove <#>` - Removes an item from the queue.";
     }
 
     @Override
