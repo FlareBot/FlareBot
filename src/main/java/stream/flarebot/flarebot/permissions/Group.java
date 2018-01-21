@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class Group {
 
-    private final Set<String> permissions = new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<String> permissions = new ConcurrentHashSet<>();
     private String name;
     private String roleId;
 
@@ -19,7 +19,7 @@ public class Group {
     }
 
 
-    public Set<String> getPermissions() {
+    public ConcurrentHashSet<String> getPermissions() {
         return permissions;
     }
 

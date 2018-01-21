@@ -139,8 +139,9 @@ public class FlareBotManager {
 
     public void savePlaylist(Command command, TextChannel channel, String ownerId, boolean overwriteAllowed, String name, List<String> songs) {
         CassandraController.runTask(session -> {
-            if(savePlaylistStatement == null) savePlaylistStatement = session.prepare("SELECT * FROM flarebot.playlist " +
-                    "WHERE playlist_name = ? AND guild_id = ?");
+            if (savePlaylistStatement == null)
+                savePlaylistStatement = session.prepare("SELECT * FROM flarebot.playlist " +
+                        "WHERE playlist_name = ? AND guild_id = ?");
 
             ResultSet set = session.execute(savePlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             if (set.one() != null) {
@@ -155,8 +156,9 @@ public class FlareBotManager {
                     return;
                 }
             }
-            if(insertPlaylistStatement == null) insertPlaylistStatement = session.prepare("INSERT INTO flarebot.playlist" +
-                    " (playlist_name, guild_id, owner, songs, scope, times_played) VALUES (?, ?, ?, ?, ?, ?)");
+            if (insertPlaylistStatement == null)
+                insertPlaylistStatement = session.prepare("INSERT INTO flarebot.playlist" +
+                        " (playlist_name, guild_id, owner, songs, scope, times_played) VALUES (?, ?, ?, ?, ?, ?)");
 
             session.execute(insertPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId())
                     .setString(2, ownerId).setList(3, songs).setString(4, "local").setInt(5, 0));
@@ -168,7 +170,7 @@ public class FlareBotManager {
     public ArrayList<String> loadPlaylist(TextChannel channel, User sender, String name) {
         final ArrayList<String> list = new ArrayList<>();
         CassandraController.runTask(session -> {
-            if(loadPlaylistStatement == null) loadPlaylistStatement = session.prepare("SELECT songs FROM " +
+            if (loadPlaylistStatement == null) loadPlaylistStatement = session.prepare("SELECT songs FROM " +
                     "flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
 
             ResultSet set = session.execute(loadPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
@@ -182,26 +184,34 @@ public class FlareBotManager {
         return list;
     }
 
+    public GuildWrapper getGuildNoCache(String id) {
+        if (guilds == null) return null; //This is if it's ran before even being loaded
+        if (guilds.containsKey(id))
+            return guilds.get(id);
+        ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
+                + id + "'");
+        GuildWrapper wrapper;
+        Row row = set != null ? set.one() : null;
+        try {
+            if (row != null)
+                wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
+            else
+                wrapper = new GuildWrapper(id);
+        } catch (Exception e) {
+            LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                    "Guild ID: " + id + "\n" +
+                    "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
+                    "Error: " + e.getMessage(), e);
+            return null;
+        }
+        return wrapper;
+    }
+
     public synchronized GuildWrapper getGuild(String id) {
         if (guilds == null) return null; //This is if it's ran before even being loaded
         guilds.computeIfAbsent(id, guildId -> {
             long start = System.currentTimeMillis();
-            ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
-                    + guildId + "'");
-            GuildWrapper wrapper;
-            Row row = set != null ? set.one() : null;
-            try {
-                if (row != null)
-                    wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-                else
-                    wrapper = new GuildWrapper(id);
-            } catch (Exception e) {
-                LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
-                        "Guild ID: " + id + "\n" +
-                        "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
-                        "Error: " + e.getMessage(), e);
-                return null;
-            }
+            GuildWrapper wrapper = getGuildNoCache(id);
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 
