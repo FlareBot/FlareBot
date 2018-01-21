@@ -424,7 +424,7 @@ public class FlareBot {
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
                 RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON,
                         new JSONObject().put("server_count", client.getGuilds().size()).toString());
-                WebUtils.postAsync(request.post(body));
+                WebUtils.asyncRequest(request.post(body));
                 return;
             }
             try {
@@ -437,7 +437,7 @@ public class FlareBot {
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
-                WebUtils.postAsync(request.post(body));
+                WebUtils.asyncRequest(request.post(body));
 
                 // Gonna spread these out just a bit so we don't burst (insert shard number here) requests all at once
                 Thread.sleep(20_000);

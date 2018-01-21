@@ -1,6 +1,8 @@
 package stream.flarebot.flarebot;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefDatabase;
 import org.eclipse.jgit.lib.Repository;
@@ -20,7 +22,15 @@ public class GitHandler {
     static {
         Git git;
         try {
-            git = Git.open(new File("."));
+            git = Git.open(new File("FlareBot/"));
+        } catch (RepositoryNotFoundException e) {
+            try {
+                git =
+                        Git.cloneRepository().setDirectory(new File("FlareBot/")).setURI("https://github.com/FlareBot/FlareBot.git").call();
+            } catch (GitAPIException e1) {
+                e1.printStackTrace();
+                git = null;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             git = null;
@@ -33,6 +43,15 @@ public class GitHandler {
             return GIT.getRepository();
         }
         return null;
+    }
+
+    public static void updateRepo(File directory) throws GitAPIException {
+        if (GIT != null) {
+            GIT.pull().call();
+        } else {
+            Git.cloneRepository().setDirectory(directory).setURI("https://github.com/FlareBot/FlareBot.git").call();
+        }
+
     }
 
     public static RevCommit getLatestCommit() {
