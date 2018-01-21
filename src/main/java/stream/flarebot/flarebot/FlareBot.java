@@ -318,7 +318,7 @@ public class FlareBot {
         registerCommand(new StopCommand());
         registerCommand(new SkipCommand());
         registerCommand(new ShuffleCommand());
-        registerCommand(new PlaylistCommand());
+        registerCommand(new QueueCommand());
         registerCommand(new SongCommand());
         registerCommand(new InviteCommand());
         registerCommand(new AutoAssignCommand());
