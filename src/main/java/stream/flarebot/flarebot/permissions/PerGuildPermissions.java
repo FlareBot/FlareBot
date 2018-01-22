@@ -114,7 +114,7 @@ public class PerGuildPermissions {
             }
         }
         defaults.addPermission("flarebot.userinfo.other");
-        defaults.addPermission("flarebot.playlist.clear");
+        defaults.addPermission("flarebot.queue.clear");
         groups.put("Default", defaults);
     }
 }
