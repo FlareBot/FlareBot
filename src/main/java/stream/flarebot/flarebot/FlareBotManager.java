@@ -3,33 +3,28 @@ package stream.flarebot.flarebot;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
 import com.google.common.util.concurrent.Runnables;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.annotations.DoNotUse;
-import stream.flarebot.flarebot.api.ApiRequester;
-import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.objects.GuildWrapperLoader;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
-import stream.flarebot.flarebot.util.objects.expiringmap.ExpiredEvent;
-import stream.flarebot.flarebot.util.objects.expiringmap.ExpiringMap;
 
-import java.awt.Color;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class FlareBotManager {
@@ -41,13 +36,13 @@ public class FlareBotManager {
     // Command - reason
     private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
 
-    private List<Long> loadTimes = new CopyOnWriteArrayList<>();
+    private GuildWrapperLoader guildWrapperLoader = new GuildWrapperLoader();
 
-    private ExpiringMap<String, GuildWrapper> guilds;
+    private LoadingCache<String, GuildWrapper> guilds;
     private final long GUILD_EXPIRE = TimeUnit.MINUTES.toMillis(15);
     private final long INACTIVITY_CHECK = TimeUnit.MINUTES.toMillis(2);
 
-    private final String GUILD_DATA_TABLE;
+    public final String GUILD_DATA_TABLE;
 
     private PreparedStatement saveGuildStatement;
     private PreparedStatement loadPlaylistStatement;
@@ -56,10 +51,10 @@ public class FlareBotManager {
 
     public FlareBotManager() {
         instance = this;
-        GUILD_DATA_TABLE = (FlareBot.getInstance().isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
+        GUILD_DATA_TABLE = (FlareBot.instance().isTestBot() ? "flarebot.guild_data_test" : "flarebot.guild_data");
     }
 
-    public static FlareBotManager getInstance() {
+    public static FlareBotManager instance() {
         return instance;
     }
 
@@ -98,28 +93,10 @@ public class FlareBotManager {
     }
 
     private void initGuildSaving() {
-        guilds = new ExpiringMap<>(GUILD_EXPIRE, new ExpiredEvent<String, GuildWrapper>() {
-            @Override
-            public void run(String guildId, GuildWrapper guildWrapper, long expired, long last_retrieved) {
-                //ApiRequester.requestAsync(ApiRoute.UNLOAD, );
-                if ((System.currentTimeMillis() - INACTIVITY_CHECK) > guilds.getLastRetrieved(guildId))
-                    saveGuild(guildId, guildWrapper, last_retrieved);
-                else {
-                    setCancelled(true);
-                    guilds.resetTime(guildId);
-                    saveGuild(guildId, guildWrapper, last_retrieved);
-                }
-            }
-        });
-        new FlareBotTask("Guild Activity Purge") {
-            @Override
-            public void run() {
-                if (!FlareBot.EXITING.get())
-                    guilds.purge();
-                else
-                    cancel();
-            }
-        }.repeat(30_000, 30_000);
+        guilds = CacheBuilder.newBuilder()
+                .expireAfterAccess(GUILD_EXPIRE, TimeUnit.MILLISECONDS)
+                .removalListener((RemovalListener<String, GuildWrapper>) removalNotification -> saveGuild(removalNotification.getKey(), removalNotification.getValue(), -1))
+                .build(guildWrapperLoader);
     }
 
     // Do not use this method!
@@ -143,7 +120,8 @@ public class FlareBotManager {
                 savePlaylistStatement = session.prepare("SELECT * FROM flarebot.playlist " +
                         "WHERE playlist_name = ? AND guild_id = ?");
 
-            ResultSet set = session.execute(savePlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            ResultSet set =
+                    session.execute(savePlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             if (set.one() != null) {
                 if (ConfirmUtil.checkExists(ownerId, command.getClass())) {
                     MessageUtils.sendWarningMessage("Overwriting playlist!", channel);
@@ -162,7 +140,7 @@ public class FlareBotManager {
 
             session.execute(insertPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId())
                     .setString(2, ownerId).setList(3, songs).setString(4, "local").setInt(5, 0));
-            channel.sendMessage(MessageUtils.getEmbed(FlareBot.getInstance().getUserById(ownerId))
+            channel.sendMessage(MessageUtils.getEmbed(Getters.getUserById(ownerId))
                     .setDescription("Successfully saved the playlist '" + MessageUtils.escapeMarkdown(name) + "'").build()).queue();
         });
     }
@@ -173,7 +151,8 @@ public class FlareBotManager {
             if (loadPlaylistStatement == null) loadPlaylistStatement = session.prepare("SELECT songs FROM " +
                     "flarebot.playlist WHERE playlist_name = ? AND guild_id = ?");
 
-            ResultSet set = session.execute(loadPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
+            ResultSet set =
+                    session.execute(loadPlaylistStatement.bind().setString(0, name).setString(1, channel.getGuild().getId()));
             Row row = set.one();
             if (row != null) {
                 list.addAll(row.getList("songs", String.class));
@@ -184,53 +163,28 @@ public class FlareBotManager {
         return list;
     }
 
-    public GuildWrapper getGuildNoCache(String id) {
-        if (guilds == null) return null; //This is if it's ran before even being loaded
-        if (guilds.containsKey(id))
-            return guilds.get(id);
-        ResultSet set = CassandraController.execute("SELECT data FROM " + GUILD_DATA_TABLE + " WHERE guild_id = '"
-                + id + "'");
-        GuildWrapper wrapper;
-        Row row = set != null ? set.one() : null;
-        try {
-            if (row != null)
-                wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-            else
-                wrapper = new GuildWrapper(id);
-        } catch (Exception e) {
-            LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
-                    "Guild ID: " + id + "\n" +
-                    "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
-                    "Error: " + e.getMessage(), e);
-            return null;
-        }
-        return wrapper;
-    }
-
     public synchronized GuildWrapper getGuild(String id) {
         if (guilds == null) return null; //This is if it's ran before even being loaded
-        guilds.computeIfAbsent(id, guildId -> {
-            long start = System.currentTimeMillis();
-            GuildWrapper wrapper = getGuildNoCache(id);
-            long total = (System.currentTimeMillis() - start);
-            loadTimes.add(total);
-
-            if (total >= 200) {
-                FlareBot.getInstance().getImportantLogChannel().sendMessage(MessageUtils.getEmbed()
-                        .setColor(new Color(166, 0, 255)).setTitle("Long guild load time!", null)
-                        .setDescription("Guild " + id + " loaded!").addField("Time", "Millis: " + System.currentTimeMillis()
-                                + "\nTime: " + LocalDateTime.now().toString(), false)
-                        .addField("Load time", total + "ms", false)
-                        .build()).queue();
-            }
-            ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("loadTime", total)
-                    .put("guildId", id));
-            return wrapper;
-        });
-        return guilds.get(id);
+        try {
+            return guilds.get(id);
+        } catch (ExecutionException e) {
+            LOGGER.error("Failed to load guild from cache!", e);
+            return null;
+        }
     }
 
-    public ExpiringMap<String, GuildWrapper> getGuilds() {
+    public GuildWrapper getGuildNoCache(String id) {
+        if (guilds == null) return null; //This is if it's ran before even being loaded
+        guilds.invalidate(id);
+        try {
+            return guilds.get(id);
+        } catch (ExecutionException e) {
+            LOGGER.error("Failed to load guild from cache!", e);
+            return null;
+        }
+    }
+
+    public LoadingCache<String, GuildWrapper> getGuilds() {
         return guilds;
     }
 
@@ -251,7 +205,7 @@ public class FlareBotManager {
         return disabledCommands;
     }
 
-    public List<Long> getLoadTimes() {
-        return this.loadTimes;
+    public GuildWrapperLoader getGuildWrapperLoader() {
+        return guildWrapperLoader;
     }
 }

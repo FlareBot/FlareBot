@@ -13,7 +13,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -203,7 +203,7 @@ public class ModlogHandler {
                     channel.getGuild().getController().ban(channel.getGuild().getMember(target), 7, reason).queue(aVoid -> {
                         channel.sendMessage(new EmbedBuilder()
                                 .setDescription("The ban hammer has been struck on " + target.getName() + " for "
-                                        + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn)
+                                        + FormatUtils.formatJodaTime(period) + "\nReason: " + rsn)
                                 .setImage(channel.getGuild().getId()
                                         .equals(Constants.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
                                 .setColor(Color.WHITE).build()).queue();
@@ -245,7 +245,7 @@ public class ModlogHandler {
                             target.getIdLong(), reason, period, FutureAction.Action.TEMP_MUTE);
 
                     MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
-                            + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn, channel, sender);
+                            + FormatUtils.formatJodaTime(period) + "\nReason: " + rsn, channel, sender);
                     break;
                 }
                 case UNMUTE:

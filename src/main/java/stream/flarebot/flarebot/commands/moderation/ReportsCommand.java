@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
@@ -14,8 +14,10 @@ import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.permissions.Permission;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.PaginationUtil;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -33,38 +35,28 @@ public class ReportsCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length <= 2) {
-                    if (getPermissions(channel).hasPermission(member, "flarebot.reports.list")) {
+                    if (getPermissions(channel).hasPermission(member, Permission.REPORTS_LIST)) {
+                        if (guild.getReportManager().getReports().isEmpty()) {
+                            MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
+                            return;
+                        }
+
+                        ArrayList<String> header = new ArrayList<>();
+                        header.add("Id");
+                        header.add("Reported");
+                        header.add("Time");
+                        header.add("Status");
+
                         List<Report> reports = guild.getReportManager().getReports();
-                        int page = 1;
-                        final int reportsLength = 15;
+
+                        List<List<String>> body = getReportsTable(reports);
+                        int page = 0;
                         if (args.length == 2) {
-                            try {
-                                page = Integer.valueOf(args[1]);
-                            } catch (NumberFormatException e) {
-                                MessageUtils.sendErrorMessage("Invalid page number: " + args[1] + ".", channel);
-                                return;
-                            }
+                            page = GeneralUtils.getInt(args[1], 0);
                         }
-                        int pages =
-                                reports.size() < reportsLength ? 1 : (reports.size() / reportsLength) + (reports.size() % reportsLength != 0 ? 1 : 0);
-                        int start;
-                        int end;
-
-                        start = reportsLength * (page - 1);
-                        end = Math.min(start + reportsLength, reports.size());
-                        if (page > pages || page < 0) {
-                            MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-                        } else {
-                            List<Report> subReports = reports.subList(start, end);
-
-                            if (reports.isEmpty()) {
-                                MessageUtils.sendInfoMessage("No Reports for this guild!", channel, sender);
-                            } else {
-                                channel.sendMessage(getReportsTable(subReports, " Reports Page " + GeneralUtils.getPageOutOfTotal(page, reports, reportsLength))).queue();
-                            }
-                        }
+                        PaginationUtil.sendPagedMessage(channel, PaginationUtil.buildPagedTable(header, body, 10), page);
                     } else {
-                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.list`", channel);
+                        MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_LIST + "`", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
@@ -85,17 +77,17 @@ public class ReportsCommand implements Command {
                         return;
                     }
 
-                    if (getPermissions(channel).hasPermission(member, "flarebot.reports.view") || report.getReporterId().equals(sender.getId())) {
+                    if (getPermissions(channel).hasPermission(member, Permission.REPORTS_VIEW) || report.getReporterId().equals(sender.getId())) {
                         channel.sendMessage(GeneralUtils.getReportEmbed(sender, report).build()).queue();
                     } else {
-                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.view` to do this! Or you need to be the creator of the report", channel);
+                        MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_VIEW + "` to do this! Or you need to be the creator of the report", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 }
             } else if (args[0].equalsIgnoreCase("status")) {
                 if (args.length >= 3) {
-                    if (getPermissions(channel).hasPermission(member, "flarebot.report.status")) {
+                    if (getPermissions(channel).hasPermission(member, Permission.REPORTS_STATUS)) {
                         int id;
                         try {
                             id = Integer.valueOf(args[1]);
@@ -134,7 +126,7 @@ public class ReportsCommand implements Command {
                                     new MessageEmbed.Field("Responsible moderator", sender.getAsMention(), true));
                         }
                     } else {
-                        MessageUtils.sendErrorMessage("You need the permission `flarebot.reports.status` to do this.", channel);
+                        MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_STATUS + "` to do this.", channel);
                     }
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
@@ -146,18 +138,12 @@ public class ReportsCommand implements Command {
 
     }
 
-    private String getReportsTable(List<Report> reports, String footer) {
-        ArrayList<String> header = new ArrayList<>();
-        header.add("Id");
-        header.add("Reported");
-        header.add("Time");
-        header.add("Status");
-
+    private List<List<String>> getReportsTable(List<Report> reports) {
         List<List<String>> table = new ArrayList<>();
         for (Report report : reports) {
             ArrayList<String> row = new ArrayList<>();
             row.add(String.valueOf(report.getId()));
-            row.add(MessageUtils.getTag(FlareBot.getInstance().getUserById(String.valueOf(report.getReportedId()))));
+            row.add(MessageUtils.getTag(Getters.getUserById(String.valueOf(report.getReportedId()))));
 
             row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST");
 
@@ -166,7 +152,7 @@ public class ReportsCommand implements Command {
             table.add(row);
         }
 
-        return MessageUtils.makeAsciiTable(header, table, footer, "swift");
+        return table;
     }
 
     @Override

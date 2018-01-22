@@ -7,11 +7,12 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
@@ -25,7 +26,7 @@ public class StatsCommand implements Command {
         if (args.length == 0) {
             EmbedBuilder bld = MessageUtils.getEmbed(sender).setColor(Color.CYAN)
                     .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()));
-            bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " stats");
+            bld.setDescription("FlareBot v" + FlareBot.instance().getVersion() + " stats");
             for (MultiSelectionContent<String, String, Boolean> content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
             }
@@ -60,14 +61,14 @@ public class StatsCommand implements Command {
 
     public enum Content implements MultiSelectionContent<String, String, Boolean> {
 
-        SERVERS("Servers", () -> FlareBot.getInstance().getGuilds().size()),
-        TOTAL_USERS("Total Users", () -> FlareBot.getInstance().getUsers().size()),
-        VOICE_CONNECTIONS("Voice Connections", () -> FlareBot.getInstance().getConnectedVoiceChannels()),
-        ACTIVE_CHANNELS("Channels Playing Music", () -> FlareBot.getInstance().getActiveVoiceChannels()),
-        TEXT_CHANNELS("Text Channels", () -> FlareBot.getInstance().getChannels().size()),
-        LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.getInstance().getGuilds().size()),
-        COMMANDS_EXECUTED("Commands Executed", () -> FlareBot.getInstance().getEvents().getCommandCount()),
-        UPTIME("Uptime", () -> FlareBot.getInstance().getUptime()),
+        SERVERS("Servers", () -> Getters.getGuilds().size()),
+        TOTAL_USERS("Total Users", () -> Getters.getUsers().size()),
+        VOICE_CONNECTIONS("Voice Connections", Getters::getConnectedVoiceChannels),
+        ACTIVE_CHANNELS("Channels Playing Music", Getters::getActiveVoiceChannels),
+        TEXT_CHANNELS("Text Channels", () -> Getters.getChannels().size()),
+        LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.instance().getGuilds().size()),
+        COMMANDS_EXECUTED("Commands Executed", () -> FlareBot.instance().getEvents().getCommandCount()),
+        UPTIME("Uptime", () -> FlareBot.instance().getUptime()),
         MEM_USAGE("Memory Usage", () -> getMb(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())),
         MEM_FREE("Memory Free", () -> getMb(Runtime.getRuntime().freeMemory())),
         VIDEO_THREADS("Video Threads", VideoThread.VIDEO_THREADS::activeCount),
@@ -84,14 +85,17 @@ public class StatsCommand implements Command {
             this.returns = returns;
         }
 
+        @Override
         public String getName() {
             return name;
         }
 
+        @Override
         public String getReturn() {
             return String.valueOf(returns.get());
         }
 
+        @Override
         public Boolean isAlign() {
             return this.align;
         }

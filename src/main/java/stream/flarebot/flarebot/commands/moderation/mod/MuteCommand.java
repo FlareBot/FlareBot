@@ -4,14 +4,14 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class MuteCommand implements Command {
 
@@ -20,7 +20,7 @@ public class MuteCommand implements Command {
         if (args.length == 0) {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
-            User user = GeneralUtils.getUser(args[0], guild.getGuildId());
+            User user = GuildUtils.getUser(args[0], guild.getGuildId());
             if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user!!", channel);
                 return;
@@ -29,7 +29,7 @@ public class MuteCommand implements Command {
                 MessageUtils.sendErrorMessage("Error getting the \"Muted\" role! Check FlareBot has permissions to create it!", channel);
                 return;
             }
-            String reason = args.length > 1 ? FlareBot.getMessage(args, 1) : null;
+            String reason = args.length > 1 ? MessageUtils.getMessage(args, 1) : null;
             ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.MUTE, reason);
         }
     }

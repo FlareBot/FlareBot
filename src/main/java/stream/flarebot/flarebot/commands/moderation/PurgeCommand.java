@@ -15,8 +15,9 @@ import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class PurgeCommand implements Command {
             } else if (args.length == 2 && args[1].matches("\\d+")) {
                 amount = GeneralUtils.getInt(args[1], -1);
                 try {
-                    targetUser = GeneralUtils.getUser(args[0], guild.getGuildId(), true);
+                    targetUser = GuildUtils.getUser(args[0], guild.getGuildId(), true);
                 } catch (ErrorResponseException e) {
                     MessageUtils.sendErrorMessage("That target user cannot be found, try mentioning them, using the user ID or using `all` to clear the entire chat.", channel);
                     return;
@@ -92,7 +93,7 @@ public class PurgeCommand implements Command {
                     if ((targetUser != null && msg.getAuthor().getId().equals(targetUser.getId())) || targetUser == null) {
                         toDelete.add(msg);
                         // This is to fix stuff like purges being logged.
-                        //FlareBot.getInstance().getEvents().getRemovedByMeList().add(msg.getIdLong());
+                        //FlareBot.instance().getEvents().getRemovedByMeList().add(msg.getIdLong());
                         i++;
                         toRetrieve--;
                     }

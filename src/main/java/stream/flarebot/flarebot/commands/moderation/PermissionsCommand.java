@@ -1,7 +1,6 @@
 package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
@@ -12,8 +11,10 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.permissions.Permission;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
 
@@ -37,9 +39,10 @@ public class PermissionsCommand implements Command {
                     }
                     if (args[2].equalsIgnoreCase("add")) {
                         if (args.length == 4) {
-                            if (!GeneralUtils.validPerm(args[3])) {
+                            if (!Permission.isValidPermission(args[3])) {
                                 MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
-                                        "**Example:** `flarebot.play`", channel);
+                                        "**Example:** `flarebot.play`\n" +
+                                        "See `_permissions list` for a full list!", channel);
                                 return;
                             }
                             if (group.addPermission(args[3])) {
@@ -74,7 +77,7 @@ public class PermissionsCommand implements Command {
                         return;
                     } else if (args[2].equalsIgnoreCase("link")) {
                         if (args.length == 4) {
-                            Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
+                            Role role = GuildUtils.getRole(args[3], guild.getGuildId());
                             if (role != null) {
                                 group.linkRole(role.getId());
                                 MessageUtils.sendSuccessMessage("Successfully linked the group `" + groupString + "` to the role `" + role.getName() + "`", channel, sender);
@@ -86,7 +89,8 @@ public class PermissionsCommand implements Command {
                         }
                     } else if (args[2].equalsIgnoreCase("unlink")) {
                         Role role;
-                        if (group.getRoleId() == null || (role = guild.getGuild().getRoleById(group.getRoleId())) == null) {
+                        if (group.getRoleId() == null || (role =
+                                guild.getGuild().getRoleById(group.getRoleId())) == null) {
                             MessageUtils.sendErrorMessage("Cannot unlink if a role isn't linked!!", channel);
                             return;
                         } else {
@@ -124,7 +128,7 @@ public class PermissionsCommand implements Command {
                                 roleMembers = channel.getMembers();
                                 roleName = "here";
                             } else {
-                                Role role = GeneralUtils.getRole(args[3], guild.getGuildId());
+                                Role role = GuildUtils.getRole(args[3], guild.getGuildId());
                                 if (role != null) {
                                     roleMembers = guild.getGuild().getMembersWithRoles(role);
                                 } else {
@@ -139,11 +143,15 @@ public class PermissionsCommand implements Command {
                             return;
 
                         }
+                    } else if (args[2].equalsIgnoreCase("clear")) {
+                        group.getPermissions().clear();
+                        MessageUtils.sendSuccessMessage("Cleared all permissions from the group: " + group.getName(), channel);
+                        return;
                     }
                 }
             } else if (args[0].equalsIgnoreCase("user")) {
                 String userString = args[1];
-                User user = GeneralUtils.getUser(userString, guild.getGuildId());
+                User user = GuildUtils.getUser(userString, guild.getGuildId());
                 if (user == null) {
                     MessageUtils.sendErrorMessage("That user doesn't exist!!", channel);
                     return;
@@ -203,9 +211,10 @@ public class PermissionsCommand implements Command {
                         if (args.length >= 4) {
                             if (args[3].equalsIgnoreCase("add")) {
                                 if (args.length == 5) {
-                                    if (!GeneralUtils.validPerm(args[4])) {
+                                    if (!Permission.isValidPermission(args[4])) {
                                         MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
-                                                "**Example:** `flarebot.play`", channel);
+                                                "**Example:** `flarebot.play`\n" +
+                                                "See `_permissions list` for a full list!", channel);
                                         return;
                                     }
                                     if (permUser.addPermission(args[4])) {
@@ -244,12 +253,32 @@ public class PermissionsCommand implements Command {
                                 return;
                             }
                         }
+                    } else if (args[2].equalsIgnoreCase("check")) {
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.setTitle("Permissions for " + user.getName());
+                        StringBuilder stringBuilder = new StringBuilder();
+                        if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.ALL_PERMISSIONS)) {
+                            stringBuilder.append("**All Permissions!**");
+                        } else {
+                            for (Permission perm : Permission.VALUES) {
+                                if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), perm)) {
+                                    stringBuilder.append("`").append(perm).append("`\n");
+                                }
+                            }
+                        }
+                        builder.setDescription(stringBuilder.toString());
+                        channel.sendMessage(builder.build()).queue();
+                        return;
+                    } else if (args[2].equalsIgnoreCase("clear")) {
+                        permUser.getPermissions().clear();
+                        MessageUtils.sendSuccessMessage("Cleared all permissions from: " + MessageUtils.getTag(user), channel);
+                        return;
                     }
                 }
             }
         } else if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("groups")) {
-                if (this.getPermissions(channel).getListGroups().isEmpty()) {
+                if (this.getPermissions(channel).getGroups().isEmpty()) {
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .setColor(Color.RED)
                             .setDescription("There are no groups for this guild!")
@@ -257,7 +286,8 @@ public class PermissionsCommand implements Command {
                     return;
                 } else {
                     int page = args.length == 2 ? Integer.valueOf(args[1]) : 1;
-                    Set<String> groups = this.getPermissions(channel).getGroups().keySet();
+                    Set<String> groups =
+                            this.getPermissions(channel).getGroups().stream().map(Group::getName).collect(Collectors.toSet());
                     List<String> groupList = GeneralUtils.orderList(groups);
 
                     String list = getStringList(groupList, page);
@@ -272,13 +302,17 @@ public class PermissionsCommand implements Command {
                     channel.sendMessage(eb.build()).queue();
                     return;
                 }
+            } else if (args[0].equalsIgnoreCase("list")) {
+                // TODO: Implement page system and embed here
+                StringBuilder m = new StringBuilder("**Permissions List**\n");
+                for (Permission p : Permission.values()) {
+                    m.append("`").append(p).append("` ").append(p.isDefaultPerm()).append("\n");
+                }
+                channel.sendMessage(new EmbedBuilder().setDescription(m.toString()).build()).queue();
+                return;
             } else if (args[0].equalsIgnoreCase("reset")) {
                 guild.setPermissions(new PerGuildPermissions());
                 MessageUtils.sendSuccessMessage("Successfully reset perms", channel, sender);
-                return;
-            } else if (args[0].equalsIgnoreCase("restoredefault")) {
-                guild.getPermissions().createDefaultGroup();
-                MessageUtils.sendSuccessMessage("Successfully restored the Default group", channel, sender);
                 return;
             }
         }
@@ -332,11 +366,14 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions group <group> link <role>` - Links the group to a discord role.\n" +
                 "`{%}permissions group <group> unlink` - Unlinks the group from a role.\n" +
                 "`{%}permissions group <group> list [page]` - lists the permissions this group has.\n" +
-                "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n\n" +
+                "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n" +
+                "`{%}permissions group <group> clear` - Removes all permissions from this group!\n\n" +
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +
-                "`{%}permissions user <user> permission list [page]` - list the permmissions this user has (Excluding those obtained from groups).\n\n" +
+                "`{%}permissions user <user> permission list [page]` - list the permmissions this user has (Excluding those obtained from groups).\n" +
+                "`{%}permissions user <user> check` - Returns all permissions a user has access to\n" +
+                "`{%}permissions user <user> clear` - Removes all permissions from this user!\n\n" +
                 "`{%}permissions groups` - Lists all the groups in a server.\n" +
                 "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions.";
     }
@@ -348,12 +385,7 @@ public class PermissionsCommand implements Command {
     }
 
     @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
-
-    @Override
-    public EnumSet<Permission> getDiscordPermission() {
-        return EnumSet.of(Permission.MANAGE_PERMISSIONS);
+    public EnumSet<net.dv8tion.jda.core.Permission> getDiscordPermission() {
+        return EnumSet.of(net.dv8tion.jda.core.Permission.MANAGE_PERMISSIONS);
     }
 }

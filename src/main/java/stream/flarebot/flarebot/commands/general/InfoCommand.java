@@ -7,11 +7,12 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.GitHandler;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
@@ -26,7 +27,7 @@ public class InfoCommand implements Command {
             EmbedBuilder bld = MessageUtils.getEmbed()
                     .setThumbnail(MessageUtils.getAvatar(channel.getJDA().getSelfUser()))
                     .setFooter("Made by Walshy#9060 and BinaryOverload#2382", channel.getJDA().getSelfUser().getEffectiveAvatarUrl());
-            bld.setDescription("FlareBot v" + FlareBot.getInstance().getVersion() + " info")
+            bld.setDescription("FlareBot v" + FlareBot.instance().getVersion() + " info")
                     .setColor(Color.CYAN);
             for (Content content : Content.values) {
                 bld.addField(content.getName(), content.getReturn(), content.isAlign());
@@ -58,12 +59,12 @@ public class InfoCommand implements Command {
 
     public enum Content implements MultiSelectionContent<String, String, Boolean> {
 
-        SERVERS("Servers", () -> String.valueOf(FlareBot.getInstance().getGuilds().size())),
-        VERSION("Version", FlareBot.getInstance().getVersion()),
+        SERVERS("Servers", () -> String.valueOf(Getters.getGuilds().size())),
+        VERSION("Version", FlareBot.getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
         GIT("Git Revision", (GitHandler.getLatestCommitId() != null ? GitHandler.getLatestCommitId() : "Unknown")),
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)"),
-        INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInstance().getInvite())),
+        INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInvite())),
         EMPTY("\u200B", "\u200B", false),
         SUPPORT_SERVER("Support Server", "[`Discord`](https://flarebot.stream/support-server)"),
         WEBSITE("Website", "[`FlareBot`](http://flarebot.stream/)"),

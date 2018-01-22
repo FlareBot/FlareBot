@@ -5,10 +5,13 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 public class GuildWrapper {
 
     private String guildId;
+    private char prefix = Constants.COMMAND_CHAR;
     private Welcome welcome = new Welcome();
     private PerGuildPermissions permissions = new PerGuildPermissions();
     private LinkedList<Poll> polls = new LinkedList<>();
@@ -37,6 +41,7 @@ public class GuildWrapper {
     private ReportManager reportManager = new ReportManager();
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
+    private String musicAnnounceChannelId = null;
     private Moderation moderation;
 
     // oooo special!
@@ -52,7 +57,7 @@ public class GuildWrapper {
     }
 
     public Guild getGuild() {
-        return FlareBot.getInstance().getGuildById(guildId);
+        return Getters.getGuildById(guildId);
     }
 
     public String getGuildId() {
@@ -136,7 +141,7 @@ public class GuildWrapper {
     public Role getMutedRole() {
         if (mutedRoleID == null) {
             Role mutedRole =
-                    GeneralUtils.getRole("Muted", getGuild()).isEmpty() ? null : GeneralUtils.getRole("Muted", getGuild()).get(0);
+                    GuildUtils.getRole("Muted", getGuild()).isEmpty() ? null : GuildUtils.getRole("Muted", getGuild()).get(0);
             if (mutedRole == null) {
                 if (!getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES, Permission.MANAGE_PERMISSIONS))
                     return null;
@@ -229,5 +234,21 @@ public class GuildWrapper {
 
     public Moderation getModConfig() {
         return getModeration();
+    }
+
+    public char getPrefix() {
+        return prefix == Character.MIN_VALUE ? (prefix = Constants.COMMAND_CHAR) : prefix;
+    }
+
+    public void setPrefix(char prefix) {
+        this.prefix = prefix;
+    }
+
+    public String getMusicAnnounceChannelId() {
+        return musicAnnounceChannelId;
+    }
+
+    public void setMusicAnnounceChannelId(String musicAnnounceChannelId) {
+        this.musicAnnounceChannelId = musicAnnounceChannelId;
     }
 }

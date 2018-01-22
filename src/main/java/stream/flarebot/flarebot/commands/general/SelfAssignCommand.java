@@ -11,9 +11,11 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.permissions.Permission;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageType;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.util.Iterator;
@@ -26,17 +28,17 @@ public class SelfAssignCommand implements Command {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("add")) {
-                if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
+                if (guild.getPermissions().hasPermission(member, Permission.SELFASSIGN_ADMIN)) {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 } else {
-                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `" + Permission.SELFASSIGN_ADMIN + "` in order to do this!",
                             channel, sender, 5000);
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
-                if (guild.getPermissions().hasPermission(member, "flarebot.selfassign.admin")) {
+                if (guild.getPermissions().hasPermission(member, Permission.SELFASSIGN_ADMIN)) {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 } else {
-                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `" + Permission.SELFASSIGN_ADMIN + "` in order to do this!",
                             channel, sender, 5000);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
@@ -60,7 +62,7 @@ public class SelfAssignCommand implements Command {
                 base.append("```");
                 channel.sendMessage(base.toString()).queue();
             } else {
-                Role role = GeneralUtils.getRole(args[0], guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(args[0], guild.getGuildId(), channel);
                 if (role == null) return;
 
                 if (guild.getSelfAssignRoles().contains(role.getId())) {
@@ -74,13 +76,13 @@ public class SelfAssignCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("add")) {
                 if (!guild.getPermissions()
-                        .hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                        .hasPermission(member, Permission.SELFASSIGN_ADMIN)) {
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `" + Permission.SELFASSIGN_ADMIN + "` in order to do this!",
                             channel, sender, 5000);
                     return;
                 }
 
-                Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
                 if (role != null) {
                     guild.getSelfAssignRoles().add(role.getId());
                     channel.sendMessage(new EmbedBuilder()
@@ -89,12 +91,12 @@ public class SelfAssignCommand implements Command {
                 }
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (!guild.getPermissions()
-                        .hasPermission(member, "flarebot.selfassign.admin")) {
-                    MessageUtils.sendMessage(MessageType.ERROR, "You need `flarebot.selfassign.admin` in order to do this!",
+                        .hasPermission(member, Permission.SELFASSIGN_ADMIN)) {
+                    MessageUtils.sendMessage(MessageType.ERROR, "You need `" + Permission.SELFASSIGN_ADMIN + "` in order to do this!",
                             channel, sender, 5000);
                     return;
                 }
-                Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
                 if (role != null) {
                     guild.getSelfAssignRoles().remove(role.getId());
                     channel.sendMessage(new EmbedBuilder()
@@ -102,7 +104,7 @@ public class SelfAssignCommand implements Command {
                             .queue();
                 }
             } else {
-                Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
                 if (role == null) return;
                 // TODO: Move these to Long
                 if (guild.getSelfAssignRoles().contains(role.getId())) {

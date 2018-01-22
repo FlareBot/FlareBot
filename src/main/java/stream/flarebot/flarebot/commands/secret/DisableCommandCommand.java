@@ -10,8 +10,9 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class DisableCommandCommand implements Command {
             }
             if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
                 StringBuilder sb = new StringBuilder();
-                Map<String, String> disabledCmds = FlareBotManager.getInstance().getDisabledCommands();
+                Map<String, String> disabledCmds = FlareBotManager.instance().getDisabledCommands();
                 for (String cmd : disabledCmds.keySet()) {
                     sb.append("`").append(cmd).append("` - ").append(disabledCmds.get(cmd));
                 }
@@ -35,7 +36,7 @@ public class DisableCommandCommand implements Command {
                         sb.toString(), false).build()).queue();
                 return;
             }
-            String msg = FlareBot.getMessage(args, 0);
+            String msg = MessageUtils.getMessage(args, 0);
             String reason = "This command is currently disabled! Please check our support server for more info! " +
                     "https://flarebot.stream/support-server";
             if (msg.contains("-"))
@@ -43,16 +44,16 @@ public class DisableCommandCommand implements Command {
             String[] cmds = msg.substring(0, msg.contains("-") ? msg.indexOf("-") : msg.length()).trim().split("\\|");
             StringBuilder sb = new StringBuilder();
             for (String command : cmds) {
-                Command cmd = FlareBot.getInstance().getCommand(command.trim(), sender);
+                Command cmd = FlareBot.getCommandManager().getCommand(command.trim(), sender);
                 if (cmd == null || cmd.getType() == CommandType.SECRET) continue;
 
                 // If it's already disabled and there's only 1 (with a reason supplied) just update the reason.
-                if (cmds.length == 1 && msg.contains("-") && FlareBotManager.getInstance().isCommandDisabled(cmd.getCommand())) {
-                    FlareBotManager.getInstance().getDisabledCommands().put(cmd.getCommand(), reason);
+                if (cmds.length == 1 && msg.contains("-") && FlareBotManager.instance().isCommandDisabled(cmd.getCommand())) {
+                    FlareBotManager.instance().getDisabledCommands().put(cmd.getCommand(), reason);
                     sb.append("`").append(cmd.getCommand()).append("` - ").append(getEmote(false))
                             .append(" New reason: ").append(reason);
                 } else
-                    sb.append("`").append(cmd.getCommand()).append("` - ").append(getEmote(FlareBotManager.getInstance()
+                    sb.append("`").append(cmd.getCommand()).append("` - ").append(getEmote(FlareBotManager.instance()
                             .toggleCommand(cmd.getCommand(), reason))).append("\n");
             }
             if (sb.toString().isEmpty()) return;
@@ -88,8 +89,8 @@ public class DisableCommandCommand implements Command {
 
     private String getEmote(boolean b) {
         // tick - enabled (true)
-        return (b ? GeneralUtils.getEmoteById(355776056092917761L).getAsMention()
+        return (b ? GuildUtils.getEmoteById(355776056092917761L).getAsMention()
                 // cross - disabled (false)
-                : GeneralUtils.getEmoteById(355776081384570881L).getAsMention());
+                : GuildUtils.getEmoteById(355776081384570881L).getAsMention());
     }
 }

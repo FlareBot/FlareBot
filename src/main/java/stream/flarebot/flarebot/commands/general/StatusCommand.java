@@ -7,9 +7,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.util.Arrays;
@@ -18,9 +20,8 @@ public class StatusCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        FlareBot fb = FlareBot.getInstance();
-        int quaterShards = fb.getShards().size() / 4;
-        double ping = fb.getShards().stream().mapToLong(JDA::getPing).average().orElse(-1);
+        int quaterShards = Getters.getShards().size() / 4;
+        double ping = Getters.getShards().stream().mapToLong(JDA::getPing).average().orElse(-1);
 
         int deadShard = 0;
         int reconnecting = 0;
@@ -28,7 +29,7 @@ public class StatusCommand implements Command {
         int noVoiceConnections = 0;
         int highResponseTime = 0;
 
-        for (int shardId = 0; shardId < fb.getShards().size(); shardId++) {
+        for (int shardId = 0; shardId < Getters.getShards().size(); shardId++) {
             JDA jda = ShardUtils.getShardById(shardId);
             if (jda == null) {
                 connecting++;
@@ -55,7 +56,7 @@ public class StatusCommand implements Command {
                     .append(highResponseTime).append(" shards go back to normal!").append("\n");
         if (deadShard > 5)
             sb.append(" SEVERE: We have quite a few dead shards! Please report this on the [Support Server](")
-                    .append(FlareBot.INVITE_URL).append(")").append("\n");
+                    .append(Constants.INVITE_URL).append(")").append("\n");
 
         String status = deadShard == 0 && highResponseTime == 0 && reconnecting < (Math.max(quaterShards, 5))
                 ? "Good! :)" : "Issues :/";
@@ -74,7 +75,7 @@ public class StatusCommand implements Command {
                         "* Shards Connecting: %s shards\n" +
                         "* High Last Event Time: %s shards\n" +
                         "Guilds: %d | Users: %d | Connected VCs: %d | Active VCs: %d",
-                fb.getVersion(),
+                FlareBot.instance().getVersion(),
                 JDAInfo.VERSION,
                 channel.getJDA().getShardInfo() == null ? 0 : channel.getJDA().getShardInfo().getShardId(),
                 ping,
@@ -84,7 +85,7 @@ public class StatusCommand implements Command {
                 reconnecting,
                 connecting,
                 highResponseTime,
-                fb.getGuilds().size(), fb.getUsers().size(), fb.getConnectedVoiceChannels(), fb.getActiveVoiceChannels()
+                Getters.getGuilds().size(), Getters.getUsers().size(), Getters.getConnectedVoiceChannels(), Getters.getActiveVoiceChannels()
         ));
 
         channel.sendMessage("**FlareBot's Status**\n```prolog\n" + sb.toString() + "\n```").queue();

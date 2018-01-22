@@ -5,13 +5,13 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.joda.time.Period;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class RemindCommand implements Command {
@@ -23,9 +23,9 @@ public class RemindCommand implements Command {
         } else {
             Period period;
             if ((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
-            String reminder = FlareBot.getMessage(args, 1);
-            channel.sendMessage("\uD83D\uDC4D I will remind you in " + GeneralUtils.formatJodaTime(period).toLowerCase() + " (at "
-                    + GeneralUtils.formatPrecisely(period) + ") to `" + reminder + "`").queue();
+            String reminder = MessageUtils.getMessage(args, 1);
+            channel.sendMessage("\uD83D\uDC4D I will remind you in " + FormatUtils.formatJodaTime(period).toLowerCase() + " (at "
+                    + FormatUtils.formatPrecisely(period) + ") to `" + reminder + "`").queue();
 
             Scheduler.queueFutureAction(guild.getGuildIdLong(), channel.getIdLong(), sender.getIdLong(), reminder.substring(0,
                     Math.min(reminder.length(), 1000)), period, FutureAction.Action.REMINDER);

@@ -4,13 +4,14 @@ import com.datastax.driver.core.PreparedStatement;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class FutureAction {
 
@@ -132,31 +133,31 @@ public class FutureAction {
     }
 
     public void execute() {
-        GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
+        GuildWrapper gw = FlareBotManager.instance().getGuild(String.valueOf(guildId));
         switch (action) {
             case TEMP_MUTE:
                 ModlogHandler.getInstance().handleAction(gw,
                         ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNMUTE.getEvent()),
                         null,
-                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
+                        GuildUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
                         ModAction.UNMUTE,
-                        "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
+                        "Temporary mute expired, was muted for " + FormatUtils.formatJodaTime(delay)
                 );
                 break;
             case TEMP_BAN:
                 ModlogHandler.getInstance().handleAction(gw,
                         ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNBAN.getEvent()),
                         null,
-                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
+                        GuildUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
                         ModAction.UNBAN,
-                        "Temporary ban expired, was banned for " + GeneralUtils.formatJodaTime(delay)
+                        "Temporary ban expired, was banned for " + FormatUtils.formatJodaTime(delay)
                 );
                 break;
             case REMINDER:
-                if (FlareBot.getInstance().getChannelById(channelId) != null)
-                    FlareBot.getInstance().getChannelById(channelId).sendMessage(FlareBot.getInstance()
+                if (Getters.getChannelById(channelId) != null)
+                    Getters.getChannelById(channelId).sendMessage(Getters
                             .getUserById(responsible).getAsMention() + " You asked me to remind you " +
-                            GeneralUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
+                            FormatUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
                             .queue();
                 break;
             default:

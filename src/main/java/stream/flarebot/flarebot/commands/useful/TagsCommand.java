@@ -9,8 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.permissions.Permission;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 
@@ -39,8 +41,8 @@ public class TagsCommand implements Command {
                         + "Usage: `{%}tags add " + args[1] + " <tag_message>`" +
                         "\n\nView the usage for variables you can use!", channel);
             } else if (args[0].equalsIgnoreCase("remove")) {
-                if (!getPermissions(channel).hasPermission(member, "flarebot.tags.admin")) {
-                    MessageUtils.sendErrorMessage("You need the permission `flarebot.tags.admin` to do this!", channel, sender);
+                if (!getPermissions(channel).hasPermission(member, Permission.TAGS_ADMIN)) {
+                    MessageUtils.sendErrorMessage("You need the permission `" + Permission.TAGS_ADMIN + "` to do this!", channel, sender);
                     return;
                 }
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
@@ -65,7 +67,7 @@ public class TagsCommand implements Command {
                     MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
                 }
             } else {
-                User target = GeneralUtils.getUser(args[1], guild.getGuildId());
+                User target = GuildUtils.getUser(args[1], guild.getGuildId());
                 if (target != null) {
                     if (guild.getTags().containsKey(args[0].toLowerCase()))
                         sendTag(guild, args[0].toLowerCase(), target, channel);
@@ -76,8 +78,8 @@ public class TagsCommand implements Command {
             }
         } else {
             if (args[0].equalsIgnoreCase("add")) {
-                if (!getPermissions(channel).hasPermission(member, "flarebot.tags.admin")) {
-                    MessageUtils.sendErrorMessage("You need the permission `flarebot.tags.admin` to do this!", channel, sender);
+                if (!getPermissions(channel).hasPermission(member, Permission.TAGS_ADMIN)) {
+                    MessageUtils.sendErrorMessage("You need the permission `" + Permission.TAGS_ADMIN + "` to do this!", channel, sender);
                     return;
                 }
                 if (guild.getTags().containsKey(args[1].toLowerCase())) {
@@ -89,8 +91,8 @@ public class TagsCommand implements Command {
                 MessageUtils.sendSuccessMessage("You successfully added the tag `" + args[1] + "`!", channel,
                         sender);
             } else if (args[0].equalsIgnoreCase("edit")) {
-                if (!getPermissions(channel).hasPermission(member, "flarebot.tags.admin")) {
-                    MessageUtils.sendErrorMessage("You need the permission `flarebot.tags.admin` to do this!", channel, sender);
+                if (!getPermissions(channel).hasPermission(member, Permission.TAGS_ADMIN)) {
+                    MessageUtils.sendErrorMessage("You need the permission `" + Permission.TAGS_ADMIN + "` to do this!", channel, sender);
                     return;
                 }
                 if (!guild.getTags().containsKey(args[1].toLowerCase())) {

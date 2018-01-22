@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -28,14 +29,14 @@ public class QueueCommand implements Command {
         if (message.getContentRaw().substring(1).startsWith("playlist")) {
             MessageUtils.sendWarningMessage("This command is deprecated! Please use `{%}queue` instead!", channel);
         }
-        PlayerManager manager = FlareBot.getInstance().getMusicManager();
+        PlayerManager manager = FlareBot.instance().getMusicManager();
         if (args.length < 1 || args.length > 2) {
             send(member.getUser().openPrivateChannel().complete(), channel, member);
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
-                    if (!this.getPermissions(channel).hasPermission(member, "flarebot.queue.clear")) {
-                        MessageUtils.sendErrorMessage("You need the `flarebot.queue.clear` permission to do this!", channel, sender);
+                    if (!this.getPermissions(channel).hasPermission(member, Permission.QUEUE_CLEAR)) {
+                        MessageUtils.sendErrorMessage("You need the `" + Permission.QUEUE_CLEAR + "` permission to do this!", channel, sender);
                         return;
                     }
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
@@ -80,7 +81,7 @@ public class QueueCommand implements Command {
     }
 
     private void send(MessageChannel mchannel, TextChannel channel, Member sender) {
-        PlayerManager manager = FlareBot.getInstance().getMusicManager();
+        PlayerManager manager = FlareBot.instance().getMusicManager();
         Track currentTrack = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
         if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
                 || currentTrack != null) {
@@ -137,7 +138,7 @@ public class QueueCommand implements Command {
                 " You can use `queue remove #` to remove a song under #.\n" +
                 "To make it not send a DM do `queue here`";
     }
-    
+
     @Override
     public String getUsage() {
         return "`{%}queue` - Lists the current items in the queue.\n" +

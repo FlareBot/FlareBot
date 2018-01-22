@@ -29,12 +29,16 @@ public class User {
         return permissions;
     }
 
-    public boolean hasPermission(PermissionNode node) {
+    public Permission.Reply hasPermission(Permission permission) {
         for (String s : permissions) {
-            if (new PermissionNode(s).test(node))
-                return true;
+            boolean hasPermission =
+                    new PermissionNode(s.substring(s.startsWith("-") ? 1 : 0)).test(permission.getPermission());
+            if (s.startsWith("-") && hasPermission)
+                return Permission.Reply.DENY;
+            if (hasPermission)
+                return Permission.Reply.ALLOW;
         }
-        return false;
+        return Permission.Reply.NEUTRAL;
     }
 
     public boolean addPermission(String permission) {

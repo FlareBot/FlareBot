@@ -7,7 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -180,11 +180,6 @@ public class WelcomeCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MODERATION;
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
     }
 
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {

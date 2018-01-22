@@ -7,11 +7,12 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -26,7 +27,7 @@ public class ServerInfoCommand implements Command {
         if (args.length == 0) {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
-            Guild targetGuild = FlareBot.getInstance().getGuildById(GeneralUtils.getLong(args[0], -1));
+            Guild targetGuild = Getters.getGuildById(GeneralUtils.getLong(args[0], -1));
             if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {
@@ -53,7 +54,7 @@ public class ServerInfoCommand implements Command {
                         guild.getAfkChannel().getName() + "\n" +
                         "\n" +
                         "Timeout: " +
-                        FlareBot.getInstance().formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
+                        FormatUtils.formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
         eb.addField("Channels", "**Text**\n" +
                 "Total: " +
                 guild.getTextChannels().size() + "\n" +
