@@ -306,9 +306,9 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
 
-        // Any migration
+        /* Any migration
         MigrationHandler migrationHandler = new MigrationHandler();
-        migrationHandler.migrateSinglePermissionForAllGuilds("flarebot.playlist", "flarebot.queue");
+        migrationHandler.migrateSinglePermissionForAllGuilds("flarebot.playlist", "flarebot.queue");*/
 
         registerCommand(new HelpCommand());
         registerCommand(new SearchCommand());
