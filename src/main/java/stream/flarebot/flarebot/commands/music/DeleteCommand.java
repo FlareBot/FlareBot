@@ -63,7 +63,7 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getPermission() {
-        return "flarebot.playlist.delete";
+        return "flarebot.queue.delete";
     }
 
     @Override
