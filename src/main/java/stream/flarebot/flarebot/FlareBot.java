@@ -355,7 +355,6 @@ public class FlareBot {
 
         // Any migration
         MigrationHandler migrationHandler = new MigrationHandler();
-        //migrationHandler.migrateSinglePermissionForAllGuilds("flarebot.playlist", "flarebot.queue");
 
         LOGGER.info("Loaded " + commandManager.count() + " commands!");
 
