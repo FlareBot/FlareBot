@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.permissions;
 
 import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.currency.ConvertCommand;
 import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
@@ -10,9 +11,22 @@ import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+
+import java.util.EnumSet;
+import java.util.Map;
 
 public enum Permission {
 
+    // All Permissions
+    ALL_PERMISSIONS("*"),
+    // Categories
+    CAGEGORY_GENERAL("category.general", false, CommandType.GENERAL),
+    CAGEGORY_MODERATION("category.moderation", false, CommandType.MODERATION),
+    CAGEGORY_MUSIC("category.music", false, CommandType.MUSIC),
+    CAGEGORY_USEFUL("category.useful", false, CommandType.USEFUL),
+    CAGEGORY_CURRENCY("category.currency", false, CommandType.CURRENCY),
+    CAGEGORY_RANDOM("category.random", false, CommandType.RANDOM),
     // Currency
     CONVERT_COMMAND("convert", true, ConvertCommand.class),
     CURRENCY_COMMAND("currency", true, CurrencyCommand.class),
@@ -91,9 +105,24 @@ public enum Permission {
     TAGS_COMMAND("tags", true, TagsCommand.class),
     TAGS_ADMIN("tags.admin", false);
 
+    public static final Permission[] VALUES = Permission.values();
+
     private String permission;
     private boolean defaultPerm;
     private Class<? extends Command> command;
+    private CommandType commandType;
+
+    private static final Map<Class<? extends Command>, Permission> COMMAND_PERMISSION_MAP =
+            GeneralUtils.getReverseMapping(
+                    Permission.class,
+                    Permission::getCommand);
+    private static final Map<CommandType, Permission> COMMAND_TYPE_MAP =
+            GeneralUtils.getReverseMapping(
+                    Permission.class,
+                    Permission::getCommandType);
+    private static final Map<String, Permission> PERMISSION_MAP = GeneralUtils.getReverseMapping(
+            Permission.class,
+            p -> p.getPermission().toLowerCase());
 
     Permission(String permission, boolean defaultPerm) {
         this.permission = "flarebot." + permission;
@@ -104,6 +133,17 @@ public enum Permission {
         this.permission = "flarebot." + permission;
         this.defaultPerm = defaultPerm;
         this.command = command;
+    }
+
+    Permission(String permission, boolean defaultPerm, CommandType commandType) {
+        this.permission = "flarebot." + permission;
+        this.defaultPerm = defaultPerm;
+        this.commandType = commandType;
+    }
+
+    Permission(String permission) {
+        this.permission = permission;
+        this.defaultPerm = false;
     }
 
     public String getPermission() {
@@ -118,21 +158,31 @@ public enum Permission {
         return command;
     }
 
+    public CommandType getCommandType() {
+        return commandType;
+    }
+
     public static Permission getPermission(Class<? extends Command> command) {
-        for (Permission permission : Permission.values()) {
-            if (permission.getCommand() != null && permission.getCommand().equals(command)) return permission;
-        }
-        return null;
+        return COMMAND_PERMISSION_MAP.get(command);
+    }
+
+    public static Permission getPermission(CommandType commandType) {
+        return COMMAND_TYPE_MAP.get(commandType);
     }
 
     public static Permission getPermission(String permission) {
-        for (Permission perm : Permission.values()) {
-            if (perm.getPermission().equalsIgnoreCase(permission)) return perm;
-        }
-        return null;
+        return PERMISSION_MAP.get(permission.toLowerCase());
     }
 
     public static boolean isValidPermission(String permission) {
+        if (permission.contains("*") && permission.contains(".")) {
+            PermissionNode node = new PermissionNode(permission);
+            for (Permission perm : Permission.VALUES) {
+                if (perm != Permission.ALL_PERMISSIONS) {
+                    if (node.test(perm.getPermission())) return true;
+                }
+            }
+        }
         return getPermission(permission.substring(permission.startsWith("-") ? 1 : 0)) != null;
     }
 
@@ -145,6 +195,24 @@ public enum Permission {
         ALLOW,
         DENY,
         NEUTRAL
+    }
+
+    public static class Presets {
+
+        public static EnumSet<Permission> MODERATION = EnumSet.of(
+                Permission.PURGE_COMMAND,
+                Permission.LOCKCHAT_COMMAND,
+                Permission.PIN_COMMAND,
+                Permission.BAN_COMMAND,
+                Permission.KICK_COMMAND,
+                Permission.MUTE_COMMAND,
+                Permission.TEMPMUTE_COMMAND,
+                Permission.TEMPBAN_COMMAND,
+                Permission.UNBAN_COMMAND,
+                Permission.UNMUTE_COMMAND,
+                Permission.WARN_COMMAND
+        );
+
     }
 
 }

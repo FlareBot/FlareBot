@@ -14,13 +14,13 @@ import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
+import io.sentry.SentryClient;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
@@ -39,22 +39,19 @@ import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandManager;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
 
@@ -94,6 +91,8 @@ public class FlareBot {
     public static final Gson GSON = new GsonBuilder().create();
     public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
+    public static final AtomicBoolean UPDATING = new AtomicBoolean(false);
+    public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
     private static final Map<String, Logger> LOGGERS;
     private static FlareBot instance;
     private static String youtubeApi;
@@ -166,7 +165,6 @@ public class FlareBot {
             System.exit(1);
         }
 
-        Sentry.init(config.getString("sentry.dsn").get());
         new CassandraController(config);
         new RedisController(config);
 
@@ -186,6 +184,12 @@ public class FlareBot {
                 }
             }
         }
+
+        SentryClient sentryClient =
+                Sentry.init(config.getString("sentry.dsn").get() + "?stacktrace.app.packages=stream.flarebot.flarebot");
+        sentryClient.setEnvironment(testBot ? "TestBot" : "Production");
+        sentryClient.setServerName(testBot ? "Test Server" : "Production Server");
+        sentryClient.setRelease(GitHandler.getLatestCommitId());
 
         if (!config.getString("misc.apiKey").isPresent() || config.getString("misc.apiKey").get().isEmpty())
             apiEnabled = false;
@@ -420,7 +424,7 @@ public class FlareBot {
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
                 RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON,
                         new JSONObject().put("server_count", client.getGuilds().size()).toString());
-                WebUtils.postAsync(request.post(body));
+                WebUtils.asyncRequest(request.post(body));
                 return;
             }
             try {
@@ -433,7 +437,7 @@ public class FlareBot {
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
-                WebUtils.postAsync(request.post(body));
+                WebUtils.asyncRequest(request.post(body));
 
                 // Gonna spread these out just a bit so we don't burst (insert shard number here) requests all at once
                 Thread.sleep(20_000);
@@ -444,7 +448,7 @@ public class FlareBot {
         LOGGER.debug("Sent " + shardManager.getShardsTotal() + " requests to " + url);
     }
 
-    private void setupUpdate() {
+    public void scheduleUpdate() {
         new FlareBotTask("Auto-Update") {
             @Override
             public void run() {
@@ -515,7 +519,7 @@ public class FlareBot {
                     p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
-                        UpdateCommand.UPDATING.set(false);
+                        UPDATING.set(false);
                         return;
                     }
                 } else {
@@ -532,7 +536,7 @@ public class FlareBot {
                     p.waitFor();
                     if (p.exitValue() != 0) {
                         LOGGER.error("Could not update!!!!\n" + out);
-                        UpdateCommand.UPDATING.set(false);
+                        UPDATING.set(false);
                         return;
                     }
                 }
@@ -548,7 +552,7 @@ public class FlareBot {
                 }
                 p.waitFor();
                 if (p.exitValue() != 0) {
-                    UpdateCommand.UPDATING.set(false);
+                    UPDATING.set(false);
                     LOGGER.error("Could not update! Log:** {} **", MessageUtils.paste(out));
                     return;
                 }
@@ -561,8 +565,7 @@ public class FlareBot {
                 Files.copy(built.toPath(), current.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (InterruptedException | IOException e) {
                 LOGGER.error("Could not update!", e);
-                setupUpdate();
-                UpdateCommand.UPDATING.set(false);
+                UPDATING.set(false);
             }
         } else
             LOGGER.info("Exiting.");
@@ -589,27 +592,6 @@ public class FlareBot {
         LOGGER.info("Finished saving!");
         for (JDA client : shardManager.getShards())
             client.shutdown();
-    }
-
-    // https://bots.are-pretty.sexy/214501.png
-    // New way to process commands, this way has been proven to be quicker overall.
-    public Command getCommand(String s, User user) {
-        if (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
-            for (Command cmd : commandManager.getCommandsByType(CommandType.SECRET)) {
-                if (cmd.getCommand().equalsIgnoreCase(s))
-                    return cmd;
-                for (String alias : cmd.getAliases())
-                    if (alias.equalsIgnoreCase(s)) return cmd;
-            }
-        }
-        for (Command cmd : commandManager.getCommands()) {
-            if (cmd.getType() == CommandType.SECRET) continue;
-            if (cmd.getCommand().equalsIgnoreCase(s))
-                return cmd;
-            for (String alias : cmd.getAliases())
-                if (alias.equalsIgnoreCase(s)) return cmd;
-        }
-        return null;
     }
 
     public String getUptime() {
@@ -686,7 +668,7 @@ public class FlareBot {
         new FlareBotTask("FixThatStatus") {
             @Override
             public void run() {
-                if (!UpdateCommand.UPDATING.get())
+                if (!UPDATING.get())
                     setStatus("_help | _invite");
             }
         }.repeat(10, TimeUnit.SECONDS.toMillis(32));
@@ -750,7 +732,7 @@ public class FlareBot {
                 ConfirmUtil.clearConfirmMap();
             }
 
-        }.repeat(10, TimeUnit.MINUTES.toMillis(1));
+        }.repeat(10, 5000);
 
         new FlareBotTask("DeadShard-Checker") {
             @Override
@@ -765,21 +747,30 @@ public class FlareBot {
                     cancel();
                     return;
                 }
-                Set<Integer> deadShards = Getters.getShards().stream().map(c -> c.getShardInfo().getShardId())
-                        .filter(ShardUtils::isDead).collect(Collectors.toSet());
-                if (deadShards.size() > 0) {
+                // 10 mins without an event... this son bitch is dead.
+                if (Getters.getShards().stream().anyMatch(shard -> ShardUtils.isDead(shard, TimeUnit.MINUTES.toMillis(10)))) {
+                    Getters.getShards().stream().filter(shard -> ShardUtils.isDead(shard, TimeUnit.MINUTES.toMillis(10)))
+                            .forEach(shard -> {
+                                getImportantWebhook().send("Restarting " + ShardUtils.getShardId(shard)
+                                        + " as it seems to be dead.");
+                                shardManager.restart(ShardUtils.getShardId(shard));
+                            });
+                }
 
+                Set<Integer> deadShards =
+                        Getters.getShards().stream().filter(ShardUtils::isDead).map(ShardUtils::getShardId)
+                                .collect(Collectors.toSet());
+
+                if (!deadShards.isEmpty()) {
                     getImportantWebhook().send("Found " + deadShards.size() + " possibly dead shards! Shards: " +
                             deadShards.toString());
                 }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
-
-        setupUpdate();
     }
 
-    public CommandManager getCommandManager() {
-        return commandManager;
+    public static CommandManager getCommandManager() {
+        return FlareBot.instance().commandManager;
     }
 
     public void migrations() {

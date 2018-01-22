@@ -13,8 +13,10 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.music.SongCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.Queue;
 
@@ -30,7 +32,7 @@ public class PlayerListener extends AudioEventAdapter {
     public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
         GuildWrapper wrapper = FlareBotManager.instance().getGuild(player.getGuildId());
         if (wrapper.isSongnickEnabled()) {
-            if (GeneralUtils.canChangeNick(player.getGuildId())) {
+            if (GuildUtils.canChangeNick(player.getGuildId())) {
                 Guild c = wrapper.getGuild();
                 if (c == null) {
                     wrapper.setSongnick(false);
@@ -39,7 +41,7 @@ public class PlayerListener extends AudioEventAdapter {
                         c.getController().setNickname(c.getSelfMember(), null).queue();
                 }
             } else {
-                if (!GeneralUtils.canChangeNick(player.getGuildId())) {
+                if (!GuildUtils.canChangeNick(player.getGuildId())) {
                     MessageUtils.sendPM(Getters.getGuildById(player.getGuildId()).getOwner().getUser(),
                             "FlareBot can't change it's nickname so SongNick has been disabled!");
                 }
@@ -61,7 +63,7 @@ public class PlayerListener extends AudioEventAdapter {
                     Queue<Track> playlist = player.getPlaylist();
                     c.sendMessage(MessageUtils.getEmbed()
                             .addField("Now Playing", SongCommand.getLink(track), false)
-                            .addField("Duration", GeneralUtils
+                            .addField("Duration", FormatUtils
                                     .formatDuration(track.getTrack().getDuration()), false)
                             .addField("Requested by",
                                     String.format("<@!%s>", track.getMeta()
@@ -79,8 +81,8 @@ public class PlayerListener extends AudioEventAdapter {
         }
         if (wrapper.isSongnickEnabled()) {
             Guild c = wrapper.getGuild();
-            if (c == null || !GeneralUtils.canChangeNick(player.getGuildId())) {
-                if (!GeneralUtils.canChangeNick(player.getGuildId())) {
+            if (c == null || !GuildUtils.canChangeNick(player.getGuildId())) {
+                if (!GuildUtils.canChangeNick(player.getGuildId())) {
                     wrapper.setSongnick(false);
                     MessageUtils.sendPM(wrapper.getGuild().getOwner().getUser(),
                             "FlareBot can't change it's nickname so SongNick has been disabled!");

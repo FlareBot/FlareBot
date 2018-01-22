@@ -13,7 +13,8 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
@@ -32,8 +33,8 @@ public class SongCommand implements Command {
                 eb.addField("Amount Played", "Issa livestream ;)", false);
             else
                 eb.addField("Amount Played", GeneralUtils.getProgressBar(track), true)
-                        .addField("Time", String.format("%s / %s", GeneralUtils.formatDuration(track.getTrack().getPosition()),
-                                GeneralUtils.formatDuration(track.getTrack().getDuration())), false);
+                        .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
+                                FormatUtils.formatDuration(track.getTrack().getDuration())), false);
             ButtonGroup buttonGroup = new ButtonGroup();
             buttonGroup.addButton(new ButtonGroup.Button("\u23EF", (user, message1) -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
@@ -49,15 +50,14 @@ public class SongCommand implements Command {
                 }
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23F9", (user, message1) -> {
-                if (manager.hasPlayer(guild.getGuildId())) {
-                    if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
-                        manager.getPlayer(guild.getGuildId()).stop();
-                    }
+                if (manager.hasPlayer(guild.getGuildId()) &&
+                        getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
+                    manager.getPlayer(guild.getGuildId()).stop();
                 }
             }));
             buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message1) -> {
                 if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.SKIP_COMMAND)) {
-                    Command cmd = FlareBot.instance().getCommand("skip", user);
+                    Command cmd = FlareBot.getCommandManager().getCommand("skip", user);
                     cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
                 }
             }));

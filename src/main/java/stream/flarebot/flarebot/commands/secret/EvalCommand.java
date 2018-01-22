@@ -38,6 +38,7 @@ public class EvalCommand implements Command {
     private static final List<String> IMPORTS = Arrays.asList("stream.flarebot.flarebot",
             "stream.flarebot.flarebot.music",
             "stream.flarebot.flarebot.util",
+            "stream.flarebot.flarebot.util.general",
             "stream.flarebot.flarebot.util.currency",
             "stream.flarebot.flarebot.util.objects",
             "stream.flarebot.flarebot.objects",

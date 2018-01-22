@@ -13,8 +13,9 @@ import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.mod.modlog.ModlogAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +103,7 @@ public class ModlogCommand implements Command {
             }
             Moderation moderation = guild.getModeration();
             if (args[0].equalsIgnoreCase("enable")) {
-                TextChannel tc = GeneralUtils.getChannel(args[args.length - 1], guild);
+                TextChannel tc = GuildUtils.getChannel(args[args.length - 1], guild);
                 if (tc == null) {
                     MessageUtils.sendErrorMessage("I cannot find the channel `" + args[args.length - 1] + "` try to mention the channel " +
                             "or use the channel ID", channel);

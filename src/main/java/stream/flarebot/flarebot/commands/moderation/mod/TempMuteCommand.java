@@ -10,8 +10,9 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class TempMuteCommand implements Command {
 
@@ -20,7 +21,7 @@ public class TempMuteCommand implements Command {
         if (args.length < 2) {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
-            User user = GeneralUtils.getUser(args[0], guild.getGuildId());
+            User user = GuildUtils.getUser(args[0], guild.getGuildId());
             if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user!!", channel);
                 return;

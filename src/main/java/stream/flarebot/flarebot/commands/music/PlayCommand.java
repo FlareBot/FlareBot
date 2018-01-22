@@ -11,8 +11,8 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -40,7 +40,7 @@ public class PlayCommand implements Command {
                     MessageUtils.sendErrorMessage("I cannot join your channel! I am already in a channel!", channel);
                     return;
                 }
-                GeneralUtils.joinChannel(channel, member);
+                GuildUtils.joinChannel(channel, member);
             }
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();

@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands;
 
+import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
@@ -17,6 +18,7 @@ import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
 import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,6 +49,27 @@ public class CommandManager {
         registerMiscCommands();
         LOGGER.info("[Command Manager] Loaded " + (count() - start) + " misc commands!");
 
+    }
+
+    // https://bots.are-pretty.sexy/214501.png
+    // New way to process commands, this way has been proven to be quicker overall.
+    public Command getCommand(String s, User user) {
+        if (PerGuildPermissions.isCreator(user) || (FlareBot.instance().isTestBot() && PerGuildPermissions.isContributor(user))) {
+            for (Command cmd : getCommandsByType(CommandType.SECRET)) {
+                if (cmd.getCommand().equalsIgnoreCase(s))
+                    return cmd;
+                for (String alias : cmd.getAliases())
+                    if (alias.equalsIgnoreCase(s)) return cmd;
+            }
+        }
+        for (Command cmd : getCommands()) {
+            if (cmd.getType() == CommandType.SECRET) continue;
+            if (cmd.getCommand().equalsIgnoreCase(s))
+                return cmd;
+            for (String alias : cmd.getAliases())
+                if (alias.equalsIgnoreCase(s)) return cmd;
+        }
+        return null;
     }
 
     private void registerGeneralCommands() {

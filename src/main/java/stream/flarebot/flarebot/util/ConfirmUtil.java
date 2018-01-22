@@ -7,14 +7,13 @@ import stream.flarebot.flarebot.util.objects.expiringmap.ExpiringMap;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public class ConfirmUtil {
 
     private static final ExpiringMap<String, Set<RunnableWrapper>> confirmMap =
-            new ExpiringMap<>(TimeUnit.MINUTES.toMillis(1));
+            new ExpiringMap<>();
 
-    public static void pushAction(String userID, RunnableWrapper action) {
+    public static void pushAction(String userID, RunnableWrapper action, long millis) {
         if (confirmMap.containsKey(userID)) {
             Set<RunnableWrapper> actions = confirmMap.get(userID);
             if (actions.stream().noneMatch(wrapper -> wrapper.getOrigin().equals(action.getOrigin()))) {
@@ -23,7 +22,7 @@ public class ConfirmUtil {
         } else {
             Set<RunnableWrapper> actions = new ConcurrentHashSet<>();
             actions.add(action);
-            confirmMap.put(userID, actions);
+            confirmMap.put(userID, actions, millis);
         }
     }
 

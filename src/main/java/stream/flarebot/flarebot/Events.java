@@ -43,10 +43,12 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -248,7 +250,7 @@ public class Events extends ListenerAdapter {
             if (flareBot.getMusicManager().hasPlayer(event.getGuild().getId())) {
                 flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(true);
             }
-            if (Getters.getActiveVoiceChannels() == 0 && UpdateCommand.NOVOICE_UPDATING.get()) {
+            if (Getters.getActiveVoiceChannels() == 0 && FlareBot.NOVOICE_UPDATING.get()) {
                 Constants.getImportantLogChannel()
                         .sendMessage("I am now updating, there are no voice channels active!").queue();
                 UpdateCommand.update(true, null);
@@ -268,7 +270,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        handleVoiceConnectivity(event.getChannelLeft());
+        handleVoiceConnectivity(event.getChannelJoined());
     }
 
     @Override
@@ -300,7 +302,7 @@ public class Events extends ListenerAdapter {
                 command = command.substring(0, message.indexOf(" ") - 1);
                 args = message.substring(message.indexOf(" ") + 1).split(" ");
             }
-            Command cmd = flareBot.getCommand(command, event.getAuthor());
+            Command cmd = FlareBot.getCommandManager().getCommand(command, event.getAuthor());
             if (cmd != null)
                 handleCommand(event, cmd, args);
         } else {
@@ -335,17 +337,17 @@ public class Events extends ListenerAdapter {
                         event.getOldStatus(), event.getStatus(),
                         event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
                                 : null)).toString());
-        WebUtils.postAsync(request.post(body));
+        WebUtils.asyncRequest(request.post(body));
     }
 
     @Override
     public void onDisconnect(DisconnectEvent event) {
         if (event.isClosedByServer())
-            LOGGER.error(String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [SERVER] CODE: [%d] %s%n", event.getServiceCloseFrame()
                     .getCloseCode(), event
                     .getCloseCode()));
         else
-            LOGGER.error(String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
+            LOGGER.error(Markers.NO_ANNOUNCE, String.format("---- DISCONNECT [CLIENT] CODE: [%d] %s%n", event.getClientCloseFrame()
                     .getCloseCode(), event
                     .getClientCloseFrame().getCloseReason()));
     }
@@ -380,7 +382,7 @@ public class Events extends ListenerAdapter {
                         + cmd.getCommand() + "'!");
             return;
         }
-        if (UpdateCommand.UPDATING.get()) {
+        if (FlareBot.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
         }
@@ -443,7 +445,10 @@ public class Events extends ListenerAdapter {
                 return true;
             }
         }
-        return cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
+        return !cmd.getPermissions(e.getChannel()).hasPermission(
+                e.getMember(),
+                stream.flarebot.flarebot.permissions.Permission.getPermission(cmd.getType())
+        ) && cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
     }
 
     private void delete(Message message) {
@@ -459,7 +464,7 @@ public class Events extends ListenerAdapter {
     private void handleSpamDetection(GuildMessageReceivedEvent event, GuildWrapper guild) {
         if (spamMap.containsKey(event.getGuild().getId())) {
             int messages = spamMap.get(event.getGuild().getId());
-            double allowed = Math.floor(Math.sqrt(GeneralUtils.getGuildUserCount(event.getGuild()) / 2.5));
+            double allowed = Math.floor(Math.sqrt(GuildUtils.getGuildUserCount(event.getGuild()) / 2.5));
             allowed = allowed == 0 ? 1 : allowed;
             if (messages > allowed) {
                 if (!guild.isBlocked()) {

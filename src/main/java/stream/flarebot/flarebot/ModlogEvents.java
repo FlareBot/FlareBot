@@ -36,8 +36,10 @@ import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -45,6 +47,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static stream.flarebot.flarebot.util.general.GuildUtils.getUser;
 
 public class ModlogEvents extends ListenerAdapter {
 
@@ -54,11 +58,12 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGuildBan(GuildBanEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
-        event.getGuild().getAuditLogs().limit(1).queue(auditLogEntries -> {
+        event.getGuild().getAuditLogs().limit(1).type(ActionType.BAN).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
+            boolean validEntry = entry.getTargetId().equals(event.getUser().getId());
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
-                    entry.getType() == ActionType.BAN ? entry.getUser() : null,
-                    entry.getType() == ActionType.BAN ? entry.getReason() : null);
+                    validEntry ? entry.getUser() : null,
+                    validEntry ? entry.getReason() : null);
         });
     }
 
@@ -71,17 +76,20 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
-        event.getGuild().getAuditLogs().limit(1).queue(auditLogEntries -> {
-            AuditLogEntry entry = auditLogEntries.get(0);
+        event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
+            AuditLogEntry entry = null;
+            if (auditLogEntries.size() >= 1) {
+                entry = auditLogEntries.get(0);
+            }
             User responsible = null;
             String reason = null;
-            // We have GuildBanEvent
-            if (entry.getType() == ActionType.BAN) return;
-            if (entry.getType() == ActionType.KICK) {
+            if (entry != null) {
+                // If the user kicked wasn't this person then ignore it
+                if (!entry.getTargetId().equals(event.getUser().getId())) return;
                 responsible = entry.getUser();
                 reason = entry.getReason();
             }
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), responsible != null ?
+            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), entry != null ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
                     responsible, reason);
         });
@@ -143,7 +151,7 @@ public class ModlogEvents extends ListenerAdapter {
             permissionsBuilder.addField("Role", event.getRole().getName() + " (" + event.getRole().getId() + ")", true);
             if (changes.containsKey("permissions")) {
                 AuditLogChange change = changes.get("permissions");
-                Map<Boolean, List<Permission>> permChanges = GeneralUtils.getChangedPerms(
+                Map<Boolean, List<Permission>> permChanges = GeneralUtils.getChanged(
                         Permission.getPermissions(((Integer) change.getOldValue()).longValue()),
                         Permission.getPermissions(((Integer) change.getNewValue()).longValue()));
                 if (permChanges.get(true).size() > 0) {
@@ -245,8 +253,8 @@ public class ModlogEvents extends ListenerAdapter {
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MESSAGE_EDIT, event.getAuthor(),
-                new MessageEmbed.Field("Old Message", GeneralUtils.truncate(1024, old.getContent(), true), false),
-                new MessageEmbed.Field("New Message", GeneralUtils.truncate(1024, event.getMessage().getContentDisplay(), true), false),
+                new MessageEmbed.Field("Old Message", FormatUtils.truncate(1024, old.getContent(), true), false),
+                new MessageEmbed.Field("New Message", FormatUtils.truncate(1024, event.getMessage().getContentDisplay(), true), false),
                 new MessageEmbed.Field("Channel", event.getTextChannel().getName() + " (" + event.getTextChannel().getId() + ")", true));
         RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
     }
@@ -254,7 +262,7 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onMessageDelete(MessageDeleteEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_DELETE)) return;
-        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
+        AuditLogEntry entry = event.getGuild().getAuditLogs().type(ActionType.MESSAGE_DELETE).complete().get(0);
         if (entry.getUser().isBot()) return;
         User responsible = null;
         if (FlareBot.instance().getEvents().getRemovedByMeList().contains(event.getMessageIdLong())) {
@@ -263,17 +271,17 @@ public class ModlogEvents extends ListenerAdapter {
         }
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage deleted = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
-        if (entry.getType() == ActionType.MESSAGE_DELETE && entry.getTargetId().equals(deleted.getAuthorID())) {
+        if (entry.getTargetId().equals(deleted.getAuthorID())) {
             if (entry.getUser().isBot()) return;
             responsible = entry.getUser();
         }
-        User sender = GeneralUtils.getUser(deleted.getAuthorID());
+        User sender = GuildUtils.getUser(deleted.getAuthorID());
         ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MESSAGE_DELETE, sender,
                 (responsible != null ? new MessageEmbed.Field("Deleted By", MessageUtils.getUserAndId(responsible), true)
                         : null),
-                new MessageEmbed.Field("Message", GeneralUtils.truncate(1024, deleted.getContent(), true), true),
+                new MessageEmbed.Field("Message", FormatUtils.truncate(1024, deleted.getContent(), true), true),
                 new MessageEmbed.Field("Channel", event.getTextChannel().getName() + " (" + deleted.getChannelID() + ")", true),
-                new MessageEmbed.Field("Sent", GeneralUtils.formatTime(Instant.ofEpochMilli(deleted.getTimestamp())
+                new MessageEmbed.Field("Sent", FormatUtils.formatTime(Instant.ofEpochMilli(deleted.getTimestamp())
                         .atZone(ZoneId.systemDefault()).toLocalDateTime()), true)
         );
         RedisController.del(event.getMessageId());

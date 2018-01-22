@@ -12,9 +12,10 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageType;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.util.Iterator;
@@ -61,7 +62,7 @@ public class SelfAssignCommand implements Command {
                 base.append("```");
                 channel.sendMessage(base.toString()).queue();
             } else {
-                Role role = GeneralUtils.getRole(args[0], guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(args[0], guild.getGuildId(), channel);
                 if (role == null) return;
 
                 if (guild.getSelfAssignRoles().contains(role.getId())) {
@@ -81,7 +82,7 @@ public class SelfAssignCommand implements Command {
                     return;
                 }
 
-                Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
                 if (role != null) {
                     guild.getSelfAssignRoles().add(role.getId());
                     channel.sendMessage(new EmbedBuilder()
@@ -95,7 +96,7 @@ public class SelfAssignCommand implements Command {
                             channel, sender, 5000);
                     return;
                 }
-                Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(MessageUtils.getMessage(args, 1), guild.getGuildId(), channel);
                 if (role != null) {
                     guild.getSelfAssignRoles().remove(role.getId());
                     channel.sendMessage(new EmbedBuilder()
@@ -103,7 +104,7 @@ public class SelfAssignCommand implements Command {
                             .queue();
                 }
             } else {
-                Role role = GeneralUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
+                Role role = GuildUtils.getRole(MessageUtils.getMessage(args, 0), guild.getGuildId(), channel);
                 if (role == null) return;
                 // TODO: Move these to Long
                 if (guild.getSelfAssignRoles().contains(role.getId())) {

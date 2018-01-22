@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class MessageUtils {
             return null;
         }
         try {
-            Response response = WebUtils.post(new Request.Builder().url("https://paste.flarebot.stream/documents")
+            Response response = WebUtils.request(new Request.Builder().url("https://paste.flarebot.stream/documents")
                     .addHeader("Authorization", flareBot.getPasteKey()).post(RequestBody
                             .create(WebUtils.APPLICATION_JSON, trace)));
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
@@ -173,7 +174,7 @@ public class MessageUtils {
     public static void sendMessage(MessageType type, String message, TextChannel channel, User sender, long autoDeleteDelay) {
         sendMessage(type, (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
                 .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
-                .setDescription(GeneralUtils.formatCommandPrefix(channel.getGuild(), message)), channel, autoDeleteDelay);
+                .setDescription(FormatUtils.formatCommandPrefix(channel.getGuild(), message)), channel, autoDeleteDelay);
     }
 
     // Root of sendMessage(Type, Builder, channel)
@@ -293,7 +294,7 @@ public class MessageUtils {
         List<String> usages = UsageParser.matchUsage(command, args);
 
         String usage =
-                GeneralUtils.formatCommandPrefix(channel.getGuild(), usages.stream().collect(Collectors.joining("\n")));
+                FormatUtils.formatCommandPrefix(channel.getGuild(), usages.stream().collect(Collectors.joining("\n")));
         EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
         if (command.getExtraInfo() != null) {
             b.addField("Extra Info", command.getExtraInfo(), false);

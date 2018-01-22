@@ -3,7 +3,7 @@ package stream.flarebot.flarebot.web;
 import com.google.gson.JsonObject;
 import spark.Spark;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 @SuppressWarnings("Duplicates")
 public class ApiFactory {

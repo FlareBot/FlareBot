@@ -6,41 +6,20 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import spark.utils.IOUtils;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Getters;
+import stream.flarebot.flarebot.GitHandler;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
 import java.util.function.Supplier;
 
 public class InfoCommand implements Command {
-
-    private static String git = null;
-
-    static {
-        if (new File("FlareBot" + File.separator).exists()) {
-            try {
-                ProcessBuilder p = new ProcessBuilder("git", "log", "--pretty=format:'%h'", "-n", "1");
-                p.directory(new File("FlareBot" + File.separator));
-                Process pr = p.start();
-                pr.waitFor();
-                if (pr.exitValue() == 0) {
-                    git = IOUtils.toString(pr.getInputStream());
-                }
-
-            } catch (InterruptedException | IOException e1) {
-                FlareBot.LOGGER.error("Could not compare git revisions!", e1);
-            }
-        }
-    }
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -83,7 +62,7 @@ public class InfoCommand implements Command {
         SERVERS("Servers", () -> String.valueOf(Getters.getGuilds().size())),
         VERSION("Version", FlareBot.getVersion()),
         JDA_VERSION("JDA version", JDAInfo.VERSION),
-        GIT("Git Revision", (git != null ? git : "Unknown")),
+        GIT("Git Revision", (GitHandler.getLatestCommitId() != null ? GitHandler.getLatestCommitId() : "Unknown")),
         SOURCE("Source", "[`GitHub`](https://github.com/FlareBot/FlareBot)"),
         INVITE("Invite", String.format("[`Invite`](%s)", FlareBot.getInvite())),
         EMPTY("\u200B", "\u200B", false),

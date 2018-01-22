@@ -102,7 +102,7 @@ public class FlareBotManager {
     }
 
     private void initGuildSaving() {
-        guilds = new ExpiringMap<>(GUILD_EXPIRE, new ExpiredEvent<String, GuildWrapper>() {
+        guilds = new ExpiringMap<>(new ExpiredEvent<String, GuildWrapper>() {
             @Override
             public void run(String guildId, GuildWrapper guildWrapper, long expired, long last_retrieved) {
                 //ApiRequester.requestAsync(ApiRoute.UNLOAD, );
@@ -110,7 +110,7 @@ public class FlareBotManager {
                     saveGuild(guildId, guildWrapper, last_retrieved);
                 else {
                     setCancelled(true);
-                    guilds.resetTime(guildId);
+                    guilds.resetTime(guildId, GUILD_EXPIRE);
                     saveGuild(guildId, guildWrapper, last_retrieved);
                 }
             }
@@ -157,7 +157,7 @@ public class FlareBotManager {
                     return;
                 } else {
                     MessageUtils.sendErrorMessage("That name is already taken! Do this again within 1 minute to overwrite!", channel);
-                    ConfirmUtil.pushAction(ownerId, new RunnableWrapper(Runnables.doNothing(), command.getClass()));
+                    ConfirmUtil.pushAction(ownerId, new RunnableWrapper(Runnables.doNothing(), command.getClass()), TimeUnit.MINUTES.toMillis(1));
                     return;
                 }
             }
@@ -241,7 +241,7 @@ public class FlareBotManager {
             ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("loadTime", total)
                     .put("guildId", id));
             return wrapper;
-        });
+        }, GUILD_EXPIRE);
         return guilds.get(id);
     }
 
