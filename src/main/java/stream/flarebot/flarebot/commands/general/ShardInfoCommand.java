@@ -10,8 +10,7 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.PaginationUtil;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.util.ArrayList;

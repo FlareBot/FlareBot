@@ -17,7 +17,7 @@ import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.PaginationUtil;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
