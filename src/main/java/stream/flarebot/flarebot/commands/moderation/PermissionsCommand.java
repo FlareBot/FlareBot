@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permission;
+import stream.flarebot.flarebot.util.PaginationUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
@@ -104,18 +105,9 @@ public class PermissionsCommand implements Command {
                             Set<String> perms = group.getPermissions();
                             List<String> permList = GeneralUtils.orderList(perms);
 
-                            String list = getStringList(permList, page);
-                            EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                            eb.addField("Perms", list, false);
-                            eb.addField("Current page", String.valueOf(page), true);
-                            int pageSize = 20;
-                            int pages =
-                                    perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
-                            eb.addField("Pages", String.valueOf(pages), true);
-                            eb.setColor(Color.CYAN);
-                            channel.sendMessage(eb.build()).queue();
+                            String list = permList.stream().collect(Collectors.joining("\n"));
+                            PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25), page - 1, true, group.getName() + " Permissions");
                             return;
-
                         }
                     } else if (args[2].equalsIgnoreCase("massadd")) {
                         if (args.length == 4) {
@@ -194,16 +186,8 @@ public class PermissionsCommand implements Command {
                                 Set<String> groups = permUser.getGroups();
                                 List<String> groupList = GeneralUtils.orderList(groups);
 
-                                String list = getStringList(groupList, page);
-                                EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                                eb.addField("Groups for " + MessageUtils.getTag(user), list, false);
-                                eb.addField("Current page", String.valueOf(page), true);
-                                int pageSize = 20;
-                                int pages =
-                                        groups.size() < pageSize ? 1 : (groups.size() / pageSize) + (groups.size() % pageSize != 0 ? 1 : 0);
-                                eb.addField("Pages", String.valueOf(pages), true);
-                                eb.setColor(Color.CYAN);
-                                channel.sendMessage(eb.build()).queue();
+                                String list = groupList.stream().collect(Collectors.joining("\n"));
+                                PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25), page - 1, true, MessageUtils.getTag(user) + " Groups");
                                 return;
                             }
                         }
@@ -240,16 +224,8 @@ public class PermissionsCommand implements Command {
                                 Set<String> perms = permUser.getPermissions();
                                 List<String> permList = GeneralUtils.orderList(perms);
 
-                                String list = getStringList(permList, page);
-                                EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                                eb.addField("Perms", list, false);
-                                eb.addField("Current page", String.valueOf(page), true);
-                                int pageSize = 20;
-                                int pages =
-                                        perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
-                                eb.addField("Pages", String.valueOf(pages), true);
-                                eb.setColor(Color.CYAN);
-                                channel.sendMessage(eb.build()).queue();
+                                String list = permList.stream().collect(Collectors.joining("\n"));
+                                PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25), page - 1, true, MessageUtils.getTag(user) + " Permissions");
                                 return;
                             }
                         }
@@ -290,16 +266,8 @@ public class PermissionsCommand implements Command {
                             this.getPermissions(channel).getGroups().stream().map(Group::getName).collect(Collectors.toSet());
                     List<String> groupList = GeneralUtils.orderList(groups);
 
-                    String list = getStringList(groupList, page);
-                    EmbedBuilder eb = MessageUtils.getEmbed(sender);
-                    eb.addField("Groups", list, false);
-                    eb.addField("Current page", String.valueOf(page), true);
-                    int pageSize = 20;
-                    int pages =
-                            groups.size() < pageSize ? 1 : (groups.size() / pageSize) + (groups.size() % pageSize != 0 ? 1 : 0);
-                    eb.addField("Pages", String.valueOf(pages), true);
-                    eb.setColor(Color.CYAN);
-                    channel.sendMessage(eb.build()).queue();
+                    String list = groupList.stream().collect(Collectors.joining("\n"));
+                    PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20), page - 1, true, "Groups");
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
