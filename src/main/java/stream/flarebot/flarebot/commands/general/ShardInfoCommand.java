@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.PaginationUtil;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.util.ArrayList;
@@ -41,14 +42,9 @@ public class ShardInfoCommand implements Command {
             row.add(String.valueOf(jda.getVoiceChannels().stream().filter(vc -> vc.getMembers().contains(vc.getGuild()
                     .getSelfMember())).count()));
             table.add(row);
-            // TODO: Replace this hotfix with pagination
-            if (table.size() == 20) {
-                channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
-                table = new ArrayList<>();
-            }
         }
         if (table.size() > 0) {
-            channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
+            PaginationUtil.sendPagedMessage(channel, PaginationUtil.buildPagedTable(headers, table, 20), 0);
         }
     }
 
