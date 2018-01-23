@@ -192,6 +192,8 @@ public class WelcomeCommand implements Command {
             i++;
         }
         String list = messagesWithId.stream().collect(Collectors.joining("\n"));
-        PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.CHAR_COUNT, 1024), page - 1, true, "Welcome Messages");
+        PaginationUtil.sendEmbedPagedMessage(channel,
+                PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.CHAR_COUNT, 1024),
+                page - 1, true, "Welcome Messages");
     }
 }

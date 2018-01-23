@@ -102,7 +102,9 @@ public class QueueCommand implements Command {
                         next.getMeta().get("requester"));
                 songs.add(song);
             }
-            PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(songs.stream().collect(Collectors.joining("\n")), PaginationUtil.SplitMethod.NEW_LINES, 10), 0, false, "Queued songs");
+            PaginationUtil.sendEmbedPagedMessage(channel,
+                    PaginationUtil.splitStringToList(songs.stream().collect(Collectors.joining("\n")), PaginationUtil.SplitMethod.NEW_LINES, 10),
+                    0, false, "Queued songs");
         } else {
             MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);
         }

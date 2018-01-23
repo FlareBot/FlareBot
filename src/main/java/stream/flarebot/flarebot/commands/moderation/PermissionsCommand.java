@@ -106,7 +106,9 @@ public class PermissionsCommand implements Command {
                             List<String> permList = GeneralUtils.orderList(perms);
 
                             String list = permList.stream().collect(Collectors.joining("\n"));
-                            PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25), page - 1, true, group.getName() + " Permissions");
+                            PaginationUtil.sendEmbedPagedMessage(channel,
+                                    PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25),
+                                    page - 1, true, group.getName() + " Permissions");
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("massadd")) {
@@ -187,7 +189,9 @@ public class PermissionsCommand implements Command {
                                 List<String> groupList = GeneralUtils.orderList(groups);
 
                                 String list = groupList.stream().collect(Collectors.joining("\n"));
-                                PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25), page - 1, true, MessageUtils.getTag(user) + " Groups");
+                                PaginationUtil.sendEmbedPagedMessage(channel,
+                                        PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25),
+                                        page - 1, true, MessageUtils.getTag(user) + " Groups");
                                 return;
                             }
                         }
@@ -225,7 +229,9 @@ public class PermissionsCommand implements Command {
                                 List<String> permList = GeneralUtils.orderList(perms);
 
                                 String list = permList.stream().collect(Collectors.joining("\n"));
-                                PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25), page - 1, true, MessageUtils.getTag(user) + " Permissions");
+                                PaginationUtil.sendEmbedPagedMessage(channel,
+                                        PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25),
+                                        page - 1, true, MessageUtils.getTag(user) + " Permissions");
                                 return;
                             }
                         }
@@ -267,7 +273,9 @@ public class PermissionsCommand implements Command {
                     List<String> groupList = GeneralUtils.orderList(groups);
 
                     String list = groupList.stream().collect(Collectors.joining("\n"));
-                    PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20), page - 1, true, "Groups");
+                    PaginationUtil.sendEmbedPagedMessage(channel,
+                            PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20),
+                            page - 1, true, "Groups");
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
