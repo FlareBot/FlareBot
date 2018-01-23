@@ -50,4 +50,8 @@ public class LoadCommand implements Command {
         return CommandType.MUSIC;
     }
 
+    @Override
+    public String getPermission() {
+        return "flarebot.queue.load";
+    }
 }

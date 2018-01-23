@@ -49,6 +49,7 @@ import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.MigrationHandler;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
@@ -353,6 +354,9 @@ public class FlareBot {
         musicManager.getPlayerCreateHooks()
                 .register(player -> player.getQueueHookManager().register(new QueueListener()));
 
+        /* Any migration
+        MigrationHandler migrationHandler = new MigrationHandler();
+        migrationHandler.migrateSinglePermissionForAllGuilds("flarebot.playlist", "flarebot.queue");*/
         LOGGER.info("Loaded " + commandManager.count() + " commands!");
 
         ApiFactory.bind();
