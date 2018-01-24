@@ -23,13 +23,12 @@ public class ShardInfoCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         PagedTableBuilder tb = new PagedTableBuilder();
-        List<String> headers = new ArrayList<>();
-        headers.add("Shard ID");
-        headers.add("Status");
-        headers.add("Ping");
-        headers.add("Guild Count");
-        headers.add("Connected VCs");
-        tb.setColumns(headers);
+
+        tb.addColumn("Shard ID");
+        tb.addColumn("Status");
+        tb.addColumn("Ping");
+        tb.addColumn("Guild Count");
+        tb.addColumn("Connected VCs");
 
         List<JDA> shards = new ArrayList<>(Getters.getShards());
         Collections.reverse(shards);

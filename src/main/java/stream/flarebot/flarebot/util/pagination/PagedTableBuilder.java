@@ -19,6 +19,7 @@ public class PagedTableBuilder {
         body = new ArrayList<>();
         rows = 15;
         pageCounts = true;
+        this.header = new ArrayList<>();
     }
 
     /**
@@ -29,6 +30,11 @@ public class PagedTableBuilder {
      */
     public PagedTableBuilder setColumns(List<String> columns) {
         header = columns;
+        return this;
+    }
+
+    public PagedTableBuilder addColumn(String column) {
+        header.add(column);
         return this;
     }
 
