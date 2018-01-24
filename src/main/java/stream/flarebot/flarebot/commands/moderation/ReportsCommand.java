@@ -63,7 +63,7 @@ public class ReportsCommand implements Command {
 
                             tb.addRow(row);
                         }
-                        tb.setRows(10);
+                        tb.setRowCount(10);
                         int page = 0;
                         if (args.length == 2) {
                             page = GeneralUtils.getInt(args[1], 0);
