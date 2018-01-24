@@ -13,7 +13,6 @@ logs/
 *.log
 *.json
 out/
-FlareBot/
 
 # Gradle can use hashes
 .gradle/
