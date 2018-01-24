@@ -40,6 +40,17 @@ public class PagedEmbedBuilder<T> {
     }
 
     /**
+     * Enables code blocks
+     * If you use {@link PagedEmbedBuilder#setCodeBlock(String)} it auto enables.
+     *
+     * @return this
+     */
+    public PagedEmbedBuilder setCodeBlock() {
+        this.codeBlock = "";
+        return this;
+    }
+
+    /**
      * Builds a {@link PagedEmbed} for use in embed pages.
      *
      * @return {@link PagedEmbed}.

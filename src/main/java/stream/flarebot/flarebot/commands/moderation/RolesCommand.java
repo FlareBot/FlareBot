@@ -40,10 +40,10 @@ public class RolesCommand implements Command {
             for (Role r : roles)
                 sb.append(r.getName()).append(" (").append(r.getId()).append(")\n");
 
-            PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
-            pe.setTitle("Roles");
-            pe.setCodeBlock("js");
-            PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
+            PaginationUtil.sendEmbedPagedMessage(new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20))
+                    .setTitle("Roles")
+                    .setCodeBlock("js")
+                    .build(), page, channel);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
