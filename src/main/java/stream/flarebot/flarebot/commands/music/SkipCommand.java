@@ -46,7 +46,7 @@ public class SkipCommand implements Command {
 
         if (args.length != 1) {
             if(!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
-                    !channel.getGuild().getMember(sender).getVoiceState().getChannel().equals(channel.getGuild().getSelfMember().getVoiceState().getChannel())) {
+                    channel.getGuild().getMember(sender).getVoiceState().getChannel().getIdLong() != channel.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
                 MessageUtils.sendErrorMessage("You cannot skip if you aren't listening to it!", channel);
                 return;
             }
@@ -83,7 +83,7 @@ public class SkipCommand implements Command {
                 return;
             }
             if(!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
-                    !channel.getGuild().getMember(sender).getVoiceState().getChannel().equals(channel.getGuild().getSelfMember().getVoiceState().getChannel())) {
+                    channel.getGuild().getMember(sender).getVoiceState().getChannel().getIdLong() != channel.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
                 MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
                 return;
             }
@@ -202,7 +202,7 @@ public class SkipCommand implements Command {
     private void addButtons(ButtonGroup buttons, TextChannel channel) {
         VoiceChannel vc = channel.getGuild().getSelfMember().getVoiceState().getChannel();
         buttons.addButton(new ButtonGroup.Button(355776056092917761L, (user, message) -> {
-            if(!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || !channel.getGuild().getMember(user).getVoiceState().getChannel().equals(vc)) {
+            if(!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || channel.getGuild().getMember(user).getVoiceState().getChannel().getIdLong() != vc.getIdLong()) {
                 MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
                 return;
             }
@@ -229,7 +229,7 @@ public class SkipCommand implements Command {
             }
         }));
         buttons.addButton(new ButtonGroup.Button(355776081384570881L, (user, message) -> {
-            if(!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || !channel.getGuild().getMember(user).getVoiceState().getChannel().equals(vc)) {
+            if(!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || channel.getGuild().getMember(user).getVoiceState().getChannel().getIdLong() != vc.getIdLong()) {
                 MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
                 return;
             }

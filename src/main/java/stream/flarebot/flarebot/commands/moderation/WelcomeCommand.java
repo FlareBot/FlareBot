@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -192,8 +193,9 @@ public class WelcomeCommand implements Command {
             i++;
         }
         String list = messagesWithId.stream().collect(Collectors.joining("\n"));
-        PaginationUtil.sendEmbedPagedMessage(channel,
-                PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.CHAR_COUNT, 1024),
-                page - 1, true, "Welcome Messages");
+        PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.CHAR_COUNT, 1024));
+        pe.setTitle("Welcome Messages");
+        pe.setCodeBlock("md");
+        PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
     }
 }

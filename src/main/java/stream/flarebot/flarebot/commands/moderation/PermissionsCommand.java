@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permission;
+import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -106,9 +107,12 @@ public class PermissionsCommand implements Command {
                             List<String> permList = GeneralUtils.orderList(perms);
 
                             String list = permList.stream().collect(Collectors.joining("\n"));
-                            PaginationUtil.sendEmbedPagedMessage(channel,
-                                    PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25),
-                                    page - 1, true, group.getName() + " Permissions");
+
+                            PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
+                            pe.setTitle(group.getName() + " Permissions");
+                            pe.setCodeBlock("");
+
+                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("massadd")) {
@@ -189,9 +193,12 @@ public class PermissionsCommand implements Command {
                                 List<String> groupList = GeneralUtils.orderList(groups);
 
                                 String list = groupList.stream().collect(Collectors.joining("\n"));
-                                PaginationUtil.sendEmbedPagedMessage(channel,
-                                        PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25),
-                                        page - 1, true, MessageUtils.getTag(user) + " Groups");
+
+                                PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
+                                pe.setTitle(MessageUtils.getTag(user) + " Groups");
+                                pe.setCodeBlock("");
+
+                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                                 return;
                             }
                         }
@@ -229,9 +236,11 @@ public class PermissionsCommand implements Command {
                                 List<String> permList = GeneralUtils.orderList(perms);
 
                                 String list = permList.stream().collect(Collectors.joining("\n"));
-                                PaginationUtil.sendEmbedPagedMessage(channel,
-                                        PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25),
-                                        page - 1, true, MessageUtils.getTag(user) + " Permissions");
+
+                                PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
+                                pe.setTitle(MessageUtils.getTag(user) + " Permissions");
+                                pe.setCodeBlock("");
+                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                                 return;
                             }
                         }
@@ -273,9 +282,11 @@ public class PermissionsCommand implements Command {
                     List<String> groupList = GeneralUtils.orderList(groups);
 
                     String list = groupList.stream().collect(Collectors.joining("\n"));
-                    PaginationUtil.sendEmbedPagedMessage(channel,
-                            PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20),
-                            page - 1, true, "Groups");
+
+                    PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20));
+                    pe.setTitle("Groups");
+                    pe.setCodeBlock("");
+                    PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {

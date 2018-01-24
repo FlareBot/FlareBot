@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 import stream.flarebot.flarebot.util.ShardUtils;
 
@@ -21,14 +22,15 @@ public class ShardInfoCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PagedTableBuilder tb = new PagedTableBuilder();
         List<String> headers = new ArrayList<>();
         headers.add("Shard ID");
         headers.add("Status");
         headers.add("Ping");
         headers.add("Guild Count");
         headers.add("Connected VCs");
+        tb.setColumns(headers);
 
-        List<List<String>> table = new ArrayList<>();
         List<JDA> shards = new ArrayList<>(Getters.getShards());
         Collections.reverse(shards);
         for (JDA jda : shards) {
@@ -40,11 +42,9 @@ public class ShardInfoCommand implements Command {
             row.add(String.valueOf(jda.getGuilds().size()));
             row.add(String.valueOf(jda.getVoiceChannels().stream().filter(vc -> vc.getMembers().contains(vc.getGuild()
                     .getSelfMember())).count()));
-            table.add(row);
+            tb.addRow(row);
         }
-        if (table.size() > 0) {
-            PaginationUtil.sendPagedMessage(channel, PaginationUtil.buildPagedTable(headers, table, 20), 0);
-        }
+        PaginationUtil.sendPagedMessage(channel, tb.build(), 0);
     }
 
     @Override
