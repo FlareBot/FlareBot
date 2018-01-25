@@ -7,6 +7,7 @@ public class PagedEmbedBuilder<T> {
     private String title;
     private String codeBlock;
     private PaginationList<T> list;
+    private boolean hasCodeBlock = false;
 
     /**
      * Instantiates the builder with a {@link PaginationList}.
@@ -45,8 +46,8 @@ public class PagedEmbedBuilder<T> {
      *
      * @return this
      */
-    public PagedEmbedBuilder setCodeBlock() {
-        this.codeBlock = "";
+    public PagedEmbedBuilder enableCodeBlock() {
+        this.hasCodeBlock = true;
         return this;
     }
 
@@ -60,7 +61,6 @@ public class PagedEmbedBuilder<T> {
         if (list.getPages() > 1) {
             pageCounts = true;
         }
-        boolean hasCodeBlock = false;
         if (codeBlock != null) {
             hasCodeBlock = true;
         }

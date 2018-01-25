@@ -110,7 +110,7 @@ public class PermissionsCommand implements Command {
 
                             PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
                             pe.setTitle(group.getName() + " Permissions");
-                            pe.setCodeBlock();
+                            pe.enableCodeBlock();
 
                             PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                             return;
@@ -196,7 +196,7 @@ public class PermissionsCommand implements Command {
 
                                 PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
                                 pe.setTitle(MessageUtils.getTag(user) + " Groups");
-                                pe.setCodeBlock();
+                                pe.enableCodeBlock();
 
                                 PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                                 return;
@@ -239,7 +239,7 @@ public class PermissionsCommand implements Command {
 
                                 PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
                                 pe.setTitle(MessageUtils.getTag(user) + " Permissions");
-                                pe.setCodeBlock();
+                                pe.enableCodeBlock();
                                 PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                                 return;
                             }
@@ -285,7 +285,7 @@ public class PermissionsCommand implements Command {
 
                     PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20));
                     pe.setTitle("Groups");
-                    pe.setCodeBlock();
+                    pe.enableCodeBlock();
                     PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                     return;
                 }
