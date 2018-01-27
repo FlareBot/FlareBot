@@ -219,6 +219,7 @@ public class GeneralUtils {
 
     public static User getUser(String s, boolean forceGet) {
         return getUser(s, null, forceGet);
+    }
 
     public static User getUser(String s, String guildId, boolean forceGet) {
         if (userDiscrim.matcher(s).find()) {
