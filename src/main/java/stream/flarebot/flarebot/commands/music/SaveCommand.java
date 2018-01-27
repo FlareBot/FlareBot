@@ -80,7 +80,7 @@ public class SaveCommand implements Command {
 
     @Override
     public String getPermission() {
-        return "flarebot.playlist.save";
+        return "flarebot.queue.save";
     }
 
     @Override
