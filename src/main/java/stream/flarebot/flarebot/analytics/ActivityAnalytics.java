@@ -21,14 +21,20 @@ public class ActivityAnalytics implements AnalyticSender {
     @Override
     public JSONObject processData() {
         JSONObject object = new JSONObject();
-        // All guilds currently with a song in their playlist (This will not count playing song)
-        Stream<Guild> guilds = FlareBot.getInstance().getGuildsCache().stream().filter(g -> FlareBot.getInstance()
-                .getMusicManager().getPlayer(g.getId()).getPlaylist().size() > 0);
+
+        int activeGuilds = 0;
+        int queuedSongs = 0;
+        for(Guild g : FlareBot.getInstance().getGuildsCache()) {
+            if (!FlareBot.getInstance().getMusicManager().getPlayer(g.getId()).getPlaylist().isEmpty()) {
+                activeGuilds++;
+                queuedSongs += FlareBot.getInstance().getMusicManager().getPlayer(g.getId()).getPlaylist().size();
+            }
+        }
+
         object.put("data", new JSONObject()
                 .put("guilds", FlareBotManager.getInstance().getGuilds().size())
-                .put("guilds_with_songs", guilds.count())
-                .put("songs", guilds.mapToInt(g -> FlareBot.getInstance().getMusicManager().getPlayer(g.getId())
-                        .getPlaylist().size()).sum()));
+                .put("guilds_with_songs", activeGuilds)
+                .put("songs", queuedSongs));
         return object;
     }
 

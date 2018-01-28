@@ -407,7 +407,7 @@ public class FlareBot {
         analyticsHandler.registerAnalyticSender(new ActivityAnalytics());
         analyticsHandler.registerAnalyticSender(new GuildAnalytics());
         analyticsHandler.registerAnalyticSender(new GuildCountAnalytics());
-        analyticsHandler.run(1000);
+        analyticsHandler.run(isTestBot() ? 1000 : -1);
 
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Executed creations!", "Failed to execute creations!",
