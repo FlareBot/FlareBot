@@ -78,7 +78,6 @@ public class SaveCommand implements Command {
         return "`{%}save <name>` - Saves a playlist.";
     }
 
-    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }
