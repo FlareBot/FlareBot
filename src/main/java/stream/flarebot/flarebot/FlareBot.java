@@ -43,6 +43,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
+import stream.flarebot.flarebot.analytics.ActivityAnalytics;
+import stream.flarebot.flarebot.analytics.AnalyticsHandler;
+import stream.flarebot.flarebot.analytics.GuildAnalytics;
+import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
@@ -75,7 +79,6 @@ import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.MigrationHandler;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
@@ -155,6 +158,8 @@ public class FlareBot {
     private static OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
                     .addInterceptor(new DataInterceptor()).build();
+
+    private AnalyticsHandler analyticsHandler;
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -397,6 +402,12 @@ public class FlareBot {
         LOGGER.info("Bound API");
 
         musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(player)));
+
+        analyticsHandler = new AnalyticsHandler();
+        analyticsHandler.registerAnalyticSender(new ActivityAnalytics());
+        analyticsHandler.registerAnalyticSender(new GuildAnalytics());
+        analyticsHandler.registerAnalyticSender(new GuildCountAnalytics());
+        analyticsHandler.run(1000);
 
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Executed creations!", "Failed to execute creations!",
@@ -1103,5 +1114,9 @@ public class FlareBot {
                 }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+    }
+
+    public AnalyticsHandler getAnalyticsHandler() {
+        return analyticsHandler;
     }
 }
