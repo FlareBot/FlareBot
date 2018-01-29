@@ -760,6 +760,13 @@ public class FlareBot {
                 }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+
+        new FlareBotTask("GuildCleanup") {
+            @Override
+            public void run() {
+                FlareBotManager.instance().getGuilds().cleanUp();
+            }
+        }.repeat(0, TimeUnit.SECONDS.toMillis(30));
     }
 
     public static CommandManager getCommandManager() {
