@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * This data is for basic tracking of our guilds, it is for use in finding out how big our guilds are generally
  * and who the "big dogs" are in terms of size.
- *
+ * <p>
  * Data that is sent:
  *   Guild ID
  *   Guild region

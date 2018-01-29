@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This collects the data on the amount of guilds we're currently in.
- *
+ * <p>
  * Data that is sent:
  *   The amount of guilds FlareBot is in
  */

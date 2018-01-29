@@ -8,7 +8,7 @@ public interface AnalyticSender {
     /**
      * This is the data which will be sent, it needs to be a JSONObject and have a "data" field with whatever should be
      * sent.
-     *
+     * <p>
      * <b>Make sure there is a "data" field if sending to FlareBot's API</b>
      *
      * @return The JSONObject to be sent.

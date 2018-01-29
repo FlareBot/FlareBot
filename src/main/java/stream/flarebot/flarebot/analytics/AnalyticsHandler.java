@@ -29,14 +29,14 @@ public class AnalyticsHandler {
     /**
      * This will start all analyticSender's on this specific handler instance.
      * More than one instance can be made for convenience purposes.
-     *
+     * <p>
      * If you wish to have a specific delay on the first run of the analytics then you can pass that as the first parameter.
      * Set this to -1 for it to use the default analytic send time.
      *
      * @param delay Delay for the analytics to be first sent.
      */
     public void run(long delay) {
-        for(AnalyticSender sender : analytics) {
+        for (AnalyticSender sender : analytics) {
             new FlareBotTask("Analytic-" + sender.endpoint()) {
                 @Override
                 public void run() {
@@ -69,8 +69,8 @@ public class AnalyticsHandler {
      * @return The latest JSON data as a string (Non-formatted).
      */
     public String getLatestData(String analyticSender) {
-        for(AnalyticSender sender : analytics) {
-            if(analyticSender.equalsIgnoreCase(sender.getClass().getSimpleName()) || analyticSender.equalsIgnoreCase(sender.endpoint()))
+        for (AnalyticSender sender : analytics) {
+            if (analyticSender.equalsIgnoreCase(sender.getClass().getSimpleName()) || analyticSender.equalsIgnoreCase(sender.endpoint()))
                 return latestCache.get(analyticSender.getClass().getSimpleName()).toString();
         }
         return "null";
