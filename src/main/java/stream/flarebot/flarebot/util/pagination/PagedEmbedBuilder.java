@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 
 public class PagedEmbedBuilder<T> {
+
     private String title;
     private String codeBlock;
     private PaginationList<T> list;
@@ -30,18 +31,19 @@ public class PagedEmbedBuilder<T> {
     }
 
     /**
-     * Sets the type of code block to use.
+     * Sets the language to use.
      *
      * @param codeBlock The string representing the code block.
      * @return this
      */
     public PagedEmbedBuilder setCodeBlock(String codeBlock) {
         this.codeBlock = codeBlock;
+        enableCodeBlock();
         return this;
     }
 
     /**
-     * Enables code blocks
+     * Enables code blocks and uses no language syntax, to set a language syntax you can use {@link #setCodeBlock(String)}
      * If you use {@link PagedEmbedBuilder#setCodeBlock(String)} it auto enables.
      *
      * @return this
@@ -58,16 +60,13 @@ public class PagedEmbedBuilder<T> {
      */
     public PagedEmbed build() {
         boolean pageCounts = false;
-        if (list.getPages() > 1) {
+        if (list.getPages() > 1)
             pageCounts = true;
-        }
-        if (codeBlock != null) {
-            hasCodeBlock = true;
-        }
         return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts);
     }
 
     public class PagedEmbed {
+
         private String title;
         private String codeBlock;
         private boolean hasCodeBlock;
@@ -92,10 +91,9 @@ public class PagedEmbedBuilder<T> {
          */
         public MessageEmbed getEmbed(int page) {
             EmbedBuilder pageEmbed = new EmbedBuilder();
-            if (title != null) {
+            if (title != null)
                 pageEmbed.setTitle(title);
-            }
-            pageEmbed.addField("Info", (hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "```" : ""), false);
+            pageEmbed.addField("Info", (hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""), false);
             if (pageCounts) {
                 pageEmbed.addField("Page", String.valueOf(page + 1), true);
                 pageEmbed.addField("Total Pages", String.valueOf(list.getPages()), true);

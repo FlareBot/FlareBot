@@ -10,6 +10,7 @@ import java.util.List;
  * Used for Building Paged Tables.
  */
 public class PagedTableBuilder {
+
     private List<String> header;
     private List<List<String>> body;
     private int rows;
@@ -33,6 +34,12 @@ public class PagedTableBuilder {
         return this;
     }
 
+    /**
+     * Adds a column the the table
+     *
+     * @param column The Column to add
+     * @return this
+     */
     public PagedTableBuilder addColumn(String column) {
         header.add(column);
         return this;
@@ -51,7 +58,7 @@ public class PagedTableBuilder {
 
     /**
      * Sets the amount of rows per page.
-     * This default to 15.
+     * This defaults to 15 rows per page.
      *
      * @param rows The amount of rows per page.
      * @return this.
@@ -63,21 +70,20 @@ public class PagedTableBuilder {
 
     /**
      * Sets weather or not to show the page count in the table.
-     * This defaults to true.
+     * This is true by default.
      *
      * @param pageCounts weather or not to show the page count in the table.
      * @return this.
      */
-    public PagedTableBuilder setShowPageCounts(boolean pageCounts) {
+    public PagedTableBuilder showPageCounts(boolean pageCounts) {
         this.pageCounts = pageCounts;
         return this;
     }
 
     /**
-     * Builds the table and creates a {@link PaginationList}
-     * for use in sending paged message.
+     * Builds the table and creates a {@link PaginationList} for use in sending a paged message.
      *
-     * @return {@link PaginationList} for use in sending paged message.
+     * @return {@link PaginationList} for use in sending a paged message.
      */
     public PaginationList<String> build() {
         int padding = 1;
@@ -103,7 +109,7 @@ public class PagedTableBuilder {
             formatLine.append(" %-").append(width).append("s |");
         }
         formatLine.append("\n");
-        String headertring = String.format(formatLine.toString(), header.toArray());
+        String headerString = String.format(formatLine.toString(), header.toArray());
         StringBuilder bodyBuilder = new StringBuilder();
         for (List<String> row : body) {
             bodyBuilder.append(String.format(formatLine.toString(), row.toArray()));
@@ -117,7 +123,7 @@ public class PagedTableBuilder {
             StringBuilder sb = new StringBuilder();
             sb.append("```\n");
             sb.append(MessageUtils.appendSeparatorLine("+", "+", "+", padding, widths));
-            sb.append(headertring);
+            sb.append(headerString);
             sb.append(MessageUtils.appendSeparatorLine("+", "+", "+", padding, widths));
             for (String line : page) {
                 sb.append(line).append("\n");
