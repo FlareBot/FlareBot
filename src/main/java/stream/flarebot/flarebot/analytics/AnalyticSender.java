@@ -32,11 +32,11 @@ public interface AnalyticSender {
 
     /**
      * The API URL which we will send the analytic data to, this should not include the endpoint for the said analytic data.
-     * By default this is the FlareBot API as defined in {@link Constants#FLAREBOT_API} with the endpoint "/analytics".
+     * By default this is the FlareBot API as defined in {@link Constants#getAPI()} with the endpoint "analytics".
      *
      * @return API URL which the data will be sent to (Without endpoint).
      */
     default String apiUrl() {
-        return Constants.FLAREBOT_API + "/analytics";
+        return Constants.getAPI() + "/analytics";
     }
 }

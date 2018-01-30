@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.analytics;
 
+import okhttp3.Request;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
@@ -44,7 +45,7 @@ public class AnalyticsHandler {
                     try {
                         FlareBot.getLog(this.getClass()).debug("Sending analytics to " + sender.endpoint()
                                 + " with body: `" + data.toString() + "`");
-                        WebUtils.post(sender.apiUrl() + sender.endpoint(), WebUtils.APPLICATION_JSON, data.toString());
+                        WebUtils.post(sender.apiUrl() + sender.endpoint(), WebUtils.APPLICATION_JSON, data.toString(), true);
 
                         latestCache.put(sender.getClass().getSimpleName(), data);
                     } catch (IOException e) {
@@ -52,7 +53,7 @@ public class AnalyticsHandler {
                                 "\nAPI URL: " + sender.apiUrl() +
                                 "\nEndpoint: " + sender.endpoint() +
                                 "\nData: " + data.toString() +
-                                "\n\nMessage: " + e.getMessage()
+                                "\nMessage: " + e.getMessage() + "\n"
                         );
                     }
                 }
