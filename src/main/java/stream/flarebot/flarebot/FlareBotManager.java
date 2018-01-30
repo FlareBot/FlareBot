@@ -223,8 +223,6 @@ public class FlareBotManager {
                         .addField("Load time", total + "ms", false)
                         .build()).queue();
             }
-            ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("loadTime", total)
-                    .put("guildId", id));
             return wrapper;
         });
         return guilds.get(id);

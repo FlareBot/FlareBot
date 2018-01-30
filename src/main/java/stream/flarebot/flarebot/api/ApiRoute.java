@@ -24,7 +24,6 @@ public enum ApiRoute {
     GET_OPTIONS_LANGUAGE(GET, "/guild/options/language"),
 
     // Debug route
-    LOAD_TIME(PUT, "/debug/load-time");
 
     private Method method;
     private String route;
