@@ -66,7 +66,7 @@ public class WelcomeCommand implements Command {
                                 }
                             }
                             if (args[2].equalsIgnoreCase("add")) {
-                                String welcomeMessage = MessageUtils.getMessage(args, 4);
+                                String welcomeMessage = MessageUtils.getMessage(args, 3);
                                 guild.getWelcome().getDmMessages().add(welcomeMessage);
                                 channel.sendMessage("Added welcome message `"
                                         + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
