@@ -148,7 +148,7 @@ public class FlareBotManager {
                 if (ConfirmUtil.checkExists(ownerId, command.getClass())) {
                     MessageUtils.sendWarningMessage("Overwriting playlist!", channel);
                 } else if (!overwriteAllowed) {
-                    MessageUtils.sendErrorMessage("That name is already taken! You need the `flarebot.playlist.save.overwrite` permission to overwrite", channel);
+                    MessageUtils.sendErrorMessage("That name is already taken! You need the `flarebot.queue.save.overwrite` permission to overwrite", channel);
                     return;
                 } else {
                     MessageUtils.sendErrorMessage("That name is already taken! Do this again within 1 minute to overwrite!", channel);
