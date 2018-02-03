@@ -42,7 +42,7 @@ public class UserInfoCommand implements Command {
         }
         String id = user.getId();
         Member targetMember = null;
-        if (channel.getGuild().getMember(user) == null)
+        if (channel.getGuild().getMember(user) != null)
             targetMember = channel.getGuild().getMember(user);
         
         PlayerCache cache = flareBot.getPlayerCache(id);
