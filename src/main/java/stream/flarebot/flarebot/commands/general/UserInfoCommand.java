@@ -63,7 +63,7 @@ public class UserInfoCommand implements Command {
                                 (targetMember != null && targetMember.getGame() != null ? "\nStatus" +
                                         (targetMember.getUser()
                                                 .isBot() ? " (Current Shard)" : "") + ": " +
-                                        (targetMember.getGame().getUrl() == null ? "`" + member
+                                        (targetMember.getGame().getUrl() == null ? "`" + targetMember
                                                 .getGame().getName() + "`" :
                                                 String.format("[`%s`](%s)", targetMember.getGame()
                                                                 .getName(),
