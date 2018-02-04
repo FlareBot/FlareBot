@@ -4,6 +4,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,6 +36,17 @@ public class PagedTableBuilder {
     }
 
     /**
+     * Sets the column values
+     *
+     * @param columns An array of the column values to use for this table
+     * @return this
+     */
+    public PagedTableBuilder setColums(String[] columns) {
+        header = Arrays.asList(columns);
+        return this;
+    }
+
+    /**
      * Adds a column the the table
      *
      * @param column The Column to add
@@ -53,6 +65,17 @@ public class PagedTableBuilder {
      */
     public PagedTableBuilder addRow(List<String> row) {
         body.add(row);
+        return this;
+    }
+
+    /**
+     * Adds a row to the table.
+     *
+     * @param row An array of the roles values to add
+     * @return this
+     */
+    public PagedTableBuilder addRow(String[] row) {
+        body.add(Arrays.asList(row));
         return this;
     }
 
