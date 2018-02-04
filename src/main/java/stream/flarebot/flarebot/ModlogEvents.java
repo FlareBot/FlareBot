@@ -243,6 +243,21 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     @Override
+    public void onMessageUpdate(GuildMessageReceivedEvent event) {
+        if (cannotHandle(event.getGuild(), ModlogEvent.INVITE_POSTED)) return;
+        if (event.getAuthor().isBot()) return;
+        Matcher m = MessageUtils.INVITE_REGEX.matcher(event.getMessage().getContentDisplay());
+        if (m.find()) {
+            if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)
+                event.getMessage().delete().queue(msg -> msg.getChannel().sendMessage("No invites on my watch!").queue());
+            
+            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
+                new MessageEmbed.Field("Invite", m.group(0), false),
+            );
+        }
+    }
+    
+    @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_EDIT)) return;
         if (event.getAuthor().isBot()) return;
