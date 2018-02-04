@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.guild.update.GenericGuildUpdateEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateExplicitContentLevelEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
@@ -38,6 +39,7 @@ import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.utils.Constants;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -243,7 +245,7 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageUpdate(GuildMessageReceivedEvent event) {
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.INVITE_POSTED)) return;
         if (event.getAuthor().isBot()) return;
         Matcher m = MessageUtils.INVITE_REGEX.matcher(event.getMessage().getContentDisplay());
