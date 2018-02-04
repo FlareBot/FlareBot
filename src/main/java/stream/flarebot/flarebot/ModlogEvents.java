@@ -248,7 +248,7 @@ public class ModlogEvents extends ListenerAdapter {
         if (event.getAuthor().isBot()) return;
         Matcher m = MessageUtils.INVITE_REGEX.matcher(event.getMessage().getContentDisplay());
         if (m.find()) {
-            if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)
+            if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD))
                 event.getMessage().delete().queue(msg -> msg.getChannel().sendMessage("No invites on my watch!").queue());
             
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
