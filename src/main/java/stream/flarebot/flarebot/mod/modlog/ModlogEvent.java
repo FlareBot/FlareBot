@@ -64,7 +64,9 @@ public enum ModlogEvent {
             ColorUtils.GREEN, true),
     FLAREBOT_COMMAND("Command", "Triggers when a user runs a **FlareBot** command.", ColorUtils.FLAREBOT_BLUE,
             false),
-    FLAREBOT_PURGE("Purge", "Triggers when a user does a purge with FlareBot.", ColorUtils.FLAREBOT_BLUE, false);
+    FLAREBOT_PURGE("Purge", "Triggers when a user does a purge with FlareBot.", ColorUtils.FLAREBOT_BLUE, false),
+    
+    INVITE_POSTED("Invite Posted", "Triggers when a Discord invite is posted", ColorUtils.ORANGE, false, true);
 
     public static final ModlogEvent[] values = values();
     public static final List<ModlogEvent> events = Arrays.asList(values);
@@ -74,6 +76,7 @@ public enum ModlogEvent {
     private Color color;
     private boolean defaultEvent;
     private boolean showReason;
+    private boolean hidden = false;
 
     // GSONs needs
     ModlogEvent() {
@@ -93,6 +96,15 @@ public enum ModlogEvent {
         this.color = color;
         this.defaultEvent = defaultEvent;
         this.showReason = showReason;
+    }
+    
+    ModlogEvent(String title, String description, Color color, boolean defaultEvent, boolean showReason, boolean hidden) {
+        this.title = title;
+        this.description = description;
+        this.color = color;
+        this.defaultEvent = defaultEvent;
+        this.showReason = showReason;
+        this.hidden = hidden;
     }
 
     public String getDescription() {
