@@ -39,7 +39,7 @@ import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.utils.Constants;
+import stream.flarebot.flarebot.util.Constants;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 public class ModlogEvents extends ListenerAdapter {
 
@@ -251,7 +252,7 @@ public class ModlogEvents extends ListenerAdapter {
         Matcher m = MessageUtils.INVITE_REGEX.matcher(event.getMessage().getContentDisplay());
         if (m.find()) {
             if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD))
-                event.getMessage().delete().queue(msg -> msg.getChannel().sendMessage("No invites on my watch!").queue());
+                event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("No invites on my watch!").queue());
             
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
                 new MessageEmbed.Field("Invite", m.group(0), false)
