@@ -252,7 +252,7 @@ public class ModlogEvents extends ListenerAdapter {
                 event.getMessage().delete().queue(msg -> msg.getChannel().sendMessage("No invites on my watch!").queue());
             
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
-                new MessageEmbed.Field("Invite", m.group(0), false),
+                new MessageEmbed.Field("Invite", m.group(0), false)
             );
         }
     }
