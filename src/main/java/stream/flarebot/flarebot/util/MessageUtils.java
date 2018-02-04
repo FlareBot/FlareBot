@@ -35,7 +35,7 @@ public class MessageUtils {
     private static FlareBot flareBot = FlareBot.getInstance();
 
     private static final Pattern INVITE_REGEX = Pattern
-            .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
+            .compile("discord(app)?\\.(com|gg|io|me|net|org|xyz)(\\/invite)?\\/[a-z0-9-_\\.]+");
     private static final Pattern LINK_REGEX = Pattern
             .compile("((http(s)?://)(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
     private static final Pattern YOUTUBE_LINK_REGEX = Pattern
