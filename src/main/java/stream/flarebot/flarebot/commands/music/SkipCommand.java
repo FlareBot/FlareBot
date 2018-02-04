@@ -43,7 +43,7 @@ public class SkipCommand implements Command {
         if (currentTrack != null && currentTrack.getMeta().get("requester").equals(sender.getId()) 
                 && guild.getBetaAccess()) {
             channel.sendMessage("Skipped your own song!\n\n" + 
-                    "This is currently an experimental beta feature! Please give feedback on the support server.");
+                    "This is currently an experimental beta feature! Please give feedback on the support server.").queue();
             musicManager.getPlayer(guild.getGuildId()).skip();
             return;
         }
