@@ -1104,4 +1104,8 @@ public class FlareBot {
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
     }
+
+    public static JSONConfig getConfig() {
+        return config;
+    }
 }

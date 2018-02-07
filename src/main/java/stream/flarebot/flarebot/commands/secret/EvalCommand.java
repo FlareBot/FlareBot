@@ -148,7 +148,7 @@ public class EvalCommand implements Command {
                             .addField("Code:", "```js\n" + finalCode + "```", false)
                             .addField("Result: ", eResult, false).build()).queue();
             } catch (Exception e) {
-                FlareBot.LOGGER.error("Error occured in the evaluator thread pool!", e, Markers.NO_ANNOUNCE);
+                FlareBot.LOGGER.error("Error occurred in the evaluator thread pool!", e, Markers.NO_ANNOUNCE);
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("Code:", "```js\n" + finalCode + "```", false)
                         .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();

@@ -188,6 +188,8 @@ public class MessageUtils {
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
                     "[Support Server](" + FlareBot.INVITE_URL + ")! Our staff can support on any issue you may have! "
                     + FlareBot.getInstance().getEmoteById(386550693294768129L).getAsMention());
+        if (FlareBot.getConfig().getString("globalMsg").isPresent())
+            builder.setDescription(builder.build().getDescription() + "\n\n" + FlareBot.getConfig().getString("globalMsg").get());
         if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
         else
