@@ -42,6 +42,7 @@ public class FlareBotManager {
     private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
 
     private List<Long> loadTimes = new CopyOnWriteArrayList<>();
+    private Map<Long, Long> lastActive = new ConcurrentHashMap<>();
 
     private ExpiringMap<String, GuildWrapper> guilds;
     private final long GUILD_EXPIRE = TimeUnit.MINUTES.toMillis(15);
@@ -253,5 +254,9 @@ public class FlareBotManager {
 
     public List<Long> getLoadTimes() {
         return this.loadTimes;
+    }
+
+    public Map<Long, Long> getLastActive() {
+        return lastActive;
     }
 }

@@ -1103,6 +1103,17 @@ public class FlareBot {
                 }
             }
         }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+
+        new FlareBotTask("ActivityChecker") {
+            @Override
+            public void run() {
+                for (VoiceChannel channel : getConnectedVoiceChannelList()) {
+                    if(manager.getLastActive().get(channel.getIdLong()) >= TimeUnit.MINUTES.toMillis(10)) {
+                        channel.getGuild().getAudioManager().closeAudioConnection();
+                    }
+                }
+            }
+        }.repeat(10_000, 10_000);
     }
 
     public static JSONConfig getConfig() {
