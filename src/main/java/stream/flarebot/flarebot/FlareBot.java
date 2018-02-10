@@ -1107,7 +1107,7 @@ public class FlareBot {
             public void run() {
                 for (VoiceChannel channel : getConnectedVoiceChannelList()) {
                     if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())) {
-                        if (System.currentTimeMillis() >= (lastActive + TimeUnit.MINUTES.toMillis(10)))
+                        if (System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) + TimeUnit.MINUTES.toMillis(10)))
                             channel.getGuild().getAudioManager().closeAudioConnection();
                     } else
                         manager.getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
