@@ -15,6 +15,38 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -75,44 +107,10 @@ import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.MigrationHandler;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class FlareBot {
 
@@ -1108,7 +1106,8 @@ public class FlareBot {
             @Override
             public void run() {
                 for (VoiceChannel channel : getConnectedVoiceChannelList()) {
-                    if(manager.getLastActive().get(channel.getIdLong()) >= TimeUnit.MINUTES.toMillis(10)) {
+                    Long lastActive = manager.getLastActive().get(channel.getGuild().getIdLong());
+                    if (lastActive != null && System.currentTimeMillis() >= (lastActive + TimeUnit.MINUTES.toMillis(1))) {
                         channel.getGuild().getAudioManager().closeAudioConnection();
                     }
                 }

@@ -6,6 +6,34 @@ import com.google.gson.JsonElement;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import io.github.binaryoverload.JSONConfig;
+import java.awt.Color;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.net.ssl.HttpsURLConnection;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
@@ -37,35 +65,6 @@ import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.awt.Color;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class GeneralUtils {
 
@@ -365,6 +364,7 @@ public class GeneralUtils {
                 return;
             }
             channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            FlareBotManager.getInstance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
         } else {
             MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
                     .hasPermission(member.getVoiceState()
