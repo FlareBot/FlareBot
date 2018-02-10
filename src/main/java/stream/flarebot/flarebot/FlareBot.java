@@ -442,11 +442,17 @@ public class FlareBot {
                                 row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
                                 new DateTime(row.getTimestamp("created_at")),
                                 FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
+                try {
                 if (new DateTime().isAfter(fa.getExpires()))
                     fa.execute();
                 else {
                     fa.queue();
                     loaded[0]++;
+                }
+                } catch (NullPointerException e) {
+                    LOGGER.error("Failed to execute/queue future task"
+                             + "\nAction: " + fa.getAction() + "\nResponsible: " + fa.getResponsible() 
+                             + "\nTarget: " + fa.getTarget() + "\nContent: " + fa.getContent(), e);
                 }
             }
         });
