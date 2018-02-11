@@ -147,7 +147,7 @@ public class QueueCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"playlist"};
+        return new String[]{"playlist", "q"};
     }
 
     @Override
