@@ -75,10 +75,10 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
+        AuditLogEntry entry = null;
         User responsible = null;
         String reason = null;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
-            AuditLogEntry entry = null;
             if (auditLogEntries.size() >= 1) {
                 entry = auditLogEntries.get(0);
             }
