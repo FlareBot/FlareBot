@@ -19,7 +19,6 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.guild.update.GenericGuildUpdateEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateExplicitContentLevelEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
@@ -27,6 +26,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
@@ -34,13 +34,12 @@ import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.database.RedisMessage;
-import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.Constants;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -96,8 +95,7 @@ public class ModlogEvents extends ListenerAdapter {
             boolean isKick = entry != null;
             if (isKick)
                 if (cannotHandle(event.getGuild(), ModlogEvent.USER_KICKED)) return;
-                else
-                if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
+                else if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
 
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), isKick ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
@@ -265,13 +263,13 @@ public class ModlogEvents extends ListenerAdapter {
         if (m.find()) {
             if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD))
                 event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] No invites on my watch matey!").queue());
-            
+
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
-                new MessageEmbed.Field("Invite", m.group(0), false)
+                    new MessageEmbed.Field("Invite", m.group(0), false)
             );
         }
     }
-    
+
     @Override
     public void onMessageUpdate(MessageUpdateEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_EDIT)) return;
