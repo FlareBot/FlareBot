@@ -34,6 +34,7 @@ import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -59,6 +60,8 @@ public class ModlogEvents extends ListenerAdapter {
         if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.BAN).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
+            // We don't want dupes.
+            if (entry.getUser().getIdLong() == FlareBot.getInstance().getSelfUser().getIdLong()) return;
             boolean validEntry = entry.getTargetId().equals(event.getUser().getId());
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
                     validEntry ? entry.getUser() : null,
@@ -74,24 +77,33 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
-        AuditLogEntry entry = null;
-        User responsible = null;
-        String reason = null;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
-            if (auditLogEntries.size() >= 1) {
+            AuditLogEntry entry = null;
+            User responsible = null;
+            String reason = null;
+
+            if (!auditLogEntries.isEmpty())
                 entry = auditLogEntries.get(0);
-            }
+
             if (entry != null) {
-                // If the user kicked wasn't this person then ignore it
+                // We don't want dupes.
+                if (entry.getUser().getIdLong() == FlareBot.getInstance().getSelfUser().getIdLong()) return;
+
                 if (!entry.getTargetId().equals(event.getUser().getId())) return;
                 responsible = entry.getUser();
                 reason = entry.getReason();
             }
-        });
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), entry != null ?
+            boolean isKick = entry != null;
+            if (isKick)
+                if (cannotHandle(event.getGuild(), ModlogEvent.USER_KICKED)) return;
+                else
+                if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
+
+            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), isKick ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
                     responsible, reason);
+        });
+
     }
 
     @Override
@@ -446,8 +458,8 @@ public class ModlogEvents extends ListenerAdapter {
 
     private boolean cannotHandle(Guild guild, ModlogEvent event) {
         return guild == null || getGuild(guild) == null
-                || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
-                || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS);
+                || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)
+                || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event);
     }
 
     private GuildWrapper getGuild(Guild guild) {

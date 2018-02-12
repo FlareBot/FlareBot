@@ -33,8 +33,7 @@ public enum ModlogEvent {
     USER_TEMP_BANNED("User Temp Banned", "Triggers when a user is temporarily banned using FlareBot", ColorUtils.RED, true, true),
     USER_UNBANNED("User Unbanned", "Triggers when a user is unbanned, either through Discord or a bot", ColorUtils.FLAREBOT_BLUE, true, true),
 
-    USER_KICKED("User Kicked", "Triggers when a user is kicked. **This only works if they were kicked with FlareBot " +
-            "since Discord doesn't give us actual kick info!!**", ColorUtils.ORANGE, true, true),
+    USER_KICKED("User Kicked", "Triggers when a user is kicked.", ColorUtils.ORANGE, true, true),
 
     USER_MUTED("User Muted", "Triggers when a user is muted using FlareBot", ColorUtils.ORANGE, true, true),
     USER_TEMP_MUTED("User Temp Muted", "Triggers when a user is temporary muted using FlareBot", ColorUtils.ORANGE, true, true),
