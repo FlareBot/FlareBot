@@ -389,6 +389,8 @@ public class FlareBot {
         registerCommand(new UpdateJDACommand());
         registerCommand(new ChangelogCommand());
 
+        registerCommand(new NINOCommand());
+
         LOGGER.info("Loaded " + commands.size() + " commands!");
 
         ApiFactory.bind();

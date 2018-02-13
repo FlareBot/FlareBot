@@ -76,6 +76,9 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
+        if (!event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) return;
+        if (!getGuild(event.getGuild()).getModeration().isEventEnabled(getGuild(event.getGuild()), ModlogEvent.MEMBER_LEAVE)
+                && !getGuild(event.getGuild()).getModeration().isEventEnabled(getGuild(event.getGuild()), ModlogEvent.USER_KICKED)) return;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
             AuditLogEntry entry = null;
             User responsible = null;
@@ -259,14 +262,18 @@ public class ModlogEvents extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (cannotHandle(event.getGuild(), ModlogEvent.INVITE_POSTED)) return;
         if (event.getAuthor().isBot()) return;
-        Matcher m = MessageUtils.INVITE_REGEX.matcher(event.getMessage().getContentDisplay());
-        if (m.find()) {
-            if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD))
-                event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] No invites on my watch matey!").queue());
+        if (event.getMember().hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE)) return;
+        GuildWrapper gw = getGuild(event.getGuild());
+        if ((gw.isBetaAccess() && gw.getNINO().isEnabled()) || event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)) {
+            String invite = MessageUtils.getInvite(event.getMessage().getContentDisplay());
+            if (invite != null) {
+                event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] "
+                        + gw.getNINO().getRemoveMessage()).queue());
 
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
-                    new MessageEmbed.Field("Invite", m.group(0), false)
-            );
+                ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
+                        new MessageEmbed.Field("Invite", invite, false)
+                );
+            }
         }
     }
 

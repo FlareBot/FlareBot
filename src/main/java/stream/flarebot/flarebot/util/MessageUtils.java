@@ -27,6 +27,7 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -263,6 +264,14 @@ public class MessageUtils {
 
     public static boolean hasInvite(String message) {
         return INVITE_REGEX.matcher(message).find();
+    }
+
+    public static String getInvite(String message) {
+        Matcher matcher = INVITE_REGEX.matcher(message);
+        if (matcher.find())
+            return matcher.group();
+        else
+            return null;
     }
 
     public static boolean hasLink(Message message) {
