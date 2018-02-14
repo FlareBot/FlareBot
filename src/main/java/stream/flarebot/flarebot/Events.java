@@ -377,8 +377,9 @@ public class Events extends ListenerAdapter {
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args) + " in " + event.getChannel() + "! Sender: " +
                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
-            ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())
-                    .put("guildId", guild.getGuildId()));
+            // We're sending a lot of commands... Let's change the way this works soon :D
+            /*ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())
+                    .put("guildId", guild.getGuildId()));*/
             commandCounter.incrementAndGet();
             try {
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
