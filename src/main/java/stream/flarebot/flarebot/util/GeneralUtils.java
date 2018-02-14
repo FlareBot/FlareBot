@@ -364,7 +364,8 @@ public class GeneralUtils {
                 return;
             }
             channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            FlareBotManager.getInstance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
+            if (FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty())
+                FlareBotManager.getInstance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
         } else {
             MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
                     .hasPermission(member.getVoiceState()
