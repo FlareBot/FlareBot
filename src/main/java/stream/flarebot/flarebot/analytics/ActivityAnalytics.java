@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit;
  * This data is for tracking how much activity is happening on the bot at one time.
  * <p>
  * Data that is sent:
- *   Amount of guilds we have
- *   Amount of guilds loaded - In our cache
- *   Amount of guilds which have songs loaded.
- *   The number of songs queued on the bot
+ * - Amount of guilds we have
+ * - Amount of guilds loaded - In our cache
+ * - Amount of guilds which have songs loaded.
+ * - The number of songs queued on the bot
  */
 public class ActivityAnalytics implements AnalyticSender {
 

@@ -12,12 +12,12 @@ import java.util.concurrent.TimeUnit;
  * and who the "big dogs" are in terms of size.
  * <p>
  * Data that is sent:
- *   Guild ID
- *   Guild region
- *   Guild size
- *   Guild users
- *   Guild bots
- *   // No individual user or bot ID is ever sent.
+ * - Guild ID
+ * - Guild region
+ * - Guild size
+ * - Guild users
+ * - Guild bots
+ * // No individual user or bot ID is ever sent.
  */
 public class GuildAnalytics implements AnalyticSender {
 

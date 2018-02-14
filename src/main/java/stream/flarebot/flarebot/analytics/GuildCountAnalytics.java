@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.analytics;
 
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -10,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  * This collects the data on the amount of guilds we're currently in.
  * <p>
  * Data that is sent:
- *   The amount of guilds FlareBot is in
+ * - The amount of guilds FlareBot is in
  */
 public class GuildCountAnalytics implements AnalyticSender {
 

@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.analytics;
 
-import okhttp3.Request;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
