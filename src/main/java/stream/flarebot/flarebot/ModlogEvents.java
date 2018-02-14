@@ -260,16 +260,15 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.INVITE_POSTED)) return;
         if (event.getAuthor().isBot()) return;
         if (event.getMember().hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE)) return;
-        GuildWrapper gw = getGuild(event.getGuild());
-        if ((gw.isBetaAccess() && gw.getNINO().isEnabled()) || event.getGuild().getId().equals(Constants.OFFICIAL_GUILD)) {
+        if (getGuild(event.getGuild()).getNINO().isEnabled()) {
             String invite = MessageUtils.getInvite(event.getMessage().getContentDisplay());
             if (invite != null) {
                 event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] "
-                        + gw.getNINO().getRemoveMessage()).queue());
+                        + getGuild(event.getGuild()).getNINO().getRemoveMessage()).queue());
 
+                if (cannotHandle(event.getGuild(), ModlogEvent.INVITE_POSTED)) return;
                 ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
                         new MessageEmbed.Field("Invite", invite, false)
                 );
