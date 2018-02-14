@@ -37,7 +37,7 @@ public class ActivityAnalytics implements AnalyticSender {
 
     @Override
     public long dataDeliveryFrequency() {
-        return TimeUnit.MINUTES.toMillis(5);
+        return TimeUnit.SECONDS.toMillis(5);
     }
 
     @Override
