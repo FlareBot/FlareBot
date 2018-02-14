@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.analytics;
 
 import org.json.JSONObject;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 
 import java.util.concurrent.TimeUnit;
@@ -17,7 +18,7 @@ public class GuildCountAnalytics implements AnalyticSender {
     public JSONObject processData() {
         JSONObject object = new JSONObject();
         object.put("data", new JSONObject()
-                .put("guilds", FlareBotManager.getInstance().getGuilds().size()));
+                .put("guilds", FlareBot.getInstance().getGuilds().size()));
         return object;
     }
 
