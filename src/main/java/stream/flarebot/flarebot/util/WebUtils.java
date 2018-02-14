@@ -31,21 +31,34 @@ public class WebUtils {
 
         @Override
         @ParametersAreNonnullByDefault
-        public void onResponse(Call call, Response response) throws IOException {
+        public void onResponse(Call call, Response response) {
             response.close();
             FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
         }
     };
 
     public static Response post(String url, MediaType type, String body) throws IOException {
+        return post(url, type, body, false);
+    }
+
+    public static Response post(String url, MediaType type, String body, boolean sendAPIAuth) throws IOException {
         Request.Builder request = new Request.Builder().url(url);
+        if(sendAPIAuth)
+            request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
         RequestBody requestBody = RequestBody.create(type, body);
         request = request.post(requestBody);
         return post(request);
     }
 
     public static Response post(Request.Builder builder) throws IOException {
-        return FlareBot.getOkHttpClient().newCall(builder.build()).execute();
+        Response res = FlareBot.getOkHttpClient().newCall(builder.build()).execute();
+        ResponseBody body = res.body();
+        if(res.code() >= 200 && res.code() < 300)
+            return res;
+        else
+            throw new IllegalStateException("Failed to POST to '" + builder.build().url() + "'! Code: " + res.code()
+                    + ", Message: " + res.message() + ", Body: " + (body != null ? body.string().replace("\n", "")
+                    .replace("\t", " ").replaceAll(" +", " ") : "null"));
     }
 
     public static Response get(String url) throws IOException {

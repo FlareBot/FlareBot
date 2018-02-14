@@ -75,6 +75,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
+import stream.flarebot.flarebot.analytics.ActivityAnalytics;
+import stream.flarebot.flarebot.analytics.AnalyticsHandler;
+import stream.flarebot.flarebot.analytics.GuildAnalytics;
+import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
@@ -153,6 +157,8 @@ public class FlareBot {
     private static OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
                     .addInterceptor(new DataInterceptor()).build();
+
+    private AnalyticsHandler analyticsHandler;
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -397,6 +403,12 @@ public class FlareBot {
         LOGGER.info("Bound API");
 
         musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(player)));
+
+        analyticsHandler = new AnalyticsHandler();
+        analyticsHandler.registerAnalyticSender(new ActivityAnalytics());
+        analyticsHandler.registerAnalyticSender(new GuildAnalytics());
+        analyticsHandler.registerAnalyticSender(new GuildCountAnalytics());
+        analyticsHandler.run(isTestBot() ? 1000 : -1);
 
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Executed creations!", "Failed to execute creations!",
@@ -1126,5 +1138,9 @@ public class FlareBot {
 
     public static JSONConfig getConfig() {
         return config;
+    }
+
+    public AnalyticsHandler getAnalyticsHandler() {
+        return analyticsHandler;
     }
 }
