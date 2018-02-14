@@ -12,9 +12,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class AnalyticsHandler {
+    
+    private static final AnalyticsHandler instance = new AnalyticsHandler();
 
     private final Set<AnalyticSender> analytics = new HashSet<>();
     private final Map<String, JSONObject> latestCache = new HashMap<>();
+    
+    protected AnalyticsHandler() {}
 
     /**
      * Register a AnalyticSender, this will handle analytic data sending and also latest caching so that it can be
@@ -74,5 +78,9 @@ public class AnalyticsHandler {
                 return latestCache.get(analyticSender.getClass().getSimpleName()).toString();
         }
         return "null";
+    }
+    
+    public static AnalyticsHandler instance() {
+        return instance;
     }
 }
