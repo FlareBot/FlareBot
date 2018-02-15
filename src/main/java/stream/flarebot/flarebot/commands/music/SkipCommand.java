@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
@@ -52,6 +53,11 @@ public class SkipCommand implements Command {
         }
 
         if (args.length != 1) {
+            if(!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
+                    channel.getGuild().getMember(sender).getVoiceState().getChannel().getIdLong() != channel.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+                MessageUtils.sendErrorMessage("You cannot skip if you aren't listening to it!", channel);
+                return;
+            }
             if (votes.containsKey(channel.getGuild().getId())) {
                 String yes = String.valueOf(votes.get(channel.getGuild().getId()).values().stream()
                         .filter(vote -> vote == Vote.YES)
@@ -82,6 +88,11 @@ public class SkipCommand implements Command {
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
                             .queue();
                 }
+                return;
+            }
+            if(!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
+                    channel.getGuild().getMember(sender).getVoiceState().getChannel().getIdLong() != channel.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+                MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
                 return;
             }
             Map<String, Vote> mvotes = getVotes(channel, member);
@@ -197,8 +208,12 @@ public class SkipCommand implements Command {
     }
 
     private void addButtons(ButtonGroup buttons, TextChannel channel) {
+        VoiceChannel vc = channel.getGuild().getSelfMember().getVoiceState().getChannel();
         buttons.addButton(new ButtonGroup.Button(355776056092917761L, (user, message) -> {
-
+            if(!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || channel.getGuild().getMember(user).getVoiceState().getChannel().getIdLong() != vc.getIdLong()) {
+                MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
+                return;
+            }
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
                 if (voteMap.containsKey(user.getId())) {
@@ -222,6 +237,10 @@ public class SkipCommand implements Command {
             }
         }));
         buttons.addButton(new ButtonGroup.Button(355776081384570881L, (user, message) -> {
+            if(!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || channel.getGuild().getMember(user).getVoiceState().getChannel().getIdLong() != vc.getIdLong()) {
+                MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
+                return;
+            }
             if (votes.containsKey(channel.getGuild().getId())) {
                 Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
                 if (voteMap.containsKey(user.getId())) {

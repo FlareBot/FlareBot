@@ -40,20 +40,33 @@ public class ReportsCommand implements Command {
                             return;
                         }
 
+                        PagedTableBuilder tb = new PagedTableBuilder();
+
                         ArrayList<String> header = new ArrayList<>();
                         header.add("Id");
                         header.add("Reported");
                         header.add("Time");
                         header.add("Status");
+                        tb.setColumns(header);
 
                         List<Report> reports = guild.getReportManager().getReports();
+                        for (Report report: reports) {
+                            ArrayList<String> row = new ArrayList<>();
+                            row.add(String.valueOf(report.getId()));
+                            row.add(MessageUtils.getTag(Getters.getUserById(String.valueOf(report.getReportedId()))));
 
-                        List<List<String>> body = getReportsTable(reports);
+                            row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST");
+
+                            row.add(report.getStatus().getMessage());
+
+                            tb.addRow(row);
+                        }
+                        tb.setRowCount(10);
                         int page = 0;
                         if (args.length == 2) {
                             page = GeneralUtils.getInt(args[1], 0);
                         }
-                        PaginationUtil.sendPagedMessage(channel, PaginationUtil.buildPagedTable(header, body, 10), page);
+                        PaginationUtil.sendPagedMessage(channel, tb.build(), page);
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_LIST + "`", channel);
                     }
