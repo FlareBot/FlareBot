@@ -9,7 +9,8 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.PaginationUtil;
+import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.util.List;
 
@@ -38,7 +39,11 @@ public class RolesCommand implements Command {
             StringBuilder sb = new StringBuilder();
             for (Role r : roles)
                 sb.append(r.getName()).append(" (").append(r.getId()).append(")\n");
-            PaginationUtil.sendEmbedPagedMessage(channel, PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20), page - 1);
+
+            PaginationUtil.sendEmbedPagedMessage(new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20))
+                    .setTitle("Roles")
+                    .setCodeBlock("js")
+                    .build(), page, channel);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
