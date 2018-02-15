@@ -66,7 +66,8 @@ public class EvalCommand implements Command {
             "java.io",
             "java.nio",
             "java.nio.files",
-            "java.util.stream");
+            "java.util.stream",
+            "org.json");
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {

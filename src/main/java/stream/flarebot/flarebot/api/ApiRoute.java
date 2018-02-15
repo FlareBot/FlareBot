@@ -21,9 +21,11 @@ public enum ApiRoute {
 
     // Guild/options route
     GET_OPTIONS_AUTOMODD(GET, "/guild/options/automod"),
-    GET_OPTIONS_LANGUAGE(GET, "/guild/options/language");
+    GET_OPTIONS_LANGUAGE(GET, "/guild/options/language"),
 
     // Debug route
+    TEST(POST, "/test"),
+    ;
 
     private Method method;
     private String route;

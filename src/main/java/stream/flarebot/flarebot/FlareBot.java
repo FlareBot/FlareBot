@@ -1126,6 +1126,8 @@ public class FlareBot {
             @Override
             public void run() {
                 for (VoiceChannel channel : getConnectedVoiceChannelList()) {
+                    if (channel.getMembers().stream().noneMatch(member -> member.getUser().isFake() || member.getUser().isBot()))
+                        return;
                     if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())) {
                         if (System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) + TimeUnit.MINUTES.toMillis(10)))
                             channel.getGuild().getAudioManager().closeAudioConnection();

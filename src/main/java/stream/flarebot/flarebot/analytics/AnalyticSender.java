@@ -39,4 +39,14 @@ public interface AnalyticSender {
     default String apiUrl() {
         return Constants.getAPI() + "/analytics";
     }
+
+    /**
+     * This determines if the data that is sent should be compressed with zlib, this should be used for very big data
+     * but can be used for smaller also.
+     *
+     * @return If the data should be compressed before being sent off.
+     */
+    default boolean compressData() {
+        return false;
+    }
 }
