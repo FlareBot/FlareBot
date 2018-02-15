@@ -1,11 +1,10 @@
 package stream.flarebot.flarebot.analytics;
 
+import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.GeneralUtils;
-
-import java.util.concurrent.TimeUnit;
+import stream.flarebot.flarebot.Getters;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 /**
  * This data is for basic tracking of our guilds, it is for use in finding out how big our guilds are generally
@@ -26,7 +25,7 @@ public class GuildAnalytics implements AnalyticSender {
         JSONObject object = new JSONObject();
         JSONArray guildDataArray = new JSONArray();
 
-        FlareBot.getInstance().getGuildsCache().forEach(g -> {
+        Getters.getGuildsCache().forEach(g -> {
             // Don't really want to loop massive guilds twice.
             int users = GeneralUtils.getGuildUserCount(g);
             JSONObject guildObj = new JSONObject()

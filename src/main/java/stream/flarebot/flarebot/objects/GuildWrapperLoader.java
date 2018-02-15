@@ -5,22 +5,18 @@ import com.datastax.driver.core.Row;
 import com.google.common.cache.CacheLoader;
 import com.google.gson.JsonParser;
 import io.github.binaryoverload.JSONConfig;
-import org.json.JSONObject;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.api.ApiRequester;
-import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.permissions.Group;
-import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
-
 import java.awt.Color;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.permissions.Group;
+import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
 
 public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
 
@@ -76,8 +72,6 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
                     .addField("Load time", total + "ms", false)
                     .build()).queue();
         }
-        ApiRequester.requestAsync(ApiRoute.LOAD_TIME, new JSONObject().put("loadTime", total)
-                .put("guildId", id));
         return wrapper;
     }
 

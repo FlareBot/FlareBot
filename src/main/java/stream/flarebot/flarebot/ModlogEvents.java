@@ -32,6 +32,7 @@ import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
@@ -43,7 +44,9 @@ import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class ModlogEvents extends ListenerAdapter {
 
@@ -56,7 +59,7 @@ public class ModlogEvents extends ListenerAdapter {
         event.getGuild().getAuditLogs().limit(1).type(ActionType.BAN).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
             // We don't want dupes.
-            if (entry.getUser().getIdLong() == FlareBot.getInstance().getSelfUser().getIdLong()) return;
+            if (entry.getUser().getIdLong() == FlareBot.instance().getClient().getSelfUser().getIdLong()) return;
             boolean validEntry = entry.getTargetId().equals(event.getUser().getId());
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
                     validEntry ? entry.getUser() : null,
@@ -86,7 +89,7 @@ public class ModlogEvents extends ListenerAdapter {
 
             if (entry != null) {
                 // We don't want dupes.
-                if (entry.getUser().getIdLong() == FlareBot.getInstance().getSelfUser().getIdLong()) return;
+                if (entry.getUser().getIdLong() == FlareBot.instance().getClient().getSelfUser().getIdLong()) return;
 
                 if (!entry.getTargetId().equals(event.getUser().getId())) return;
                 responsible = entry.getUser();

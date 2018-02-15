@@ -56,7 +56,7 @@ public class WebUtils {
     public static Response post(String url, MediaType type, String body, boolean sendAPIAuth) throws IOException {
         Request.Builder request = new Request.Builder().url(url);
         if (sendAPIAuth)
-            request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
+            request.addHeader("Authorization", FlareBot.instance().getApiKey());
         RequestBody requestBody = RequestBody.create(type, body);
         request = request.post(requestBody);
         return request(request);

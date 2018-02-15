@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -68,6 +69,23 @@ public class GeneralUtils {
             .appendMinutes().appendSuffix("m")
             .appendSeconds().appendSuffix("s")
             .toFormatter();
+
+
+    /**
+     * Gets a user count for a guild not including bots
+     *
+     * @param guild The guild to get the user count for
+     * @return The amount of non-bot users in a guild
+     */
+    public static int getGuildUserCount(Guild guild) {
+        int i = 0;
+        for (Member member : guild.getMembers()) {
+            if (!member.getUser().isBot()) {
+                i++;
+            }
+        }
+        return i;
+    }
 
     /**
      * Gets the {@link Report} embed with all of the info on the report.
