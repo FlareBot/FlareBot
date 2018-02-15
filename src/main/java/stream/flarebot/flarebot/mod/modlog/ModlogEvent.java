@@ -33,8 +33,7 @@ public enum ModlogEvent {
     USER_TEMP_BANNED("User Temp Banned", "Triggers when a user is temporarily banned using FlareBot", ColorUtils.RED, true, true),
     USER_UNBANNED("User Unbanned", "Triggers when a user is unbanned, either through Discord or a bot", ColorUtils.FLAREBOT_BLUE, true, true),
 
-    USER_KICKED("User Kicked", "Triggers when a user is kicked. **This only works if they were kicked with FlareBot " +
-            "since Discord doesn't give us actual kick info!!**", ColorUtils.ORANGE, true, true),
+    USER_KICKED("User Kicked", "Triggers when a user is kicked.", ColorUtils.ORANGE, true, true),
 
     USER_MUTED("User Muted", "Triggers when a user is muted using FlareBot", ColorUtils.ORANGE, true, true),
     USER_TEMP_MUTED("User Temp Muted", "Triggers when a user is temporary muted using FlareBot", ColorUtils.ORANGE, true, true),
@@ -64,7 +63,9 @@ public enum ModlogEvent {
             ColorUtils.GREEN, true),
     FLAREBOT_COMMAND("Command", "Triggers when a user runs a **FlareBot** command.", ColorUtils.FLAREBOT_BLUE,
             false),
-    FLAREBOT_PURGE("Purge", "Triggers when a user does a purge with FlareBot.", ColorUtils.FLAREBOT_BLUE, false);
+    FLAREBOT_PURGE("Purge", "Triggers when a user does a purge with FlareBot.", ColorUtils.FLAREBOT_BLUE, false),
+    
+    INVITE_POSTED("Invite Posted", "Triggers when a Discord invite is posted", ColorUtils.ORANGE, false, false, true);
 
     public static final ModlogEvent[] values = values();
     public static final List<ModlogEvent> events = Arrays.asList(values);
@@ -74,6 +75,7 @@ public enum ModlogEvent {
     private Color color;
     private boolean defaultEvent;
     private boolean showReason;
+    private boolean hidden = false;
 
     // GSONs needs
     ModlogEvent() {
@@ -93,6 +95,15 @@ public enum ModlogEvent {
         this.color = color;
         this.defaultEvent = defaultEvent;
         this.showReason = showReason;
+    }
+    
+    ModlogEvent(String title, String description, Color color, boolean defaultEvent, boolean showReason, boolean hidden) {
+        this.title = title;
+        this.description = description;
+        this.color = color;
+        this.defaultEvent = defaultEvent;
+        this.showReason = showReason;
+        this.hidden = hidden;
     }
 
     public String getDescription() {

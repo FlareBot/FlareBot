@@ -1,6 +1,12 @@
 package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import com.arsenarsen.lavaplayerbridge.player.Track;
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -15,12 +21,6 @@ import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
-
-import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SkipCommand implements Command {
 
@@ -40,6 +40,14 @@ public class SkipCommand implements Command {
                 .equals(member.getVoiceState().getChannel().getId())
                 && !getPermissions(channel).hasPermission(member, Permission.SKIP_FORCE)) {
             channel.sendMessage("You must be in the channel in order to skip songs!").queue();
+            return;
+        }
+        Track currentTrack = musicManager.getPlayer(guild.getGuildId()).getPlayingTrack();
+        if (currentTrack != null && currentTrack.getMeta().get("requester").equals(sender.getId())
+                && guild.getBetaAccess()) {
+            channel.sendMessage("Skipped your own song!\n\n" +
+                    "This is currently an experimental beta feature! Please give feedback on the support server.").queue();
+            musicManager.getPlayer(guild.getGuildId()).skip();
             return;
         }
 

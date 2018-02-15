@@ -10,21 +10,22 @@ import static stream.flarebot.flarebot.api.Method.PUT;
 public enum ApiRoute {
 
     // Root route
-    COMMANDS(POST, "commands"),
+    COMMANDS(POST, "/commands"),
 
     // Stats route
-    UPDATE_DATA(POST, "stats/data"),
-    DISPATCH_COMMAND(POST, "stats/command"),
+    UPDATE_DATA(POST, "/stats/data"),
+    DISPATCH_COMMAND(POST, "/stats/command"),
 
     // Guild route
-    UPDATE_PREFIX(PATCH, "guild/prefix"),
+    UPDATE_PREFIX(PATCH, "/guild/prefix"),
 
     // Guild/options route
-    GET_OPTIONS_AUTOMODD(GET, "guild/options/automod"),
-    GET_OPTIONS_LANGUAGE(GET, "guild/options/language"),
+    GET_OPTIONS_AUTOMODD(GET, "/guild/options/automod"),
+    GET_OPTIONS_LANGUAGE(GET, "/guild/options/language"),
 
     // Debug route
-    LOAD_TIME(PUT, "debug/load-time");
+    TEST(POST, "/test"),
+    ;
 
     private Method method;
     private String route;
@@ -43,6 +44,6 @@ public enum ApiRoute {
     }
 
     public String getFullUrl() {
-        return Constants.FLAREBOT_API + route;
+        return Constants.getAPI() + route;
     }
 }

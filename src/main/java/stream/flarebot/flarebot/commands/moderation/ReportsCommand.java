@@ -1,5 +1,11 @@
 package stream.flarebot.flarebot.commands.moderation;
 
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -15,16 +21,9 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.PaginationUtil;
-
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 public class ReportsCommand implements Command {
 
@@ -143,7 +142,8 @@ public class ReportsCommand implements Command {
         for (Report report : reports) {
             ArrayList<String> row = new ArrayList<>();
             row.add(String.valueOf(report.getId()));
-            row.add(MessageUtils.getTag(Getters.getUserById(String.valueOf(report.getReportedId()))));
+            User user = Getters.retrieveUserById(Long.valueOf(report.getReportedId()));
+            row.add(user == null ? "Invalid User!" : MessageUtils.getTag(user));
 
             row.add(report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST");
 

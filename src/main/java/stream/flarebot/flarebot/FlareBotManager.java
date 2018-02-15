@@ -7,6 +7,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.util.concurrent.Runnables;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
@@ -19,14 +26,6 @@ import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 public class FlareBotManager {
 
     private final Logger LOGGER = FlareBot.getLog(getClass());
@@ -36,6 +35,7 @@ public class FlareBotManager {
     // Command - reason
     private Map<String, String> disabledCommands = new ConcurrentHashMap<>();
 
+    private Map<Long, Long> lastActive = new ConcurrentHashMap<>();
     private GuildWrapperLoader guildWrapperLoader = new GuildWrapperLoader();
 
     private LoadingCache<String, GuildWrapper> guilds;
@@ -126,7 +126,7 @@ public class FlareBotManager {
                 if (ConfirmUtil.checkExists(ownerId, command.getClass())) {
                     MessageUtils.sendWarningMessage("Overwriting playlist!", channel);
                 } else if (!overwriteAllowed) {
-                    MessageUtils.sendErrorMessage("That name is already taken! You need the `flarebot.playlist.save.overwrite` permission to overwrite", channel);
+                    MessageUtils.sendErrorMessage("That name is already taken! You need the `flarebot.queue.save.overwrite` permission to overwrite", channel);
                     return;
                 } else {
                     MessageUtils.sendErrorMessage("That name is already taken! Do this again within 1 minute to overwrite!", channel);
@@ -207,5 +207,9 @@ public class FlareBotManager {
 
     public GuildWrapperLoader getGuildWrapperLoader() {
         return guildWrapperLoader;
+    }
+
+    public Map<Long, Long> getLastActive() {
+        return lastActive;
     }
 }

@@ -15,46 +15,6 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.webhook.WebhookClient;
-import net.dv8tion.jda.webhook.WebhookClientBuilder;
-import okhttp3.ConnectionPool;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import spark.Spark;
-import stream.flarebot.flarebot.api.ApiRequester;
-import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.audio.PlayerListener;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandManager;
-import stream.flarebot.flarebot.database.CassandraController;
-import stream.flarebot.flarebot.database.RedisController;
-import stream.flarebot.flarebot.music.QueueListener;
-import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
-import stream.flarebot.flarebot.scheduler.FutureAction;
-import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.MigrationHandler;
-import stream.flarebot.flarebot.util.ShardUtils;
-import stream.flarebot.flarebot.util.WebUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
-import stream.flarebot.flarebot.web.ApiFactory;
-import stream.flarebot.flarebot.web.DataInterceptor;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,6 +44,50 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.bot.sharding.ShardManager;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.webhook.WebhookClient;
+import net.dv8tion.jda.webhook.WebhookClientBuilder;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import spark.Spark;
+import stream.flarebot.flarebot.analytics.ActivityAnalytics;
+import stream.flarebot.flarebot.analytics.AnalyticsHandler;
+import stream.flarebot.flarebot.analytics.GuildAnalytics;
+import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
+import stream.flarebot.flarebot.api.ApiRequester;
+import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.audio.PlayerListener;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandManager;
+import stream.flarebot.flarebot.database.CassandraController;
+import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.music.QueueListener;
+import stream.flarebot.flarebot.objects.PlayerCache;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.scheduler.FutureAction;
+import stream.flarebot.flarebot.scheduler.Scheduler;
+import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.MigrationHandler;
+import stream.flarebot.flarebot.util.ShardUtils;
+import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.web.ApiFactory;
+import stream.flarebot.flarebot.web.DataInterceptor;
 
 public class FlareBot {
 
@@ -119,6 +123,8 @@ public class FlareBot {
     private Runtime runtime = Runtime.getRuntime();
     private WebhookClient importantHook;
     private CommandManager commandManager;
+
+    private AnalyticsHandler analyticsHandler;
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -363,6 +369,12 @@ public class FlareBot {
 
         musicManager.getPlayerCreateHooks().register(player -> player.addEventListener(new PlayerListener(player)));
 
+        analyticsHandler = new AnalyticsHandler();
+        analyticsHandler.registerAnalyticSender(new ActivityAnalytics());
+        analyticsHandler.registerAnalyticSender(new GuildAnalytics());
+        analyticsHandler.registerAnalyticSender(new GuildCountAnalytics());
+        analyticsHandler.run(isTestBot() ? 1000 : -1);
+
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Executed creations!", "Failed to execute creations!",
                 () -> manager.executeCreations());
@@ -405,11 +417,17 @@ public class FlareBot {
                                 row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
                                 new DateTime(row.getTimestamp("created_at")),
                                 FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
-                if (new DateTime().isAfter(fa.getExpires()))
-                    fa.execute();
-                else {
-                    fa.queue();
-                    loaded[0]++;
+                try {
+                    if (new DateTime().isAfter(fa.getExpires()))
+                        fa.execute();
+                    else {
+                        fa.queue();
+                        loaded[0]++;
+                    }
+                } catch (NullPointerException e) {
+                    LOGGER.error("Failed to execute/queue future task"
+                            + "\nAction: " + fa.getAction() + "\nResponsible: " + fa.getResponsible()
+                            + "\nTarget: " + fa.getTarget() + "\nContent: " + fa.getContent(), e);
                 }
             }
         });
@@ -767,6 +785,29 @@ public class FlareBot {
                 FlareBotManager.instance().getGuilds().cleanUp();
             }
         }.repeat(0, TimeUnit.SECONDS.toMillis(30));
+
+        new FlareBotTask("ActivityChecker") {
+            @Override
+            public void run() {
+                for (VoiceChannel channel : Getters.getConnectedVoiceChannelList()) {
+                    if (channel.getMembers().stream().noneMatch(member -> member.getUser().isFake() || member.getUser().isBot()))
+                        return;
+                    if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())) {
+                        if (System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) + TimeUnit.MINUTES.toMillis(10)))
+                            channel.getGuild().getAudioManager().closeAudioConnection();
+                    } else
+                        manager.getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
+                }
+            }
+        }.repeat(10_000, 10_000);
+    }
+
+    public static JSONConfig getConfig() {
+        return config;
+    }
+
+    public AnalyticsHandler getAnalyticsHandler() {
+        return analyticsHandler;
     }
 
     public static CommandManager getCommandManager() {

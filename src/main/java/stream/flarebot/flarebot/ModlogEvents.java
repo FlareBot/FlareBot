@@ -1,5 +1,11 @@
 package stream.flarebot.flarebot;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.ActionType;
@@ -36,19 +42,8 @@ import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.general.FormatUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static stream.flarebot.flarebot.util.general.GuildUtils.getUser;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 public class ModlogEvents extends ListenerAdapter {
 
@@ -60,6 +55,8 @@ public class ModlogEvents extends ListenerAdapter {
         if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.BAN).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
+            // We don't want dupes.
+            if (entry.getUser().getIdLong() == FlareBot.getInstance().getSelfUser().getIdLong()) return;
             boolean validEntry = entry.getTargetId().equals(event.getUser().getId());
             ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
                     validEntry ? entry.getUser() : null,
@@ -75,24 +72,36 @@ public class ModlogEvents extends ListenerAdapter {
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
+        if (!event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) return;
+        if (!getGuild(event.getGuild()).getModeration().isEventEnabled(getGuild(event.getGuild()), ModlogEvent.MEMBER_LEAVE)
+                && !getGuild(event.getGuild()).getModeration().isEventEnabled(getGuild(event.getGuild()), ModlogEvent.USER_KICKED))
+            return;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
             AuditLogEntry entry = null;
-            if (auditLogEntries.size() >= 1) {
-                entry = auditLogEntries.get(0);
-            }
             User responsible = null;
             String reason = null;
+
+            if (!auditLogEntries.isEmpty())
+                entry = auditLogEntries.get(0);
+
             if (entry != null) {
-                // If the user kicked wasn't this person then ignore it
+                // We don't want dupes.
+                if (entry.getUser().getIdLong() == FlareBot.getInstance().getSelfUser().getIdLong()) return;
+
                 if (!entry.getTargetId().equals(event.getUser().getId())) return;
                 responsible = entry.getUser();
                 reason = entry.getReason();
             }
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), entry != null ?
+            boolean isKick = entry != null;
+            if (isKick)
+                if (cannotHandle(event.getGuild(), ModlogEvent.USER_KICKED)) return;
+                else if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
+
+            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), isKick ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
                     responsible, reason);
         });
+
     }
 
     @Override
@@ -244,6 +253,24 @@ public class ModlogEvents extends ListenerAdapter {
     @Override
     public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
         handleChannelDelete(getGuild(event.getGuild()), event.getChannel());
+    }
+
+    @Override
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        if (event.getAuthor().isBot()) return;
+        if (event.getMember().hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE)) return;
+        if (getGuild(event.getGuild()).getNINO().isEnabled()) {
+            String invite = MessageUtils.getInvite(event.getMessage().getContentDisplay());
+            if (invite != null) {
+                event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] "
+                        + getGuild(event.getGuild()).getNINO().getRemoveMessage()).queue());
+
+                if (cannotHandle(event.getGuild(), ModlogEvent.INVITE_POSTED)) return;
+                ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
+                        new MessageEmbed.Field("Invite", invite, false)
+                );
+            }
+        }
     }
 
     @Override
@@ -432,8 +459,8 @@ public class ModlogEvents extends ListenerAdapter {
 
     private boolean cannotHandle(Guild guild, ModlogEvent event) {
         return guild == null || getGuild(guild) == null
-                || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event)
-                || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS);
+                || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)
+                || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event);
     }
 
     private GuildWrapper getGuild(Guild guild) {
