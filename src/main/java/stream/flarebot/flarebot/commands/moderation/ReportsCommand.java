@@ -22,8 +22,9 @@ import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.PaginationUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 public class ReportsCommand implements Command {
 
@@ -50,7 +51,7 @@ public class ReportsCommand implements Command {
                         tb.setColumns(header);
 
                         List<Report> reports = guild.getReportManager().getReports();
-                        for (Report report: reports) {
+                        for (Report report : reports) {
                             ArrayList<String> row = new ArrayList<>();
                             row.add(String.valueOf(report.getId()));
                             row.add(MessageUtils.getTag(Getters.getUserById(String.valueOf(report.getReportedId()))));
