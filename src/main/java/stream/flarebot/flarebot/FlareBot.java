@@ -1128,7 +1128,7 @@ public class FlareBot {
                 for (VoiceChannel channel : getConnectedVoiceChannelList()) {
                     if (channel.getMembers().stream().filter(member -> !member.getUser().isBot() && !member.getUser().isFake()).count() > 0 
                             && !getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty() 
-                            && !getMusicManager().getPlayer(channel.getGuild().getId()).isPaused())
+                            && !getMusicManager().getPlayer(channel.getGuild().getId()).getPaused())
                         manager.getLastActive().remove(channel.getGuild().getIdLong());
                         return;
                     if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())) {
