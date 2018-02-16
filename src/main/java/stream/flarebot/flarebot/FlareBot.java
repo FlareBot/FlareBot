@@ -1129,7 +1129,7 @@ public class FlareBot {
                     if (channel.getMembers().stream().filter(member -> !member.getUser().isBot() && !member.getUser().isFake()).count() > 0 
                             && !getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty() 
                             && !getMusicManager().getPlayer(channel.getGuild().getId()).isPaused())
-                        manager.getLastActive().remove(channel.getGuild().getIdLong())
+                        manager.getLastActive().remove(channel.getGuild().getIdLong());
                         return;
                     if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())) {
                         if (System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) + TimeUnit.MINUTES.toMillis(10)))
