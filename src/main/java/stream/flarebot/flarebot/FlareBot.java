@@ -1131,11 +1131,10 @@ public class FlareBot {
                             && !getMusicManager().getPlayer(channel.getGuild().getId()).getPaused())
                         manager.getLastActive().remove(channel.getGuild().getIdLong());
                         return;
-                    if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())) {
-                        if (System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) + TimeUnit.MINUTES.toMillis(10)))
-                            channel.getGuild().getAudioManager().closeAudioConnection();
-                    } else
-                        manager.getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
+                    if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())
+                           && System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) 
+                               + TimeUnit.MINUTES.toMillis(10)))
+                        channel.getGuild().getAudioManager().closeAudioConnection();
                 }
             }
         }.repeat(10_000, 10_000);
