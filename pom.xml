@@ -47,7 +47,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.github.flarebot</groupId>
+            <groupId>com.github.FlareBot</groupId>
             <artifactId>lavaplayerbridge</artifactId>
             <version>7cf3eba</version>
             <exclusions>
