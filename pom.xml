@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>stream.flarebot</groupId>
     <artifactId>flarebot</artifactId>
-    <version>4.1.10</version>
+    <version>4.1.11</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.47</version>
+            <version>1.2.51</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
