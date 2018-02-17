@@ -303,7 +303,7 @@ public class FlareBot {
         LOGGER.info("Starting run sequence");
         try {
             musicManager =
-                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(getShardsArray())));
+                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(shardManager)));
         } catch (UnknownBindingException e) {
             LOGGER.error("Failed to initialize musicManager", e);
         }
