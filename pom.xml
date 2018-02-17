@@ -47,9 +47,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.github.FlareBot</groupId>
+            <groupId>com.github.flarebot</groupId>
             <artifactId>lavaplayerbridge</artifactId>
-            <version>1afe8da</version>
+            <version>7cf3eba</version>
             <exclusions>
                 <exclusion>
                     <artifactId>JDA</artifactId>

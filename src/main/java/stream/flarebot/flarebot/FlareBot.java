@@ -639,12 +639,15 @@ public class FlareBot {
                 groupTotal += button.getClicks();
                 buttonsBuilder.append(buttonBuilder.toString()).append("\n");
             }
-            List<Double> clicks = events.getButtonClicksPerSec().get(messageId);
-            double combine = 0.0;
-            for (double clicksPerSec: clicks) {
-                combine += clicksPerSec;
+            double average = 0;
+            if(events.getButtonClicksPerSec().containsKey(messageId)) {
+                List<Double> clicks = events.getButtonClicksPerSec().get(messageId);
+                double combine = 0.0;
+                for (double clicksPerSec : clicks) {
+                    combine += clicksPerSec;
+                }
+                average = combine / (double) clicks.size();
             }
-            double average = combine/ (double) clicks.size();
 
             groupsBuilder.append("Button Clicks on message: ").append(messageId).append(" Clicks: ").append(groupTotal).append(" Average clicks/sec: ")
                     .append(average).append(" Max clicks/sec: ").append(events.getMaxButtonClicksPerSec().get(messageId))
