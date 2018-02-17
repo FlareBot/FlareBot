@@ -9,6 +9,7 @@ public class PagedEmbedBuilder<T> {
     private String codeBlock;
     private PaginationList<T> list;
     private boolean hasCodeBlock = false;
+    private boolean inField = true;
 
     /**
      * Instantiates the builder with a {@link PaginationList}.
@@ -54,6 +55,13 @@ public class PagedEmbedBuilder<T> {
     }
 
     /**
+     * Disables putting the info in a field. Allows for more data.
+     */
+    public void dissableInField() {
+        this.inField = false;
+    }
+
+    /**
      * Builds a {@link PagedEmbed} for use in embed pages.
      *
      * @return {@link PagedEmbed}.
@@ -62,7 +70,7 @@ public class PagedEmbedBuilder<T> {
         boolean pageCounts = false;
         if (list.getPages() > 1)
             pageCounts = true;
-        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts);
+        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts, inField);
     }
 
     public class PagedEmbed {
@@ -74,7 +82,7 @@ public class PagedEmbedBuilder<T> {
         private boolean pageCounts;
         private int pageTotal;
 
-        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts) {
+        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts, boolean inField) {
             this.title = title;
             this.pageCounts = pageCounts;
             pageTotal = list.getPages();
@@ -93,7 +101,11 @@ public class PagedEmbedBuilder<T> {
             EmbedBuilder pageEmbed = new EmbedBuilder();
             if (title != null)
                 pageEmbed.setTitle(title);
-            pageEmbed.addField("Info", (hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""), false);
+            if(inField) {
+                pageEmbed.addField("Info", (hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""), false);
+            } else {
+                pageEmbed.setDescription((hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""));
+            }
             if (pageCounts) {
                 pageEmbed.addField("Page", String.valueOf(page + 1), true);
                 pageEmbed.addField("Total Pages", String.valueOf(list.getPages()), true);

@@ -84,13 +84,13 @@ public class Events extends ListenerAdapter {
 
     private Map<String, Integer> spamMap = new ConcurrentHashMap<>();
 
-    private Map<String, Integer> buttonMap = new ConcurrentHashMap<>();
+    private Map<Long, Integer> buttonMap = new ConcurrentHashMap<>();
 
     private final Map<Integer, Long> shardEventTime = new HashMap<>();
     private final AtomicInteger commandCounter = new AtomicInteger(0);
 
-    private Map<String, Double> maxButtonClicksPerSec = new HashMap<>();
-    private Map<String, List<Double>> buttonClicksPerSec = new HashMap<>();
+    private Map<Long, Double> maxButtonClicksPerSec = new HashMap<>();
+    private Map<Long, List<Double>> buttonClicksPerSec = new HashMap<>();
 
     Events(FlareBot bot) {
         this.flareBot = bot;
@@ -105,7 +105,7 @@ public class Events extends ListenerAdapter {
                 if (event.getReactionEmote().getId() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
-                    String messageId = event.getMessageId();
+                    Long messageId = event.getMessageIdLong();
                     if(buttonMap.containsKey(messageId)) {
                         int current = buttonMap.get(messageId);
                         buttonMap.put(messageId, current + 1);
@@ -513,10 +513,10 @@ public class Events extends ListenerAdapter {
     }
 
     public void clearButtons() {
-        Iterator<Map.Entry<String, Integer>> it = buttonMap.entrySet().iterator();
+        Iterator<Map.Entry<Long, Integer>> it = buttonMap.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<String, Integer> pair = it.next();
-            String messageId = pair.getKey();
+            Map.Entry<Long, Integer> pair = it.next();
+            Long messageId = pair.getKey();
             double click = pair.getValue();
             if(click == 0) {
                 return;
@@ -548,11 +548,11 @@ public class Events extends ListenerAdapter {
         return removedByMe;
     }
 
-    public Map<String, Double> getMaxButtonClicksPerSec() {
+    public Map<Long, Double> getMaxButtonClicksPerSec() {
         return maxButtonClicksPerSec;
     }
 
-    public Map<String, List<Double>> getButtonClicksPerSec() {
+    public Map<Long, List<Double>> getButtonClicksPerSec() {
         return buttonClicksPerSec;
     }
 }

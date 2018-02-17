@@ -327,7 +327,7 @@ public class FlareBot {
                     .addEventListeners(new ModlogEvents())
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
-                    .setShardsTotal(-1)
+                    .setShardsTotal(2)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
                     .setHttpClientBuilder(client.newBuilder())
                     .setBulkDeleteSplittingEnabled(false)
@@ -356,7 +356,7 @@ public class FlareBot {
         LOGGER.info("Starting run sequence");
         try {
             musicManager =
-                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(Getters.getShardsArray())));
+                    PlayerManager.getPlayerManager(LibraryFactory.getLibrary(new JDAMultiShard(Getters.getShardManager())));
         } catch (UnknownBindingException e) {
             LOGGER.error("Failed to initialize musicManager", e);
         }
@@ -624,7 +624,8 @@ public class FlareBot {
         while (it.hasNext()) {
             int groupTotal = 0;
             Map.Entry<String, ButtonGroup> pair = it.next();
-            String messageId = pair.getKey();
+            String messageIdString = pair.getKey();
+            Long messageId = Long.valueOf(messageIdString);
             ButtonGroup buttonGroup = pair.getValue();
             StringBuilder buttonsBuilder = new StringBuilder();
             for (ButtonGroup.Button button : buttonGroup.getButtons()) {
