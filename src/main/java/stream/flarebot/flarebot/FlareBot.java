@@ -33,6 +33,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -85,7 +87,9 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.MigrationHandler;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
 
@@ -599,7 +603,7 @@ public class FlareBot {
         LOGGER.info("Saving data.");
         EXITING.set(true);
         Constants.getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getGuildWrapperLoader().getLoadTimes()
-                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getGuildWrapperLoader().getLoadTimes().size())
+                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getGuildWrapperLoader().getLoadTimes().size() + "\nButton info: " + getButtonInfo())
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
@@ -611,6 +615,43 @@ public class FlareBot {
         LOGGER.info("Finished saving!");
         for (JDA client : shardManager.getShards())
             client.shutdown();
+    }
+
+    public String getButtonInfo() {
+        Iterator<Map.Entry<String, ButtonGroup>> it = ButtonUtil.getButtonMessages().entrySet().iterator();
+        int total = 0;
+        StringBuilder groupsBuilder = new StringBuilder();
+        while (it.hasNext()) {
+            int groupTotal = 0;
+            Map.Entry<String, ButtonGroup> pair = it.next();
+            String messageId = pair.getKey();
+            ButtonGroup buttonGroup = pair.getValue();
+            StringBuilder buttonsBuilder = new StringBuilder();
+            for (ButtonGroup.Button button : buttonGroup.getButtons()) {
+                StringBuilder buttonBuilder = new StringBuilder();
+                if(button.getUnicode() != null) {
+                    buttonBuilder.append("\tUnicode: ").append(button.getUnicode());
+                } else {
+                    buttonBuilder.append("\tEmote Id: ").append(button.getEmoteId());
+                }
+                buttonBuilder.append(" Clicks: ").append(button.getClicks());
+                groupTotal += button.getClicks();
+                buttonsBuilder.append(buttonBuilder.toString()).append("\n");
+            }
+            List<Double> clicks = events.getButtonClicksPerSec().get(messageId);
+            double combine = 0.0;
+            for (double clicksPerSec: clicks) {
+                combine += clicksPerSec;
+            }
+            double average = combine/ (double) clicks.size();
+
+            groupsBuilder.append("Button Clicks on message: ").append(messageId).append(" Clicks: ").append(groupTotal).append(" Average clicks/sec: ")
+                    .append(average).append(" Max clicks/sec: ").append(events.getMaxButtonClicksPerSec().get(messageId))
+                    .append("\n").append(buttonsBuilder.toString()).append("\n");
+            total += groupTotal;
+            it.remove();
+        }
+        return MessageUtils.paste("Total clicks: " + total + "\n" +groupsBuilder.toString());
     }
 
     public String getUptime() {
@@ -742,6 +783,7 @@ public class FlareBot {
             @Override
             public void run() {
                 events.getSpamMap().clear();
+                events.clearButtons();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
 

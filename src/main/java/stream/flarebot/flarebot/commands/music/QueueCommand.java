@@ -106,7 +106,6 @@ public class QueueCommand implements Command {
             }
             PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(songs.stream().collect(Collectors.joining("\n")), PaginationUtil.SplitMethod.NEW_LINES, 10));
             pe.setTitle("Queued Songs");
-            pe.setCodeBlock("md");
             PaginationUtil.sendEmbedPagedMessage(pe.build(), 0, channel);
         } else {
             MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);

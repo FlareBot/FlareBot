@@ -193,7 +193,7 @@ public class WelcomeCommand implements Command {
             i++;
         }
         String list = messagesWithId.stream().collect(Collectors.joining("\n"));
-        PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.CHAR_COUNT, 1024));
+        PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list + "\n", PaginationUtil.SplitMethod.CHAR_COUNT, 1024));
         pe.setTitle("Welcome Messages");
         pe.setCodeBlock("md");
         PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);

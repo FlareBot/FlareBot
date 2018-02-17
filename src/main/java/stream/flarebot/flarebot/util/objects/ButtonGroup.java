@@ -36,15 +36,18 @@ public class ButtonGroup {
         private long emoteId;
         private ButtonRunnable runnable;
         private Message message;
+        private int clicks;
 
         public Button(String unicode, ButtonRunnable runnable) {
             this.unicode = unicode;
             this.runnable = runnable;
+            clicks = 0;
         }
 
         public Button(long emoteId, ButtonRunnable runnable) {
             this.emoteId = emoteId;
             this.runnable = runnable;
+            clicks = 0;
         }
 
         public long getEmoteId() {
@@ -65,6 +68,11 @@ public class ButtonGroup {
 
         public void onClick(User user) {
             runnable.run(user, message);
+            clicks++;
+        }
+
+        public int getClicks() {
+            return clicks;
         }
     }
 }

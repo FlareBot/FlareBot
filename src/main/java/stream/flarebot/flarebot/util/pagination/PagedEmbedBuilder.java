@@ -107,7 +107,7 @@ public class PagedEmbedBuilder<T> {
          * @return if it's single paged.
          */
         public boolean isSinglePage() {
-            return list.getPages() == 0;
+            return (pageTotal <= 1);
         }
 
         /**
