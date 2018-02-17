@@ -6,38 +6,6 @@ import com.google.gson.JsonElement;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import io.github.binaryoverload.JSONConfig;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
-import org.slf4j.Logger;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.database.RedisMessage;
-import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.objects.Report;
-import stream.flarebot.flarebot.objects.ReportMessage;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
-import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
-
-import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -65,6 +33,38 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.net.ssl.HttpsURLConnection;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.GuildVoiceState;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+import org.slf4j.Logger;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
+import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 public class GeneralUtils {
 
@@ -342,11 +342,18 @@ public class GeneralUtils {
     }
 
     public static void joinChannel(TextChannel channel, Member member) {
+        GuildVoiceState vs = channel.getGuild().getSelfMember().getVoiceState();
+        GuildVoiceState memberVS = member.getVoiceState();
+        if (memberVS.getChannel() == null)
+            return; // They aren't in a VC so we can't join that.
+        if (vs.getChannel() != null && vs.getChannel().getIdLong() == member.getVoiceState().getChannel().getIdLong())
+            return; // Already in the same VC as the user.
+
         if (channel.getGuild().getSelfMember()
-                .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_CONNECT) &&
+                .hasPermission(memberVS.getChannel(), Permission.VOICE_CONNECT) &&
                 channel.getGuild().getSelfMember()
-                        .hasPermission(member.getVoiceState().getChannel(), Permission.VOICE_SPEAK)) {
-            if (member.getVoiceState().getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
+                        .hasPermission(memberVS.getChannel(), Permission.VOICE_SPEAK)) {
+            if (memberVS.getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
                     .getMembers().size()
                     >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
                     .hasPermission(member
@@ -357,6 +364,8 @@ public class GeneralUtils {
                 return;
             }
             channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            if (FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty())
+                FlareBotManager.getInstance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
         } else {
             MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
                     .hasPermission(member.getVoiceState()

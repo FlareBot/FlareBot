@@ -136,7 +136,7 @@ public class ModlogHandler {
      */
     public void handleAction(GuildWrapper wrapper, TextChannel channel, User sender, User target, ModAction modAction,
                              String reason, long duration) {
-        String rsn = (reason == null ? "" : "(`" + reason.replaceAll("`", "'") + "`)");
+        String rsn = (reason == null ? "No reason given!" : "(`" + reason.replaceAll("`", "'") + "`)");
         Member member = null;
         if (target != null) {
             member = wrapper.getGuild().getMember(target);
@@ -184,7 +184,7 @@ public class ModlogHandler {
                     channel.getGuild().getController().ban(target, 7, reason).queue(aVoid ->
                             channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
                                     .setDescription("The ban hammer has been struck on " + target.getName()
-                                            + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
+                                            + " <:banhammer:368861419602575364>\nReason: " + rsn)
                                     .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
                                             "https://flarebot.stream/img/banhammer.png" : null)
                                     .build()).queue());
@@ -193,7 +193,7 @@ public class ModlogHandler {
                     channel.getGuild().getController().ban(target.getId(), 7, reason).queue(aVoid ->
                             channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
                                     .setDescription("The ban hammer has been forcefully struck on " + target.getName()
-                                            + " <:banhammer:368861419602575364>\nReason: `" + rsn + "`")
+                                            + " <:banhammer:368861419602575364>\nReason: " + rsn)
                                     .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
                                             "https://flarebot.stream/img/banhammer.png" : null)
                                     .build()).queue());
@@ -203,7 +203,7 @@ public class ModlogHandler {
                     channel.getGuild().getController().ban(channel.getGuild().getMember(target), 7, reason).queue(aVoid -> {
                         channel.sendMessage(new EmbedBuilder()
                                 .setDescription("The ban hammer has been struck on " + target.getName() + " for "
-                                        + GeneralUtils.formatJodaTime(period) + "\nReason: `" + rsn + "`")
+                                        + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn)
                                 .setImage(channel.getGuild().getId()
                                         .equals(Constants.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
                                 .setColor(Color.WHITE).build()).queue();
@@ -228,8 +228,7 @@ public class ModlogHandler {
                         return;
                     }
 
-                    MessageUtils.sendSuccessMessage("Muted " + target.getAsMention() + (reason == null ? "" : " (`"
-                            + reason.replaceAll("`", "'") + "`)"), channel, sender);
+                    MessageUtils.sendSuccessMessage("Muted " + target.getAsMention() + "\nReason: " + rsn, channel, sender);
                     break;
                 case TEMP_MUTE: {
                     try {
@@ -246,8 +245,7 @@ public class ModlogHandler {
                             target.getIdLong(), reason, period, FutureAction.Action.TEMP_MUTE);
 
                     MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
-                            + GeneralUtils.formatJodaTime(period) + (reason == null ? "" : " (`" +
-                            reason.replaceAll("`", "'") + "`)"), channel, sender);
+                            + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn, channel, sender);
                     break;
                 }
                 case UNMUTE:
@@ -263,7 +261,7 @@ public class ModlogHandler {
                     break;
                 case KICK:
                     channel.getGuild().getController().kick(member, reason).queue(aVoid ->
-                            MessageUtils.sendSuccessMessage(target.getName() + " has been kicked from the server!" + rsn,
+                            MessageUtils.sendSuccessMessage(target.getName() + " has been kicked from the server!\nReason: " + rsn,
                                     channel, sender));
                     break;
                 case WARN:
@@ -271,7 +269,7 @@ public class ModlogHandler {
                             + sender.getName()));
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(target)
-                            + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
+                            + "\nReason: " + rsn)
                             .setColor(Color.WHITE);
                     channel.sendMessage(eb.build()).queue();
                     break;
@@ -283,6 +281,7 @@ public class ModlogHandler {
             MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
                             "I do not have the `" + e.getPermission().getName() + "` permission!",
                     MessageUtils.getTag(target)), channel);
+            return;
         }
         // TODO: Infraction
         postToModlog(wrapper, modAction.getEvent(), target, sender, rsn);

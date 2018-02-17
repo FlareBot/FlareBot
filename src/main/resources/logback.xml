@@ -2,20 +2,20 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>./latest.log</file>
         <encoder>
-            <pattern>[%d{yyyy.MM.dd HH:mm}] [%t] [%level] %msg%n</pattern>
+            <pattern>[%d{yyyy.MM.dd HH:mm}] [%level] [%logger{0}] [%t] %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="stream.flarebot.flarebot.util.errorhandling.Filter" />
         <filter class="stream.flarebot.flarebot.util.errorhandling.ErrorCatcher" />
         <encoder>
-            <pattern>[%d{yyyy.MM.dd HH:mm:ss}] [%t] [%level] %msg%n</pattern>
+            <pattern>[%d{yyyy.MM.dd HH:mm:ss}] [%level] [%logger{0}] [%t] %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="Sentry" class="io.sentry.logback.SentryAppender">
         <filter class="stream.flarebot.flarebot.util.errorhandling.Filter" />
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>WARN</level>
+            <level>ERROR</level>
         </filter>
     </appender>
     <root level="INFO">

@@ -58,7 +58,7 @@ public class SaveCommand implements Command {
         FlareBot.getInstance().getManager().savePlaylist(this,
                 channel,
                 sender.getId(),
-                this.getPermissions(channel).hasPermission(member, "flarebot.playlist.save.overwrite"),
+                this.getPermissions(channel).hasPermission(member, "flarebot.queue.save.overwrite"),
                 name,
                 tracks);
     }
@@ -80,7 +80,7 @@ public class SaveCommand implements Command {
 
     @Override
     public String getPermission() {
-        return "flarebot.playlist.save";
+        return "flarebot.queue.save";
     }
 
     @Override

@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.PermissionOverride;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -36,14 +37,20 @@ public class LockChatCommand implements Command {
         }
         
         boolean locked;
-        if (tc.getPermissionOverride(guild.getGuild().getPublicRole()) == null || 
-                tc.getPermissionOverride(guild.getGuild().getPublicRole()).getDenied().contains(Permission.MESSAGE_WRITE)) {
-            tc.createPermissionOverride(guild.getGuild().getPublicRole()).setDeny(Permission.MESSAGE_WRITE).queue();
-            tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+        PermissionOverride everyoneOvr = tc.getPermissionOverride(guild.getGuild().getPublicRole());
+        if (everyoneOvr == null)
+            tc.createPermissionOverride(guild.getGuild().getPublicRole()).complete();
+        if (!everyoneOvr.getDenied().contains(Permission.MESSAGE_WRITE)) {
+            everyoneOvr.getManager().deny(Permission.MESSAGE_WRITE).queue();
+            if (tc.getPermissionOverride(guild.getGuild().getSelfMember()) == null)
+                tc.createPermissionOverride(guild.getGuild().getSelfMember()).setAllow(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+            else
+                tc.getPermissionOverride(guild.getGuild().getSelfMember()).getManager().grant(Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
             locked = true;
         } else {
-            tc.getPermissionOverride(guild.getGuild().getPublicRole()).getManager().grant(Permission.MESSAGE_WRITE).queue();
-            tc.getPermissionOverride(guild.getGuild().getSelfMember()).delete().queue();
+            everyoneOvr.getManager().grant(Permission.MESSAGE_WRITE).queue();
+            if (tc.getPermissionOverride(guild.getGuild().getSelfMember()) != null)
+                tc.getPermissionOverride(guild.getGuild().getSelfMember()).delete().queue();
             locked = false;
         }
         if (tc.getIdLong() != channel.getIdLong())

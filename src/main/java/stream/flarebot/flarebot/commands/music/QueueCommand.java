@@ -21,18 +21,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 
-public class PlaylistCommand implements Command {
+public class QueueCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        if (message.getContentRaw().substring(1).startsWith("playlist")) {
+            MessageUtils.sendWarningMessage("This command is deprecated! Please use `{%}queue` instead!", channel);
+        }
         PlayerManager manager = FlareBot.getInstance().getMusicManager();
         if (args.length < 1 || args.length > 2) {
             send(member.getUser().openPrivateChannel().complete(), channel, member);
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
-                    if (!this.getPermissions(channel).hasPermission(member, "flarebot.playlist.clear")) {
-                        MessageUtils.sendErrorMessage("You need the `flarebot.playlist.clear` permission to do this!", channel, sender);
+                    if (!this.getPermissions(channel).hasPermission(member, "flarebot.queue.clear")) {
+                        MessageUtils.sendErrorMessage("You need the `flarebot.queue.clear` permission to do this!", channel, sender);
                         return;
                     }
                     manager.getPlayer(channel.getGuild().getId()).getPlaylist().clear();
@@ -123,23 +126,28 @@ public class PlaylistCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "playlist";
+        return "queue";
     }
 
     // TODO: FIX THIS MONSTROSITY
     @Override
     public String getDescription() {
         return "View the songs currently on your playlist. " +
-                "NOTE: If too many it shows only the amount that can fit. You can use `playlist clear` to remove all songs." +
-                " You can use `playlist remove #` to remove a song under #.\n" +
-                "To make it not send a DM do `playlist here`";
+                "NOTE: If too many it shows only the amount that can fit. You can use `queue clear` to remove all songs." +
+                " You can use `queue remove #` to remove a song under #.\n" +
+                "To make it not send a DM do `queue here`";
     }
-
-    //TODO: Add alllllll the stuff here
+    
     @Override
     public String getUsage() {
-        return "`{%}playlist [option]`\n" +
-                "`{%}playlist remove <#>`";
+        return "`{%}queue` - Lists the current items in the queue.\n" +
+                "`{%}queue clear` - Clears the queue\n" +
+                "`{%}queue remove <#>` - Removes an item from the queue.";
+    }
+
+    @Override
+    public String[] getAliases() {
+        return new String[]{"playlist", "q"};
     }
 
     @Override

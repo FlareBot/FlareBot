@@ -1,5 +1,11 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,13 +19,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 public class UpdateCommand implements Command {
 
@@ -47,6 +47,13 @@ public class UpdateCommand implements Command {
                             NOVOICE_UPDATING.set(true);
                         } else
                             channel.sendMessage("There is already an update queued!").queue();
+                    }
+                } else if (args[0].equalsIgnoreCase("schedule")) {
+                    if (!queued.getAndSet(true)) {
+                        FlareBot.getInstance().scheduleUpdate();
+                        MessageUtils.sendSuccessMessage("Update scheduled for 12PM GMT!", channel);
+                    } else {
+                        MessageUtils.sendErrorMessage("There is already an update queued!", channel);
                     }
                 } else {
                     if (!queued.getAndSet(true)) {

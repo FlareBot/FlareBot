@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -38,6 +39,15 @@ public class SkipCommand implements Command {
             channel.sendMessage("You must be in the channel in order to skip songs!").queue();
             return;
         }
+        Track currentTrack = musicManager.getPlayer(guild.getGuildId()).getPlayingTrack();
+        if (currentTrack != null && currentTrack.getMeta().get("requester").equals(sender.getId()) 
+                && guild.getBetaAccess()) {
+            channel.sendMessage("Skipped your own song!\n\n" + 
+                    "This is currently an experimental beta feature! Please give feedback on the support server.").queue();
+            musicManager.getPlayer(guild.getGuildId()).skip();
+            return;
+        }
+        
         if (args.length != 1) {
             if (votes.containsKey(channel.getGuild().getId())) {
                 String yes = String.valueOf(votes.get(channel.getGuild().getId()).values().stream()

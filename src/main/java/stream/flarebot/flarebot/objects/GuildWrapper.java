@@ -24,7 +24,6 @@ public class GuildWrapper {
     private String guildId;
     private Welcome welcome = new Welcome();
     private PerGuildPermissions permissions = new PerGuildPermissions();
-    private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new HashSet<>();
     private Set<String> selfAssignRoles = new HashSet<>();
     private boolean songnick = false;
@@ -38,6 +37,7 @@ public class GuildWrapper {
     private Map<String, List<String>> warnings = new ConcurrentHashMap<>();
     private Map<String, String> tags = new ConcurrentHashMap<>();
     private Moderation moderation;
+    private NINO nino = null;
 
     // oooo special!
     private boolean betaAccess = false;
@@ -81,10 +81,6 @@ public class GuildWrapper {
 
     public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
-    }
-
-    public LinkedList<Poll> getPolls() {
-        return this.polls;
     }
 
     public Set<String> getAutoAssignRoles() {
@@ -229,5 +225,11 @@ public class GuildWrapper {
 
     public Moderation getModConfig() {
         return getModeration();
+    }
+
+    public NINO getNINO() {
+        if (nino == null)
+            nino = new NINO();
+        return nino;
     }
 }

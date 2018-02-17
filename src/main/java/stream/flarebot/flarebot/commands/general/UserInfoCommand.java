@@ -41,14 +41,10 @@ public class UserInfoCommand implements Command {
             return;
         }
         String id = user.getId();
-        if (channel.getGuild().getMember(user) == null) {
-            Guild memberGuild = FlareBot.getInstance().getGuilds().stream().filter(g -> g.getMemberById(user.getId()) != null)
-                    .findFirst().orElse(null);
-            if (memberGuild == null)
-                member = null;
-            else
-                memberGuild.getMember(user);
-        }
+        Member targetMember = null;
+        if (channel.getGuild().getMember(user) != null)
+            targetMember = channel.getGuild().getMember(user);
+        
         PlayerCache cache = flareBot.getPlayerCache(id);
         channel.sendMessage(MessageUtils.getEmbed(sender)
                 .addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
@@ -61,22 +57,20 @@ public class UserInfoCommand implements Command {
                         "Servers: " + FlareBot.getInstance().getGuilds().stream()
                                 .filter(g -> g.getMemberById(id) != null)
                                 .count() + " shared\n" +
-                                "Roles: " + (channel.getGuild()
-                                .getMemberById(id) == null ? "The user is not in this server." : channel
-                                .getGuild().getMember(user).getRoles().stream()
+                                "Roles: " + (targetMember == null ? "The user is not in this server." : 
+                                             targetMember.getRoles().stream()
                                 .map(Role::getName).collect(Collectors.joining(", "))) +
-                                (member != null && member.getGame() != null ? "\nStatus" +
-                                        (member.getUser()
+                                (targetMember != null && targetMember.getGame() != null ? "\nStatus" +
+                                        (targetMember.getUser()
                                                 .isBot() ? " (Current Shard)" : "") + ": " +
-                                        (member.getGame().getUrl() == null ? "`" + member
+                                        (targetMember.getGame().getUrl() == null ? "`" + targetMember
                                                 .getGame().getName() + "`" :
-                                                String.format("[`%s`](%s)", member.getGame()
+                                                String.format("[`%s`](%s)", targetMember.getGame()
                                                                 .getName(),
-                                                        member.getGame().getUrl())) : ""), true)
+                                                        targetMember.getGame().getUrl())) : ""), true)
                 .addField("Time Data", "Created: " + GeneralUtils
                         .formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
-                        "Joined: " + (channel.getGuild()
-                        .getMember(user) == null ? "The user is not in this server."
+                        "Joined: " + (targetMember == null ? "The user is not in this server."
                         : GeneralUtils.formatTime(LocalDateTime
                         .from(channel.getGuild().getMember(user).getJoinDate()))) + "\n" +
                         "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : GeneralUtils

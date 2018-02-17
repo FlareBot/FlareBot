@@ -52,6 +52,6 @@ public class LoadCommand implements Command {
 
     @Override
     public String getPermission() {
-        return "flarebot.playlist.load";
+        return "flarebot.queue.load";
     }
 }

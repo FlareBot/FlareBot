@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>stream.flarebot</groupId>
     <artifactId>flarebot</artifactId>
-    <version>4.1.6</version>
+    <version>4.1.10</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
@@ -16,20 +16,24 @@
             <id>jitpack</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>jgit-repository</id>
+            <url>https://repo.eclipse.org/content/groups/releases/</url>
+        </repository>
     </repositories>
     <dependencies>
         <!-- JDA -->
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.3.1_316</version>
+            <version>3.5.0_338</version>
         </dependency>
 
         <!-- Lavaplayer related -->
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.45</version>
+            <version>1.2.47</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
@@ -58,7 +62,7 @@
         <dependency>
             <groupId>com.github.binaryoverload</groupId>
             <artifactId>JSON-Config</artifactId>
-            <version>2.7.5</version>
+            <version>2.7.7</version>
         </dependency>
         <dependency>
             <groupId>com.github.ArsenArsen</groupId> <!-- <3 -->
@@ -140,6 +144,11 @@
             <groupId>io.sentry</groupId>
             <artifactId>sentry-logback</artifactId>
             <version>1.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>4.9.2.201712150930-r</version>
         </dependency>
     </dependencies>
 

@@ -30,6 +30,12 @@ public class PlayerListener extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(player.getGuildId());
+
+        // No song on next
+        if (player.getPlaylist().isEmpty()) {
+            FlareBotManager.getInstance().getLastActive().put(Long.parseLong(player.getGuildId()), System.currentTimeMillis());
+        }
+
         if (wrapper.isSongnickEnabled()) {
             if (GeneralUtils.canChangeNick(player.getGuildId())) {
                 Guild c = wrapper.getGuild();
@@ -50,6 +56,8 @@ public class PlayerListener extends AudioEventAdapter {
 
     @Override
     public void onTrackStart(AudioPlayer aplayer, AudioTrack atrack) {
+        FlareBotManager.getInstance().getLastActive().remove(Long.parseLong(player.getGuildId()));
+
         GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(player.getGuildId());
         if (MusicAnnounceCommand.getAnnouncements().containsKey(player.getGuildId())) {
             TextChannel c =
