@@ -327,7 +327,7 @@ public class FlareBot {
                     .addEventListeners(new ModlogEvents())
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
-                    .setShardsTotal(2)
+                    .setShardsTotal(-1)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
                     .setHttpClientBuilder(client.newBuilder())
                     .setBulkDeleteSplittingEnabled(false)

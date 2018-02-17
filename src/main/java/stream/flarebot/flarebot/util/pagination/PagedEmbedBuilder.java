@@ -55,7 +55,7 @@ public class PagedEmbedBuilder<T> {
     }
 
     /**
-     * Disables putting the info in a field. Allows for more data.
+     * Disable putting the info in a field. Allows for more data.
      */
     public void dissableInField() {
         this.inField = false;
