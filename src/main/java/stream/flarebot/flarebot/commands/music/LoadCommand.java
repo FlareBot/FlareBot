@@ -49,5 +49,4 @@ public class LoadCommand implements Command {
     public CommandType getType() {
         return CommandType.MUSIC;
     }
-
 }

@@ -13,7 +13,7 @@ public class DefaultCallback implements Callback {
     @ParametersAreNonnullByDefault
     public void onResponse(Call call, Response response) {
         FlareBot.LOGGER.trace("[" + response.code() + "] - " + call.request().url().toString()
-                .replaceFirst(Constants.FLAREBOT_API, ""));
+                .replaceFirst(Constants.getAPI(), ""));
         response.close();
     }
 }

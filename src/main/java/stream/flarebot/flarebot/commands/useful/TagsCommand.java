@@ -163,9 +163,4 @@ public class TagsCommand implements Command {
     public String[] getAliases() {
         return new String[]{"tag", "t"};
     }
-
-    @Override
-    public boolean isBetaTesterCommand() {
-        return true;
-    }
 }

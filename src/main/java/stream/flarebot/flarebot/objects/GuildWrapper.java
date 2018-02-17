@@ -1,5 +1,12 @@
 package stream.flarebot.flarebot.objects;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
@@ -9,18 +16,8 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 import stream.flarebot.flarebot.util.general.GuildUtils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 public class GuildWrapper {
 
@@ -28,7 +25,6 @@ public class GuildWrapper {
     private char prefix = Constants.COMMAND_CHAR;
     private Welcome welcome = new Welcome();
     private PerGuildPermissions permissions = new PerGuildPermissions();
-    private LinkedList<Poll> polls = new LinkedList<>();
     private Set<String> autoAssignRoles = new HashSet<>();
     private Set<String> selfAssignRoles = new HashSet<>();
     private boolean songnick = false;
@@ -43,6 +39,7 @@ public class GuildWrapper {
     private Map<String, String> tags = new ConcurrentHashMap<>();
     private String musicAnnounceChannelId = null;
     private Moderation moderation;
+    private NINO nino = null;
 
     // oooo special!
     private boolean betaAccess = false;
@@ -86,10 +83,6 @@ public class GuildWrapper {
 
     public void setPermissions(PerGuildPermissions permissions) {
         this.permissions = permissions;
-    }
-
-    public LinkedList<Poll> getPolls() {
-        return this.polls;
     }
 
     public Set<String> getAutoAssignRoles() {
@@ -250,5 +243,11 @@ public class GuildWrapper {
 
     public void setMusicAnnounceChannelId(String musicAnnounceChannelId) {
         this.musicAnnounceChannelId = musicAnnounceChannelId;
+    }
+
+    public NINO getNINO() {
+        if (nino == null)
+            nino = new NINO();
+        return nino;
     }
 }

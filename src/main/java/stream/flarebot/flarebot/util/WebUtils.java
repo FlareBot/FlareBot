@@ -1,19 +1,19 @@
 package stream.flarebot.flarebot.util;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import javax.annotation.ParametersAreNonnullByDefault;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import stream.flarebot.flarebot.FlareBot;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URL;
 
 /**
  * A utility class to provide easy ways to make web requests.
@@ -32,7 +32,7 @@ public class WebUtils {
 
         @Override
         @ParametersAreNonnullByDefault
-        public void onResponse(Call call, Response response) throws IOException {
+        public void onResponse(Call call, Response response) {
             response.close();
             FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
         }
@@ -50,10 +50,27 @@ public class WebUtils {
      *                     remote server accepted the request before the failure.
      */
     public static Response post(String url, MediaType type, String body) throws IOException {
+        return post(url, type, body, false);
+    }
+
+    public static Response post(String url, MediaType type, String body, boolean sendAPIAuth) throws IOException {
         Request.Builder request = new Request.Builder().url(url);
+        if (sendAPIAuth)
+            request.addHeader("Authorization", FlareBot.instance().getApiKey());
         RequestBody requestBody = RequestBody.create(type, body);
         request = request.post(requestBody);
         return request(request);
+    }
+
+    public static Response post(Request.Builder builder) throws IOException {
+        Response res = FlareBot.getOkHttpClient().newCall(builder.build()).execute();
+        ResponseBody body = res.body();
+        if (res.code() >= 200 && res.code() < 300)
+            return res;
+        else
+            throw new IllegalStateException("Failed to POST to '" + builder.build().url() + "'! Code: " + res.code()
+                    + ", Message: " + res.message() + ", Body: " + (body != null ? body.string().replace("\n", "")
+                    .replace("\t", " ").replaceAll(" +", " ") : "null"));
     }
 
     /**

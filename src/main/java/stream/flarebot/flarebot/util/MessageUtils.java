@@ -1,5 +1,17 @@
 package stream.flarebot.flarebot.util;
 
+import java.awt.Color;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.Clock;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -20,24 +32,12 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 
-import java.awt.Color;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.Clock;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 public class MessageUtils {
 
     private static FlareBot flareBot = FlareBot.instance();
 
-    private static final Pattern INVITE_REGEX = Pattern
-            .compile("(?:https?://)?discord(?:app\\.com/invite|\\.gg)/(\\S+?)");
+    public static final Pattern INVITE_REGEX = Pattern
+            .compile("(?i)discord(\\.(com|gg|io|me|net|org|xyz)|app\\.com/invite)/[a-z0-9-_.]+");
     private static final Pattern LINK_REGEX = Pattern
             .compile("((http(s)?://)(www\\.)?)[a-zA-Z0-9-]+\\.[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?/?(.+)?");
     private static final Pattern YOUTUBE_LINK_REGEX = Pattern
@@ -190,6 +190,8 @@ public class MessageUtils {
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
                     "[Support Server](" + Constants.INVITE_URL + ")! Our staff can support on any issue you may have! "
                     + Getters.getEmoteById(386550693294768129L).getAsMention());
+        if (FlareBot.getConfig().getString("globalMsg").isPresent())
+            builder.setDescription(builder.build().getDescription() + "\n\n" + FlareBot.getConfig().getString("globalMsg").get());
         if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
         else
@@ -263,6 +265,14 @@ public class MessageUtils {
 
     public static boolean hasInvite(String message) {
         return INVITE_REGEX.matcher(message).find();
+    }
+
+    public static String getInvite(String message) {
+        Matcher matcher = INVITE_REGEX.matcher(message);
+        if (matcher.find())
+            return matcher.group();
+        else
+            return null;
     }
 
     public static boolean hasLink(Message message) {

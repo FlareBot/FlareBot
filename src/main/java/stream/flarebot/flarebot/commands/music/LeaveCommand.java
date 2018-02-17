@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -25,6 +26,8 @@ public class LeaveCommand implements Command {
                 return;
             }
             channel.getGuild().getAudioManager().closeAudioConnection();
+            if (FlareBotManager.instance().getLastActive().containsKey(guild.getGuildIdLong()))
+                FlareBotManager.instance().getLastActive().remove(guild.getGuildIdLong());
             MessageUtils.sendInfoMessage("Bye bye! I've left the channel for now", channel, sender);
         }
     }

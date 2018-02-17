@@ -1,5 +1,7 @@
 package stream.flarebot.flarebot.commands;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
@@ -19,9 +21,6 @@ import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CommandManager {
 
@@ -97,7 +96,7 @@ public class CommandManager {
         registerCommand(new StopCommand());
         registerCommand(new SkipCommand());
         registerCommand(new ShuffleCommand());
-        registerCommand(new PlaylistCommand());
+        registerCommand(new QueueCommand());
         registerCommand(new SongCommand());
         registerCommand(new RepeatCommand());
         registerCommand(new MusicAnnounceCommand());
@@ -132,6 +131,7 @@ public class CommandManager {
         registerCommand(new PermissionsCommand());
         registerCommand(new AutoAssignCommand());
         registerCommand(new FixCommand());
+        registerCommand(new NINOCommand());
     }
 
     private void registerSecretCommands() {

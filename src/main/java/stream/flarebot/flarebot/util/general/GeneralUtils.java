@@ -6,31 +6,6 @@ import com.google.gson.JsonElement;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import io.github.binaryoverload.JSONConfig;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.exceptions.ErrorResponseException;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
-import org.slf4j.Logger;
-import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.database.RedisMessage;
-import stream.flarebot.flarebot.objects.Report;
-import stream.flarebot.flarebot.objects.ReportMessage;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.Pair;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
-import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
-
-import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,8 +31,34 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.net.ssl.HttpsURLConnection;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+import org.slf4j.Logger;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
+import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.objects.Report;
+import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.Pair;
+import stream.flarebot.flarebot.util.errorhandling.Markers;
+import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 public class GeneralUtils {
+
     //Constants
     private static final DecimalFormat percentageFormat = new DecimalFormat("#.##");
     private static final Pattern timeRegex = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$");
@@ -68,6 +69,23 @@ public class GeneralUtils {
             .appendMinutes().appendSuffix("m")
             .appendSeconds().appendSuffix("s")
             .toFormatter();
+
+
+    /**
+     * Gets a user count for a guild not including bots
+     *
+     * @param guild The guild to get the user count for
+     * @return The amount of non-bot users in a guild
+     */
+    public static int getGuildUserCount(Guild guild) {
+        int i = 0;
+        for (Member member : guild.getMembers()) {
+            if (!member.getUser().isBot()) {
+                i++;
+            }
+        }
+        return i;
+    }
 
     /**
      * Gets the {@link Report} embed with all of the info on the report.
@@ -104,8 +122,8 @@ public class GeneralUtils {
      * Gets the string representing the current page out of total.
      * Example: 6/10.
      *
-     * @param page The current page.
-     * @param items The items that are being paged.
+     * @param page       The current page.
+     * @param items      The items that are being paged.
      * @param pageLength The page length.
      * @return A string representing the current page out of the total pages which was calculated from the items and page length.
      */
@@ -147,7 +165,7 @@ public class GeneralUtils {
      * The default value you pass is what it return if their was an error parsing the string.
      * This happens when the string you enter isn't an int. For example if you enter in 'no'.
      *
-     * @param s The string to parse an int from.
+     * @param s            The string to parse an int from.
      * @param defaultValue The default int value to get in case parsing fails.
      * @return The int parsed from the string or the default value.
      */
@@ -158,12 +176,13 @@ public class GeneralUtils {
             return defaultValue;
         }
     }
+
     /**
      * Gets a long from a String.
      * The default value you pass is what it return if their was an error parsing the string.
      * This happens when the string you enter isn't an int. For example if you enter in 'no'.
      *
-     * @param s The string to parse a long from.
+     * @param s            The string to parse a long from.
      * @param defaultValue The default long value to get in case parsing fails.
      * @return The long parsed from the string or the default value.
      */
@@ -392,10 +411,10 @@ public class GeneralUtils {
      * This can be a url or search terms
      *
      * @param player The music player
-     * @param input The string to get the AudioItem from.
+     * @param input  The string to get the AudioItem from.
      * @return {@link AudioItem} from the string.
      * @throws IllegalArgumentException If the Item couldn't be found due to it not existing on Youtube.
-     * @throws IllegalStateException If the Video is unavailable for Flare, for example if it was published by VEVO.
+     * @throws IllegalStateException    If the Video is unavailable for Flare, for example if it was published by VEVO.
      */
     public static AudioItem resolveItem(Player player, String input) throws IllegalArgumentException, IllegalStateException {
         Optional<AudioItem> item = Optional.empty();
@@ -478,11 +497,11 @@ public class GeneralUtils {
     /**
      * Runs code and catches any errors. It prints success, error and start messages as appropriate to the specified logger.
      *
-     * @param logger The logger to log to.
-     * @param startMessage The start message. Gets sent to the logger when the runnable starts.
+     * @param logger         The logger to log to.
+     * @param startMessage   The start message. Gets sent to the logger when the runnable starts.
      * @param successMessage The success message. Gets sent to the logger if the runnable finished successfully.
-     * @param errorMessage The error message. Gets sent to the logger if an error is thrown in the runnable.
-     * @param runnable The {@link Runnable} to run.
+     * @param errorMessage   The error message. Gets sent to the logger if an error is thrown in the runnable.
+     * @param runnable       The {@link Runnable} to run.
      */
     public static void methodErrorHandler(Logger logger, String startMessage,
                                           String successMessage, String errorMessage,

@@ -10,7 +10,8 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.util.ArrayList;
@@ -21,14 +22,14 @@ public class ShardInfoCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        List<String> headers = new ArrayList<>();
-        headers.add("Shard ID");
-        headers.add("Status");
-        headers.add("Ping");
-        headers.add("Guild Count");
-        headers.add("Connected VCs");
+        PagedTableBuilder tb = new PagedTableBuilder();
 
-        List<List<String>> table = new ArrayList<>();
+        tb.addColumn("Shard ID");
+        tb.addColumn("Status");
+        tb.addColumn("Ping");
+        tb.addColumn("Guild Count");
+        tb.addColumn("Connected VCs");
+
         List<JDA> shards = new ArrayList<>(Getters.getShards());
         Collections.reverse(shards);
         for (JDA jda : shards) {
@@ -40,16 +41,9 @@ public class ShardInfoCommand implements Command {
             row.add(String.valueOf(jda.getGuilds().size()));
             row.add(String.valueOf(jda.getVoiceChannels().stream().filter(vc -> vc.getMembers().contains(vc.getGuild()
                     .getSelfMember())).count()));
-            table.add(row);
-            // TODO: Replace this hotfix with pagination
-            if (table.size() == 20) {
-                channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
-                table = new ArrayList<>();
-            }
+            tb.addRow(row);
         }
-        if (table.size() > 0) {
-            channel.sendMessage(MessageUtils.makeAsciiTable(headers, table, null, "swift")).queue();
-        }
+        PaginationUtil.sendPagedMessage(channel, tb.build(), 0);
     }
 
     @Override

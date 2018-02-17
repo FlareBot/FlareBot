@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.util;
+package stream.flarebot.flarebot.util.pagination;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -281,6 +281,7 @@ public class ModlogHandler {
             MessageUtils.sendErrorMessage(String.format("Cannot " + modAction.getLowercaseName() + " %s! " +
                             "I do not have the `" + e.getPermission().getName() + "` permission!",
                     MessageUtils.getTag(target)), channel);
+            return;
         }
         // TODO: Infraction
         postToModlog(wrapper, modAction.getEvent(), target, sender, rsn);
