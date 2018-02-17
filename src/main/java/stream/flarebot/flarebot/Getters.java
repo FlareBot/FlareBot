@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Emote;
@@ -106,5 +107,9 @@ public class Getters {
 
     public static SelfUser getSelfUser() {
         return FlareBot.instance().getClient().getSelfUser();
+    }
+
+    public static ShardManager getShardManager() {
+        return flareBot().getShardManager();
     }
 }

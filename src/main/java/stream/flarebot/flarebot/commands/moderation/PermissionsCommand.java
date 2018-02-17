@@ -286,7 +286,7 @@ public class PermissionsCommand implements Command {
                     PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20));
                     pe.setTitle("Groups");
                     pe.enableCodeBlock();
-                    PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
+                    PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
@@ -295,7 +295,9 @@ public class PermissionsCommand implements Command {
                 for (Permission p : Permission.values()) {
                     m.append("`").append(p).append("` ").append(p.isDefaultPerm()).append("\n");
                 }
-                channel.sendMessage(new EmbedBuilder().setDescription(m.toString()).build()).queue();
+                PagedEmbedBuilder<String> embedBuilder = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(m.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
+                embedBuilder.setTitle("Permissions");
+                PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel);
                 return;
             } else if (args[0].equalsIgnoreCase("reset")) {
                 guild.setPermissions(new PerGuildPermissions());
