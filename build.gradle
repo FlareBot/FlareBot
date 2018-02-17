@@ -34,7 +34,7 @@ dependencies {
     /*compile(group: 'com.arsenarsen.lavaplayer-bridge', name: 'jda-impl', version: '1.16-SNAPSHOT') {
         exclude(module: 'JDA')
     }*/
-    compile(group: 'com.github.FlareBot', name: 'lavaplayerbridge', version: '1afe8da') {
+    compile(group: 'com.github.FlareBot', name: 'lavaplayerbridge', version: '7cf3eba') {
         exclude(module: 'JDA')
     }
 
