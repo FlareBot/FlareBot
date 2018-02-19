@@ -3,6 +3,8 @@ package stream.flarebot.flarebot.analytics;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 
 import java.io.IOException;
@@ -36,6 +38,10 @@ public class AnalyticsHandler {
      * @param delay Delay for the analytics to be first sent.
      */
     public void run(long delay) {
+        if (FlareBot.getInstance().isApiDisabled()) {
+            MessageUtils.sendWarningMessage("API and Analytics disabled", FlareBot.getInstance().getErrorLogChannel());
+            return;
+        }
         for (AnalyticSender sender : analytics) {
             new FlareBotTask("Analytic-" + sender.endpoint()) {
                 @Override
