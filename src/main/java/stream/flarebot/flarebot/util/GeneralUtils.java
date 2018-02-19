@@ -344,8 +344,10 @@ public class GeneralUtils {
     public static void joinChannel(TextChannel channel, Member member) {
         GuildVoiceState vs = channel.getGuild().getSelfMember().getVoiceState();
         GuildVoiceState memberVS = member.getVoiceState();
-        if (memberVS.getChannel() == null)
+        if (memberVS.getChannel() == null) {
+            MessageUtils.sendErrorMessage("You need to join a voice channel to do that!", channel);
             return; // They aren't in a VC so we can't join that.
+        }
         if (vs.getChannel() != null && vs.getChannel().getIdLong() == member.getVoiceState().getChannel().getIdLong())
             return; // Already in the same VC as the user.
 
