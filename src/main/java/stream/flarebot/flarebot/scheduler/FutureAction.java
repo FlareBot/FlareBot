@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
@@ -160,6 +161,9 @@ public class FutureAction {
                             FormatUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
                             .queue();
                 break;
+            case DM_REMINDER:
+                MessageUtils.sendPM(Getters.getChannelById(channelId), Getters.getUserById(responsible), Getters.getUserById(responsible).getAsMention() + " You asked me to remind you " +
+                        FormatUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`");
             default:
                 break;
         }
@@ -189,6 +193,7 @@ public class FutureAction {
     public enum Action {
         TEMP_MUTE,
         TEMP_BAN,
-        REMINDER
+        REMINDER,
+        DM_REMINDER
     }
 }

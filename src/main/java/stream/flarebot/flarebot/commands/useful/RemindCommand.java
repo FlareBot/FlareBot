@@ -23,12 +23,20 @@ public class RemindCommand implements Command {
         } else {
             Period period;
             if ((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
-            String reminder = MessageUtils.getMessage(args, 1);
+            String reminder;
+            FutureAction.Action action;
+            if(args[1].equalsIgnoreCase("dm")) {
+                reminder = MessageUtils.getMessage(args, 2);
+                action = FutureAction.Action.DM_REMINDER;
+            } else {
+                reminder = MessageUtils.getMessage(args, 1);
+                action = FutureAction.Action.REMINDER;
+            }
             channel.sendMessage("\uD83D\uDC4D I will remind you in " + FormatUtils.formatJodaTime(period).toLowerCase() + " (at "
                     + FormatUtils.formatPrecisely(period) + ") to `" + reminder + "`").queue();
 
             Scheduler.queueFutureAction(guild.getGuildIdLong(), channel.getIdLong(), sender.getIdLong(), reminder.substring(0,
-                    Math.min(reminder.length(), 1000)), period, FutureAction.Action.REMINDER);
+                    Math.min(reminder.length(), 1000)), period, action);
         }
     }
 
@@ -44,7 +52,8 @@ public class RemindCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}remind <duration> <reminder>` - Reminds a user about something after a duration.";
+        return "`{%}remind <duration> <reminder>` - Reminds a user about something after a duration.\n" +
+                "`{%}remind <duration> dm <reminder>` - Reminds a user about something after a duration via Direct Messages.";
     }
 
     @Override
