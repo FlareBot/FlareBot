@@ -164,6 +164,7 @@ public class FutureAction {
             case DM_REMINDER:
                 MessageUtils.sendPM(Getters.getChannelById(channelId), Getters.getUserById(responsible), Getters.getUserById(responsible).getAsMention() + " You asked me to remind you " +
                         FormatUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`");
+                break;
             default:
                 break;
         }
