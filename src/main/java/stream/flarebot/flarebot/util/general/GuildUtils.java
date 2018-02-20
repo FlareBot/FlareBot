@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.util.general;
 
+import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
@@ -8,6 +9,7 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -298,7 +300,11 @@ public class GuildUtils {
                         "bypass it!", channel);
                 return;
             }
+            PlayerManager musicManager = FlareBot.instance().getMusicManager();
             channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            if(musicManager.getPlayer(channel.getGuild().getId()).getPaused()) {
+                MessageUtils.sendWarningMessage("The music is currently paused do `{%}resume`", channel);
+            }
         } else {
             MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
                     .hasPermission(member.getVoiceState()

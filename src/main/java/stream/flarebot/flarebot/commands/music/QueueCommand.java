@@ -104,9 +104,9 @@ public class QueueCommand implements Command {
                         next.getMeta().get("requester"));
                 songs.add(song);
             }
-            PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(songs.stream().collect(Collectors.joining("\n")), PaginationUtil.SplitMethod.NEW_LINES, 10));
+            PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(songs.stream().collect(Collectors.joining("\n")) + "\n", PaginationUtil.SplitMethod.CHAR_COUNT, 2000));
+            pe.disableInField();
             pe.setTitle("Queued Songs");
-            pe.setCodeBlock("md");
             PaginationUtil.sendEmbedPagedMessage(pe.build(), 0, channel);
         } else {
             MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);

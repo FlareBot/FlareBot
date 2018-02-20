@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.util.pagination;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.ArrayUtils;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
@@ -55,6 +56,10 @@ public class PaginationUtil {
      * @param page        The starting page
      */
     public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page) {
+        if(page < 0 || page > list.getPages() - 1) {
+            MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + list.getPages(), textChannel);
+            return;
+        }
         Integer[] pages = new Integer[]{page};
         if(list.getPages() > 1) {
             ButtonGroup buttonGroup = new ButtonGroup();
@@ -97,6 +102,10 @@ public class PaginationUtil {
      * @param channel The channel to send the paged message to.
      */
     public static void sendEmbedPagedMessage(PagedEmbedBuilder.PagedEmbed pagedEmbed, int page, TextChannel channel) {
+        if(page < 0 || page > pagedEmbed.getPageTotal() - 1) {
+            MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + pagedEmbed.getPageTotal(), channel);
+            return;
+        }
         if (!pagedEmbed.isSinglePage()) {
             ButtonGroup buttonGroup = new ButtonGroup();
             Integer[] pages = new Integer[]{page};
