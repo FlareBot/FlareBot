@@ -52,7 +52,7 @@ public class RemindCommand implements Command {
                             }
                         }
                     }
-                    MessageUtils.sendSuccessMessage("Cleared your reminds successfully", channel, sender);
+                    MessageUtils.sendSuccessMessage("Cleared your reminders successfully", channel, sender);
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 }
@@ -94,7 +94,7 @@ public class RemindCommand implements Command {
         return "`{%}remind <duration> <reminder>` - Reminds a user about something after a duration.\n" +
                 "`{%}remind <duration> dm <reminder>` - Reminds a user about something after a duration via Direct Messages.\n" +
                 "`{%}remind list` - Lists your current reminders.\n" +
-                "`{%}remind clear` - Clears your current reminds.";
+                "`{%}remind clear` - Clears your current reminders.";
     }
 
     @Override
