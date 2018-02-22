@@ -107,4 +107,10 @@ public class PerGuildPermissions {
     public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
         return checkOfficialGuildForRole(user, Constants.STAFF_ID);
     }
+
+    public void moveGroup(Group group, int pos) {
+        int index = groups.indexOf(group);
+        groups.remove(index);
+        groups.add(pos, group);
+    }
 }
