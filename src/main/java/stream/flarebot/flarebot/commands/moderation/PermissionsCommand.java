@@ -290,7 +290,7 @@ public class PermissionsCommand implements Command {
 
                     StringBuilder stringBuilder = new StringBuilder();
                     int i = 1;
-                    for (Group group: guild.getPermissions().getGroups()) {
+                    for (Group group : guild.getPermissions().getGroups()) {
                         stringBuilder.append(i).append(". ").append(group.getName()).append("\n");
                         i++;
                     }
