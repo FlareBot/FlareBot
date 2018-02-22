@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.lang.IllegalStateException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -443,7 +444,7 @@ public class FlareBot {
         for (JDA jda : shardManager.getShardCsch())
             if (jda.getStatus() == JDA.Status.CONNECTED)
                 return jda;
-        throws IllegalStateException ("Tried to get JDA shard before any were connected!");
+        throws new IllegalStateException ("Tried to get JDA shard before any were connected!");
     }
 
     @Nonnull
