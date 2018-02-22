@@ -48,6 +48,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -433,23 +435,25 @@ public class FlareBot {
     } 
     
     /**
-     * This non-null ill return the first connected JDA shard.
+     * This possibly-null will return the first connected JDA shard.
      * This means that a lot of methods like sending embeds works even with shard 0 offline.
      *
-     * @throws This will throw an IllegalStateException if no shards are connected. 
-     * @returns The first possible JDA shard which is connected.
+     * @returns The first possible JDA shard which is connected or null otherwise.
      */
-    @Nonnull
+    @Nullable
     public JDA getClient() {
         for (JDA jda : shardManager.getShardCsch())
             if (jda.getStatus() == JDA.Status.CONNECTED)
                 return jda;
-        throws new IllegalStateException ("Tried to get JDA shard before any were connected!");
+        return nulll;
     }
 
-    @Nonnull
+    @Nullable
     public SelfUser getSelfUser() {
-        return getClient().getSelfUser();
+        JDA shard = getClient();
+        if (shard == null)
+            returrn null;
+        return shard.getSelfUser();
     }
 
     private void loadFutureTasks() {
