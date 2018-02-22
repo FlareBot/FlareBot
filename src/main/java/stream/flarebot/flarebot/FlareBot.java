@@ -247,6 +247,7 @@ public class FlareBot {
         }
     }
 
+    @Nonnull
     public static OkHttpClient getOkHttpClient() {
         return client;
     }
@@ -452,7 +453,7 @@ public class FlareBot {
     public SelfUser getSelfUser() {
         JDA shard = getClient();
         if (shard == null)
-            returrn null;
+            return null;
         return shard.getSelfUser();
     }
 
@@ -673,6 +674,7 @@ public class FlareBot {
 
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
+    @Nullable
     public Command getCommand(String s, User user) {
         if (PerGuildPermissions.isCreator(user) || (isTestBot() && PerGuildPermissions.isContributor(user))) {
             for (Command cmd : getCommandsByType(CommandType.SECRET)) {
@@ -692,14 +694,17 @@ public class FlareBot {
         return null;
     }
 
+    @Nonnull
     public Set<Command> getCommands() {
         return this.commands;
     }
-
+    
+    @Nonnull
     public Set<Command> getCommandsByType(CommandType type) {
         return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
     }
 
+    @Nonnull
     public static FlareBot getInstance() {
         return instance;
     }
