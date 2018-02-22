@@ -1,17 +1,16 @@
 package stream.flarebot.flarebot.analytics;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class AnalyticsHandler {
 
