@@ -132,7 +132,7 @@ public class FlareBot {
 
     private AnalyticsHandler analyticsHandler;
 
-    private Set<FutureAction> futureActions;
+    private final Set<FutureAction> futureActions = new ConcurrentHashSet<>();
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -386,8 +386,6 @@ public class FlareBot {
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Executed creations!", "Failed to execute creations!",
                 () -> manager.executeCreations());
-
-        futureActions = new ConcurrentHashSet<>();
 
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Loaded future tasks!", "Failed to load future tasks!",
