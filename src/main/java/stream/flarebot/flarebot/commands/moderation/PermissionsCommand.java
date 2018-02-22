@@ -150,9 +150,8 @@ public class PermissionsCommand implements Command {
                                 MessageUtils.sendWarningMessage("Invalid Page: " + args[3], channel);
                                 return;
                             } else {
-                                pos = pos - 1;
-                                guild.getPermissions().moveGroup(group, pos);
-                                MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + (pos+1), channel, sender);
+                                guild.getPermissions().moveGroup(group, pos-1);
+                                MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos+1, channel, sender);
                                 return;
                             }
                         }
