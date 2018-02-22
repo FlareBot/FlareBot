@@ -192,6 +192,7 @@ public class FutureAction {
                     "AND channel_id = ? AND created_at = ?");
         CassandraController.executeAsync(delete.bind().setLong(0, guildId).setLong(1, channelId)
                 .setTimestamp(2, created.toDate()));
+        Scheduler.cancelTask("FutureTask-" + action.name() + "-" + expires.toString());
     }
 
     public enum Action {
