@@ -146,8 +146,8 @@ public class PermissionsCommand implements Command {
                     } else if (args[2].equalsIgnoreCase("move")) {
                         if(args.length >= 4) {
                             int pos = GeneralUtils.getInt(args[3], -1);
-                            if(pos < 1 || pos > (guild.getPermissions().getGroups().size() - 1)) {
-                                MessageUtils.sendErrorMessage("Invalid Page: " + args[3], channel);
+                            if(pos < 1 || pos >= guild.getPermissions().getGroups().size()) {
+                                MessageUtils.sendWarningMessage("Invalid Page: " + args[3], channel);
                                 return;
                             } else {
                                 pos = pos - 1;
