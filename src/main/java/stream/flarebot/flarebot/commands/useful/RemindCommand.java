@@ -52,7 +52,7 @@ public class RemindCommand implements Command {
                             }
                         }
                     }
-                    MessageUtils.sendSuccessMessage("Cleared your Reminds Successfully", channel, sender);
+                    MessageUtils.sendSuccessMessage("Cleared your reminds successfully", channel, sender);
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 }
