@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +59,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -129,6 +129,8 @@ public class FlareBot {
     private CommandManager commandManager;
 
     private AnalyticsHandler analyticsHandler;
+
+    private final Set<FutureAction> futureActions = new ConcurrentHashSet<>();
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -409,6 +411,7 @@ public class FlareBot {
     public JDA getClient() {
         return shardManager.getShards().get(0);
     }
+
 
     private void loadFutureTasks() {
         final int[] loaded = {0};
@@ -881,4 +884,7 @@ public class FlareBot {
         });
     }
 
+    public Set<FutureAction> getFutureActions() {
+        return futureActions;
+    }
 }
