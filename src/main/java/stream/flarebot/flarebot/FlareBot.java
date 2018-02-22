@@ -443,18 +443,16 @@ public class FlareBot {
      */
     @Nullable
     public JDA getClient() {
-        for (JDA jda : shardManager.getShardCsch())
+        for (JDA jda : shardManager.getShardCache())
             if (jda.getStatus() == JDA.Status.CONNECTED)
                 return jda;
-        return nulll;
+        return null;
     }
 
     @Nullable
     public SelfUser getSelfUser() {
         JDA shard = getClient();
-        if (shard == null)
-            return null;
-        return shard.getSelfUser();
+        return shard == null ? null : shard.getSelfUser();
     }
 
     private void loadFutureTasks() {
