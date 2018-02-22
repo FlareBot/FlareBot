@@ -387,6 +387,8 @@ public class FlareBot {
                 "Executed creations!", "Failed to execute creations!",
                 () -> manager.executeCreations());
 
+        futureActions = new ConcurrentHashSet<>();
+
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Loaded future tasks!", "Failed to load future tasks!",
                 this::loadFutureTasks);
@@ -416,7 +418,6 @@ public class FlareBot {
 
 
     private void loadFutureTasks() {
-        futureActions = new ConcurrentHashSet<>();
         final int[] loaded = {0};
         CassandraController.runTask(session -> {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
