@@ -61,6 +61,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -415,7 +416,7 @@ public class FlareBot {
 
 
     private void loadFutureTasks() {
-        futureActions = new HashSet<>();
+        futureActions = new ConcurrentHashSet<>();
         final int[] loaded = {0};
         CassandraController.runTask(session -> {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");

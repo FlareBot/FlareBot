@@ -18,7 +18,6 @@ import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.TimeZone;
@@ -44,6 +43,16 @@ public class RemindCommand implements Command {
                     PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
                     pagedEmbedBuilder.setTitle("Reminders for " + MessageUtils.getTag(sender));
                     PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel);
+                } else if(args[0].equalsIgnoreCase("clear")) {
+                    Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
+                    for (FutureAction action : futureActions) {
+                        if (action.getAction().equals(FutureAction.Action.REMINDER) || action.getAction().equals(FutureAction.Action.DM_REMINDER)) {
+                            if (action.getResponsible() == sender.getIdLong()) {
+                                action.delete();
+                            }
+                        }
+                    }
+                    MessageUtils.sendSuccessMessage("Cleared your Reminds Successfully", channel, sender);
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 }
@@ -84,7 +93,8 @@ public class RemindCommand implements Command {
     public String getUsage() {
         return "`{%}remind <duration> <reminder>` - Reminds a user about something after a duration.\n" +
                 "`{%}remind <duration> dm <reminder>` - Reminds a user about something after a duration via Direct Messages.\n" +
-                "`{%}remind list` - Lists your current reminders.";
+                "`{%}remind list` - Lists your current reminders.\n" +
+                "`{%}remind clear` - Clears your current reminds.";
     }
 
     @Override
