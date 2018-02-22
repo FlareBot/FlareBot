@@ -45,11 +45,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -216,6 +219,7 @@ public class FlareBot {
         }
     }
 
+    @Nonnull
     public static OkHttpClient getOkHttpClient() {
         return client;
     }
@@ -381,6 +385,7 @@ public class FlareBot {
         analyticsHandler.registerAnalyticSender(new GuildCountAnalytics());
         analyticsHandler.run(isTestBot() ? 1000 : -1);
 
+
         GeneralUtils.methodErrorHandler(LOGGER, null,
                 "Executed creations!", "Failed to execute creations!",
                 () -> manager.executeCreations());
@@ -403,15 +408,24 @@ public class FlareBot {
     }
 
     /**
-     * This will always return the main shard or just the client itself.
-     * For reference the main shard will always be shard 0 - the shard responsible for DMs
+     * This possibly-null will return the first connected JDA shard.
+     * This means that a lot of methods like sending embeds works even with shard 0 offline.
      *
-     * @return The main shard or actual client in the case of only 1 shard.
+     * @returns The first possible JDA shard which is connected or null otherwise.
      */
+    @Nullable
     public JDA getClient() {
-        return shardManager.getShards().get(0);
+        for (JDA jda : shardManager.getShardCache())
+            if (jda.getStatus() == JDA.Status.CONNECTED)
+                return jda;
+        return null;
     }
 
+    @Nullable
+    public SelfUser getSelfUser() {
+        JDA shard = getClient();
+        return shard == null ? null : shard.getSelfUser();
+    }
 
     private void loadFutureTasks() {
         final int[] loaded = {0};
@@ -633,7 +647,7 @@ public class FlareBot {
             StringBuilder buttonsBuilder = new StringBuilder();
             for (ButtonGroup.Button button : buttonGroup.getButtons()) {
                 StringBuilder buttonBuilder = new StringBuilder();
-                if(button.getUnicode() != null) {
+                if (button.getUnicode() != null) {
                     buttonBuilder.append("\tUnicode: ").append(button.getUnicode());
                 } else {
                     buttonBuilder.append("\tEmote Id: ").append(button.getEmoteId());
@@ -643,7 +657,7 @@ public class FlareBot {
                 buttonsBuilder.append(buttonBuilder.toString()).append("\n");
             }
             double average = 0;
-            if(events.getButtonClicksPerSec().containsKey(messageId)) {
+            if (events.getButtonClicksPerSec().containsKey(messageId)) {
                 List<Double> clicks = events.getButtonClicksPerSec().get(messageId);
                 double combine = 0.0;
                 for (double clicksPerSec : clicks) {
@@ -658,7 +672,7 @@ public class FlareBot {
             total += groupTotal;
             it.remove();
         }
-        return MessageUtils.paste("Total clicks: " + total + "\n" +groupsBuilder.toString());
+        return MessageUtils.paste("Total clicks: " + total + "\n" + groupsBuilder.toString());
     }
 
     public String getUptime() {
@@ -839,13 +853,16 @@ public class FlareBot {
             @Override
             public void run() {
                 for (VoiceChannel channel : Getters.getConnectedVoiceChannelList()) {
-                    if (channel.getMembers().stream().noneMatch(member -> member.getUser().isFake() || member.getUser().isBot()))
+                    if (channel.getMembers().stream().filter(member -> !member.getUser().isBot() && !member.getUser().isFake()).count() > 0
+                            && !getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
+                            && !getMusicManager().getPlayer(channel.getGuild().getId()).getPaused()) {
+                        manager.getLastActive().remove(channel.getGuild().getIdLong());
                         return;
-                    if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())) {
-                        if (System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) + TimeUnit.MINUTES.toMillis(10)))
-                            channel.getGuild().getAudioManager().closeAudioConnection();
-                    } else
-                        manager.getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
+                    }
+                    if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())
+                            && System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong())
+                            + TimeUnit.MINUTES.toMillis(10)))
+                        channel.getGuild().getAudioManager().closeAudioConnection();
                 }
             }
         }.repeat(10_000, 10_000);

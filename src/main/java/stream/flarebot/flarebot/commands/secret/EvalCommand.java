@@ -76,9 +76,8 @@ public class EvalCommand implements Command {
             MessageUtils.sendErrorMessage("Eval something at least smh!", channel);
             return;
         }
-        String imports =
-                IMPORTS.stream().map(s -> "Packages." + s).collect(Collectors.joining(", ", "var imports = new JavaImporter(", ");\n"));
-        ScriptEngine engine = manager.getEngineByName("nashorn");
+        String imports = IMPORTS.stream().map(s -> "import " + s + ".*;").collect(Collectors.joining("\n"));
+        ScriptEngine engine = manager.getEngineByName("groovy");
         engine.put("channel", channel);
         engine.put("guild", guild);
         engine.put("message", message);
@@ -143,16 +142,16 @@ public class EvalCommand implements Command {
 
         POOL.submit(() -> {
             try {
-                String eResult = String.valueOf(engine.eval(imports + "with (imports) {\n" + finalCode + "\n}"));
-                if (("```js\n" + eResult + "\n```").length() > 1048) {
+                String eResult = String.valueOf(engine.eval(imports + "\n" + finalCode));
+                if (("```groovy\n" + eResult + "\n```").length() > 1048) {
                     eResult = String.format("[Result](%s)", MessageUtils.paste(eResult));
-                } else eResult = "```js\n" + eResult + "\n```";
+                } else eResult = "```groovy\n" + eResult + "\n```";
                 if (!silent)
                     channel.sendMessage(MessageUtils.getEmbed(sender)
                             .addField("Code:", "```js\n" + finalCode + "```", false)
                             .addField("Result: ", eResult, false).build()).queue();
             } catch (Exception e) {
-                FlareBot.LOGGER.error("Error occurred in the evaluator thread pool!", e, Markers.NO_ANNOUNCE);
+                FlareBot.LOGGER.error("Error occurred in the evaluator thread pool! " + e.getMessage(), e, Markers.NO_ANNOUNCE);
                 channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("Code:", "```js\n" + finalCode + "```", false)
                         .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
