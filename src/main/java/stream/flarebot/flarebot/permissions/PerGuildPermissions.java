@@ -58,7 +58,7 @@ public class PerGuildPermissions {
     public Group getGroup(String group) {
         synchronized (groups) {
             for (Group g : groups) {
-                if (g.getName().equals(group)) return g;
+                if (g.getName().equalsIgnoreCase(group)) return g;
             }
         }
         return null;
