@@ -4,6 +4,7 @@ import com.datastax.driver.core.PreparedStatement;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.database.CassandraController;
@@ -181,9 +182,11 @@ public class FutureAction {
         CassandraController.executeAsync(update.bind().setLong(0, responsible).setLong(1, target).setString(2, content)
                 .setTimestamp(3, expires.toDate()).setString(4, action.name()).setLong(5, guildId).setLong(6, channelId)
                 .setTimestamp(7, created.toDate()));
+        FlareBot.instance().getFutureActions().add(this);
     }
 
     public void delete() {
+        FlareBot.instance().getFutureActions().remove(this);
         if (delete == null)
             delete = CassandraController.prepare("DELETE FROM flarebot.future_tasks WHERE guild_id = ? " +
                     "AND channel_id = ? AND created_at = ?");

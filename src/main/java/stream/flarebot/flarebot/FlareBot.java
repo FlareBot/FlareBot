@@ -34,6 +34,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -129,6 +130,8 @@ public class FlareBot {
     private CommandManager commandManager;
 
     private AnalyticsHandler analyticsHandler;
+
+    private Set<FutureAction> futureActions;
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -410,7 +413,9 @@ public class FlareBot {
         return shardManager.getShards().get(0);
     }
 
+
     private void loadFutureTasks() {
+        futureActions = new HashSet<>();
         final int[] loaded = {0};
         CassandraController.runTask(session -> {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
@@ -881,4 +886,7 @@ public class FlareBot {
         });
     }
 
+    public Set<FutureAction> getFutureActions() {
+        return futureActions;
+    }
 }
