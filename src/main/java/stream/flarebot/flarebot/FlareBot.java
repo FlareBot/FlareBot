@@ -429,18 +429,24 @@ public class FlareBot {
                 "Started all tasks, run complete!", "Failed to start all tasks!",
                 this::runTasks);
 
-    }
-
+    } 
+    
     /**
-     * This will always return the main shard or just the client itself.
-     * For reference the main shard will always be shard 0 - the shard responsible for DMs
+     * This non-null ill return the first connected JDA shard.
+     * This means that a lot of methods like sending embeds works even with shard 0 offline.
      *
-     * @return The main shard or actual client in the case of only 1 shard.
+     * @throws This will throw an IllegalStateException if no shards are connected. 
+     * @returns The first possible JDA shard which is connected.
      */
+    @Nonnull
     public JDA getClient() {
-        return shardManager.getShards().get(0);
+        for (JDA jda : shardManager.getShardCsch())
+            if (jda.getStatus() == JDA.Status.CONNECTED)
+                return jda;
+        throws IllegalStateException ("Tried to get JDA shard before any were connected!");
     }
 
+    @Nonnull
     public SelfUser getSelfUser() {
         return getClient().getSelfUser();
     }
