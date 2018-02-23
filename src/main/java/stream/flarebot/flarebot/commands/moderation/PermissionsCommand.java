@@ -147,7 +147,7 @@ public class PermissionsCommand implements Command {
                         if(args.length >= 4) {
                             int pos = GeneralUtils.getInt(args[3], -1);
                             if(pos < 1 || pos >= guild.getPermissions().getGroups().size()) {
-                                MessageUtils.sendWarningMessage("Invalid Page: " + args[3], channel);
+                                MessageUtils.sendWarningMessage("Invalid Position: " + args[3], channel);
                                 return;
                             } else {
                                 guild.getPermissions().moveGroup(group, pos-1);
@@ -345,7 +345,7 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions group <group> list [page]` - lists the permissions this group has.\n" +
                 "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n" +
                 "`{%}permissions group <group> clear` - Removes all permissions from this group!\n" +
-                "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy\n\n" +
+                "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy.\n\n" +
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +
