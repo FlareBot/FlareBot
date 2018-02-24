@@ -143,17 +143,15 @@ public class PermissionsCommand implements Command {
                         group.getPermissions().clear();
                         MessageUtils.sendSuccessMessage("Cleared all permissions from the group: " + group.getName(), channel);
                         return;
-                    } else if (args[2].equalsIgnoreCase("move")) {
-                        if(args.length >= 4) {
-                            int pos = GeneralUtils.getInt(args[3], -1);
-                            if(pos < 1 || pos >= guild.getPermissions().getGroups().size()) {
-                                MessageUtils.sendWarningMessage("Invalid Position: " + args[3], channel);
-                                return;
-                            } else {
-                                guild.getPermissions().moveGroup(group, pos-1);
-                                MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos+1, channel, sender);
-                                return;
-                            }
+                    } else if (args[2].equalsIgnoreCase("move") && args.length >= 4) {
+                        int pos = GeneralUtils.getInt(args[3], -1);
+                        if (pos < 1 || pos >= guild.getPermissions().getGroups().size()) {
+                            MessageUtils.sendWarningMessage("Invalid Position: " + args[3], channel);
+                            return;
+                        } else {
+                            guild.getPermissions().moveGroup(group, pos - 1);
+                            MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos + 1, channel, sender);
+                            return;
                         }
                     }
                 }
