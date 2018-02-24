@@ -143,7 +143,7 @@ public class ModlogHandler {
         }
         if (channel == null) return;
         if (member == null && modAction != ModAction.BAN && modAction != ModAction.FORCE_BAN) {
-            MessageUtils.sendErrorMessage("That user isn't in this server!" 
+            MessageUtils.sendErrorMessage("That user isn't in this server!"
                     + (modAction == ModAction.BAN ? " You can forceban with `{%}forceban <id>`." : ""), channel);
             return;
         }
@@ -161,7 +161,7 @@ public class ModlogHandler {
                     modAction.getLowercaseName()), channel);
             return;
         }
-        
+
         if (target != null && target.getIdLong() == FlareBot.getInstance().getClient().getSelfUser().getIdLong()) {
             MessageUtils.sendWarningMessage(String.format("T-that's meannnnnnn :( I can't %s myself and I hope you don't want to either :(",
                     modAction.getLowercaseName()), channel);
