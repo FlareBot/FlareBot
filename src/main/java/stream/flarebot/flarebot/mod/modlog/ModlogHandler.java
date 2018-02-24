@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.mod.modlog;
 
-import java.awt.Color;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
@@ -17,6 +16,8 @@ import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+
+import java.awt.Color;
 
 public class ModlogHandler {
 
