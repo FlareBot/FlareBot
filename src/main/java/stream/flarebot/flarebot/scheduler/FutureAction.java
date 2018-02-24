@@ -138,7 +138,7 @@ public class FutureAction {
                 ModlogHandler.getInstance().handleAction(gw,
                         ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNMUTE.getEvent()),
                         null,
-                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
+                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
                         ModAction.UNMUTE,
                         "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
                 );
@@ -147,7 +147,7 @@ public class FutureAction {
                 ModlogHandler.getInstance().handleAction(gw,
                         ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNBAN.getEvent()),
                         null,
-                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), false),
+                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
                         ModAction.UNBAN,
                         "Temporary ban expired, was banned for " + GeneralUtils.formatJodaTime(delay)
                 );
