@@ -46,7 +46,7 @@ public class GitHandler {
             if (getRepository() != null) {
                 try (RevWalk walk = new RevWalk(getRepository())) {
                     Ref head = getRepository().exactRef(getRepository().getFullBranch());
-                    GitHandler.latestCommit = walk.parseCommit(head.getObjectId());;
+                    GitHandler.latestCommit = walk.parseCommit(head.getObjectId());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
