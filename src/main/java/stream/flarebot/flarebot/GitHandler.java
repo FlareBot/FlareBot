@@ -41,13 +41,12 @@ public class GitHandler {
         return null;
     }
 
-    public static RevCommit getLatestCommit() {
+    private static RevCommit getLatestCommit() {
         if (latestCommit == null) {
             if (getRepository() != null) {
                 try (RevWalk walk = new RevWalk(getRepository())) {
                     Ref head = getRepository().exactRef(getRepository().getFullBranch());
-                    RevCommit commit = walk.parseCommit(head.getObjectId());
-                    GitHandler.latestCommit = commit;
+                    GitHandler.latestCommit = walk.parseCommit(head.getObjectId());;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
