@@ -12,14 +12,16 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permission;
+import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -106,8 +108,9 @@ public class PermissionsCommand implements Command {
 
                             String list = permList.stream().collect(Collectors.joining("\n"));
 
-                            PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
-                            pe.setTitle(group.getName() + " Permissions");
+                            PagedEmbedBuilder<String> pe =
+                                    new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
+                            pe.setTitle("Permissions for the group: " + group.getName());
                             pe.enableCodeBlock();
 
                             PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
@@ -150,7 +153,7 @@ public class PermissionsCommand implements Command {
                             return;
                         } else {
                             guild.getPermissions().moveGroup(group, pos - 1);
-                            MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos + 1, channel, sender);
+                            MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos, channel, sender);
                             return;
                         }
                     }
@@ -196,14 +199,21 @@ public class PermissionsCommand implements Command {
                                     }
                                 }
                             } else if (args[3].equalsIgnoreCase("list")) {
-                                int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
-                                Set<String> groups = permUser.getGroups();
+                                int page = (args.length == 5 ? GeneralUtils.getInt(args[4], 1) : 1) - 1;
+                                Set<String> groups = new HashSet<>(permUser.getGroups());
+                                groups.addAll(getPermissions(channel)
+                                        .getGroups()
+                                        .stream()
+                                        .filter(g -> guild.getGuild().getMember(user).getRoles().contains(guild.getGuild().getRoleById(g.getRoleId())) || g.getRoleId().equals(guild.getGuildId()))
+                                        .map(Group::getName)
+                                        .collect(Collectors.toList()));
                                 List<String> groupList = GeneralUtils.orderList(groups);
 
                                 String list = groupList.stream().collect(Collectors.joining("\n"));
 
-                                PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
-                                pe.setTitle(MessageUtils.getTag(user) + " Groups");
+                                PagedEmbedBuilder<String> pe =
+                                        new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
+                                pe.setTitle("Groups for " + MessageUtils.getTag(user));
                                 pe.enableCodeBlock();
 
                                 PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
@@ -239,35 +249,38 @@ public class PermissionsCommand implements Command {
                                     }
                                 }
                             } else if (args[3].equalsIgnoreCase("list")) {
-                                int page = args.length == 5 ? Integer.valueOf(args[4]) : 1;
+                                int page = (args.length == 5 ? Integer.valueOf(args[4]) : 1) - 1;
                                 Set<String> perms = permUser.getPermissions();
                                 List<String> permList = GeneralUtils.orderList(perms);
 
                                 String list = permList.stream().collect(Collectors.joining("\n"));
 
-                                PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
-                                pe.setTitle(MessageUtils.getTag(user) + " Permissions");
+                                PagedEmbedBuilder<String> pe =
+                                        new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
+                                pe.setTitle("Permissions for " + MessageUtils.getTag(user));
                                 pe.enableCodeBlock();
                                 PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                                 return;
                             }
                         }
                     } else if (args[2].equalsIgnoreCase("check")) {
-                        EmbedBuilder builder = new EmbedBuilder();
-                        builder.setTitle("Permissions for " + user.getName());
-                        StringBuilder stringBuilder = new StringBuilder();
                         if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.ALL_PERMISSIONS)) {
-                            stringBuilder.append("**All Permissions!**");
+                            EmbedBuilder builder = new EmbedBuilder();
+                            builder.setTitle("Permissions for " + user.getName());
+                            builder.setDescription("**All Permissions!**");
+                            channel.sendMessage(builder.build()).queue();
+                            return;
                         } else {
-                            for (Permission perm : Permission.VALUES) {
-                                if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), perm)) {
-                                    stringBuilder.append("`").append(perm).append("`\n");
-                                }
-                            }
+                            String perms = Arrays.stream(Permission.values())
+                                    .filter(p -> getPermissions(channel).hasPermission(guild.getGuild().getMember(user), p))
+                                    .map(m -> "`" + m + "`")
+                                    .collect(Collectors.joining("\n"));
+                            PagedEmbedBuilder<String> embedBuilder =
+                                    new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(perms, PaginationUtil.SplitMethod.NEW_LINES, 20));
+                            embedBuilder.setTitle("Permissions for " + MessageUtils.getTag(user));
+                            PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel);
+                            return;
                         }
-                        builder.setDescription(stringBuilder.toString());
-                        channel.sendMessage(builder.build()).queue();
-                        return;
                     } else if (args[2].equalsIgnoreCase("clear")) {
                         permUser.getPermissions().clear();
                         MessageUtils.sendSuccessMessage("Cleared all permissions from: " + MessageUtils.getTag(user), channel);
@@ -293,18 +306,29 @@ public class PermissionsCommand implements Command {
                         i++;
                     }
 
-                    PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(stringBuilder.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
+                    PagedEmbedBuilder<String> pe =
+                            new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(stringBuilder.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
                     pe.setTitle("Groups");
                     pe.enableCodeBlock();
                     PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
-                StringBuilder m = new StringBuilder("**Permissions List**\n");
+                StringBuilder defaultPerms = new StringBuilder("**Default Permissions**\n");
+                StringBuilder nonDefaultPerms = new StringBuilder("**Non-Default Permissions**\n");
                 for (Permission p : Permission.values()) {
-                    m.append("`").append(p).append("` ").append(p.isDefaultPerm()).append("\n");
+                    if (p == Permission.ALL_PERMISSIONS) continue;
+                    if (p.isDefaultPerm())
+                        defaultPerms.append("`").append(p).append("`").append("\n");
+                    else
+                        nonDefaultPerms.append("`").append(p).append("`").append("\n");
                 }
-                PagedEmbedBuilder<String> embedBuilder = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(m.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
+                PagedEmbedBuilder<String> embedBuilder =
+                        new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(
+                                defaultPerms.append("\n").append(nonDefaultPerms.toString()).toString(),
+                                PaginationUtil.SplitMethod.NEW_LINES,
+                                20
+                        ));
                 embedBuilder.setTitle("Permissions");
                 PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel);
                 return;
@@ -349,8 +373,9 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +
                 "`{%}permissions user <user> permission list [page]` - list the permmissions this user has (Excluding those obtained from groups).\n" +
                 "`{%}permissions user <user> check` - Returns all permissions a user has access to\n" +
-                "`{%}permissions user <user> clear` - Removes all permissions from this user!\n\n" +
+                "`{%}permissions user <user> clear` - Clears all user specific permissions from the specified user!\n\n" +
                 "`{%}permissions groups` - Lists all the groups in a server.\n" +
+                "`{%}permissions list` - Lists all the permissions for FlareBot!\n" +
                 "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions.";
     }
 
