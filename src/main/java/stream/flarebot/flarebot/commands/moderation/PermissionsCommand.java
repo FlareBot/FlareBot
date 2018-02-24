@@ -19,8 +19,6 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -38,8 +36,7 @@ public class PermissionsCommand implements Command {
                     if (group == null && !args[2].equalsIgnoreCase("create")) {
                         MessageUtils.sendErrorMessage("That group doesn't exist! You can create it with `{%}permissions group " + groupString + " create`", channel);
                         return;
-                    }
-                    if (args[2].equalsIgnoreCase("add")) {
+                    } else if (args[2].equalsIgnoreCase("add")) {
                         if (args.length == 4) {
                             if (!Permission.isValidPermission(args[3])) {
                                 MessageUtils.sendErrorMessage("That is an invalid permission! Permissions start with `flarebot.` followed with a command name!\n" +
@@ -76,6 +73,7 @@ public class PermissionsCommand implements Command {
                         }
                     } else if (args[2].equalsIgnoreCase("delete")) {
                         getPermissions(channel).deleteGroup(groupString);
+                        MessageUtils.sendSuccessMessage("Deleted group `" + groupString + "`", channel, sender);
                         return;
                     } else if (args[2].equalsIgnoreCase("link")) {
                         if (args.length == 4) {
@@ -145,6 +143,16 @@ public class PermissionsCommand implements Command {
                         group.getPermissions().clear();
                         MessageUtils.sendSuccessMessage("Cleared all permissions from the group: " + group.getName(), channel);
                         return;
+                    } else if (args[2].equalsIgnoreCase("move") && args.length >= 4) {
+                        int pos = GeneralUtils.getInt(args[3], -1);
+                        if (pos < 1 || pos >= guild.getPermissions().getGroups().size()) {
+                            MessageUtils.sendWarningMessage("Invalid Position: " + args[3], channel);
+                            return;
+                        } else {
+                            guild.getPermissions().moveGroup(group, pos - 1);
+                            MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos + 1, channel, sender);
+                            return;
+                        }
                     }
                 }
             } else if (args[0].equalsIgnoreCase("user")) {
@@ -277,20 +285,21 @@ public class PermissionsCommand implements Command {
                     return;
                 } else {
                     int page = args.length == 2 ? Integer.valueOf(args[1]) : 1;
-                    Set<String> groups =
-                            this.getPermissions(channel).getGroups().stream().map(Group::getName).collect(Collectors.toSet());
-                    List<String> groupList = GeneralUtils.orderList(groups);
 
-                    String list = groupList.stream().collect(Collectors.joining("\n"));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    int i = 1;
+                    for (Group group : guild.getPermissions().getGroups()) {
+                        stringBuilder.append(i).append(". ").append(group.getName()).append("\n");
+                        i++;
+                    }
 
-                    PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 20));
+                    PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(stringBuilder.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
                     pe.setTitle("Groups");
                     pe.enableCodeBlock();
                     PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
-                // TODO: Implement page system and embed here
                 StringBuilder m = new StringBuilder("**Permissions List**\n");
                 for (Permission p : Permission.values()) {
                     m.append("`").append(p).append("` ").append(p.isDefaultPerm()).append("\n");
@@ -306,29 +315,6 @@ public class PermissionsCommand implements Command {
             }
         }
         MessageUtils.sendUsage(this, channel, sender, args);
-    }
-
-    private String getStringList(Collection<String> perms, int page) {
-        int pageSize = 20;
-        int pages = perms.size() < pageSize ? 1 : (perms.size() / pageSize) + (perms.size() % pageSize != 0 ? 1 : 0);
-        int start;
-        int end;
-
-        start = pageSize * (page - 1);
-        end = Math.min(start + pageSize, perms.size());
-        if (page > pages || page < 0) {
-            return null;
-        }
-        String[] permsList = new String[perms.size()];
-        permsList = perms.toArray(permsList);
-        permsList = Arrays.copyOfRange(permsList, start, end);
-        StringBuilder sb = new StringBuilder();
-        sb.append("```\n");
-        for (String perm : permsList) {
-            sb.append(perm).append("\n");
-        }
-        sb.append("```");
-        return sb.toString();
     }
 
     @Override
@@ -356,7 +342,8 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions group <group> unlink` - Unlinks the group from a role.\n" +
                 "`{%}permissions group <group> list [page]` - lists the permissions this group has.\n" +
                 "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n" +
-                "`{%}permissions group <group> clear` - Removes all permissions from this group!\n\n" +
+                "`{%}permissions group <group> clear` - Removes all permissions from this group!\n" +
+                "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy.\n\n" +
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +
