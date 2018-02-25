@@ -1134,7 +1134,7 @@ public class FlareBot {
                             deadShards.toString());
                 }
             }
-        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+        }.repeat(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(5));
 
         new FlareBotTask("ActivityChecker") {
             @Override
