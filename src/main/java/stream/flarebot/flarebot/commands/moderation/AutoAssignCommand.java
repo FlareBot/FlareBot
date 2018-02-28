@@ -126,7 +126,7 @@ public class AutoAssignCommand implements Command {
     }
 
     private Role getRole(Guild guild, String role) {
-        if (!role.contains(' ') && role.startsWith("<@&") && role.endsWith(">")) {
+        if (!role.contains(" ") && role.startsWith("<@&") && role.endsWith(">")) {
             return guild.getRoleById(role.replaceAll("[^0-9]+", ""));
         }
         
