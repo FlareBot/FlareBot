@@ -282,7 +282,7 @@ public class GeneralUtils {
                 .findFirst().orElse(null);
         if (role != null) return role;
         try {
-            role = guild.getRoleById(Long.parseLong(s.replaceAll("[^0-9]", "")));
+            role = guild.getRoleById(Long.parseLong(s.replaceAll("[^0-9]+", "")));
             if (role != null) return role;
         } catch (NumberFormatException | NullPointerException ignored) {
         }
