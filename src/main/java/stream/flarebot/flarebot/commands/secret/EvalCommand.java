@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 
@@ -140,17 +141,14 @@ public class EvalCommand implements Command {
         POOL.submit(() -> {
             try {
                 String eResult = String.valueOf(engine.eval(imports + "\n" + finalCode));
-                if (("```groovy\n" + eResult + "\n```").length() > 1048) {
-                    eResult = String.format("[Result](%s)", MessageUtils.paste(eResult));
-                } else eResult = "```groovy\n" + eResult + "\n```";
+                if (eResult.length() > 2000) {
+                    eResult = String.format("Eval too large, result pasted: %s", MessageUtils.paste(eResult));
+                }
                 if (!silent)
-                    channel.sendMessage(MessageUtils.getEmbed(sender)
-                            .addField("Code:", "```js\n" + finalCode + "```", false)
-                            .addField("Result: ", eResult, false).build()).queue();
+                    channel.sendMessage(eResult).queue();
             } catch (Exception e) {
                 FlareBot.LOGGER.error("Error occurred in the evaluator thread pool! " + e.getMessage(), e, Markers.NO_ANNOUNCE);
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .addField("Code:", "```js\n" + finalCode + "```", false)
+                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(ColorUtils.RED)
                         .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
             }
         });
@@ -176,6 +174,11 @@ public class EvalCommand implements Command {
         return CommandType.SECRET;
     }
 
+    @Override
+    public boolean deleteMessage() {
+        return false;
+    }
+    
     enum Options {
         SILENT("s"),
         SNIPPET("snippet"),
