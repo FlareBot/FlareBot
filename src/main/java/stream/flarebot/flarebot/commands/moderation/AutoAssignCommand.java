@@ -127,7 +127,7 @@ public class AutoAssignCommand implements Command {
 
     private Role getRole(Guild guild, String role) {
         if (!role.contains(' ') && role.startsWith("<@&") && role.endsWith('>')) {
-            return guild.getRoleById(role.replaceAll("[^0-9]+", ''));
+            return guild.getRoleById(role.replaceAll("[^0-9]+", ""));
         }
         
         // Since I know it is valid I can get the id from the name or just return the id since that will be the only other thing passed.
