@@ -39,7 +39,7 @@ public class DataInterceptor implements Interceptor {
         return this.sender;
     }
     
-    static enum RequestSender {
+    public static enum RequestSender {
         JDA,
         FLAREBOT
     }
