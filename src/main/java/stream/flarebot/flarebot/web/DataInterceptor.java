@@ -16,10 +16,9 @@ public class DataInterceptor implements Interceptor {
 
     private final AtomicInteger requests = new AtomicInteger(0);
     
-    private RequestSender sender;
+    private final RequestSender sender;
 
     public DataInterceptor(RequestSender sender) {
-        instance = this;
         this.sender = sender;
         
         interceptors.add(this);
@@ -40,7 +39,7 @@ public class DataInterceptor implements Interceptor {
         return this.sender;
     }
     
-    public static List<DataInterceptors> getInterceptors() {
+    public static List<DataInterceptor> getInterceptors() {
         return interceptors;
     }
     
