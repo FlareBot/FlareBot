@@ -23,7 +23,7 @@ public class DataInterceptor implements Interceptor {
     @Override
     @ParametersAreNonnullByDefault
     public Response intercept(Chain chain) throws IOException {
-        REQUESTS.incrementAndGet();
+        requests.incrementAndGet();
         return chain.proceed(chain.request());
     }
 
