@@ -159,9 +159,10 @@ public class FlareBot {
     private long startTime;
     private static Prefixes prefixes;
 
+    private static final DataInterceptor dataInterceptor = new DataInterceptor(DataInterceptor.RequestSender.JDA);
     private static final OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
-                    .addInterceptor(new DataInterceptor()).build();
+                    .addInterceptor(dataInterceptor).build();
 
     private AnalyticsHandler analyticsHandler;
 
