@@ -19,9 +19,10 @@ import java.net.URL;
 
 public class WebUtils {
     
+    private static final DataInterceptor dataInterceptor = new DataInterceptor(DataInterceptor.RequestSender.FLAREBOT);
     private static final OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
-                    .addInterceptor(new DataInterceptor()).addInterceptor(new GzipRequestInterceptor()).build();
+                    .addInterceptor(dataInterceptor).addInterceptor(new GzipRequestInterceptor()).build();
 
     public static MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
