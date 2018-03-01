@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 public class WebUtils {
     
