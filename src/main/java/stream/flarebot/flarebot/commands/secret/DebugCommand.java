@@ -6,9 +6,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.text.WordUtils;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.web.DataInterceptor;
 
 public class DebugCommand implements Command {
@@ -31,7 +33,7 @@ public class DebugCommand implements Command {
             
             StringBuilder sb = new StringBuilder();
             for (DataInterceptor interceptor : DataInterceptor.getInterceptors())
-                sb.append(WordUtils.capitalize(interceptor.name())).append(" - ").append(interceptor.getRequests())
+                sb.append(WordUtils.capitalize(interceptor.getSender().name())).append(" - ").append(interceptor.getRequests())
                         .append(" requests");
             eb.addField("HTTP requests", sb.toString(), false);
         }
