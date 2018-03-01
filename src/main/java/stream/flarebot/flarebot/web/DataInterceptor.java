@@ -1,15 +1,18 @@
 package stream.flarebot.flarebot.web;
 
-import okhttp3.Interceptor;
-import okhttp3.Response;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class DataInterceptor implements Interceptor {
+import okhttp3.Interceptor;
+import okhttp3.Response;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-    private static DataInterceptor instance;
+
+public class DataInterceptor implements Interceptor {
+    
+    private static final List<DataInterceptor> interceptors = new ArrayList<>();
 
     private final AtomicInteger requests = new AtomicInteger(0);
     
@@ -18,6 +21,8 @@ public class DataInterceptor implements Interceptor {
     public DataInterceptor(RequestSender sender) {
         instance = this;
         this.sender = sender;
+        
+        interceptors.add(this);
     }
 
     @Override
@@ -27,16 +32,16 @@ public class DataInterceptor implements Interceptor {
         return chain.proceed(chain.request());
     }
 
-    public static DataInterceptor getInstance() {
-        return instance;
-    }
-
     public AtomicInteger getRequests() {
         return requests;
     }
     
     public RequestSender getSender() {
         return this.sender;
+    }
+    
+    public static List<DataInterceptors> getInterceptors() {
+        return interceptors;
     }
     
     public static enum RequestSender {
