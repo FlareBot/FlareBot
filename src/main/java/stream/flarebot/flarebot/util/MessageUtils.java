@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
@@ -199,7 +198,7 @@ public class MessageUtils {
     public static void sendMessage(MessageType type, EmbedBuilder builder, TextChannel channel, long autoDeleteDelay) {
         if (builder.build().getColor() == null)
             builder.setColor(type.getColor());
-        if(type == MessageType.ERROR)
+        if (type == MessageType.ERROR)
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
                     "[Support Server](" + FlareBot.INVITE_URL + ")! Our staff can support on any issue you may have! "
                     + FlareBot.getInstance().getEmoteById(386550693294768129L).getAsMention());

@@ -13,9 +13,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -85,7 +83,7 @@ public class EvalCommand implements Command {
         engine.put("sender", sender);
 
         String msg = FlareBot.getMessage(args);
-        final String[] code = {msg};
+        final String[] code = {getCode(args)};
 
         boolean silent = hasOption(Options.SILENT, msg);
         if (hasOption(Options.SNIPPET, msg)) {
@@ -179,7 +177,7 @@ public class EvalCommand implements Command {
     public boolean deleteMessage() {
         return false;
     }
-    
+
     enum Options {
         SILENT("s"),
         SNIPPET("snippet"),
