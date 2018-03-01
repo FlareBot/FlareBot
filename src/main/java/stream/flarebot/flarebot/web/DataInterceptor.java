@@ -11,10 +11,13 @@ public class DataInterceptor implements Interceptor {
 
     private static DataInterceptor instance;
 
-    private static final AtomicInteger REQUESTS = new AtomicInteger(0);
+    private final AtomicInteger requests = new AtomicInteger(0);
+    
+    private RequestSender sender;
 
-    public DataInterceptor() {
+    public DataInterceptor(RequestSender sender) {
         instance = this;
+        this.sender = sender;
     }
 
     @Override
@@ -28,7 +31,16 @@ public class DataInterceptor implements Interceptor {
         return instance;
     }
 
-    public static AtomicInteger getRequests() {
-        return REQUESTS;
+    public AtomicInteger getRequests() {
+        return requests;
+    }
+    
+    public RequestSender getSender() {
+        return this.sender;
+    }
+    
+    static enum RequestSender {
+        JDA,
+        FLAREBOT
     }
 }
