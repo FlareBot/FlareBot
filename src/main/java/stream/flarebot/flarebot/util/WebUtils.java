@@ -18,6 +18,10 @@ import java.net.Socket;
 import java.net.URL;
 
 public class WebUtils {
+    
+    private static final OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
+                    .addInterceptor(new DataInterceptor()).addInterceptor(new GzipRequestInterceptor()).build();
 
     public static MediaType PLAIN_TEXT = MediaType.parse("plain/text");
     public static MediaType APPLICATION_JSON = MediaType.parse("application/json");
@@ -57,7 +61,7 @@ public class WebUtils {
     }
 
     public static Response post(Request.Builder builder) throws IOException {
-        Response res = FlareBot.getOkHttpClient().newCall(builder.build()).execute();
+        Response res = client.newCall(builder.build()).execute();
         ResponseBody body = res.body();
         if(res.code() >= 200 && res.code() < 300)
             return res;
@@ -72,11 +76,11 @@ public class WebUtils {
     }
 
     public static Response get(Request.Builder builder) throws IOException {
-        return FlareBot.getOkHttpClient().newCall(builder.get().build()).execute();
+        return client.newCall(builder.get().build()).execute();
     }
 
     public static void postAsync(Request.Builder builder) {
-        FlareBot.getOkHttpClient().newCall(builder.build()).enqueue(defaultCallback);
+        client.newCall(builder.build()).enqueue(defaultCallback);
     }
 
     public static boolean pingHost(String host, int timeout) {
