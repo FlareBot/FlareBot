@@ -30,8 +30,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
-import stream.flarebot.flarebot.api.ApiRequester;
-import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
@@ -120,7 +118,8 @@ public class Events extends ListenerAdapter {
             Welcome welcome = wrapper.getWelcome();
             if ((welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
-                if (welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null) {
+                if (welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null
+                        && welcome.isGuildEnabled()) {
                     TextChannel channel = flareBot.getChannelById(welcome.getChannelId());
                     if (!channel.canTalk()) {
                         welcome.setGuildEnabled(false);
