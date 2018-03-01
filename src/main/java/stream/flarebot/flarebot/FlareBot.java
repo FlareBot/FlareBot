@@ -161,7 +161,7 @@ public class FlareBot {
 
     private static final OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
-                    .addInterceptor(new DataInterceptor()).addInterceptor(new GzipRequestInterceptor()).build();
+                    .addInterceptor(new DataInterceptor()).build();
 
     private AnalyticsHandler analyticsHandler;
 
