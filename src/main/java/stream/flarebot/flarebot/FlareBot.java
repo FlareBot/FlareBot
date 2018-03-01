@@ -545,7 +545,7 @@ public class FlareBot {
                                 .getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
                 .put("uptime", getUptime())
-                .put("http_requests", DataInterceptor.getRequests().intValue());
+                .put("http_requests", dataInterceptor.getRequests().intValue());
 
         ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data);
     }
