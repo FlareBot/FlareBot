@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -22,19 +23,9 @@ public class TestCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        // Served it's purpose once again :) Now it's free to be reused... no memes pls
-
-        try {
-            JSONObject object = new JSONObject(new JSONTokener(new FileReader(new File("test.json"))));
-            Response res = new ApiRequesterBuilder(ApiRoute.TEST).setCompressed(true).setBody(object).request();
-            StringBuilder sb = new StringBuilder();
-            for(String s : res.headers().toMultimap().keySet())
-                sb.append(s).append(": ").append(res.headers().toMultimap().get(s).stream().collect(Collectors.joining(", "))).append("\n");
-            channel.sendMessage(res.code() + "\n" + res.message()).queue();
-            channel.sendMessage(sb.toString()).queue();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        channel.sendMessage("Test").queue(aVoid -> System.out.println("Sent the message!"),
+                fail -> System.out.println("Failed to send! " + fail.getMessage()));
+        System.out.println(JDAInfo.VERSION);
     }
 
     @Override

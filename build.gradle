@@ -25,10 +25,10 @@ repositories {
     maven { url "https://repo.eclipse.org/content/groups/releases/" }
 }
 dependencies {
-    //compile group: 'net.dv8tion', name: 'JDA', version: '3.3.1_316'
-    compile group: 'com.github.WalshyDev', name: 'JDA', version: '9029b24d37'
+    compile group: 'net.dv8tion', name: 'JDA', version: '3.5.1_342'
+    //compile group: 'com.github.WalshyDev', name: 'JDA', version: '9029b24d37'
 
-    compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.39'
+    compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.56'
     compile(group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.5') {
         exclude(module: 'JDA')
     }
@@ -40,14 +40,12 @@ dependencies {
     }
 
     compile group: 'com.github.binaryoverload', name: 'JSON-Config', version: '2.7.5'
-    compile group: 'com.github.ArsenArsen', name: 'githubwebhooks4j', version: '1.1.7'
 
     compile group: 'com.datastax.cassandra', name: 'cassandra-driver-core', version: '3.3.0'
     compile group: 'redis.clients', name: 'jedis', version: '2.9.0'
     compile group: 'org.jsoup', name: 'jsoup', version: '1.8.3'
     compile group: 'com.sparkjava', name: 'spark-core', version: '2.5.4'
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.8.1'
-    compile group: 'com.mashape.unirest', name: 'unirest-java', version: '1.4.9'
 
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
     compile group: 'commons-io', name: 'commons-io', version: '2.5'

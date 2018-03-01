@@ -77,8 +77,8 @@ public class ModlogEvents implements EventListener {
             g = ((GenericTextChannelEvent) event).getGuild();
         else if (event instanceof GenericVoiceChannelEvent && ((GenericVoiceChannelEvent) event).getGuild() != null)
             g = ((GenericVoiceChannelEvent) event).getGuild();
-        else if (event instanceof GenericMessageEvent && ((GenericMessageEvent) event).getGuild() != null)
-            g = ((GenericMessageEvent) event).getGuild();
+        /*else if (event instanceof GenericMessageEvent && ((GenericMessageEvent) event).getGuild() != null)
+            g = ((GenericMessageEvent) event).getGuild();*/
 
         if (g == null)
             return;
