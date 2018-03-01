@@ -120,7 +120,8 @@ public class Events extends ListenerAdapter {
             Welcome welcome = wrapper.getWelcome();
             if ((welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
-                if (welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null) {
+                if (welcome.getChannelId() != null && flareBot.getChannelById(welcome.getChannelId()) != null
+                        && welcome.isGuildEnabled()) {
                     TextChannel channel = flareBot.getChannelById(welcome.getChannelId());
                     if (!channel.canTalk()) {
                         welcome.setGuildEnabled(false);
