@@ -84,6 +84,7 @@ import stream.flarebot.flarebot.analytics.GuildAnalytics;
 import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.api.GzipRequestInterceptor;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -97,6 +98,7 @@ import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.random.JumboCommand;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
 import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
@@ -157,9 +159,9 @@ public class FlareBot {
     private long startTime;
     private static Prefixes prefixes;
 
-    private static OkHttpClient client =
+    private static final OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
-                    .addInterceptor(new DataInterceptor()).build();
+                    .addInterceptor(new DataInterceptor()).addInterceptor(new GzipRequestInterceptor()).build();
 
     private AnalyticsHandler analyticsHandler;
 
@@ -398,6 +400,7 @@ public class FlareBot {
         registerCommand(new AvatarCommand());
         registerCommand(new UpdateJDACommand());
         registerCommand(new ChangelogCommand());
+        registerCommand(new JumboCommand());
 
         registerCommand(new NINOCommand());
 
@@ -439,16 +442,22 @@ public class FlareBot {
      * This possibly-null will return the first connected JDA shard.
      * This means that a lot of methods like sending embeds works even with shard 0 offline.
      *
-     * @returns The first possible JDA shard which is connected or null otherwise.
+     * @return The first possible JDA shard which is connected or null otherwise.
      */
     @Nullable
     public JDA getClient() {
-        for (JDA jda : shardManager.getShardCache())
+        for (JDA jda : shardManager.getShardCache()) {
             if (jda.getStatus() == JDA.Status.CONNECTED)
                 return jda;
+        }
         return null;
     }
 
+    /**
+     * Get the SelfUser of the bot, this will be null if no shards are connected.
+     *
+     * @return The bot SelfUser or null if no CONNECTED shard is found.
+     */
     @Nullable
     public SelfUser getSelfUser() {
         JDA shard = getClient();

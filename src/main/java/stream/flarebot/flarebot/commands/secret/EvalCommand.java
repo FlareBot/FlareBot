@@ -73,7 +73,7 @@ public class EvalCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendErrorMessage("Eval something at least smh!", channel);
+            channel.sendMessage("Eval something at least smh!").queue();
             return;
         }
         String imports = IMPORTS.stream().map(s -> "import " + s + ".*;").collect(Collectors.joining("\n"));
@@ -85,7 +85,7 @@ public class EvalCommand implements Command {
         engine.put("sender", sender);
 
         String msg = FlareBot.getMessage(args);
-        final String[] code = {getCode(args)};
+        final String[] code = {msg};
 
         boolean silent = hasOption(Options.SILENT, msg);
         if (hasOption(Options.SNIPPET, msg)) {
@@ -135,20 +135,21 @@ public class EvalCommand implements Command {
             return;
         }
 
-        if (code[0] == null) return;
+        if (code[0] == null)
+            return;
         final String finalCode = code[0];
 
         POOL.submit(() -> {
             try {
-                String eResult = String.valueOf(engine.eval(imports + "\n" + finalCode));
+                String eResult = String.valueOf(engine.eval(imports + '\n' + finalCode));
                 if (eResult.length() > 2000) {
                     eResult = String.format("Eval too large, result pasted: %s", MessageUtils.paste(eResult));
                 }
                 if (!silent)
                     channel.sendMessage(eResult).queue();
             } catch (Exception e) {
-                FlareBot.LOGGER.error("Error occurred in the evaluator thread pool! " + e.getMessage(), e, Markers.NO_ANNOUNCE);
-                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(ColorUtils.RED)
+                //FlareBot.LOGGER.error("Error occurred in the evaluator thread pool! " + e.getMessage(), e, Markers.NO_ANNOUNCE);
+                channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
             }
         });

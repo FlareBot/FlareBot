@@ -33,17 +33,14 @@ public class SkipCommand implements Command {
             return;
         }
         if (member.getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getChannel()
-                .getId()
-                .equals(member.getVoiceState().getChannel().getId())
+                .getId().equals(member.getVoiceState().getChannel().getId())
                 && !getPermissions(channel).hasPermission(member, "flarebot.skip.force")) {
             channel.sendMessage("You must be in the channel in order to skip songs!").queue();
             return;
         }
         Track currentTrack = musicManager.getPlayer(guild.getGuildId()).getPlayingTrack();
-        if (currentTrack != null && currentTrack.getMeta().get("requester").equals(sender.getId()) 
-                && guild.getBetaAccess()) {
-            channel.sendMessage("Skipped your own song!\n\n" + 
-                    "This is currently an experimental beta feature! Please give feedback on the support server.").queue();
+        if (args.length == 0 && currentTrack.getMeta().get("requester").equals(sender.getId())) {
+            channel.sendMessage("Skipped your own song!").queue();
             musicManager.getPlayer(guild.getGuildId()).skip();
             return;
         }

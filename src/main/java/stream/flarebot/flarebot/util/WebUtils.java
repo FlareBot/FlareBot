@@ -33,7 +33,7 @@ public class WebUtils {
         @ParametersAreNonnullByDefault
         public void onResponse(Call call, Response response) {
             response.close();
-            FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
+            FlareBot.LOGGER.debug("Response for " + call.request().method() + " request to " + call.request().url());
         }
     };
 
@@ -42,9 +42,15 @@ public class WebUtils {
     }
 
     public static Response post(String url, MediaType type, String body, boolean sendAPIAuth) throws IOException {
+        return post(url, type, body, sendAPIAuth, false);
+    }
+    public static Response post(String url, MediaType type, String body, boolean sendAPIAuth,
+                                boolean compress) throws IOException {
         Request.Builder request = new Request.Builder().url(url);
-        if(sendAPIAuth)
+        if (sendAPIAuth)
             request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
+        if (compress)
+            request.addHeader("Content-Encoding", "gzip");
         RequestBody requestBody = RequestBody.create(type, body);
         request = request.post(requestBody);
         return post(request);
@@ -77,7 +83,7 @@ public class WebUtils {
         return pingHost(host, 80, timeout);
     }
 
-    public static boolean pingHost(String host, int port, int timeout) {
+    private static boolean pingHost(String host, int port, int timeout) {
         String hostname;
         try {
             hostname = new URL(host).getHost();
