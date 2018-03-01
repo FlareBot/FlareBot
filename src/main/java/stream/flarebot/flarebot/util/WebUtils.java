@@ -23,7 +23,6 @@ public class WebUtils {
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
                     .addInterceptor(new DataInterceptor()).addInterceptor(new GzipRequestInterceptor()).build();
 
-    public static MediaType PLAIN_TEXT = MediaType.parse("plain/text");
     public static MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
     private static final Callback defaultCallback = new Callback() {
