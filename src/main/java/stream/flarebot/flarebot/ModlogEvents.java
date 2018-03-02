@@ -9,10 +9,14 @@ import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.channel.text.GenericTextChannelEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.channel.voice.GenericVoiceChannelEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.core.events.guild.GuildBanEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
@@ -24,61 +28,142 @@ import net.dv8tion.jda.core.events.guild.update.GuildUpdateExplicitContentLevelE
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.role.GenericRoleEvent;
 import net.dv8tion.jda.core.events.role.RoleCreateEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.role.update.GenericRoleUpdateEvent;
 import net.dv8tion.jda.core.events.role.update.RoleUpdatePositionEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.hooks.EventListener;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
-public class ModlogEvents extends ListenerAdapter {
+public class ModlogEvents implements EventListener {
 
     private long roleResponseNumber = 0;
     private long guildResponseNumber = 0;
 
     @Override
-    public void onGuildBan(GuildBanEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.USER_BANNED)) return;
+    public void onEvent(Event event) {
+        if (!(event instanceof GenericGuildEvent)
+                && !(event instanceof GenericRoleEvent)
+                && !(event instanceof GenericTextChannelEvent)
+                && !(event instanceof GenericVoiceChannelEvent)
+                && !(event instanceof GenericMessageEvent))
+            return;
+
+        Guild g = null;
+        if (event instanceof GenericGuildEvent && ((GenericGuildEvent) event).getGuild() != null)
+            g = ((GenericGuildEvent) event).getGuild();
+        else if (event instanceof GenericRoleEvent && ((GenericRoleEvent) event).getGuild() != null)
+            g = ((GenericRoleEvent) event).getGuild();
+        else if (event instanceof GenericTextChannelEvent && ((GenericTextChannelEvent) event).getGuild() != null)
+            g = ((GenericTextChannelEvent) event).getGuild();
+        else if (event instanceof GenericVoiceChannelEvent && ((GenericVoiceChannelEvent) event).getGuild() != null)
+            g = ((GenericVoiceChannelEvent) event).getGuild();
+        else if (event instanceof GenericMessageEvent && ((GenericMessageEvent) event).getGuild() != null)
+            g = ((GenericMessageEvent) event).getGuild();
+
+        if (g == null)
+            return;
+
+        GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuildNoCache(g.getId());
+        if (guildWrapper == null)
+            return;
+
+        // GUILD
+        if (event instanceof GuildBanEvent)
+            onGuildBan((GuildBanEvent) event, guildWrapper);
+        else if (event instanceof GuildMemberJoinEvent)
+            onGuildMemberJoin((GuildMemberJoinEvent) event, guildWrapper);
+        else if (event instanceof GuildMemberLeaveEvent)
+            onGuildMemberLeave((GuildMemberLeaveEvent) event, guildWrapper);
+        else if (event instanceof GuildVoiceJoinEvent)
+            onGuildVoiceJoin((GuildVoiceJoinEvent) event, guildWrapper);
+        else if (event instanceof GuildVoiceLeaveEvent)
+            onGuildVoiceLeave((GuildVoiceLeaveEvent) event, guildWrapper);
+        // ROLES
+        else if (event instanceof RoleCreateEvent)
+            onRoleCreate((RoleCreateEvent) event, guildWrapper);
+        else if (event instanceof RoleDeleteEvent)
+            onRoleDelete((RoleDeleteEvent) event, guildWrapper);
+        else if (event instanceof GenericRoleUpdateEvent)
+            onGenericRoleUpdate((GenericRoleUpdateEvent) event, guildWrapper);
+        else if (event instanceof GuildMemberRoleAddEvent)
+            onGuildMemberRoleAdd((GuildMemberRoleAddEvent) event, guildWrapper);
+        else if (event instanceof GuildMemberRoleRemoveEvent)
+            onGuildMemberRoleRemove((GuildMemberRoleRemoveEvent) event, guildWrapper);
+        // CHANNEL
+        else if (event instanceof TextChannelCreateEvent)
+            onTextChannelCreate((TextChannelCreateEvent) event, guildWrapper);
+        else if (event instanceof VoiceChannelCreateEvent)
+            onVoiceChannelCreate((VoiceChannelCreateEvent) event, guildWrapper);
+        else if (event instanceof TextChannelDeleteEvent)
+            onTextChannelDelete((TextChannelDeleteEvent) event, guildWrapper);
+        else if (event instanceof VoiceChannelDeleteEvent)
+            onVoiceChannelDelete((VoiceChannelDeleteEvent) event, guildWrapper);
+        // MESSAGES
+        else if (event instanceof GuildMessageReceivedEvent)
+            onGuildMessageReceived((GuildMessageReceivedEvent) event, guildWrapper);
+        else if (event instanceof MessageUpdateEvent)
+            onMessageUpdate((MessageUpdateEvent) event, guildWrapper);
+        else if (event instanceof MessageDeleteEvent)
+            onMessageDelete((MessageDeleteEvent) event, guildWrapper);
+        // GUILD
+        else if (event instanceof GuildUpdateExplicitContentLevelEvent)
+            onGuildUpdateExplicitContentLevel((GuildUpdateExplicitContentLevelEvent) event, guildWrapper);
+        else if (event instanceof GuildMemberNickChangeEvent)
+            onGuildMemberNickChange((GuildMemberNickChangeEvent) event, guildWrapper);
+        else if (event instanceof GenericGuildUpdateEvent)
+            onGenericGuildUpdate((GenericGuildUpdateEvent) event, guildWrapper);
+        else if (event instanceof GuildVoiceMoveEvent)
+            onGuildVoiceMove((GuildVoiceMoveEvent) event, guildWrapper);
+    }
+
+    private void onGuildBan(GuildBanEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.USER_BANNED)) return;
         event.getGuild().getAuditLogs().limit(1).type(ActionType.BAN).queue(auditLogEntries -> {
             AuditLogEntry entry = auditLogEntries.get(0);
             // We don't want dupes.
             if (entry.getUser().getIdLong() == FlareBot.getInstance().getSelfUser().getIdLong()) return;
             boolean validEntry = entry.getTargetId().equals(event.getUser().getId());
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.USER_BANNED, event.getUser(),
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.USER_BANNED, event.getUser(),
                     validEntry ? entry.getUser() : null,
                     validEntry ? entry.getReason() : null);
         });
     }
 
-    @Override
-    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_JOIN)) return;
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MEMBER_JOIN, event.getUser());
+    private void onGuildMemberJoin(GuildMemberJoinEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.MEMBER_JOIN)) return;
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_JOIN, event.getUser());
     }
 
-    @Override
-    public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
-        if (!event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) return;
-        if (!getGuild(event.getGuild()).getModeration().isEventEnabled(getGuild(event.getGuild()), ModlogEvent.MEMBER_LEAVE)
-                && !getGuild(event.getGuild()).getModeration().isEventEnabled(getGuild(event.getGuild()), ModlogEvent.USER_KICKED)) return;
+    private void onGuildMemberLeave(GuildMemberLeaveEvent event, @Nonnull GuildWrapper wrapper) {
+        if (!wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.MEMBER_LEAVE)
+                && !wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.USER_KICKED)) return;
+        boolean checkKick = event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS) 
+                && wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.USER_KICKED);
+        if (!checkKick) {
+            if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_LEAVE, event.getUser());
+            return;
+        }
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
             AuditLogEntry entry = null;
             User responsible = null;
@@ -96,59 +181,57 @@ public class ModlogEvents extends ListenerAdapter {
                 reason = entry.getReason();
             }
             boolean isKick = entry != null;
-            if (isKick)
-                if (cannotHandle(event.getGuild(), ModlogEvent.USER_KICKED)) return;
-                else if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_LEAVE)) return;
+            if (isKick) {
+                if (cannotHandle(wrapper, ModlogEvent.USER_KICKED)) return;
+            } else 
+                if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
 
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), isKick ?
+            ModlogHandler.getInstance().postToModlog(wrapper, isKick ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
                     responsible, reason);
         });
-
     }
 
-    @Override
-    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_VOICE_JOIN)) return;
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MEMBER_VOICE_JOIN,
+    private void onGuildVoiceJoin(GuildVoiceJoinEvent event, @Nonnull GuildWrapper wrapper) {
+        if (event.getGuild() == null) return;
+        if (cannotHandle(wrapper, ModlogEvent.MEMBER_VOICE_JOIN)) return;
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_VOICE_JOIN,
                 event.getMember().getUser(), new MessageEmbed.Field("Channel", event.getChannelJoined().getName()
                         + " (" + event.getChannelJoined().getId() + ")", true));
     }
 
-    @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_VOICE_LEAVE)) return;
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MEMBER_VOICE_LEAVE,
+    private void onGuildVoiceLeave(GuildVoiceLeaveEvent event, @Nonnull GuildWrapper wrapper) {
+        if (event.getGuild() == null) return;
+        if (cannotHandle(wrapper, ModlogEvent.MEMBER_VOICE_LEAVE)) return;
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_VOICE_LEAVE,
                 event.getMember().getUser(), new MessageEmbed.Field("Channel", event.getChannelLeft().getName()
                         + " (" + event.getChannelLeft().getId() + ")", true));
     }
 
-    @Override
-    public void onRoleCreate(RoleCreateEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.ROLE_CREATE)) return;
+    private void onRoleCreate(RoleCreateEvent event, @Nonnull GuildWrapper wrapper) {
+        if (event.getGuild() == null) return;
+        if (cannotHandle(wrapper, ModlogEvent.ROLE_CREATE)) return;
         event.getGuild().getAuditLogs().queue(auditLog -> {
             AuditLogEntry entry = auditLog.get(0);
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.ROLE_CREATE,
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.ROLE_CREATE,
                     entry.getUser(), new MessageEmbed.Field("Role", event.getRole().getName()
                             + " (" + event.getRole().getId() + ")", true));
         });
 
     }
 
-    @Override
-    public void onRoleDelete(RoleDeleteEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.ROLE_DELETE)) return;
+    private void onRoleDelete(RoleDeleteEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.ROLE_DELETE)) return;
         event.getGuild().getAuditLogs().queue(auditLog -> {
             AuditLogEntry entry = auditLog.get(0);
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.ROLE_DELETE,
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.ROLE_DELETE,
                     entry.getUser(), new MessageEmbed.Field("Role", event.getRole().getName()
                             + " (" + event.getRole().getId() + ")", true));
         });
     }
 
-    @Override
-    public void onGenericRoleUpdate(GenericRoleUpdateEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.ROLE_EDIT)) return;
+    private void onGenericRoleUpdate(GenericRoleUpdateEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.ROLE_EDIT)) return;
         if (event instanceof RoleUpdatePositionEvent) {
             return;
         }
@@ -200,98 +283,97 @@ public class ModlogEvents extends ListenerAdapter {
                         + Integer.toHexString(change.getNewValue()) + "`", true);
 
             }
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.ROLE_EDIT, entry.getUser(),
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.ROLE_EDIT, entry.getUser(),
                     permissionsBuilder);
         });
     }
 
-    @Override
-    public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_ROLE_GIVE)) return;
-        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
-        Map<String, AuditLogChange> changes = entry.getChanges();
-        AuditLogChange change = changes.get("$add");
-        @SuppressWarnings("unchecked")
-        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
+    private void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.MEMBER_ROLE_GIVE)) return;
+        event.getGuild().getAuditLogs().queue(auditLogEntries -> {
+            if (auditLogEntries.isEmpty())
+                return;
+            AuditLogEntry entry = auditLogEntries.get(0);
+            Map<String, AuditLogChange> changes = entry.getChanges();
+            AuditLogChange change = changes.get("$add");
+            @SuppressWarnings("unchecked")
+            HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
 
-        if (getGuild(event.getGuild()).getAutoAssignRoles().contains(role.get("id"))
-                && ((System.currentTimeMillis() / 1000) - event.getMember().getJoinDate().toEpochSecond()) < 10) {
-            return;
-        }
+            if (wrapper.getAutoAssignRoles().contains(role.get("id"))
+                    && ((System.currentTimeMillis() / 1000) - event.getMember().getJoinDate().toEpochSecond()) < 10) {
+                return;
+            }
 
-        ModlogHandler.getInstance().postToModlog(getGuild(entry.getGuild()), ModlogEvent.MEMBER_ROLE_GIVE,
-                event.getUser(), entry.getUser(), null,
-                new MessageEmbed.Field("Role", role.get("name") + " (" + role.get("id") + ")", true));
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_ROLE_GIVE,
+                    event.getUser(), entry.getUser(), null,
+                    new MessageEmbed.Field("Role", role.get("name") + " (" + role.get("id") + ")", true));
+        });
     }
 
-    @Override
-    public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_ROLE_REMOVE)) return;
-        AuditLogEntry entry = event.getGuild().getAuditLogs().complete().get(0);
-        Map<String, AuditLogChange> changes = entry.getChanges();
-        AuditLogChange change = changes.get("$remove");
-        @SuppressWarnings("unchecked")
-        HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
+    private void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.MEMBER_ROLE_REMOVE)) return;
+        event.getGuild().getAuditLogs().queue(auditLogEntries -> {
+            if (auditLogEntries.isEmpty())
+                return;
+            AuditLogEntry entry = auditLogEntries.get(0);
+            Map<String, AuditLogChange> changes = entry.getChanges();
+            AuditLogChange change = changes.get("$remove");
+            @SuppressWarnings("unchecked")
+            HashMap<String, String> role = ((ArrayList<HashMap<String, String>>) change.getNewValue()).get(0);
 
-        ModlogHandler.getInstance().postToModlog(getGuild(entry.getGuild()), ModlogEvent.MEMBER_ROLE_REMOVE,
-                event.getUser(), entry.getUser(), null,
-                new MessageEmbed.Field("Role", role.get("name") + " (" + role.get("id") + ")", true));
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_ROLE_REMOVE,
+                    event.getUser(), entry.getUser(), null,
+                    new MessageEmbed.Field("Role", role.get("name") + " (" + role.get("id") + ")", true));
+        });
     }
 
-    @Override
-    public void onTextChannelCreate(TextChannelCreateEvent event) {
-        handleChannelCreate(getGuild(event.getGuild()), event.getChannel());
+    private void onTextChannelCreate(TextChannelCreateEvent event, @Nonnull GuildWrapper wrapper) {
+        handleChannelCreate(wrapper, event.getChannel());
     }
 
-    @Override
-    public void onVoiceChannelCreate(VoiceChannelCreateEvent event) {
-        handleChannelCreate(getGuild(event.getGuild()), event.getChannel());
+    private void onVoiceChannelCreate(VoiceChannelCreateEvent event, @Nonnull GuildWrapper wrapper) {
+        handleChannelCreate(wrapper, event.getChannel());
     }
 
-    @Override
-    public void onTextChannelDelete(TextChannelDeleteEvent event) {
-        handleChannelDelete(getGuild(event.getGuild()), event.getChannel());
+    private void onTextChannelDelete(TextChannelDeleteEvent event, @Nonnull GuildWrapper wrapper) {
+        handleChannelDelete(wrapper, event.getChannel());
     }
 
-    @Override
-    public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
-        handleChannelDelete(getGuild(event.getGuild()), event.getChannel());
+    private void onVoiceChannelDelete(VoiceChannelDeleteEvent event, @Nonnull GuildWrapper wrapper) {
+        handleChannelDelete(wrapper, event.getChannel());
     }
 
-    @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    private void onGuildMessageReceived(GuildMessageReceivedEvent event, @Nonnull GuildWrapper wrapper) {
         if (event.getAuthor().isBot()) return;
         if (event.getMember().hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE)) return;
-        if (getGuild(event.getGuild()).getNINO().isEnabled()) {
+        if (wrapper.getNINO().isEnabled()) {
             String invite = MessageUtils.getInvite(event.getMessage().getContentDisplay());
             if (invite != null) {
                 event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] "
-                        + getGuild(event.getGuild()).getNINO().getRemoveMessage()).queue());
+                        + wrapper.getNINO().getRemoveMessage()).queue());
 
-                if (cannotHandle(event.getGuild(), ModlogEvent.INVITE_POSTED)) return;
-                ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.INVITE_POSTED, event.getAuthor(),
+                if (cannotHandle(wrapper, ModlogEvent.INVITE_POSTED)) return;
+                ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.INVITE_POSTED, event.getAuthor(),
                         new MessageEmbed.Field("Invite", invite, false)
                 );
             }
         }
     }
 
-    @Override
-    public void onMessageUpdate(MessageUpdateEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_EDIT)) return;
+    private void onMessageUpdate(MessageUpdateEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.MESSAGE_EDIT)) return;
         if (event.getAuthor().isBot()) return;
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MESSAGE_EDIT, event.getAuthor(),
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MESSAGE_EDIT, event.getAuthor(),
                 new MessageEmbed.Field("Old Message", GeneralUtils.truncate(1024, old.getContent(), true), false),
                 new MessageEmbed.Field("New Message", GeneralUtils.truncate(1024, event.getMessage().getContentDisplay(), true), false),
                 new MessageEmbed.Field("Channel", event.getTextChannel().getName() + " (" + event.getTextChannel().getId() + ")", true));
         RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
     }
 
-    @Override
-    public void onMessageDelete(MessageDeleteEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MESSAGE_DELETE)) return;
+    private void onMessageDelete(MessageDeleteEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.MESSAGE_DELETE)) return;
         AuditLogEntry entry = event.getGuild().getAuditLogs().type(ActionType.MESSAGE_DELETE).complete().get(0);
         if (entry.getUser().isBot()) return;
         User responsible = null;
@@ -306,7 +388,7 @@ public class ModlogEvents extends ListenerAdapter {
             responsible = entry.getUser();
         }
         User sender = GeneralUtils.getUser(deleted.getAuthorID());
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MESSAGE_DELETE, sender,
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MESSAGE_DELETE, sender,
                 (responsible != null ? new MessageEmbed.Field("Deleted By", MessageUtils.getUserAndId(responsible), true)
                         : null),
                 new MessageEmbed.Field("Message", GeneralUtils.truncate(1024, deleted.getContent(), true), true),
@@ -317,32 +399,30 @@ public class ModlogEvents extends ListenerAdapter {
         RedisController.del(event.getMessageId());
     }
 
-    @Override
-    public void onGuildUpdateExplicitContentLevel(GuildUpdateExplicitContentLevelEvent e) {
-        if (cannotHandle(e.getGuild(), ModlogEvent.GUILD_EXPLICIT_FILTER_CHANGE)) return;
+    private void onGuildUpdateExplicitContentLevel(GuildUpdateExplicitContentLevelEvent e, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.GUILD_EXPLICIT_FILTER_CHANGE)) return;
         AuditLogEntry entry = e.getGuild().getAuditLogs().complete().get(0);
         AuditLogChange levelChange = entry.getChanges().get("explicit_content_filter");
 
-        ModlogHandler.getInstance().postToModlog(getGuild(e.getGuild()), ModlogEvent.GUILD_EXPLICIT_FILTER_CHANGE, entry.getUser(),
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.GUILD_EXPLICIT_FILTER_CHANGE, entry.getUser(),
                 new MessageEmbed.Field("Old level", Guild.ExplicitContentLevel.fromKey(levelChange.getOldValue()).getDescription(), true),
                 new MessageEmbed.Field("New level", Guild.ExplicitContentLevel.fromKey(levelChange.getNewValue()).getDescription(), true));
     }
 
-    @Override
-    public void onGuildMemberNickChange(GuildMemberNickChangeEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_NICK_CHANGE)) return;
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MEMBER_NICK_CHANGE,
+    
+    private void onGuildMemberNickChange(GuildMemberNickChangeEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.MEMBER_NICK_CHANGE)) return;
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_NICK_CHANGE,
                 event.getMember().getUser(),
                 new MessageEmbed.Field("Previous nick", event.getPrevNick() != null ? event.getPrevNick() : event.getUser().getName(), true),
                 new MessageEmbed.Field("New nick", event.getNewNick() != null ? event.getNewNick() : event.getUser().getName(), true));
     }
 
-    @Override
-    public void onGenericGuildUpdate(GenericGuildUpdateEvent event) {
+    private void onGenericGuildUpdate(GenericGuildUpdateEvent event, @Nonnull GuildWrapper wrapper) {
         if (event instanceof GuildUpdateExplicitContentLevelEvent) {
             return;
         }
-        if (cannotHandle(event.getGuild(), ModlogEvent.GUILD_UPDATE)) return;
+        if (cannotHandle(wrapper, ModlogEvent.GUILD_UPDATE)) return;
         if (event.getResponseNumber() == guildResponseNumber) {
             return;
         }
@@ -420,22 +500,21 @@ public class ModlogEvents extends ListenerAdapter {
                 }
                 embedBuilder.addField("Two Factor authorization required", tfa ? "Yes" : "No", true);
             }
-            ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.GUILD_UPDATE, entry.getUser(),
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.GUILD_UPDATE, entry.getUser(),
                     embedBuilder);
         });
     }
 
-    @Override
-    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        if (cannotHandle(event.getGuild(), ModlogEvent.MEMBER_VOICE_MOVE)) return;
-        ModlogHandler.getInstance().postToModlog(getGuild(event.getGuild()), ModlogEvent.MEMBER_VOICE_MOVE,
+    private void onGuildVoiceMove(GuildVoiceMoveEvent event, @Nonnull GuildWrapper wrapper) {
+        if (cannotHandle(wrapper, ModlogEvent.MEMBER_VOICE_MOVE)) return;
+        ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_VOICE_MOVE,
                 event.getMember().getUser(),
                 new MessageEmbed.Field("Channel", "`" + event.getChannelLeft().getName() + "` -> `"
                         + event.getChannelJoined().getName() + "`", true));
     }
 
     private void handleChannelCreate(GuildWrapper wrapper, Channel channel) {
-        if (cannotHandle(wrapper.getGuild(), ModlogEvent.CHANNEL_CREATE)) return;
+        if (cannotHandle(wrapper, ModlogEvent.CHANNEL_CREATE)) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
         EmbedBuilder builder = new EmbedBuilder()
                 .addField("Type", channel.getType().name().toLowerCase(), true)
@@ -448,7 +527,8 @@ public class ModlogEvents extends ListenerAdapter {
     }
 
     private void handleChannelDelete(GuildWrapper wrapper, Channel channel) {
-        if (cannotHandle(wrapper.getGuild(), ModlogEvent.CHANNEL_DELETE)) return;
+        if (wrapper == null) return;
+        if (cannotHandle(wrapper, ModlogEvent.CHANNEL_DELETE)) return;
         AuditLogEntry entry = wrapper.getGuild().getAuditLogs().complete().get(0);
         EmbedBuilder builder = new EmbedBuilder()
                 .addField("Type", channel.getType().name().toLowerCase(), true)
@@ -460,13 +540,8 @@ public class ModlogEvents extends ListenerAdapter {
                 builder);
     }
 
-    private boolean cannotHandle(Guild guild, ModlogEvent event) {
-        return guild == null || getGuild(guild) == null
-                || !guild.getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)
-                || !getGuild(guild).getModeration().isEventEnabled(getGuild(guild), event);
-    }
-
-    private GuildWrapper getGuild(Guild guild) {
-        return FlareBotManager.getInstance().getGuild(guild.getId());
+    private boolean cannotHandle(@Nonnull GuildWrapper wrapper, @Nonnull ModlogEvent event) {
+        return !wrapper.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)
+                || !wrapper.getModeration().isEventEnabled(wrapper, event);
     }
 }

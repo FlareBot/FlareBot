@@ -164,7 +164,10 @@ public class ModlogHandler {
         }
 
         if (target != null && target.getIdLong() == FlareBot.getInstance().getClient().getSelfUser().getIdLong()) {
-            MessageUtils.sendWarningMessage(String.format("T-that's meannnnnnn :( I can't %s myself and I hope you don't want to either :(",
+            if (modAction == ModAction.UNBAN || modAction == ModAction.UNMUTE)
+                MessageUtils.sendWarningMessage("W-why would you want to do that in the first place. Meanie :(", channel);
+            else
+                MessageUtils.sendWarningMessage(String.format("T-that's meannnnnnn :( I can't %s myself and I hope you don't want to either :(",
                     modAction.getLowercaseName()), channel);
             return;
         }

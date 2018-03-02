@@ -211,9 +211,12 @@ public class FlareBotManager {
 
     public synchronized GuildWrapper getGuild(String id) {
         if (guilds == null) return null; //This is if it's ran before even being loaded
+        if (id == null) return null; // I think this should fix issues? I guess they request and kick us VERY quickly?
         guilds.computeIfAbsent(id, guildId -> {
             long start = System.currentTimeMillis();
             GuildWrapper wrapper = getGuildNoCache(id);
+            if (wrapper == null)
+                return null;
             long total = (System.currentTimeMillis() - start);
             loadTimes.add(total);
 

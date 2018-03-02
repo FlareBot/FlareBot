@@ -13,9 +13,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.errorhandling.Markers;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -73,7 +71,7 @@ public class EvalCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendErrorMessage("Eval something at least smh!", channel);
+            channel.sendMessage("Eval something at least smh!").queue();
             return;
         }
         String imports = IMPORTS.stream().map(s -> "import " + s + ".*;").collect(Collectors.joining("\n"));
@@ -135,20 +133,21 @@ public class EvalCommand implements Command {
             return;
         }
 
-        if (code[0] == null) return;
+        if (code[0] == null)
+            return;
         final String finalCode = code[0];
 
         POOL.submit(() -> {
             try {
-                String eResult = String.valueOf(engine.eval(imports + "\n" + finalCode));
+                String eResult = String.valueOf(engine.eval(imports + '\n' + finalCode));
                 if (eResult.length() > 2000) {
                     eResult = String.format("Eval too large, result pasted: %s", MessageUtils.paste(eResult));
                 }
                 if (!silent)
                     channel.sendMessage(eResult).queue();
             } catch (Exception e) {
-                FlareBot.LOGGER.error("Error occurred in the evaluator thread pool! " + e.getMessage(), e, Markers.NO_ANNOUNCE);
-                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(ColorUtils.RED)
+                //FlareBot.LOGGER.error("Error occurred in the evaluator thread pool! " + e.getMessage(), e, Markers.NO_ANNOUNCE);
+                channel.sendMessage(MessageUtils.getEmbed(sender)
                         .addField("Result: ", "```bf\n" + e.getMessage() + "```", false).build()).queue();
             }
         });
@@ -178,7 +177,7 @@ public class EvalCommand implements Command {
     public boolean deleteMessage() {
         return false;
     }
-    
+
     enum Options {
         SILENT("s"),
         SNIPPET("snippet"),
