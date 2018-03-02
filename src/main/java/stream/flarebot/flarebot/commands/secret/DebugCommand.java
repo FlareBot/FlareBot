@@ -37,7 +37,7 @@ public class DebugCommand implements Command {
                             + "\nMemory Free: %s"
                             + "\nVideo Threads: %d"
                             + "\nCommand Threads: %d"
-                            + "Total Threads: %d"
+                            + "\nTotal Threads: %d"
                             + "\n\nGuilds: %d"
                             + "\nLoaded Guilds: %d"
                             + "\nVoice Channels: %d"
