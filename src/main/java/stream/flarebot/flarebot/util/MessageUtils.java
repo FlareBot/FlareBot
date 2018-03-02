@@ -210,19 +210,7 @@ public class MessageUtils {
 
     private static void sendMessage(MessageEmbed embed, TextChannel channel) {
         if (channel == null) return;
-        //channel.sendMessage("test").queue(aVoid -> {}, fail -> System.out.println("Failed to send message, " + fail.getMessage()));
-        Message msg = new MessageBuilder().setContent("test").setEmbed(embed)
-                .stripMentions(channel.getGuild(), Message.MentionType.EVERYONE, Message.MentionType.HERE)
-                .build();
-        System.out.println(embed.toJSONObject());
-
-        channel.sendMessage(msg).queue(aVoid -> System.out.println("Sent message"),
-                fail -> System.out.println("Failed to send message, " + fail.getMessage()));
-
-        channel.sendMessage(new MessageBuilder().setContent("test").setEmbed(embed)
-                .stripMentions(channel.getGuild(), Message.MentionType.EVERYONE, Message.MentionType.HERE)
-                .build()).queue(aVoid -> System.out.println("Sent message"),
-                fail -> System.out.println("Failed to send message, " + fail.getMessage()));
+        channel.sendMessage(embed.build());
     }
 
     public static void sendMessage(String message, TextChannel channel) {
