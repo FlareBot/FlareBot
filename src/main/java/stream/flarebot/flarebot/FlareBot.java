@@ -75,25 +75,9 @@ import stream.flarebot.flarebot.analytics.GuildAnalytics;
 import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.api.GzipRequestInterceptor;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.Prefixes;
-import stream.flarebot.flarebot.commands.currency.ConvertCommand;
-import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
-import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.informational.BetaCommand;
-import stream.flarebot.flarebot.commands.informational.DonateCommand;
-import stream.flarebot.flarebot.commands.moderation.*;
-import stream.flarebot.flarebot.commands.moderation.mod.*;
-import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.random.AvatarCommand;
-import stream.flarebot.flarebot.commands.secret.*;
-import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
-import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
-import stream.flarebot.flarebot.commands.useful.RemindCommand;
-import stream.flarebot.flarebot.commands.useful.TagsCommand;
+import stream.flarebot.flarebot.commands.CommandManager;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -126,9 +110,6 @@ public class FlareBot {
     private static JSONConfig config;
     private static boolean apiEnabled = true;
     private static boolean testBot = false;
-    private static OkHttpClient client =
-            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
-                    .addInterceptor(new DataInterceptor()).build();
     private static String version = null;
 
     static {
@@ -148,7 +129,7 @@ public class FlareBot {
     private CommandManager commandManager;
 
     private static final DataInterceptor dataInterceptor = new DataInterceptor(DataInterceptor.RequestSender.JDA);
-    private static final OkHttpClient client =
+    private static OkHttpClient client =
             new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
                     .addInterceptor(dataInterceptor).build();
 
@@ -493,7 +474,7 @@ public class FlareBot {
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
                 RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON,
                         new JSONObject().put("server_count", client.getGuilds().size()).toString());
-                WebUtils.asyncRequest(request.post(body));
+                WebUtils.postAsync(request.post(body));
                 return;
             }
             try {
@@ -506,7 +487,7 @@ public class FlareBot {
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
-                WebUtils.asyncRequest(request.post(body));
+                WebUtils.postAsync(request.post(body));
 
                 // Gonna spread these out just a bit so we don't burst (insert shard number here) requests all at once
                 Thread.sleep(20_000);

@@ -49,19 +49,12 @@ import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import javax.annotation.Nonnull;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ModlogEvents implements EventListener {
 
@@ -92,7 +85,7 @@ public class ModlogEvents implements EventListener {
         if (g == null)
             return;
 
-        GuildWrapper guildWrapper = FlareBotManager.getInstance().getGuildNoCache(g.getId());
+        GuildWrapper guildWrapper = FlareBotManager.instance().getGuildNoCache(g.getId());
         if (guildWrapper == null)
             return;
 
@@ -375,8 +368,8 @@ public class ModlogEvents implements EventListener {
         if (!RedisController.exists(event.getMessageId())) return;
         RedisMessage old = GeneralUtils.toRedisMessage(RedisController.get(event.getMessageId()));
         ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MESSAGE_EDIT, event.getAuthor(),
-                new MessageEmbed.Field("Old Message", GeneralUtils.truncate(1024, old.getContent(), true), false),
-                new MessageEmbed.Field("New Message", GeneralUtils.truncate(1024, event.getMessage().getContentDisplay(), true), false),
+                new MessageEmbed.Field("Old Message", FormatUtils.truncate(1024, old.getContent(), true), false),
+                new MessageEmbed.Field("New Message", FormatUtils.truncate(1024, event.getMessage().getContentDisplay(), true), false),
                 new MessageEmbed.Field("Channel", event.getTextChannel().getName() + " (" + event.getTextChannel().getId() + ")", true));
         RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "xx", "ex", 61200);
     }
@@ -396,7 +389,7 @@ public class ModlogEvents implements EventListener {
             if (entry.getUser().isBot()) return;
             responsible = entry.getUser();
         }
-        User sender = GeneralUtils.getUser(deleted.getAuthorID());
+        User sender = GuildUtils.getUser(deleted.getAuthorID());
         ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MESSAGE_DELETE, sender,
                 (responsible != null ? new MessageEmbed.Field("Deleted By", MessageUtils.getUserAndId(responsible), true)
                         : null),

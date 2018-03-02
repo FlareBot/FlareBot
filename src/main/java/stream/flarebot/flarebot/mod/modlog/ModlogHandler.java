@@ -163,7 +163,7 @@ public class ModlogHandler {
             return;
         }
 
-        if (target != null && target.getIdLong() == FlareBot.getInstance().getClient().getSelfUser().getIdLong()) {
+        if (target != null && target.getIdLong() == FlareBot.instance().getClient().getSelfUser().getIdLong()) {
             if (modAction == ModAction.UNBAN || modAction == ModAction.UNMUTE)
                 MessageUtils.sendWarningMessage("W-why would you want to do that in the first place. Meanie :(", channel);
             else

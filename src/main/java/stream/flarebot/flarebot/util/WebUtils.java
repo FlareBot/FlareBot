@@ -73,7 +73,7 @@ public class WebUtils {
                                 boolean compress) throws IOException {
         Request.Builder request = new Request.Builder().url(url);
         if (sendAPIAuth)
-            request.addHeader("Authorization", FlareBot.getInstance().getApiKey());
+            request.addHeader("Authorization", FlareBot.instance().getApiKey());
         if (compress)
             request.addHeader("Content-Encoding", "gzip");
         RequestBody requestBody = RequestBody.create(type, body);
@@ -121,14 +121,14 @@ public class WebUtils {
      */
     }
 
+    /**
+     * Makes an async request using the specified builder. This uses the {@link WebUtils#defaultCallback}
+     * as the callback.
+     *
+     * @param builder The builder for the request.
+     */
     public static void postAsync(Request.Builder builder) {
         client.newCall(builder.build()).enqueue(defaultCallback);
-     */
-     * @param builder The builder for the request.
-     *
-     * as the callback.
-     * Makes an async request using the specified builder. This uses the {@link WebUtils#defaultCallback}
-    /**
     }
 
     /**
@@ -143,16 +143,16 @@ public class WebUtils {
         return pingHost(host, 80, timeout);
     }
 
-    private static boolean pingHost(String host, int port, int timeout) {
-     */
-     * @return Whether the ping was successful or not.
-     * @param timeout The timeout after which the connection is classified as unsuccessful.
-     * @param port    The port on which to ping the host.
-     * @param host    The host to ping.
-     *
-     * return false if the URL is not correct <b>and</b> if the the socket couldn't connect.
-     * Pings a specified host on the provided port by attempting to open a web socket. This will
     /**
+     * Pings a specified host on the provided port by attempting to open a web socket. This will
+     * return false if the URL is not correct <b>and</b> if the the socket couldn't connect.
+     *
+     * @param host The host to ping.
+     * @param port The port on which to ping the host.
+     * @param timeout The timeout after which the connection is classified as unsuccessful.
+     * @return Whether the ping was successful or not.
+     */
+    private static boolean pingHost(String host, int port, int timeout) {
         String hostname;
         try {
             hostname = new URL(host).getHost();
