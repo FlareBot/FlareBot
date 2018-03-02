@@ -77,8 +77,8 @@ public class ModlogEvents implements EventListener {
             g = ((GenericTextChannelEvent) event).getGuild();
         else if (event instanceof GenericVoiceChannelEvent && ((GenericVoiceChannelEvent) event).getGuild() != null)
             g = ((GenericVoiceChannelEvent) event).getGuild();
-        /*else if (event instanceof GenericMessageEvent && ((GenericMessageEvent) event).getGuild() != null)
-            g = ((GenericMessageEvent) event).getGuild();*/
+        else if (event instanceof GenericMessageEvent && ((GenericMessageEvent) event).getGuild() != null)
+            g = ((GenericMessageEvent) event).getGuild();
 
         if (g == null)
             return;
@@ -134,9 +134,6 @@ public class ModlogEvents implements EventListener {
             onGenericGuildUpdate((GenericGuildUpdateEvent) event, guildWrapper);
         else if (event instanceof GuildVoiceMoveEvent)
             onGuildVoiceMove((GuildVoiceMoveEvent) event, guildWrapper);
-
-        //if (gw == null)
-        //    return;
     }
 
     private void onGuildBan(GuildBanEvent event, @Nonnull GuildWrapper wrapper) {
@@ -158,9 +155,16 @@ public class ModlogEvents implements EventListener {
     }
 
     private void onGuildMemberLeave(GuildMemberLeaveEvent event, @Nonnull GuildWrapper wrapper) {
-        if (!event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)) return;
         if (!wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.MEMBER_LEAVE)
                 && !wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.USER_KICKED)) return;
+        boolean checkKick = event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS) 
+                && wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.USER_KICKED);
+        if (!checkKick) {
+            if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_LEAVE, event.getUser(),
+                    responsible, reason);
+            return;
+        }
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
             AuditLogEntry entry = null;
             User responsible = null;
@@ -178,15 +182,15 @@ public class ModlogEvents implements EventListener {
                 reason = entry.getReason();
             }
             boolean isKick = entry != null;
-            if (isKick)
+            if (isKick) {
                 if (cannotHandle(wrapper, ModlogEvent.USER_KICKED)) return;
-                else if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
+            } else 
+                if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
 
             ModlogHandler.getInstance().postToModlog(wrapper, isKick ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
                     responsible, reason);
         });
-
     }
 
     private void onGuildVoiceJoin(GuildVoiceJoinEvent event, @Nonnull GuildWrapper wrapper) {
