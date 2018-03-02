@@ -211,7 +211,7 @@ public class MessageUtils {
 
     private static void sendMessage(MessageEmbed embed, TextChannel channel) {
         if (channel == null) return;
-        channel.sendMessage(embed);
+        channel.sendMessage(embed).queue()
     }
 
     public static void sendMessage(String message, TextChannel channel) {
