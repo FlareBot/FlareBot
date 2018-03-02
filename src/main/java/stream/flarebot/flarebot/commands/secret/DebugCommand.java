@@ -1,5 +1,7 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import java.util.stream.Collectors;
+
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
@@ -40,7 +42,8 @@ public class DebugCommand implements Command {
                     + "\nLoaded Guilds: %d"
                     + "\nVoice Channels: %d"
                     + "\nActive Voice Channels: %d"
-                    + "\nCommands Executed: %d",
+                    + "\nCommands Executed: %d"
+                    + "\nQueued RestActions: %s",
 
                     fb.getUptime(),
                     getMB(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()),
@@ -52,7 +55,8 @@ public class DebugCommand implements Command {
                     FlareBotManager.getInstance().getGuilds().size(), 
                     fb.getConnectedVoiceChannels(), 
                     fb.getActiveVoiceChannels(),
-                    fb.getEvents().getCommandCount()
+                    fb.getEvents().getCommandCount(),
+                    getQueuedRestActions()
             ));
             
             StringBuilder sb = new StringBuilder();
@@ -87,5 +91,10 @@ public class DebugCommand implements Command {
     
     private String getMB(long bytes) {
         return (bytes / 1024 / 1024) + "MB";
+    }
+    
+    private String getQueuedRestActions() {
+        return FlareBot.getInstance().getClients().stream().map(shard -> shard.getShardInfo().getId() + ": " 
+                + ((JDAImpl) shard).getRequester().getRateLimiter().getQueuedRouteBuckets()).collect(Collectors.joining(", ");
     }
 }
