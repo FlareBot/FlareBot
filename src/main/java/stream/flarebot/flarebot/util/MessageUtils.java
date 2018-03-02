@@ -110,6 +110,7 @@ public class MessageUtils {
             ResponseBody body = response.body();
             if (body != null) {
                 String key = new JSONObject(body.string()).getString("key");
+                body.close();
                 return "https://paste.flarebot.stream/" + key;
             } else {
                 FlareBot.LOGGER.error("Local instance of hastebin is down");
@@ -210,7 +211,7 @@ public class MessageUtils {
 
     private static void sendMessage(MessageEmbed embed, TextChannel channel) {
         if (channel == null) return;
-        channel.sendMessage(embed.build());
+        channel.sendMessage(embed);
     }
 
     public static void sendMessage(String message, TextChannel channel) {
