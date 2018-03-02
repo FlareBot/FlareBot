@@ -25,8 +25,7 @@ public class JumboCommand implements Command {
                 try {
                     URL url = new URL(e.getImageUrl());
                     InputStream stream = url.openStream();
-                    channel.sendFile(stream, e.getName()).queue();
-                    // TODO: Make this work... no exception is thrown. It's weird.
+                    channel.sendFile(stream, e.getName() + ".png").queue();
                 } catch (IOException e1) {
                     MessageUtils.sendErrorMessage("Strange error occurred!\nMessage: " + e1.getMessage(), channel);
                     FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
