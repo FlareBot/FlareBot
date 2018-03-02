@@ -26,11 +26,30 @@ public class DebugCommand implements Command {
     
         EmbedBuilder eb = MessageUtils.getEmbed();
         if (args[0].equalsIgnoreCase("flarebot") || args[0].equalsIgnoreCase("bot")) {
-            eb.setTitle("Bot Debug").setDescription(String.format("Debug for FlareBot " + fb.getVersion()
-                    + "\nGuilds: %d"
+            eb.setTitle("Bot Debug").setDescription(String.format("Debug for FlareBot v" + fb.getVersion()
+                    + "\nUptime: %s"
+                    + "\nMemory Usage: %s"
+                    + "\nMemory Free: %s"
+                    + "\nVideo Threads: %d"
+                    + "\nCommand Threads: %d"
+                    + "Total Threads: %d"
+                    + "\n\nGuilds: %d"
+                    + "\nLoaded Guilds: %d"
                     + "\nVoice Channels: %d"
-                    + "\nActive Voice Channels: %d",
-                    fb.getGuildsCache().size(), fb.getConnectedVoiceChannels(), fb.getActiveVoiceChannels()));
+                    + "\nActive Voice Channels: %d"
+                    + "\nCommands Executed: %d",
+
+                    fb.getUptime(),
+                    getMB(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()),
+                    getMB(Runtime.getRuntime().freeMemory()),
+                    VideoThread.VIDEO_THREADS.activeCount(),
+                    Thread.getAllStackTraces().size()
+                    fb.getGuildsCache().size(), 
+                    FlareBotManager.getInstance().getGuilds().size(), 
+                    fb.getConnectedVoiceChannels(), 
+                    fb.getActiveVoiceChannels(),
+                    fb.getEvents().getCommandCount()
+            ));
             
             StringBuilder sb = new StringBuilder();
             for (DataInterceptor interceptor : DataInterceptor.getInterceptors())
@@ -60,5 +79,9 @@ public class DebugCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.SECRET;
+    }
+    
+    private String getMB(long bytes) {
+        return (bytes / 1024 / 1024) + "MB";
     }
 }
