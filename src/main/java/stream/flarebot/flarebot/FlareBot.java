@@ -405,6 +405,8 @@ public class FlareBot {
 
         registerCommand(new NINOCommand());
 
+        registerCommand(new DebugCommand());
+
         LOGGER.info("Loaded " + commands.size() + " commands!");
 
         ApiFactory.bind();
