@@ -133,6 +133,7 @@ public class MessageUtils {
             defaultEmbed = new EmbedBuilder().setColor(ColorUtils.FLAREBOT_BLUE);
 
         // We really need to PR getAuthor and things into EmbedBuilder.
+        defaultEmbed.clear();
         MessageEmbed embed = defaultEmbed.setDescription(ZERO_WIDTH_SPACE).build();
         if ((embed.getAuthor() == null || embed.getAuthor().getUrl() == null) && cachedJDA != null)
             defaultEmbed.setAuthor("FlareBot", "https://flarebot.stream", cachedJDA.getSelfUser().getEffectiveAvatarUrl());
