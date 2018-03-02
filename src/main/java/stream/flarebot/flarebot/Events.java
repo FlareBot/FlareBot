@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
 
-    private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
+    public static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     private static final List<Long> removedByMe = new ArrayList<>();
