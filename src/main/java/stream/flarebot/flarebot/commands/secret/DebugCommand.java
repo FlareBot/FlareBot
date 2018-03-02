@@ -34,9 +34,9 @@ public class DebugCommand implements Command {
             
             StringBuilder sb = new StringBuilder();
             for (DataInterceptor interceptor : DataInterceptor.getInterceptors())
-                sb.append(WordUtils.capitalize(interceptor.getSender().name())).append(" - ").append(interceptor.getRequests())
-                        .append(" requests");
-            eb.addField("HTTP requests", sb.toString(), false);
+                sb.append(WordUtils.capitalize(interceptor.getSender().getName())).append(" - ").append(interceptor.getRequests())
+                        .append(" requests").append("\n");
+            eb.addField("HTTP Requests", sb.toString(), false);
         }
         
         channel.sendMessage(eb.build()).queue();
