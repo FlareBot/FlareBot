@@ -10,6 +10,7 @@ import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.Events;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
@@ -53,8 +54,8 @@ public class DebugCommand implements Command {
                     Thread.getAllStackTraces().size(),
                     fb.getShardManager().getGuildCache().size(),
                     FlareBotManager.instance().getGuilds().size(),
-                    //fb.getConnectedVoiceChannels(),
-                    //fb.getActiveVoiceChannels(),
+                    Getters.getConnectedVoiceChannels(),
+                    Getters.getActiveVoiceChannels(),
                     fb.getEvents().getCommandCount(),
                     getQueuedRestActions()
             ));
