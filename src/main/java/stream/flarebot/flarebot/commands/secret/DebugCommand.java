@@ -94,7 +94,13 @@ public class DebugCommand implements Command {
     }
     
     private String getQueuedRestActions() {
-        return FlareBot.getInstance().getShards().stream().map(shard -> shard.getShardInfo().getId() + ": " 
-                + ((JDAImpl) shard).getRequester().getRateLimiter().getQueuedRouteBuckets()).collect(Collectors.joining(", "));
+        String queued = FlareBot.getInstance().getShards().stream()
+                .filter(shard -> !((JDAImpl) shard).getRequester().getRateLimiter().getQueuedRouteBuckets().isEmpty())
+                .map(shard -> "`" + shard.getShardInfo().getShardId() + "`: " + ((JDAImpl) shard).getRequester().getRateLimiter().getQueuedRouteBuckets().size())
+                .collect(Collectors.joining(", "));
+        if (queued.isEmpty())
+            queued = "No queued rest actions";
+        
+        return queued;
     }
 }
