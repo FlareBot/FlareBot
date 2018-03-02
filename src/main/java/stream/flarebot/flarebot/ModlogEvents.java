@@ -161,8 +161,7 @@ public class ModlogEvents implements EventListener {
                 && wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.USER_KICKED);
         if (!checkKick) {
             if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
-            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_LEAVE, event.getUser(),
-                    responsible, reason);
+            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_LEAVE, event.getUser());
             return;
         }
         event.getGuild().getAuditLogs().limit(1).type(ActionType.KICK).queue(auditLogEntries -> {
