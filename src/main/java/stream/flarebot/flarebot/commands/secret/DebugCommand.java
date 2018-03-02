@@ -43,7 +43,8 @@ public class DebugCommand implements Command {
                     getMB(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()),
                     getMB(Runtime.getRuntime().freeMemory()),
                     VideoThread.VIDEO_THREADS.activeCount(),
-                    Thread.getAllStackTraces().size()
+                    Events.COMMAND_THREADS.activeCount(),
+                    Thread.getAllStackTraces().size(),
                     fb.getGuildsCache().size(), 
                     FlareBotManager.getInstance().getGuilds().size(), 
                     fb.getConnectedVoiceChannels(), 
