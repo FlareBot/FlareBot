@@ -9,7 +9,6 @@ import okhttp3.Interceptor;
 import okhttp3.Response;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-
 public class DataInterceptor implements Interceptor {
     
     private static final List<DataInterceptor> interceptors = new ArrayList<>();
@@ -44,7 +43,17 @@ public class DataInterceptor implements Interceptor {
     }
     
     public static enum RequestSender {
-        JDA,
-        FLAREBOT
+        
+        JDA("JDA"),
+        FLAREBOT("FlareBot");
+        
+        private String name;
+        RequestSender(String name) {
+            this.name = name;
+        }
+        
+        public String getName() {
+            return this.name;
+        }
     }
 }
