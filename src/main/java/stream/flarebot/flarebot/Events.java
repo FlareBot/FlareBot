@@ -30,8 +30,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
-import stream.flarebot.flarebot.api.ApiRequester;
-import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
@@ -72,7 +70,7 @@ import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
 
-    private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
+    public static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     private static final List<Long> removedByMe = new ArrayList<>();

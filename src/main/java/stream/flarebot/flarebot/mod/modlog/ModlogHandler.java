@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.joda.time.Period;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
@@ -142,8 +143,9 @@ public class ModlogHandler {
             member = wrapper.getGuild().getMember(target);
         }
         if (channel == null) return;
-        if (member == null && modAction != ModAction.FORCE_BAN && modAction != ModAction.UNBAN) {
-            MessageUtils.sendErrorMessage("That user isn't in this guild! You can try to forceban the user if needed.", channel);
+        if (member == null && modAction != ModAction.BAN && modAction != ModAction.FORCE_BAN) {
+            MessageUtils.sendErrorMessage("That user isn't in this server!"
+                    + (modAction == ModAction.BAN ? " You can forceban with `{%}forceban <id>`." : ""), channel);
             return;
         }
 
@@ -157,6 +159,15 @@ public class ModlogHandler {
         // Make sure the target user isn't themselves
         if (target != null && sender != null && target.getIdLong() == sender.getIdLong()) {
             MessageUtils.sendErrorMessage(String.format("You cannot %s yourself you daft person!",
+                    modAction.getLowercaseName()), channel);
+            return;
+        }
+
+        if (target != null && target.getIdLong() == FlareBot.getInstance().getClient().getSelfUser().getIdLong()) {
+            if (modAction == ModAction.UNBAN || modAction == ModAction.UNMUTE)
+                MessageUtils.sendWarningMessage("W-why would you want to do that in the first place. Meanie :(", channel);
+            else
+                MessageUtils.sendWarningMessage(String.format("T-that's meannnnnnn :( I can't %s myself and I hope you don't want to either :(",
                     modAction.getLowercaseName()), channel);
             return;
         }

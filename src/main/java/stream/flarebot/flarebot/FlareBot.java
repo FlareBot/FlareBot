@@ -75,9 +75,25 @@ import stream.flarebot.flarebot.analytics.GuildAnalytics;
 import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
+import stream.flarebot.flarebot.api.GzipRequestInterceptor;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandManager;
+import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.Prefixes;
+import stream.flarebot.flarebot.commands.currency.ConvertCommand;
+import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
+import stream.flarebot.flarebot.commands.general.*;
+import stream.flarebot.flarebot.commands.informational.BetaCommand;
+import stream.flarebot.flarebot.commands.informational.DonateCommand;
+import stream.flarebot.flarebot.commands.moderation.*;
+import stream.flarebot.flarebot.commands.moderation.mod.*;
+import stream.flarebot.flarebot.commands.music.*;
+import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.secret.*;
+import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
+import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.useful.RemindCommand;
+import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
@@ -130,6 +146,11 @@ public class FlareBot {
     private Runtime runtime = Runtime.getRuntime();
     private WebhookClient importantHook;
     private CommandManager commandManager;
+
+    private static final DataInterceptor dataInterceptor = new DataInterceptor(DataInterceptor.RequestSender.JDA);
+    private static final OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
+                    .addInterceptor(dataInterceptor).build();
 
     private AnalyticsHandler analyticsHandler;
 
@@ -411,16 +432,22 @@ public class FlareBot {
      * This possibly-null will return the first connected JDA shard.
      * This means that a lot of methods like sending embeds works even with shard 0 offline.
      *
-     * @returns The first possible JDA shard which is connected or null otherwise.
+     * @return The first possible JDA shard which is connected or null otherwise.
      */
     @Nullable
     public JDA getClient() {
-        for (JDA jda : shardManager.getShardCache())
+        for (JDA jda : shardManager.getShardCache()) {
             if (jda.getStatus() == JDA.Status.CONNECTED)
                 return jda;
+        }
         return null;
     }
 
+    /**
+     * Get the SelfUser of the bot, this will be null if no shards are connected.
+     *
+     * @return The bot SelfUser or null if no CONNECTED shard is found.
+     */
     @Nullable
     public SelfUser getSelfUser() {
         JDA shard = getClient();
@@ -515,7 +542,7 @@ public class FlareBot {
                                 .getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
                 .put("uptime", getUptime())
-                .put("http_requests", DataInterceptor.getRequests().intValue());
+                .put("http_requests", dataInterceptor.getRequests().intValue());
 
         ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data);
     }
@@ -840,7 +867,7 @@ public class FlareBot {
                             deadShards.toString());
                 }
             }
-        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+        }.repeat(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(5));
 
         new FlareBotTask("GuildCleanup") {
             @Override

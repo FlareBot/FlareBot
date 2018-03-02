@@ -50,4 +50,9 @@ public class GuildAnalytics implements AnalyticSender {
     public String endpoint() {
         return "/guild-data";
     }
+
+    @Override
+    public boolean compressData() {
+        return true;
+    }
 }
