@@ -137,7 +137,7 @@ public class MessageUtils {
             defaultEmbed.setAuthor("FlareBot", "https://flarebot.stream", cachedJDA.getSelfUser().getEffectiveAvatarUrl());
         
         // probably need a better way to reset but eh
-        defaultEmbed.setThumbnail(null).setDescrition(null).clearFields().setImage(null)
+        defaultEmbed.setThumbnail(null).setDescription(null).clearFields().setImage(null)
                 .setFooter(null, null).setTimestamp(null);
 
         return defaultEmbed.setColor(ColorUtils.FLAREBOT_BLUE);
