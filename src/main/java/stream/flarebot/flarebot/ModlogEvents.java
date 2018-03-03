@@ -348,6 +348,10 @@ public class ModlogEvents implements EventListener {
         if (event.getMember().hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE)) return;
         if (wrapper.getNINO().isEnabled()) {
             String invite = MessageUtils.getInvite(event.getMessage().getContentDisplay());
+            for (String inv : wrapper.getNINO().getWhitelist())
+                if (invite.equalsIgnoreCase(inv))
+                    return;
+            
             if (invite != null) {
                 event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] "
                         + wrapper.getNINO().getRemoveMessage()).queue());
