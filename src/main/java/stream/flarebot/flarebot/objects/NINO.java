@@ -10,7 +10,7 @@ public class NINO {
     private boolean enabled;
     private Set<String> whitelist;
     private String removeMessage;
-    private Set<String> removeMessages;
+    private Set<String> removeMessages = new HashSet<>();
 
     public NINO() {
         this.enabled = false;
@@ -50,7 +50,7 @@ public class NINO {
     public Set<String> getWhitelist() {
         return whitelist;
     }
-    
+
     public void migrate() {
         if (removeMessages.isEmpty())
             removeMessages.add(removeMessage);

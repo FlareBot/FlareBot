@@ -15,54 +15,12 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.lang.IllegalStateException;
-import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.annotation.Nullable;
-import javax.annotation.Nonnull;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.SelfUser;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
 import net.dv8tion.jda.webhook.WebhookClient;
@@ -84,7 +42,6 @@ import stream.flarebot.flarebot.analytics.GuildAnalytics;
 import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
-import stream.flarebot.flarebot.api.GzipRequestInterceptor;
 import stream.flarebot.flarebot.audio.PlayerListener;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -98,6 +55,7 @@ import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.random.ColourCommand;
 import stream.flarebot.flarebot.commands.random.JumboCommand;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
@@ -112,14 +70,30 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.ConfirmUtil;
-import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.GeneralUtils;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.ShardUtils;
-import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.*;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
+
+import java.io.*;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FlareBot {
 
@@ -402,6 +376,7 @@ public class FlareBot {
         registerCommand(new UpdateJDACommand());
         registerCommand(new ChangelogCommand());
         registerCommand(new JumboCommand());
+        registerCommand(new ColourCommand());
 
         registerCommand(new NINOCommand());
 
@@ -439,8 +414,8 @@ public class FlareBot {
                 "Started all tasks, run complete!", "Failed to start all tasks!",
                 this::runTasks);
 
-    } 
-    
+    }
+
     /**
      * This possibly-null will return the first connected JDA shard.
      * This means that a lot of methods like sending embeds works even with shard 0 offline.
@@ -479,16 +454,16 @@ public class FlareBot {
                                 new DateTime(row.getTimestamp("created_at")),
                                 FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
                 try {
-                if (new DateTime().isAfter(fa.getExpires()))
-                    fa.execute();
-                else {
-                    fa.queue();
-                    loaded[0]++;
-                }
+                    if (new DateTime().isAfter(fa.getExpires()))
+                        fa.execute();
+                    else {
+                        fa.queue();
+                        loaded[0]++;
+                    }
                 } catch (NullPointerException e) {
                     LOGGER.error("Failed to execute/queue future task"
-                             + "\nAction: " + fa.getAction() + "\nResponsible: " + fa.getResponsible() 
-                             + "\nTarget: " + fa.getTarget() + "\nContent: " + fa.getContent(), e);
+                            + "\nAction: " + fa.getAction() + "\nResponsible: " + fa.getResponsible()
+                            + "\nTarget: " + fa.getTarget() + "\nContent: " + fa.getContent(), e);
                 }
             }
         });
@@ -708,7 +683,7 @@ public class FlareBot {
     public Set<Command> getCommands() {
         return this.commands;
     }
-    
+
     @Nonnull
     public Set<Command> getCommandsByType(CommandType type) {
         return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
@@ -1152,15 +1127,15 @@ public class FlareBot {
             @Override
             public void run() {
                 for (VoiceChannel channel : getConnectedVoiceChannelList()) {
-                    if (channel.getMembers().stream().filter(member -> !member.getUser().isBot() && !member.getUser().isFake()).count() > 0 
-                            && !getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty() 
+                    if (channel.getMembers().stream().filter(member -> !member.getUser().isBot() && !member.getUser().isFake()).count() > 0
+                            && !getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
                             && !getMusicManager().getPlayer(channel.getGuild().getId()).getPaused()) {
                         manager.getLastActive().remove(channel.getGuild().getIdLong());
                         return;
                     }
                     if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())
-                           && System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong()) 
-                               + TimeUnit.MINUTES.toMillis(10)))
+                            && System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong())
+                            + TimeUnit.MINUTES.toMillis(10)))
                         channel.getGuild().getAudioManager().closeAudioConnection();
                 }
             }
