@@ -8,6 +8,7 @@ public class NINO {
     private boolean enabled;
     private Set<String> whitelist;
     private String removeMessage;
+    private Set<String> removeMessages;
 
     public NINO() {
         this.enabled = false;
@@ -15,6 +16,7 @@ public class NINO {
         this.whitelist.add("discord.gg/discord-developers");
         this.whitelist.add("discord.gg/TTAUGvZ");
         this.removeMessage = "No no no, you post not an invite here!\nYes, hmmm.";
+        this.removeMessages.add(removeMessage);
     }
 
     public boolean isEnabled() {
@@ -39,10 +41,16 @@ public class NINO {
     }
 
     public String getRemoveMessage() {
-        return removeMessage;
+        migrate();
+        return RandomUtils.getRandomString(removeMessages);
     }
 
     public Set<String> getWhitelist() {
         return whitelist;
+    }
+    
+    public void migrate() {
+        if (removeMessages.isEmpty())
+            removeMessages.add(removeMessage);
     }
 }
