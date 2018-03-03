@@ -2,14 +2,18 @@ package stream.flarebot.flarebot.commands;
 
 import stream.flarebot.flarebot.FlareBot;
 
-import java.util.List;
+import java.util.Set;
 
 public enum CommandType {
 
     GENERAL,
     MODERATION,
     MUSIC,
-    SECRET;
+    INTERNAL,
+    USEFUL,
+    CURRENCY,
+    RANDOM,
+    SECRET, INFORMATIONAL;
 
     public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();
@@ -19,11 +23,7 @@ public enum CommandType {
         return new CommandType[]{GENERAL, MODERATION, MUSIC};
     }
 
-    public List<Command> getCommands() {
+    public Set<Command> getCommands() {
         return FlareBot.getInstance().getCommandsByType(this);
-    }
-
-    public String formattedName() {
-        return toString();
     }
 }

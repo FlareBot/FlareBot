@@ -41,24 +41,24 @@ public class YouTubeExtractor implements Extractor {
         try {
             item = GeneralUtils.resolveItem(player, input);
         } catch (IllegalArgumentException e) {
-            MessageUtils.editMessage("", MessageUtils.getEmbed(user)
+            MessageUtils.editMessage(null, MessageUtils.getEmbed(user)
                     .setDescription("Could not get that video/playlist! Make sure the URL is correct!")
                     .setColor(Color.RED), message);
             return;
         } catch (IllegalStateException e) {
             if (e.getMessage().contains("Vevo")) {
-                MessageUtils.editMessage("", MessageUtils.getEmbed(user)
+                MessageUtils.editMessage(null, MessageUtils.getEmbed(user)
                         .setDescription("We are blocked from playing this video as it is from Vevo! " +
-                                "Sorry for any inconvience.")
+                                "Sorry for any inconvenience.")
                         .setColor(Color.RED), message);
                 return;
             }
-            MessageUtils.editMessage("", MessageUtils.getEmbed(user)
+            MessageUtils.editMessage(null, MessageUtils.getEmbed(user)
                     .setDescription("There was a problem with that video!\n" +
                             "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
                             "Input: " + input + "\n" +
                             "Error Message: " + e.getMessage() + "\n" +
-                            "Stacktrace: " + MessageUtils.hastebin(GeneralUtils.getStackTrace(e)))
+                            "Stacktrace: " + MessageUtils.paste(GeneralUtils.getStackTrace(e)))
                     .setColor(Color.RED), message);
             return;
         }
@@ -73,14 +73,14 @@ public class YouTubeExtractor implements Extractor {
             AudioTrack track = (AudioTrack) item;
             /*if (track.getInfo().length == 0 || track.getInfo().isStream) {
                 EmbedBuilder builder = MessageUtils.getEmbed(user).setDescription("Cannot queue a livestream!");
-                MessageUtils.editMessage("", builder, message);
+                MessageUtils.editMessage(null, builder, message);
                 return;
             }*/
             audioTracks.add(track);
             name = track.getInfo().title;
             if (track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000) + 1) == 1000) {
-                GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", message.getAuthor());
-                FlareBot.getInstance().logEG("You can't rick roll me!", null, message.getGuild(), message.getAuthor());
+                GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", user);
+                FlareBot.getInstance().logEG("You can't rick roll me!", null, message.getGuild(), user);
             }
         }
         if (name != null) {
@@ -97,10 +97,10 @@ public class YouTubeExtractor implements Extractor {
             EmbedBuilder builder = MessageUtils.getEmbed(user);
             builder.setDescription(String.format("%s added the %s [`%s`](%s)", user.getAsMention(), audioTracks
                             .size() == 1 ? "song" : "playlist",
-                    name, input));
+                    name.replace("`", "'"), input));
             if (audioTracks.size() > 1)
                 builder.addField("Song count:", String.valueOf(audioTracks.size()), true);
-            MessageUtils.editMessage("", builder, message);
+            MessageUtils.editMessage(null, builder, message);
         }
     }
 

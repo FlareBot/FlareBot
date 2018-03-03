@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class RandomExtractor implements Extractor {
+
     @Override
     public Class<? extends AudioSourceManager> getSourceManagerClass() {
         return YoutubeAudioSourceManager.class;
@@ -33,7 +34,7 @@ public class RandomExtractor implements Extractor {
             } catch (FriendlyException ignored) {
             }
         }
-        MessageUtils.editMessage("", MessageUtils.getEmbed()
+        MessageUtils.editMessage(null, MessageUtils.getEmbed()
                 .setDescription("Added " + i + " random songs to the playlist!"), message);
     }
 

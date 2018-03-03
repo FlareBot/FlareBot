@@ -11,20 +11,23 @@ import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.util.List;
+
 public class LoadCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
             return;
         }
         String name = MessageUtils.getMessage(args, 0);
 
-        channel.sendTyping().complete();
+        List<String> playlist = FlareBot.getInstance().getManager().loadPlaylist(channel, sender, name);
+        if(!playlist.isEmpty())
+            VideoThread.getThread(name + '\u200B' + playlist.toString(), channel, sender).start();
 
-        VideoThread.getThread(name + '\u200B' + FlareBot.getInstance().getManager()
-                .loadPlaylist(channel, sender, name), channel, sender).start();
+
     }
 
     @Override
@@ -39,7 +42,7 @@ public class LoadCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}load <playlist>` - Loads a playlist";
+        return "`{%}load <playlist>` - Loads a playlist.";
     }
 
     @Override
@@ -49,6 +52,6 @@ public class LoadCommand implements Command {
 
     @Override
     public String getPermission() {
-        return "flarebot.playlist.load";
+        return "flarebot.queue.load";
     }
 }

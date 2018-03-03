@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Songs {
+
     public long length;
     public long progress;
     public String avatar;
@@ -25,7 +26,7 @@ public class Songs {
         requester = track.getMeta().getOrDefault("requester", "Unknown").toString();
         length = track.getTrack().getDuration();
         progress = track.getTrack().getPosition();
-        User user = FlareBot.getInstance().getUserByID(requester);
+        User user = FlareBot.getInstance().getUserById(requester);
         if (user != null) {
             discrim = user.getDiscriminator();
             name = user.getName();
@@ -49,8 +50,7 @@ public class Songs {
 
         Songs songs = (Songs) o;
 
-        if (!identifier.equals(songs.identifier)) return false;
-        return requester.equals(songs.requester);
+        return identifier.equals(songs.identifier) && requester.equals(songs.requester);
     }
 
     @Override
@@ -61,6 +61,7 @@ public class Songs {
     }
 
     private static class ResponsePlayer {
+
         private List<Songs> playlist;
         public Songs current;
         public String guildId;

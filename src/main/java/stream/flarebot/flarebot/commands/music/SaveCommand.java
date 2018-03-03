@@ -22,7 +22,7 @@ public class SaveCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
             return;
         }
 
@@ -42,12 +42,10 @@ public class SaveCommand implements Command {
 
         channel.sendTyping().complete();
 
-        List<String> tracks = new ArrayList<>();
-        tracks.addAll(playlist.stream()
+        List<String> tracks = playlist.stream()
                 .map(track -> track
                         .getTrack()
-                        .getIdentifier())
-                .collect(Collectors.toList()));
+                        .getIdentifier()).collect(Collectors.toList());
         if (currentlyPlaying != null) {
             tracks.add(currentlyPlaying.getTrack().getIdentifier());
         }
@@ -60,7 +58,7 @@ public class SaveCommand implements Command {
         FlareBot.getInstance().getManager().savePlaylist(this,
                 channel,
                 sender.getId(),
-                this.getPermissions(channel).hasPermission(member, "flarebot.playlist.save.overwrite"),
+                this.getPermissions(channel).hasPermission(member, "flarebot.queue.save.overwrite"),
                 name,
                 tracks);
     }
@@ -72,17 +70,17 @@ public class SaveCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Save the current playlist! Usage: `save NAME`";
+        return "Save the current playlist!";
     }
 
     @Override
     public String getUsage() {
-        return "{%}save <name>";
+        return "`{%}save <name>` - Saves a playlist.";
     }
 
     @Override
     public String getPermission() {
-        return "flarebot.playlist.save";
+        return "flarebot.queue.save";
     }
 
     @Override

@@ -8,9 +8,6 @@ import java.util.List;
 
 public final class ReportManager {
 
-    public ReportManager() {
-    }
-
     private List<Report> reports = new ArrayList<>();
 
     public List<Report> getReports() {
@@ -19,20 +16,13 @@ public final class ReportManager {
     }
 
     public Report getReport(int id) {
-        return reports.get(id - 1);
+        if (reports.size() >= id)
+            return reports.get(id - 1);
+        return null;
     }
 
     public void report(Report report) {
         reports.add(report);
-    }
-
-    private static ReportManager instance;
-
-    public static ReportManager getInstance() {
-        if (instance == null) {
-            instance = new ReportManager();
-        }
-        return instance;
     }
 
     public int getLastId() {

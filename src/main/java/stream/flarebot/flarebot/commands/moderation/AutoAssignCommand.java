@@ -21,7 +21,7 @@ public class AutoAssignCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("list")) {
                 listRoles(guild, 1, channel, sender);
@@ -106,8 +106,8 @@ public class AutoAssignCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}autoassign <add/remove> <role>` - Add or Remove roles from AutoAssign\n"
-                + "`{%}autoassign list` - List roles that are currently AutoAssigned";
+        return "`{%}autoassign add|remove <role>` - Add or Remove roles from AutoAssign.\n"
+                + "`{%}autoassign list` - List roles that are currently AutoAssigned.";
     }
 
     @Override
@@ -126,6 +126,10 @@ public class AutoAssignCommand implements Command {
     }
 
     private Role getRole(Guild guild, String role) {
+        if (!role.contains(" ") && role.startsWith("<@&") && role.endsWith(">")) {
+            return guild.getRoleById(role.replaceAll("[^0-9]+", ""));
+        }
+        
         // Since I know it is valid I can get the id from the name or just return the id since that will be the only other thing passed.
         for (Role iRole : guild.getRoles()) {
             if (iRole.getId().equals(role) || iRole.getName().equalsIgnoreCase(role))

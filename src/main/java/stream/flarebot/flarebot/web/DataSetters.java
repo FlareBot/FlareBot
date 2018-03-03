@@ -14,15 +14,15 @@ import stream.flarebot.flarebot.web.objects.MonthlyPlaylist;
 import java.util.Arrays;
 
 public enum DataSetters {
-    ADDPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())
+    ADDPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelById(request.queryParams("guildid")).getGuild().getId())
             .getPermissions().getGroup(request.queryParams("group")).addPermission(request.queryParams("permission")),
-            new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
+            new Require("guildid", gid -> FlareBot.getInstance().getGuildById(gid) != null),
             new Require("group"),
             new Require("permission")),
-    REMOVEPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelByID(request.queryParams("guildid")).getGuild().getId())
+    REMOVEPERMISSION((request, response) -> FlareBotManager.getInstance().getGuild(FlareBot.getInstance().getChannelById(request.queryParams("guildid")).getGuild().getId())
             .getPermissions().getGroup(request.queryParams("group"))
             .removePermission(request.queryParams("permission")),
-            new Require("guildid", gid -> FlareBot.getInstance().getGuildByID(gid) != null),
+            new Require("guildid", gid -> FlareBot.getInstance().getGuildById(gid) != null),
             new Require("group"),
             new Require("permission")),
     MONTHLYPLAYLIST((request, response) -> {
@@ -30,7 +30,7 @@ public enum DataSetters {
         CassandraController.runTask(session -> {
             session.execute("DELETE FROM playlist WHERE guild = '691337'");
             session.execute(session.prepare("INSERT INTO playlist (playlist_name, guild, list, scope) VALUES (?, ?, ?, 'global')").bind()
-                            .setString(0, playlist.name)
+                    .setString(0, playlist.name)
                     .setString(1, "691337")
                     .setList(2, Arrays.asList(playlist.playlist)));
         });

@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
+import com.arsenarsen.lavaplayerbridge.player.Track;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -9,7 +10,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -20,36 +21,37 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SkipCommand implements Command {
 
-    private PlayerManager musicManager;
     private Map<String, Map<String, Vote>> votes = new HashMap<>();
     private Map<String, Boolean> skips = new HashMap<>();
 
-    public SkipCommand(FlareBot bot) {
-        this.musicManager = bot.getMusicManager();
-    }
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        PlayerManager musicManager = FlareBot.getInstance().getMusicManager();
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
             channel.sendMessage("I am not playing anything!").queue();
             return;
         }
         if (member.getVoiceState().inVoiceChannel() && !channel.getGuild().getSelfMember().getVoiceState().getChannel()
-                .getId()
-                .equals(member.getVoiceState().getChannel().getId())
+                .getId().equals(member.getVoiceState().getChannel().getId())
                 && !getPermissions(channel).hasPermission(member, "flarebot.skip.force")) {
             channel.sendMessage("You must be in the channel in order to skip songs!").queue();
             return;
         }
+        Track currentTrack = musicManager.getPlayer(guild.getGuildId()).getPlayingTrack();
+        if (args.length == 0 && currentTrack.getMeta().get("requester").equals(sender.getId())) {
+            channel.sendMessage("Skipped your own song!").queue();
+            musicManager.getPlayer(guild.getGuildId()).skip();
+            return;
+        }
+        
         if (args.length != 1) {
             if (votes.containsKey(channel.getGuild().getId())) {
                 String yes = String.valueOf(votes.get(channel.getGuild().getId()).values().stream()
                         .filter(vote -> vote == Vote.YES)
                         .count());
                 String no = String
-                        .valueOf(votes.get(channel.getGuild().getId()).values().stream().filter(vote -> vote == Vote.NO)
-                                .count());
+                        .valueOf(votes.get(channel.getGuild().getId()).size() - Long.valueOf(yes));
                 channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
                         .setDescription("Can't start a vote right now! " +
                                 "Another one in progress! Please use " + FlareBot
@@ -105,6 +107,7 @@ public class SkipCommand implements Command {
     }
 
     private Map<String, Vote> getVotes(TextChannel channel, Member sender) {
+        PlayerManager musicManager = FlareBot.getInstance().getMusicManager();
         return this.votes.computeIfAbsent(channel.getGuild().getId(), s -> {
             AtomicBoolean bool = new AtomicBoolean(false);
             channel.getGuild().getVoiceChannels().stream().filter(c -> c.equals(sender.getVoiceState().getChannel()))
@@ -121,7 +124,7 @@ public class SkipCommand implements Command {
                         .build()).queue();
                 return null;
             }
-            new FlarebotTask("Vote " + s) {
+            new FlareBotTask("Vote " + s) {
 
                 @Override
                 public void run() {
@@ -130,9 +133,10 @@ public class SkipCommand implements Command {
                         votes.remove(s);
                         return;
                     }
-                    boolean skip = votes.get(s).entrySet().stream()
+                    long yesCount = votes.get(s).entrySet().stream()
                             .filter(e -> e.getValue() == Vote.YES)
-                            .count() > (votes.size() / 2.0f);
+                            .count();
+                    boolean skip = yesCount > (votes.get(s).size() - yesCount);
                     channel.sendMessage(MessageUtils.getEmbed()
                             .setDescription("The votes are in!")
                             .addField("Results: ", (skip ? "Skip!" : "Keep!"), false).build())
@@ -163,8 +167,9 @@ public class SkipCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}skip [yes/no]\n" +
-                "{%}skip force";
+        return "`{%}skip` - Starts a vote to skip the song.\n" +
+                "`{%}skip yes|no` - Vote yes or no to skip the current song.\n" +
+                "`{%}skip force` - Forces FlareBot to skip the current song.";
     }
 
     @Override

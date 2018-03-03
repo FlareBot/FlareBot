@@ -1,25 +1,23 @@
 package stream.flarebot.flarebot.commands.moderation.mod;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.modlog.ModAction;
+import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.mod.Punishment;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-
-import java.awt.Color;
 
 public class WarnCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 0) {
-            MessageUtils.sendUsage(this, channel, sender);
+            MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             User user = GeneralUtils.getUser(args[0]);
             if (user == null) {
@@ -27,14 +25,9 @@ public class WarnCommand implements Command {
                 return;
             }
             String reason = null;
-            if(args.length >= 2) reason = MessageUtils.getMessage(args, 1);
-            guild.addWarning(user, (reason != null ? reason : "No reason provided - action done by " + sender.getName()));
-            guild.getAutoModConfig().postToModLog(user, sender, new Punishment(Punishment.EPunishment.WARN), reason);
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.appendDescription("\u26A0 Warned " + MessageUtils.getTag(user) 
-                    + (reason != null ? " (`" + reason.replaceAll("`", "'") + "`)" : ""))
-                .setColor(Color.WHITE);
-            channel.sendMessage(eb.build()).queue();
+            if (args.length >= 2) reason = MessageUtils.getMessage(args, 1);
+
+            ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.WARN, reason);
         }
     }
 
@@ -50,7 +43,7 @@ public class WarnCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}warn <user> (reason)` - warns a user";
+        return "`{%}warn <user> (reason)` - Warns a user.";
     }
 
     @Override

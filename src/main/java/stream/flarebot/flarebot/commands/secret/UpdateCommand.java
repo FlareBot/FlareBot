@@ -1,5 +1,11 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -11,14 +17,9 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.scheduler.FlarebotTask;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.util.MessageUtils;
 
 public class UpdateCommand implements Command {
 
@@ -30,7 +31,7 @@ public class UpdateCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (getPermissions(channel).isCreator(sender)) {
+        if (PerGuildPermissions.isCreator(sender)) {
             if (args.length == 0) {
                 update(false, channel);
             } else if (args.length == 1) {
@@ -39,13 +40,20 @@ public class UpdateCommand implements Command {
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
                     channel.sendMessage("I will now update to the latest version when no channels are playing music!")
                             .queue();
-                    if (flareBot.getConnectedVoiceChannels().size() == 0) {
+                    if (flareBot.getConnectedVoiceChannels() == 0) {
                         update(true, channel);
                     } else {
                         if (!queued.getAndSet(true)) {
                             NOVOICE_UPDATING.set(true);
                         } else
                             channel.sendMessage("There is already an update queued!").queue();
+                    }
+                } else if (args[0].equalsIgnoreCase("schedule")) {
+                    if (!queued.getAndSet(true)) {
+                        FlareBot.getInstance().scheduleUpdate();
+                        MessageUtils.sendSuccessMessage("Update scheduled for 12PM GMT!", channel);
+                    } else {
+                        MessageUtils.sendErrorMessage("There is already an update queued!", channel);
                     }
                 } else {
                     if (!queued.getAndSet(true)) {
@@ -59,7 +67,7 @@ public class UpdateCommand implements Command {
                                     .toFormatter();
                             p = formatter.parsePeriod(args[0]);
 
-                            new FlarebotTask("Scheduled-Update") {
+                            new FlareBotTask("Scheduled-Update") {
                                 @Override
                                 public void run() {
                                     update(true, channel);

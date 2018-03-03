@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
->
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>stream.flarebot</groupId>
     <artifactId>flarebot</artifactId>
-    <version>4.0.8-SNAPSHOT</version>
+    <version>4.1.12</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
@@ -18,23 +17,31 @@
             <url>https://jitpack.io</url>
         </repository>
         <repository>
-            <id>repo.arsenarsen.com</id>
-            <url>https://repo.arsenarsen.com/content/repositories/snapshots/</url>
+            <id>jgit-repository</id>
+            <url>https://repo.eclipse.org/content/groups/releases/</url>
         </repository>
     </repositories>
     <dependencies>
         <!-- JDA -->
-        <dependency>
+        <!--
+        Waiting for my PR to be merged (https://github.com/DV8FromTheWorld/JDA/pull/637)
+        -->
+        <!--<dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.3.1_276</version>
+            <version>3.5.1_342</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.github.WalshyDev</groupId>
+            <artifactId>JDA</artifactId>
+            <version>9029b24d37</version>
         </dependency>
 
         <!-- Lavaplayer related -->
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.43</version>
+            <version>1.2.56</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
@@ -48,9 +55,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.arsenarsen.lavaplayer-bridge</groupId>
-            <artifactId>jda-impl</artifactId>
-            <version>1.16-SNAPSHOT</version>
+            <groupId>com.github.FlareBot</groupId>
+            <artifactId>lavaplayerbridge</artifactId>
+            <version>7cf3eba</version>
             <exclusions>
                 <exclusion>
                     <artifactId>JDA</artifactId>
@@ -63,12 +70,7 @@
         <dependency>
             <groupId>com.github.binaryoverload</groupId>
             <artifactId>JSON-Config</artifactId>
-            <version>2.7.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ArsenArsen</groupId> <!-- <3 -->
-            <artifactId>githubwebhooks4j</artifactId>
-            <version>1.1.7</version>
+            <version>2.7.7</version>
         </dependency>
 
         <!-- DB && HTTP -->
@@ -76,6 +78,11 @@
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
             <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -97,12 +104,12 @@
             <artifactId>nv-websocket-client</artifactId>
             <version>1.30</version>
         </dependency>-->
-        <dependency>
-            <groupId>com.mashape.unirest</groupId>
-            <artifactId>unirest-java</artifactId>
-            <version>1.4.9</version>
-        </dependency>
 
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.5</version>
+        </dependency>
         <!-- Apache commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -124,7 +131,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.1.7</version>
+            <version>1.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -136,7 +143,21 @@
             <artifactId>joda-time</artifactId>
             <version>2.8</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-logback</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>4.9.2.201712150930-r</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-jsr223</artifactId>
+            <version>2.4.7</version>
+        </dependency>
     </dependencies>
 
     <build>

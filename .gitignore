@@ -1,7 +1,26 @@
-imgs/
+# IntelliJ
 .idea
-target
-latest.log
-*.json
+target/
 *.iml
-tags
+
+# Other editors
+tags/
+
+# Our files
+imgs/
+logs/
+/src/main/resources/sentry.properties
+*.log
+*.json
+out/
+/FlareBot/
+
+# We can't ignore this? I will find a wayyyyyy
+#/FlareBot/
+
+# Gradle can use hashes
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+settings.gradle

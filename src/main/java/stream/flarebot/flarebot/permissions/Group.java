@@ -6,7 +6,8 @@ import java.util.Set;
 
 
 public class Group {
-    private final Set<String> permissions = new ConcurrentHashSet<>();
+
+    private final ConcurrentHashSet<String> permissions = new ConcurrentHashSet<>();
     private String name;
     private String roleId;
 
@@ -18,7 +19,7 @@ public class Group {
     }
 
 
-    public Set<String> getPermissions() {
+    public ConcurrentHashSet<String> getPermissions() {
         return permissions;
     }
 
@@ -26,11 +27,11 @@ public class Group {
         return name;
     }
 
-    public boolean addPermission(String permission){
+    public boolean addPermission(String permission) {
         return permissions.add(permission);
     }
 
-    public boolean removePermission(String permission){
+    public boolean removePermission(String permission) {
         return permissions.remove(permission);
     }
 
@@ -39,14 +40,14 @@ public class Group {
     }
 
     public boolean hasPermission(PermissionNode node) {
-        for(String s : permissions) {
+        for (String s : permissions) {
             if (new PermissionNode(s).test(node))
                 return true;
         }
         return false;
     }
 
-    public void linkRole(String roleId){
+    public void linkRole(String roleId) {
         this.roleId = roleId;
     }
 

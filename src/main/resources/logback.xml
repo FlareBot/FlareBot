@@ -1,24 +1,31 @@
 <configuration>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <filter class="stream.flarebot.flarebot.util.Filter"/>
         <file>./latest.log</file>
         <encoder>
-            <pattern>[%d{yyyy.MM.dd HH:mm}] [%t] [%level] %msg%n</pattern>
+            <pattern>[%d{yyyy.MM.dd HH:mm}] [%level] [%logger{0}] [%t] %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="stream.flarebot.flarebot.util.ErrorCatcher"/>
-        <filter class="stream.flarebot.flarebot.util.Filter"/>
+        <filter class="stream.flarebot.flarebot.util.errorhandling.Filter" />
+        <filter class="stream.flarebot.flarebot.util.errorhandling.ErrorCatcher" />
         <encoder>
-            <pattern>[%d{yyyy.MM.dd HH:mm:ss}] [%t] [%level] %msg%n</pattern>
+            <pattern>[%d{yyyy.MM.dd HH:mm:ss}] [%level] [%logger{0}] [%t] %msg%n</pattern>
         </encoder>
+    </appender>
+    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+        <filter class="stream.flarebot.flarebot.util.errorhandling.Filter" />
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
     </appender>
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
+        <appender-ref ref="Sentry"/>
     </root>
-    <logger name="org.apache" level="NONE"/>
-    <logger name="com.sedmelluq.*" level="INFO"/>
-    <logger name="httpclient" level="NONE"/>
-    <logger name="stream.flarebot.flarebot.FlareBot" level="DEBUG"/>
+    <logger name="org.apache" level="NONE" />
+    <logger name="com.sedmelluq.*" level="INFO" />
+    <logger name="httpclient" level="NONE" />
+    <logger name="stream.flarebot.flarebot.FlareBot" level="INFO" />
+    <logger name="Redis-*" level="NONE" />
 </configuration>

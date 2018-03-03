@@ -25,6 +25,10 @@ public interface Command {
 
     CommandType getType();
 
+    default String getExtraInfo() {
+        return null;
+    }
+
     default String getPermission() {
         return getType() == CommandType.SECRET ? null : "flarebot." + getCommand();
     }
@@ -42,7 +46,8 @@ public interface Command {
     }
 
     default boolean isDefaultPermission() {
-        return (getPermission() != null && getType() != CommandType.SECRET && getType() != CommandType.MODERATION);
+        return (getPermission() != null && getType() != CommandType.SECRET && getType() != CommandType.INTERNAL 
+                && getType() != CommandType.MODERATION);
     }
 
     default boolean deleteMessage() {

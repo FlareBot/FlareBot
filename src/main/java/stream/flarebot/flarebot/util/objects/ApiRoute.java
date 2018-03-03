@@ -21,7 +21,7 @@ public class ApiRoute {
             throw new IllegalArgumentException("Number of { does not match number of }");
         }
 
-        this.url = url.replaceAll("\\{.*?\\}", "%s");
+        this.url = url.replaceAll("\\{.*?}", "%s");
         this.params = open;
     }
 
@@ -31,5 +31,4 @@ public class ApiRoute {
         }
         return String.format(this.url, params);
     }
-
 }
