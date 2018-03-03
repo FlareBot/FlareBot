@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.util;
 
+import java.util.Collection;
 import java.util.Random;
 
 public class RandomUtils {
