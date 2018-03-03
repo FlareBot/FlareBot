@@ -39,7 +39,7 @@ public class JumboCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Jumbo size an emoji!";
+        return "Jumbo size an emote!";
     }
 
     @Override
