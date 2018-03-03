@@ -61,7 +61,7 @@ public class JumboCommand implements Command {
         } catch (IOException e) {
             MessageUtils.sendErrorMessage("Failed to jumbo image!\nMessage: " + e.getMessage(), channel);
             FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
-                   + guild.getGuild(), e);
+                   + channel.getGuild().getId(), e);
             return null;
         }
     }
