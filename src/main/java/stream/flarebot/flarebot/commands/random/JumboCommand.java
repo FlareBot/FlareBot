@@ -23,7 +23,7 @@ public class JumboCommand implements Command {
         if (args.length > 0) {
             if (!message.getEmotes().isEmpty()) {
                 Emote e = message.getEmotes().get(0);
-                InputStream stream = read(new URL(e.getImageUrl()), channel);
+                InputStream stream = read(e.getImageUrl(), channel);
                 if (stream != null)
                     channel.sendFile(stream, e.getName() + ".png").queue();
             } else
@@ -52,16 +52,16 @@ public class JumboCommand implements Command {
         return CommandType.RANDOM;
     }
     
-    private InputStream read(URL url, TextChannel channel) {
+    private InputStream read(String url, TextChannel channel) {
         try {
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) new URL(url).openConnection();
             conn.addRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
 
             return conn.getInputStream();
         } catch (IOException e) {
             MessageUtils.sendErrorMessage("Failed to jumbo image!\nMessage: " + e.getMessage(), channel);
             FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
-                   + channel.getGuild().getId(), e);
+                   + channel.getGuild().getId() + ", URL: " + url, e);
             return null;
         }
     }
