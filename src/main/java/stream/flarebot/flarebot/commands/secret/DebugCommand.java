@@ -64,6 +64,27 @@ public class DebugCommand implements Command {
                 sb.append(WordUtils.capitalize(interceptor.getSender().getName())).append(" - ").append(interceptor.getRequests())
                         .append(" requests").append("\n");
             eb.addField("HTTP Requests", sb.toString(), false);
+        } else if (args[0].equalsIgnoreCase("threads")) {
+            MessageUtils.sendMessage(String.format("Thread Debug"
+                            + "\nVideo Threads: %d"
+                            + "\nCommand Threads: %d"
+                            + "\nTotal Threads: %d"
+                            + "\nThread list: %s",
+
+                    VideoThread.VIDEO_THREADS.activeCount(),
+                    Events.COMMAND_THREADS.activeCount(),
+                    Thread.getAllStackTraces().size(),
+                    MessageUtils.paste(Thread.getAllStackTraces().keySet().stream()
+                            .map(th -> th.getName() + " - " + th.getState() + " (" + th.getThreadGroup().getName() + ")")
+                            .collect(Collectors.joining("\n")))
+            ), channel);
+        } else if (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase("guild")) {
+            
+        } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("music")) {
+            
+        } else {
+            channel.sendMessage("Invalid debug option").queue();
+            return;
         }
 
         channel.sendMessage(eb.build()).queue();
