@@ -78,10 +78,11 @@ public class DebugCommand implements Command {
                             .map(th -> th.getName() + " - " + th.getState() + " (" + th.getThreadGroup().getName() + ")")
                             .collect(Collectors.joining("\n")))
             ), channel);
+            return;
         } else if (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase("guild")) {
-            
+
         } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("music")) {
-            
+
         } else {
             channel.sendMessage("Invalid debug option").queue();
             return;
@@ -102,7 +103,7 @@ public class DebugCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "{%}debug flarebot|server|player";
+        return "{%}debug flarebot|server|player|threads";
     }
 
     @Override
