@@ -1,5 +1,7 @@
 package stream.flarebot.flarebot.objects;
 
+import stream.flarebot.flarebot.util.RandomUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 
