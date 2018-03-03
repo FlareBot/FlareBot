@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import javax.net.ssl.HttpsURLConnection
 
 public class JumboCommand implements Command {
 
@@ -53,14 +54,14 @@ public class JumboCommand implements Command {
     
     private InputStream read(URL url, TextChannel channel) {
         try {
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.addRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
 
-            return httpcon.getInputStream();
+            return conn.getInputStream();
         } catch (IOException e) {
-            MessageUtils.sendErrorMessage("Failed to jumbo image!\nMessage: " + e1.getMessage(), channel);
-                    FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
-                            + guild.getGuild(), e);
+            MessageUtils.sendErrorMessage("Failed to jumbo image!\nMessage: " + e.getMessage(), channel);
+            FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
+                   + guild.getGuild(), e);
             return null;
         }
     }
