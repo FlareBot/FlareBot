@@ -14,24 +14,28 @@ import java.awt.Color;
 
 public class ColourCommand implements Command {
 
-
+   private static final Pattern hex_color = Pattern.compile("^#?([A-Fa-f0-9]{6})$");
+    
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
-            Color colour;
-            if (args[0].matches("^#([A-Fa-f0-9]{6})$")) {
-                colour = Color.decode(args[0]);
+            String hex;
+            Color color;
+            Matcher matcher = hex_color.matcher(args[0]);
+            if (matcher.find()) {
+                hex = matcher.group();
+                color = Color.decode(hex);
             } else {
                 try {
-                    colour = (Color) Color.class.getField(args[0].toUpperCase()).get(null);
+                    color = (Color) Color.class.getField(args[0].toUpperCase()).get(null);
+                    hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
                 } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-                    MessageUtils.sendErrorMessage("Please specify a correct color either by a Java colour name or a Hex color code!", channel);
+                    MessageUtils.sendErrorMessage("Please specify a correct color either by a Java color name or a Hex color code!", channel);
                     return;
                 }
             }
-            EmbedBuilder eb = MessageUtils.getEmbed();
-            eb.setColor(colour)
-                    .addField("RGB", "`" + colour.getRed() + "`, `" + colour.getGreen() + "`, `" + colour.getBlue() + "`", false);
+            EmbedBuilder eb = MessageUtils.getEmbed().setColor(color).setTitle(hex)
+                    .addField("RGB", "`" + color.getRed() + "`, `" + color.getGreen() + "`, `" + color.getBlue() + "`", false);
             channel.sendMessage(eb.build()).queue();
         } else {
 
