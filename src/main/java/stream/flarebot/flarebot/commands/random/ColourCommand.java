@@ -14,14 +14,14 @@ import java.awt.Color;
 
 public class ColourCommand implements Command {
 
-   private static final Pattern hex_color = Pattern.compile("^#?([A-Fa-f0-9]{6})$");
+   private static final Pattern HEX_COLOR = Pattern.compile("^#?([A-Fa-f0-9]{6})$");
     
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length == 1) {
             String hex;
             Color color;
-            Matcher matcher = hex_color.matcher(args[0]);
+            Matcher matcher = HEX_COLOR.matcher(args[0]);
             if (matcher.find()) {
                 hex = matcher.group();
                 color = Color.decode(hex);
