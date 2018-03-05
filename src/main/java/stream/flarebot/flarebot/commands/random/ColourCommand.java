@@ -25,13 +25,13 @@ public class ColourCommand implements Command {
                 try {
                     colour = (Color) Color.class.getField(args[0].toUpperCase()).get(null);
                 } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-                    MessageUtils.sendErrorMessage("Please specify a correct colour either by a Java colour name or a Hex colour code!", channel);
+                    MessageUtils.sendErrorMessage("Please specify a correct color either by a Java colour name or a Hex color code!", channel);
                     return;
                 }
             }
             EmbedBuilder eb = MessageUtils.getEmbed();
-            eb.setColor(colour);
-            eb.addField("RGB", "`" + colour.getRed() + "`, `" + colour.getGreen() + "`, `" + colour.getBlue() + "`", false);
+            eb.setColor(colour)
+                    .addField("RGB", "`" + colour.getRed() + "`, `" + colour.getGreen() + "`, `" + colour.getBlue() + "`", false);
             channel.sendMessage(eb.build()).queue();
         } else {
 
@@ -40,17 +40,17 @@ public class ColourCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "colour";
+        return "color";
     }
 
     @Override
     public String getDescription() {
-        return "Allows getting information of a colour";
+        return "Allows getting information of a color";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}colour <colour>` - Gets information about a colour";
+        return "`{%}color <color>` - Gets information about a color";
     }
 
     @Override
@@ -60,6 +60,6 @@ public class ColourCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"color"};
+        return new String[]{"colour"};
     }
 }
