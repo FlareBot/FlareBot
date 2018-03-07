@@ -346,11 +346,10 @@ public class Events extends ListenerAdapter {
 
         if (guild.hasBetaAccess()) {
             if (guild.getSettings().getChannelBlacklist().contains(event.getChannel().getIdLong())
-                && !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
+                    && !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
                 return;
             else if (guild.getSettings().getUserBlacklist().contains(event.getAuthor().getIdLong())
-                    &&
-                    !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
+                    && !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
                 return;
         }
 
@@ -385,7 +384,7 @@ public class Events extends ListenerAdapter {
         }
 
         // Internal stuff
-        if(event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
+        if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
             return;
 
         CACHED_POOL.submit(() -> {
