@@ -1,8 +1,6 @@
 package stream.flarebot.flarebot.util;
 
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 
 import java.util.ArrayList;
 import java.util.Collections;

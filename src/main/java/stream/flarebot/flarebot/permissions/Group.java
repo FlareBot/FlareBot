@@ -18,7 +18,6 @@ public class Group {
         this.name = name;
     }
 
-
     public ConcurrentHashSet<String> getPermissions() {
         return permissions;
     }
@@ -36,12 +35,8 @@ public class Group {
     }
 
     public boolean hasPermission(String permission) {
-        return hasPermission(new PermissionNode(permission));
-    }
-
-    public boolean hasPermission(PermissionNode node) {
         for (String s : permissions) {
-            if (new PermissionNode(s).test(node))
+            if (new PermissionNode(s).test(permission))
                 return true;
         }
         return false;

@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.moderation;
+package stream.flarebot.flarebot.commands.management;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;

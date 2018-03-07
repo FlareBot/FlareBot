@@ -46,7 +46,7 @@ public interface Command {
     }
 
     default boolean isDefaultPermission() {
-        return (getPermission() != null && getType() != CommandType.SECRET && getType() != CommandType.INTERNAL 
+        return (getPermission() != null && getType() != CommandType.SECRET && getType() != CommandType.INTERNAL
                 && getType() != CommandType.MODERATION);
     }
 

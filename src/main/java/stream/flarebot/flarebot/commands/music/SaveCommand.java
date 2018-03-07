@@ -11,7 +11,6 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;

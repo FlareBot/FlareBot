@@ -44,7 +44,7 @@ public class SkipCommand implements Command {
             musicManager.getPlayer(guild.getGuildId()).skip();
             return;
         }
-        
+
         if (args.length != 1) {
             if (votes.containsKey(channel.getGuild().getId())) {
                 String yes = String.valueOf(votes.get(channel.getGuild().getId()).values().stream()

@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.net.ssl.HttpsURLConnection;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -208,18 +209,22 @@ public class GeneralUtils {
         return guild.getRolesByName(string, true);
     }
 
+    @Nullable
     public static User getUser(String s) {
         return getUser(s, null);
     }
 
+    @Nullable
     public static User getUser(String s, String guildId) {
         return getUser(s, guildId, false);
     }
 
+    @Nullable
     public static User getUser(String s, boolean forceGet) {
         return getUser(s, null, forceGet);
     }
 
+    @Nullable
     public static User getUser(String s, String guildId, boolean forceGet) {
         if (userDiscrim.matcher(s).find()) {
             if (guildId == null || guildId.isEmpty()) {
@@ -308,10 +313,12 @@ public class GeneralUtils {
         return null;
     }
 
+    @Nullable
     public static TextChannel getChannel(String arg) {
         return getChannel(arg, null);
     }
 
+    @Nullable
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
         try {
             long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));

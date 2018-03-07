@@ -6,7 +6,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.commands.*;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -18,12 +19,12 @@ public class BetaCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        String betaInfo = GeneralUtils.formatCommandPrefix(channel,FlareBot.getInstance().getCommands()
+        String betaInfo = GeneralUtils.formatCommandPrefix(channel, FlareBot.getInstance().getCommands()
                 .stream()
                 .filter(Command::isBetaTesterCommand)
                 .map(c -> "`{%}" + c.getCommand() + "` - " + c.getDescription())
                 .collect(Collectors.joining("\n")));
-        String betaMessage = guild.isBetaAccess() ?
+        String betaMessage = guild.hasBetaAccess() ?
                 "Thank you for being apart of our beta program! Please report any bugs or give us suggestions over at the [support discord](" + FlareBot.INVITE_URL + ")!"
                 : "Listed below are the commands you can gain access to by being a part of our beta program! To join the beta program, you will either need to win " +
                 "beta access through a giveaway (Make sure you are in the [support server](" + FlareBot.INVITE_URL + ") to hear of these!) or you can become apart of the " +

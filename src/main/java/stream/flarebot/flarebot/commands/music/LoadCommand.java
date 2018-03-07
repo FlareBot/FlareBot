@@ -24,7 +24,7 @@ public class LoadCommand implements Command {
         String name = MessageUtils.getMessage(args, 0);
 
         List<String> playlist = FlareBot.getInstance().getManager().loadPlaylist(channel, sender, name);
-        if(!playlist.isEmpty())
+        if (!playlist.isEmpty())
             VideoThread.getThread(name + '\u200B' + playlist.toString(), channel, sender).start();
 
 
