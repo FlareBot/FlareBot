@@ -417,7 +417,7 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            if (cmd.deleteMessage() && guild.hasBetaAccess() && guild.getSettings().shouldDeleteCommands()) {
+            if ((guild.hasBetaAccess() && guild.getSettings().shouldDeleteCommands()) || cmd.deleteMessage()) {
                 delete(event.getMessage());
                 removedByMe.add(event.getMessageIdLong());
             }
