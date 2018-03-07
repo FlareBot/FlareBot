@@ -37,11 +37,10 @@ public class PerGuildPermissions {
         // Change done by Walshy: Internal review needed
         if (isContributor(user.getUser()) && FlareBot.getInstance().isTestBot())
             return true;
-        PermissionNode node = new PermissionNode(permission);
-        if (getUser(user).hasPermission(node))
+        if (getUser(user).hasPermission(permission))
             return true;
         for (Group g : getGroups().values()) {
-            if (!g.hasPermission(node)) continue;
+            if (!g.hasPermission(permission)) continue;
             if (getUser(user).getGroups().contains(g.getName())) return true;
             if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
                 if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {

@@ -29,9 +29,9 @@ public class User {
         return permissions;
     }
 
-    public boolean hasPermission(PermissionNode node) {
+    public boolean hasPermission(String permission) {
         for (String s : permissions) {
-            if (new PermissionNode(s).test(node))
+            if (new PermissionNode(s).test(permission))
                 return true;
         }
         return false;

@@ -38,6 +38,7 @@ public class GuildWrapper {
     private Map<String, String> tags = new ConcurrentHashMap<>();
     private Moderation moderation;
     private NINO nino = null;
+    private GuildSettings settings = null;
 
     // oooo special!
     private boolean betaAccess = false;
@@ -201,7 +202,7 @@ public class GuildWrapper {
         return warnings;
     }
 
-    public boolean isBetaAccess() {
+    public boolean hasBetaAccess() {
         return betaAccess;
     }
 
@@ -231,5 +232,11 @@ public class GuildWrapper {
         if (nino == null)
             nino = new NINO();
         return nino;
+    }
+
+    public GuildSettings getSettings() {
+        if (settings == null)
+            settings = new GuildSettings();
+        return settings;
     }
 }

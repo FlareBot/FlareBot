@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.informational;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;

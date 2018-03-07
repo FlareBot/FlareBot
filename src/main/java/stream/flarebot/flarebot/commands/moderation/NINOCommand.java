@@ -12,7 +12,6 @@ import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NINOCommand implements Command {

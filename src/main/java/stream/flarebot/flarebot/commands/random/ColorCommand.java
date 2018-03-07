@@ -16,8 +16,8 @@ import java.util.regex.Pattern;
 
 public class ColorCommand implements Command {
 
-   private static final Pattern HEX_COLOR = Pattern.compile("#?([A-Fa-f0-9]{6})");
-   private static final Pattern RGB = Pattern.compile("(\\d{1,3}),(\\d{1,3}),(\\d{1,3})");
+    private static final Pattern HEX_COLOR = Pattern.compile("#?([A-Fa-f0-9]{6})");
+    private static final Pattern RGB = Pattern.compile("(\\d{1,3}),(\\d{1,3}),(\\d{1,3})");
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {

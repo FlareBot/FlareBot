@@ -1,6 +1,5 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.informational;
 
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
@@ -44,7 +43,7 @@ public class UserInfoCommand implements Command {
         Member targetMember = null;
         if (channel.getGuild().getMember(user) != null)
             targetMember = channel.getGuild().getMember(user);
-        
+
         PlayerCache cache = flareBot.getPlayerCache(id);
         channel.sendMessage(MessageUtils.getEmbed(sender)
                 .addField("User Info", "User: " + user.getName() + "#" + user.getDiscriminator()
@@ -57,9 +56,9 @@ public class UserInfoCommand implements Command {
                         "Servers: " + FlareBot.getInstance().getGuilds().stream()
                                 .filter(g -> g.getMemberById(id) != null)
                                 .count() + " shared\n" +
-                                "Roles: " + (targetMember == null ? "The user is not in this server." : 
-                                             targetMember.getRoles().stream()
-                                .map(Role::getName).collect(Collectors.joining(", "))) +
+                                "Roles: " + (targetMember == null ? "The user is not in this server." :
+                                targetMember.getRoles().stream()
+                                        .map(Role::getName).collect(Collectors.joining(", "))) +
                                 (targetMember != null && targetMember.getGame() != null ? "\nStatus" +
                                         (targetMember.getUser()
                                                 .isBot() ? " (Current Shard)" : "") + ": " +

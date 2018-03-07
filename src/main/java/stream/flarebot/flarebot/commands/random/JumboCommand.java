@@ -11,10 +11,10 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import javax.net.ssl.HttpsURLConnection;
 
 public class JumboCommand implements Command {
 
@@ -45,13 +45,13 @@ public class JumboCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}jumbo <emote>` - See an emote in it's true size because who doesn't love jumbo sized stuff?";
-}
+    }
 
     @Override
     public CommandType getType() {
         return CommandType.RANDOM;
     }
-    
+
     private InputStream read(String url, TextChannel channel) {
         try {
             HttpsURLConnection conn = (HttpsURLConnection) new URL(url).openConnection();
@@ -61,7 +61,7 @@ public class JumboCommand implements Command {
         } catch (IOException e) {
             MessageUtils.sendErrorMessage("Failed to jumbo image!\nMessage: " + e.getMessage(), channel);
             FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
-                   + channel.getGuild().getId() + ", URL: " + url, e);
+                    + channel.getGuild().getId() + ", URL: " + url, e);
             return null;
         }
     }

@@ -51,6 +51,14 @@ import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
 import stream.flarebot.flarebot.commands.informational.BetaCommand;
 import stream.flarebot.flarebot.commands.informational.DonateCommand;
+import stream.flarebot.flarebot.commands.informational.InfoCommand;
+import stream.flarebot.flarebot.commands.informational.ServerInfoCommand;
+import stream.flarebot.flarebot.commands.informational.ShardInfoCommand;
+import stream.flarebot.flarebot.commands.informational.StatsCommand;
+import stream.flarebot.flarebot.commands.informational.UserInfoCommand;
+import stream.flarebot.flarebot.commands.management.PermissionsCommand;
+import stream.flarebot.flarebot.commands.management.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.management.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
@@ -379,6 +387,7 @@ public class FlareBot {
         registerCommand(new ColorCommand());
 
         registerCommand(new NINOCommand());
+        registerCommand(new SettingsCommand());
 
         registerCommand(new DebugCommand());
 
