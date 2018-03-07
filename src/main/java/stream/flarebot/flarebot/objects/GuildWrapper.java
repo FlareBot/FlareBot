@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.ReportManager;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -130,6 +131,7 @@ public class GuildWrapper {
         this.songnick = songnick;
     }
 
+    @Nullable
     public Role getMutedRole() {
         if (mutedRoleID == null) {
             Role mutedRole =
