@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.moderation;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -10,6 +11,9 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NINOCommand implements Command {
 
@@ -65,7 +69,7 @@ public class NINOCommand implements Command {
 
                 String msg = null;
                 if (args.length >= 3) {
-                    msg = MessageUtils.getMessage(args, 1);
+                    msg = MessageUtils.getMessage(args, 2);
                     if (msg.length() > 250) {
                         MessageUtils.sendWarningMessage("That message is a tad too long, please make it 250 characters max!" +
                                 "\n```\n" + msg + "\n```", channel, sender);
@@ -86,11 +90,34 @@ public class NINOCommand implements Command {
                     } else
                         MessageUtils.sendWarningMessage("Please specify a message!", channel);
                 } else if (args[1].equalsIgnoreCase("remove")) {
+                    int messageId = 1;
+                    if (args.length > 2)
+                        messageId = GeneralUtils.getInt(args[2], 1);
 
+                    int size = guild.getNINO().getRemoveMessages().size();
+
+                    if (size == 0) {
+                        MessageUtils.sendInfoMessage("This guild has no remove messages!", channel);
+                        return;
+                    }
+
+                    if (messageId <= 0 || messageId >= size) {
+                        MessageUtils.sendWarningMessage("Invalid message ID!", channel);
+                        return;
+                    }
+                    String tmp = guild.getNINO().getRemoveMessages().get(messageId);
+                    guild.getNINO().getRemoveMessages().remove(tmp);
+                    MessageUtils.sendSuccessMessage("Successfully removed message with ID " + messageId
+                            + "!\n```\n" + tmp + "\n```", channel);
                 } else if (args[1].equalsIgnoreCase("clear")) {
-                    guild.getNINO().getRemoveMessages().clear();
+                    guild.getNINO().clearRemoveMessages();
+                    MessageUtils.sendSuccessMessage("Successfully removed **all** messages from this guild!", channel);
                 } else if (args[1].equalsIgnoreCase("list")) {
-                    //
+                    //TODO: Move this to pages for 4.2
+                    int page = 1;
+                    if (args.length > 2)
+                        page = GeneralUtils.getInt(args[2], 1);
+                    listMessages(guild, page, channel, sender);
                 } else
                     MessageUtils.sendUsage(this, channel, sender, args);
             } else
@@ -131,7 +158,35 @@ public class NINOCommand implements Command {
         return CommandType.MODERATION;
     }
 
+    @Override
     public boolean isBetaTesterCommand() {
         return true;
+    }
+
+    private void listMessages(GuildWrapper wrapper, int page, TextChannel channel, User sender) {
+        EmbedBuilder eb = MessageUtils.getEmbed(sender).setTitle("**NINO Message List**");
+        List<String> messages = wrapper.getNINO().getRemoveMessages();
+        int pageSize = 4;
+        int pages = messages.size() < pageSize ? 1 : (messages.size() / pageSize) + (messages.size() % pageSize != 0 ? 1 : 0);
+        int start;
+        int end;
+        start = pageSize * (page - 1);
+        end = Math.min(start + pageSize, messages.size());
+        if (page > pages || page < 0) {
+            MessageUtils.sendWarningMessage("That page doesn't exist. Current page count: " + pages, channel);
+            return;
+        } else {
+            List<String> subMessages = messages.subList(start, end);
+            if (messages.isEmpty()) {
+                MessageUtils.sendInfoMessage("There are no messages for this guild!", channel, sender);
+                return;
+            } else {
+                for (String message : subMessages) {
+                    eb.addField("Message #" + messages.indexOf(message), message, false);
+                }
+            }
+        }
+        eb.setDescription("Page " + GeneralUtils.getPageOutOfTotal(page, messages, pageSize));
+        channel.sendMessage(eb.build()).queue();
     }
 }

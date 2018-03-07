@@ -348,8 +348,11 @@ public class ModlogEvents implements EventListener {
                     return;
 
             if (invite != null) {
-                event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] "
-                        + wrapper.getNINO().getRemoveMessage()).queue());
+                event.getMessage().delete().queue(aVoid -> {
+                    String msg = wrapper.getNINO().getRemoveMessage();
+                    if (msg != null)
+                        event.getChannel().sendMessage(msg).queue();
+                });
 
                 if (cannotHandle(wrapper, ModlogEvent.INVITE_POSTED)) return;
                 ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.INVITE_POSTED, event.getAuthor(),
