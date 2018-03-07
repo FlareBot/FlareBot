@@ -40,6 +40,15 @@ public class NINO {
 
     public void setRemoveMessage(String str) {
         this.removeMessage = str;
+        if (this.removeMessages.size() == 1) {
+            this.removeMessages.clear();
+            this.removeMessages.add(str);
+        } else
+            this.removeMessages.add(str);
+    }
+
+    public void addRemoveMessage(String str) {
+        this.removeMessages.add(str);
     }
 
     public String getRemoveMessage() {
@@ -49,6 +58,10 @@ public class NINO {
 
     public Set<String> getWhitelist() {
         return whitelist;
+    }
+
+    public Set<String> getRemoveMessages() {
+        return removeMessages;
     }
 
     public void migrate() {

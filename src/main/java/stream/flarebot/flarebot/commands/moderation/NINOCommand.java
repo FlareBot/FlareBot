@@ -57,15 +57,42 @@ public class NINOCommand implements Command {
                         MessageUtils.sendUsage(this, channel, sender, args);
                 } else
                     MessageUtils.sendUsage(this, channel, sender, args);
-            } else if (args[0].equalsIgnoreCase("set-message")) {
-                String msg = MessageUtils.getMessage(args, 1);
-                if (msg.length() > 250) {
-                    MessageUtils.sendWarningMessage("That message is a tad too long, please make it 250 characters max!" +
-                            "\n```\n" + msg + "\n```", channel, sender);
+            } else if (args[0].equalsIgnoreCase("message")) {
+                if (args.length == 1) {
+                    MessageUtils.sendUsage(this, channel, sender, args);
                     return;
                 }
-                guild.getNINO().setRemoveMessage(msg);
-                MessageUtils.sendSuccessMessage("Message has been set!\n```" + msg + "\n```", channel, sender);
+
+                String msg = null;
+                if (args.length >= 3) {
+                    msg = MessageUtils.getMessage(args, 1);
+                    if (msg.length() > 250) {
+                        MessageUtils.sendWarningMessage("That message is a tad too long, please make it 250 characters max!" +
+                                "\n```\n" + msg + "\n```", channel, sender);
+                        return;
+                    }
+                }
+
+                if (args[1].equalsIgnoreCase("set")) {
+                    if (msg != null) {
+                        guild.getNINO().setRemoveMessage(msg);
+                        MessageUtils.sendSuccessMessage("Message has been set!\n```" + msg + "\n```", channel, sender);
+                    } else
+                        MessageUtils.sendWarningMessage("Please specify a message!", channel);
+                } else if (args[1].equalsIgnoreCase("add")) {
+                    if (msg != null) {
+                        guild.getNINO().addRemoveMessage(msg);
+                        MessageUtils.sendSuccessMessage("Message has been added!\n```" + msg + "\n```", channel, sender);
+                    } else
+                        MessageUtils.sendWarningMessage("Please specify a message!", channel);
+                } else if (args[1].equalsIgnoreCase("remove")) {
+
+                } else if (args[1].equalsIgnoreCase("clear")) {
+                    guild.getNINO().getRemoveMessages().clear();
+                } else if (args[1].equalsIgnoreCase("list")) {
+                    //
+                } else
+                    MessageUtils.sendUsage(this, channel, sender, args);
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         } else
@@ -87,7 +114,16 @@ public class NINOCommand implements Command {
         return "`{%}nino enable|disable` - Enable or disable the anti-invite!\n" +
                 "`{%}nino whitelist list` - List the current whitelisted invites.\n" +
                 "`{%}nino whitelist add|remove <invite>` - Configure the whitelist.\n" +
-                "`{%}nino set-message <message>` - Set the message sent on remove!";
+                "`{%}nino message set|add|remove <message>` - Set, add or remove messages for removal.\n" +
+                "`{%}nino message list` - List the messages currently set for NINO!";
+    }
+
+    @Override
+    public String getExtraInfo() {
+        return "If you are setting a message it will overwrite the current one (If there's only one!) otherwise " +
+                "it will add to the messages.\n" +
+                "On message remove - If there's only one message it will just remove that rather than prompting " +
+                "which to remove";
     }
 
     @Override

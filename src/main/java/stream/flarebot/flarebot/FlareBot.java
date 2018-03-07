@@ -55,7 +55,7 @@ import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
-import stream.flarebot.flarebot.commands.random.ColourCommand;
+import stream.flarebot.flarebot.commands.random.ColorCommand;
 import stream.flarebot.flarebot.commands.random.JumboCommand;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
@@ -376,7 +376,7 @@ public class FlareBot {
         registerCommand(new UpdateJDACommand());
         registerCommand(new ChangelogCommand());
         registerCommand(new JumboCommand());
-        registerCommand(new ColourCommand());
+        registerCommand(new ColorCommand());
 
         registerCommand(new NINOCommand());
 
