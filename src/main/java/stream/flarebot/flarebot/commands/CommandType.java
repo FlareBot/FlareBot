@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.commands;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.util.Constants;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public enum CommandType {
