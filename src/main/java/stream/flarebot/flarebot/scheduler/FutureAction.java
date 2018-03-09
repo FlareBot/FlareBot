@@ -147,13 +147,16 @@ public class FutureAction {
                     gw.getModeration().unmuteUser(gw, gw.getGuild().getMemberById(target));
                 break;
             case TEMP_BAN:
-                ModlogHandler.getInstance().handleAction(gw,
-                        gw.getGuild().getTextChannelById(channelId),
-                        null,
-                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
-                        ModAction.UNBAN,
-                        "Temporary ban expired, was banned for " + GeneralUtils.formatJodaTime(delay)
-                );
+                if (gw.getGuild().getTextChannelById(channelId) != null) {
+                    ModlogHandler.getInstance().handleAction(gw,
+                            gw.getGuild().getTextChannelById(channelId),
+                            null,
+                            GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
+                            ModAction.UNBAN,
+                            "Temporary ban expired, was banned for " + GeneralUtils.formatJodaTime(delay)
+                    );
+                } else
+                    gw.getGuild().getController().unban(String.valueOf(target)).queue();
                 break;
             case REMINDER:
                 if (FlareBot.getInstance().getChannelById(channelId) != null)
