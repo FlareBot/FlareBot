@@ -359,8 +359,7 @@ public class Events extends ListenerAdapter {
             }
         }
         handleSpamDetection(event, guild);
-        if (cmd.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(event.getAuthor()) && !(flareBot.isTestBot()
-                && PerGuildPermissions.isContributor(event.getAuthor()))) {
+        if (GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
             GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
             flareBot.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
             return;
@@ -483,7 +482,7 @@ public class Events extends ListenerAdapter {
             spamMap.put(event.getGuild().getId(), 1);
         }
     }
-
+    
     public int getCommandCount() {
         return commandCounter.get();
     }

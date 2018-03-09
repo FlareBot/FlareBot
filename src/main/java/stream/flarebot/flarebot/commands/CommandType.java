@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.commands;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.util.Constants;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public enum CommandType {
@@ -37,6 +38,10 @@ public enum CommandType {
 
     public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();
+    }
+    
+    public boolean isInternal() {
+        return internalRoleId > 0;
     }
 
     public static CommandType[] getTypes() {
