@@ -135,17 +135,20 @@ public class FutureAction {
         GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
         switch (action) {
             case TEMP_MUTE:
-                ModlogHandler.getInstance().handleAction(gw,
-                        ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNMUTE.getEvent()),
-                        null,
-                        GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
-                        ModAction.UNMUTE,
-                        "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
-                );
+                if (gw.getGuild().getTextChannelById(channelId) != null) {
+                    ModlogHandler.getInstance().handleAction(gw,
+                            gw.getGuild().getTextChannelById(channelId),
+                            null,
+                            GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
+                            ModAction.UNMUTE,
+                            "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
+                    );
+                } else
+                    gw.getModeration().unmuteUser(gw, gw.getGuild().getMemberById(target));
                 break;
             case TEMP_BAN:
                 ModlogHandler.getInstance().handleAction(gw,
-                        ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNBAN.getEvent()),
+                        gw.getGuild().getTextChannelById(channelId),
                         null,
                         GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
                         ModAction.UNBAN,

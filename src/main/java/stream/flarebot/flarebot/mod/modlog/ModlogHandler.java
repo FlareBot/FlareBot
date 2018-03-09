@@ -279,9 +279,9 @@ public class ModlogHandler {
                     break;
                 }
                 case UNMUTE:
-                    if (wrapper.getGuild().getMember(target).getRoles().contains(wrapper.getMutedRole())) {
-                        wrapper.getGuild().getController().removeSingleRoleFromMember(wrapper.getGuild().getMember(target),
-                                wrapper.getMutedRole()).queue();
+                    if (wrapper.getMutedRole() != null && wrapper.getGuild().getMember(target).getRoles()
+                            .contains(wrapper.getMutedRole())) {
+                        wrapper.getModeration().unmuteUser(wrapper, member);
                         MessageUtils.sendSuccessMessage("Unmuted " + target.getAsMention(), channel, sender);
                     } else {
                         MessageUtils.sendErrorMessage("That user isn't muted!!", channel);
