@@ -37,6 +37,10 @@ public enum CommandType {
     public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();
     }
+    
+    public boolean isInternal() {
+        return internalRoleId > 0;
+    }
 
     public static CommandType[] getTypes() {
         return defaultTypes;
