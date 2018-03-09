@@ -21,9 +21,8 @@ public class CommandUsageCommand implements Command {
             Command c = FlareBot.getInstance().getCommand(args[0], sender);
             if (!canRunCommand(c, sender))
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
-            } else {
+            else
                 MessageUtils.sendUsage(c, channel, sender, new String[]{});
-            }
         }
     }
     
@@ -33,9 +32,9 @@ public class CommandUsageCommand implements Command {
         if (command.getType().isInternal()) {
             Guild g = FlareBot.getInstance().getOfficialGuild();
             
-            if (g.getMember(user) != null) {
+            if (g.getMember(user) != null)
                 return g.getMember(user).getRoles().contains(g.getRoleById(command.getType().getRoleId()));
-            } else
+            else
                 return false;
         } else
             return true;
