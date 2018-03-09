@@ -15,6 +15,7 @@ public enum CommandType {
     RANDOM(false),
     INFORMATIONAL(false),
     SECRET(false, Constants.DEVELOPER_ID),
+    DEBUG(false, Constants.CONTRIBUTOR_ID),
     INTERNAL(false, Constants.STAFF_ID);
 
     private static final CommandType[] values = values();
