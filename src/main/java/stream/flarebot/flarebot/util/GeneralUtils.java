@@ -340,9 +340,8 @@ public class GeneralUtils {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
             for (Command c : FlareBot.getInstance().getCommands()) {
-                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
+                if (c.getCommand().equalsIgnoreCase(command) && !c.getType().isInternal())
                     return true;
-                }
             }
         }
         return false;
@@ -693,4 +692,24 @@ public class GeneralUtils {
         return period.toStandardDuration().getMillis();
     }
 
+    /**
+     * If the user can run the command, this will check if the command is null and if it is internal.
+     * If internal it will check the official guild to see if the user has the right role.
+     * <b>This does not check permissions</b>
+     * 
+     * @returns If the command is not internal or if the role has the right role to run an internal command.
+    */
+    public static boolean canRunCommand(Command command, User user) {
+        if (command == null) return false;
+        
+        if (command.getType().isInternal()) {
+            Guild g = FlareBot.getInstance().getOfficialGuild();
+            
+            if (g.getMember(user) != null)
+                return g.getMember(user).getRoles().contains(g.getRoleById(command.getType().getRoleId()));
+            else
+                return false;
+        } else
+            return true;
+    }
 }

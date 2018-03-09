@@ -4,12 +4,14 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.Guild;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 public class CommandUsageCommand implements Command {
 
@@ -19,11 +21,10 @@ public class CommandUsageCommand implements Command {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             Command c = FlareBot.getInstance().getCommand(args[0], sender);
-            if (c == null || (c.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(sender))) {
+            if (!GeneralUtils.canRunCommand(c, sender))
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
-            } else {
+            else
                 MessageUtils.sendUsage(c, channel, sender, new String[]{});
-            }
         }
     }
 

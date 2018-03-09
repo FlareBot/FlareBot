@@ -144,10 +144,9 @@ public class ModlogHandler {
             member = wrapper.getGuild().getMember(target);
         }
         if (channel == null) return;
-        if (member == null && modAction != ModAction.BAN && modAction != ModAction.FORCE_BAN) {
+        if (member == null && modAction != ModAction.FORCE_BAN && modAction != ModAction.UNBAN) {
             MessageUtils.sendErrorMessage("That user isn't in this server!"
-                    + (modAction == ModAction.KICK ? " You can forceban with `{%}forceban <id>` if you want to " +
-                    "make sure tey wont come back." : ""), channel);
+                    + (modAction == ModAction.KICK ? " You can forceban with `{%}forceban <id>` to keep them from coming back." : ""), channel);
             return;
         }
 
