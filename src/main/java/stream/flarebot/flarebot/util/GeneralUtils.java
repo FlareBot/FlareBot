@@ -340,9 +340,8 @@ public class GeneralUtils {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
             for (Command c : FlareBot.getInstance().getCommands()) {
-                if (c.getCommand().equalsIgnoreCase(command) && c.getType() != CommandType.SECRET) {
+                if (c.getCommand().equalsIgnoreCase(command) && !c.getType().isInternal())
                     return true;
-                }
             }
         }
         return false;
