@@ -19,12 +19,26 @@ public class CommandUsageCommand implements Command {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             Command c = FlareBot.getInstance().getCommand(args[0], sender);
-            if (c == null || (c.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(sender))) {
+            if (!canRunCommand(c, sender))
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
             } else {
                 MessageUtils.sendUsage(c, channel, sender, new String[]{});
             }
         }
+    }
+    
+    private boolean canRunCommand(Command command, User user) {
+        if (command == null) return false;
+        
+        if (command.getType().isInternal()) {
+            Guild g = FlareBot.getInstance().getOfficialGuild();
+            
+            if (g.getMember(user) != null) {
+                return g.getMember(user).getRoles().contains(g.getRoleById(command.getType().getRoleId()));
+            } else
+                return false;
+        } else
+            return true;
     }
 
     @Override
