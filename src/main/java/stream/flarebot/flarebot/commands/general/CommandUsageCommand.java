@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 public class CommandUsageCommand implements Command {
 
@@ -20,25 +21,11 @@ public class CommandUsageCommand implements Command {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             Command c = FlareBot.getInstance().getCommand(args[0], sender);
-            if (!canRunCommand(c, sender))
+            if (!GeneralUtils.canRunCommand(c, sender))
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
             else
                 MessageUtils.sendUsage(c, channel, sender, new String[]{});
         }
-    }
-    
-    private boolean canRunCommand(Command command, User user) {
-        if (command == null) return false;
-        
-        if (command.getType().isInternal()) {
-            Guild g = FlareBot.getInstance().getOfficialGuild();
-            
-            if (g.getMember(user) != null)
-                return g.getMember(user).getRoles().contains(g.getRoleById(command.getType().getRoleId()));
-            else
-                return false;
-        } else
-            return true;
     }
 
     @Override
