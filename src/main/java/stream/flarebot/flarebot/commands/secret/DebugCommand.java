@@ -108,7 +108,7 @@ public class DebugCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.SECRET;
+        return CommandType.DEBUG;
     }
 
     private String getMB(long bytes) {
