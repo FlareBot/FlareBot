@@ -483,8 +483,6 @@ public class Events extends ListenerAdapter {
         }
     }
     
-    
-
     public int getCommandCount() {
         return commandCounter.get();
     }
