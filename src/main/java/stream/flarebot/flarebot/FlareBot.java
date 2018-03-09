@@ -402,6 +402,7 @@ public class FlareBot {
         analyticsHandler.registerAnalyticSender(new ActivityAnalytics());
         analyticsHandler.registerAnalyticSender(new GuildAnalytics());
         analyticsHandler.registerAnalyticSender(new GuildCountAnalytics());
+        LOGGER.info("Registered analytics - Running");
         analyticsHandler.run(isTestBot() ? 1000 : -1);
 
         GeneralUtils.methodErrorHandler(LOGGER, null,
@@ -525,27 +526,6 @@ public class FlareBot {
                 .atTime(13, 0, 0), ChronoUnit.MILLIS));
     }
 
-    private Runtime runtime = Runtime.getRuntime();
-
-    private void sendData() {
-        JSONObject data = new JSONObject()
-                .put("guilds", getGuilds().size())
-                //.put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
-                .put("official_guild_users", getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
-                .put("text_channels", getChannels().size())
-                .put("voice_channels", getVoiceChannels().size())
-                .put("connected_voice_channels", getConnectedVoiceChannels())
-                .put("active_voice_channels", getActiveVoiceChannels())
-                .put("num_queued_songs", getGuilds().stream()
-                        .mapToInt(guild -> musicManager.getPlayer(guild.getId())
-                                .getPlaylist().size()).sum())
-                .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
-                .put("uptime", getUptime())
-                .put("http_requests", dataInterceptor.getRequests().intValue());
-
-        ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data);
-    }
-
     private void sendCommands() {
         JSONObject obj = new JSONObject();
         JSONArray array = new JSONArray();
@@ -652,10 +632,8 @@ public class FlareBot {
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
         for (JDA client : shardManager.getShards())
             client.removeEventListener(events); //todo: Make a replacement for the array
-        sendData();
-        for (String s : manager.getGuilds().keySet()) {
+        for (String s : manager.getGuilds().keySet())
             manager.saveGuild(s, manager.getGuilds().get(s), manager.getGuilds().getLastRetrieved(s));
-        }
         shardManager.shutdown();
         LOGGER.info("Finished saving!");
         for (JDA client : shardManager.getShards())
@@ -1075,14 +1053,6 @@ public class FlareBot {
                 }
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
-
-        new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                if (!isTestBot())
-                    sendData();
-            }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
 
         new FlareBotTask("spam" + System.currentTimeMillis()) {
             @Override
