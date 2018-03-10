@@ -359,7 +359,7 @@ public class Events extends ListenerAdapter {
             }
         }
         handleSpamDetection(event, guild);
-        if (GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
+        if (!GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
             GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
             flareBot.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
             return;
