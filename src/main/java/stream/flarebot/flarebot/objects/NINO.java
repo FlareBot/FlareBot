@@ -2,12 +2,11 @@ package stream.flarebot.flarebot.objects;
 
 import stream.flarebot.flarebot.util.RandomUtils;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.annotation.Nullable;
 
 public class NINO {
 

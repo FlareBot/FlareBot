@@ -3,12 +3,15 @@ package stream.flarebot.flarebot.util.pagination;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 
+import java.awt.Color;
+
 public class PagedEmbedBuilder<T> {
 
     private String title;
     private String codeBlock;
     private PaginationList<T> list;
     private boolean hasCodeBlock = false;
+    private Color color;
 
     /**
      * Instantiates the builder with a {@link PaginationList}.
@@ -62,7 +65,11 @@ public class PagedEmbedBuilder<T> {
         boolean pageCounts = false;
         if (list.getPages() > 1)
             pageCounts = true;
-        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts);
+        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts, color);
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public class PagedEmbed {
@@ -73,14 +80,16 @@ public class PagedEmbedBuilder<T> {
         private PaginationList<T> list;
         private boolean pageCounts;
         private int pageTotal;
+        private Color color;
 
-        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts) {
+        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts, Color color) {
             this.title = title;
             this.pageCounts = pageCounts;
             pageTotal = list.getPages();
             this.codeBlock = codeBlock;
             this.hasCodeBlock = hasCodeBlock;
             this.list = list;
+            this.color = color;
         }
 
         /**
@@ -98,6 +107,7 @@ public class PagedEmbedBuilder<T> {
                 pageEmbed.addField("Page", String.valueOf(page + 1), true);
                 pageEmbed.addField("Total Pages", String.valueOf(list.getPages()), true);
             }
+            pageEmbed.setColor(color);
             return pageEmbed.build();
         }
 

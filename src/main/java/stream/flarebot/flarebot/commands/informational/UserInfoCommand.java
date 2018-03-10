@@ -1,12 +1,6 @@
 package stream.flarebot.flarebot.commands.informational;
 
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
@@ -17,6 +11,9 @@ import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
+
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 public class UserInfoCommand implements Command {
 

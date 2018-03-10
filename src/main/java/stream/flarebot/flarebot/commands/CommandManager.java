@@ -1,7 +1,5 @@
 package stream.flarebot.flarebot.commands;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.User;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
@@ -9,8 +7,10 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.currency.ConvertCommand;
 import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.informational.BetaCommand;
-import stream.flarebot.flarebot.commands.informational.DonateCommand;
+import stream.flarebot.flarebot.commands.informational.*;
+import stream.flarebot.flarebot.commands.management.PermissionsCommand;
+import stream.flarebot.flarebot.commands.management.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.management.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
@@ -21,6 +21,9 @@ import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CommandManager {
 

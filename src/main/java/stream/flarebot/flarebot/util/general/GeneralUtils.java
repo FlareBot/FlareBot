@@ -6,35 +6,8 @@ import com.google.gson.JsonElement;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import io.github.binaryoverload.JSONConfig;
-import java.awt.Color;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URL;
-import java.text.DecimalFormat;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import javax.net.ssl.HttpsURLConnection;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
@@ -45,14 +18,33 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Pair;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
+
+import java.awt.Color;
+import java.io.*;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
+import javax.net.ssl.HttpsURLConnection;
 
 public class GeneralUtils {
 
@@ -445,16 +437,6 @@ public class GeneralUtils {
         return item.get();
     }
 
-    public static int getGuildUserCount(Guild guild) {
-        int i = 0;
-        for (Member member : guild.getMembers()) {
-            if (!member.getUser().isBot()) {
-                i++;
-            }
-        }
-        return i;
-    }
-
     public static String colourFormat(Color color) {
         return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
@@ -468,114 +450,6 @@ public class GeneralUtils {
                 length - (ellipse ? 3 : 0) && ellipse ? "..." : "");
     }
 
-    public static List<Role> getRole(String string, Guild guild) {
-        return guild.getRolesByName(string, true);
-    }
-
-    @Nullable
-    public static User getUser(String s) {
-        return getUser(s, null);
-    }
-
-    @Nullable
-    public static User getUser(String s, String guildId) {
-        return getUser(s, guildId, false);
-    }
-
-    @Nullable
-    public static User getUser(String s, boolean forceGet) {
-        return getUser(s, null, forceGet);
-    }
-
-    @Nullable
-    public static User getUser(String s, String guildId, boolean forceGet) {
-        if (userDiscrim.matcher(s).find()) {
-            if (guildId == null || guildId.isEmpty()) {
-                return FlareBot.getInstance().getUsers().stream()
-                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
-            } else {
-                try {
-                    return FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
-                            .map(Member::getUser)
-                            .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
-                            .findFirst().orElse(null);
-                } catch (NullPointerException ignored) {
-                }
-            }
-        } else {
-            User tmp;
-            if (guildId == null || guildId.isEmpty()) {
-                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
-                        .findFirst().orElse(null);
-            } else {
-                if (FlareBot.getInstance().getGuildById(guildId) != null) {
-                    tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
-                            .map(Member::getUser)
-                            .filter(user -> user.getName().equalsIgnoreCase(s))
-                            .findFirst().orElse(null);
-                } else
-                    tmp = null;
-            }
-            if (tmp != null) return tmp;
-            try {
-                long l = Long.parseLong(s.replaceAll("[^0-9]", ""));
-                if (guildId == null || guildId.isEmpty()) {
-                    tmp = FlareBot.getInstance().getUserById(l);
-                } else {
-                    Member temMember = FlareBot.getInstance().getGuildById(guildId).getMemberById(l);
-                    if (temMember != null) {
-                        tmp = temMember.getUser();
-                    }
-                }
-                if (tmp != null) {
-                    return tmp;
-                } else if (forceGet) {
-                    return FlareBot.getInstance().retrieveUserById(l);
-                }
-            } catch (NumberFormatException | NullPointerException ignored) {
-            }
-        }
-        return null;
-    }
-
-    public static Role getRole(String s, String guildId) {
-        return getRole(s, guildId, null);
-    }
-
-    public static Role getRole(String s, String guildId, TextChannel channel) {
-        Guild guild = FlareBot.getInstance().getGuildById(guildId);
-        Role role = guild.getRoles().stream()
-                .filter(r -> r.getName().equalsIgnoreCase(s))
-                .findFirst().orElse(null);
-        if (role != null) return role;
-        try {
-            role = guild.getRoleById(Long.parseLong(s.replaceAll("[^0-9]+", "")));
-            if (role != null) return role;
-        } catch (NumberFormatException | NullPointerException ignored) {
-        }
-        if (channel != null) {
-            if (guild.getRolesByName(s, true).isEmpty()) {
-                String closest = null;
-                int distance = LEVENSHTEIN_DISTANCE;
-                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.getInstance().getGuild(guildId).getSelfAssignRoles()
-                        .contains(role1.getId())).collect(Collectors.toList())) {
-                    int currentDistance = StringUtils.getLevenshteinDistance(role1.getName(), s);
-                    if (currentDistance < distance) {
-                        distance = currentDistance;
-                        closest = role1.getName();
-                    }
-                }
-                MessageUtils.sendErrorMessage("That role does not exist! "
-                        + (closest != null ? "Maybe you mean `" + closest + "`" : ""), channel);
-                return null;
-            } else {
-                return guild.getRolesByName(s, true).get(0);
-            }
-        }
-        return null;
-    }
-
     @Nullable
     public static TextChannel getChannel(String arg) {
         return getChannel(arg, null);
@@ -585,7 +459,7 @@ public class GeneralUtils {
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
         try {
             long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
-            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
+            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : Getters.getChannelById(channelId);
         } catch (NumberFormatException e) {
             if (wrapper != null) {
                 List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
@@ -602,7 +476,7 @@ public class GeneralUtils {
         if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
             perm = perm.substring(perm.indexOf(".") + 1);
             String command = perm.split("\\.")[0];
-            for (Command c : FlareBot.getInstance().getCommands()) {
+            for (Command c : FlareBot.getCommandManager().getCommands()) {
                 if (c.getCommand().equalsIgnoreCase(command) && !c.getType().isInternal())
                     return true;
             }
@@ -635,8 +509,8 @@ public class GeneralUtils {
                 return;
             }
             channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            if (FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty())
-                FlareBotManager.getInstance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
+            if (FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty())
+                FlareBotManager.instance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
         } else {
             MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
                     .hasPermission(member.getVoiceState()
@@ -794,15 +668,26 @@ public class GeneralUtils {
      * <b>This does not check permissions</b>
      *
      * @returns If the command is not internal or if the role has the right role to run an internal command.
-    */
+     */
     public static boolean canRunCommand(Command command, User user) {
-        if (command == null) return false;
+        return canRunCommand(command.getType(), user);
+    }
 
-        if (command.getType().isInternal()) {
-            Guild g = FlareBot.getInstance().getOfficialGuild();
+    /**
+     * If the user can run the command, this will check if the command is null and if it is internal.
+     * If internal it will check the official guild to see if the user has the right role.
+     * <b>This does not check permissions</b>
+     *
+     * @returns If the command is not internal or if the role has the right role to run an internal command.
+     */
+    public static boolean canRunCommand(CommandType type, User user) {
+        if (type == null) return false;
+
+        if (type.isInternal()) {
+            Guild g = Constants.getOfficialGuild();
 
             if (g.getMember(user) != null)
-                return g.getMember(user).getRoles().contains(g.getRoleById(command.getType().getRoleId()));
+                return g.getMember(user).getRoles().contains(g.getRoleById(type.getRoleId()));
             else
                 return false;
         } else

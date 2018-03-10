@@ -2,11 +2,7 @@ package stream.flarebot.flarebot.mod.modlog;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.joda.time.Period;
@@ -15,8 +11,8 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 
 import java.awt.Color;
 
@@ -169,7 +165,7 @@ public class ModlogHandler {
                 MessageUtils.sendWarningMessage("W-why would you want to do that in the first place. Meanie :(", channel);
             else
                 MessageUtils.sendWarningMessage(String.format("T-that's meannnnnnn :( I can't %s myself and I hope you don't want to either :(",
-                    modAction.getLowercaseName()), channel);
+                        modAction.getLowercaseName()), channel);
             return;
         }
 
@@ -190,7 +186,7 @@ public class ModlogHandler {
                 if (topTargetRole.getIdLong() == muteRole.getIdLong() && wrapper.getGuild().getMember(target).getRoles().size() > 1)
                     topTargetRole = wrapper.getGuild().getMember(target).getRoles().get(1);
             }
-            if (topMemberRole.getPosition() < topTargetRole.getPosition()){
+            if (topMemberRole.getPosition() < topTargetRole.getPosition()) {
                 MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
                         modAction.getLowercaseName()), channel);
                 return;

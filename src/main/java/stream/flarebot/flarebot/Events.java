@@ -91,7 +91,7 @@ public class Events extends ListenerAdapter {
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
                     Long messageId = event.getMessageIdLong();
-                    if(buttonMap.containsKey(messageId)) {
+                    if (buttonMap.containsKey(messageId)) {
                         int current = buttonMap.get(messageId);
                         buttonMap.put(messageId, current + 1);
                     } else {
@@ -364,10 +364,10 @@ public class Events extends ListenerAdapter {
 
         if (guild.hasBetaAccess()) {
             if (guild.getSettings().getChannelBlacklist().contains(event.getChannel().getIdLong())
-                    && !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
+                    && !guild.getPermissions().hasPermission(event.getMember(), stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
                 return;
             else if (guild.getSettings().getUserBlacklist().contains(event.getAuthor().getIdLong())
-                    && !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
+                    && !guild.getPermissions().hasPermission(event.getMember(), stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
                 return;
         }
 
@@ -443,7 +443,7 @@ public class Events extends ListenerAdapter {
 
     private boolean handleOfficialGuildStuff(GuildMessageReceivedEvent event, Command command) {
         Guild guild = event.getGuild();
-        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(guild.getId());
+        GuildWrapper wrapper = FlareBotManager.instance().getGuild(guild.getId());
 
         if (event.getChannel().getIdLong() == 226785954537406464L && !event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
             event.getChannel().sendMessage("Please use me in <#226786507065786380>!").queue();
@@ -527,11 +527,11 @@ public class Events extends ListenerAdapter {
             Map.Entry<Long, Integer> pair = it.next();
             Long messageId = pair.getKey();
             double click = pair.getValue();
-            if(click == 0) {
+            if (click == 0) {
                 return;
             }
-            double clicksPerSec = click/3.0;
-            if(maxButtonClicksPerSec.containsKey(messageId)) {
+            double clicksPerSec = click / 3.0;
+            if (maxButtonClicksPerSec.containsKey(messageId)) {
                 double max = maxButtonClicksPerSec.get(messageId);
                 if (clicksPerSec > max) {
                     maxButtonClicksPerSec.put(messageId, clicksPerSec);
@@ -539,7 +539,7 @@ public class Events extends ListenerAdapter {
             } else {
                 maxButtonClicksPerSec.put(messageId, clicksPerSec);
             }
-            if(buttonClicksPerSec.containsKey(messageId)) {
+            if (buttonClicksPerSec.containsKey(messageId)) {
                 List<Double> clicks = buttonClicksPerSec.get(messageId);
                 clicks.add(clicksPerSec);
                 buttonClicksPerSec.put(messageId, clicks);
