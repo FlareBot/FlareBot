@@ -49,13 +49,7 @@ import stream.flarebot.flarebot.commands.Prefixes;
 import stream.flarebot.flarebot.commands.currency.ConvertCommand;
 import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.informational.BetaCommand;
-import stream.flarebot.flarebot.commands.informational.DonateCommand;
-import stream.flarebot.flarebot.commands.informational.InfoCommand;
-import stream.flarebot.flarebot.commands.informational.ServerInfoCommand;
-import stream.flarebot.flarebot.commands.informational.ShardInfoCommand;
-import stream.flarebot.flarebot.commands.informational.StatsCommand;
-import stream.flarebot.flarebot.commands.informational.UserInfoCommand;
+import stream.flarebot.flarebot.commands.informational.*;
 import stream.flarebot.flarebot.commands.management.PermissionsCommand;
 import stream.flarebot.flarebot.commands.management.SetPrefixCommand;
 import stream.flarebot.flarebot.commands.management.WelcomeCommand;
@@ -453,6 +447,7 @@ public class FlareBot {
     }
 
     private void loadFutureTasks() {
+        if (FlareBot.testBot) return;
         final int[] loaded = {0};
         CassandraController.runTask(session -> {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
