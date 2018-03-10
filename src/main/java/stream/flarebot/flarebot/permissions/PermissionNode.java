@@ -18,7 +18,7 @@ public class PermissionNode implements Predicate<String> {
     }
 
     @Override
-    public boolean test(String node) {
+    public boolean test(String permission) {
         if (getNode().equals("*"))
             return true;
         // It splits by a `*` that's on a start of a string or has . around them
@@ -28,6 +28,6 @@ public class PermissionNode implements Predicate<String> {
                 // And then it joins them with a match all regexp
                 .collect(Collectors.joining(".+")) + (getNode().endsWith("*") ? ".+" : "");
         // And then it lets Java REGEXP compare them. Ty @I-Al-Istannen for making me do this comment
-        return node.matches(textNode);
+        return permission.matches(textNode);
     }
 }

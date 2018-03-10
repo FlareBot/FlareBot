@@ -31,14 +31,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.net.ssl.HttpsURLConnection;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
@@ -448,6 +445,206 @@ public class GeneralUtils {
         return item.get();
     }
 
+    public static int getGuildUserCount(Guild guild) {
+        int i = 0;
+        for (Member member : guild.getMembers()) {
+            if (!member.getUser().isBot()) {
+                i++;
+            }
+        }
+        return i;
+    }
+
+    public static String colourFormat(Color color) {
+        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
+    public static String truncate(int length, String string) {
+        return truncate(length, string, true);
+    }
+
+    public static String truncate(int length, String string, boolean ellipse) {
+        return string.substring(0, Math.min(string.length(), length - (ellipse ? 3 : 0))) + (string.length() >
+                length - (ellipse ? 3 : 0) && ellipse ? "..." : "");
+    }
+
+    public static List<Role> getRole(String string, Guild guild) {
+        return guild.getRolesByName(string, true);
+    }
+
+    @Nullable
+    public static User getUser(String s) {
+        return getUser(s, null);
+    }
+
+    @Nullable
+    public static User getUser(String s, String guildId) {
+        return getUser(s, guildId, false);
+    }
+
+    @Nullable
+    public static User getUser(String s, boolean forceGet) {
+        return getUser(s, null, forceGet);
+    }
+
+    @Nullable
+    public static User getUser(String s, String guildId, boolean forceGet) {
+        if (userDiscrim.matcher(s).find()) {
+            if (guildId == null || guildId.isEmpty()) {
+                return FlareBot.getInstance().getUsers().stream()
+                        .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                try {
+                    return FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
+                            .map(Member::getUser)
+                            .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } catch (NullPointerException ignored) {
+                }
+            }
+        } else {
+            User tmp;
+            if (guildId == null || guildId.isEmpty()) {
+                tmp = FlareBot.getInstance().getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
+            } else {
+                if (FlareBot.getInstance().getGuildById(guildId) != null) {
+                    tmp = FlareBot.getInstance().getGuildById(guildId).getMembers().stream()
+                            .map(Member::getUser)
+                            .filter(user -> user.getName().equalsIgnoreCase(s))
+                            .findFirst().orElse(null);
+                } else
+                    tmp = null;
+            }
+            if (tmp != null) return tmp;
+            try {
+                long l = Long.parseLong(s.replaceAll("[^0-9]", ""));
+                if (guildId == null || guildId.isEmpty()) {
+                    tmp = FlareBot.getInstance().getUserById(l);
+                } else {
+                    Member temMember = FlareBot.getInstance().getGuildById(guildId).getMemberById(l);
+                    if (temMember != null) {
+                        tmp = temMember.getUser();
+                    }
+                }
+                if (tmp != null) {
+                    return tmp;
+                } else if (forceGet) {
+                    return FlareBot.getInstance().retrieveUserById(l);
+                }
+            } catch (NumberFormatException | NullPointerException ignored) {
+            }
+        }
+        return null;
+    }
+
+    public static Role getRole(String s, String guildId) {
+        return getRole(s, guildId, null);
+    }
+
+    public static Role getRole(String s, String guildId, TextChannel channel) {
+        Guild guild = FlareBot.getInstance().getGuildById(guildId);
+        Role role = guild.getRoles().stream()
+                .filter(r -> r.getName().equalsIgnoreCase(s))
+                .findFirst().orElse(null);
+        if (role != null) return role;
+        try {
+            role = guild.getRoleById(Long.parseLong(s.replaceAll("[^0-9]+", "")));
+            if (role != null) return role;
+        } catch (NumberFormatException | NullPointerException ignored) {
+        }
+        if (channel != null) {
+            if (guild.getRolesByName(s, true).isEmpty()) {
+                String closest = null;
+                int distance = LEVENSHTEIN_DISTANCE;
+                for (Role role1 : guild.getRoles().stream().filter(role1 -> FlareBotManager.getInstance().getGuild(guildId).getSelfAssignRoles()
+                        .contains(role1.getId())).collect(Collectors.toList())) {
+                    int currentDistance = StringUtils.getLevenshteinDistance(role1.getName(), s);
+                    if (currentDistance < distance) {
+                        distance = currentDistance;
+                        closest = role1.getName();
+                    }
+                }
+                MessageUtils.sendErrorMessage("That role does not exist! "
+                        + (closest != null ? "Maybe you mean `" + closest + "`" : ""), channel);
+                return null;
+            } else {
+                return guild.getRolesByName(s, true).get(0);
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static TextChannel getChannel(String arg) {
+        return getChannel(arg, null);
+    }
+
+    @Nullable
+    public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
+        try {
+            long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
+            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : FlareBot.getInstance().getChannelById(channelId);
+        } catch (NumberFormatException e) {
+            if (wrapper != null) {
+                List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
+                if (!tcs.isEmpty()) {
+                    return tcs.get(0);
+                }
+            }
+            return null;
+        }
+    }
+
+    public static boolean validPerm(String perm) {
+        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
+        if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
+            perm = perm.substring(perm.indexOf(".") + 1);
+            String command = perm.split("\\.")[0];
+            for (Command c : FlareBot.getInstance().getCommands()) {
+                if (c.getCommand().equalsIgnoreCase(command) && !c.getType().isInternal())
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public static void joinChannel(TextChannel channel, Member member) {
+        GuildVoiceState vs = channel.getGuild().getSelfMember().getVoiceState();
+        GuildVoiceState memberVS = member.getVoiceState();
+        if (memberVS.getChannel() == null) {
+            MessageUtils.sendErrorMessage("You need to join a voice channel to do that!", channel);
+            return; // They aren't in a VC so we can't join that.
+        }
+        if (vs.getChannel() != null && vs.getChannel().getIdLong() == member.getVoiceState().getChannel().getIdLong())
+            return; // Already in the same VC as the user.
+
+        if (channel.getGuild().getSelfMember()
+                .hasPermission(memberVS.getChannel(), Permission.VOICE_CONNECT) &&
+                channel.getGuild().getSelfMember()
+                        .hasPermission(memberVS.getChannel(), Permission.VOICE_SPEAK)) {
+            if (memberVS.getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
+                    .getMembers().size()
+                    >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
+                    .hasPermission(member
+                            .getVoiceState()
+                            .getChannel(), Permission.MANAGE_CHANNEL)) {
+                MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
+                        "bypass it!", channel);
+                return;
+            }
+            channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            if (FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty())
+                FlareBotManager.getInstance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
+        } else {
+            MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
+                    .hasPermission(member.getVoiceState()
+                            .getChannel(), Permission.VOICE_CONNECT) ?
+                    "connect" : "speak") + " in your voice channel!", channel);
+        }
+    }
+
     /**
      * Orders a Collection alphabetic by whatever {@link String#valueOf(Object)} returns.
      *
@@ -591,4 +788,24 @@ public class GeneralUtils {
         return result;
     }
 
+    /**
+     * If the user can run the command, this will check if the command is null and if it is internal.
+     * If internal it will check the official guild to see if the user has the right role.
+     * <b>This does not check permissions</b>
+     *
+     * @returns If the command is not internal or if the role has the right role to run an internal command.
+    */
+    public static boolean canRunCommand(Command command, User user) {
+        if (command == null) return false;
+
+        if (command.getType().isInternal()) {
+            Guild g = FlareBot.getInstance().getOfficialGuild();
+
+            if (g.getMember(user) != null)
+                return g.getMember(user).getRoles().contains(g.getRoleById(command.getType().getRoleId()));
+            else
+                return false;
+        } else
+            return true;
+    }
 }

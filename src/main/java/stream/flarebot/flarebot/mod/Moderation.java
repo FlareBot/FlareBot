@@ -110,7 +110,14 @@ public class Moderation {
     }
 
     public void muteUser(GuildWrapper guild, Member member) {
+        if (guild == null || member == null) return;
         if (guild.getMutedRole() != null)
-            guild.getGuild().getController().addRolesToMember(member, guild.getMutedRole()).queue();
+            guild.getGuild().getController().addSingleRoleToMember(member, guild.getMutedRole()).queue();
+    }
+
+    public void unmuteUser(GuildWrapper guild, Member member) {
+        if (guild == null || member == null) return;
+        if (guild.getMutedRole() != null && member.getRoles().contains(guild.getMutedRole()))
+            guild.getGuild().getController().removeSingleRoleFromMember(member, guild.getMutedRole()).queue();
     }
 }

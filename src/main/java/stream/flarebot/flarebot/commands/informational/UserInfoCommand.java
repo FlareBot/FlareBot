@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.informational;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;

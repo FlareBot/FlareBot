@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.moderation;
+package stream.flarebot.flarebot.commands.general;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -121,7 +121,7 @@ public class AutoAssignCommand implements Command {
         if (!role.contains(" ") && role.startsWith("<@&") && role.endsWith(">")) {
             return guild.getRoleById(role.replaceAll("[^0-9]+", ""));
         }
-        
+
         // Since I know it is valid I can get the id from the name or just return the id since that will be the only other thing passed.
         for (Role iRole : guild.getRoles()) {
             if (iRole.getId().equals(role) || iRole.getName().equalsIgnoreCase(role))

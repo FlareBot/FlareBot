@@ -4,12 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.MessageReaction;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -39,7 +34,6 @@ import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
-import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -52,13 +46,7 @@ import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import java.awt.Color;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -373,21 +361,30 @@ public class Events extends ListenerAdapter {
 
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String[] args) {
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
+
+        if (guild.hasBetaAccess()) {
+            if (guild.getSettings().getChannelBlacklist().contains(event.getChannel().getIdLong())
+                    && !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
+                return;
+            else if (guild.getSettings().getUserBlacklist().contains(event.getAuthor().getIdLong())
+                    && !guild.getPermissions().hasPermission(event.getMember(), "flarebot.blacklist.bypass"))
+                return;
+        }
+
         if (guild.isBlocked()) {
             if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
                 guild.revokeBlock();
             }
         }
         handleSpamDetection(event, guild);
-        if (cmd.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(event.getAuthor()) && !(flareBot.isTestBot()
-                && PerGuildPermissions.isContributor(event.getAuthor()))) {
+        if (!GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
             GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
             Constants.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
             return;
         }
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
         if (handleMissingPermission(cmd, event)) return;
-        if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) {
+        if (!guild.hasBetaAccess() && cmd.isBetaTesterCommand()) {
             if (flareBot.isTestBot())
                 LOGGER.error("Guild " + event.getGuild().getId() + " tried to use the beta command '"
                         + cmd.getCommand() + "'!");
@@ -402,6 +399,10 @@ public class Events extends ListenerAdapter {
             MessageUtils.sendErrorMessage(flareBot.getManager().getDisabledCommandReason(cmd.getCommand()), event.getChannel(), event.getAuthor());
             return;
         }
+
+        // Internal stuff
+        if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
+            return;
 
         CACHED_POOL.submit(() -> {
             LOGGER.info(
@@ -433,11 +434,22 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            if (cmd.deleteMessage()) {
+            if ((guild.hasBetaAccess() && guild.getSettings().shouldDeleteCommands()) || cmd.deleteMessage()) {
                 delete(event.getMessage());
                 removedByMe.add(event.getMessageIdLong());
             }
         });
+    }
+
+    private boolean handleOfficialGuildStuff(GuildMessageReceivedEvent event, Command command) {
+        Guild guild = event.getGuild();
+        GuildWrapper wrapper = FlareBotManager.getInstance().getGuild(guild.getId());
+
+        if (event.getChannel().getIdLong() == 226785954537406464L && !event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            event.getChannel().sendMessage("Please use me in <#226786507065786380>!").queue();
+            return false;
+        }
+        return true;
     }
 
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {

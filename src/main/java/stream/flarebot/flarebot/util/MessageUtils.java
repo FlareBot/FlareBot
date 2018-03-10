@@ -50,7 +50,6 @@ public class MessageUtils {
     private static final String ZERO_WIDTH_SPACE = "\u200B";
 
     private static JDA cachedJDA;
-    private static EmbedBuilder defaultEmbed;
 
     public static void sendPM(User user, String message) {
         try {
@@ -131,14 +130,12 @@ public class MessageUtils {
         if (cachedJDA == null || cachedJDA.getStatus() != JDA.Status.CONNECTED)
             cachedJDA = flareBot.getClient();
 
-        if (defaultEmbed == null)
-            defaultEmbed = new EmbedBuilder().setColor(ColorUtils.FLAREBOT_BLUE);
+        EmbedBuilder defaultEmbed = new EmbedBuilder().setColor(ColorUtils.FLAREBOT_BLUE);
 
         // We really need to PR getAuthor and things into EmbedBuilder.
-        if (cachedJDA != null)
+        if (cachedJDA != null) {
             defaultEmbed.setAuthor("FlareBot", "https://flarebot.stream", cachedJDA.getSelfUser().getEffectiveAvatarUrl());
-        
-        defaultEmbed.clear();
+        }
 
         return defaultEmbed.setColor(ColorUtils.FLAREBOT_BLUE);
     }
@@ -318,16 +315,15 @@ public class MessageUtils {
         String title = capitalize(command.getCommand()) + " Usage";
         List<String> usages = UsageParser.matchUsage(command, args);
 
-        String usage =
-                FormatUtils.formatCommandPrefix(channel.getGuild(), usages.stream().collect(Collectors.joining("\n")));
+        String usage = FormatUtils.formatCommandPrefix(channel.getGuild(), usages.stream().collect(Collectors.joining("\n")));
         EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
         if (command.getExtraInfo() != null) {
             b.addField("Extra Info", command.getExtraInfo(), false);
         }
         if (command.getPermission() != null) {
-            b.addField("Permission", command.getPermission() + "\n" +
-                    "**Default Permission: **" + command.isDefaultPermission() + "\n" +
-                    "**Beta Command: **" + command.isBetaTesterCommand(), false);
+            b.addField("Permission", "`" + command.getPermission() + "`\n\n" +
+                    "Default Permission: " + command.getPermission().isDefaultPerm() + "\n" +
+                    "Beta Command: " + command.isBetaTesterCommand(), false);
         }
         channel.sendMessage(b.build()).queue();
 

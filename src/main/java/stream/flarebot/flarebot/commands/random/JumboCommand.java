@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -22,15 +23,9 @@ public class JumboCommand implements Command {
         if (args.length > 0) {
             if (!message.getEmotes().isEmpty()) {
                 Emote e = message.getEmotes().get(0);
-                try {
-                    URL url = new URL(e.getImageUrl());
-                    InputStream stream = url.openStream();
+                InputStream stream = read(e.getImageUrl(), channel);
+                if (stream != null)
                     channel.sendFile(stream, e.getName() + ".png").queue();
-                } catch (IOException e1) {
-                    MessageUtils.sendErrorMessage("Strange error occurred!\nMessage: " + e1.getMessage(), channel);
-                    FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
-                            + guild.getGuild(), e);
-                }
             } else
                 MessageUtils.sendWarningMessage("Please send a valid emote!", channel);
         } else
@@ -44,16 +39,30 @@ public class JumboCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Jumbo size an emoji!";
+        return "Jumbo size an emote!";
     }
 
     @Override
     public String getUsage() {
         return "`{%}jumbo <emote>` - See an emote in it's true size because who doesn't love jumbo sized stuff?";
-}
+    }
 
     @Override
     public CommandType getType() {
         return CommandType.RANDOM;
+    }
+
+    private InputStream read(String url, TextChannel channel) {
+        try {
+            HttpsURLConnection conn = (HttpsURLConnection) new URL(url).openConnection();
+            conn.addRequestProperty("User-Agent", "Mozilla/5.0 FlareBot");
+
+            return conn.getInputStream();
+        } catch (IOException e) {
+            MessageUtils.sendErrorMessage("Failed to jumbo image!\nMessage: " + e.getMessage(), channel);
+            FlareBot.LOGGER.error("Failed to send image for " + getCommand() + " command. Guild ID: "
+                    + channel.getGuild().getId() + ", URL: " + url, e);
+            return null;
+        }
     }
 }

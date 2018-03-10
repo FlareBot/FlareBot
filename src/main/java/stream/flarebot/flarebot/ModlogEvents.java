@@ -1,11 +1,5 @@
 package stream.flarebot.flarebot;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.audit.ActionType;
@@ -24,11 +18,7 @@ import net.dv8tion.jda.core.events.channel.voice.VoiceChannelCreateEvent;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.GenericGuildEvent;
 import net.dv8tion.jda.core.events.guild.GuildBanEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.core.events.guild.member.*;
 import net.dv8tion.jda.core.events.guild.update.GenericGuildUpdateEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateExplicitContentLevelEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent;
@@ -54,6 +44,12 @@ import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 
 public class ModlogEvents implements EventListener {
@@ -100,7 +96,7 @@ public class ModlogEvents implements EventListener {
             onGuildVoiceJoin((GuildVoiceJoinEvent) event, guildWrapper);
         else if (event instanceof GuildVoiceLeaveEvent)
             onGuildVoiceLeave((GuildVoiceLeaveEvent) event, guildWrapper);
-        // ROLES
+            // ROLES
         else if (event instanceof RoleCreateEvent)
             onRoleCreate((RoleCreateEvent) event, guildWrapper);
         else if (event instanceof RoleDeleteEvent)
@@ -111,7 +107,7 @@ public class ModlogEvents implements EventListener {
             onGuildMemberRoleAdd((GuildMemberRoleAddEvent) event, guildWrapper);
         else if (event instanceof GuildMemberRoleRemoveEvent)
             onGuildMemberRoleRemove((GuildMemberRoleRemoveEvent) event, guildWrapper);
-        // CHANNEL
+            // CHANNEL
         else if (event instanceof TextChannelCreateEvent)
             onTextChannelCreate((TextChannelCreateEvent) event, guildWrapper);
         else if (event instanceof VoiceChannelCreateEvent)
@@ -120,14 +116,14 @@ public class ModlogEvents implements EventListener {
             onTextChannelDelete((TextChannelDeleteEvent) event, guildWrapper);
         else if (event instanceof VoiceChannelDeleteEvent)
             onVoiceChannelDelete((VoiceChannelDeleteEvent) event, guildWrapper);
-        // MESSAGES
+            // MESSAGES
         else if (event instanceof GuildMessageReceivedEvent)
             onGuildMessageReceived((GuildMessageReceivedEvent) event, guildWrapper);
         else if (event instanceof MessageUpdateEvent)
             onMessageUpdate((MessageUpdateEvent) event, guildWrapper);
         else if (event instanceof MessageDeleteEvent)
             onMessageDelete((MessageDeleteEvent) event, guildWrapper);
-        // GUILD
+            // GUILD
         else if (event instanceof GuildUpdateExplicitContentLevelEvent)
             onGuildUpdateExplicitContentLevel((GuildUpdateExplicitContentLevelEvent) event, guildWrapper);
         else if (event instanceof GuildMemberNickChangeEvent)
@@ -159,7 +155,7 @@ public class ModlogEvents implements EventListener {
     private void onGuildMemberLeave(GuildMemberLeaveEvent event, @Nonnull GuildWrapper wrapper) {
         if (!wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.MEMBER_LEAVE)
                 && !wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.USER_KICKED)) return;
-        boolean checkKick = event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS) 
+        boolean checkKick = event.getGuild().getSelfMember().hasPermission(Permission.VIEW_AUDIT_LOGS)
                 && wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.USER_KICKED);
         if (!checkKick) {
             if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
@@ -185,8 +181,7 @@ public class ModlogEvents implements EventListener {
             boolean isKick = entry != null;
             if (isKick) {
                 if (cannotHandle(wrapper, ModlogEvent.USER_KICKED)) return;
-            } else 
-                if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
+            } else if (cannotHandle(wrapper, ModlogEvent.MEMBER_LEAVE)) return;
 
             ModlogHandler.getInstance().postToModlog(wrapper, isKick ?
                             ModlogEvent.USER_KICKED : ModlogEvent.MEMBER_LEAVE, event.getUser(),
@@ -349,10 +344,17 @@ public class ModlogEvents implements EventListener {
         if (event.getAuthor().isBot()) return;
         if (event.getMember().hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE)) return;
         if (wrapper.getNINO().isEnabled()) {
-            String invite = MessageUtils.getInvite(event.getMessage().getContentDisplay());
+            String invite = MessageUtils.getInvite(event.getMessage().getContentRaw());
+            for (String inv : wrapper.getNINO().getWhitelist())
+                if (invite == null || invite.equalsIgnoreCase(inv))
+                    return;
+
             if (invite != null) {
-                event.getMessage().delete().queue(aVoid -> event.getChannel().sendMessage("[NINO] "
-                        + wrapper.getNINO().getRemoveMessage()).queue());
+                event.getMessage().delete().queue(aVoid -> {
+                    String msg = wrapper.getNINO().getRemoveMessage();
+                    if (msg != null)
+                        event.getChannel().sendMessage(msg).queue();
+                });
 
                 if (cannotHandle(wrapper, ModlogEvent.INVITE_POSTED)) return;
                 ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.INVITE_POSTED, event.getAuthor(),
@@ -411,7 +413,7 @@ public class ModlogEvents implements EventListener {
                 new MessageEmbed.Field("New level", Guild.ExplicitContentLevel.fromKey(levelChange.getNewValue()).getDescription(), true));
     }
 
-    
+
     private void onGuildMemberNickChange(GuildMemberNickChangeEvent event, @Nonnull GuildWrapper wrapper) {
         if (cannotHandle(wrapper, ModlogEvent.MEMBER_NICK_CHANGE)) return;
         ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.MEMBER_NICK_CHANGE,

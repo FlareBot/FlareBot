@@ -4,9 +4,9 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.PermissionOverride;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -35,7 +35,7 @@ public class LockChatCommand implements Command {
                     "I need the `Manage Roles` permission", channel);
             return;
         }
-        
+
         boolean locked;
         PermissionOverride everyoneOvr = tc.getPermissionOverride(guild.getGuild().getPublicRole());
         if (everyoneOvr == null)
@@ -59,8 +59,8 @@ public class LockChatCommand implements Command {
                     .build()).queue();
         if (guild.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_WRITE))
             channel.sendMessage(new EmbedBuilder().setColor(locked ? ColorUtils.RED : ColorUtils.GREEN)
-                    .setDescription("The chat has been "  + (locked ? "locked" : "unlocked") + " by a staff member!" 
-                                    + (reason != null ? "\nReason: " + reason : ""))
+                    .setDescription("The chat has been " + (locked ? "locked" : "unlocked") + " by a staff member!"
+                            + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();
     }
 
