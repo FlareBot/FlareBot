@@ -312,9 +312,9 @@ public class ModlogHandler {
          Role topTargetRole = target.getRoles().get(0);
          if (muteRole != null) {
              if (topMemberRole.getIdLong() == muteRole.getIdLong() && sender.getRoles().size() > 1)
-                 topMemberRole = member.getRoles().get(1);
+                 topMemberRole = sender.getRoles().get(1);
              if (topTargetRole.getIdLong() == muteRole.getIdLong() && target.getRoles().size() > 1)
-                    topTargetRole = wrapper.getGuild().getMember(target).getRoles().get(1);
+                    topTargetRole = target.getRoles().get(1);
          }
          return topMemberRole.getPosition() > topTargetRole.getPosition();
     }
