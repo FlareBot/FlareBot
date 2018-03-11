@@ -174,7 +174,7 @@ public class ModlogHandler {
         }
 
         // Check if the person is below the target in role hierarchy
-        if (member != null && sender != null && !canInteract(wrapper.getGuild().getMember(sender), member)) {
+        if (member != null && sender != null && !canInteract(wrapper.getGuild().getMember(sender), member, wrapper)) {
             MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
                        modAction.getLowercaseName()), channel);
             return;
@@ -299,8 +299,8 @@ public class ModlogHandler {
         postToModlog(wrapper, modAction.getEvent(), target, sender, rsn);
     }
     
-    private boolean canInteract(Member sender, Member target) {
-        if (target.isOwner() || targer.hasPermission(Permission.ADMINISTRATOR))
+    private boolean canInteract(Member sender, Member target, GuildWrapper wrapper) {
+        if (target.isOwner() || target.hasPermission(Permission.ADMINISTRATOR))
            return true;
         
         if (target.getRoles().isEmpty() || sender.getRoles().isEmpty()) {
