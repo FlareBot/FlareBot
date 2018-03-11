@@ -28,7 +28,7 @@ public class PaginationUtil {
                 String substring = workingString.substring(0, Math.min(splitAmount, workingString.length()));
                 int splitIndex = substring.lastIndexOf("\n") == -1 ? substring.length() : substring.lastIndexOf("\n");
                 pages.add(substring.substring(0, splitIndex));
-                if(i != (pagesCount - 1)) {
+                if (i != (pagesCount - 1)) {
                     workingString = workingString.substring(splitIndex + 1, workingString.length());
                 }
             }
@@ -56,12 +56,12 @@ public class PaginationUtil {
      * @param page        The starting page
      */
     public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page) {
-        if(page < 0 || page > list.getPages() - 1) {
+        if (page < 0 || page > list.getPages() - 1) {
             MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + list.getPages(), textChannel);
             return;
         }
         Integer[] pages = new Integer[]{page};
-        if(list.getPages() > 1) {
+        if (list.getPages() > 1) {
             ButtonGroup buttonGroup = new ButtonGroup();
             buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (user, message) -> {
                 //Start
@@ -98,11 +98,11 @@ public class PaginationUtil {
      * You can build with Embed with {@link PagedEmbedBuilder}.
      *
      * @param pagedEmbed The {@link stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder.PagedEmbed} to use.
-     * @param page The page to start on.
-     * @param channel The channel to send the paged message to.
+     * @param page       The page to start on (0 Indexed).
+     * @param channel    The channel to send the paged message to.
      */
     public static void sendEmbedPagedMessage(PagedEmbedBuilder.PagedEmbed pagedEmbed, int page, TextChannel channel) {
-        if(page < 0 || page > pagedEmbed.getPageTotal() - 1) {
+        if (page < 0 || page > pagedEmbed.getPageTotal() - 1) {
             MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + pagedEmbed.getPageTotal(), channel);
             return;
         }

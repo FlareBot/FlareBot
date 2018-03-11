@@ -105,7 +105,6 @@ public class QueueCommand implements Command {
                 songs.add(song);
             }
             PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(songs.stream().collect(Collectors.joining("\n")) + "\n", PaginationUtil.SplitMethod.CHAR_COUNT, 2000));
-            pe.disableInField();
             pe.setTitle("Queued Songs");
             PaginationUtil.sendEmbedPagedMessage(pe.build(), 0, channel);
         } else {

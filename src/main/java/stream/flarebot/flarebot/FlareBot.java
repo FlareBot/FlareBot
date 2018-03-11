@@ -15,38 +15,6 @@ import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
@@ -85,16 +53,32 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.MigrationHandler;
-import stream.flarebot.flarebot.util.ShardUtils;
-import stream.flarebot.flarebot.util.WebUtils;
+import stream.flarebot.flarebot.util.*;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
+
+import java.io.*;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FlareBot {
 
@@ -110,9 +94,6 @@ public class FlareBot {
     private static JSONConfig config;
     private static boolean apiEnabled = true;
     private static boolean testBot = false;
-    private static OkHttpClient client =
-            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
-                    .addInterceptor(new DataInterceptor()).build();
     private static String version = null;
 
     static {
@@ -130,6 +111,11 @@ public class FlareBot {
     private Runtime runtime = Runtime.getRuntime();
     private WebhookClient importantHook;
     private CommandManager commandManager;
+
+    private static final DataInterceptor dataInterceptor = new DataInterceptor(DataInterceptor.RequestSender.JDA);
+    private static OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
+                    .addInterceptor(dataInterceptor).build();
 
     private AnalyticsHandler analyticsHandler;
 
@@ -383,6 +369,7 @@ public class FlareBot {
         analyticsHandler.registerAnalyticSender(new ActivityAnalytics());
         analyticsHandler.registerAnalyticSender(new GuildAnalytics());
         analyticsHandler.registerAnalyticSender(new GuildCountAnalytics());
+        LOGGER.info("Registered analytics - Running");
         analyticsHandler.run(isTestBot() ? 1000 : -1);
 
 
@@ -411,16 +398,22 @@ public class FlareBot {
      * This possibly-null will return the first connected JDA shard.
      * This means that a lot of methods like sending embeds works even with shard 0 offline.
      *
-     * @returns The first possible JDA shard which is connected or null otherwise.
+     * @return The first possible JDA shard which is connected or null otherwise.
      */
     @Nullable
     public JDA getClient() {
-        for (JDA jda : shardManager.getShardCache())
+        for (JDA jda : shardManager.getShardCache()) {
             if (jda.getStatus() == JDA.Status.CONNECTED)
                 return jda;
+        }
         return null;
     }
 
+    /**
+     * Get the SelfUser of the bot, this will be null if no shards are connected.
+     *
+     * @return The bot SelfUser or null if no CONNECTED shard is found.
+     */
     @Nullable
     public SelfUser getSelfUser() {
         JDA shard = getClient();
@@ -428,6 +421,7 @@ public class FlareBot {
     }
 
     private void loadFutureTasks() {
+        if (FlareBot.testBot) return;
         final int[] loaded = {0};
         CassandraController.runTask(session -> {
             ResultSet set = session.execute("SELECT * FROM flarebot.future_tasks");
@@ -466,7 +460,7 @@ public class FlareBot {
                         .addHeader("User-Agent", "Mozilla/5.0 FlareBot");
                 RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON,
                         new JSONObject().put("server_count", client.getGuilds().size()).toString());
-                WebUtils.asyncRequest(request.post(body));
+                WebUtils.postAsync(request.post(body));
                 return;
             }
             try {
@@ -479,7 +473,7 @@ public class FlareBot {
                                 .put("server_count", client.getGuilds().size())
                                 .put("shard_id", client.getShardInfo().getShardId())
                                 .put("shard_count", client.getShardInfo().getShardTotal()).toString()));
-                WebUtils.asyncRequest(request.post(body));
+                WebUtils.postAsync(request.post(body));
 
                 // Gonna spread these out just a bit so we don't burst (insert shard number here) requests all at once
                 Thread.sleep(20_000);
@@ -515,7 +509,7 @@ public class FlareBot {
                                 .getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
                 .put("uptime", getUptime())
-                .put("http_requests", DataInterceptor.getRequests().intValue());
+                .put("http_requests", dataInterceptor.getRequests().intValue());
 
         ApiRequester.requestAsync(ApiRoute.UPDATE_DATA, data);
     }
@@ -792,14 +786,6 @@ public class FlareBot {
             }
         }.repeat(10, TimeUnit.MINUTES.toMillis(10));
 
-        new FlareBotTask("UpdateWebsite" + System.currentTimeMillis()) {
-            @Override
-            public void run() {
-                if (!isTestBot())
-                    sendData();
-            }
-        }.repeat(10, TimeUnit.SECONDS.toMillis(5));
-
         new FlareBotTask("spam" + System.currentTimeMillis()) {
             @Override
             public void run() {
@@ -840,7 +826,7 @@ public class FlareBot {
                             deadShards.toString());
                 }
             }
-        }.repeat(TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(5));
+        }.repeat(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(5));
 
         new FlareBotTask("GuildCleanup") {
             @Override

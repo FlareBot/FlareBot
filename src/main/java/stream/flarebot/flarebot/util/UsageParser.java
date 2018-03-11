@@ -1,14 +1,8 @@
 package stream.flarebot.flarebot.util;
 
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.moderation.WelcomeCommand;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

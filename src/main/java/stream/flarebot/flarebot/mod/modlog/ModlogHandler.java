@@ -2,19 +2,17 @@ package stream.flarebot.flarebot.mod.modlog;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.joda.time.Period;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 
 import java.awt.Color;
 
@@ -143,7 +141,8 @@ public class ModlogHandler {
         }
         if (channel == null) return;
         if (member == null && modAction != ModAction.FORCE_BAN && modAction != ModAction.UNBAN) {
-            MessageUtils.sendErrorMessage("That user isn't in this guild! You can try to forceban the user if needed.", channel);
+            MessageUtils.sendErrorMessage("That user isn't in this server!"
+                    + (modAction == ModAction.KICK ? " You can forceban with `{%}forceban <id>` to keep them from coming back." : ""), channel);
             return;
         }
 
@@ -161,11 +160,37 @@ public class ModlogHandler {
             return;
         }
 
-        // Check if the person is below the target in role hierarchy
-        if (member != null && !member.getRoles().isEmpty() && member.getRoles().get(0).getPosition() > wrapper.getGuild().getMember(target).getRoles().get(0).getPosition()) {
-            MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
-                    modAction.getLowercaseName()), channel);
+        if (target != null && target.getIdLong() == FlareBot.instance().getClient().getSelfUser().getIdLong()) {
+            if (modAction == ModAction.UNBAN || modAction == ModAction.UNMUTE)
+                MessageUtils.sendWarningMessage("W-why would you want to do that in the first place. Meanie :(", channel);
+            else
+                MessageUtils.sendWarningMessage(String.format("T-that's meannnnnnn :( I can't %s myself and I hope you don't want to either :(",
+                        modAction.getLowercaseName()), channel);
             return;
+        }
+
+        // Check if the person is below the target in role hierarchy
+        if (member != null) {
+            if (member.getRoles().isEmpty()) {
+                MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
+                        modAction.getLowercaseName()), channel);
+                return;
+            }
+
+            Role muteRole = wrapper.getMutedRole();
+            Role topMemberRole = member.getRoles().get(0);
+            Role topTargetRole = wrapper.getGuild().getMember(target).getRoles().get(0);
+            if (muteRole != null) {
+                if (topMemberRole.getIdLong() == muteRole.getIdLong() && member.getRoles().size() > 1)
+                    topMemberRole = member.getRoles().get(1);
+                if (topTargetRole.getIdLong() == muteRole.getIdLong() && wrapper.getGuild().getMember(target).getRoles().size() > 1)
+                    topTargetRole = wrapper.getGuild().getMember(target).getRoles().get(1);
+            }
+            if (topMemberRole.getPosition() < topTargetRole.getPosition()) {
+                MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
+                        modAction.getLowercaseName()), channel);
+                return;
+            }
         }
 
         // Check if there role is higher therefore we can't take action, this should be something applied to everything
@@ -249,9 +274,9 @@ public class ModlogHandler {
                     break;
                 }
                 case UNMUTE:
-                    if (wrapper.getGuild().getMember(target).getRoles().contains(wrapper.getMutedRole())) {
-                        wrapper.getGuild().getController().removeSingleRoleFromMember(wrapper.getGuild().getMember(target),
-                                wrapper.getMutedRole()).queue();
+                    if (wrapper.getMutedRole() != null && wrapper.getGuild().getMember(target).getRoles()
+                            .contains(wrapper.getMutedRole())) {
+                        wrapper.getModeration().unmuteUser(wrapper, member);
                         MessageUtils.sendSuccessMessage("Unmuted " + target.getAsMention(), channel, sender);
                     } else {
                         MessageUtils.sendErrorMessage("That user isn't muted!!", channel);

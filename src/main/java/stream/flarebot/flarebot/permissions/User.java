@@ -9,10 +9,6 @@ public class User {
     private final Set<String> groups = new ConcurrentHashSet<>();
     private final Set<String> permissions = new ConcurrentHashSet<>();
 
-    User() {
-        groups.add("Default");
-    }
-
     public Set<String> getGroups() {
         return groups;
     }

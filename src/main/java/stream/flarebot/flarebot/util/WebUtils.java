@@ -8,19 +8,32 @@ import java.net.URL;
 import javax.annotation.ParametersAreNonnullByDefault;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.ConnectionPool;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.api.GzipRequestInterceptor;
+import stream.flarebot.flarebot.web.DataInterceptor;
 
-/**
- * A utility class to provide easy ways to make web requests.
- */
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
 public class WebUtils {
+    
+    private static final DataInterceptor dataInterceptor = new DataInterceptor(DataInterceptor.RequestSender.FLAREBOT);
+    private static final OkHttpClient client =
+            new OkHttpClient.Builder().connectionPool(new ConnectionPool(4, 10, TimeUnit.SECONDS))
+                    .addInterceptor(dataInterceptor).addInterceptor(new GzipRequestInterceptor()).build();
 
-    public static MediaType PLAIN_TEXT = MediaType.parse("plain/text");
     public static MediaType APPLICATION_JSON = MediaType.parse("application/json");
 
     private static final Callback defaultCallback = new Callback() {
@@ -34,7 +47,7 @@ public class WebUtils {
         @ParametersAreNonnullByDefault
         public void onResponse(Call call, Response response) {
             response.close();
-            FlareBot.LOGGER.debug("Reponse for " + call.request().method() + " request to " + call.request().url());
+            FlareBot.LOGGER.debug("Response for " + call.request().method() + " request to " + call.request().url());
         }
     };
 
@@ -54,16 +67,22 @@ public class WebUtils {
     }
 
     public static Response post(String url, MediaType type, String body, boolean sendAPIAuth) throws IOException {
+        return post(url, type, body, sendAPIAuth, false);
+    }
+    public static Response post(String url, MediaType type, String body, boolean sendAPIAuth,
+                                boolean compress) throws IOException {
         Request.Builder request = new Request.Builder().url(url);
         if (sendAPIAuth)
             request.addHeader("Authorization", FlareBot.instance().getApiKey());
+        if (compress)
+            request.addHeader("Content-Encoding", "gzip");
         RequestBody requestBody = RequestBody.create(type, body);
         request = request.post(requestBody);
         return request(request);
     }
 
     public static Response post(Request.Builder builder) throws IOException {
-        Response res = FlareBot.getOkHttpClient().newCall(builder.build()).execute();
+        Response res = client.newCall(builder.build()).execute();
         ResponseBody body = res.body();
         if (res.code() >= 200 && res.code() < 300)
             return res;
@@ -87,6 +106,8 @@ public class WebUtils {
         return FlareBot.getOkHttpClient().newCall(builder.build()).execute();
     }
 
+    public static Response get(Request.Builder builder) throws IOException {
+        return client.newCall(builder.get().build()).execute();
     /**
      * Sends a GET request to the specified URL. This uses an empty builder with nothing other than the
      * URL set.
@@ -98,8 +119,6 @@ public class WebUtils {
      *                     remote server accepted the request before the failure.
      * @see WebUtils#request(Request.Builder)
      */
-    public static Response get(String url) throws IOException {
-        return request(new Request.Builder().get().url(url));
     }
 
     /**
@@ -108,8 +127,8 @@ public class WebUtils {
      *
      * @param builder The builder for the request.
      */
-    public static void asyncRequest(Request.Builder builder) {
-        FlareBot.getOkHttpClient().newCall(builder.build()).enqueue(defaultCallback);
+    public static void postAsync(Request.Builder builder) {
+        client.newCall(builder.build()).enqueue(defaultCallback);
     }
 
     /**
@@ -128,12 +147,12 @@ public class WebUtils {
      * Pings a specified host on the provided port by attempting to open a web socket. This will
      * return false if the URL is not correct <b>and</b> if the the socket couldn't connect.
      *
-     * @param host    The host to ping.
-     * @param port    The port on which to ping the host.
+     * @param host The host to ping.
+     * @param port The port on which to ping the host.
      * @param timeout The timeout after which the connection is classified as unsuccessful.
      * @return Whether the ping was successful or not.
      */
-    public static boolean pingHost(String host, int port, int timeout) {
+    private static boolean pingHost(String host, int port, int timeout) {
         String hostname;
         try {
             hostname = new URL(host).getHost();

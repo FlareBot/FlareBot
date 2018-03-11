@@ -1,16 +1,11 @@
-package stream.flarebot.flarebot.commands.moderation;
+package stream.flarebot.flarebot.commands.general;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,6 +113,10 @@ public class AutoAssignCommand implements Command {
     }
 
     private Role getRole(Guild guild, String role) {
+        if (!role.contains(" ") && role.startsWith("<@&") && role.endsWith(">")) {
+            return guild.getRoleById(role.replaceAll("[^0-9]+", ""));
+        }
+
         // Since I know it is valid I can get the id from the name or just return the id since that will be the only other thing passed.
         for (Role iRole : guild.getRoles()) {
             if (iRole.getId().equals(role) || iRole.getName().equalsIgnoreCase(role))

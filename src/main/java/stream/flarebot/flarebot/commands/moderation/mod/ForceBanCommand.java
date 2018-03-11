@@ -10,7 +10,6 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
@@ -42,7 +41,7 @@ public class ForceBanCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Force bans a user that is potentially not on the server, if someone leaves " 
+        return "Force bans a user that is potentially not on the server, if someone leaves "
                 + "this is a great way to make sure they do indeed still get banned.";
     }
 

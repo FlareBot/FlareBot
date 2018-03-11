@@ -1,15 +1,11 @@
 package stream.flarebot.flarebot.objects;
 
-import com.google.gson.annotations.Expose;
+import stream.flarebot.flarebot.util.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Welcome {
-
-    @Expose(serialize = false, deserialize = false)
-    private Random random = new Random();
 
     private List<String> dmMessages;
     private List<String> guildMessages;
@@ -42,11 +38,11 @@ public class Welcome {
     }
 
     public String getRandomDmMessage() {
-        return dmMessages.get(random.nextInt(dmMessages.size()));
+        return RandomUtils.getRandomString(dmMessages);
     }
 
     public String getRandomGuildMessage() {
-        return guildMessages.get(random.nextInt(guildMessages.size()));
+        return RandomUtils.getRandomString(guildMessages);
     }
 
     public boolean isDmEnabled() {

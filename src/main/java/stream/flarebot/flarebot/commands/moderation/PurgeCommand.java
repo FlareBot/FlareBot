@@ -15,8 +15,8 @@ import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.time.OffsetDateTime;

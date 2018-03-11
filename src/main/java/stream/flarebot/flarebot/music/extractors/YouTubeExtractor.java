@@ -12,8 +12,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.util.Constants;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.awt.Color;
 import java.util.ArrayList;

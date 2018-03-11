@@ -6,39 +6,9 @@ import com.google.gson.JsonElement;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioItem;
 import io.github.binaryoverload.JSONConfig;
-import java.awt.Color;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URL;
-import java.text.DecimalFormat;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.net.ssl.HttpsURLConnection;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.Period;
@@ -48,14 +18,33 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
+import stream.flarebot.flarebot.commands.Command;
+import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.RedisMessage;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Pair;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
+
+import java.awt.Color;
+import java.io.*;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
+import javax.net.ssl.HttpsURLConnection;
 
 public class GeneralUtils {
 
@@ -448,6 +437,88 @@ public class GeneralUtils {
         return item.get();
     }
 
+    public static String colourFormat(Color color) {
+        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+    }
+
+    public static String truncate(int length, String string) {
+        return truncate(length, string, true);
+    }
+
+    public static String truncate(int length, String string, boolean ellipse) {
+        return string.substring(0, Math.min(string.length(), length - (ellipse ? 3 : 0))) + (string.length() >
+                length - (ellipse ? 3 : 0) && ellipse ? "..." : "");
+    }
+
+    @Nullable
+    public static TextChannel getChannel(String arg) {
+        return getChannel(arg, null);
+    }
+
+    @Nullable
+    public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
+        try {
+            long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
+            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : Getters.getChannelById(channelId);
+        } catch (NumberFormatException e) {
+            if (wrapper != null) {
+                List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
+                if (!tcs.isEmpty()) {
+                    return tcs.get(0);
+                }
+            }
+            return null;
+        }
+    }
+
+    public static boolean validPerm(String perm) {
+        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
+        if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
+            perm = perm.substring(perm.indexOf(".") + 1);
+            String command = perm.split("\\.")[0];
+            for (Command c : FlareBot.getCommandManager().getCommands()) {
+                if (c.getCommand().equalsIgnoreCase(command) && !c.getType().isInternal())
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public static void joinChannel(TextChannel channel, Member member) {
+        GuildVoiceState vs = channel.getGuild().getSelfMember().getVoiceState();
+        GuildVoiceState memberVS = member.getVoiceState();
+        if (memberVS.getChannel() == null) {
+            MessageUtils.sendErrorMessage("You need to join a voice channel to do that!", channel);
+            return; // They aren't in a VC so we can't join that.
+        }
+        if (vs.getChannel() != null && vs.getChannel().getIdLong() == member.getVoiceState().getChannel().getIdLong())
+            return; // Already in the same VC as the user.
+
+        if (channel.getGuild().getSelfMember()
+                .hasPermission(memberVS.getChannel(), Permission.VOICE_CONNECT) &&
+                channel.getGuild().getSelfMember()
+                        .hasPermission(memberVS.getChannel(), Permission.VOICE_SPEAK)) {
+            if (memberVS.getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
+                    .getMembers().size()
+                    >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
+                    .hasPermission(member
+                            .getVoiceState()
+                            .getChannel(), Permission.MANAGE_CHANNEL)) {
+                MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
+                        "bypass it!", channel);
+                return;
+            }
+            channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
+            if (FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty())
+                FlareBotManager.instance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
+        } else {
+            MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
+                    .hasPermission(member.getVoiceState()
+                            .getChannel(), Permission.VOICE_CONNECT) ?
+                    "connect" : "speak") + " in your voice channel!", channel);
+        }
+    }
+
     /**
      * Orders a Collection alphabetic by whatever {@link String#valueOf(Object)} returns.
      *
@@ -591,4 +662,35 @@ public class GeneralUtils {
         return result;
     }
 
+    /**
+     * If the user can run the command, this will check if the command is null and if it is internal.
+     * If internal it will check the official guild to see if the user has the right role.
+     * <b>This does not check permissions</b>
+     *
+     * @returns If the command is not internal or if the role has the right role to run an internal command.
+     */
+    public static boolean canRunCommand(Command command, User user) {
+        return canRunCommand(command.getType(), user);
+    }
+
+    /**
+     * If the user can run the command, this will check if the command is null and if it is internal.
+     * If internal it will check the official guild to see if the user has the right role.
+     * <b>This does not check permissions</b>
+     *
+     * @returns If the command is not internal or if the role has the right role to run an internal command.
+     */
+    public static boolean canRunCommand(CommandType type, User user) {
+        if (type == null) return false;
+
+        if (type.isInternal()) {
+            Guild g = Constants.getOfficialGuild();
+
+            if (g.getMember(user) != null)
+                return g.getMember(user).getRoles().contains(g.getRoleById(type.getRoleId()));
+            else
+                return false;
+        } else
+            return true;
+    }
 }

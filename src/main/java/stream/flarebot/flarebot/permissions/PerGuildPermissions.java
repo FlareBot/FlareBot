@@ -58,7 +58,7 @@ public class PerGuildPermissions {
     public Group getGroup(String group) {
         synchronized (groups) {
             for (Group g : groups) {
-                if (g.getName().equals(group)) return g;
+                if (g.getName().equalsIgnoreCase(group)) return g;
             }
         }
         return null;
@@ -106,5 +106,11 @@ public class PerGuildPermissions {
 
     public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
         return checkOfficialGuildForRole(user, Constants.STAFF_ID);
+    }
+
+    public void moveGroup(Group group, int pos) {
+        int index = groups.indexOf(group);
+        groups.remove(index);
+        groups.add(pos, group);
     }
 }

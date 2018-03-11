@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.informational;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
@@ -12,8 +12,8 @@ import stream.flarebot.flarebot.GitHandler;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
 
 import java.awt.Color;

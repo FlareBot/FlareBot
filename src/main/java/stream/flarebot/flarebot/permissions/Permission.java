@@ -5,6 +5,10 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.currency.ConvertCommand;
 import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
 import stream.flarebot.flarebot.commands.general.*;
+import stream.flarebot.flarebot.commands.informational.*;
+import stream.flarebot.flarebot.commands.management.PermissionsCommand;
+import stream.flarebot.flarebot.commands.management.SetPrefixCommand;
+import stream.flarebot.flarebot.commands.management.WelcomeCommand;
 import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
@@ -103,7 +107,8 @@ public enum Permission {
     AVATAR_OTHER("avatar.other", false),
     REMIND_COMMAND("remind", true, RemindCommand.class),
     TAGS_COMMAND("tags", true, TagsCommand.class),
-    TAGS_ADMIN("tags.admin", false);
+    TAGS_ADMIN("tags.admin", false),
+    BLACKLIST_BYPASS("blacklist.bypass", false);
 
     public static final Permission[] VALUES = Permission.values();
 

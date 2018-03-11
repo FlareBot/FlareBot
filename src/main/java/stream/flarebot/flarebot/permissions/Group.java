@@ -16,7 +16,6 @@ public class Group {
         this.name = name;
     }
 
-
     public ConcurrentHashSet<String> getPermissions() {
         return permissions;
     }

@@ -4,12 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.MessageReaction;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.DisconnectEvent;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -30,8 +25,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
-import stream.flarebot.flarebot.api.ApiRequester;
-import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
@@ -41,7 +34,6 @@ import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
-import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
@@ -54,15 +46,8 @@ import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import java.awt.Color;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +57,7 @@ import java.util.stream.Collectors;
 
 public class Events extends ListenerAdapter {
 
-    private static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
+    public static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
     private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     private static final List<Long> removedByMe = new ArrayList<>();
@@ -106,7 +91,7 @@ public class Events extends ListenerAdapter {
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
                     Long messageId = event.getMessageIdLong();
-                    if(buttonMap.containsKey(messageId)) {
+                    if (buttonMap.containsKey(messageId)) {
                         int current = buttonMap.get(messageId);
                         buttonMap.put(messageId, current + 1);
                     } else {
@@ -351,7 +336,7 @@ public class Events extends ListenerAdapter {
                         event.getOldStatus(), event.getStatus(),
                         event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
                                 : null)).toString());
-        WebUtils.asyncRequest(request.post(body));
+        WebUtils.postAsync(request.post(body));
     }
 
     @Override
@@ -376,21 +361,30 @@ public class Events extends ListenerAdapter {
 
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String[] args) {
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
+
+        if (guild.hasBetaAccess()) {
+            if (guild.getSettings().getChannelBlacklist().contains(event.getChannel().getIdLong())
+                    && !guild.getPermissions().hasPermission(event.getMember(), stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
+                return;
+            else if (guild.getSettings().getUserBlacklist().contains(event.getAuthor().getIdLong())
+                    && !guild.getPermissions().hasPermission(event.getMember(), stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
+                return;
+        }
+
         if (guild.isBlocked()) {
             if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
                 guild.revokeBlock();
             }
         }
         handleSpamDetection(event, guild);
-        if (cmd.getType() == CommandType.SECRET && !PerGuildPermissions.isCreator(event.getAuthor()) && !(flareBot.isTestBot()
-                && PerGuildPermissions.isContributor(event.getAuthor()))) {
+        if (!GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
             GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
             Constants.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
             return;
         }
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
         if (handleMissingPermission(cmd, event)) return;
-        if (!guild.isBetaAccess() && cmd.isBetaTesterCommand()) {
+        if (!guild.hasBetaAccess() && cmd.isBetaTesterCommand()) {
             if (flareBot.isTestBot())
                 LOGGER.error("Guild " + event.getGuild().getId() + " tried to use the beta command '"
                         + cmd.getCommand() + "'!");
@@ -405,6 +399,10 @@ public class Events extends ListenerAdapter {
             MessageUtils.sendErrorMessage(flareBot.getManager().getDisabledCommandReason(cmd.getCommand()), event.getChannel(), event.getAuthor());
             return;
         }
+
+        // Internal stuff
+        if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
+            return;
 
         CACHED_POOL.submit(() -> {
             LOGGER.info(
@@ -436,11 +434,22 @@ public class Events extends ListenerAdapter {
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
             }
-            if (cmd.deleteMessage()) {
+            if ((guild.hasBetaAccess() && guild.getSettings().shouldDeleteCommands()) || cmd.deleteMessage()) {
                 delete(event.getMessage());
                 removedByMe.add(event.getMessageIdLong());
             }
         });
+    }
+
+    private boolean handleOfficialGuildStuff(GuildMessageReceivedEvent event, Command command) {
+        Guild guild = event.getGuild();
+        GuildWrapper wrapper = FlareBotManager.instance().getGuild(guild.getId());
+
+        if (event.getChannel().getIdLong() == 226785954537406464L && !event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+            event.getChannel().sendMessage("Please use me in <#226786507065786380>!").queue();
+            return false;
+        }
+        return true;
     }
 
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
@@ -518,11 +527,11 @@ public class Events extends ListenerAdapter {
             Map.Entry<Long, Integer> pair = it.next();
             Long messageId = pair.getKey();
             double click = pair.getValue();
-            if(click == 0) {
+            if (click == 0) {
                 return;
             }
-            double clicksPerSec = click/3.0;
-            if(maxButtonClicksPerSec.containsKey(messageId)) {
+            double clicksPerSec = click / 3.0;
+            if (maxButtonClicksPerSec.containsKey(messageId)) {
                 double max = maxButtonClicksPerSec.get(messageId);
                 if (clicksPerSec > max) {
                     maxButtonClicksPerSec.put(messageId, clicksPerSec);
@@ -530,7 +539,7 @@ public class Events extends ListenerAdapter {
             } else {
                 maxButtonClicksPerSec.put(messageId, clicksPerSec);
             }
-            if(buttonClicksPerSec.containsKey(messageId)) {
+            if (buttonClicksPerSec.containsKey(messageId)) {
                 List<Double> clicks = buttonClicksPerSec.get(messageId);
                 clicks.add(clicksPerSec);
                 buttonClicksPerSec.put(messageId, clicks);

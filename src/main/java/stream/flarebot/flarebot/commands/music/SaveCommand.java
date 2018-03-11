@@ -1,9 +1,6 @@
 package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import java.util.List;
-import java.util.Queue;
-import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -14,6 +11,10 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+
+import java.util.List;
+import java.util.Queue;
+import java.util.stream.Collectors;
 
 
 public class SaveCommand implements Command {

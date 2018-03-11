@@ -3,13 +3,15 @@ package stream.flarebot.flarebot.util.pagination;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 
+import java.awt.Color;
+
 public class PagedEmbedBuilder<T> {
 
     private String title;
     private String codeBlock;
     private PaginationList<T> list;
     private boolean hasCodeBlock = false;
-    private boolean inField = true;
+    private Color color;
 
     /**
      * Instantiates the builder with a {@link PaginationList}.
@@ -55,13 +57,6 @@ public class PagedEmbedBuilder<T> {
     }
 
     /**
-     * Disable putting the info in a field. Allows for more data.
-     */
-    public void disableInField() {
-        this.inField = false;
-    }
-
-    /**
      * Builds a {@link PagedEmbed} for use in embed pages.
      *
      * @return {@link PagedEmbed}.
@@ -70,7 +65,11 @@ public class PagedEmbedBuilder<T> {
         boolean pageCounts = false;
         if (list.getPages() > 1)
             pageCounts = true;
-        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts, inField);
+        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts, color);
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public class PagedEmbed {
@@ -81,14 +80,16 @@ public class PagedEmbedBuilder<T> {
         private PaginationList<T> list;
         private boolean pageCounts;
         private int pageTotal;
+        private Color color;
 
-        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts, boolean inField) {
+        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts, Color color) {
             this.title = title;
             this.pageCounts = pageCounts;
             pageTotal = list.getPages();
             this.codeBlock = codeBlock;
             this.hasCodeBlock = hasCodeBlock;
             this.list = list;
+            this.color = color;
         }
 
         /**
@@ -101,15 +102,12 @@ public class PagedEmbedBuilder<T> {
             EmbedBuilder pageEmbed = new EmbedBuilder();
             if (title != null)
                 pageEmbed.setTitle(title);
-            if(inField) {
-                pageEmbed.addField("Info", (hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""), false);
-            } else {
-                pageEmbed.setDescription((hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""));
-            }
+            pageEmbed.setDescription((hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""));
             if (pageCounts) {
                 pageEmbed.addField("Page", String.valueOf(page + 1), true);
                 pageEmbed.addField("Total Pages", String.valueOf(list.getPages()), true);
             }
+            pageEmbed.setColor(color);
             return pageEmbed.build();
         }
 

@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.util.currency;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import okhttp3.Request;
 import okhttp3.Response;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.util.Constants;
@@ -29,7 +30,7 @@ public class CurrencyConversionUtil {
 
     public static boolean isValidCurrency(String currency, boolean nonCrypto) throws IOException {
         if (!normalEndpointAvailable()) return isValidCurrency(currency) && !nonCrypto;
-        Response res = WebUtils.get(CurrencyApiRoutes.NormalApi.LATEST_ALL.getCompiledUrl());
+        Response res = WebUtils.get(new Request.Builder().get().url(CurrencyApiRoutes.NormalApi.LATEST_ALL.getCompiledUrl()));
         if (!res.isSuccessful() || res.body() == null) {
             return isValidCrytoCurrency(currency) && !nonCrypto;
         }
@@ -43,7 +44,7 @@ public class CurrencyConversionUtil {
 
     public static Boolean isValidCrytoCurrency(String currency) throws IOException {
         if (!cryptoEndpintAvailable()) return false;
-        Response res = WebUtils.get(CurrencyApiRoutes.CrytoApi.BASIC_TICKER.getCompiledUrl("usd", currency));
+        Response res = WebUtils.get(new Request.Builder().get().url(CurrencyApiRoutes.CrytoApi.BASIC_TICKER.getCompiledUrl("usd", currency)));
         if (!res.isSuccessful() || res.body() == null) throw new IOException();
 
         JSONConfig config = new JSONConfig(res.body().byteStream());
@@ -80,7 +81,7 @@ public class CurrencyConversionUtil {
     }
 
     private static CurrencyComparison getCryptoCurrency(String from, String to) throws IOException {
-        Response res = WebUtils.get(CurrencyApiRoutes.CrytoApi.BASIC_TICKER.getCompiledUrl(from, to));
+        Response res = WebUtils.get(new Request.Builder().get().url(CurrencyApiRoutes.CrytoApi.BASIC_TICKER.getCompiledUrl(from, to)));
         if (!res.isSuccessful() || res.body() == null) return null;
 
         JSONConfig config = new JSONConfig(res.body().byteStream());
@@ -100,7 +101,7 @@ public class CurrencyConversionUtil {
 
     private static CurrencyComparison getNormalCurrency(String from, String to) throws IOException {
         Response response =
-                WebUtils.get(CurrencyApiRoutes.NormalApi.LATEST_WITH_SYMBOLS_AND_BASE.getCompiledUrl(to, from));
+                WebUtils.get(new Request.Builder().get().url(CurrencyApiRoutes.NormalApi.LATEST_WITH_SYMBOLS_AND_BASE.getCompiledUrl(to, from)));
         if (!response.isSuccessful() || response.body() == null) return null;
         JSONConfig config = new JSONConfig(response.body().byteStream());
         response.close();

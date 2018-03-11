@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>stream.flarebot</groupId>
     <artifactId>flarebot</artifactId>
-    <version>4.1.11</version>
+    <version>4.1.13</version>
 
     <repositories>
         <repository> <!-- This repo fixes issues with transitive dependencies -->
@@ -23,17 +23,25 @@
     </repositories>
     <dependencies>
         <!-- JDA -->
-        <dependency>
+        <!--
+        Waiting for my PR to be merged (https://github.com/DV8FromTheWorld/JDA/pull/637)
+        -->
+        <!--<dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.5.0_338</version>
+            <version>3.5.1_342</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.github.WalshyDev</groupId>
+            <artifactId>JDA</artifactId>
+            <version>9029b24d37</version>
         </dependency>
 
         <!-- Lavaplayer related -->
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.51</version>
+            <version>1.2.56</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
@@ -63,11 +71,6 @@
             <groupId>com.github.binaryoverload</groupId>
             <artifactId>JSON-Config</artifactId>
             <version>2.7.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ArsenArsen</groupId> <!-- <3 -->
-            <artifactId>githubwebhooks4j</artifactId>
-            <version>1.1.7</version>
         </dependency>
 
         <!-- DB && HTTP -->
@@ -106,12 +109,12 @@
             <artifactId>nv-websocket-client</artifactId>
             <version>1.30</version>
         </dependency>-->
-        <dependency>
-            <groupId>com.mashape.unirest</groupId>
-            <artifactId>unirest-java</artifactId>
-            <version>1.4.9</version>
-        </dependency>
 
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.5</version>
+        </dependency>
         <!-- Apache commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
