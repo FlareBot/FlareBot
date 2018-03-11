@@ -1,4 +1,4 @@
-Issue tracker is **ONLY** used for reporting bugs. NO FEATURE REQUESTS HERE! Use [the official guild](https://stackoverflow.com) for feature requests and suggestions.
+Issue tracker is **ONLY** used for reporting bugs. NO FEATURE REQUESTS HERE! Use [the official guild](https://discordapp.com/invite/TTAUGvZ) for feature requests and suggestions.
 
 ## Summary of the issue
 <!--- Provide a general summary of the issue in the Title above -->

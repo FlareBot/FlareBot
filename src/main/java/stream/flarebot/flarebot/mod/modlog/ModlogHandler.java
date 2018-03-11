@@ -170,27 +170,10 @@ public class ModlogHandler {
         }
 
         // Check if the person is below the target in role hierarchy
-        if (member != null) {
-            if (member.getRoles().isEmpty()) {
-                MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
-                        modAction.getLowercaseName()), channel);
-                return;
-            }
-
-            Role muteRole = wrapper.getMutedRole();
-            Role topMemberRole = member.getRoles().get(0);
-            Role topTargetRole = wrapper.getGuild().getMember(target).getRoles().get(0);
-            if (muteRole != null) {
-                if (topMemberRole.getIdLong() == muteRole.getIdLong() && member.getRoles().size() > 1)
-                    topMemberRole = member.getRoles().get(1);
-                if (topTargetRole.getIdLong() == muteRole.getIdLong() && wrapper.getGuild().getMember(target).getRoles().size() > 1)
-                    topTargetRole = wrapper.getGuild().getMember(target).getRoles().get(1);
-            }
-            if (topMemberRole.getPosition() < topTargetRole.getPosition()) {
-                MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
-                        modAction.getLowercaseName()), channel);
-                return;
-            }
+        if (member != null && sender != null && !canInteract(wrapper.getGuild().getMember(sender), member, wrapper)) {
+            MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
+                       modAction.getLowercaseName()), channel);
+            return;
         }
 
         // Check if there role is higher therefore we can't take action, this should be something applied to everything
@@ -310,5 +293,25 @@ public class ModlogHandler {
         }
         // TODO: Infraction
         postToModlog(wrapper, modAction.getEvent(), target, sender, rsn);
+    }
+    
+    private boolean canInteract(Member sender, Member target, GuildWrapper wrapper) {
+        if (target.isOwner() || target.hasPermission(Permission.ADMINISTRATOR))
+           return true;
+        
+        if (target.getRoles().isEmpty() || sender.getRoles().isEmpty()) {
+            return true;
+        }
+
+         Role muteRole = wrapper.getMutedRole();
+         Role topMemberRole = sender.getRoles().get(0);
+         Role topTargetRole = target.getRoles().get(0);
+         if (muteRole != null) {
+             if (topMemberRole.getIdLong() == muteRole.getIdLong() && sender.getRoles().size() > 1)
+                 topMemberRole = sender.getRoles().get(1);
+             if (topTargetRole.getIdLong() == muteRole.getIdLong() && target.getRoles().size() > 1)
+                    topTargetRole = target.getRoles().get(1);
+         }
+         return topMemberRole.getPosition() > topTargetRole.getPosition();
     }
 }
