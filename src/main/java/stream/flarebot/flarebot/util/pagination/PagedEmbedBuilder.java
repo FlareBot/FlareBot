@@ -76,12 +76,17 @@ public class PagedEmbedBuilder<T> {
     }
 
     /**
-     * Set the embed to use the groups within the {@link PaginationList}.
+     * Enables the embed to use the groups within the {@link PaginationList}.
      */
     public void useGroups() {
         this.groupPrefix = "";
     }
 
+    /**
+     * Enables the embed to use the groups within the {@link PaginationList}. And sets the groups per page.
+     *
+     * @param groupsPerPage The amount of groups to put on a page.
+     */
     public void useGroups(int groupsPerPage) {
         this.groupPrefix = "";
         this.groupsPerPage = groupsPerPage;
