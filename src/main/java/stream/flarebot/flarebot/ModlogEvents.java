@@ -81,7 +81,7 @@ public class ModlogEvents implements EventListener {
         if (g == null)
             return;
 
-        GuildWrapper guildWrapper = FlareBotManager.instance().getGuildNoCache(g.getId());
+        GuildWrapper guildWrapper = FlareBotManager.instance().getGuild(g.getId());
         if (guildWrapper == null)
             return;
 
