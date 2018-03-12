@@ -108,9 +108,8 @@ public class PerGuildPermissions {
         }
         Group defaults = new Group("Default");
         for (Command command : FlareBot.getInstance().getCommands()) {
-            if (command.isDefaultPermission()) {
+            if (command.isDefaultPermission())
                 defaults.addPermission(command.getPermission());
-            }
         }
         defaults.addPermission("flarebot.userinfo.other");
         defaults.addPermission("flarebot.queue.clear");

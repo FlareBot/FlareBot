@@ -63,6 +63,7 @@ import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
 import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
+import stream.flarebot.flarebot.commands.useful.ReportBugCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
@@ -207,8 +208,8 @@ public class FlareBot {
             }
         }
 
-        SentryClient sentryClient =
-                Sentry.init(config.getString("sentry.dsn").get() + "?stacktrace.app.packages=stream.flarebot.flarebot");
+        SentryClient sentryClient = Sentry.init(config.getString("sentry.dsn").get()
+                + "?stacktrace.app.packages=stream.flarebot.flarebot");
         sentryClient.setEnvironment(testBot ? "TestBot" : "Production");
         sentryClient.setServerName(testBot ? "Test Server" : "Production Server");
         sentryClient.setRelease(GitHandler.getLatestCommitId());
@@ -384,6 +385,7 @@ public class FlareBot {
         registerCommand(new SettingsCommand());
 
         registerCommand(new DebugCommand());
+        registerCommand(new ReportBugCommand());
 
         LOGGER.info("Loaded " + commands.size() + " commands!");
 
@@ -825,7 +827,7 @@ public class FlareBot {
         return youtubeApi;
     }
 
-    public List<VoiceChannel> getVoiceChannels() {
+    protected List<VoiceChannel> getVoiceChannels() {
         return shardManager.getVoiceChannels();
     }
 
@@ -874,6 +876,7 @@ public class FlareBot {
         return getGuilds().stream().filter(g -> g.getIdLong() == id).findFirst().orElse(null);
     }
 
+    @Nullable
     public Emote getEmoteById(long emoteId) {
         for (Guild g : getGuilds())
             if (g.getEmoteById(emoteId) != null)
@@ -942,10 +945,6 @@ public class FlareBot {
         return shardManager.getShards();
     }
 
-    private JDA[] getShardsArray() {
-        return shardManager.getShards().toArray(new JDA[shardManager.getShards().size()]);
-    }
-
     public ShardManager getShardManager() {
         return shardManager;
     }
@@ -1002,7 +1001,7 @@ public class FlareBot {
         }
     }
 
-    public void runTasks() {
+    protected void runTasks() {
         new FlareBotTask("FixThatStatus") {
             @Override
             public void run() {
