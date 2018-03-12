@@ -120,8 +120,8 @@ public class PagedEmbedBuilder<T> {
             if(groupPrefix != null) {
                 this.useGroups = true;
                 this.groupPrefix = groupPrefix;
-                pageTotal =
-                        list.getPages() < groupsPerPage ? 1 : (list.getPages() / groupsPerPage) + (list.getPages() % groupsPerPage != 0 ? 1 : 0);
+                pageTotal = list.getPages() < groupsPerPage ? 1 : (list.getPages() / groupsPerPage) +
+                        (list.getPages() % groupsPerPage != 0 ? 1 : 0);
                 this.groupTotal = list.getGroups().size();
             } else {
                 pageTotal = list.getPages();

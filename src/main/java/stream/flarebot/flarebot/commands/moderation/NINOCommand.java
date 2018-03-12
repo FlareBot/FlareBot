@@ -116,9 +116,9 @@ public class NINOCommand implements Command {
                     guild.getNINO().clearRemoveMessages();
                     MessageUtils.sendSuccessMessage("Successfully removed **all** messages from this guild!", channel);
                 } else if (args[1].equalsIgnoreCase("list")) {
-                    int page = 0;
+                    int page = 1;
                     if (args.length > 2)
-                        page = GeneralUtils.getInt(args[2], 0);
+                        page = GeneralUtils.getInt(args[2], 1);
                     listMessages(guild, page, channel);
                 } else
                     MessageUtils.sendUsage(this, channel, sender, args);
@@ -168,7 +168,7 @@ public class NINOCommand implements Command {
     private void listMessages(GuildWrapper wrapper, int page, TextChannel channel) {
         List<String> messages = wrapper.getNINO().getRemoveMessages();
         if(messages.size() == 0) {
-            MessageUtils.sendWarningMessage("No Messages for this guild!", channel);
+            MessageUtils.sendWarningMessage("There are no messages for this guild!", channel);
             return;
         }
         PaginationList<String> list = new PaginationList<>(messages);
@@ -176,7 +176,7 @@ public class NINOCommand implements Command {
         PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(list);
         pagedEmbedBuilder.useGroups(5);
         pagedEmbedBuilder.setGroupPrefix("Message #");
-        pagedEmbedBuilder.setTitle("**NINO Message List**");
-        PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), page, channel);
+        pagedEmbedBuilder.setTitle("NINO Message List");
+        PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), page - 1, channel);
     }
 }
