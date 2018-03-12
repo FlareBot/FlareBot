@@ -174,7 +174,7 @@ public class NINOCommand implements Command {
         PaginationList<String> list = new PaginationList<>(messages);
         list.createGroups(Math.min(list.getPages(), 1));
         PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(list);
-        pagedEmbedBuilder.useGroups(5);
+        pagedEmbedBuilder.useGroups(4);
         pagedEmbedBuilder.setGroupPrefix("Message #");
         pagedEmbedBuilder.setTitle("NINO Message List");
         PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), page - 1, channel);

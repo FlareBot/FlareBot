@@ -79,7 +79,7 @@ public class PagedEmbedBuilder<T> {
      * Enables the embed to use the groups within the {@link PaginationList}.
      */
     public void useGroups() {
-        this.groupPrefix = "";
+        setGroupPrefix("");
     }
 
     /**
