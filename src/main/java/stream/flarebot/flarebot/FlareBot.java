@@ -68,6 +68,7 @@ import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.music.QueueListener;
+import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
@@ -92,6 +93,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -420,6 +422,15 @@ public class FlareBot {
                 "Started all tasks, run complete!", "Failed to start all tasks!",
                 this::runTasks);
 
+        AtomicInteger i = new AtomicInteger();
+        getGuildsCache().forEach(g -> {
+            GuildWrapper wrapper = FlareBotManager.getInstance().getGuildNoCache(g.getId());
+            if (wrapper != null && wrapper.getPermissions().getGroup("Default") != null &&
+                    wrapper.getPermissions().getGroup("Default").hasPermission("flarebot.ban"))
+                wrapper.getPermissions().createDefaultGroup();
+            i.getAndIncrement();
+        });
+        LOGGER.info("Migrated " + i.get() + " guilds. Sorry guys!");
     }
 
     /**
