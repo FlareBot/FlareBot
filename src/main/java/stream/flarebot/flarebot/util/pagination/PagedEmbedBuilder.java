@@ -13,7 +13,7 @@ public class PagedEmbedBuilder<T> {
     private PaginationList<T> list;
     private boolean hasCodeBlock = false;
     private Color color;
-    private String groupPrefix = null;
+    private String groupPrefix = "\u200B";
     private int groupsPerPage = 1;
 
     /**
@@ -122,7 +122,7 @@ public class PagedEmbedBuilder<T> {
             this.hasCodeBlock = hasCodeBlock;
             this.list = list;
             this.color = color;
-            if(groupPrefix != null) {
+            if(!groupPrefix.equals("\u200B")) {
                 this.useGroups = true;
                 this.groupPrefix = groupPrefix;
                 pageTotal = list.getPages() < groupsPerPage ? 1 : (list.getPages() / groupsPerPage) +
