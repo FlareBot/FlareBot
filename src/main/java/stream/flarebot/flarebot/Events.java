@@ -87,10 +87,10 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
         if (ButtonUtil.isButtonMessage(event.getMessageId())) {
             for (ButtonGroup.Button button : ButtonUtil.getButtonGroup(event.getMessageId()).getButtons()) {
-                if (event.getReactionEmote().getId() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
+                if (event.getReactionEmote() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
-                    String emote = event.getReactionEmote().getId() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
+                    String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
                     Metrics.buttonsPressed.labels(emote, event.getMessageId());
                     Long messageId = event.getMessageIdLong();
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
