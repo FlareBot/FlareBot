@@ -92,6 +92,8 @@ public class Events extends ListenerAdapter {
                 if (event.getReactionEmote().getId() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
+                    String emote = event.getReactionEmote().getId() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
+                    Metrics.buttonsPressed.labels(emote, event.getMessageId());
                     Long messageId = event.getMessageIdLong();
                     if (buttonMap.containsKey(messageId)) {
                         int current = buttonMap.get(messageId);
