@@ -18,10 +18,12 @@
             <level>ERROR</level>
         </filter>
     </appender>
+    <appender name="Metrics" class="io.prometheus.client.logback.InstrumentedAppender" />
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="Sentry"/>
+        <appender-ref ref="Metrics" />
     </root>
     <logger name="org.apache" level="NONE" />
     <logger name="com.sedmelluq.*" level="INFO" />

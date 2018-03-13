@@ -13,9 +13,8 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.objects.ReportStatus;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.sql.Timestamp;
 import java.time.ZoneOffset;
@@ -28,7 +27,7 @@ public class ReportCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 2) {
-            User user = GuildUtils.getUser(args[0], channel.getGuild().getId());
+            User user = GeneralUtils.getUser(args[0], channel.getGuild().getId());
             if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user: " + args[0], channel);
                 return;
@@ -77,7 +76,7 @@ public class ReportCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}report <user> <reason>` - Reports a user to your guild moderators.";
+        return "`{%}report <user> <reason>` - Reports a user your guild moderators.";
     }
 
     @Override

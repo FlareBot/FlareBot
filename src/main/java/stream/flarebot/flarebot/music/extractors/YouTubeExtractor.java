@@ -11,9 +11,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class YouTubeExtractor implements Extractor {
             }
             MessageUtils.editMessage(null, MessageUtils.getEmbed(user)
                     .setDescription("There was a problem with that video!\n" +
-                            "If the error continues, join our support discord: " + Constants.INVITE_URL + "\n" +
+                            "If the error continues, join our support discord: " + FlareBot.INVITE_URL + "\n" +
                             "Input: " + input + "\n" +
                             "Error Message: " + e.getMessage() + "\n" +
                             "Stacktrace: " + MessageUtils.paste(GeneralUtils.getStackTrace(e)))
@@ -80,7 +80,7 @@ public class YouTubeExtractor implements Extractor {
             name = track.getInfo().title;
             if (track.getInfo().identifier.equals("dQw4w9WgXcQ") && (random.nextInt(1000) + 1) == 1000) {
                 GeneralUtils.sendImage("https://flarebot.stream/img/rick_roll.jpg", "rick_roll.jpg", user);
-                Constants.logEG("You can't rick roll me!", null, message.getGuild(), user);
+                FlareBot.getInstance().logEG("You can't rick roll me!", null, message.getGuild(), user);
             }
         }
         if (name != null) {

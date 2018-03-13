@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
@@ -27,7 +28,7 @@ public class PlaylistsCommand implements Command {
                     if (args.length == 1 || args.length == 2) {
                         MessageUtils.sendUsage(this, channel, sender, args);
                     } else {
-                        String playlist = MessageUtils.getMessage(args, 2);
+                        String playlist = FlareBot.getMessage(args, 2);
                         CassandraController.runTask(session -> {
                             ResultSet set =
                                     session.execute(session.prepare("SELECT playlist_name FROM flarebot.playlist WHERE " +

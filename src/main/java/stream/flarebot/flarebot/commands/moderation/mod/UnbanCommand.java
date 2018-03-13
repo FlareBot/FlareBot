@@ -9,15 +9,15 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class UnbanCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
-            User target = GuildUtils.getUser(MessageUtils.getMessage(args, 0), null, true);
+            User target = GeneralUtils.getUser(MessageUtils.getMessage(args, 0), null, true);
             if (target == null) {
                 MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.\n"
                                 + "To get a User ID simply enable developer mode by going to User Settings > Appearance " +

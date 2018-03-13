@@ -37,7 +37,6 @@ public class EvalCommand implements Command {
     private static final List<String> IMPORTS = Arrays.asList("stream.flarebot.flarebot",
             "stream.flarebot.flarebot.music",
             "stream.flarebot.flarebot.util",
-            "stream.flarebot.flarebot.util.general",
             "stream.flarebot.flarebot.util.currency",
             "stream.flarebot.flarebot.util.objects",
             "stream.flarebot.flarebot.objects",
@@ -83,7 +82,7 @@ public class EvalCommand implements Command {
         engine.put("jda", sender.getJDA());
         engine.put("sender", sender);
 
-        String msg = MessageUtils.getMessage(args);
+        String msg = FlareBot.getMessage(args);
         final String[] code = {getCode(args)};
 
         boolean silent = hasOption(Options.SILENT, msg);
@@ -99,8 +98,7 @@ public class EvalCommand implements Command {
                         + snippetName + "'");
                 Row row = set.one();
                 if (row != null) {
-                    code[0] =
-                            StringUtils.newStringUtf8(Base64.getDecoder().decode(row.getString("encoded_code").getBytes()));
+                    code[0] = StringUtils.newStringUtf8(Base64.getDecoder().decode(row.getString("encoded_code").getBytes()));
                 } else {
                     MessageUtils.sendErrorMessage("That eval snippet does not exist!", channel);
                     code[0] = null;
@@ -117,8 +115,7 @@ public class EvalCommand implements Command {
                     return;
                 }
                 if (insertSnippet == null)
-                    insertSnippet =
-                            session.prepare("UPDATE flarebot.eval_snippets SET encoded_code = ? WHERE snippet_name = ?");
+                    insertSnippet = session.prepare("UPDATE flarebot.eval_snippets SET encoded_code = ? WHERE snippet_name = ?");
 
                 session.execute(insertSnippet.bind().setString(0, base64).setString(1, snippetName));
                 MessageUtils.sendSuccessMessage("Saved the snippet `" + snippetName + "`!", channel);
@@ -211,7 +208,7 @@ public class EvalCommand implements Command {
     }
 
     private String getCode(String[] args) {
-        String code = MessageUtils.getMessage(args);
+        String code = FlareBot.getMessage(args);
         for (Options option : Options.values()) {
             if (hasOption(option, code)) {
                 Matcher matcher = getRegex(option).matcher(code);

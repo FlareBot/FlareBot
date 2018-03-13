@@ -1,7 +1,7 @@
 package stream.flarebot.flarebot.api;
 
 import okhttp3.Call;
-import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -13,6 +13,6 @@ public interface Callback extends okhttp3.Callback {
     @ParametersAreNonnullByDefault
     default void onFailure(Call call, IOException e) {
         MessageUtils.sendException("Error on API call! URL: " + call.request().url() + "\nBody: "
-                + (call.request().body() != null), e, Constants.getErrorLogChannel());
+                + (call.request().body() != null), e, FlareBot.getInstance().getErrorLogChannel());
     }
 }

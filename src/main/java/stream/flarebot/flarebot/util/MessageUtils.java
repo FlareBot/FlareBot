@@ -3,7 +3,11 @@ package stream.flarebot.flarebot.util;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -13,9 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 
 public class MessageUtils {
 
-    private static FlareBot flareBot = FlareBot.instance();
+    private static FlareBot flareBot = FlareBot.getInstance();
 
     private static final Pattern INVITE_REGEX = Pattern
             .compile("(?i)discord(\\.(com|gg|io|me|net|org|xyz)|app\\.com/invite)/[a-z0-9-_.]+");
@@ -89,7 +91,7 @@ public class MessageUtils {
         String trace = sw.toString();
         pw.close();
         channel.sendMessage(new MessageBuilder().append(
-                Constants.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s + "\n**Stack trace**: " + paste(trace))
                         .build()).build()).queue();
     }
@@ -100,7 +102,7 @@ public class MessageUtils {
             return null;
         }
         try {
-            Response response = WebUtils.request(new Request.Builder().url("https://paste.flarebot.stream/documents")
+            Response response = WebUtils.post(new Request.Builder().url("https://paste.flarebot.stream/documents")
                     .addHeader("Authorization", flareBot.getPasteKey()).post(RequestBody
                             .create(WebUtils.APPLICATION_JSON, trace)));
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
@@ -159,7 +161,7 @@ public class MessageUtils {
 
     public static void sendFatalErrorMessage(String s, TextChannel channel) {
         channel.sendMessage(new MessageBuilder().append(
-                Constants.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
+                flareBot.getOfficialGuild().getRoleById(Constants.DEVELOPER_ID).getAsMention())
                 .setEmbed(getEmbed().setColor(Color.red).setDescription(s).build()).build()).queue();
     }
 
@@ -178,7 +180,7 @@ public class MessageUtils {
     public static void sendMessage(MessageType type, String message, TextChannel channel, User sender, long autoDeleteDelay) {
         sendMessage(type, (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
                 .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
-                .setDescription(FormatUtils.formatCommandPrefix(channel.getGuild(), message)), channel, autoDeleteDelay);
+                .setDescription(GeneralUtils.formatCommandPrefix(channel, message)), channel, autoDeleteDelay);
     }
 
     // Root of sendMessage(Type, Builder, channel)
@@ -192,8 +194,8 @@ public class MessageUtils {
             builder.setColor(type.getColor());
         if (type == MessageType.ERROR)
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
-                    "[Support Server](" + Constants.INVITE_URL + ")! Our staff can support on any issue you may have! "
-                    + Getters.getEmoteById(386550693294768129L).getAsMention());
+                    "[Support Server](" + FlareBot.INVITE_URL + ")! Our staff can support on any issue you may have! "
+                    + FlareBot.getInstance().getEmoteById(386550693294768129L).getAsMention());
         if (FlareBot.getConfig().getString("globalMsg").isPresent())
             builder.setDescription(builder.build().getDescription() + "\n\n" + FlareBot.getConfig().getString("globalMsg").get());
         if (autoDeleteDelay > 0)
@@ -312,14 +314,14 @@ public class MessageUtils {
         String title = capitalize(command.getCommand()) + " Usage";
         List<String> usages = UsageParser.matchUsage(command, args);
 
-        String usage = FormatUtils.formatCommandPrefix(channel.getGuild(), usages.stream().collect(Collectors.joining("\n")));
-        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
+        String usage = GeneralUtils.formatCommandPrefix(channel, usages.stream().collect(Collectors.joining("\n")));
+        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.pink);
         if (command.getExtraInfo() != null) {
             b.addField("Extra Info", command.getExtraInfo(), false);
         }
         if (command.getPermission() != null) {
             b.addField("Permission", "`" + command.getPermission() + "`\n\n" +
-                    "Default Permission: " + command.getPermission().isDefaultPerm() + "\n" +
+                    "Default Permission: " + command.isDefaultPermission() + "\n" +
                     "Beta Command: " + command.isBetaTesterCommand(), false);
         }
         channel.sendMessage(b.build()).queue();
@@ -375,7 +377,7 @@ public class MessageUtils {
         return sb.toString();
     }
 
-    public static String appendSeparatorLine(String left, String middle, String right, int padding, int... sizes) {
+    private static String appendSeparatorLine(String left, String middle, String right, int padding, int... sizes) {
         boolean first = true;
         StringBuilder ret = new StringBuilder();
         for (int size : sizes) {
@@ -413,15 +415,6 @@ public class MessageUtils {
             message.append(args[index]).append(" ");
         }
         return message.toString().trim();
-    }
-
-
-    public static String getMessage(String[] args) {
-        StringBuilder msg = new StringBuilder();
-        for (String arg : args) {
-            msg.append(arg).append(" ");
-        }
-        return msg.toString().trim();
     }
 
     public static String escapeMarkdown(String s) {

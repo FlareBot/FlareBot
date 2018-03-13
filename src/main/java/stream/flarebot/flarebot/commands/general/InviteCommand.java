@@ -15,7 +15,7 @@ public class InviteCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         MessageUtils.sendPM(channel, sender, "You can invite me to your server using the link below!\n"
-                + FlareBot.instance().getInvite());
+                + FlareBot.getInstance().getInvite());
     }
 
     @Override

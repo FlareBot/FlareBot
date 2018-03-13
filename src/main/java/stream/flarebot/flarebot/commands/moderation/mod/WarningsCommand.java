@@ -8,8 +8,8 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.util.Collections;
@@ -25,7 +25,7 @@ public class WarningsCommand implements Command {
             if (args[0].equalsIgnoreCase("stats")) {
                 Map.Entry<String, List<String>> highestEntry = Collections.max(guild.getWarningsMap().entrySet(),
                         Comparator.comparingInt(entry -> entry.getValue().size()));
-                User mostWarned = GuildUtils.getUser(highestEntry.getKey(), guild.getGuildId(), true);
+                User mostWarned = GeneralUtils.getUser(highestEntry.getKey(), guild.getGuildId(), true);
                 channel.sendMessage(new EmbedBuilder().setTitle("Warning stats", null)
                         .addField("Total Warnings", String.valueOf(
                                 guild.getWarningsMap().values().stream().mapToLong(List::size).sum()), true)
@@ -34,7 +34,7 @@ public class WarningsCommand implements Command {
                                 + " - " + highestEntry.getValue().size() + " warnings", true)
                         .setColor(Color.CYAN).build()).queue();
             } else {
-                User user = GuildUtils.getUser(args[0]);
+                User user = GeneralUtils.getUser(args[0]);
                 if (user == null) {
                     MessageUtils.sendErrorMessage("That user could not be found!!", channel);
                     return;

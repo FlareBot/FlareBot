@@ -13,7 +13,7 @@ public class StopCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).stop();
+        FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId()).stop();
     }
 
     @Override
@@ -34,5 +34,15 @@ public class StopCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
+    }
+
+    @Override
+    public String getPermission() {
+        return "flarebot.stop";
+    }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
     }
 }

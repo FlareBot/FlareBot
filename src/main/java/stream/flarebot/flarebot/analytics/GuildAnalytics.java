@@ -1,17 +1,21 @@
 package stream.flarebot.flarebot.analytics;
 
-import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.util.GeneralUtils;
+
+import java.util.Comparator;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This data is for basic tracking of our guilds, it is for use in finding out how big our guilds are generally
  * and who the "big dogs" are in terms of size.
+ * This will give us some info on the top 50 guilds so that we may create a better experience for them.
  * <p>
  * Data that is sent:
  * - Guild ID
+ * - Guild name
  * - Guild region
  * - Guild size
  * - Guild users
@@ -25,15 +29,17 @@ public class GuildAnalytics implements AnalyticSender {
         JSONObject object = new JSONObject();
         JSONArray guildDataArray = new JSONArray();
 
-        Getters.getGuildsCache().forEach(g -> {
+        FlareBot.getInstance().getGuildsCache().stream()
+                .sorted(Comparator.comparingLong(value -> value.getMembers().size())).limit(50).forEach(g -> {
             // Don't really want to loop massive guilds twice.
             int users = GeneralUtils.getGuildUserCount(g);
             JSONObject guildObj = new JSONObject()
                     .put("id", g.getId())
+                    .put("name", g.getName())
                     .put("region", g.getRegionRaw())
-                    .put("size", g.getMembers().size())
+                    .put("size", g.getMemberCache().size())
                     .put("users", users)
-                    .put("bots", g.getMembers().size() - users);
+                    .put("bots", g.getMemberCache().size() - users);
             guildDataArray.put(guildObj);
         });
 

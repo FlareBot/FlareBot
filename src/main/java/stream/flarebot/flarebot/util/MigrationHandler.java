@@ -3,7 +3,6 @@ package stream.flarebot.flarebot.util;
 import net.dv8tion.jda.core.entities.Guild;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Group;
 
@@ -28,17 +27,16 @@ public class MigrationHandler {
     }
 
     public int migratePermissionsForAllGuilds(String[] oldPermissions, String[] newPermissions) {
-        return Getters.getGuilds().stream().mapToInt(g -> migratePermissionsForGuild(oldPermissions, newPermissions, g)).sum();
+        return FlareBot.getInstance().getGuilds().stream().mapToInt(g -> migratePermissionsForGuild(oldPermissions, newPermissions, g)).sum();
     }
 
     public int migrateSinglePermissionForGuild(String oldPermission, String newPermission, Guild guild) {
         int i = 0;
         GuildWrapper wrapper = null;
         try {
-            wrapper = FlareBotManager.instance().getGuildNoCache(guild.getId());
-            Pattern oldPerm =
-                    Pattern.compile("\\b" + oldPermission.replaceAll("\\.", "\\.") + "\\b"); // Make sure it is exact permission
-            for (Group g : wrapper.getPermissions().getGroups()) {
+            wrapper = FlareBotManager.getInstance().getGuildNoCache(guild.getId());
+            Pattern oldPerm = Pattern.compile("\\b" + oldPermission.replaceAll("\\.", "\\.") + "\\b"); // Make sure it is exact permission
+            for (Group g : wrapper.getPermissions().getListGroups()) {
                 for (final Iterator<String> it = g.getPermissions().iterator(); it.hasNext(); ) {
                     String perm = it.next();
                     if (oldPerm.matcher(perm).find()) {
@@ -51,11 +49,11 @@ public class MigrationHandler {
         } catch (Exception e) {
             FlareBot.LOGGER.error("Migration failed", e);
         }
-        FlareBotManager.instance().saveGuild(guild.getId(), wrapper, System.currentTimeMillis());
+        FlareBotManager.getInstance().saveGuild(guild.getId(), wrapper, System.currentTimeMillis());
         return i;
     }
 
     public int migrateSinglePermissionForAllGuilds(String oldPermission, String newPermission) {
-        return Getters.getGuilds().stream().mapToInt(g -> migrateSinglePermissionForGuild(oldPermission, newPermission, g)).sum();
+        return FlareBot.getInstance().getGuilds().stream().mapToInt(g -> migrateSinglePermissionForGuild(oldPermission, newPermission, g)).sum();
     }
 }

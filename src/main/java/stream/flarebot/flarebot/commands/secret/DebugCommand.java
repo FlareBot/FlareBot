@@ -10,7 +10,6 @@ import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.Events;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
@@ -28,7 +27,7 @@ public class DebugCommand implements Command {
             MessageUtils.sendUsage(this, channel, sender, args);
             return;
         }
-        FlareBot fb = FlareBot.instance();
+        FlareBot fb = FlareBot.getInstance();
 
         EmbedBuilder eb = MessageUtils.getEmbed();
         if (args[0].equalsIgnoreCase("flarebot") || args[0].equalsIgnoreCase("bot")) {
@@ -52,10 +51,10 @@ public class DebugCommand implements Command {
                     VideoThread.VIDEO_THREADS.activeCount(),
                     Events.COMMAND_THREADS.activeCount(),
                     Thread.getAllStackTraces().size(),
-                    fb.getShardManager().getGuildCache().size(),
-                    FlareBotManager.instance().getGuilds().size(),
-                    Getters.getConnectedVoiceChannels(),
-                    Getters.getActiveVoiceChannels(),
+                    fb.getGuildsCache().size(),
+                    FlareBotManager.getInstance().getGuilds().size(),
+                    fb.getConnectedVoiceChannels(),
+                    fb.getActiveVoiceChannels(),
                     fb.getEvents().getCommandCount(),
                     getQueuedRestActions()
             ));
@@ -117,7 +116,7 @@ public class DebugCommand implements Command {
     }
 
     private String getQueuedRestActions() {
-        String queued = FlareBot.instance().getShardManager().getShards().stream()
+        String queued = FlareBot.getInstance().getShards().stream()
                 .filter(shard -> !((JDAImpl) shard).getRequester().getRateLimiter().getQueuedRouteBuckets().isEmpty())
                 .map(shard -> "`" + shard.getShardInfo().getShardId() + "`: " + ((JDAImpl) shard).getRequester().getRateLimiter().getQueuedRouteBuckets().size())
                 .collect(Collectors.joining(", "));

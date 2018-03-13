@@ -32,7 +32,7 @@ public class VideoThread extends Thread {
 
     private VideoThread() {
         if (manager == null)
-            manager = FlareBot.instance().getMusicManager();
+            manager = FlareBot.getInstance().getMusicManager();
         setName("Video Thread " + VIDEO_THREADS.activeCount());
     }
 
