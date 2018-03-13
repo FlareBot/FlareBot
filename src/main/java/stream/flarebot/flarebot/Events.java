@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot;
 
+import io.prometheus.client.Histogram;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -29,6 +30,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -360,6 +362,7 @@ public class Events extends ListenerAdapter {
     }
 
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String[] args) {
+        Metrics.commandsReceived.labels(cmd.getClass().getSimpleName()).inc();
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
 
         if (guild.hasBetaAccess()) {
@@ -372,9 +375,8 @@ public class Events extends ListenerAdapter {
         }
 
         if (guild.isBlocked()) {
-            if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
+            if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1)
                 guild.revokeBlock();
-            }
         }
         handleSpamDetection(event, guild);
         if (!GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
@@ -414,8 +416,11 @@ public class Events extends ListenerAdapter {
                     .put("guildId", guild.getGuildId()));*/
             commandCounter.incrementAndGet();
             try {
+                Histogram.Timer executionTimer = Metrics.commandExecutionTime.labels(cmd.getClass().getSimpleName()).startTimer();
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
+                executionTimer.observeDuration();
+                Metrics.commandsExecuted.labels(cmd.getClass().getSimpleName()).inc();
 
                 MessageEmbed.Field field = null;
                 if (args.length > 0) {
@@ -427,6 +432,7 @@ public class Events extends ListenerAdapter {
                 ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
                         new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
             } catch (Exception ex) {
+                Metrics.commandExceptions.labels(ex.getClass().getSimpleName()).inc();
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
                                 .getChannel());
@@ -495,6 +501,7 @@ public class Events extends ListenerAdapter {
                     MessageUtils.sendErrorMessage("We detected command spam in this guild. No commands will be able to " +
                             "be run in this guild for a little bit.", event.getChannel());
                     guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
+                    Metrics.blocksGivenOut.labels(guild.getGuildId()).inc();
                 }
             } else {
                 spamMap.put(event.getGuild().getId(), messages + 1);

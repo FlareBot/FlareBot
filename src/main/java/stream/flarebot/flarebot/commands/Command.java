@@ -41,7 +41,7 @@ public interface Command {
     }
 
     default boolean isDefaultPermission() {
-        return getPermission().isDefaultPerm() && !getType().isInternal();
+        return getPermission() != null && !getType().isInternal();
     }
 
     default boolean deleteMessage() {
@@ -56,3 +56,5 @@ public interface Command {
         return FlareBotManager.instance().getGuild(guild.getId()).getPrefix();
     }
 }
+
+        return getPermission() != null && !getType().isInternal() && getType() != CommandType.MODERATION;
