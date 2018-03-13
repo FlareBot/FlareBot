@@ -56,5 +56,3 @@ public interface Command {
         return FlareBotManager.instance().getGuild(guild.getId()).getPrefix();
     }
 }
-
-        return getPermission() != null && !getType().isInternal() && getType() != CommandType.MODERATION;

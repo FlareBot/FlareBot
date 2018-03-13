@@ -76,7 +76,7 @@ public class ReportBugCommand implements Command {
                             "Version: %s\n" +
                             "Guild ID & User ID: %s",
                     ShardUtils.getShardId(guild.getGuild().getJDA()),
-                    FlareBot.getInstance().getVersion() + " (" + GitHandler.getLatestCommitId() + ")",
+                    FlareBot.getVersion() + " (" + GitHandler.getLatestCommitId() + ")",
                     guild.getGuildId() + ", " + sender.getIdLong()
             );
             String url = "https://github.com/FlareBot/FlareBot/issues/new?title="
