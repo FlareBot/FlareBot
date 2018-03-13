@@ -5,14 +5,14 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.joda.time.Period;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class TempMuteCommand implements Command {
 
@@ -21,7 +21,7 @@ public class TempMuteCommand implements Command {
         if (args.length < 2) {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
-            User user = GuildUtils.getUser(args[0], guild.getGuildId());
+            User user = GeneralUtils.getUser(args[0], guild.getGuildId());
             if (user == null) {
                 MessageUtils.sendErrorMessage("Invalid user!!", channel);
                 return;
@@ -33,7 +33,7 @@ public class TempMuteCommand implements Command {
 
             Period period;
             if ((period = GeneralUtils.getTimeFromInput(args[1], channel)) == null) return;
-            String reason = args.length >= 3 ? MessageUtils.getMessage(args, 2) : null;
+            String reason = args.length >= 3 ? FlareBot.getMessage(args, 2) : null;
 
             ModlogHandler.getInstance().handleAction(guild, channel, sender, user, ModAction.TEMP_MUTE, reason,
                     period.toStandardDuration().getMillis());

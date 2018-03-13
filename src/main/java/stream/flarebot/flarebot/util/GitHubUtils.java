@@ -1,7 +1,6 @@
 package stream.flarebot.flarebot.util;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.json.JSONObject;
@@ -15,7 +14,7 @@ public class GitHubUtils {
     public static EmbedBuilder getEmbedForPR(String prNum) {
         JSONObject obj;
         try {
-            Response res = WebUtils.get(new Request.Builder().get().url("https://api.github.com/repos/FlareBot/FlareBot/pulls/" + prNum));
+            Response res = WebUtils.get("https://api.github.com/repos/FlareBot/FlareBot/pulls/" + prNum);
             ResponseBody body = res.body();
 
             if (body != null) {

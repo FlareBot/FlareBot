@@ -6,14 +6,11 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.FormatUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 
 public class FutureAction {
 
@@ -135,16 +132,16 @@ public class FutureAction {
     }
 
     public void execute() {
-        GuildWrapper gw = FlareBotManager.instance().getGuild(String.valueOf(guildId));
+        GuildWrapper gw = FlareBotManager.getInstance().getGuild(String.valueOf(guildId));
         switch (action) {
             case TEMP_MUTE:
                 if (gw.getGuild().getTextChannelById(channelId) != null) {
                     ModlogHandler.getInstance().handleAction(gw,
-                            ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNMUTE.getEvent()),
+                            gw.getGuild().getTextChannelById(channelId),
                             null,
-                            GuildUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
+                            GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
                             ModAction.UNMUTE,
-                            "Temporary mute expired, was muted for " + FormatUtils.formatJodaTime(delay)
+                            "Temporary mute expired, was muted for " + GeneralUtils.formatJodaTime(delay)
                     );
                 } else
                     gw.getModeration().unmuteUser(gw, gw.getGuild().getMemberById(target));
@@ -152,25 +149,21 @@ public class FutureAction {
             case TEMP_BAN:
                 if (gw.getGuild().getTextChannelById(channelId) != null) {
                     ModlogHandler.getInstance().handleAction(gw,
-                            ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNBAN.getEvent()),
+                            gw.getGuild().getTextChannelById(channelId),
                             null,
-                            GuildUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
+                            GeneralUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
                             ModAction.UNBAN,
-                            "Temporary ban expired, was banned for " + FormatUtils.formatJodaTime(delay)
+                            "Temporary ban expired, was banned for " + GeneralUtils.formatJodaTime(delay)
                     );
                 } else
                     gw.getGuild().getController().unban(String.valueOf(target)).queue();
                 break;
             case REMINDER:
-                if (Getters.getChannelById(channelId) != null)
-                    Getters.getChannelById(channelId).sendMessage(Getters
+                if (FlareBot.getInstance().getChannelById(channelId) != null)
+                    FlareBot.getInstance().getChannelById(channelId).sendMessage(FlareBot.getInstance()
                             .getUserById(responsible).getAsMention() + " You asked me to remind you " +
-                            FormatUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
+                            GeneralUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`")
                             .queue();
-                break;
-            case DM_REMINDER:
-                MessageUtils.sendPM(Getters.getChannelById(channelId), Getters.getUserById(responsible), Getters.getUserById(responsible).getAsMention() + " You asked me to remind you " +
-                        FormatUtils.formatJodaTime(delay).toLowerCase() + " ago about: `" + content.replaceAll("`", "'") + "`");
                 break;
             default:
                 break;
@@ -188,23 +181,19 @@ public class FutureAction {
         CassandraController.executeAsync(update.bind().setLong(0, responsible).setLong(1, target).setString(2, content)
                 .setTimestamp(3, expires.toDate()).setString(4, action.name()).setLong(5, guildId).setLong(6, channelId)
                 .setTimestamp(7, created.toDate()));
-        FlareBot.instance().getFutureActions().add(this);
     }
 
     public void delete() {
-        FlareBot.instance().getFutureActions().remove(this);
         if (delete == null)
             delete = CassandraController.prepare("DELETE FROM flarebot.future_tasks WHERE guild_id = ? " +
                     "AND channel_id = ? AND created_at = ?");
         CassandraController.executeAsync(delete.bind().setLong(0, guildId).setLong(1, channelId)
                 .setTimestamp(2, created.toDate()));
-        Scheduler.cancelTask("FutureTask-" + action.name() + "-" + expires.toString());
     }
 
     public enum Action {
         TEMP_MUTE,
         TEMP_BAN,
-        REMINDER,
-        DM_REMINDER
+        REMINDER
     }
 }

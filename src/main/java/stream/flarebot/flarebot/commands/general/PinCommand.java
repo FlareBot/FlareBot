@@ -67,6 +67,11 @@ public class PinCommand implements Command {
     }
 
     @Override
+    public boolean isDefaultPermission() {
+        return false;
+    }
+
+    @Override
     public EnumSet<Permission> getDiscordPermission() {
         return EnumSet.of(Permission.MESSAGE_MANAGE);
     }

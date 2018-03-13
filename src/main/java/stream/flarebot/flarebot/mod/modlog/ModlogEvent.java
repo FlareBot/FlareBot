@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.util.ColorUtils;
-import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -155,7 +155,7 @@ public enum ModlogEvent {
 
         StringBuilder sb = new StringBuilder()
                 .append(title)
-                .append(" (").append(FormatUtils.formatTime(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime()))
+                .append(" (").append(GeneralUtils.formatTime(OffsetDateTime.now(ZoneOffset.UTC).toLocalDateTime()))
                 .append(")\n");
 
         if (user != null)

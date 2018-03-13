@@ -6,7 +6,6 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.concurrent.ExecutorService;
@@ -27,7 +26,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
         if (msg == null)
             msg = "null";
         if (event.getMarker() != Markers.NO_ANNOUNCE
-                && FlareBot.instance() != null
+                && FlareBot.getInstance() != null
                 && event.getLevel() == Level.ERROR || event.getLevel() == Level.WARN) {
             String finalMsg = msg;
             if (event.getThreadName().startsWith("lava-daemon-pool")) {
@@ -40,19 +39,19 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                 }
                 if (event.getLevel() == Level.WARN) {
                     // Warnings should not have a throwable!
-                    MessageUtils.sendWarningMessage(finalMsg, Constants.getErrorLogChannel());
+                    MessageUtils.sendWarningMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
                     return;
                 }
                 if (throwable != null) {
                     if (event.getMarker() == Markers.TAG_DEVELOPER)
-                        MessageUtils.sendFatalException(finalMsg, throwable, Constants.getErrorLogChannel());
+                        MessageUtils.sendFatalException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
                     else
-                        MessageUtils.sendException(finalMsg, throwable, Constants.getErrorLogChannel());
+                        MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
                 } else {
                     if (event.getMarker() == Markers.TAG_DEVELOPER)
-                        MessageUtils.sendFatalErrorMessage(finalMsg, Constants.getErrorLogChannel());
+                        MessageUtils.sendFatalErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
                     else
-                        MessageUtils.sendErrorMessage(finalMsg, Constants.getErrorLogChannel());
+                        MessageUtils.sendErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
                 }
             });
         }

@@ -6,13 +6,13 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -26,7 +26,7 @@ public class PlayCommand implements Command {
                 if (LocalDateTime.now().getHour() == 0 && LocalDateTime.now().getMinute() == 0 && LocalDateTime.now().getSecond() == 0) {
                     channel.sendMessage(new EmbedBuilder().setTitle("Jesus Quist", null).setDescription("It's quite late to be listening to music! You should be asleep! " +
                             ":zzz: :night_with_stars:").setColor(Color.blue).build()).queue();
-                    Constants.logEG("Jesus Quist - Late night", this, guild.getGuild(), sender);
+                    FlareBot.getInstance().logEG("Jesus Quist - Late night", this, guild.getGuild(), sender);
                 }
             }
             if (member.getVoiceState().inVoiceChannel()) {
@@ -40,7 +40,7 @@ public class PlayCommand implements Command {
                     MessageUtils.sendErrorMessage("I cannot join your channel! I am already in a channel!", channel);
                     return;
                 }
-                GuildUtils.joinChannel(channel, member);
+                GeneralUtils.joinChannel(channel, member);
             }
             if (args[0].startsWith("http") || args[0].startsWith("www.")) {
                 VideoThread.getThread(args[0], channel, sender).start();

@@ -1,54 +1,54 @@
 package stream.flarebot.flarebot.permissions;
 
+import com.google.gson.annotations.Expose;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.util.Constants;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PerGuildPermissions {
 
-    private final List<Group> groups = Collections.synchronizedList(new ArrayList<>());
+    private final ConcurrentHashMap<String, Group> groups = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
-    public boolean hasPermission(Member user, Permission permission) {
+    @Expose(deserialize = false, serialize = false)
+    private static final FlareBot fb = FlareBot.getInstance();
+
+    public PerGuildPermissions() {
+        if (!hasGroup("Default")) {
+            createDefaultGroup();
+        }
+    }
+
+    public boolean hasPermission(Member user, String permission) {
         // So we can go into servers and figure out any issues they have.
         if (isCreator(user.getUser()))
             return true;
         if (user.isOwner())
             return true;
-        if (user.getPermissions().contains(net.dv8tion.jda.core.Permission.ADMINISTRATOR))
+        if (user.getPermissions().contains(Permission.ADMINISTRATOR))
             return true;
         // Change done by Walshy: Internal review needed
-        if (isContributor(user.getUser()) && FlareBot.instance().isTestBot())
+        if (isContributor(user.getUser()) && FlareBot.getInstance().isTestBot())
             return true;
-        if (getUser(user).hasPermission(permission) == Permission.Reply.ALLOW)
+        if (getUser(user).hasPermission(permission))
             return true;
-        if (getUser(user).hasPermission(permission) == Permission.Reply.DENY) {
-            return false;
-        }
-        Permission.Reply hasPerm = Permission.Reply.NEUTRAL;
-        synchronized (groups) {
-            for (Group g : groups) {
-                if (g.hasPermission(permission) == Permission.Reply.NEUTRAL) continue;
-                if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
-                    if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {
-                        hasPerm = g.hasPermission(permission);
-                    }
-                }
-                if (getUser(user).getGroups().contains(g.getName())) {
-                    hasPerm = g.hasPermission(permission);
+        for (Group g : getGroups().values()) {
+            if (!g.hasPermission(permission)) continue;
+            if (getUser(user).getGroups().contains(g.getName())) return true;
+            if (g.getRoleId() != null && user.getGuild().getRoleById(g.getRoleId()) != null) {
+                if (user.getRoles().contains(user.getGuild().getRoleById(g.getRoleId()))) {
+                    return true;
                 }
             }
         }
-        if (hasPerm == Permission.Reply.NEUTRAL) {
-            return permission.isDefaultPerm();
-        } else {
-            return hasPerm == Permission.Reply.ALLOW;
-        }
+        return false;
     }
 
     public User getUser(Member user) {
@@ -56,44 +56,38 @@ public class PerGuildPermissions {
     }
 
     public Group getGroup(String group) {
-        synchronized (groups) {
-            for (Group g : groups) {
-                if (g.getName().equalsIgnoreCase(group)) return g;
-            }
-        }
-        return null;
+        return groups.get(group);
     }
 
     public boolean addGroup(String group) {
-        if (hasGroup(group)) {
+        if (groups.containsKey(group)) {
             return false;
         } else {
-            groups.add(new Group(group));
+            groups.put(group, new Group(group));
             return true;
         }
     }
 
     public void deleteGroup(String group) {
-        groups.remove(getGroup(group));
+        groups.remove(group);
     }
 
     public boolean hasGroup(String group) {
-        synchronized (groups) {
-            for (Group g : groups) {
-                if (g.getName().equals(group)) return true;
-            }
-        }
-        return false;
+        return groups.containsKey(group);
     }
 
-    public List<Group> getGroups() {
+    public Map<String, Group> getGroups() {
         return groups;
     }
 
+    public List<Group> getListGroups() {
+        return new ArrayList<>(groups.values());
+    }
+
     private static boolean checkOfficialGuildForRole(net.dv8tion.jda.core.entities.User user, long roleId) {
-        if (!FlareBot.instance().isReady() || Constants.getOfficialGuild() == null) return false;
-        return Constants.getOfficialGuild().getMember(user) != null && Constants.getOfficialGuild().getMember(user).getRoles()
-                .contains(Constants.getOfficialGuild().getRoleById(roleId));
+        if (!FlareBot.getInstance().isReady() || fb.getOfficialGuild() == null) return false;
+        return fb.getOfficialGuild().getMember(user) != null && fb.getOfficialGuild().getMember(user).getRoles()
+                .contains(fb.getOfficialGuild().getRoleById(roleId));
     }
 
     public static boolean isCreator(net.dv8tion.jda.core.entities.User user) {
@@ -108,9 +102,17 @@ public class PerGuildPermissions {
         return checkOfficialGuildForRole(user, Constants.STAFF_ID);
     }
 
-    public void moveGroup(Group group, int pos) {
-        int index = groups.indexOf(group);
-        groups.remove(index);
-        groups.add(pos, group);
+    public void createDefaultGroup() {
+        if (hasGroup("Default")) {
+            deleteGroup("Default");
+        }
+        Group defaults = new Group("Default");
+        for (Command command : FlareBot.getInstance().getCommands()) {
+            if (command.isDefaultPermission())
+                defaults.addPermission(command.getPermission());
+        }
+        defaults.addPermission("flarebot.userinfo.other");
+        defaults.addPermission("flarebot.queue.clear");
+        groups.put("Default", defaults);
     }
 }

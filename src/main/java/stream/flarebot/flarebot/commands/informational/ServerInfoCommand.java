@@ -2,14 +2,17 @@ package stream.flarebot.flarebot.commands.informational;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.*;
-import stream.flarebot.flarebot.Getters;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.FormatUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.awt.Color;
 import java.time.ZoneOffset;
@@ -23,7 +26,7 @@ public class ServerInfoCommand implements Command {
         if (args.length == 0) {
             sendGuildInfo(guild.getGuild(), channel);
         } else {
-            Guild targetGuild = Getters.getGuildById(GeneralUtils.getLong(args[0], -1));
+            Guild targetGuild = FlareBot.getInstance().getGuildById(GeneralUtils.getLong(args[0], -1));
             if (targetGuild != null) {
                 sendGuildInfo(targetGuild, channel);
             } else {
@@ -50,7 +53,7 @@ public class ServerInfoCommand implements Command {
                         guild.getAfkChannel().getName() + "\n" +
                         "\n" +
                         "Timeout: " +
-                        FormatUtils.formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
+                        FlareBot.getInstance().formatTime(guild.getAfkTimeout().getSeconds(), TimeUnit.SECONDS, true, false);
         eb.addField("Channels", "**Text**\n" +
                 "Total: " +
                 guild.getTextChannels().size() + "\n" +

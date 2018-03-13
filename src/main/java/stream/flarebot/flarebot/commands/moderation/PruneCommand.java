@@ -8,8 +8,8 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ConfirmUtil;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.objects.RestActionRunnable;
 import stream.flarebot.flarebot.util.objects.RunnableWrapper;
 
@@ -38,7 +38,7 @@ public class PruneCommand implements Command {
                 }
 
                 int userSize = guild.getGuild().getPrunableMemberCount(amount).complete();
-                MessageUtils.sendErrorMessage(FormatUtils.formatCommandPrefix(guild, "Are you sure you want to prune " + userSize + " members?\n" +
+                MessageUtils.sendErrorMessage(GeneralUtils.formatCommandPrefix(channel, "Are you sure you want to prune " + userSize + " members?\n" +
                         "To confirm type `{%}prune confirm` within 1 minute!"), channel);
 
                 ConfirmUtil.pushAction(sender.getId(),

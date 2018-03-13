@@ -9,6 +9,10 @@ public class User {
     private final Set<String> groups = new ConcurrentHashSet<>();
     private final Set<String> permissions = new ConcurrentHashSet<>();
 
+    User() {
+        groups.add("Default");
+    }
+
     public Set<String> getGroups() {
         return groups;
     }
@@ -25,16 +29,12 @@ public class User {
         return permissions;
     }
 
-    public Permission.Reply hasPermission(Permission permission) {
+    public boolean hasPermission(String permission) {
         for (String s : permissions) {
-            boolean hasPermission =
-                    new PermissionNode(s.substring(s.startsWith("-") ? 1 : 0)).test(permission.getPermission());
-            if (s.startsWith("-") && hasPermission)
-                return Permission.Reply.DENY;
-            if (hasPermission)
-                return Permission.Reply.ALLOW;
+            if (new PermissionNode(s).test(permission))
+                return true;
         }
-        return Permission.Reply.NEUTRAL;
+        return false;
     }
 
     public boolean addPermission(String permission) {

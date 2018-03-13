@@ -61,4 +61,14 @@ public class DeleteCommand implements Command {
         return CommandType.MUSIC;
     }
 
+    @Override
+    public String getPermission() {
+        return "flarebot.queue.delete";
+    }
+
+    @Override
+    public boolean isDefaultPermission() {
+        return false;
+    }
+
 }

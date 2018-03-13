@@ -2,7 +2,11 @@ package stream.flarebot.flarebot.mod.modlog;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.joda.time.Period;
@@ -11,8 +15,8 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 
 import java.awt.Color;
 
@@ -160,12 +164,12 @@ public class ModlogHandler {
             return;
         }
 
-        if (target != null && target.getIdLong() == FlareBot.instance().getClient().getSelfUser().getIdLong()) {
+        if (target != null && target.getIdLong() == FlareBot.getInstance().getClient().getSelfUser().getIdLong()) {
             if (modAction == ModAction.UNBAN || modAction == ModAction.UNMUTE)
                 MessageUtils.sendWarningMessage("W-why would you want to do that in the first place. Meanie :(", channel);
             else
                 MessageUtils.sendWarningMessage(String.format("T-that's meannnnnnn :( I can't %s myself and I hope you don't want to either :(",
-                        modAction.getLowercaseName()), channel);
+                    modAction.getLowercaseName()), channel);
             return;
         }
 
@@ -211,7 +215,7 @@ public class ModlogHandler {
                     channel.getGuild().getController().ban(channel.getGuild().getMember(target), 7, reason).queue(aVoid -> {
                         channel.sendMessage(new EmbedBuilder()
                                 .setDescription("The ban hammer has been struck on " + target.getName() + " for "
-                                        + FormatUtils.formatJodaTime(period) + "\nReason: " + rsn)
+                                        + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn)
                                 .setImage(channel.getGuild().getId()
                                         .equals(Constants.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
                                 .setColor(Color.WHITE).build()).queue();
@@ -253,7 +257,7 @@ public class ModlogHandler {
                             target.getIdLong(), reason, period, FutureAction.Action.TEMP_MUTE);
 
                     MessageUtils.sendSuccessMessage("Temporarily Muted " + target.getAsMention() + " for "
-                            + FormatUtils.formatJodaTime(period) + "\nReason: " + rsn, channel, sender);
+                            + GeneralUtils.formatJodaTime(period) + "\nReason: " + rsn, channel, sender);
                     break;
                 }
                 case UNMUTE:

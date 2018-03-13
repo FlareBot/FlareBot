@@ -7,9 +7,8 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.stream.Collectors;
 
@@ -64,7 +63,7 @@ public class SettingsCommand implements Command {
                                     channel);
                             return;
                         }
-                        User user = GuildUtils.getUser(args[2], guild.getGuildId());
+                        User user = GeneralUtils.getUser(args[2], guild.getGuildId());
                         if (user != null) {
                             guild.getSettings().getUserBlacklist().add(user.getIdLong());
                             MessageUtils.sendSuccessMessage("Added " + user.getAsMention() + " to the blacklist!",
@@ -85,7 +84,7 @@ public class SettingsCommand implements Command {
                                     channel);
                             return;
                         }
-                        User user = GuildUtils.getUser(args[2], guild.getGuildId());
+                        User user = GeneralUtils.getUser(args[2], guild.getGuildId());
                         if (user != null) {
                             if (!guild.getSettings().getUserBlacklist().contains(user.getIdLong())) {
                                 MessageUtils.sendWarningMessage("That user is not blacklisted!", channel);

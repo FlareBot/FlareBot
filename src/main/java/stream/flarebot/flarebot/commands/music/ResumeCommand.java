@@ -15,7 +15,7 @@ public class ResumeCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        Player player = FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId());
+        Player player = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId());
         if (player.getPlayingTrack() == null) {
             MessageUtils.sendErrorMessage("There is no music playing!", channel);
         } else if (!player.getPaused()) {

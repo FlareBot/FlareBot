@@ -2,13 +2,17 @@ package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.PermissionOverride;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ColorUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 
 public class LockChatCommand implements Command {
 
@@ -17,7 +21,7 @@ public class LockChatCommand implements Command {
         String reason = null;
         TextChannel tc = channel;
         if (args.length > 0) {
-            TextChannel tmp = GuildUtils.getChannel(args[args.length - 1], guild);
+            TextChannel tmp = GeneralUtils.getChannel(args[args.length - 1], guild);
             if (tmp != null) {
                 tc = tmp;
                 if (args.length >= 2)

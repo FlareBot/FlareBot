@@ -10,9 +10,8 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 
 public class SeekCommand implements Command {
@@ -25,7 +24,7 @@ public class SeekCommand implements Command {
                 MessageUtils.sendErrorMessage("You have entered an invalid duration to skip to!\n" + getExtraInfo(), channel);
                 return;
             }
-            Track t = FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
+            Track t = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
             if (t == null) {
                 MessageUtils.sendErrorMessage("There is no song currently playing!", channel);
                 return;
@@ -42,7 +41,7 @@ public class SeekCommand implements Command {
                         return;
                     } else {
                         t.getTrack().setPosition(millis);
-                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + FormatUtils.formatJodaTime(new Duration(millis).toPeriod()), channel);
+                        MessageUtils.sendSuccessMessage("The track has been skipped to: " + GeneralUtils.formatJodaTime(new Duration(millis).toPeriod()), channel);
                         return;
                     }
                 }
