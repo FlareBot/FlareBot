@@ -71,8 +71,6 @@ public class Events extends ListenerAdapter {
 
     private Map<String, Integer> spamMap = new ConcurrentHashMap<>();
 
-    private Map<Long, Integer> buttonMap = new ConcurrentHashMap<>();
-
     private final Map<Integer, Long> shardEventTime = new HashMap<>();
     private final AtomicInteger commandCounter = new AtomicInteger(0);
 
@@ -89,16 +87,12 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
         if (ButtonUtil.isButtonMessage(event.getMessageId())) {
             for (ButtonGroup.Button button : ButtonUtil.getButtonGroup(event.getMessageId()).getButtons()) {
-                if (event.getReactionEmote().getId() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
+                if (event.getReactionEmote() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
+                    String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
+                    Metrics.buttonsPressed.labels(emote, event.getMessageId());
                     Long messageId = event.getMessageIdLong();
-                    if (buttonMap.containsKey(messageId)) {
-                        int current = buttonMap.get(messageId);
-                        buttonMap.put(messageId, current + 1);
-                    } else {
-                        buttonMap.put(messageId, 1);
-                    }
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for (MessageReaction reaction : message.getReactions()) {
                             if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
@@ -526,38 +520,6 @@ public class Events extends ListenerAdapter {
 
     public Map<String, Integer> getSpamMap() {
         return spamMap;
-    }
-
-    public void clearButtons() {
-        Iterator<Map.Entry<Long, Integer>> it = buttonMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Long, Integer> pair = it.next();
-            Long messageId = pair.getKey();
-            double click = pair.getValue();
-            if (click == 0) {
-                return;
-            }
-            double clicksPerSec = click / 3.0;
-            if (maxButtonClicksPerSec.containsKey(messageId)) {
-                double max = maxButtonClicksPerSec.get(messageId);
-                if (clicksPerSec > max) {
-                    maxButtonClicksPerSec.put(messageId, clicksPerSec);
-                }
-            } else {
-                maxButtonClicksPerSec.put(messageId, clicksPerSec);
-            }
-            if (buttonClicksPerSec.containsKey(messageId)) {
-                List<Double> clicks = buttonClicksPerSec.get(messageId);
-                clicks.add(clicksPerSec);
-                buttonClicksPerSec.put(messageId, clicks);
-            } else {
-                List<Double> clicks = new ArrayList<>();
-                clicks.add(clicksPerSec);
-                buttonClicksPerSec.put(messageId, clicks);
-            }
-            it.remove();
-        }
-        buttonMap.clear();
     }
 
     public List<Long> getRemovedByMeList() {

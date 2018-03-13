@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 
 import java.awt.Color;
+import java.util.List;
 
 public class PagedEmbedBuilder<T> {
 
@@ -12,6 +13,8 @@ public class PagedEmbedBuilder<T> {
     private PaginationList<T> list;
     private boolean hasCodeBlock = false;
     private Color color;
+    private String groupPrefix = null;
+    private int groupsPerPage = 1;
 
     /**
      * Instantiates the builder with a {@link PaginationList}.
@@ -65,11 +68,31 @@ public class PagedEmbedBuilder<T> {
         boolean pageCounts = false;
         if (list.getPages() > 1)
             pageCounts = true;
-        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts, color);
+        return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts, color, groupPrefix, groupsPerPage);
     }
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    /**
+     * Enables the embed to use the groups within the {@link PaginationList}.
+     *
+     * @param groupPrefix The prefix for the groups.
+     */
+    public void useGroups(String groupPrefix) {
+        useGroups(1, groupPrefix);
+    }
+
+    /**
+     * Enables the embed to use the groups within the {@link PaginationList}. And sets the groups per page.
+     *
+     * @param groupsPerPage The amount of groups to put on a page.
+     * @param groupPrefix The prefix for the groups.
+     */
+    public void useGroups(int groupsPerPage, String groupPrefix) {
+        this.groupPrefix = groupPrefix;
+        this.groupsPerPage = groupsPerPage;
     }
 
     public class PagedEmbed {
@@ -81,15 +104,28 @@ public class PagedEmbedBuilder<T> {
         private boolean pageCounts;
         private int pageTotal;
         private Color color;
+        private boolean useGroups;
+        private String groupPrefix;
+        private int groupsPerPage;
+        private int groupTotal;
 
-        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts, Color color) {
+        public PagedEmbed(String title, String codeBlock, boolean hasCodeBlock, PaginationList<T> list, boolean pageCounts, Color color, String groupPrefix, int groupsPerPage) {
             this.title = title;
             this.pageCounts = pageCounts;
-            pageTotal = list.getPages();
             this.codeBlock = codeBlock;
             this.hasCodeBlock = hasCodeBlock;
             this.list = list;
             this.color = color;
+            if(groupPrefix != null) {
+                this.useGroups = true;
+                this.groupPrefix = groupPrefix;
+                pageTotal = list.getPages() < groupsPerPage ? 1 : (list.getPages() / groupsPerPage) +
+                        (list.getPages() % groupsPerPage != 0 ? 1 : 0);
+                this.groupTotal = list.getGroups().size();
+            } else {
+                pageTotal = list.getPages();
+            }
+            this.groupsPerPage = groupsPerPage;
         }
 
         /**
@@ -102,10 +138,21 @@ public class PagedEmbedBuilder<T> {
             EmbedBuilder pageEmbed = new EmbedBuilder();
             if (title != null)
                 pageEmbed.setTitle(title);
-            pageEmbed.setDescription((hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""));
+            if(useGroups) {
+                int start = groupsPerPage * (page);
+                int end = Math.min(start + groupsPerPage, groupTotal);
+                int num = start;
+                List<PaginationList<T>.PageGroup> groups = list.getGroups().subList(start, end);
+                for (PaginationList.PageGroup group : groups) {
+                    pageEmbed.addField(groupPrefix + num, group.getGroupAsString(), false);
+                    num++;
+                }
+            } else {
+                pageEmbed.setDescription((hasCodeBlock ? "```" + codeBlock + "\n" : "") + list.getPage(page) + (hasCodeBlock ? "\n```" : ""));
+            }
             if (pageCounts) {
                 pageEmbed.addField("Page", String.valueOf(page + 1), true);
-                pageEmbed.addField("Total Pages", String.valueOf(list.getPages()), true);
+                pageEmbed.addField("Total Pages", String.valueOf(pageTotal), true);
             }
             pageEmbed.setColor(color);
             return pageEmbed.build();

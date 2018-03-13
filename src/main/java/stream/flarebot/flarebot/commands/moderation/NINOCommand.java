@@ -12,6 +12,9 @@ import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
+import stream.flarebot.flarebot.util.pagination.PaginationList;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.util.List;
 
@@ -113,11 +116,10 @@ public class NINOCommand implements Command {
                     guild.getNINO().clearRemoveMessages();
                     MessageUtils.sendSuccessMessage("Successfully removed **all** messages from this guild!", channel);
                 } else if (args[1].equalsIgnoreCase("list")) {
-                    //TODO: Move this to pages for 4.2
                     int page = 1;
                     if (args.length > 2)
                         page = GeneralUtils.getInt(args[2], 1);
-                    listMessages(guild, page, channel, sender);
+                    listMessages(guild, page, channel);
                 } else
                     MessageUtils.sendUsage(this, channel, sender, args);
             } else
@@ -163,30 +165,17 @@ public class NINOCommand implements Command {
         return true;
     }
 
-    private void listMessages(GuildWrapper wrapper, int page, TextChannel channel, User sender) {
-        EmbedBuilder eb = MessageUtils.getEmbed(sender).setTitle("**NINO Message List**");
+    private void listMessages(GuildWrapper wrapper, int page, TextChannel channel) {
         List<String> messages = wrapper.getNINO().getRemoveMessages();
-        int pageSize = 4;
-        int pages = messages.size() < pageSize ? 1 : (messages.size() / pageSize) + (messages.size() % pageSize != 0 ? 1 : 0);
-        int start;
-        int end;
-        start = pageSize * (page - 1);
-        end = Math.min(start + pageSize, messages.size());
-        if (page > pages || page < 0) {
-            MessageUtils.sendWarningMessage("That page doesn't exist. Current page count: " + pages, channel);
+        if(messages.size() == 0) {
+            MessageUtils.sendWarningMessage("There are no messages for this guild!", channel);
             return;
-        } else {
-            List<String> subMessages = messages.subList(start, end);
-            if (messages.isEmpty()) {
-                MessageUtils.sendInfoMessage("There are no messages for this guild!", channel, sender);
-                return;
-            } else {
-                for (String message : subMessages) {
-                    eb.addField("Message #" + messages.indexOf(message), message, false);
-                }
-            }
         }
-        eb.setDescription("Page " + GeneralUtils.getPageOutOfTotal(page, messages, pageSize));
-        channel.sendMessage(eb.build()).queue();
+        PaginationList<String> list = new PaginationList<>(messages);
+        list.createGroups(Math.min(list.getPages(), 1));
+        PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(list);
+        pagedEmbedBuilder.useGroups(4, "Message #");
+        pagedEmbedBuilder.setTitle("NINO Message List");
+        PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), page - 1, channel);
     }
 }
