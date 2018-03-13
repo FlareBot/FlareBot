@@ -77,28 +77,22 @@ public class PagedEmbedBuilder<T> {
 
     /**
      * Enables the embed to use the groups within the {@link PaginationList}.
+     *
+     * @param groupPrefix The prefix for the groups.
      */
-    public void useGroups() {
-        useGroups(1);
+    public void useGroups(String groupPrefix) {
+        useGroups(1, groupPrefix);
     }
 
     /**
      * Enables the embed to use the groups within the {@link PaginationList}. And sets the groups per page.
      *
      * @param groupsPerPage The amount of groups to put on a page.
+     * @param groupPrefix The prefix for the groups.
      */
-    public void useGroups(int groupsPerPage) {
-        this.groupPrefix = "";
+    public void useGroups(int groupsPerPage, String groupPrefix) {
+        this.groupPrefix = groupPrefix;
         this.groupsPerPage = groupsPerPage;
-    }
-
-    /**
-     * Set the prefix to use for groups. each group is separated onto it's own field. The prefix will then be fallowed by the group number.
-     *
-     * @param prefix The prefix to use.
-     */
-    public void setGroupPrefix(String prefix) {
-        this.groupPrefix = prefix;
     }
 
     public class PagedEmbed {
