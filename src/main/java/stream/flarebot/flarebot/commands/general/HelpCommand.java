@@ -1,19 +1,18 @@
 package stream.flarebot.flarebot.commands.general;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
+import stream.flarebot.flarebot.util.pagination.PaginationList;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
+import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,27 +29,27 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if (type != CommandType.SECRET && !getPermissions(channel).isCreator(sender)) {
-                EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
-                embedBuilder.setDescription("***FlareBot " + type + " commands!***");
+            if ((!type.isInternal() || GeneralUtils.canRunCommand(type, sender))) {
+                List<String> pages = new ArrayList<>();
                 List<String> help = type.getCommands()
                         .stream().filter(cmd -> getPermissions(channel)
                                 .hasPermission(member, cmd.getPermission()))
-                        .map(command -> get(channel.getGuild()) + command.getCommand() + " - " + command
+                        .map(command -> guild.getPrefix() + command.getCommand() + " - " + command
                                 .getDescription() + '\n')
                         .collect(Collectors.toList());
                 StringBuilder sb = new StringBuilder();
-                int page = 0;
                 for (String s : help) {
                     if (sb.length() + s.length() > 1024) {
-                        embedBuilder
-                                .addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+                        pages.add(sb.toString());
                         sb.setLength(0);
                     }
                     sb.append(s);
                 }
-                embedBuilder.addField(type + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
-                channel.sendMessage(embedBuilder.build()).queue();
+                pages.add(sb.toString());
+                PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
+                builder.setTitle("***FlareBot " + type + " commands!***");
+                builder.setColor(Color.CYAN);
+                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel);
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
             }
@@ -59,39 +58,35 @@ public class HelpCommand implements Command {
         }
     }
 
-    private char get(Guild guild) {
-        if (guild != null) {
-            return FlareBot.getPrefixes().get(guild.getId());
-        }
-        return FlareBot.getPrefixes().get(null);
-    }
-
-    private void sendCommands(Guild guild, MessageChannel channel, User sender) {
-        EmbedBuilder embedBuilder = MessageUtils.getEmbed(sender);
+    private void sendCommands(Guild guild, TextChannel channel, User sender) {
+        List<String> pages = new ArrayList<>();
         for (CommandType c : CommandType.getTypes()) {
             List<String> help = c.getCommands()
                     .stream().filter(cmd -> cmd.getPermission() != null &&
-                            FlareBotManager.getInstance().getGuild(guild.getId())
+                            FlareBotManager.instance().getGuild(guild.getId())
                                     .getPermissions()
                                     .hasPermission(guild
                                             .getMember(sender), cmd
                                             .getPermission()))
-                    .map(command -> get(guild) + command.getCommand() + " - " + command
+                    .map(command -> FlareBotManager.instance().getGuild(guild.getId()).getPrefix() + command.getCommand() + " - " + command
                             .getDescription() + '\n')
                     .collect(Collectors.toList());
             StringBuilder sb = new StringBuilder();
-            int page = 0;
+            sb.append("**").append(c).append("**\n");
             for (String s : help) {
                 if (sb.length() + s.length() > 1024) {
-                    embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+                    pages.add(sb.toString());
                     sb.setLength(0);
+                    sb.append("**").append(c).append("**\n");
                 }
                 sb.append(s);
             }
             if (sb.toString().trim().isEmpty()) continue;
-            embedBuilder.addField(c + (page++ != 0 ? " (cont. " + page + ")" : ""), sb.toString(), false);
+            pages.add(sb.toString());
         }
-        channel.sendMessage(embedBuilder.build()).queue();
+        PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
+        builder.setColor(Color.CYAN);
+        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel);
     }
 
     @Override

@@ -9,8 +9,9 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.ColorUtils;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class NINOCommand implements Command {
             if (args[0].equalsIgnoreCase("enable") || args[0].equalsIgnoreCase("disable")) {
                 boolean enabled = args[0].equalsIgnoreCase("enable");
                 guild.getNINO().setEnabled(enabled);
-                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(GeneralUtils.formatCommandPrefix(channel,
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(FormatUtils.formatCommandPrefix(guild,
                         "I have "
                                 + (!enabled ? "disabled anti-invite protection!" : "enabled anti-invite protection!\n"
                                 + "To see the whitelist do `{%}nino whitelist list` and to post the invite attempts to "

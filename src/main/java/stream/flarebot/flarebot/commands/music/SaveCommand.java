@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.List;
@@ -30,14 +31,14 @@ public class SaveCommand implements Command {
             MessageUtils.sendErrorMessage("Name can only be a maximum of 20 characters!", channel);
             return;
         }
-        if (!FlareBot.getInstance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
+        if (!FlareBot.instance().getMusicManager().hasPlayer(channel.getGuild().getId())) {
             MessageUtils.sendErrorMessage("Your playlist is empty!", channel);
             return;
         }
-        Queue<Track> playlist = FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId())
+        Queue<Track> playlist = FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId())
                 .getPlaylist();
         Track currentlyPlaying =
-                FlareBot.getInstance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
+                FlareBot.instance().getMusicManager().getPlayer(guild.getGuildId()).getPlayingTrack();
 
         channel.sendTyping().complete();
 
@@ -54,10 +55,10 @@ public class SaveCommand implements Command {
             return;
         }
 
-        FlareBot.getInstance().getManager().savePlaylist(this,
+        FlareBot.instance().getManager().savePlaylist(this,
                 channel,
                 sender.getId(),
-                this.getPermissions(channel).hasPermission(member, "flarebot.queue.save.overwrite"),
+                this.getPermissions(channel).hasPermission(member, Permission.SAVE_OVERWRITE),
                 name,
                 tracks);
     }
@@ -75,11 +76,6 @@ public class SaveCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}save <name>` - Saves a playlist.";
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.queue.save";
     }
 
     @Override
