@@ -37,7 +37,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
         final AtomicInteger totalVcs = new AtomicInteger(0);
         final AtomicInteger killedVcs = new AtomicInteger(0);
 
-        Getters.getGuilds().forEach(guild -> {
+        Getters.getGuildsCache().forEach(guild -> {
             try {
                 totalGuilds.incrementAndGet();
 
