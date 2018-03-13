@@ -11,6 +11,16 @@ public abstract class FlareBotTask implements Runnable {
         this.taskName = taskName;
     }
 
+    public FlareBotTask(String taskName, long delay) {
+        this.taskName = taskName;
+        delay(delay);
+    }
+
+    public FlareBotTask(String taskName, long delay, long interval) {
+        this.taskName = taskName;
+        repeat(delay, interval);
+    }
+
     public boolean repeat(long delay, long interval) {
         return Scheduler.scheduleRepeating(this, taskName, delay, interval);
     }

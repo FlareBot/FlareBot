@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot;
 
+import io.prometheus.client.Histogram;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -29,6 +30,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.secret.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -69,8 +71,6 @@ public class Events extends ListenerAdapter {
 
     private Map<String, Integer> spamMap = new ConcurrentHashMap<>();
 
-    private Map<Long, Integer> buttonMap = new ConcurrentHashMap<>();
-
     private final Map<Integer, Long> shardEventTime = new HashMap<>();
     private final AtomicInteger commandCounter = new AtomicInteger(0);
 
@@ -87,16 +87,12 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
         if (ButtonUtil.isButtonMessage(event.getMessageId())) {
             for (ButtonGroup.Button button : ButtonUtil.getButtonGroup(event.getMessageId()).getButtons()) {
-                if (event.getReactionEmote().getId() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
+                if (event.getReactionEmote() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
+                    String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
+                    Metrics.buttonsPressed.labels(emote, event.getMessageId());
                     Long messageId = event.getMessageIdLong();
-                    if (buttonMap.containsKey(messageId)) {
-                        int current = buttonMap.get(messageId);
-                        buttonMap.put(messageId, current + 1);
-                    } else {
-                        buttonMap.put(messageId, 1);
-                    }
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for (MessageReaction reaction : message.getReactions()) {
                             if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
@@ -360,6 +356,7 @@ public class Events extends ListenerAdapter {
     }
 
     private void handleCommand(GuildMessageReceivedEvent event, Command cmd, String[] args) {
+        Metrics.commandsReceived.labels(cmd.getClass().getSimpleName()).inc();
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
 
         if (guild.hasBetaAccess()) {
@@ -372,9 +369,8 @@ public class Events extends ListenerAdapter {
         }
 
         if (guild.isBlocked()) {
-            if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1) {
+            if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1)
                 guild.revokeBlock();
-            }
         }
         handleSpamDetection(event, guild);
         if (!GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
@@ -414,8 +410,11 @@ public class Events extends ListenerAdapter {
                     .put("guildId", guild.getGuildId()));*/
             commandCounter.incrementAndGet();
             try {
+                Histogram.Timer executionTimer = Metrics.commandExecutionTime.labels(cmd.getClass().getSimpleName()).startTimer();
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
+                executionTimer.observeDuration();
+                Metrics.commandsExecuted.labels(cmd.getClass().getSimpleName()).inc();
 
                 MessageEmbed.Field field = null;
                 if (args.length > 0) {
@@ -427,6 +426,7 @@ public class Events extends ListenerAdapter {
                 ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
                         new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
             } catch (Exception ex) {
+                Metrics.commandExceptions.labels(ex.getClass().getSimpleName()).inc();
                 MessageUtils
                         .sendException("**There was an internal error trying to execute your command**", ex, event
                                 .getChannel());
@@ -495,6 +495,7 @@ public class Events extends ListenerAdapter {
                     MessageUtils.sendErrorMessage("We detected command spam in this guild. No commands will be able to " +
                             "be run in this guild for a little bit.", event.getChannel());
                     guild.addBlocked("Command spam", System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
+                    Metrics.blocksGivenOut.labels(guild.getGuildId()).inc();
                 }
             } else {
                 spamMap.put(event.getGuild().getId(), messages + 1);
@@ -519,38 +520,6 @@ public class Events extends ListenerAdapter {
 
     public Map<String, Integer> getSpamMap() {
         return spamMap;
-    }
-
-    public void clearButtons() {
-        Iterator<Map.Entry<Long, Integer>> it = buttonMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Long, Integer> pair = it.next();
-            Long messageId = pair.getKey();
-            double click = pair.getValue();
-            if (click == 0) {
-                return;
-            }
-            double clicksPerSec = click / 3.0;
-            if (maxButtonClicksPerSec.containsKey(messageId)) {
-                double max = maxButtonClicksPerSec.get(messageId);
-                if (clicksPerSec > max) {
-                    maxButtonClicksPerSec.put(messageId, clicksPerSec);
-                }
-            } else {
-                maxButtonClicksPerSec.put(messageId, clicksPerSec);
-            }
-            if (buttonClicksPerSec.containsKey(messageId)) {
-                List<Double> clicks = buttonClicksPerSec.get(messageId);
-                clicks.add(clicksPerSec);
-                buttonClicksPerSec.put(messageId, clicks);
-            } else {
-                List<Double> clicks = new ArrayList<>();
-                clicks.add(clicksPerSec);
-                buttonClicksPerSec.put(messageId, clicks);
-            }
-            it.remove();
-        }
-        buttonMap.clear();
     }
 
     public List<Long> getRemovedByMeList() {

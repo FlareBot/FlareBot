@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
+import io.prometheus.client.exporter.HTTPServer;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
@@ -23,6 +24,7 @@ import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.webhook.WebhookClient;
 import net.dv8tion.jda.webhook.WebhookClientBuilder;
@@ -30,6 +32,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -48,11 +51,13 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandManager;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
+import stream.flarebot.flarebot.tasks.VoiceChannelCleanup;
 import stream.flarebot.flarebot.util.*;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
@@ -74,6 +79,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -186,8 +192,8 @@ public class FlareBot {
             }
         }
 
-        SentryClient sentryClient =
-                Sentry.init(config.getString("sentry.dsn").get() + "?stacktrace.app.packages=stream.flarebot.flarebot");
+        SentryClient sentryClient = Sentry.init(config.getString("sentry.dsn").get()
+                + "?stacktrace.app.packages=stream.flarebot.flarebot");
         sentryClient.setEnvironment(testBot ? "TestBot" : "Production");
         sentryClient.setServerName(testBot ? "Test Server" : "Production Server");
         sentryClient.setRelease(GitHandler.getLatestCommitId());
@@ -306,9 +312,25 @@ public class FlareBot {
     public void init() throws InterruptedException {
         LOGGER.info("Starting init!");
         manager = new FlareBotManager();
-        RestAction.DEFAULT_FAILURE = t -> {
-        };
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+
+        Metrics.setup();
+        try {
+            new HTTPServer(9090);
+            LOGGER.info("Setup HTTPServer for Metrics");
+        } catch (IOException e) {
+            LOGGER.error("Failed to set up HTTPServer for Metrics", e);
+        }
+
+        RestAction.DEFAULT_FAILURE = t -> {
+            if (t instanceof ErrorResponseException) {
+                ErrorResponseException e = (ErrorResponseException) t;
+                Metrics.failedRestActions.labels(String.valueOf(e.getErrorCode())).inc();
+                if (e.getErrorCode() == -1) // Socket timeout
+                    return;
+            }
+            LOGGER.warn("Failed RestAction", t);
+        };
 
         events = new Events(this);
         LOGGER.info("Starting builders");
@@ -317,6 +339,7 @@ public class FlareBot {
             shardManager = new DefaultShardManagerBuilder()
                     .addEventListeners(events)
                     .addEventListeners(new ModlogEvents())
+                    .addEventListeners(Metrics.instance().jdaEventMetricsListener)
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setShardsTotal(-1)
@@ -391,7 +414,6 @@ public class FlareBot {
         GeneralUtils.methodErrorHandler(LOGGER, "Starting tasks!",
                 "Started all tasks, run complete!", "Failed to start all tasks!",
                 this::runTasks);
-
     }
 
     /**
@@ -614,7 +636,7 @@ public class FlareBot {
         LOGGER.info("Saving data.");
         EXITING.set(true);
         Constants.getImportantLogChannel().sendMessage("Average load time of this session: " + manager.getGuildWrapperLoader().getLoadTimes()
-                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getGuildWrapperLoader().getLoadTimes().size() + "\nButton info: " + getButtonInfo())
+                .stream().mapToLong(v -> v).average().orElse(0) + "\nTotal loads: " + manager.getGuildWrapperLoader().getLoadTimes().size())
                 .complete();
         for (ScheduledFuture<?> scheduledFuture : Scheduler.getTasks().values())
             scheduledFuture.cancel(false); // No tasks in theory should block this or cause issues. We'll see
@@ -626,47 +648,6 @@ public class FlareBot {
         LOGGER.info("Finished saving!");
         for (JDA client : shardManager.getShards())
             client.shutdown();
-    }
-
-    public String getButtonInfo() {
-        Iterator<Map.Entry<String, ButtonGroup>> it = ButtonUtil.getButtonMessages().entrySet().iterator();
-        int total = 0;
-        StringBuilder groupsBuilder = new StringBuilder();
-        while (it.hasNext()) {
-            int groupTotal = 0;
-            Map.Entry<String, ButtonGroup> pair = it.next();
-            String messageIdString = pair.getKey();
-            Long messageId = Long.valueOf(messageIdString);
-            ButtonGroup buttonGroup = pair.getValue();
-            StringBuilder buttonsBuilder = new StringBuilder();
-            for (ButtonGroup.Button button : buttonGroup.getButtons()) {
-                StringBuilder buttonBuilder = new StringBuilder();
-                if (button.getUnicode() != null) {
-                    buttonBuilder.append("\tUnicode: ").append(button.getUnicode());
-                } else {
-                    buttonBuilder.append("\tEmote Id: ").append(button.getEmoteId());
-                }
-                buttonBuilder.append(" Clicks: ").append(button.getClicks());
-                groupTotal += button.getClicks();
-                buttonsBuilder.append(buttonBuilder.toString()).append("\n");
-            }
-            double average = 0;
-            if (events.getButtonClicksPerSec().containsKey(messageId)) {
-                List<Double> clicks = events.getButtonClicksPerSec().get(messageId);
-                double combine = 0.0;
-                for (double clicksPerSec : clicks) {
-                    combine += clicksPerSec;
-                }
-                average = combine / (double) clicks.size();
-            }
-
-            groupsBuilder.append("Button Clicks on message: ").append(messageId).append(" Clicks: ").append(groupTotal).append(" Average clicks/sec: ")
-                    .append(average).append(" Max clicks/sec: ").append(events.getMaxButtonClicksPerSec().get(messageId))
-                    .append("\n").append(buttonsBuilder.toString()).append("\n");
-            total += groupTotal;
-            it.remove();
-        }
-        return MessageUtils.paste("Total clicks: " + total + "\n" + groupsBuilder.toString());
     }
 
     public String getUptime() {
@@ -790,7 +771,6 @@ public class FlareBot {
             @Override
             public void run() {
                 events.getSpamMap().clear();
-                events.clearButtons();
             }
         }.repeat(TimeUnit.SECONDS.toMillis(3), TimeUnit.SECONDS.toMillis(3));
 
@@ -852,6 +832,7 @@ public class FlareBot {
                 }
             }
         }.repeat(10_000, 10_000);
+        new VoiceChannelCleanup("VoiceChannelCleanup");
     }
 
     public static JSONConfig getConfig() {
