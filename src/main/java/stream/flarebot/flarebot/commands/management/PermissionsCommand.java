@@ -148,6 +148,22 @@ public class PermissionsCommand implements Command {
                             MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos, channel, sender);
                             return;
                         }
+                    } else if (args[2].equalsIgnoreCase("clone") && args.length >= 4) {
+                        if(guild.getPermissions().cloneGroup(group, args[3])) {
+                            MessageUtils.sendMessage("Cloned group Successfully", channel);
+                            return;
+                        } else {
+                            MessageUtils.sendWarningMessage("Error cloning group (The clone might already exist)", channel);
+                            return;
+                        }
+                    } else if (args[2].equalsIgnoreCase("rename") && args.length >= 4) {
+                        if(guild.getPermissions().renameGroup(group, args[3])) {
+                            MessageUtils.sendMessage("Renamed group Successfully", channel);
+                            return;
+                        } else {
+                            MessageUtils.sendWarningMessage("Error renaming group (The rename might overlap a group)", channel);
+                            return;
+                        }
                     }
                 }
             } else if (args[0].equalsIgnoreCase("user")) {
@@ -359,7 +375,9 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions group <group> list [page]` - lists the permissions this group has.\n" +
                 "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n" +
                 "`{%}permissions group <group> clear` - Removes all permissions from this group!\n" +
-                "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy.\n\n" +
+                "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy.\n" +
+                "`{%}permissions group <group> clone <new_group>` - clones a group\n" +
+                "`{%}permissions group <group> rename <new_name>` - renames the group\n\n" +
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +
