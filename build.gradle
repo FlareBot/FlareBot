@@ -59,6 +59,9 @@ dependencies {
     compile group: 'io.sentry', name: 'sentry-logback', version: '1.6.3'
     compile "org.eclipse.jgit:org.eclipse.jgit:4.9.2.201712150930-r"
     compile group: 'org.codehaus.groovy', name: 'groovy-jsr223', version: '2.4.7'
+    compile 'io.prometheus:simpleclient:0.3.0'
+    compile 'io.prometheus:simpleclient_hotspot:0.3.0'
+    compile 'io.prometheus:simpleclient_logback:0.3.0'
 }
 
 compileJava.options.encoding = 'UTF-8'

@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
 import net.dv8tion.jda.webhook.WebhookClient;
@@ -67,13 +68,14 @@ import stream.flarebot.flarebot.commands.useful.ReportBugCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
+import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.music.QueueListener;
-import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
+import stream.flarebot.flarebot.tasks.VoiceChannelCleanup;
 import stream.flarebot.flarebot.util.*;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
@@ -245,9 +247,19 @@ public class FlareBot {
     public void init() throws InterruptedException {
         LOGGER.info("Starting init!");
         manager = new FlareBotManager();
-        RestAction.DEFAULT_FAILURE = t -> {
-        };
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+
+        Metrics.setup();
+
+        RestAction.DEFAULT_FAILURE = t -> {
+            if (t instanceof ErrorResponseException) {
+                ErrorResponseException e = (ErrorResponseException) t;
+                Metrics.failedRestActions.labels(String.valueOf(e.getErrorCode())).inc();
+                if (e.getErrorCode() == -1) // Socket timeout
+                    return;
+            }
+            LOGGER.warn("Failed RestAction", t);
+        };
 
         events = new Events(this);
         LOGGER.info("Starting builders");
@@ -256,6 +268,7 @@ public class FlareBot {
             shardManager = new DefaultShardManagerBuilder()
                     .addEventListeners(events)
                     .addEventListeners(new ModlogEvents())
+                    .addEventListeners(Metrics.instance().jdaEventMetricsListener)
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setShardsTotal(-1)
@@ -421,16 +434,6 @@ public class FlareBot {
         GeneralUtils.methodErrorHandler(LOGGER, "Starting tasks!",
                 "Started all tasks, run complete!", "Failed to start all tasks!",
                 this::runTasks);
-
-        AtomicInteger i = new AtomicInteger();
-        getGuildsCache().forEach(g -> {
-            GuildWrapper wrapper = FlareBotManager.getInstance().getGuildNoCache(g.getId());
-            if (wrapper != null && wrapper.getPermissions().getGroup("Default") != null &&
-                    wrapper.getPermissions().getGroup("Default").hasPermission("flarebot.ban"))
-                wrapper.getPermissions().createDefaultGroup();
-            i.getAndIncrement();
-        });
-        LOGGER.info("Migrated " + i.get() + " guilds. Sorry guys!");
     }
 
     /**
@@ -1107,23 +1110,7 @@ public class FlareBot {
             }
         }.repeat(TimeUnit.MINUTES.toMillis(10), TimeUnit.MINUTES.toMillis(5));
 
-        new FlareBotTask("ActivityChecker") {
-            @Override
-            public void run() {
-                for (VoiceChannel channel : getConnectedVoiceChannelList()) {
-                    if (channel.getMembers().stream().filter(member -> !member.getUser().isBot() && !member.getUser().isFake()).count() > 0
-                            && !getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
-                            && !getMusicManager().getPlayer(channel.getGuild().getId()).getPaused()) {
-                        manager.getLastActive().remove(channel.getGuild().getIdLong());
-                        return;
-                    }
-                    if (manager.getLastActive().containsKey(channel.getGuild().getIdLong())
-                            && System.currentTimeMillis() >= (manager.getLastActive().get(channel.getGuild().getIdLong())
-                            + TimeUnit.MINUTES.toMillis(10)))
-                        channel.getGuild().getAudioManager().closeAudioConnection();
-                }
-            }
-        }.repeat(10_000, 10_000);
+        new VoiceChannelCleanup("VoiceChannelCleanup");
     }
 
     public static JSONConfig getConfig() {

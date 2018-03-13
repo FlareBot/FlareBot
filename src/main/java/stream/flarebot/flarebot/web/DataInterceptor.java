@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.Interceptor;
 import okhttp3.Response;
+import stream.flarebot.flarebot.metrics.Metrics;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 
 public class DataInterceptor implements Interceptor {
@@ -27,6 +29,7 @@ public class DataInterceptor implements Interceptor {
     @ParametersAreNonnullByDefault
     public Response intercept(Chain chain) throws IOException {
         requests.incrementAndGet();
+        Metrics.httpRequestCounter.labels(sender.getName()).inc();
         return chain.proceed(chain.request());
     }
 
@@ -42,7 +45,7 @@ public class DataInterceptor implements Interceptor {
         return interceptors;
     }
     
-    public static enum RequestSender {
+    public enum RequestSender {
         
         JDA("JDA"),
         FLAREBOT("FlareBot");
