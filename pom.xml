@@ -143,6 +143,11 @@
             <artifactId>simpleclient_logback</artifactId>
             <version>0.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_httpserver</artifactId>
+            <version>0.3.0</version>
+        </dependency>
 
         <!-- Other -->
         <dependency>

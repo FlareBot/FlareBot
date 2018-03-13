@@ -398,7 +398,7 @@ public class Events extends ListenerAdapter {
                     .put("guildId", guild.getGuildId()));*/
             commandCounter.incrementAndGet();
             try {
-                Histogram.Timer executionTimer = Metrics.commandExecutionTime.startTimer();
+                Histogram.Timer executionTimer = Metrics.commandExecutionTime.labels(cmd.getClass().getSimpleName()).startTimer();
                 cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
                         .getMember());
                 executionTimer.observeDuration();

@@ -13,6 +13,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
+import io.prometheus.client.exporter.HTTPServer;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
@@ -30,6 +31,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -250,6 +252,12 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         Metrics.setup();
+        try {
+            new HTTPServer(9090);
+            LOGGER.info("Setup HTTPServer for Metrics");
+        } catch (IOException e) {
+            LOGGER.error("Failed to set up HTTPServer for Metrics", e);
+        }
 
         RestAction.DEFAULT_FAILURE = t -> {
             if (t instanceof ErrorResponseException) {
