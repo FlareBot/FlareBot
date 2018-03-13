@@ -25,9 +25,7 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
         String msg = event.getFormattedMessage();
         if (msg == null)
             msg = "null";
-        if (event.getMarker() != Markers.NO_ANNOUNCE
-                && FlareBot.getInstance() != null
-                && event.getLevel() == Level.ERROR || event.getLevel() == Level.WARN) {
+        if (event.getMarker() != Markers.NO_ANNOUNCE && event.getLevel() == Level.ERROR || event.getLevel() == Level.WARN) {
             String finalMsg = msg;
             if (event.getThreadName().startsWith("lava-daemon-pool")) {
                 return FilterReply.NEUTRAL;
@@ -42,17 +40,12 @@ public class ErrorCatcher extends Filter<ILoggingEvent> {
                     MessageUtils.sendWarningMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
                     return;
                 }
-                if (throwable != null) {
-                    if (event.getMarker() == Markers.TAG_DEVELOPER)
-                        MessageUtils.sendFatalException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
-                    else
-                        MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
-                } else {
-                    if (event.getMarker() == Markers.TAG_DEVELOPER)
-                        MessageUtils.sendFatalErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
-                    else
-                        MessageUtils.sendErrorMessage(finalMsg, FlareBot.getInstance().getErrorLogChannel());
-                }
+
+                if (event.getMarker() == Markers.TAG_DEVELOPER)
+                    MessageUtils.sendFatalException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
+                else
+                    MessageUtils.sendException(finalMsg, throwable, FlareBot.getInstance().getErrorLogChannel());
+
             });
         }
         return FilterReply.NEUTRAL;
