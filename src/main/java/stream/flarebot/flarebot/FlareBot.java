@@ -252,12 +252,6 @@ public class FlareBot {
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         Metrics.setup();
-        try {
-            new HTTPServer(9090);
-            LOGGER.info("Setup HTTPServer for Metrics");
-        } catch (IOException e) {
-            LOGGER.error("Failed to set up HTTPServer for Metrics", e);
-        }
 
         RestAction.DEFAULT_FAILURE = t -> {
             if (t instanceof ErrorResponseException) {

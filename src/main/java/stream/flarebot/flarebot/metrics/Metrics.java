@@ -3,15 +3,20 @@ package stream.flarebot.flarebot.metrics;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Histogram;
+import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class Metrics {
 
     private static final Logger logger = LoggerFactory.getLogger(Metrics.class);
 
     private static Metrics instance;
+
+    private final HTTPServer server;
 
     public static void setup() {
         logger.info("Setup metrics {}!", instance().toString());
@@ -27,6 +32,17 @@ public class Metrics {
 
     public Metrics() {
         DefaultExports.initialize();
+
+        try {
+            server = new HTTPServer(9191);
+            logger.info("Setup HTTPServer for Metrics");
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to set up HTTPServer for Metrics", e);
+        }
+    }
+
+    public HTTPServer getServer() {
+        return server;
     }
 
     // Conventions:
