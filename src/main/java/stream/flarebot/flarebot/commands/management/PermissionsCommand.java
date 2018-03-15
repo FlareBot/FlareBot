@@ -161,7 +161,7 @@ public class PermissionsCommand implements Command {
                             MessageUtils.sendMessage("Renamed group Successfully", channel);
                             return;
                         } else {
-                            MessageUtils.sendWarningMessage("Error renaming group (The rename might overlap a group)", channel);
+                            MessageUtils.sendWarningMessage("Error renaming group (The destination group might already exist)", channel);
                             return;
                         }
                     }
@@ -376,8 +376,8 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n" +
                 "`{%}permissions group <group> clear` - Removes all permissions from this group!\n" +
                 "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy.\n" +
-                "`{%}permissions group <group> clone <new_group>` - clones a group\n" +
-                "`{%}permissions group <group> rename <new_name>` - renames the group\n\n" +
+                "`{%}permissions group <group> clone <new_group>` - Clones a group.\n" +
+                "`{%}permissions group <group> rename <new_name>` - Renames the group.\n\n" +
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +

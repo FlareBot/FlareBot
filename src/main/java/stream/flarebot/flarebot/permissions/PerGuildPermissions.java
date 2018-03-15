@@ -115,22 +115,21 @@ public class PerGuildPermissions {
     }
 
     public boolean cloneGroup(Group group, String newGroupName) {
-        if (hasGroup(newGroupName)) {
+        if (hasGroup(newGroupName))
             return false;
-        } else {
+        else {
             Group newGroup = new Group(newGroupName);
-            for(String permission: group.getPermissions()) {
+            for(String permission : group.getPermissions())
                 newGroup.addPermission(permission);
-            }
             groups.add(newGroup);
             return true;
         }
     }
 
     public boolean renameGroup(Group group, String name) {
-        if (hasGroup(name)) {
+        if (hasGroup(name))
             return false;
-        } else {
+        else {
             group.setName(name);
             return true;
         }
