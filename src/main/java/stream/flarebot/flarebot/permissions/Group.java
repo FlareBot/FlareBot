@@ -3,7 +3,7 @@ package stream.flarebot.flarebot.permissions;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 
-public class Group implements Cloneable {
+public class Group {
 
     private final ConcurrentHashSet<String> permissions = new ConcurrentHashSet<>();
     private String name;
