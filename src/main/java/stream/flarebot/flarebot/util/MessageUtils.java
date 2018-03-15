@@ -57,7 +57,7 @@ public class MessageUtils {
     private static JDA cachedJDA;
     private static Emote flareHeart;
 
-    private static final long GLOBAL_MSG_DELAY = TimeUnit.MINUTES.toMillis(30);
+    private static final long GLOBAL_MSG_DELAY = TimeUnit.HOURS.toMillis(1);
     private static String globalMsg;
     private static final List<String> globalMsgs = new CopyOnWriteArrayList<>(Arrays.asList(
             "Did you know we had a Twitter account? " +
@@ -227,7 +227,7 @@ public class MessageUtils {
         if (type != MessageType.WARNING && type != MessageType.ERROR && builder.getFields().isEmpty()) {
             Optional<String> globalMsg = getGlobalMessage();
             if ((!lastGlobalMsg.containsKey(channel.getIdLong())
-                    || !(System.currentTimeMillis() - lastGlobalMsg.get(channel.getIdLong()) >= GLOBAL_MSG_DELAY))
+                    || System.currentTimeMillis() - lastGlobalMsg.get(channel.getIdLong()) >= GLOBAL_MSG_DELAY)
                     && globalMsg.isPresent()) {
                 lastGlobalMsg.put(channel.getIdLong(), System.currentTimeMillis());
 
@@ -485,8 +485,8 @@ public class MessageUtils {
     }
 
     private static Optional<String> getGlobalMessage() {
-        if (globalMsg != null && !globalMsg.isEmpty())
-            return Optional.of(globalMsg);
+        if (globalMsg != null)
+            return globalMsg.isEmpty() ? Optional.empty() : Optional.of(globalMsg);
         else if (FlareBot.getConfig().getString("globalMsg").isPresent())
             return Optional.of(FlareBot.getConfig().getString("globalMsg").get());
         else if (globalMsgs.size() > 0)
