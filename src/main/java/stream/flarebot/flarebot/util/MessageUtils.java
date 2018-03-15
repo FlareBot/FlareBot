@@ -222,7 +222,7 @@ public class MessageUtils {
             if (flareHeart == null)
                 flareHeart = Getters.getEmoteById(386550693294768129L);
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
-                    "[Support Server](" + FlareBot.INVITE_URL + ")! Our staff can support on any issue you may have! "
+                    "[Support Server](" + Constants.INVITE_URL + ")! Our staff can support on any issue you may have! "
                     + (flareHeart == null ? "<3" : flareHeart.getAsMention()));
         }
 
