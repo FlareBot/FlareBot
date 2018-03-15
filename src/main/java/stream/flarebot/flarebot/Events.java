@@ -205,8 +205,12 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
-                event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now()))
-            Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
+                event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now())) {
+            if (Metrics.guilds.get() == 0)
+                Metrics.guilds.set(Getters.getGuildsCache().size());
+            else
+                Metrics.guilds.inc();
+                    Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
                     .setColor(new Color(96, 230, 144))
                     .setThumbnail(event.getGuild().getIconUrl())
                     .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
@@ -215,10 +219,15 @@ public class Events extends ListenerAdapter {
                     .setDescription("Guild Created: `" + event.getGuild().getName() + "` :smile: :heart:\n" +
                             "Guild Owner: " + event.getGuild().getOwner().getUser().getName() + "\nGuild Members: " +
                             event.getGuild().getMembers().size()).build()).queue();
+        }
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
+        if (Metrics.guilds.get() == 0)
+            Metrics.guilds.set(Getters.getGuildsCache().size());
+        else
+            Metrics.guilds.dec();
         Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
                 .setColor(new Color(244, 23, 23))
                 .setThumbnail(event.getGuild().getIconUrl())
