@@ -153,7 +153,7 @@ public class PermissionsCommand implements Command {
                             MessageUtils.sendMessage("Cloned group Successfully", channel);
                             return;
                         } else {
-                            MessageUtils.sendWarningMessage("Error cloning group (The clone might already exist)", channel);
+                            MessageUtils.sendWarningMessage("Error cloning group (The group might already exist)", channel);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("rename") && args.length >= 4) {
