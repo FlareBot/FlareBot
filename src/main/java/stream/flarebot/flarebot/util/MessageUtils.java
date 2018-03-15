@@ -3,7 +3,12 @@ package stream.flarebot.flarebot.util;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -24,7 +29,12 @@ import java.io.StringWriter;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,9 +54,19 @@ public class MessageUtils {
     private static final Pattern ESCAPE_MARKDOWN = Pattern.compile("[`~*_\\\\]");
     private static final Pattern SPACE = Pattern.compile(" ");
 
-    private static final String ZERO_WIDTH_SPACE = "\u200B";
+    public static final String ZERO_WIDTH_SPACE = "\u200B";
 
     private static JDA cachedJDA;
+    private static Emote flareHeart;
+
+    private static final long GLOBAL_MSG_DELAY = TimeUnit.HOURS.toMillis(1);
+    private static String globalMsg;
+    private static final List<String> globalMsgs = new CopyOnWriteArrayList<>(Arrays.asList(
+            "Did you know we had a Twitter account? " +
+            "Follow us [here](https://twitter.com/discordflarebot) for updates, teasers and ~~memes~~professional content!",
+            "Did you know I had a Patreon? It's a cool way to show support! Do `_donate` for more info!"
+    ));
+    private static Map<Long, Long> lastGlobalMsg = new ConcurrentHashMap<>();
 
     public static void sendPM(User user, String message) {
         try {
@@ -74,6 +94,10 @@ public class MessageUtils {
     }
 
     public static void sendException(String s, Throwable e, TextChannel channel) {
+        if (e == null) {
+            sendErrorMessage(s, channel);
+            return;
+        }
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
@@ -83,6 +107,10 @@ public class MessageUtils {
     }
 
     public static void sendFatalException(String s, Throwable e, TextChannel channel) {
+        if (e == null) {
+            sendFatalErrorMessage(s, channel);
+            return;
+        }
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
@@ -190,12 +218,24 @@ public class MessageUtils {
     public static void sendMessage(MessageType type, EmbedBuilder builder, TextChannel channel, long autoDeleteDelay) {
         if (builder.build().getColor() == null)
             builder.setColor(type.getColor());
-        if (type == MessageType.ERROR)
+        if (type == MessageType.ERROR) {
+            if (flareHeart == null)
+                flareHeart = Getters.getEmoteById(386550693294768129L);
             builder.setDescription(builder.build().getDescription() + "\n\nIf you need more support join our " +
                     "[Support Server](" + Constants.INVITE_URL + ")! Our staff can support on any issue you may have! "
-                    + Getters.getEmoteById(386550693294768129L).getAsMention());
-        if (FlareBot.getConfig().getString("globalMsg").isPresent())
-            builder.setDescription(builder.build().getDescription() + "\n\n" + FlareBot.getConfig().getString("globalMsg").get());
+                    + (flareHeart == null ? "<3" : flareHeart.getAsMention()));
+        }
+
+        if (type != MessageType.WARNING && type != MessageType.ERROR && builder.getFields().isEmpty()) {
+            Optional<String> globalMsg = getGlobalMessage();
+            if ((!lastGlobalMsg.containsKey(channel.getIdLong())
+                    || System.currentTimeMillis() - lastGlobalMsg.get(channel.getIdLong()) >= GLOBAL_MSG_DELAY)
+                    && globalMsg.isPresent()) {
+                lastGlobalMsg.put(channel.getIdLong(), System.currentTimeMillis());
+
+                builder.setDescription(builder.build().getDescription() + "\n\n" + globalMsg.get());
+            }
+        }
         if (autoDeleteDelay > 0)
             sendAutoDeletedMessage(builder.build(), autoDeleteDelay, channel);
         else
@@ -442,5 +482,27 @@ public class MessageUtils {
                     return null;
         }
         return null;
+    }
+
+    @SuppressWarnings("unused")
+    private static void setStaticGlobalMessage(String s) {
+        globalMsg = s;
+        FlareBot.getConfig().set("globalMsg", s);
+    }
+
+    @SuppressWarnings("unused")
+    private static void addGlobalMessage(String s) {
+        globalMsg = s;
+    }
+
+    private static Optional<String> getGlobalMessage() {
+        if (globalMsg != null)
+            return globalMsg.isEmpty() ? Optional.empty() : Optional.of(globalMsg);
+        else if (FlareBot.getConfig().getString("globalMsg").isPresent())
+            return Optional.of(FlareBot.getConfig().getString("globalMsg").get());
+        else if (globalMsgs.size() > 0)
+            return Optional.of(RandomUtils.getRandomString(globalMsgs));
+        else
+            return Optional.empty();
     }
 }

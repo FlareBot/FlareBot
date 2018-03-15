@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.metrics;
 
 import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
 import io.prometheus.client.Histogram;
 import io.prometheus.client.hotspot.DefaultExports;
 import org.slf4j.Logger;
@@ -51,6 +52,11 @@ public class Metrics {
      * FlareBot
      */
     // General
+    public static final Gauge guilds = Gauge.build()
+            .name("flarebot_guild_total")
+            .help("The amount of guilds we're in")
+            .register();
+
     public static final Counter blocksGivenOut = Counter.build()
             .name("flarebot_guild_blocked_total")
             .help("Total number of times we've blocked guilds")
