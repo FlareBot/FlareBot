@@ -10,4 +10,8 @@ public class RandomUtils {
     public static String getRandomString(Collection<String> collection) {
         return collection.toArray(new String[collection.size()])[random.nextInt(collection.size())];
     }
+
+    public static String getRandomStringFromArray(String[] array) {
+        return array[random.nextInt(array.length)];
+    }
 }
