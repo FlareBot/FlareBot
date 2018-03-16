@@ -43,6 +43,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.net.ssl.HttpsURLConnection;
 
@@ -602,14 +603,7 @@ public class GeneralUtils {
         return result;
     }
 
-    /**
-     * If the user can run the command, this will check if the command is null and if it is internal.
-     * If internal it will check the official guild to see if the user has the right role.
-     * <b>This does not check permissions</b>
-     *
-     * @returns If the command is not internal or if the role has the right role to run an internal command.
-     */
-    public static boolean canRunCommand(Command command, User user) {
+    public static boolean canRunCommand(@Nonnull Command command, User user) {
         return canRunCommand(command.getType(), user);
     }
 
@@ -618,20 +612,19 @@ public class GeneralUtils {
      * If internal it will check the official guild to see if the user has the right role.
      * <b>This does not check permissions</b>
      *
-     * @returns If the command is not internal or if the role has the right role to run an internal command.
+     * @return If the command is not internal or if the role has the right role to run an internal command.
      */
-    public static boolean canRunCommand(CommandType type, User user) {
-        if (type == null) return false;
-
+    public static boolean canRunCommand(@Nonnull CommandType type, User user) {
         if (type.isInternal()) {
-            Guild g = Constants.getOfficialGuild();
+            Guild g = Getters.getOfficialGuild();
 
-            if (g.getMember(user) != null)
-                return g.getMember(user).getRoles().contains(g.getRoleById(type.getRoleId())) ||
-                        (FlareBot.instance().isTestBot() && g.getMember(user).getRoles().contains(Constants.getOfficialGuild().getRoleById(Constants.CONTRIBUTOR_ID)));
-            else
+            if (g.getMember(user) != null) {
+                for (long roleId : type.getRoleIds())
+                    if (g.getMember(user).getRoles().contains(g.getRoleById(roleId)))
+                        return true;
+            } else
                 return false;
-        } else
-            return true;
+        }
+        return true;
     }
 }

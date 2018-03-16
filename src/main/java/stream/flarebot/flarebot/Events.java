@@ -50,8 +50,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -60,10 +60,8 @@ import java.util.stream.Collectors;
 public class Events extends ListenerAdapter {
 
     public static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
-    /*private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
-            new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));*/
-    private static final ThreadPoolExecutor COMMAND_POOL = (ThreadPoolExecutor) Executors.newFixedThreadPool(2,
-            t -> new Thread(COMMAND_THREADS, "Command Pool-" + COMMAND_THREADS.activeCount()));
+    private static final ExecutorService COMMAND_POOL = Executors.newFixedThreadPool(4, r ->
+            new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     private static final List<Long> removedByMe = new ArrayList<>();
 
     private final Logger LOGGER = FlareBot.getLog(this.getClass());
@@ -457,7 +455,8 @@ public class Events extends ListenerAdapter {
         GuildWrapper wrapper = FlareBotManager.instance().getGuild(guild.getId());
 
         if (event.getChannel().getIdLong() == 226785954537406464L && !event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            event.getChannel().sendMessage("Please use me in <#226786507065786380>!").queue();
+            event.getChannel().sendMessage("Heyo " + event.getAuthor().getAsMention()
+                    + " please use me in <#226786507065786380>!").queue();
             return false;
         }
         return true;
