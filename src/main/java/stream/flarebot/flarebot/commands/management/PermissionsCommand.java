@@ -105,7 +105,7 @@ public class PermissionsCommand implements Command {
                             pe.setTitle("Permissions for the group: " + group.getName());
                             pe.enableCodeBlock();
 
-                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
+                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("massadd")) {
@@ -167,11 +167,14 @@ public class PermissionsCommand implements Command {
                                     String groupString = args[4];
                                     Group group = getPermissions(channel).getGroup(groupString);
                                     if (group == null) {
-                                        MessageUtils.sendErrorMessage("That group doesn't exists!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                                        MessageUtils.sendErrorMessage("That group doesn't exists!! You can create it with `"
+                                                + getPrefix(channel.getGuild()) + "permissions group " + groupString
+                                                + " create`", channel);
                                         return;
                                     }
                                     permUser.addGroup(group);
-                                    MessageUtils.sendSuccessMessage("Successfully added the group `" + groupString + "` to " + user.getAsMention(), channel, sender);
+                                    MessageUtils.sendSuccessMessage("Successfully added the group `" + groupString
+                                            + "` to " + user.getAsMention(), channel, sender);
                                     return;
                                 }
                             } else if (args[3].equalsIgnoreCase("remove")) {
@@ -183,7 +186,8 @@ public class PermissionsCommand implements Command {
                                         return;
                                     }
                                     if (permUser.removeGroup(group)) {
-                                        MessageUtils.sendSuccessMessage("Successfully removed the group `" + groupString + "` from " + user.getAsMention(), channel, sender);
+                                        MessageUtils.sendSuccessMessage("Successfully removed the group `" + groupString
+                                                + "` from " + user.getAsMention(), channel, sender);
                                         return;
                                     } else {
                                         MessageUtils.sendErrorMessage("The user doesn't have that group!!", channel);
@@ -196,17 +200,18 @@ public class PermissionsCommand implements Command {
                                 groups.addAll(getPermissions(channel)
                                         .getGroups()
                                         .stream()
-                                        .filter(g -> guild.getGuild().getMember(user).getRoles().contains(guild.getGuild().getRoleById(g.getRoleId())) || g.getRoleId().equals(guild.getGuildId()))
+                                        .filter(g -> guild.getGuild().getMember(user).getRoles()
+                                                .contains(guild.getGuild().getRoleById(g.getRoleId()))
+                                                || g.getRoleId().equals(guild.getGuildId()))
                                         .map(Group::getName)
                                         .collect(Collectors.toList()));
                                 List<String> groupList = GeneralUtils.orderList(groups);
 
                                 String list = groupList.stream().collect(Collectors.joining("\n"));
 
-                                PagedEmbedBuilder<String> pe =
-                                        new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
-                                pe.setTitle("Groups for " + MessageUtils.getTag(user));
-                                pe.enableCodeBlock();
+                                PagedEmbedBuilder pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list,
+                                        PaginationUtil.SplitMethod.NEW_LINES, 25))
+                                        .setTitle("Groups for " + MessageUtils.getTag(user)).enableCodeBlock();
 
                                 PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                                 return;
