@@ -43,6 +43,7 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.general.VariableUtils;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -353,7 +354,9 @@ public class ModlogEvents implements EventListener {
                 event.getMessage().delete().queue(aVoid -> {
                     String msg = wrapper.getNINO().getRemoveMessage();
                     if (msg != null)
-                        event.getChannel().sendMessage(msg).queue();
+                        event.getChannel().sendMessage(
+                                VariableUtils.parseVariables(msg, wrapper, event.getChannel(), event.getAuthor())
+                        ).queue();
                 });
 
                 if (cannotHandle(wrapper, ModlogEvent.INVITE_POSTED)) return;

@@ -43,6 +43,7 @@ import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.general.VariableUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -93,7 +94,6 @@ public class Events extends ListenerAdapter {
                     button.onClick(event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
                     Metrics.buttonsPressed.labels(emote, event.getMessageId());
-                    Long messageId = event.getMessageIdLong();
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for (MessageReaction reaction : message.getReactions()) {
                             if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
@@ -149,19 +149,40 @@ public class Events extends ListenerAdapter {
                         return;
                     }
                     if (welcome.isGuildEnabled()) {
-                        String guildMsg = welcome.getRandomGuildMessage()
+                        String guildMsg = VariableUtils.parseVariables(welcome.getRandomGuildMessage(), wrapper, null, event.getUser());
+                        // Deprecated values
+                        guildMsg = guildMsg
                                 .replace("%user%", event.getMember().getUser().getName())
                                 .replace("%guild%", event.getGuild().getName())
                                 .replace("%mention%", event.getMember().getUser().getAsMention());
                         channel.sendMessage(guildMsg).queue();
+
+                        if (guildMsg.contains("%user%") || guildMsg.contains("%guild%") || guildMsg.contains("%mention%")) {
+                            MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+                                    "Your guild welcome message contains deprecated variables! " +
+                                            "Please check the docs at the link below for a list of all the " +
+                                            "variables you can use!\n" +
+                                            "https://docs.flarebot.stream/variables");
+                        }
                     }
                 }
                 if (welcome.isDmEnabled()) {
                     if (event.getMember().getUser().isBot()) return; // We can't DM other bots.
-                    MessageUtils.sendPM(event.getMember().getUser(), welcome.getRandomDmMessage()
+                    String dmMsg = VariableUtils.parseVariables(welcome.getRandomDmMessage(), wrapper, null, event.getUser());
+                    // Deprecated values
+                    dmMsg = dmMsg
                             .replace("%user%", event.getMember().getUser().getName())
                             .replace("%guild%", event.getGuild().getName())
-                            .replace("%mention%", event.getMember().getUser().getAsMention()));
+                            .replace("%mention%", event.getMember().getUser().getAsMention());
+                    MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+
+                    if (dmMsg.contains("%user%") || dmMsg.contains("%guild%") || dmMsg.contains("%mention%")) {
+                        MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+                                "Your DM welcome message contains deprecated variables! " +
+                                        "Please check the docs at the link below for a list of all the " +
+                                        "variables you can use!\n" +
+                                        "https://docs.flarebot.stream/variables");
+                    }
                 }
             } else welcome.setGuildEnabled(false);
         }
