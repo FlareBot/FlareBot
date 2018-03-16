@@ -41,7 +41,7 @@ public interface Command {
     }
 
     default boolean isDefaultPermission() {
-        return getPermission().isDefaultPerm() && !getType().isInternal();
+        return getPermission() != null && !getType().isInternal();
     }
 
     default boolean deleteMessage() {

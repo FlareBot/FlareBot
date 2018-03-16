@@ -687,7 +687,8 @@ public class GeneralUtils {
             Guild g = Constants.getOfficialGuild();
 
             if (g.getMember(user) != null)
-                return g.getMember(user).getRoles().contains(g.getRoleById(type.getRoleId()));
+                return g.getMember(user).getRoles().contains(g.getRoleById(type.getRoleId())) ||
+                        (FlareBot.instance().isTestBot() && g.getMember(user).getRoles().contains(Constants.getOfficialGuild().getRoleById(Constants.CONTRIBUTOR_ID)));
             else
                 return false;
         } else
