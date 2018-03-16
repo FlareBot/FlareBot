@@ -61,11 +61,11 @@ public class StatsCommand implements Command {
 
     public enum Content implements MultiSelectionContent<String, String, Boolean> {
 
-        SERVERS("Servers", () -> Getters.getGuilds().size()),
-        TOTAL_USERS("Total Users", () -> Getters.getUsers().size()),
+        SERVERS("Servers", () -> Getters.getGuildCache().size()),
+        TOTAL_USERS("Total Users", () -> Getters.getUserCache().size()),
         VOICE_CONNECTIONS("Voice Connections", Getters::getConnectedVoiceChannels),
         ACTIVE_CHANNELS("Channels Playing Music", Getters::getActiveVoiceChannels),
-        TEXT_CHANNELS("Text Channels", () -> Getters.getChannels().size()),
+        TEXT_CHANNELS("Text Channels", () -> Getters.getTextChannelCache().size()),
         LOADED_GUILDS("Loaded Guilds", () -> FlareBotManager.instance().getGuilds().size()),
         COMMANDS_EXECUTED("Commands Executed", () -> FlareBot.instance().getEvents().getCommandCount()),
         UPTIME("Uptime", () -> FlareBot.instance().getUptime()),

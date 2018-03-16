@@ -209,7 +209,7 @@ public class Events extends ListenerAdapter {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
                 event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now())) {
             if (Metrics.guilds.get() == 0)
-                Metrics.guilds.set(Getters.getGuildsCache().size());
+                Metrics.guilds.set(Getters.getGuildCache().size());
             else
                 Metrics.guilds.inc();
                     Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
@@ -227,7 +227,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         if (Metrics.guilds.get() == 0)
-            Metrics.guilds.set(Getters.getGuildsCache().size());
+            Metrics.guilds.set(Getters.getGuildCache().size());
         else
             Metrics.guilds.dec();
         Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()

@@ -9,8 +9,13 @@ import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
+import stream.flarebot.flarebot.util.Constants;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -22,76 +27,87 @@ public class Getters {
         return FlareBot.instance();
     }
 
+    // getXCache
+    public static SnowflakeCacheView<Guild> getGuildCache() {
+        return getShardManager().getGuildCache();
+    }
+
+    public static SnowflakeCacheView<TextChannel> getTextChannelCache() {
+        return getShardManager().getTextChannelCache();
+    }
+
+    public static SnowflakeCacheView<VoiceChannel> getVoiceChannelCache() {
+        return getShardManager().getVoiceChannelCache();
+    }
+
+    public static SnowflakeCacheView<User> getUserCache() {
+        return getShardManager().getUserCache();
+    }
+
+    // getXById
+    @Nullable
     public static TextChannel getChannelById(String id) {
-        return getGuilds().stream()
-                .map(g -> g.getTextChannelById(id))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+        return getShardManager().getTextChannelById(id);
     }
 
+    @Nullable
     public static TextChannel getChannelById(long id) {
-        return getGuilds().stream().map(g -> g.getTextChannelById(id)).filter(Objects::nonNull).findFirst().orElse(null);
+        return getShardManager().getTextChannelById(id);
     }
 
+    @Nullable
     public static Guild getGuildById(String id) {
-        return getGuilds().stream().filter(g -> g.getId().equals(id)).findFirst().orElse(null);
+        return getShardManager().getGuildById(id);
     }
 
+    @Nullable
     public static Guild getGuildById(long id) {
-        return getGuilds().stream().filter(g -> g.getIdLong() == id).findFirst().orElse(null);
+        return getShardManager().getGuildById(id);
     }
 
+    @Nullable
     public static Emote getEmoteById(long emoteId) {
-        for (Guild g : getGuilds())
-            if (g.getEmoteById(emoteId) != null)
-                return g.getEmoteById(emoteId);
-        return null;
+        return getShardManager().getEmoteById(emoteId);
     }
 
-    public static List<Guild> getGuilds() {
-        return flareBot().getShardManager().getGuilds();
-    }
-
-    public static SnowflakeCacheView<Guild> getGuildsCache() {
-        return flareBot().getShardManager().getGuildCache();
-    }
-
-    public static List<Channel> getChannels() {
-        return getGuilds().stream().flatMap(g -> g.getTextChannels().stream()).collect(Collectors.toList());
-    }
-
-    public static long getConnectedVoiceChannels() {
-        return getGuilds().stream().filter(c -> c.getAudioManager().getConnectedChannel() != null).count();
-    }
-
-    public static List<VoiceChannel> getConnectedVoiceChannelList() {
-        return getGuilds().stream().map(g -> g.getAudioManager().getConnectedChannel())
-                .filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    public static Set<User> getUsers() {
-        return flareBot().getShardManager().getUserCache().asSet();
-    }
-
+    @Nullable
     public static User getUserById(String id) {
-        return flareBot().getShardManager().getUserById(id);
+        return getShardManager().getUserById(id);
     }
 
+    @Nullable
     public static User getUserById(long id) {
-        return flareBot().getShardManager().getUserById(id);
+        return getShardManager().getUserById(id);
     }
 
+    @Nullable
     public static User retrieveUserById(long id) {
-        return flareBot().getClient().retrieveUserById(id).complete();
+        JDA client = flareBot().getClient();
+        if (client == null)
+            return null;
+        try {
+            return client.retrieveUserById(id).complete();
+        } catch (ErrorResponseException e) {
+            return null;
+        }
     }
 
-    public static List<VoiceChannel> getVoiceChannels() {
-        return flareBot().getShardManager().getVoiceChannels();
+    // Other
+    public static long getConnectedVoiceChannels() {
+        return getShardManager().getGuildCache().stream()
+                .filter(c -> c.getAudioManager().getConnectedChannel() != null).count();
+    }
+
+    public static Set<VoiceChannel> getConnectedVoiceChannel() {
+        return getShardManager().getGuildCache().stream().filter(c -> c.getAudioManager().getConnectedChannel() != null)
+                .map(g -> g.getAudioManager().getConnectedChannel())
+                .collect(Collectors.toSet());
     }
 
     public static long getActiveVoiceChannels() {
-        return getConnectedVoiceChannelList().stream()
-                .map(vc -> flareBot().getMusicManager().getPlayer(vc.getGuild().getId()))
+        return getShardManager().getGuildCache().stream()
+                .filter(c -> c.getAudioManager().getConnectedChannel() != null)
+                .map(g -> flareBot().getMusicManager().getPlayer(g.getId()))
                 .filter(p -> p != null && p.getPlayingTrack() != null && !p.getPaused())
                 .count();
     }
@@ -100,16 +116,20 @@ public class Getters {
         return flareBot().getShardManager().getShards();
     }
 
-    public static JDA[] getShardsArray() {
-        return flareBot().getShardManager().getShards().toArray(new JDA[flareBot().getShardManager().getShards().size()]);
-    }
-
-
+    @Nonnull
     public static SelfUser getSelfUser() {
-        return FlareBot.instance().getClient().getSelfUser();
+        JDA client = flareBot().getClient();
+        if (client == null)
+            throw new IllegalStateException("Getters#getSelfUser was called when no shards were connected!");
+        return client.getSelfUser();
     }
 
+    @Nonnull
     public static ShardManager getShardManager() {
         return flareBot().getShardManager();
+    }
+
+    public static Guild getOfficialGuild() {
+        return getGuildById(Constants.OFFICIAL_GUILD);
     }
 }

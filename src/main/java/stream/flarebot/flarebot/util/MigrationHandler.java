@@ -28,7 +28,7 @@ public class MigrationHandler {
     }
 
     public int migratePermissionsForAllGuilds(String[] oldPermissions, String[] newPermissions) {
-        return Getters.getGuilds().stream().mapToInt(g -> migratePermissionsForGuild(oldPermissions, newPermissions, g)).sum();
+        return Getters.getGuildCache().stream().mapToInt(g -> migratePermissionsForGuild(oldPermissions, newPermissions, g)).sum();
     }
 
     public int migrateSinglePermissionForGuild(String oldPermission, String newPermission, Guild guild) {
@@ -56,6 +56,6 @@ public class MigrationHandler {
     }
 
     public int migrateSinglePermissionForAllGuilds(String oldPermission, String newPermission) {
-        return Getters.getGuilds().stream().mapToInt(g -> migrateSinglePermissionForGuild(oldPermission, newPermission, g)).sum();
+        return Getters.getGuildCache().stream().mapToInt(g -> migrateSinglePermissionForGuild(oldPermission, newPermission, g)).sum();
     }
 }

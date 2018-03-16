@@ -16,7 +16,7 @@ public class GuildCountAnalytics implements AnalyticSender {
     public JSONObject processData() {
         JSONObject object = new JSONObject();
         object.put("data", new JSONObject()
-                .put("guilds", Getters.getGuilds().size()));
+                .put("guilds", Getters.getGuildCache().size()));
         return object;
     }
 

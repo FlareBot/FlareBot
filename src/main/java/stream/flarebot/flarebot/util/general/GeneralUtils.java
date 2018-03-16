@@ -85,14 +85,15 @@ public class GeneralUtils {
      */
     public static EmbedBuilder getReportEmbed(User sender, Report report) {
         EmbedBuilder eb = MessageUtils.getEmbed(sender);
-        User reporter = Getters.getUserById(String.valueOf(report.getReporterId()));
-        User reported = Getters.getUserById(String.valueOf(report.getReportedId()));
+        User reporter = Getters.getUserById(report.getReporterId());
+        User reported = Getters.getUserById(report.getReportedId());
 
         eb.addField("Report ID", String.valueOf(report.getId()), true);
-        eb.addField("Reporter", MessageUtils.getTag(reporter), true);
-        eb.addField("Reported", MessageUtils.getTag(reported), true);
+        eb.addField("Reporter", reporter != null ? MessageUtils.getTag(reporter) : "Unknown", true);
+        eb.addField("Reported", reported != null ? MessageUtils.getTag(reported) : "Unknown", true);
 
-        eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST", true);
+        //eb.addField("Time", report.getTime().toLocalDateTime().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " GMT/BST", true);
+        eb.setTimestamp(report.getTime().toLocalDateTime());
         eb.addField("Status", report.getStatus().getMessage(), true);
 
         eb.addField("Message", "```" + report.getMessage() + "```", false);
@@ -437,10 +438,6 @@ public class GeneralUtils {
         return item.get();
     }
 
-    public static String colourFormat(Color color) {
-        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
-    }
-
     public static String truncate(int length, String string) {
         return truncate(length, string, true);
     }
@@ -450,73 +447,16 @@ public class GeneralUtils {
                 length - (ellipse ? 3 : 0) && ellipse ? "..." : "");
     }
 
+    @Deprecated
     @Nullable
     public static TextChannel getChannel(String arg) {
         return getChannel(arg, null);
     }
 
+    @Deprecated
     @Nullable
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
-        try {
-            long channelId = Long.parseLong(channelArg.replaceAll("[^0-9]", ""));
-            return wrapper != null ? wrapper.getGuild().getTextChannelById(channelId) : Getters.getChannelById(channelId);
-        } catch (NumberFormatException e) {
-            if (wrapper != null) {
-                List<TextChannel> tcs = wrapper.getGuild().getTextChannelsByName(channelArg, true);
-                if (!tcs.isEmpty()) {
-                    return tcs.get(0);
-                }
-            }
-            return null;
-        }
-    }
-
-    public static boolean validPerm(String perm) {
-        if (perm.equals("*") || perm.equals("flarebot.*")) return true;
-        if (perm.startsWith("flarebot.") && perm.split("\\.").length >= 2) {
-            perm = perm.substring(perm.indexOf(".") + 1);
-            String command = perm.split("\\.")[0];
-            for (Command c : FlareBot.getCommandManager().getCommands()) {
-                if (c.getCommand().equalsIgnoreCase(command) && !c.getType().isInternal())
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    public static void joinChannel(TextChannel channel, Member member) {
-        GuildVoiceState vs = channel.getGuild().getSelfMember().getVoiceState();
-        GuildVoiceState memberVS = member.getVoiceState();
-        if (memberVS.getChannel() == null) {
-            MessageUtils.sendErrorMessage("You need to join a voice channel to do that!", channel);
-            return; // They aren't in a VC so we can't join that.
-        }
-        if (vs.getChannel() != null && vs.getChannel().getIdLong() == member.getVoiceState().getChannel().getIdLong())
-            return; // Already in the same VC as the user.
-
-        if (channel.getGuild().getSelfMember()
-                .hasPermission(memberVS.getChannel(), Permission.VOICE_CONNECT) &&
-                channel.getGuild().getSelfMember()
-                        .hasPermission(memberVS.getChannel(), Permission.VOICE_SPEAK)) {
-            if (memberVS.getChannel().getUserLimit() > 0 && member.getVoiceState().getChannel()
-                    .getMembers().size()
-                    >= member.getVoiceState().getChannel().getUserLimit() && !member.getGuild().getSelfMember()
-                    .hasPermission(member
-                            .getVoiceState()
-                            .getChannel(), Permission.MANAGE_CHANNEL)) {
-                MessageUtils.sendErrorMessage("We can't join :(\n\nThe channel user limit has been reached and we don't have the 'Manage Channel' permission to " +
-                        "bypass it!", channel);
-                return;
-            }
-            channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            if (FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty())
-                FlareBotManager.instance().getLastActive().put(channel.getGuild().getIdLong(), System.currentTimeMillis());
-        } else {
-            MessageUtils.sendErrorMessage("I do not have permission to " + (!channel.getGuild().getSelfMember()
-                    .hasPermission(member.getVoiceState()
-                            .getChannel(), Permission.VOICE_CONNECT) ?
-                    "connect" : "speak") + " in your voice channel!", channel);
-        }
+        return GuildUtils.getChannel(channelArg, wrapper);
     }
 
     /**

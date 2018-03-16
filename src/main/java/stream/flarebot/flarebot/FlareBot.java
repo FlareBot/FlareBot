@@ -21,6 +21,7 @@ import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -518,15 +519,16 @@ public class FlareBot {
     }
 
     private void sendData() {
+        Guild g = Getters.getOfficialGuild();
         JSONObject data = new JSONObject()
-                .put("guilds", Getters.getGuilds().size())
+                .put("guilds", Getters.getGuildCache().size())
                 //.put("loaded_guilds", FlareBotManager.instance().getGuilds().size())
-                .put("official_guild_users", Getters.getGuildById(Constants.OFFICIAL_GUILD).getMembers().size())
-                .put("text_channels", Getters.getChannels().size())
-                .put("voice_channels", Getters.getVoiceChannels().size())
+                .put("official_guild_users", g != null ? g.getMemberCache().size() : -1)
+                .put("text_channels", Getters.getTextChannelCache().size())
+                .put("voice_channels", Getters.getVoiceChannelCache().size())
                 .put("connected_voice_channels", Getters.getConnectedVoiceChannels())
                 .put("active_voice_channels", Getters.getActiveVoiceChannels())
-                .put("num_queued_songs", Getters.getGuilds().stream()
+                .put("num_queued_songs", Getters.getGuildCache().stream()
                         .mapToInt(guild -> musicManager.getPlayer(guild.getId())
                                 .getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
@@ -757,7 +759,7 @@ public class FlareBot {
                         WebUtils.post("https://www.carbonitex.net/discord/data/botdata.php", WebUtils.APPLICATION_JSON,
                                 new JSONObject()
                                         .put("key", config.getString("botlists.carbon").get())
-                                        .put("servercount", Getters.getGuilds().size())
+                                        .put("servercount", Getters.getGuildCache().size())
                                         .put("shardcount", Getters.getShards().size())
                                         .toString());
                     } catch (IOException e) {
@@ -818,8 +820,9 @@ public class FlareBot {
         new FlareBotTask("ActivityChecker") {
             @Override
             public void run() {
-                for (VoiceChannel channel : Getters.getConnectedVoiceChannelList()) {
-                    if (channel.getMembers().stream().filter(member -> !member.getUser().isBot() && !member.getUser().isFake()).count() > 0
+                for (VoiceChannel channel : Getters.getConnectedVoiceChannel()) {
+                    if (channel.getMembers().stream().anyMatch(member -> !member.getUser().isBot()
+                            && !member.getUser().isFake())
                             && !getMusicManager().getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
                             && !getMusicManager().getPlayer(channel.getGuild().getId()).getPaused()) {
                         manager.getLastActive().remove(channel.getGuild().getIdLong());
