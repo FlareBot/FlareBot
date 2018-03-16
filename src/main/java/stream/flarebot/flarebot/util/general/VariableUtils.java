@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class VariableUtils {
 
-    private static final Pattern random = Pattern.compile("\\{random(:(\\d+)(,\\d+)?)?}");
+    private static final Pattern random = Pattern.compile("\\{random(:(-?\\d+)(?:,(-?\\d+))?)?}");
 
     /**
      * This method is used to parse variables in a message, this means that we can allow users to pass things into
