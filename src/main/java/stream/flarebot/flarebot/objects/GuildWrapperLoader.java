@@ -40,13 +40,17 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
             if (row != null) {
                 json = row.getString("data");
 
+                if (json.isEmpty() || json.equalsIgnoreCase("null")) {
+                    return new GuildWrapper(id);
+                }
+
                 data = new JSONConfig(parser.parse(json).getAsJsonObject());
                 if (data.getLong("dataVersion").isPresent() && data.getLong("dataVersion").getAsLong() == 0)
                     data = firstMigration(data);
 
                 wrapper = FlareBot.GSON.fromJson(data.getObject().toString(), GuildWrapper.class);
             } else
-                wrapper = new GuildWrapper(id);
+                return new GuildWrapper(id);
         } catch (Exception e) {
             if (json == null) {
                 FlareBot.LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +

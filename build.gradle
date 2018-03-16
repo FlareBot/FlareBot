@@ -39,7 +39,8 @@ dependencies {
         exclude(module: 'JDA')
     }
 
-    compile group: 'com.github.binaryoverload', name: 'JSON-Config', version: '2.7.5'
+    //compile group: 'com.github.binaryoverload', name: 'JSON-Config', version: '2.7.5'
+    compile 'com.github.WalshyDev:JSON-Config:1d5f243bf3'
 
     compile group: 'com.datastax.cassandra', name: 'cassandra-driver-core', version: '3.3.0'
     compile group: 'redis.clients', name: 'jedis', version: '2.9.0'

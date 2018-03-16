@@ -67,10 +67,15 @@
         </dependency>
 
         <!-- internal libs -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.github.binaryoverload</groupId>
             <artifactId>JSON-Config</artifactId>
             <version>2.7.7</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.github.WalshyDev</groupId>
+            <artifactId>JSON-Config</artifactId>
+            <version>1d5f243bf3</version>
         </dependency>
 
         <!-- DB && HTTP -->
