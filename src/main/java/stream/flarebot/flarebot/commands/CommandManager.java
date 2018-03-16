@@ -136,6 +136,7 @@ public class CommandManager {
         registerCommand(new AutoAssignCommand());
         registerCommand(new FixCommand());
         registerCommand(new NINOCommand());
+        registerCommand(new SettingsCommand());
     }
 
     private void registerSecretCommands() {
