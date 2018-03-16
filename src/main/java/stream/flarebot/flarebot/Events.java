@@ -50,8 +50,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -60,8 +60,10 @@ import java.util.stream.Collectors;
 public class Events extends ListenerAdapter {
 
     public static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
-    private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
-            new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
+    /*private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
+            new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));*/
+    private static final ThreadPoolExecutor COMMAND_POOL = (ThreadPoolExecutor) Executors.newFixedThreadPool(2,
+            t -> new Thread(COMMAND_THREADS, "Command Pool-" + COMMAND_THREADS.activeCount()));
     private static final List<Long> removedByMe = new ArrayList<>();
 
     private final Logger LOGGER = FlareBot.getLog(this.getClass());
@@ -409,7 +411,7 @@ public class Events extends ListenerAdapter {
         if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
             return;
 
-        CACHED_POOL.submit(() -> {
+        COMMAND_POOL.submit(() -> {
             LOGGER.info(
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args) + " in " + event.getChannel() + "! Sender: " +

@@ -56,7 +56,6 @@ public class NINO {
 
     @Nullable
     public String getRemoveMessage() {
-        migrate();
         if (this.removeMessages.isEmpty())
             return null;
         return "[NINO] " + RandomUtils.getRandomString(removeMessages);
