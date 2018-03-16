@@ -26,7 +26,7 @@ public class JumboCommand implements Command {
             if (!message.getEmotes().isEmpty() && message.getEmotes().size() <= 5) {
                 if (message.getEmotes().size() == 1) {
                     Emote e = message.getEmotes().get(0);
-                    channel.sendMessage("**Name: **" + e.getName()
+                    channel.sendMessage("**Name: ** `" + e.getName() + "`"
                             + "\n**ID: **" + e.getId()
                             + "\n**Server: **" + (e.getGuild() != null ? e.getGuild().getName()
                             + " (" + e.getGuild().getId() + ")": "Unknown")
