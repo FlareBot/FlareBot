@@ -15,6 +15,29 @@ import java.util.regex.Pattern;
 public class VariableUtils {
 
     private static final Pattern random = Pattern.compile("\\{random(:(-?\\d+)(?:,(-?\\d+))?)?}");
+    private static final Pattern arguments = Pattern.compile("\\{\\$([1-9])+(?:,(.+))?}");
+
+    public static String parseVariables(@Nonnull String message) {
+        return parseVariables(message, null, null, null, null);
+    }
+
+    public static String parseVariables(@Nonnull String message,
+                                        @Nullable GuildWrapper wrapper) {
+        return parseVariables(message, wrapper, null, null, null);
+    }
+
+    public static String parseVariables(@Nonnull String message,
+                                        @Nullable GuildWrapper wrapper,
+                                        @Nullable TextChannel channel) {
+        return parseVariables(message, wrapper, channel, null, null);
+    }
+
+    public static String parseVariables(@Nonnull String message,
+                                        @Nullable GuildWrapper wrapper,
+                                        @Nullable TextChannel channel,
+                                        @Nullable User user) {
+        return parseVariables(message, wrapper, channel, user, null);
+    }
 
     /**
      * This method is used to parse variables in a message, this means that we can allow users to pass things into
@@ -59,7 +82,8 @@ public class VariableUtils {
     public static String parseVariables(@Nonnull String message,
                                         @Nullable GuildWrapper wrapper,
                                         @Nullable TextChannel channel,
-                                        @Nullable User user) {
+                                        @Nullable User user,
+                                        @Nullable String[] args) {
         @Nullable
         Guild guild = null;
         @Nullable
@@ -106,12 +130,25 @@ public class VariableUtils {
             int min = 1;
             int max = 100;
             if (matcher.groupCount() >= 2) {
-                min = GeneralUtils.getInt(matcher.group(2), 1);
-                max = (matcher.groupCount() == 3 ? GeneralUtils.getInt(matcher.group(3), 100) : 100);
+                min = (matcher.group(3) != null ? GeneralUtils.getInt(matcher.group(2), min) : min);
+                max = (matcher.group(3) != null ? GeneralUtils.getInt(matcher.group(3), max) : max);
             }
             parsed = matcher.replaceAll(String.valueOf(RandomUtils.getInt(min, max)));
         }
 
+        String[] variableArgs = args;
+        if (args == null || args.length == 0)
+            variableArgs = new String[]{};
+
+        matcher = arguments.matcher(parsed);
+        while (matcher.find()) {
+            int argIndex = GeneralUtils.getPositiveInt(matcher.group(1), 0);
+            String arg = matcher.groupCount() == 2 && matcher.group(2) != null ? matcher.group(2) : "William";
+
+            if (variableArgs.length >= argIndex)
+                arg = variableArgs[argIndex-1];
+            parsed = matcher.replaceAll(arg);
+        }
         return parsed;
     }
 }

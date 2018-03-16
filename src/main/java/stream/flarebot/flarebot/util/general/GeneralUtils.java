@@ -169,6 +169,24 @@ public class GeneralUtils {
     }
 
     /**
+     * Gets an int from a String.
+     * The default value you pass is what it return if their was an error parsing the string.
+     * This happens when the string you enter isn't an int. For example if you enter in 'no'.
+     *
+     * @param s            The string to parse an int from.
+     * @param defaultValue The default int value to get in case parsing fails.
+     * @return The int parsed from the string or the default value.
+     */
+    public static int getPositiveInt(String s, int defaultValue) {
+        try {
+            int i = Integer.parseInt(s);
+            return (i >= 0 ? i : defaultValue);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
      * Gets a long from a String.
      * The default value you pass is what it return if their was an error parsing the string.
      * This happens when the string you enter isn't an int. For example if you enter in 'no'.
