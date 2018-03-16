@@ -75,7 +75,7 @@
         <dependency>
             <groupId>com.github.WalshyDev</groupId>
             <artifactId>JSON-Config</artifactId>
-            <version>1d5f243bf3</version>
+            <version>f3436601e8</version>
         </dependency>
 
         <!-- DB && HTTP -->
