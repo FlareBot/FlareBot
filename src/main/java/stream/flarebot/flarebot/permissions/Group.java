@@ -2,8 +2,6 @@ package stream.flarebot.flarebot.permissions;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
-import java.util.Set;
-
 
 public class Group {
 
@@ -26,6 +24,10 @@ public class Group {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public boolean addPermission(String permission) {
         return permissions.add(permission);
     }
@@ -34,12 +36,16 @@ public class Group {
         return permissions.remove(permission);
     }
 
-    public boolean hasPermission(String permission) {
+    public Permission.Reply hasPermission(Permission permission) {
         for (String s : permissions) {
-            if (new PermissionNode(s).test(permission))
-                return true;
+            boolean hasPermission =
+                    new PermissionNode(s.substring(s.startsWith("-") ? 1 : 0)).test(permission.getPermission());
+            if (s.startsWith("-") && hasPermission)
+                return Permission.Reply.DENY;
+            if (hasPermission)
+                return Permission.Reply.ALLOW;
         }
-        return false;
+        return Permission.Reply.NEUTRAL;
     }
 
     public void linkRole(String roleId) {

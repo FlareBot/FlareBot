@@ -9,8 +9,9 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 
 import java.awt.Color;
 import java.util.stream.Collectors;
@@ -19,15 +20,16 @@ public class BetaCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        String betaInfo = GeneralUtils.formatCommandPrefix(channel, FlareBot.getInstance().getCommands()
-                .stream()
-                .filter(Command::isBetaTesterCommand)
-                .map(c -> "`{%}" + c.getCommand() + "` - " + c.getDescription())
-                .collect(Collectors.joining("\n")));
+        String betaInfo =
+                FormatUtils.formatCommandPrefix(guild, FlareBot.getCommandManager().getCommands()
+                        .stream()
+                        .filter(Command::isBetaTesterCommand)
+                        .map(c -> "`{%}" + c.getCommand() + "` - " + c.getDescription())
+                        .collect(Collectors.joining("\n")));
         String betaMessage = guild.hasBetaAccess() ?
-                "Thank you for being apart of our beta program! Please report any bugs or give us suggestions over at the [support discord](" + FlareBot.INVITE_URL + ")!"
+                "Thank you for being apart of our beta program! Please report any bugs or give us suggestions over at the [support discord](" + Constants.INVITE_URL + ")!"
                 : "Listed below are the commands you can gain access to by being a part of our beta program! To join the beta program, you will either need to win " +
-                "beta access through a giveaway (Make sure you are in the [support server](" + FlareBot.INVITE_URL + ") to hear of these!) or you can become apart of the " +
+                "beta access through a giveaway (Make sure you are in the [support server](" + Constants.INVITE_URL + ") to hear of these!) or you can become apart of the " +
                 "Donator tier or higher on our [patreon page](https://www.patreon.com/flarebot)!";
         EmbedBuilder builder = MessageUtils.getEmbed(sender);
         builder.setColor(Color.CYAN);

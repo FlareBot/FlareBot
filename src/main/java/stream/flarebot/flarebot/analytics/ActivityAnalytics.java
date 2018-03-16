@@ -1,11 +1,11 @@
 package stream.flarebot.flarebot.analytics;
 
+import java.util.IntSummaryStatistics;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
-
-import java.util.IntSummaryStatistics;
-import java.util.concurrent.TimeUnit;
+import stream.flarebot.flarebot.Getters;
 
 /**
  * This data is for tracking how much activity is happening on the bot at one time.
@@ -22,14 +22,14 @@ public class ActivityAnalytics implements AnalyticSender {
     public JSONObject processData() {
         JSONObject object = new JSONObject();
 
-        IntSummaryStatistics statistics = FlareBot.getInstance().getGuilds().stream()
-                .filter(guild -> !FlareBot.getInstance().getMusicManager().getPlayer(guild.getId()).getPlaylist().isEmpty())
-                .mapToInt(guild -> FlareBot.getInstance().getMusicManager().getPlayer(guild.getId()).getPlaylist().size())
+        IntSummaryStatistics statistics = Getters.getGuildCache().stream()
+                .filter(guild -> !FlareBot.instance().getMusicManager().getPlayer(guild.getId()).getPlaylist().isEmpty())
+                .mapToInt(guild -> FlareBot.instance().getMusicManager().getPlayer(guild.getId()).getPlaylist().size())
                 .summaryStatistics();
 
         object.put("data", new JSONObject()
-                .put("guilds", FlareBot.getInstance().getGuilds().size())
-                .put("loaded_guilds", FlareBotManager.getInstance().getGuilds().size())
+                .put("guilds", Getters.getGuildCache().size())
+                .put("loaded_guilds", FlareBotManager.instance().getGuilds().size())
                 .put("guilds_with_songs", statistics.getCount())
                 .put("songs", statistics.getSum()));
         return object;

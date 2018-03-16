@@ -41,7 +41,16 @@ public class GitHandler {
         return null;
     }
 
-    private static RevCommit getLatestCommit() {
+    public static void updateRepo(File directory) throws GitAPIException {
+        if (GIT != null) {
+            GIT.pull().call();
+        } else {
+            Git.cloneRepository().setDirectory(directory).setURI("https://github.com/FlareBot/FlareBot.git").call();
+        }
+
+    }
+
+    public static RevCommit getLatestCommit() {
         if (latestCommit == null) {
             if (getRepository() != null) {
                 try (RevWalk walk = new RevWalk(getRepository())) {

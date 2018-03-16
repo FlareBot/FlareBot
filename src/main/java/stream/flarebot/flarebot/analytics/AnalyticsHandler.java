@@ -1,17 +1,16 @@
 package stream.flarebot.flarebot.analytics;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.WebUtils;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class AnalyticsHandler {
 
@@ -38,8 +37,8 @@ public class AnalyticsHandler {
      * @param delay Delay for the analytics to be first sent.
      */
     public void run(long delay) {
-        if (FlareBot.getInstance().isApiDisabled()) {
-            MessageUtils.sendWarningMessage("API and Analytics disabled", FlareBot.getInstance().getErrorLogChannel());
+        if (FlareBot.instance().isApiDisabled()) {
+            MessageUtils.sendWarningMessage("API and Analytics disabled", Constants.getErrorLogChannel());
             return;
         }
         for (AnalyticSender sender : analytics) {

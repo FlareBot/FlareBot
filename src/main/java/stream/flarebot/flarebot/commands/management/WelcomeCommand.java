@@ -7,11 +7,14 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WelcomeCommand implements Command {
 
@@ -182,35 +185,17 @@ public class WelcomeCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
-    }
-
     private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
-        int messagesLength = 15;
-        int pages =
-                messages.size() < messagesLength ? 1 : (messages.size() / messagesLength) + (messages.size() % messagesLength != 0 ? 1 : 0);
-        int start = messagesLength * (page - 1);
-        int end = Math.min(start + messagesLength, messages.size());
-        if (page > pages || page < 0) {
-            MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-        } else {
-            List<String> messagesSub = messages.subList(start, end);
-            List<List<String>> body = new ArrayList<>();
-            int i = 0;
-            for (String messagesMessage : messagesSub) {
-                List<String> part = new ArrayList<>();
-                part.add(String.valueOf(i));
-                part.add(MessageUtils.escapeMarkdown(messagesMessage));
-                body.add(part);
-                i++;
-            }
-            List<String> header = new ArrayList<>();
-            header.add("Id");
-            header.add("Message");
-            channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Messages Page " + GeneralUtils
-                    .getPageOutOfTotal(page, messages, messagesLength))).queue();
+        List<String> messagesWithId = new ArrayList<>();
+        int i = 0;
+        for (String message : messages) {
+            messagesWithId.add(i + ": " + message);
+            i++;
         }
+        String list = messagesWithId.stream().collect(Collectors.joining("\n"));
+        PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list + "\n", PaginationUtil.SplitMethod.CHAR_COUNT, 1024));
+        pe.setTitle("Welcome Messages");
+        pe.setCodeBlock("md");
+        PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
     }
 }

@@ -1,17 +1,11 @@
 package stream.flarebot.flarebot.commands.general;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +22,7 @@ public class AutoAssignCommand implements Command {
             } else if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove")) {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender)
                         .setDescription(sender
-                                .getAsMention() + " Usage: " + FlareBot
-                                .getPrefixes().get(channel.getGuild()
-                                        .getId()) + "autoassign " + args[0] + " <role>"), channel);
+                                .getAsMention() + " Usage: " + guild.getPrefix() + "autoassign " + args[0] + " <role>"), channel);
             } else {
                 MessageUtils.sendErrorMessage(MessageUtils.getEmbed(sender).setDescription(sender
                         .getAsMention() + " Invalid argument!"), channel);
@@ -118,11 +110,6 @@ public class AutoAssignCommand implements Command {
     @Override
     public String[] getAliases() {
         return new String[]{"autorole"};
-    }
-
-    @Override
-    public boolean isDefaultPermission() {
-        return false;
     }
 
     private Role getRole(Guild guild, String role) {

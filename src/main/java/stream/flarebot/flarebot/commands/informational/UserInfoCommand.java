@@ -1,24 +1,23 @@
 package stream.flarebot.flarebot.commands.informational;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.PlayerCache;
-import stream.flarebot.flarebot.util.GeneralUtils;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 public class UserInfoCommand implements Command {
 
-    private FlareBot flareBot = FlareBot.getInstance();
+    private FlareBot flareBot = FlareBot.instance();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -26,10 +25,10 @@ public class UserInfoCommand implements Command {
         if (args.length == 0)
             user = sender;
         else {
-            if (getPermissions(channel).hasPermission(member, "flarebot.userinfo.other"))
-                user = GeneralUtils.getUser(MessageUtils.getMessage(args, 0), true);
+            if (getPermissions(channel).hasPermission(member, Permission.USERINFO_OTHER))
+                user = GuildUtils.getUser(MessageUtils.getMessage(args, 0), true);
             else {
-                MessageUtils.sendErrorMessage("You need the `flarebot.userinfo.other` permission to userinfo other users!",
+                MessageUtils.sendErrorMessage("You need the " + Permission.USERINFO_OTHER + " permission to userinfo other users!",
                         channel);
                 return;
             }
@@ -53,7 +52,7 @@ public class UserInfoCommand implements Command {
                         "Default Avatar: [`link`](" + MessageUtils
                         .getDefaultAvatar(sender) + ')', true)
                 .addField("General Info",
-                        "Servers: " + FlareBot.getInstance().getGuilds().stream()
+                        "Servers: " + Getters.getGuildCache().stream()
                                 .filter(g -> g.getMemberById(id) != null)
                                 .count() + " shared\n" +
                                 "Roles: " + (targetMember == null ? "The user is not in this server." :
@@ -67,14 +66,14 @@ public class UserInfoCommand implements Command {
                                                 String.format("[`%s`](%s)", targetMember.getGame()
                                                                 .getName(),
                                                         targetMember.getGame().getUrl())) : ""), true)
-                .addField("Time Data", "Created: " + GeneralUtils
+                .addField("Time Data", "Created: " + FormatUtils
                         .formatTime(LocalDateTime.from(user.getCreationTime())) + "\n" +
                         "Joined: " + (targetMember == null ? "The user is not in this server."
-                        : GeneralUtils.formatTime(LocalDateTime
+                        : FormatUtils.formatTime(LocalDateTime
                         .from(channel.getGuild().getMember(user).getJoinDate()))) + "\n" +
-                        "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : GeneralUtils
+                        "Last Seen: " + (cache.getLastSeen() == null ? "Unknown" : FormatUtils
                         .formatTime(cache.getLastSeen())) + "\n" +
-                        "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : GeneralUtils
+                        "Last Spoke: " + (cache.getLastMessage() == null ? "Unknown" : FormatUtils
                         .formatTime(cache.getLastMessage())), false)
                 .setThumbnail(MessageUtils.getAvatar(user)).build()).queue();
     }

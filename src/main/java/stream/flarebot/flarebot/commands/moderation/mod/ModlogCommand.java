@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation.mod;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -13,13 +12,16 @@ import stream.flarebot.flarebot.mod.Moderation;
 import stream.flarebot.flarebot.mod.modlog.ModlogAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
+import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
+import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ModlogCommand implements Command {
 
@@ -31,46 +33,31 @@ public class ModlogCommand implements Command {
                 if (args.length == 2) {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
-                int pageSize = 15;
                 Set<ModlogAction> actions = guild.getModeration().getEnabledActions();
-                int pages = actions.size() < pageSize ? 1 : (actions.size() / pageSize)
-                        + (actions.size() % pageSize != 0 ? 1 : 0);
+                List<ModlogAction> events = new ArrayList<>(actions);
 
-                int start;
-                int end;
-
-                start = pageSize * (page - 1);
-                end = Math.min(start + pageSize, actions.size());
-
-                if (page > pages || page < 0) {
-                    MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-                    return;
-                } else {
-                    List<ModlogAction> events = new ArrayList<>(actions).subList(start, end);
-
-                    if (events.isEmpty()) {
-                        MessageUtils.sendErrorMessage("No Events are enabled", channel);
-                        return;
-                    }
-                    List<String> header = new ArrayList<>();
-                    header.add("Event");
-                    header.add("Compact");
-                    header.add("Channel");
-
-                    List<List<String>> body = new ArrayList<>();
-                    for (ModlogAction modlogAction : events) {
-                        if (guild.getModeration().isEventEnabled(guild, modlogAction.getEvent())) {
-                            List<String> part = new ArrayList<>();
-                            part.add(modlogAction.getEvent().getName());
-                            part.add(String.valueOf(modlogAction.isCompacted()));
-                            part.add(modlogAction.getModlogChannel(guild.getGuild()).getName());
-                            body.add(part);
-                        }
-                    }
-
-                    channel.sendMessage(MessageUtils.makeAsciiTable(header, body, " Page " + page + "/" + pages)).queue();
+                if (events.isEmpty()) {
+                    MessageUtils.sendErrorMessage("No Events are enabled", channel);
                     return;
                 }
+                PagedTableBuilder tb = new PagedTableBuilder();
+                tb.addColumn("Event");
+                tb.addColumn("Compact");
+                tb.addColumn("Channel");
+
+                tb.setRowCount(10);
+
+                for (ModlogAction modlogAction : events) {
+                    if (guild.getModeration().isEventEnabled(guild, modlogAction.getEvent())) {
+                        List<String> part = new ArrayList<>();
+                        part.add(modlogAction.getEvent().getName());
+                        part.add(String.valueOf(modlogAction.isCompacted()));
+                        part.add(modlogAction.getModlogChannel(guild.getGuild()).getName());
+                        tb.addRow(part);
+                    }
+                }
+                PaginationUtil.sendPagedMessage(channel, tb.build(), page - 1);
+                return;
             }
             if (args[0].equalsIgnoreCase("features")) {
                 int page = 1;
@@ -78,7 +65,7 @@ public class ModlogCommand implements Command {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
 
-                listEvents(channel, page, guild, false);
+                listEvents(channel, page, false);
                 return;
             }
         }
@@ -102,7 +89,7 @@ public class ModlogCommand implements Command {
             }
             Moderation moderation = guild.getModeration();
             if (args[0].equalsIgnoreCase("enable")) {
-                TextChannel tc = GeneralUtils.getChannel(args[args.length - 1], guild);
+                TextChannel tc = GuildUtils.getChannel(args[args.length - 1], guild);
                 if (tc == null) {
                     MessageUtils.sendErrorMessage("I cannot find the channel `" + args[args.length - 1] + "` try to mention the channel " +
                             "or use the channel ID", channel);
@@ -246,46 +233,30 @@ public class ModlogCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    private void listEvents(TextChannel channel, int page, GuildWrapper wrapper, boolean enabledEvents) {
-        int pageSize = 15;
-        List<ModlogEvent> events;
-        if (enabledEvents)
-            events = wrapper.getModeration().getEnabledActions().stream().map(ModlogAction::getEvent).collect(Collectors.toList());
-        else
-            events = ModlogEvent.events;
-        int pages = events.size() < pageSize ? 1 : (events.size() / pageSize)
-                + (events.size() % pageSize != 0 ? 1 : 0);
+    private void listEvents(TextChannel channel, int page, boolean enabledEvents) {
+        StringBuilder sb = new StringBuilder();
+        String groupKey = null;
+        for (ModlogEvent modlogEvent : ModlogEvent.events) {
+            String name = modlogEvent.getName();
+            String[] split = name.split(" ");
+            if (groupKey == null || groupKey.isEmpty())
+                groupKey = split[0];
 
-        int start;
-        int end;
-
-        start = pageSize * (page - 1);
-        end = Math.min(start + pageSize, events.size());
-
-        if (page > pages || page < 0) {
-            MessageUtils.sendErrorMessage("That page doesn't exist. Current page count: " + pages, channel);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            String groupKey = null;
-            for (ModlogEvent modlogEvent : ModlogEvent.events.subList(start, end)) {
-                String name = modlogEvent.getName();
-                String[] split = name.split(" ");
-                if (groupKey == null || groupKey.isEmpty())
-                    groupKey = split[0];
-
-                if (!groupKey.equals(split[0])) {
-                    sb.append('\n');
-                    groupKey = split[0];
-                }
-
-                sb.append("`").append(modlogEvent.getTitle()).append("` - ").append(modlogEvent.getDescription()).append('\n');
+            if (!groupKey.equals(split[0])) {
+                sb.append('\n');
+                groupKey = split[0];
             }
-            if (!enabledEvents) {
-                sb.append("`Default` - Is for all the normal default events\n");
-                sb.append("`All` - Is for targeting all events");
-            }
-            channel.sendMessage(new EmbedBuilder().setTitle("Features").setDescription(sb.toString())
-                    .setFooter("Page " + page + "/" + pages, null).build()).queue();
+
+            sb.append("`").append(modlogEvent.getTitle()).append("` - ").append(modlogEvent.getDescription()).append('\n');
         }
+        if (!enabledEvents) {
+            sb.append("`Default` - Is for all the normal default events\n");
+            sb.append("`All` - Is for targeting all events");
+        }
+        PaginationUtil.sendEmbedPagedMessage(
+        new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1024))
+                .setTitle("Modlog Events")
+                .build(), page - 1, channel);
+
     }
 }

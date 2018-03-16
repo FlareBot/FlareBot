@@ -13,10 +13,10 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
 
 public class JumboCommand implements Command {
 
