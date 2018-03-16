@@ -101,6 +101,7 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
             List<Group> groups = new ArrayList<>();
             JSONConfig config = data.getSubConfig("permissions.groups").get();
             for (String s : config.getKeys(false)) {
+                System.out.println(s);
                 if (config.getElement(s).isPresent())
                     groups.add(FlareBot.GSON.fromJson(config.getElement(s).get().getAsJsonObject().toString(),
                         Group.class));
