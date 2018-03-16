@@ -5,11 +5,16 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.RandomUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class VariableUtils {
+
+    private static final Pattern random = Pattern.compile("\\{random(:(\\d+)(,\\d+)?)?}");
 
     /**
      * This method is used to parse variables in a message, this means that we can allow users to pass things into
@@ -38,9 +43,16 @@ public class VariableUtils {
      *
      * <h2>Channel Variables</h2>
      * `{channel}` - Channel name.
-     * `{channel_mention}` - Channel mention/
+     * `{channel_mention}` - Channel mention.
      * `{topic}` - Channel topic.
-     * `{category}` - Category name or 'no category'
+     * `{category}` - Category name or 'no category'.
+     *
+     * <hr />
+     *
+     * <h2>Utility Variables</h2>
+     * `{random}` - Random value from 1-10.
+     * `{random:y}` - Random value from 1 to Y.
+     * `{random:x,y}` - Random value from X to Y.
      *
      * @return The parsed message
      */
@@ -86,6 +98,18 @@ public class VariableUtils {
                     .replace("{channel_mention}", channel.getAsMention())
                     .replace("{topic}", channel.getTopic())
                     .replace("{category}", (channel.getParent() != null ? channel.getParent().getName() : "no category"));
+        }
+
+        // Utility variables
+        Matcher matcher = random.matcher(parsed);
+        if (matcher.find()) {
+            int min = 1;
+            int max = 100;
+            if (matcher.groupCount() >= 2) {
+                min = GeneralUtils.getInt(matcher.group(2), 1);
+                max = (matcher.groupCount() == 3 ? GeneralUtils.getInt(matcher.group(3), 100) : 100);
+            }
+            parsed = matcher.replaceAll(String.valueOf(RandomUtils.getInt(min, max)));
         }
 
         return parsed;
