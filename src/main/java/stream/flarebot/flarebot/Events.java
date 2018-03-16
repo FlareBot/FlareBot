@@ -437,6 +437,8 @@ public class Events extends ListenerAdapter {
                     field = new MessageEmbed.Field("Args", "`" + s + "`", false);
                 }
                 ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
+                        new MessageEmbed.Field("Channel", event.getChannel().getName() + " ("
+                                + event.getChannel().getIdLong() + ")", true),
                         new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
             } catch (Exception ex) {
                 Metrics.commandExceptions.labels(ex.getClass().getSimpleName()).inc();
