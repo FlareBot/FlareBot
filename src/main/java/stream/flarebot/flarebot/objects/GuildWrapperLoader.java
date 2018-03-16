@@ -56,7 +56,15 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
                 return null;
             }
 
-            data = new JSONConfig(parser.parse(json).getAsJsonObject());
+            try {
+                data = new JSONConfig(parser.parse(json).getAsJsonObject());
+            } catch (Exception e1) {
+                FlareBot.LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                        "Guild ID: " + id + "\n" +
+                        "Guild JSON: " + json + "\n" +
+                        "Error: " + e.getMessage(), e);
+                throw new IllegalArgumentException("Invalid JSON! '" + json + "'", e1);
+            }
             if (!data.getLong("dataVersion").isPresent()) {
                 data = firstMigration(data);
                 data.set("dataVersion", 1);
@@ -101,7 +109,6 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
             List<Group> groups = new ArrayList<>();
             JSONConfig config = data.getSubConfig("permissions.groups").get();
             for (String s : config.getKeys(false)) {
-                System.out.println(s);
                 if (config.getElement(s).isPresent())
                     groups.add(FlareBot.GSON.fromJson(config.getElement(s).get().getAsJsonObject().toString(),
                         Group.class));
