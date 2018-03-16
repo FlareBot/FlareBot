@@ -8,6 +8,7 @@ import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -24,11 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UpdateCommand implements Command {
 
-    public static final AtomicBoolean UPDATING = new AtomicBoolean(false);
     private static AtomicBoolean queued = new AtomicBoolean(false);
-    public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
-
-    private FlareBot flareBot = FlareBot.getInstance();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -41,17 +38,17 @@ public class UpdateCommand implements Command {
                 } else if (args[0].equalsIgnoreCase("no-active-channels")) {
                     channel.sendMessage("I will now update to the latest version when no channels are playing music!")
                             .queue();
-                    if (flareBot.getConnectedVoiceChannels() == 0) {
+                    if (Getters.getConnectedVoiceChannels() == 0) {
                         update(true, channel);
                     } else {
                         if (!queued.getAndSet(true)) {
-                            NOVOICE_UPDATING.set(true);
+                            FlareBot.NOVOICE_UPDATING.set(true);
                         } else
                             channel.sendMessage("There is already an update queued!").queue();
                     }
                 } else if (args[0].equalsIgnoreCase("schedule")) {
                     if (!queued.getAndSet(true)) {
-                        FlareBot.getInstance().scheduleUpdate();
+                        FlareBot.instance().scheduleUpdate();
                         MessageUtils.sendSuccessMessage("Update scheduled for 12PM GMT!", channel);
                     } else {
                         MessageUtils.sendErrorMessage("There is already an update queued!", channel);
@@ -96,7 +93,7 @@ public class UpdateCommand implements Command {
      */
     public static void update(boolean force, TextChannel channel) {
         if (force) {
-            doTheUpdate(channel, "latest", FlareBot.getInstance().getVersion());
+            doTheUpdate(channel, "latest", FlareBot.getVersion());
             return;
         }
         try {
@@ -108,7 +105,7 @@ public class UpdateCommand implements Command {
                 if (line != null && (line.contains("<version>") && line.contains("</version>"))) {
                     String latestVersion = line.replace("<version>", "").replace("</version>", "").replaceAll(" ", "")
                             .replaceAll("\t", "");
-                    String currentVersion = FlareBot.getInstance().getVersion();
+                    String currentVersion = FlareBot.getVersion();
                     if (isHigher(latestVersion, currentVersion)) {
                         doTheUpdate(channel, latestVersion, currentVersion);
                     } else {
@@ -125,11 +122,11 @@ public class UpdateCommand implements Command {
     }
 
     private static void doTheUpdate(TextChannel channel, String latestVersion, String currentVersion) {
-        FlareBot.getInstance().setStatus("Updating..");
+        FlareBot.instance().setStatus("Updating..");
         if (channel != null)
             channel.sendMessage("Updating to version `" + latestVersion + "` from `" + currentVersion + "`").queue();
-        UPDATING.set(true);
-        FlareBot.getInstance().quit(true);
+        FlareBot.UPDATING.set(true);
+        FlareBot.instance().quit(true);
     }
 
 

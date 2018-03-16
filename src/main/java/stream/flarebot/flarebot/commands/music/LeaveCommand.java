@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class LeaveCommand implements Command {
@@ -19,14 +20,14 @@ public class LeaveCommand implements Command {
                     .getAudioChannel().getId()
                     .equals(member.getVoiceState().getAudioChannel()
                             .getId())) && !getPermissions(channel)
-                    .hasPermission(member, "flarebot.leave.other")) {
-                MessageUtils.sendErrorMessage("You need the permission `flarebot.leave.other` for me to leave a different voice channel!",
+                    .hasPermission(member, Permission.LEAVE_OTHER)) {
+                MessageUtils.sendErrorMessage("You need the permission `" + Permission.LEAVE_OTHER + "` for me to leave a different voice channel!",
                         channel, sender);
                 return;
             }
             channel.getGuild().getAudioManager().closeAudioConnection();
-            if (FlareBotManager.getInstance().getLastActive().containsKey(guild.getGuildIdLong()))
-                FlareBotManager.getInstance().getLastActive().remove(guild.getGuildIdLong());
+            if (FlareBotManager.instance().getLastActive().containsKey(guild.getGuildIdLong()))
+                FlareBotManager.instance().getLastActive().remove(guild.getGuildIdLong());
             MessageUtils.sendInfoMessage("Bye bye! I've left the channel for now", channel, sender);
         }
     }
@@ -54,10 +55,5 @@ public class LeaveCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.leave";
     }
 }

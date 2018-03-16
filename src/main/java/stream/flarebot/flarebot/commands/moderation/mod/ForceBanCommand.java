@@ -10,8 +10,8 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.GeneralUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.EnumSet;
 
@@ -20,7 +20,7 @@ public class ForceBanCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
-            User user = GeneralUtils.getUser(args[0], true);
+            User user = GuildUtils.getUser(args[0], true);
             if (user == null) {
                 MessageUtils.sendErrorMessage("We cannot find that user!", channel, sender);
                 return;

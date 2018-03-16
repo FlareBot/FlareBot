@@ -6,10 +6,10 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.currency.CurrencyComparison;
 import stream.flarebot.flarebot.util.currency.CurrencyConversionUtil;
@@ -48,7 +48,7 @@ public class CurrencyCommand implements Command {
                     return;
                 } catch (IOException e) {
                     MessageUtils.sendException("There was an error completing your request! \n" +
-                            "Please join the support guild: " + FlareBot.INVITE_URL, e, channel);
+                            "Please join the support guild: " + Constants.INVITE_URL, e, channel);
                 }
             }
         }

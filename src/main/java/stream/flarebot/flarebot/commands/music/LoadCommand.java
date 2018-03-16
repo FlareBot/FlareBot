@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
@@ -23,7 +23,7 @@ public class LoadCommand implements Command {
         }
         String name = MessageUtils.getMessage(args, 0);
 
-        List<String> playlist = FlareBot.getInstance().getManager().loadPlaylist(channel, sender, name);
+        List<String> playlist = FlareBotManager.instance().loadPlaylist(channel, sender, name);
         if (!playlist.isEmpty())
             VideoThread.getThread(name + '\u200B' + playlist.toString(), channel, sender).start();
 
@@ -48,10 +48,5 @@ public class LoadCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.queue.load";
     }
 }

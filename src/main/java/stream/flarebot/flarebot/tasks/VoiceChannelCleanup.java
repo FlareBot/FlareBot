@@ -6,6 +6,8 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 
@@ -35,7 +37,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
         final AtomicInteger totalVcs = new AtomicInteger(0);
         final AtomicInteger killedVcs = new AtomicInteger(0);
 
-        FlareBot.getInstance().getGuildsCache().forEach(guild -> {
+        Getters.getGuildCache().forEach(guild -> {
             try {
                 totalGuilds.incrementAndGet();
 
@@ -85,7 +87,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
     }
 
     private boolean isPlayingMusic(VoiceChannel vc) {
-        Player player = FlareBot.getInstance().getMusicManager().getPlayer(vc.getGuild().getId());
+        Player player = FlareBot.instance().getMusicManager().getPlayer(vc.getGuild().getId());
         return player != null && !player.getPaused() && player.getPlayingTrack() != null;
     }
 }

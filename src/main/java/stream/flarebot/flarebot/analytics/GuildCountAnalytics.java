@@ -1,9 +1,8 @@
 package stream.flarebot.flarebot.analytics;
 
-import org.json.JSONObject;
-import stream.flarebot.flarebot.FlareBot;
-
 import java.util.concurrent.TimeUnit;
+import org.json.JSONObject;
+import stream.flarebot.flarebot.Getters;
 
 /**
  * This collects the data on the amount of guilds we're currently in.
@@ -17,7 +16,7 @@ public class GuildCountAnalytics implements AnalyticSender {
     public JSONObject processData() {
         JSONObject object = new JSONObject();
         object.put("data", new JSONObject()
-                .put("guilds", FlareBot.getInstance().getGuilds().size()));
+                .put("guilds", Getters.getGuildCache().size()));
         return object;
     }
 

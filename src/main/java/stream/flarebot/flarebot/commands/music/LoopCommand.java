@@ -14,7 +14,7 @@ public class LoopCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        Player player = FlareBot.getInstance().getMusicManager().getPlayer(channel.getGuild().getId());
+        Player player = FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId());
         if (!player.getLooping()) {
             player.setLooping(true);
             channel.sendMessage("Looping: **ON**").queue();
@@ -42,11 +42,6 @@ public class LoopCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
-    }
-
-    @Override
-    public String getPermission() {
-        return "flarebot.loop";
     }
 
     @Override
