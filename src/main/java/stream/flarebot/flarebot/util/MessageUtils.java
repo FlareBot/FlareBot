@@ -3,12 +3,7 @@ package stream.flarebot.flarebot.util;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -29,7 +24,6 @@ import java.io.StringWriter;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -353,7 +347,7 @@ public class MessageUtils {
         List<String> usages = UsageParser.matchUsage(command, args);
 
         String usage = FormatUtils.formatCommandPrefix(channel.getGuild(), usages.stream().collect(Collectors.joining("\n")));
-        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.RED);
+        EmbedBuilder b = getEmbed(user).setTitle(title, null).setDescription(usage).setColor(Color.pink);
         if (command.getExtraInfo() != null) {
             b.addField("Extra Info", command.getExtraInfo(), false);
         }
