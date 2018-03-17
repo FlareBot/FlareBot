@@ -62,7 +62,7 @@ public class FormatUtils {
     public static String formatCommandPrefix(Guild guild, String usage) {
         String prefix = String.valueOf(GuildUtils.getPrefix(guild));
         if (usage.contains("{%}"))
-            return usage.replaceAll("\\{%}", prefix);
+            return usage.replace("{%}", prefix);
         return usage;
     }
 

@@ -19,7 +19,7 @@ public class CommandUsageCommand implements Command {
             MessageUtils.sendUsage(this, channel, sender, args);
         } else {
             Command c = FlareBot.getCommandManager().getCommand(args[0], sender);
-            if (!GeneralUtils.canRunInternalCommand(c, sender))
+            if (c.getType().isInternal() && !GeneralUtils.canRunInternalCommand(c, sender))
                 MessageUtils.sendErrorMessage("That is not a command!", channel);
             else
                 MessageUtils.sendUsage(c, channel, sender, new String[]{});
