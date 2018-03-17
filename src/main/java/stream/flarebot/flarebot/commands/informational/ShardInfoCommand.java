@@ -43,7 +43,7 @@ public class ShardInfoCommand implements Command {
                     .getSelfMember())).count()));
             tb.addRow(row);
         }
-        PaginationUtil.sendPagedMessage(channel, tb.build(), 0);
+        PaginationUtil.sendPagedMessage(channel, tb.build(), 0, sender);
     }
 
     @Override

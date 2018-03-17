@@ -1,6 +1,8 @@
 package stream.flarebot.flarebot.util.pagination;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.ArrayUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
@@ -54,43 +56,58 @@ public class PaginationUtil {
      * @param textChannel The channel to send it to
      * @param list        The {@link PaginationList} to use
      * @param page        The starting page
+     * @param sender      The member who requested the button
      */
-    public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page) {
+    public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page, User sender) {
         if (page < 0 || page > list.getPages() - 1) {
             MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + list.getPages(), textChannel);
             return;
         }
         Integer[] pages = new Integer[]{page};
         if (list.getPages() > 1) {
-            ButtonGroup buttonGroup = new ButtonGroup();
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (user, message) -> {
+            ButtonGroup buttonGroup = new ButtonGroup(sender);
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (owner, user, message) -> {
                 //Start
                 pages[0] = 0;
                 message.editMessage(list.getPage(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (owner, user, message) -> {
                 //Prev
                 if (pages[0] != 0) {
                     pages[0] -= 1;
                     message.editMessage(list.getPage(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (owner, user, message) -> {
                 //Next
                 if (pages[0] + 1 != list.getPages()) {
                     pages[0] += 1;
                     message.editMessage(list.getPage(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (owner, user, message) -> {
                 //Last
                 pages[0] = list.getPages() - 1;
                 message.editMessage(list.getPage(pages[0])).queue();
+            }));
+            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (owner, user, message) -> {
+                // Delete
+                if ((owner != null && user.getId().equals(owner.getId())) ||
+                        message.getGuild().getMember(user).hasPermission(Permission.MANAGE_PERMISSIONS)) {
+                    message.delete().queue(null, e -> {
+                    });
+                } else {
+                    MessageUtils.sendErrorMessage("You need to be the sender or have the `Manage Messages` discord permission to do this!", (TextChannel) message.getChannel());
+                }
             }));
             ButtonUtil.sendButtonedMessage(textChannel, list.getPage(page), buttonGroup);
         } else {
             textChannel.sendMessage(list.getPage(page)).queue();
         }
+    }
+
+    public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page) {
+        sendPagedMessage(textChannel, list, page, null);
     }
 
     /**
@@ -109,29 +126,39 @@ public class PaginationUtil {
         if (!pagedEmbed.isSinglePage()) {
             ButtonGroup buttonGroup = new ButtonGroup();
             Integer[] pages = new Integer[]{page};
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (owner, user, message) -> {
                 //Start
                 pages[0] = 0;
                 message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (owner, user, message) -> {
                 //Prev
                 if (pages[0] != 0) {
                     pages[0] -= 1;
                     message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (owner, user, message) -> {
                 //Next
                 if (pages[0] + 1 != pagedEmbed.getPageTotal()) {
                     pages[0] += 1;
                     message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (owner, user, message) -> {
                 //Last
                 pages[0] = pagedEmbed.getPageTotal() - 1;
                 message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
+            }));
+            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (owner, user, message) -> {
+                // Delete
+                if ((owner != null && user.getId().equals(owner.getId())) ||
+                        message.getGuild().getMember(user).hasPermission(Permission.MANAGE_PERMISSIONS)) {
+                    message.delete().queue(null, e -> {
+                    });
+                } else {
+                    MessageUtils.sendErrorMessage("You need to be the sender or have the `Manage Messages` discord permission to do this!", (TextChannel) message.getChannel());
+                }
             }));
             ButtonUtil.sendButtonedMessage(channel, pagedEmbed.getEmbed(page), buttonGroup);
         } else {
