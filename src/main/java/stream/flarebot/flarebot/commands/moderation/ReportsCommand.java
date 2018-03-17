@@ -1,17 +1,7 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -25,6 +15,13 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
+
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReportsCommand implements Command {
 
@@ -67,7 +64,7 @@ public class ReportsCommand implements Command {
                         if (args.length == 2) {
                             page = GeneralUtils.getInt(args[1], 0);
                         }
-                        PaginationUtil.sendPagedMessage(channel, tb.build(), page);
+                        PaginationUtil.sendPagedMessage(channel, tb.build(), page, sender);
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_LIST + "`", channel);
                     }

@@ -56,7 +56,7 @@ public class ModlogCommand implements Command {
                         tb.addRow(part);
                     }
                 }
-                PaginationUtil.sendPagedMessage(channel, tb.build(), page - 1);
+                PaginationUtil.sendPagedMessage(channel, tb.build(), page - 1, sender);
                 return;
             }
             if (args[0].equalsIgnoreCase("features")) {
@@ -254,9 +254,9 @@ public class ModlogCommand implements Command {
             sb.append("`All` - Is for targeting all events");
         }
         PaginationUtil.sendEmbedPagedMessage(
-        new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1024))
-                .setTitle("Modlog Events")
-                .build(), page - 1, channel);
+                new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1024))
+                        .setTitle("Modlog Events")
+                        .build(), page - 1, channel);
 
     }
 }
