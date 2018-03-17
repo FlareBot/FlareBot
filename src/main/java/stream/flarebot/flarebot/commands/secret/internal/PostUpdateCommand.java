@@ -24,7 +24,7 @@ public class PostUpdateCommand implements Command {
             }
 
             Role r = guild.getGuild().getRoleById(320304080926801922L);
-            r.getManager().setMentionable(false).queue(aVoid -> {
+            r.getManager().setMentionable(true).queue(aVoid -> {
                 if (args[0].startsWith("pr:")) {
                     channel.sendMessage(new MessageBuilder().setEmbed(GitHubUtils.getEmbedForPR(args[0].substring(3))
                             .build()).append(r.getAsMention()).build()).queue(bVoid ->
