@@ -1,5 +1,8 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import com.arsenarsen.lavaplayerbridge.player.Player;
+import com.arsenarsen.lavaplayerbridge.player.Track;
+import javafx.scene.media.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -66,8 +69,7 @@ public class DebugCommand implements Command {
                         .append(" requests").append("\n");
             eb.addField("HTTP Requests", sb.toString(), false);
         } else if (args[0].equalsIgnoreCase("threads")) {
-            MessageUtils.sendMessage(String.format("Thread Debug"
-                            + "\nVideo Threads: %d"
+            eb.setTitle("Thread Debug").setDescription(String.format("Video Threads: %d"
                             + "\nCommand Threads: %d"
                             + "\nTotal Threads: %d"
                             + "\nThread list: %s",
@@ -78,12 +80,34 @@ public class DebugCommand implements Command {
                     MessageUtils.paste(Thread.getAllStackTraces().keySet().stream()
                             .map(th -> th.getName() + " - " + th.getState() + " (" + th.getThreadGroup().getName() + ")")
                             .collect(Collectors.joining("\n")))
-            ), channel);
-            return;
+            ));
         } else if (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase("guild")) {
 
         } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("music")) {
+            GuildWrapper wrapper = guild;
+            if (args.length == 2)
+                wrapper = FlareBotManager.instance().getGuild(args[1]);
+            if (wrapper == null) {
+                channel.sendMessage("I can't find that guild!").queue();
+                return;
+            }
+            Player player = FlareBot.instance().getMusicManager().getPlayer(wrapper.getGuildId());
 
+            boolean isPlaying = player.getPlayingTrack() != null;
+            Track track = player.getPlayingTrack();
+            eb.setTitle("Bot Debug").setDescription(String.format("Player Debug for `" + wrapper.getGuildId() + "`"
+                    + "\nCurrent Track: %s"
+                    + "\nCurrent Position: %s"
+                    + "\nIs Paused: %b"
+                    + "\nPlaylist Length: %s"
+                    + "\nIs Looping: %b",
+
+                    (isPlaying ? track.getTrack().getIdentifier() : "No current track"),
+                    (isPlaying ? track.getTrack().getPosition() + "/" + track.getTrack().getDuration() : "N/A"),
+                    player.getPaused(),
+                    player.getPlaylist().size(),
+                    player.getLooping()
+            ));
         } else {
             channel.sendMessage("Invalid debug option").queue();
             return;

@@ -394,6 +394,17 @@ public class Events extends ListenerAdapter {
         Metrics.commandsReceived.labels(cmd.getClass().getSimpleName()).inc();
         GuildWrapper guild = flareBot.getManager().getGuild(event.getGuild().getId());
 
+        if (cmd.getType().isInternal()) {
+            if (GeneralUtils.canRunInternalCommand(cmd.getType(), event.getAuthor())) {
+                dispatchCommand(cmd, args, event, guild);
+                return;
+            } else {
+                GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
+                Constants.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
+                return;
+            }
+        }
+
         if (guild.hasBetaAccess()) {
             if (guild.getSettings().getChannelBlacklist().contains(event.getChannel().getIdLong())
                     && !guild.getPermissions().hasPermission(event.getMember(), stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
@@ -403,24 +414,22 @@ public class Events extends ListenerAdapter {
                 return;
         }
 
-        if (guild.isBlocked()) {
-            if (System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1)
-                guild.revokeBlock();
-        }
+        if (guild.isBlocked() && System.currentTimeMillis() > guild.getUnBlockTime() && guild.getUnBlockTime() != -1)
+            guild.revokeBlock();
+
         handleSpamDetection(event, guild);
-        if (!GeneralUtils.canRunCommand(cmd, event.getAuthor())) {
-            GeneralUtils.sendImage("https://flarebot.stream/img/trap.jpg", "trap.jpg", event.getAuthor());
-            Constants.logEG("It's a trap", cmd, guild.getGuild(), event.getAuthor());
-            return;
-        }
+
         if (guild.isBlocked() && !(cmd.getType() == CommandType.SECRET)) return;
+
         if (handleMissingPermission(cmd, event)) return;
+
         if (!guild.hasBetaAccess() && cmd.isBetaTesterCommand()) {
             if (flareBot.isTestBot())
                 LOGGER.error("Guild " + event.getGuild().getId() + " tried to use the beta command '"
                         + cmd.getCommand() + "'!");
             return;
         }
+
         if (FlareBot.UPDATING.get()) {
             event.getChannel().sendMessage("**Currently updating!**").queue();
             return;
@@ -435,47 +444,7 @@ public class Events extends ListenerAdapter {
         if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
             return;
 
-        COMMAND_POOL.submit(() -> {
-            LOGGER.info(
-                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays
-                            .toString(args) + " in " + event.getChannel() + "! Sender: " +
-                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
-            // We're sending a lot of commands... Let's change the way this works soon :D
-            /*ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())
-                    .put("guildId", guild.getGuildId()));*/
-            commandCounter.incrementAndGet();
-            try {
-                Histogram.Timer executionTimer = Metrics.commandExecutionTime.labels(cmd.getClass().getSimpleName()).startTimer();
-                cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
-                        .getMember());
-                executionTimer.observeDuration();
-                Metrics.commandsExecuted.labels(cmd.getClass().getSimpleName()).inc();
-
-                MessageEmbed.Field field = null;
-                if (args.length > 0) {
-                    String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
-                    if (s.length() > 1000)
-                        s = s.substring(0, 1000) + "...";
-                    field = new MessageEmbed.Field("Args", "`" + s + "`", false);
-                }
-                ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
-                        new MessageEmbed.Field("Channel", event.getChannel().getName() + " ("
-                                + event.getChannel().getIdLong() + ")", true),
-                        new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
-            } catch (Exception ex) {
-                Metrics.commandExceptions.labels(ex.getClass().getSimpleName()).inc();
-                MessageUtils
-                        .sendException("**There was an internal error trying to execute your command**", ex, event
-                                .getChannel());
-                LOGGER.error("Exception in guild " + event.getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
-                        + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
-                        event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
-            }
-            if ((guild.hasBetaAccess() && guild.getSettings().shouldDeleteCommands()) || cmd.deleteMessage()) {
-                delete(event.getMessage());
-                removedByMe.add(event.getMessageIdLong());
-            }
-        });
+        dispatchCommand(cmd, args, event, guild);
     }
 
     private boolean handleOfficialGuildStuff(GuildMessageReceivedEvent event, Command command) {
@@ -507,6 +476,7 @@ public class Events extends ListenerAdapter {
                 return true;
             }
         }
+
         return !cmd.getPermissions(e.getChannel()).hasPermission(
                 e.getMember(),
                 stream.flarebot.flarebot.permissions.Permission.getPermission(cmd.getType())
@@ -541,6 +511,51 @@ public class Events extends ListenerAdapter {
         } else {
             spamMap.put(event.getGuild().getId(), 1);
         }
+    }
+
+    private void dispatchCommand(Command cmd, String[] args, GuildMessageReceivedEvent event, GuildWrapper guild) {
+        COMMAND_POOL.submit(() -> {
+            LOGGER.info(
+                    "Dispatching command '" + cmd.getCommand() + "' " + Arrays
+                            .toString(args) + " in " + event.getChannel() + "! Sender: " +
+                            event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
+            // We're sending a lot of commands... Let's change the way this works soon :D
+            /*ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())
+                    .put("guildId", guild.getGuildId()));*/
+            commandCounter.incrementAndGet();
+            try {
+                Histogram.Timer executionTimer = Metrics.commandExecutionTime.labels(cmd.getClass().getSimpleName()).startTimer();
+                cmd.onCommand(event.getAuthor(), guild, event.getChannel(), event.getMessage(), args, event
+                        .getMember());
+                executionTimer.observeDuration();
+                Metrics.commandsExecuted.labels(cmd.getClass().getSimpleName()).inc();
+
+                MessageEmbed.Field field = null;
+                if (args.length > 0) {
+                    String s = MessageUtils.getMessage(args, 0).replaceAll("`", "'");
+                    if (s.length() > 1000)
+                        s = s.substring(0, 1000) + "...";
+                    field = new MessageEmbed.Field("Args", "`" + s + "`", false);
+                }
+                ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
+                        new MessageEmbed.Field("Channel", event.getChannel().getName() + " ("
+                                + event.getChannel().getIdLong() + ")", true),
+                        new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
+            } catch (Exception ex) {
+                Metrics.commandExceptions.labels(ex.getClass().getSimpleName()).inc();
+                MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event
+                                .getChannel());
+                LOGGER.error("Exception in guild " + event.getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
+                        + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
+                        event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
+            }
+
+            if ((guild.hasBetaAccess() && cmd.deleteMessage() && guild.getSettings().shouldDeleteCommands())
+                    || cmd.deleteMessage()) {
+                delete(event.getMessage());
+                removedByMe.add(event.getMessageIdLong());
+            }
+        });
     }
 
     public int getCommandCount() {

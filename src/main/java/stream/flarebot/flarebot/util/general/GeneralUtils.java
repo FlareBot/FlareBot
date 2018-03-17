@@ -26,6 +26,7 @@ import stream.flarebot.flarebot.database.RedisMessage;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.Pair;
@@ -621,8 +622,8 @@ public class GeneralUtils {
         return result;
     }
 
-    public static boolean canRunCommand(@Nonnull Command command, User user) {
-        return canRunCommand(command.getType(), user);
+    public static boolean canRunInternalCommand(@Nonnull Command command, User user) {
+        return canRunInternalCommand(command.getType(), user);
     }
 
     /**
@@ -632,8 +633,10 @@ public class GeneralUtils {
      *
      * @return If the command is not internal or if the role has the right role to run an internal command.
      */
-    public static boolean canRunCommand(@Nonnull CommandType type, User user) {
+    public static boolean canRunInternalCommand(@Nonnull CommandType type, User user) {
         if (type.isInternal()) {
+            if (FlareBot.instance().isTestBot() && PerGuildPermissions.isContributor(user))
+                return true;
             Guild g = Getters.getOfficialGuild();
 
             if (g.getMember(user) != null) {
@@ -643,6 +646,6 @@ public class GeneralUtils {
             } else
                 return false;
         }
-        return true;
+        return false;
     }
 }

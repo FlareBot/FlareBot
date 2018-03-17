@@ -22,6 +22,7 @@ import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,8 +58,8 @@ public class CommandManager {
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
     public Command getCommand(String s, User user) {
-        if (PerGuildPermissions.isCreator(user) || (FlareBot.instance().isTestBot() && PerGuildPermissions.isContributor(user))) {
-            for (Command cmd : getCommandsByType(CommandType.SECRET)) {
+        if (PerGuildPermissions.isCreator(user) || PerGuildPermissions.isContributor(user) || PerGuildPermissions.isStaff(user)) {
+            for (Command cmd : getInternalCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
                     return cmd;
                 for (String alias : cmd.getAliases())
@@ -66,7 +67,7 @@ public class CommandManager {
             }
         }
         for (Command cmd : getCommands()) {
-            if (cmd.getType() == CommandType.SECRET) continue;
+            if (cmd.getType().isInternal()) continue;
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
@@ -177,6 +178,10 @@ public class CommandManager {
 
     public Set<Command> getCommandsByType(CommandType type) {
         return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
+    }
+
+    public Set<Command> getInternalCommands() {
+        return commands.stream().filter(command -> command.getType().isInternal()).collect(Collectors.toSet());
     }
 
     public int count() {
