@@ -35,7 +35,7 @@ public class SongCommand implements Command {
                 eb.addField("Amount Played", GeneralUtils.getProgressBar(track), true)
                         .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
                                 FormatUtils.formatDuration(track.getTrack().getDuration())), false);
-            ButtonGroup buttonGroup = new ButtonGroup();
+            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong());
             buttonGroup.addButton(new ButtonGroup.Button("\u23EF", (owner, user, message1) -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
                     if (manager.getPlayer(guild.getGuild().getId()).getPaused()) {

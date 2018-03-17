@@ -158,7 +158,7 @@ public class SkipCommand implements Command {
                 }
             }.delay(TimeUnit.SECONDS.toMillis(20));
 
-            ButtonGroup buttons = new ButtonGroup();
+            ButtonGroup buttons = new ButtonGroup(sender.getUser().getIdLong());
             addButtons(buttons, channel);
 
             ButtonUtil.sendButtonedMessage(channel, MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +

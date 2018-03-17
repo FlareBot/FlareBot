@@ -13,15 +13,12 @@ import java.util.List;
 public class ButtonGroup {
 
     private List<Button> buttons;
-    private User sender;
+    private long ownerID;
+    private long owner;
 
-    public ButtonGroup() {
+    public ButtonGroup(long ownerID) {
+        this.ownerID = ownerID;
         buttons = new ArrayList<>();
-    }
-
-    public ButtonGroup(User sender) {
-        buttons = new ArrayList<>();
-        this.sender = sender;
     }
 
     /**
@@ -31,12 +28,15 @@ public class ButtonGroup {
      */
     public void addButton(Button btn) {
         // Note I don't check if it already exists... so just don't fuck up :blobthumbsup:
-        btn.setOwner(sender);
         this.buttons.add(btn);
     }
 
     public List<Button> getButtons() {
         return buttons;
+    }
+
+    public long getOwner() {
+        return ownerID;
     }
 
     public static class Button {
@@ -46,7 +46,6 @@ public class ButtonGroup {
         private ButtonRunnable runnable;
         private Message message;
         private int clicks;
-        private User owner;
 
         public Button(String unicode, ButtonRunnable runnable) {
             this.unicode = unicode;
@@ -68,10 +67,6 @@ public class ButtonGroup {
             return unicode;
         }
 
-        public void setOwner(User owner) {
-            this.owner = owner;
-        }
-
         public void addReaction(Message message) {
             if (!(message.getChannel().getType() == ChannelType.TEXT && message.getGuild().getSelfMember()
                     .hasPermission(message.getTextChannel(), Permission.MESSAGE_HISTORY))) {
@@ -86,8 +81,8 @@ public class ButtonGroup {
                 message.addReaction(Getters.getEmoteById(emoteId)).queue();
         }
 
-        public void onClick(User user) {
-            runnable.run(owner, user, message);
+        public void onClick(long ownerID, User user) {
+            runnable.run(ownerID, user, message);
             clicks++;
         }
 

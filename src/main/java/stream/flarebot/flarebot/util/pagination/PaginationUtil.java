@@ -65,34 +65,34 @@ public class PaginationUtil {
         }
         Integer[] pages = new Integer[]{page};
         if (list.getPages() > 1) {
-            ButtonGroup buttonGroup = new ButtonGroup(sender);
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (owner, user, message) -> {
+            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong());
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (ownerID, user, message) -> {
                 //Start
                 pages[0] = 0;
                 message.editMessage(list.getPage(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (ownerID, user, message) -> {
                 //Prev
                 if (pages[0] != 0) {
                     pages[0] -= 1;
                     message.editMessage(list.getPage(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (ownerID, user, message) -> {
                 //Next
                 if (pages[0] + 1 != list.getPages()) {
                     pages[0] += 1;
                     message.editMessage(list.getPage(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (ownerID, user, message) -> {
                 //Last
                 pages[0] = list.getPages() - 1;
                 message.editMessage(list.getPage(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (ownerID, user, message) -> {
                 // Delete
-                if ((owner != null && user.getId().equals(owner.getId())) ||
+                if (user.getIdLong() == ownerID ||
                         message.getGuild().getMember(user).hasPermission(Permission.MANAGE_PERMISSIONS)) {
                     message.delete().queue(null, e -> {
                     });
@@ -106,10 +106,6 @@ public class PaginationUtil {
         }
     }
 
-    public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page) {
-        sendPagedMessage(textChannel, list, page, null);
-    }
-
     /**
      * Sends an embed paged message the to specified channel.
      * You can build with Embed with {@link PagedEmbedBuilder}.
@@ -117,42 +113,43 @@ public class PaginationUtil {
      * @param pagedEmbed The {@link stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder.PagedEmbed} to use.
      * @param page       The page to start on (0 Indexed).
      * @param channel    The channel to send the paged message to.
+     * @param sender     The user who requested the embed
      */
-    public static void sendEmbedPagedMessage(PagedEmbedBuilder.PagedEmbed pagedEmbed, int page, TextChannel channel) {
+    public static void sendEmbedPagedMessage(PagedEmbedBuilder.PagedEmbed pagedEmbed, int page, TextChannel channel, User sender) {
         if (page < 0 || page > pagedEmbed.getPageTotal() - 1) {
             MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + pagedEmbed.getPageTotal(), channel);
             return;
         }
         if (!pagedEmbed.isSinglePage()) {
-            ButtonGroup buttonGroup = new ButtonGroup();
+            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong());
             Integer[] pages = new Integer[]{page};
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (ownerID, user, message) -> {
                 //Start
                 pages[0] = 0;
                 message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EA", (ownerID, user, message) -> {
                 //Prev
                 if (pages[0] != 0) {
                     pages[0] -= 1;
                     message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23E9", (ownerID, user, message) -> {
                 //Next
                 if (pages[0] + 1 != pagedEmbed.getPageTotal()) {
                     pages[0] += 1;
                     message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (ownerID, user, message) -> {
                 //Last
                 pages[0] = pagedEmbed.getPageTotal() - 1;
                 message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (owner, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (ownerID, user, message) -> {
                 // Delete
-                if ((owner != null && user.getId().equals(owner.getId())) ||
+                if (user.getIdLong() == ownerID ||
                         message.getGuild().getMember(user).hasPermission(Permission.MANAGE_PERMISSIONS)) {
                     message.delete().queue(null, e -> {
                     });

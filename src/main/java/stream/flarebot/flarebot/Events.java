@@ -91,7 +91,7 @@ public class Events extends ListenerAdapter {
                 if ((event.getReactionEmote() != null && event.getReactionEmote().isEmote()
                         && event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
-                    button.onClick(event.getUser());
+                    button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
                     Metrics.buttonsPressed.labels(emote, event.getMessageId());
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
@@ -236,7 +236,7 @@ public class Events extends ListenerAdapter {
                 Metrics.guilds.set(Getters.getGuildCache().size());
             else
                 Metrics.guilds.inc();
-                    Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
+            Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
                     .setColor(new Color(96, 230, 144))
                     .setThumbnail(event.getGuild().getIconUrl())
                     .setFooter(event.getGuild().getId(), event.getGuild().getIconUrl())
@@ -544,7 +544,7 @@ public class Events extends ListenerAdapter {
             } catch (Exception ex) {
                 Metrics.commandExceptions.labels(ex.getClass().getSimpleName()).inc();
                 MessageUtils.sendException("**There was an internal error trying to execute your command**", ex, event
-                                .getChannel());
+                        .getChannel());
                 LOGGER.error("Exception in guild " + event.getGuild().getId() + "!\n" + '\'' + cmd.getCommand() + "' "
                         + Arrays.toString(args) + " in " + event.getChannel() + "! Sender: " +
                         event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), ex);
