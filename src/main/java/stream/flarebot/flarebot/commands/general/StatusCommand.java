@@ -75,7 +75,7 @@ public class StatusCommand implements Command {
                         "* Shards Connecting: %s shards\n" +
                         "* High Last Event Time: %s shards\n" +
                         "Guilds: %d | Users: %d | Connected VCs: %d | Active VCs: %d",
-                FlareBot.instance().getVersion(),
+                FlareBot.getVersion(),
                 JDAInfo.VERSION,
                 channel.getJDA().getShardInfo() == null ? 0 : channel.getJDA().getShardInfo().getShardId(),
                 ping,
@@ -85,7 +85,10 @@ public class StatusCommand implements Command {
                 reconnecting,
                 connecting,
                 highResponseTime,
-                Getters.getGuilds().size(), Getters.getUsers().size(), Getters.getConnectedVoiceChannels(), Getters.getActiveVoiceChannels()
+                Getters.getGuildCache().size(),
+                Getters.getUserCache().size(),
+                Getters.getConnectedVoiceChannels(),
+                Getters.getActiveVoiceChannels()
         ));
 
         channel.sendMessage("**FlareBot's Status**\n```prolog\n" + sb.toString() + "\n```").queue();

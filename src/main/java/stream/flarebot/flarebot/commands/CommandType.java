@@ -16,8 +16,8 @@ public enum CommandType {
     RANDOM(false),
     INFORMATIONAL(false),
     SECRET(false, Constants.DEVELOPER_ID),
-    DEBUG(false, Constants.CONTRIBUTOR_ID),
-    INTERNAL(false, Constants.STAFF_ID);
+    DEBUG(false, Constants.CONTRIBUTOR_ID, Constants.DEVELOPER_ID),
+    INTERNAL(false, Constants.STAFF_ID, Constants.CONTRIBUTOR_ID, Constants.DEVELOPER_ID);
 
     private static final CommandType[] values = values();
     private static final CommandType[] defaultTypes = fetchDefaultTypes();
@@ -25,15 +25,20 @@ public enum CommandType {
     // If it shows up in help
     private boolean defaultType;
     // If it is restricted to staff, contribs or devs
-    private long internalRoleId = -1;
-    
+    private long[] internalRoleIds = new long[] {-1};
+
     CommandType(boolean defaultType) {
         this.defaultType = defaultType;
     }
     
     CommandType(boolean defaultType, long internalRole) {
         this.defaultType = defaultType;
-        this.internalRoleId = internalRole;
+        this.internalRoleIds = new long[] {internalRole};
+    }
+
+    CommandType(boolean defaultType, long... internalRoles) {
+        this.defaultType = defaultType;
+        this.internalRoleIds = internalRoles;
     }
 
     public String toString() {
@@ -41,7 +46,7 @@ public enum CommandType {
     }
     
     public boolean isInternal() {
-        return internalRoleId > 0;
+        return internalRoleIds[0] > 0;
     }
 
     public static CommandType[] getTypes() {
@@ -57,10 +62,14 @@ public enum CommandType {
      * the command is not internal.
     */
     public long getRoleId() {
-        return internalRoleId;
+        return internalRoleIds[0];
+    }
+
+    public long[] getRoleIds() {
+        return internalRoleIds;
     }
 
     public Set<Command> getCommands() {
-        return FlareBot.instance().getCommandManager().getCommandsByType(this);
+        return FlareBot.getCommandManager().getCommandsByType(this);
     }
 }

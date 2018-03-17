@@ -27,7 +27,7 @@ public class GuildAnalytics implements AnalyticSender {
         JSONObject object = new JSONObject();
         JSONArray guildDataArray = new JSONArray();
 
-        Getters.getGuildsCache().forEach(g -> {
+        Getters.getGuildCache().forEach(g -> {
             // Don't really want to loop massive guilds twice.
             int users = GeneralUtils.getGuildUserCount(g);
             JSONObject guildObj = new JSONObject()

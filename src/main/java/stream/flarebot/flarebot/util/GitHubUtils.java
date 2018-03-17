@@ -35,7 +35,7 @@ public class GitHubUtils {
         String body = obj.getString("body");
         String[] array = body.split("\r\n\r\n");
 
-        String title = array[0].split("\r\n")[0].replace("### ", "");
+        String title = array[0].split("\r\n")[0].replace("# ", "");
         String description = array[0].split("\r\n")[1];
 
         EmbedBuilder embed = new EmbedBuilder();

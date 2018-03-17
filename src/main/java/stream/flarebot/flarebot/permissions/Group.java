@@ -24,6 +24,10 @@ public class Group {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public boolean addPermission(String permission) {
         return permissions.add(permission);
     }

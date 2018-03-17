@@ -6,14 +6,18 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
+import stream.flarebot.flarebot.FlareBot;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.general.VariableUtils;
 
 import java.awt.Color;
+import java.util.Arrays;
 
 public class TagsCommand implements Command {
 
@@ -31,7 +35,7 @@ public class TagsCommand implements Command {
                     .build()).queue();
         } else if (args.length == 1) {
             if (guild.getTags().containsKey(args[0].toLowerCase()))
-                sendTag(guild, args[0].toLowerCase(), sender, channel);
+                sendTag(guild, args[0].toLowerCase(), sender, channel, null);
             else
                 MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
         } else if (args.length == 2) {
@@ -66,14 +70,11 @@ public class TagsCommand implements Command {
                     MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
                 }
             } else {
-                User target = GuildUtils.getUser(args[1], guild.getGuildId());
-                if (target != null) {
-                    if (guild.getTags().containsKey(args[0].toLowerCase()))
-                        sendTag(guild, args[0].toLowerCase(), target, channel);
-                    else
-                        MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
-                } else
-                    MessageUtils.sendErrorMessage("That is an invalid argument!", channel);
+                if (guild.getTags().containsKey(args[0].toLowerCase()))
+                    sendTag(guild, args[0].toLowerCase(), sender, channel,
+                            Arrays.copyOfRange(args, 1, args.length));
+                else
+                    MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
             }
         } else {
             if (args[0].equalsIgnoreCase("add")) {
@@ -103,22 +104,38 @@ public class TagsCommand implements Command {
                 MessageUtils.sendSuccessMessage("You successfully edited the tag `" + args[1] + "`!", channel,
                         sender);
             } else {
-                MessageUtils.sendErrorMessage("That is an invalid argument!", channel);
+                if (guild.getTags().containsKey(args[0].toLowerCase()))
+                    sendTag(guild, args[0].toLowerCase(), sender, channel,
+                            Arrays.copyOfRange(args, 1, args.length));
+                else
+                    MessageUtils.sendErrorMessage("This tag doesn't exist!", channel);
             }
         }
     }
 
-    private void sendTag(GuildWrapper wrapper, String tag, User user, TextChannel channel) {
-        String msg = parseTag(wrapper.getGuild(), tag, wrapper.getTags().get(tag), user);
+    private void sendTag(GuildWrapper wrapper, String tag, User user, TextChannel channel, String[] args) {
+        String msg = parseTag(wrapper.getGuild(), tag, wrapper.getTags().get(tag), user, channel, args);
         channel.sendMessage(msg).queue();
     }
 
-    private String parseTag(Guild guild, String tag, String message, User user) {
-        return message.replaceAll("%user%", user.getName())
-                .replaceAll("%mention%", user.getAsMention())
-                .replaceAll("\\{%}", String.valueOf(getPrefix(guild)))
-                .replaceAll("%prefix%", String.valueOf(getPrefix(guild)))
-                .replaceAll("%tag%", tag);
+    private String parseTag(Guild guild, String tag, String message, User user, TextChannel channel, String[] args) {
+        String parsed = VariableUtils.parseVariables(message, FlareBotManager.instance().getGuild(guild.getId()),
+                channel, user, args);
+        if (message.contains("%user%") || message.contains("%mention%") || message.contains("{%}")
+                || message.contains("%prefix%") || message.contains("%tag%")) {
+            MessageUtils.sendPM(guild.getOwner().getUser(),
+                    "Your tag '" + tag + "' contains deprecated variables! Please check the docs at the link below " +
+                            "for a list of all the variables you can use!\n" +
+                            "https://docs.flarebot.stream/variables");
+        }
+        // Deprecated values
+        parsed = parsed
+                .replace("%user%", user.getName())
+                .replace("%mention%", user.getAsMention())
+                .replace("{%}", String.valueOf(getPrefix(guild)))
+                .replace("%prefix%", String.valueOf(getPrefix(guild)))
+                .replace("%tag%", tag);
+        return parsed;
     }
 
     @Override

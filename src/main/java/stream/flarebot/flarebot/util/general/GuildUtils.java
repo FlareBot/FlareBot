@@ -16,6 +16,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -171,14 +172,15 @@ public class GuildUtils {
      * @return null if the user wasn't found otherwise a {@link User}.
      */
     public static User getUser(String s, String guildId, boolean forceGet) {
+        Guild guild = guildId == null || guildId.isEmpty() ? null : Getters.getGuildById(guildId);
         if (userDiscrim.matcher(s).find()) {
-            if (guildId == null || guildId.isEmpty()) {
-                return Getters.getUsers().stream()
+            if (guild == null) {
+                return Getters.getUserCache().stream()
                         .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
                 try {
-                    return Getters.getGuildById(guildId).getMembers().stream()
+                    return guild.getMembers().stream()
                             .map(Member::getUser)
                             .filter(user -> (user.getName() + "#" + user.getDiscriminator()).equalsIgnoreCase(s))
                             .findFirst().orElse(null);
@@ -187,25 +189,22 @@ public class GuildUtils {
             }
         } else {
             User tmp;
-            if (guildId == null || guildId.isEmpty()) {
-                tmp = Getters.getUsers().stream().filter(user -> user.getName().equalsIgnoreCase(s))
+            if (guild == null) {
+                tmp = Getters.getUserCache().stream().filter(user -> user.getName().equalsIgnoreCase(s))
                         .findFirst().orElse(null);
             } else {
-                if (Getters.getGuildById(guildId) != null) {
-                    tmp = Getters.getGuildById(guildId).getMembers().stream()
-                            .map(Member::getUser)
-                            .filter(user -> user.getName().equalsIgnoreCase(s))
-                            .findFirst().orElse(null);
-                } else
-                    tmp = null;
+                tmp = guild.getMembers().stream()
+                        .map(Member::getUser)
+                        .filter(user -> user.getName().equalsIgnoreCase(s))
+                        .findFirst().orElse(null);
             }
             if (tmp != null) return tmp;
             try {
                 long l = Long.parseLong(s.replaceAll("[^0-9]", ""));
-                if (guildId == null || guildId.isEmpty()) {
+                if (guild == null) {
                     tmp = Getters.getUserById(l);
                 } else {
-                    Member temMember = Getters.getGuildById(guildId).getMemberById(l);
+                    Member temMember = guild.getMemberById(l);
                     if (temMember != null) {
                         tmp = temMember.getUser();
                     }
@@ -262,7 +261,7 @@ public class GuildUtils {
      * @return null if the id is invalid or wasn't found, otherwise a {@link Emote}
      */
     public static Emote getEmoteById(long l) {
-        return Getters.getGuilds().stream().map(g -> g.getEmoteById(l))
+        return Getters.getGuildCache().stream().map(g -> g.getEmoteById(l))
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
 

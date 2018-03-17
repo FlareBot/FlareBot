@@ -14,4 +14,8 @@ public class RandomUtils {
     public static String getRandomStringFromArray(String[] array) {
         return array[random.nextInt(array.length)];
     }
+
+    public static int getInt(int min, int max) {
+        return random.nextInt((max + 1) - min) + min;
+    }
 }

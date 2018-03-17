@@ -1,5 +1,7 @@
 package stream.flarebot.flarebot.util.objects;
 
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.Getters;
@@ -59,6 +61,12 @@ public class ButtonGroup {
         }
 
         public void addReaction(Message message) {
+            if (!(message.getChannel().getType() == ChannelType.TEXT && message.getGuild().getSelfMember()
+                    .hasPermission(message.getTextChannel(), Permission.MESSAGE_HISTORY))) {
+                message.getChannel().sendMessage("I can't add buttons due to not having the `Message History` permission!").queue();
+                return;
+            }
+
             this.message = message;
             if (unicode != null)
                 message.addReaction(unicode).queue();

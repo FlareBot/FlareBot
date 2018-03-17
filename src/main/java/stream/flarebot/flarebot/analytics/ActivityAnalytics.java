@@ -22,13 +22,13 @@ public class ActivityAnalytics implements AnalyticSender {
     public JSONObject processData() {
         JSONObject object = new JSONObject();
 
-        IntSummaryStatistics statistics = Getters.getGuilds().stream()
+        IntSummaryStatistics statistics = Getters.getGuildCache().stream()
                 .filter(guild -> !FlareBot.instance().getMusicManager().getPlayer(guild.getId()).getPlaylist().isEmpty())
                 .mapToInt(guild -> FlareBot.instance().getMusicManager().getPlayer(guild.getId()).getPlaylist().size())
                 .summaryStatistics();
 
         object.put("data", new JSONObject()
-                .put("guilds", Getters.getGuilds().size())
+                .put("guilds", Getters.getGuildCache().size())
                 .put("loaded_guilds", FlareBotManager.instance().getGuilds().size())
                 .put("guilds_with_songs", statistics.getCount())
                 .put("songs", statistics.getSum()));

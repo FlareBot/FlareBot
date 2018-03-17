@@ -15,6 +15,7 @@ import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.random.JumboCommand;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
 import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
@@ -135,6 +136,7 @@ public class CommandManager {
         registerCommand(new AutoAssignCommand());
         registerCommand(new FixCommand());
         registerCommand(new NINOCommand());
+        registerCommand(new SettingsCommand());
     }
 
     private void registerSecretCommands() {
@@ -151,6 +153,7 @@ public class CommandManager {
         registerCommand(new PostUpdateCommand());
         registerCommand(new GuildCommand());
         registerCommand(new DisableCommandCommand());
+        registerCommand(new DebugCommand());
     }
 
     private void registerMiscCommands() {
@@ -161,6 +164,7 @@ public class CommandManager {
         registerCommand(new AvatarCommand());
         registerCommand(new BetaCommand());
         registerCommand(new DonateCommand());
+        registerCommand(new JumboCommand());
     }
 
     private void registerCommand(Command command) {

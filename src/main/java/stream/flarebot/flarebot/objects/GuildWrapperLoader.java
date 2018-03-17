@@ -18,46 +18,75 @@ import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
+
+    private final JsonParser parser = new JsonParser();
 
     private List<Long> loadTimes = new CopyOnWriteArrayList<>();
 
     @Override
+    @ParametersAreNonnullByDefault
     public GuildWrapper load(String id) {
         long start = System.currentTimeMillis();
-        ResultSet set =
-                CassandraController.execute("SELECT data FROM " + FlareBotManager.instance().GUILD_DATA_TABLE + " WHERE guild_id = '"
-                        + id + "'");
-        GuildWrapper wrapper = null;
+        ResultSet set = CassandraController.execute("SELECT data FROM " + FlareBotManager.instance().GUILD_DATA_TABLE
+                + " WHERE guild_id = '"  + id + "'");
+        GuildWrapper wrapper;
         Row row = set != null ? set.one() : null;
+        String json = null;
+        JSONConfig data;
         try {
-            if (row != null)
-                wrapper = FlareBot.GSON.fromJson(row.getString("data"), GuildWrapper.class);
-            else
-                wrapper = new GuildWrapper(id);
-        } catch (Exception e) {
-            // MIGRATION: This is quite important! :D
-            if (e.getMessage().contains("permission")) {
-                if (row != null) {
-                    String json = row.getString("data");
-                    JSONConfig config =
-                            new JSONConfig(new JsonParser().parse(json).getAsJsonObject());
-                    if (config.getSubConfig("permissions.groups").isPresent()) {
-                        List<Group> groups = new ArrayList<>();
-                        JSONConfig config1 = config.getSubConfig("permissions.groups").get();
-                        for (String s : config1.getKeys(false)) {
-                            groups.add(FlareBot.GSON.fromJson(config1.getElement(s).get().getAsJsonObject().toString(), Group.class));
-                        }
-                        config.set("permissions.groups", groups);
-                    }
-                    wrapper =
-                            FlareBot.GSON.fromJson(config.getObject().toString(), GuildWrapper.class);
+            if (row != null) {
+                json = row.getString("data");
+
+                if (json.isEmpty() || json.equalsIgnoreCase("null")) {
+                    return new GuildWrapper(id);
                 }
-            } else {
+
+                data = new JSONConfig(parser.parse(json).getAsJsonObject());
+                if (data.getLong("dataVersion").isPresent() && data.getLong("dataVersion").getAsLong() == 0)
+                    data = firstMigration(data);
+
+                wrapper = FlareBot.GSON.fromJson(data.getObject().toString(), GuildWrapper.class);
+            } else
+                return new GuildWrapper(id);
+        } catch (Exception e) {
+            if (json == null) {
                 FlareBot.LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
                         "Guild ID: " + id + "\n" +
                         "Guild JSON: " + (row != null ? row.getString("data") : "New guild data!") + "\n" +
                         "Error: " + e.getMessage(), e);
+                return null;
+            }
+
+            try {
+                data = new JSONConfig(parser.parse(json).getAsJsonObject());
+            } catch (Exception e1) {
+                FlareBot.LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                        "Guild ID: " + id + "\n" +
+                        "Guild JSON: " + json + "\n" +
+                        "Error: " + e.getMessage(), e);
+                throw new IllegalArgumentException("Invalid JSON! '" + json + "'", e1);
+            }
+            if (!data.getLong("dataVersion").isPresent()) {
+                data = firstMigration(data);
+                data.set("dataVersion", 1);
+            }
+
+            long version = data.getLong("dataVersion").getAsLong();
+            if (version != GuildWrapper.DATA_VERSION) {
+                // Migrations
+            }
+            json = data.getObject().toString();
+
+            try {
+                wrapper = FlareBot.GSON.fromJson(json, GuildWrapper.class);
+            } catch (Exception e1) {
+                FlareBot.LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                        "Guild ID: " + id + "\n" +
+                        "Guild JSON: " + json + "\n" +
+                        "Error: " + e1.getMessage(), e1);
                 return null;
             }
         }
@@ -79,4 +108,17 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
         return loadTimes;
     }
 
+    private JSONConfig firstMigration(JSONConfig data) {
+        if (data.getSubConfig("permissions.groups").isPresent()) {
+            List<Group> groups = new ArrayList<>();
+            JSONConfig config = data.getSubConfig("permissions.groups").get();
+            for (String s : config.getKeys(false)) {
+                if (config.getElement(s).isPresent())
+                    groups.add(FlareBot.GSON.fromJson(config.getElement(s).get().getAsJsonObject().toString(),
+                        Group.class));
+            }
+            data.set("permissions.groups", groups);
+        }
+        return data;
+    }
 }

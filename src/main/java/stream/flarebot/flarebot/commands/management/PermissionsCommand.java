@@ -105,7 +105,7 @@ public class PermissionsCommand implements Command {
                             pe.setTitle("Permissions for the group: " + group.getName());
                             pe.enableCodeBlock();
 
-                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
+                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("massadd")) {
@@ -148,6 +148,22 @@ public class PermissionsCommand implements Command {
                             MessageUtils.sendSuccessMessage("Moved group `" + groupString + "` to position " + pos, channel, sender);
                             return;
                         }
+                    } else if (args[2].equalsIgnoreCase("clone") && args.length >= 4) {
+                        if(guild.getPermissions().cloneGroup(group, args[3])) {
+                            MessageUtils.sendMessage("Cloned group Successfully", channel);
+                            return;
+                        } else {
+                            MessageUtils.sendWarningMessage("Error cloning group (The group might already exist)", channel);
+                            return;
+                        }
+                    } else if (args[2].equalsIgnoreCase("rename") && args.length >= 4) {
+                        if(guild.getPermissions().renameGroup(group, args[3])) {
+                            MessageUtils.sendMessage("Renamed group Successfully", channel);
+                            return;
+                        } else {
+                            MessageUtils.sendWarningMessage("Error renaming group (The destination group might already exist)", channel);
+                            return;
+                        }
                     }
                 }
             } else if (args[0].equalsIgnoreCase("user")) {
@@ -167,11 +183,14 @@ public class PermissionsCommand implements Command {
                                     String groupString = args[4];
                                     Group group = getPermissions(channel).getGroup(groupString);
                                     if (group == null) {
-                                        MessageUtils.sendErrorMessage("That group doesn't exists!! You can create it with `" + getPrefix(channel.getGuild()) + "permissions group " + groupString + " create`", channel);
+                                        MessageUtils.sendErrorMessage("That group doesn't exists!! You can create it with `"
+                                                + getPrefix(channel.getGuild()) + "permissions group " + groupString
+                                                + " create`", channel);
                                         return;
                                     }
                                     permUser.addGroup(group);
-                                    MessageUtils.sendSuccessMessage("Successfully added the group `" + groupString + "` to " + user.getAsMention(), channel, sender);
+                                    MessageUtils.sendSuccessMessage("Successfully added the group `" + groupString
+                                            + "` to " + user.getAsMention(), channel, sender);
                                     return;
                                 }
                             } else if (args[3].equalsIgnoreCase("remove")) {
@@ -183,7 +202,8 @@ public class PermissionsCommand implements Command {
                                         return;
                                     }
                                     if (permUser.removeGroup(group)) {
-                                        MessageUtils.sendSuccessMessage("Successfully removed the group `" + groupString + "` from " + user.getAsMention(), channel, sender);
+                                        MessageUtils.sendSuccessMessage("Successfully removed the group `" + groupString
+                                                + "` from " + user.getAsMention(), channel, sender);
                                         return;
                                     } else {
                                         MessageUtils.sendErrorMessage("The user doesn't have that group!!", channel);
@@ -196,17 +216,18 @@ public class PermissionsCommand implements Command {
                                 groups.addAll(getPermissions(channel)
                                         .getGroups()
                                         .stream()
-                                        .filter(g -> guild.getGuild().getMember(user).getRoles().contains(guild.getGuild().getRoleById(g.getRoleId())) || g.getRoleId().equals(guild.getGuildId()))
+                                        .filter(g -> guild.getGuild().getMember(user).getRoles()
+                                                .contains(guild.getGuild().getRoleById(g.getRoleId()))
+                                                || g.getRoleId().equals(guild.getGuildId()))
                                         .map(Group::getName)
                                         .collect(Collectors.toList()));
                                 List<String> groupList = GeneralUtils.orderList(groups);
 
                                 String list = groupList.stream().collect(Collectors.joining("\n"));
 
-                                PagedEmbedBuilder<String> pe =
-                                        new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
-                                pe.setTitle("Groups for " + MessageUtils.getTag(user));
-                                pe.enableCodeBlock();
+                                PagedEmbedBuilder pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list,
+                                        PaginationUtil.SplitMethod.NEW_LINES, 25))
+                                        .setTitle("Groups for " + MessageUtils.getTag(user)).enableCodeBlock();
 
                                 PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
                                 return;
@@ -359,7 +380,9 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions group <group> list [page]` - lists the permissions this group has.\n" +
                 "`{%}permissions group <group> massadd <@everyone/@here/role>` - Puts everyone with the giving role into the group.\n" +
                 "`{%}permissions group <group> clear` - Removes all permissions from this group!\n" +
-                "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy.\n\n" +
+                "`{%}permissions group <group> move <pos>` - Moves the group to a different position on the hierarchy.\n" +
+                "`{%}permissions group <group> clone <new_group>` - Clones a group.\n" +
+                "`{%}permissions group <group> rename <new_name>` - Renames the group.\n\n" +
                 "`{%}permissions user <user> group add|remove <group>` - Adds or removes a group from this user.\n" +
                 "`{%}permissions user <user> group list [page]` - Lists the groups this user is in.\n" +
                 "`{%}permissions user <user> permission add|remove <perm>` - Adds or removes a permissions from this user.\n" +

@@ -20,7 +20,7 @@ public class BanCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
-            User target = GuildUtils.getUser(args[0]);
+            User target = GuildUtils.getUser(args[0], guild.getGuildId());
             if (target == null) {
                 MessageUtils.sendErrorMessage("We cannot find that user! Try their ID if you didn't already.", channel, sender);
                 return;

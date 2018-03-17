@@ -32,7 +32,7 @@ public class DebugCommand implements Command {
 
         EmbedBuilder eb = MessageUtils.getEmbed();
         if (args[0].equalsIgnoreCase("flarebot") || args[0].equalsIgnoreCase("bot")) {
-            eb.setTitle("Bot Debug").setDescription(String.format("Debug for FlareBot v" + fb.getVersion()
+            eb.setTitle("Bot Debug").setDescription(String.format("Debug for FlareBot v" + FlareBot.getVersion()
                             + "\nUptime: %s"
                             + "\nMemory Usage: %s"
                             + "\nMemory Free: %s"

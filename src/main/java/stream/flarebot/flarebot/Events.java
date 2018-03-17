@@ -43,6 +43,7 @@ import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.general.VariableUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.awt.Color;
@@ -60,7 +61,7 @@ import java.util.stream.Collectors;
 public class Events extends ListenerAdapter {
 
     public static final ThreadGroup COMMAND_THREADS = new ThreadGroup("Command Threads");
-    private static final ExecutorService CACHED_POOL = Executors.newCachedThreadPool(r ->
+    private static final ExecutorService COMMAND_POOL = Executors.newFixedThreadPool(4, r ->
             new Thread(COMMAND_THREADS, r, "Command Pool-" + COMMAND_THREADS.activeCount()));
     private static final List<Long> removedByMe = new ArrayList<>();
 
@@ -87,12 +88,12 @@ public class Events extends ListenerAdapter {
         if (event.getUser().isBot()) return;
         if (ButtonUtil.isButtonMessage(event.getMessageId())) {
             for (ButtonGroup.Button button : ButtonUtil.getButtonGroup(event.getMessageId()).getButtons()) {
-                if (event.getReactionEmote() != null && (event.getReactionEmote().getIdLong() == button.getEmoteId())
+                if ((event.getReactionEmote() != null && event.getReactionEmote().isEmote()
+                        && event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
                     Metrics.buttonsPressed.labels(emote, event.getMessageId());
-                    Long messageId = event.getMessageIdLong();
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for (MessageReaction reaction : message.getReactions()) {
                             if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
@@ -127,6 +128,7 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        if (event.getMember().getUser().isBot() || event.getMember().getUser().isFake()) return;
         PlayerCache cache = flareBot.getPlayerCache(event.getMember().getUser().getId());
         cache.setLastSeen(LocalDateTime.now());
         GuildWrapper wrapper = FlareBotManager.instance().getGuild(event.getGuild().getId());
@@ -136,27 +138,51 @@ public class Events extends ListenerAdapter {
             Welcome welcome = wrapper.getWelcome();
             if ((welcome.getChannelId() != null && Getters.getChannelById(welcome.getChannelId()) != null)
                     || welcome.isDmEnabled()) {
-                if (welcome.getChannelId() != null && Getters.getChannelById(welcome.getChannelId()) != null) {
+                if (welcome.getChannelId() != null && Getters.getChannelById(welcome.getChannelId()) != null &&
+                        welcome.isGuildEnabled()) {
                     TextChannel channel = Getters.getChannelById(welcome.getChannelId());
-                    if (!channel.canTalk()) {
+                    if (channel == null || !channel.canTalk()) {
                         welcome.setGuildEnabled(false);
                         MessageUtils.sendPM(event.getGuild().getOwner().getUser(), "Cannot send welcome messages in "
-                                + channel.getAsMention() + " due to this, welcomes have been disabled!");
+                                + (channel == null ? welcome.getChannelId() : channel.getAsMention())
+                                + " due to this, welcomes have been disabled!");
+                        return;
                     }
                     if (welcome.isGuildEnabled()) {
-                        String guildMsg = welcome.getRandomGuildMessage()
+                        String guildMsg = VariableUtils.parseVariables(welcome.getRandomGuildMessage(), wrapper, null, event.getUser());
+                        // Deprecated values
+                        guildMsg = guildMsg
                                 .replace("%user%", event.getMember().getUser().getName())
                                 .replace("%guild%", event.getGuild().getName())
                                 .replace("%mention%", event.getMember().getUser().getAsMention());
                         channel.sendMessage(guildMsg).queue();
+
+                        if (guildMsg.contains("%user%") || guildMsg.contains("%guild%") || guildMsg.contains("%mention%")) {
+                            MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+                                    "Your guild welcome message contains deprecated variables! " +
+                                            "Please check the docs at the link below for a list of all the " +
+                                            "variables you can use!\n" +
+                                            "https://docs.flarebot.stream/variables");
+                        }
                     }
                 }
                 if (welcome.isDmEnabled()) {
                     if (event.getMember().getUser().isBot()) return; // We can't DM other bots.
-                    MessageUtils.sendPM(event.getMember().getUser(), welcome.getRandomDmMessage()
+                    String dmMsg = VariableUtils.parseVariables(welcome.getRandomDmMessage(), wrapper, null, event.getUser());
+                    // Deprecated values
+                    dmMsg = dmMsg
                             .replace("%user%", event.getMember().getUser().getName())
                             .replace("%guild%", event.getGuild().getName())
-                            .replace("%mention%", event.getMember().getUser().getAsMention()));
+                            .replace("%mention%", event.getMember().getUser().getAsMention());
+                    MessageUtils.sendPM(event.getMember().getUser(), dmMsg);
+
+                    if (dmMsg.contains("%user%") || dmMsg.contains("%guild%") || dmMsg.contains("%mention%")) {
+                        MessageUtils.sendPM(event.getGuild().getOwner().getUser(),
+                                "Your DM welcome message contains deprecated variables! " +
+                                        "Please check the docs at the link below for a list of all the " +
+                                        "variables you can use!\n" +
+                                        "https://docs.flarebot.stream/variables");
+                    }
                 }
             } else welcome.setGuildEnabled(false);
         }
@@ -207,7 +233,7 @@ public class Events extends ListenerAdapter {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
                 event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now())) {
             if (Metrics.guilds.get() == 0)
-                Metrics.guilds.set(Getters.getGuildsCache().size());
+                Metrics.guilds.set(Getters.getGuildCache().size());
             else
                 Metrics.guilds.inc();
                     Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
@@ -225,7 +251,7 @@ public class Events extends ListenerAdapter {
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         if (Metrics.guilds.get() == 0)
-            Metrics.guilds.set(Getters.getGuildsCache().size());
+            Metrics.guilds.set(Getters.getGuildCache().size());
         else
             Metrics.guilds.dec();
         Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
@@ -409,7 +435,7 @@ public class Events extends ListenerAdapter {
         if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
             return;
 
-        CACHED_POOL.submit(() -> {
+        COMMAND_POOL.submit(() -> {
             LOGGER.info(
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args) + " in " + event.getChannel() + "! Sender: " +
@@ -433,6 +459,8 @@ public class Events extends ListenerAdapter {
                     field = new MessageEmbed.Field("Args", "`" + s + "`", false);
                 }
                 ModlogHandler.getInstance().postToModlog(guild, ModlogEvent.FLAREBOT_COMMAND, event.getAuthor(),
+                        new MessageEmbed.Field("Channel", event.getChannel().getName() + " ("
+                                + event.getChannel().getIdLong() + ")", true),
                         new MessageEmbed.Field("Command", cmd.getCommand(), true), field);
             } catch (Exception ex) {
                 Metrics.commandExceptions.labels(ex.getClass().getSimpleName()).inc();
@@ -455,7 +483,8 @@ public class Events extends ListenerAdapter {
         GuildWrapper wrapper = FlareBotManager.instance().getGuild(guild.getId());
 
         if (event.getChannel().getIdLong() == 226785954537406464L && !event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-            event.getChannel().sendMessage("Please use me in <#226786507065786380>!").queue();
+            event.getChannel().sendMessage("Heyo " + event.getAuthor().getAsMention()
+                    + " please use me in <#226786507065786380>!").queue();
             return false;
         }
         return true;

@@ -52,7 +52,7 @@ public class UserInfoCommand implements Command {
                         "Default Avatar: [`link`](" + MessageUtils
                         .getDefaultAvatar(sender) + ')', true)
                 .addField("General Info",
-                        "Servers: " + Getters.getGuilds().stream()
+                        "Servers: " + Getters.getGuildCache().stream()
                                 .filter(g -> g.getMemberById(id) != null)
                                 .count() + " shared\n" +
                                 "Roles: " + (targetMember == null ? "The user is not in this server." :

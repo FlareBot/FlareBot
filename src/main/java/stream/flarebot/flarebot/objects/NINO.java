@@ -12,7 +12,6 @@ public class NINO {
 
     private boolean enabled;
     private Set<String> whitelist;
-    private String removeMessage;
     private List<String> removeMessages = new CopyOnWriteArrayList<>();
 
     public NINO() {
@@ -20,8 +19,7 @@ public class NINO {
         this.whitelist = new HashSet<>();
         this.whitelist.add("discord.gg/discord-developers");
         this.whitelist.add("discord.gg/TTAUGvZ");
-        this.removeMessage = "No no no, you post not an invite here!\nYes, hmmm.";
-        this.removeMessages.add(removeMessage);
+        this.removeMessages.add("No no no, you post not an invite here!\nYes, hmmm.");
     }
 
     public boolean isEnabled() {
@@ -42,7 +40,6 @@ public class NINO {
     }
 
     public void setRemoveMessage(String str) {
-        this.removeMessage = str;
         if (this.removeMessages.size() == 1)
             this.removeMessages.set(0, str);
         else
@@ -54,13 +51,11 @@ public class NINO {
     }
 
     public void clearRemoveMessages() {
-        this.removeMessage = null;
         this.removeMessages.clear();
     }
 
     @Nullable
     public String getRemoveMessage() {
-        migrate();
         if (this.removeMessages.isEmpty())
             return null;
         return "[NINO] " + RandomUtils.getRandomString(removeMessages);
@@ -72,10 +67,5 @@ public class NINO {
 
     public List<String> getRemoveMessages() {
         return removeMessages;
-    }
-
-    public void migrate() {
-        if (removeMessage != null && removeMessages.isEmpty())
-            removeMessages.add(removeMessage);
     }
 }

@@ -29,7 +29,7 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if ((!type.isInternal() || GeneralUtils.canRunCommand(type, sender))) {
+            if (GeneralUtils.canRunCommand(type, sender)) {
                 List<String> pages = new ArrayList<>();
                 List<String> help = type.getCommands()
                         .stream().filter(cmd -> getPermissions(channel)
