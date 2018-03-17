@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.secret.internal;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -23,7 +24,7 @@ public class PostUpdateCommand implements Command {
             }
 
             Role r = guild.getGuild().getRoleById(320304080926801922L);
-            r.getManager().setMentionable(true).queue(aVoid -> {
+            r.getManager().setMentionable(false).queue(aVoid -> {
                 if (args[0].startsWith("pr:")) {
                     channel.sendMessage(new MessageBuilder().setEmbed(GitHubUtils.getEmbedForPR(args[0].substring(3))
                             .build()).append(r.getAsMention()).build()).queue(bVoid ->
@@ -35,7 +36,11 @@ public class PostUpdateCommand implements Command {
                 } else {
                     String message = msg.getContentRaw();
                     message = message.substring(message.indexOf(" ") + 1);
-                    channel.sendMessage(r.getAsMention() + "\n" + message).complete();
+                    channel.sendMessage(new MessageBuilder().setContent(r.getAsMention())
+                            .setEmbed(new EmbedBuilder().setTitle("Some announcement thing!").setDescription(message)
+                                    .setFooter("Announcement by " + member.getEffectiveName(),
+                                            sender.getEffectiveAvatarUrl()).build()).build())
+                            .complete();
                 }
             });
             r.getManager().setMentionable(false).queue();
