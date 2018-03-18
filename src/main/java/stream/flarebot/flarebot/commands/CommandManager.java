@@ -15,6 +15,7 @@ import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.random.ColorCommand;
 import stream.flarebot.flarebot.commands.random.JumboCommand;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
@@ -166,6 +167,7 @@ public class CommandManager {
         registerCommand(new BetaCommand());
         registerCommand(new DonateCommand());
         registerCommand(new JumboCommand());
+        registerCommand(new ColorCommand());
     }
 
     private void registerCommand(Command command) {
@@ -187,6 +189,4 @@ public class CommandManager {
     public int count() {
         return commands.size();
     }
-
-
 }

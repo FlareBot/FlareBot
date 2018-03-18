@@ -23,6 +23,7 @@ public class Constants {
 
     private static final String FLARE_TEST_BOT_CHANNEL = "242297848123621376";
     public static final char COMMAND_CHAR = '_';
+    public static final String COMMAND_CHAR_STRING = String.valueOf(COMMAND_CHAR);
 
     public static Guild getOfficialGuild() {
         return Getters.getGuildById(OFFICIAL_GUILD);

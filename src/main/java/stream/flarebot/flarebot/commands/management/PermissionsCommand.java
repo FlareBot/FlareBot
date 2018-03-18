@@ -105,27 +105,31 @@ public class PermissionsCommand implements Command {
                             pe.setTitle("Permissions for the group: " + group.getName());
                             pe.enableCodeBlock();
 
-                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
+                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, sender);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("massadd")) {
                         if (args.length == 4) {
                             List<Member> roleMembers;
                             String roleName = "";
-                            if (args[3].equals("@everyone")) {
-                                roleMembers = guild.getGuild().getMembers();
-                                roleName = "everyone";
-                            } else if (args[3].equals("@here")) {
-                                roleMembers = channel.getMembers();
-                                roleName = "here";
-                            } else {
-                                Role role = GuildUtils.getRole(args[3], guild.getGuildId());
-                                if (role != null) {
-                                    roleMembers = guild.getGuild().getMembersWithRoles(role);
-                                } else {
-                                    MessageUtils.sendErrorMessage("That role doesn't exist!!", channel);
-                                    return;
-                                }
+                            switch (args[3]) {
+                                case "@everyone":
+                                    roleMembers = guild.getGuild().getMembers();
+                                    roleName = "everyone";
+                                    break;
+                                case "@here":
+                                    roleMembers = channel.getMembers();
+                                    roleName = "here";
+                                    break;
+                                default:
+                                    Role role = GuildUtils.getRole(args[3], guild.getGuildId());
+                                    if (role != null) {
+                                        roleMembers = guild.getGuild().getMembersWithRoles(role);
+                                    } else {
+                                        MessageUtils.sendErrorMessage("That role doesn't exist!!", channel);
+                                        return;
+                                    }
+                                    break;
                             }
                             for (Member user : roleMembers) {
                                 getPermissions(channel).getUser(user).addGroup(group);
@@ -229,7 +233,7 @@ public class PermissionsCommand implements Command {
                                         PaginationUtil.SplitMethod.NEW_LINES, 25))
                                         .setTitle("Groups for " + MessageUtils.getTag(user)).enableCodeBlock();
 
-                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
+                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel, sender);
                                 return;
                             }
                         }
@@ -272,7 +276,7 @@ public class PermissionsCommand implements Command {
                                         new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
                                 pe.setTitle("Permissions for " + MessageUtils.getTag(user));
                                 pe.enableCodeBlock();
-                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel);
+                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel, sender);
                                 return;
                             }
                         }
@@ -291,7 +295,7 @@ public class PermissionsCommand implements Command {
                             PagedEmbedBuilder<String> embedBuilder =
                                     new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(perms, PaginationUtil.SplitMethod.NEW_LINES, 20));
                             embedBuilder.setTitle("Permissions for " + MessageUtils.getTag(user));
-                            PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel);
+                            PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel, sender);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("clear")) {
@@ -323,7 +327,7 @@ public class PermissionsCommand implements Command {
                             new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(stringBuilder.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
                     pe.setTitle("Groups");
                     pe.enableCodeBlock();
-                    PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
+                    PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, sender);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
@@ -343,7 +347,7 @@ public class PermissionsCommand implements Command {
                                 20
                         ));
                 embedBuilder.setTitle("Permissions");
-                PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel);
+                PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel, sender);
                 return;
             } else if (args[0].equalsIgnoreCase("reset")) {
                 guild.setPermissions(new PerGuildPermissions());

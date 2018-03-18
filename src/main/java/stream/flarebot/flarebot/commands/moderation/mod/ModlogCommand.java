@@ -65,7 +65,7 @@ public class ModlogCommand implements Command {
                     page = GeneralUtils.getInt(args[1], 1);
                 }
 
-                listEvents(channel, page, false);
+                listEvents(channel, page, sender);
                 return;
             }
         }
@@ -233,7 +233,7 @@ public class ModlogCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    private void listEvents(TextChannel channel, int page, boolean enabledEvents) {
+    private void listEvents(TextChannel channel, int page, User user) {
         StringBuilder sb = new StringBuilder();
         String groupKey = null;
         for (ModlogEvent modlogEvent : ModlogEvent.events) {
@@ -249,14 +249,12 @@ public class ModlogCommand implements Command {
 
             sb.append("`").append(modlogEvent.getTitle()).append("` - ").append(modlogEvent.getDescription()).append('\n');
         }
-        if (!enabledEvents) {
-            sb.append("`Default` - Is for all the normal default events\n");
-            sb.append("`All` - Is for targeting all events");
-        }
+        sb.append("`Default` - Is for all the normal default events\n");
+        sb.append("`All` - Is for targeting all events");
         PaginationUtil.sendEmbedPagedMessage(
                 new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1024))
                         .setTitle("Modlog Events")
-                        .build(), page - 1, channel);
+                        .build(), page - 1, channel, user);
 
     }
 }

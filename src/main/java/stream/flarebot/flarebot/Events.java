@@ -406,11 +406,10 @@ public class Events extends ListenerAdapter {
         }
 
         if (guild.hasBetaAccess()) {
-            if (guild.getSettings().getChannelBlacklist().contains(event.getChannel().getIdLong())
-                    && !guild.getPermissions().hasPermission(event.getMember(), stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
-                return;
-            else if (guild.getSettings().getUserBlacklist().contains(event.getAuthor().getIdLong())
-                    && !guild.getPermissions().hasPermission(event.getMember(), stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
+            if ((guild.getSettings().getChannelBlacklist().contains(event.getChannel().getIdLong())
+                    || guild.getSettings().getUserBlacklist().contains(event.getAuthor().getIdLong()))
+                    && !guild.getPermissions().hasPermission(event.getMember(),
+                    stream.flarebot.flarebot.permissions.Permission.BLACKLIST_BYPASS))
                 return;
         }
 

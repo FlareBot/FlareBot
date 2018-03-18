@@ -50,7 +50,7 @@ public class WelcomeCommand implements Command {
                                 if (args[2].equalsIgnoreCase("list")) {
                                     int page = args.length == 3 ? 1 : GeneralUtils.getInt(args[3], 1);
                                     List<String> messages = guild.getWelcome().getDmMessages();
-                                    sendWelcomeTable(messages, page, channel);
+                                    sendWelcomeTable(messages, page, channel, sender);
                                     return;
                                 } else if (args[2].equalsIgnoreCase("remove")) {
                                     if (args.length == 4) {
@@ -107,7 +107,7 @@ public class WelcomeCommand implements Command {
                                 if (args[2].equalsIgnoreCase("list")) {
                                     int page = args.length == 3 ? 1 : GeneralUtils.getInt(args[3], 1);
                                     List<String> messages = guild.getWelcome().getGuildMessages();
-                                    sendWelcomeTable(messages, page, channel);
+                                    sendWelcomeTable(messages, page, channel, sender);
                                     return;
                                 } else if (args[2].equalsIgnoreCase("remove")) {
                                     if (args.length == 4) {
@@ -185,7 +185,7 @@ public class WelcomeCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    private void sendWelcomeTable(List<String> messages, int page, TextChannel channel) {
+    private void sendWelcomeTable(List<String> messages, int page, TextChannel channel, User user) {
         List<String> messagesWithId = new ArrayList<>();
         int i = 0;
         for (String message : messages) {
@@ -196,6 +196,6 @@ public class WelcomeCommand implements Command {
         PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list + "\n", PaginationUtil.SplitMethod.CHAR_COUNT, 1024));
         pe.setTitle("Welcome Messages");
         pe.setCodeBlock("md");
-        PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel);
+        PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, user);
     }
 }

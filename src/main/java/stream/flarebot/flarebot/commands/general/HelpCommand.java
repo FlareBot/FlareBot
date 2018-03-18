@@ -49,7 +49,7 @@ public class HelpCommand implements Command {
                 PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
                 builder.setTitle("***FlareBot " + type + " commands!***");
                 builder.setColor(Color.CYAN);
-                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel);
+                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender);
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
             }
@@ -86,7 +86,7 @@ public class HelpCommand implements Command {
         }
         PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
         builder.setColor(Color.CYAN);
-        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel);
+        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender);
     }
 
     @Override

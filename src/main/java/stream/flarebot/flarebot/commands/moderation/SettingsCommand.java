@@ -57,7 +57,7 @@ public class SettingsCommand implements Command {
                         else
                             MessageUtils.sendWarningMessage("Invalid blacklist item!", channel);
                     } else if (args[1].equalsIgnoreCase("add")) {
-                        TextChannel tc = GeneralUtils.getChannel(args[2], guild);
+                        TextChannel tc = GuildUtils.getChannel(args[2], guild);
                         if (tc != null) {
                             guild.getSettings().getChannelBlacklist().add(tc.getIdLong());
                             MessageUtils.sendSuccessMessage("Added " + tc.getAsMention() + " to the blacklist!",
@@ -74,7 +74,7 @@ public class SettingsCommand implements Command {
                         MessageUtils.sendWarningMessage("Invalid channel or user! Try the ID if you're sure the " +
                                 "entity is valid", channel);
                     } else if (args[1].equalsIgnoreCase("remove")) {
-                        TextChannel tc = GeneralUtils.getChannel(args[2], guild);
+                        TextChannel tc = GuildUtils.getChannel(args[2], guild);
                         if (tc != null) {
                             if (!guild.getSettings().getChannelBlacklist().contains(tc.getIdLong())) {
                                 MessageUtils.sendWarningMessage("That channel is not blacklisted!", channel);

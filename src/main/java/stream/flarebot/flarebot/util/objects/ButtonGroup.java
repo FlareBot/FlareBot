@@ -14,7 +14,6 @@ public class ButtonGroup {
 
     private List<Button> buttons;
     private long ownerID;
-    private long owner;
 
     public ButtonGroup(long ownerID) {
         this.ownerID = ownerID;
@@ -45,18 +44,15 @@ public class ButtonGroup {
         private long emoteId;
         private ButtonRunnable runnable;
         private Message message;
-        private int clicks;
 
         public Button(String unicode, ButtonRunnable runnable) {
             this.unicode = unicode;
             this.runnable = runnable;
-            clicks = 0;
         }
 
         public Button(long emoteId, ButtonRunnable runnable) {
             this.emoteId = emoteId;
             this.runnable = runnable;
-            clicks = 0;
         }
 
         public long getEmoteId() {
@@ -83,11 +79,6 @@ public class ButtonGroup {
 
         public void onClick(long ownerID, User user) {
             runnable.run(ownerID, user, message);
-            clicks++;
-        }
-
-        public int getClicks() {
-            return clicks;
         }
     }
 }

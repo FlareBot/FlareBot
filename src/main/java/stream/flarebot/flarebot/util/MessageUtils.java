@@ -200,7 +200,8 @@ public class MessageUtils {
     public static void sendMessage(MessageType type, String message, TextChannel channel, User sender, long autoDeleteDelay) {
         sendMessage(type, (sender != null ? getEmbed(sender) : getEmbed()).setColor(type.getColor())
                 .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
-                .setDescription(FormatUtils.formatCommandPrefix(channel.getGuild(), message)), channel, autoDeleteDelay);
+                .setDescription(FormatUtils.formatCommandPrefix((channel != null ? channel.getGuild() : null), message))
+                , channel, autoDeleteDelay);
     }
 
     // Root of sendMessage(Type, Builder, channel)

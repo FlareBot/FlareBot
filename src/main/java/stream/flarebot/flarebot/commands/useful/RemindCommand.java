@@ -32,17 +32,22 @@ public class RemindCommand implements Command {
                     Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
                     StringBuilder actionBuilder = new StringBuilder();
                     for (FutureAction action : futureActions) {
-                        if (action.getAction().equals(FutureAction.Action.REMINDER) || action.getAction().equals(FutureAction.Action.DM_REMINDER)) {
-                            if (action.getResponsible() == sender.getIdLong()) {
-                                LocalDateTime time = LocalDateTime.ofInstant(action.getExpires().toDate().toInstant(), TimeZone.getTimeZone("UTC").toZoneId());
-                                actionBuilder.append("`").append(FormatUtils.truncate(100, action.getContent())).append("` at ").append(FormatUtils.formatTime(time)).append(" via ")
-                                        .append(action.getAction().equals(FutureAction.Action.REMINDER) ? GuildUtils.getChannel(String.valueOf(action.getChannelId())).getAsMention() : "Direct Messages").append("\n\n");
-                            }
+                        if ((action.getAction().equals(FutureAction.Action.REMINDER)
+                                || action.getAction().equals(FutureAction.Action.DM_REMINDER))
+                                && action.getResponsible() == sender.getIdLong()) {
+                            LocalDateTime time = LocalDateTime.ofInstant(action.getExpires().toDate().toInstant(),
+                                    TimeZone.getTimeZone("UTC").toZoneId());
+                            actionBuilder.append("`").append(FormatUtils.truncate(100, action.getContent()))
+                                    .append("` at ").append(FormatUtils.formatTime(time)).append(" via ")
+                                    .append(action.getAction().equals(FutureAction.Action.REMINDER) ?
+                                            GuildUtils.getChannel(String.valueOf(action.getChannelId())).getAsMention()
+                                            : "Direct Messages").append("\n\n");
                         }
                     }
-                    PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
+                    PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(PaginationUtil
+                            .splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
                     pagedEmbedBuilder.setTitle("Reminders for " + MessageUtils.getTag(sender));
-                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel);
+                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel, sender);
                 } else if(args[0].equalsIgnoreCase("clear")) {
                     Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
                     for (FutureAction action : futureActions) {
