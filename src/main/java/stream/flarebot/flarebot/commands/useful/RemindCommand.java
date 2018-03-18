@@ -49,7 +49,7 @@ public class RemindCommand implements Command {
                             .splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
                     pagedEmbedBuilder.setTitle("Reminders for " + MessageUtils.getTag(sender));
                     PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel, sender);
-                } else if(args[0].equalsIgnoreCase("clear")) {
+                } else if (args[0].equalsIgnoreCase("clear")) {
                     Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
                     for (FutureAction action : futureActions) {
                         if (action.getAction().equals(FutureAction.Action.REMINDER) || action.getAction().equals(FutureAction.Action.DM_REMINDER)) {

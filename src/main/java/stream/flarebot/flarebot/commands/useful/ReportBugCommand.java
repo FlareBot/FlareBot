@@ -83,7 +83,7 @@ public class ReportBugCommand implements Command {
             String url = "https://github.com/FlareBot/FlareBot/issues/new?title="
                     + URLEncoder.encode(title.toString(), "UTF-8")
                     + "&body=" + URLEncoder.encode(
-                            String.format(ISSUE_TEMPLATE, summary.toString(), context)
+                    String.format(ISSUE_TEMPLATE, summary.toString(), context)
                     , "UTF-8");
 
             channel.sendMessage(sender.getAsMention() + " please click the link to open your report!\n" + url).queue();
@@ -101,7 +101,7 @@ public class ReportBugCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"bug", "bugs", "reportb", "issue"};
+        return new String[]{"bug", "bugs", "reportb", "issue"};
     }
 
     @Override

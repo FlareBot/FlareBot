@@ -95,11 +95,11 @@ public class DebugCommand implements InternalCommand {
             boolean isPlaying = player.getPlayingTrack() != null;
             Track track = player.getPlayingTrack();
             eb.setTitle("Bot Debug").setDescription(String.format("Player Debug for `" + wrapper.getGuildId() + "`"
-                    + "\nCurrent Track: %s"
-                    + "\nCurrent Position: %s"
-                    + "\nIs Paused: %b"
-                    + "\nPlaylist Length: %s"
-                    + "\nIs Looping: %b",
+                            + "\nCurrent Track: %s"
+                            + "\nCurrent Position: %s"
+                            + "\nIs Paused: %b"
+                            + "\nPlaylist Length: %s"
+                            + "\nIs Looping: %b",
 
                     (isPlaying ? track.getTrack().getIdentifier() : "No current track"),
                     (isPlaying ? track.getTrack().getPosition() + "/" + track.getTrack().getDuration() : "N/A"),

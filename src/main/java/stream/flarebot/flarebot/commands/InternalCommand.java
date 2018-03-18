@@ -28,10 +28,10 @@ import stream.flarebot.flarebot.permissions.Permission;
 
 /**
  * Class to wrap command to avoid repeated null code
- *
+ * <p>
  * Can be extended in the future for common internal methods
  */
-public interface InternalCommand extends Command{
+public interface InternalCommand extends Command {
 
     @Override
     default Permission getPermission() {
