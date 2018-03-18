@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class InviteCommand implements Command {
@@ -15,7 +16,7 @@ public class InviteCommand implements Command {
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         MessageUtils.sendPM(channel, sender, "You can invite me to your server using the link below!\n"
-                + FlareBot.instance().getInvite());
+                + FlareBot.getInvite());
     }
 
     @Override
@@ -31,6 +32,11 @@ public class InviteCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}invite` - Gets FlareBot's invite link.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.INVITE_COMMAND;
     }
 
     @Override

@@ -223,6 +223,11 @@ public class ModlogCommand implements Command {
     }
 
     @Override
+    public stream.flarebot.flarebot.permissions.Permission getPermission() {
+        return stream.flarebot.flarebot.permissions.Permission.MODLOG_COMMAND;
+    }
+
+    @Override
     public String getExtraInfo() {
         return "Events can only be set to one channel at a time, if an event is already enabled and you enable it " +
                 "again in a different channel it **will overwrite** the channel ID with the new one.";

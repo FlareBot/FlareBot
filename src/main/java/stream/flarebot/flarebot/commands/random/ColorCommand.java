@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -78,6 +79,11 @@ public class ColorCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}color <color>` - Gets information about a color";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.COLOR_COMMAND;
     }
 
     @Override

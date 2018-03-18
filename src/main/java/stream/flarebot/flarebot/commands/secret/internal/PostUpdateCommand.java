@@ -2,18 +2,14 @@ package stream.flarebot.flarebot.commands.secret.internal;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.commands.Command;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.InternalCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.util.GitHubUtils;
 
-public class PostUpdateCommand implements Command {
+public class PostUpdateCommand implements InternalCommand {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {

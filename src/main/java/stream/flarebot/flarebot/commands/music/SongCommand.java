@@ -96,6 +96,11 @@ public class SongCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.SONG_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

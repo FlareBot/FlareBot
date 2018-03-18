@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
@@ -58,6 +59,11 @@ public class SongNickCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}songnick` - Toggles nickname auto changing to current song names.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SONGNICK_COMMAND;
     }
 
     @Override

@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
@@ -52,6 +53,11 @@ public class StatsCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}stats [section]` - Sends stats about the bot.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.STATS_COMMAND;
     }
 
     @Override

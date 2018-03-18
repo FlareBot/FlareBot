@@ -2,7 +2,6 @@ package stream.flarebot.flarebot.commands.secret;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import javafx.scene.media.AudioTrack;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -14,8 +13,8 @@ import stream.flarebot.flarebot.Events;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.InternalCommand;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -23,7 +22,7 @@ import stream.flarebot.flarebot.web.DataInterceptor;
 
 import java.util.stream.Collectors;
 
-public class DebugCommand implements Command {
+public class DebugCommand implements InternalCommand {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {

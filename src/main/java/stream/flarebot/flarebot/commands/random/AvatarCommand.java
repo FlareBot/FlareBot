@@ -48,6 +48,11 @@ public class AvatarCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.AVATAR_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.RANDOM;
     }

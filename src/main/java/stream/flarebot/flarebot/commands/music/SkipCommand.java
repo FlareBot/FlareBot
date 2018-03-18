@@ -188,6 +188,11 @@ public class SkipCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.SKIP_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

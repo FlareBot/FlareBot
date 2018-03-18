@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ConfirmUtil;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
@@ -75,6 +76,11 @@ public class PruneCommand implements Command {
         return "`{%}prune server <days>` - Prunes the entire server." +
                 " Only members inactive longer than the specified amount of days will be removed.\n" +
                 "`{%}prune confirm` - Confirms a user's actions.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.PRUNE_COMMAND;
     }
 
     @Override

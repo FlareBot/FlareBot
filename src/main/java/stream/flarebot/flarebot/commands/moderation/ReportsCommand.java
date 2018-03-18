@@ -185,6 +185,11 @@ public class ReportsCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.REPORTS_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }

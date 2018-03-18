@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.GitHandler;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -111,6 +112,11 @@ public class ReportBugCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}report <Title> | <Summary of the issue>";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return null;
     }
 
     @Override

@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -121,6 +122,11 @@ public class PlaylistsCommand implements Command {
         return "`{%}playlists` - Returns the playlists available.";
         // Admin command:
         // {%}playlists mark <global/local> <playlist>
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.PLAYLISTS_COMMAND;
     }
 
     @Override

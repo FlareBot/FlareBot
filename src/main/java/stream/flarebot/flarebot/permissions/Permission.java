@@ -60,6 +60,8 @@ public enum Permission {
     UNMUTE_COMMAND("unmute", false, UnmuteCommand.class),
     WARN_COMMAND("warn", false, WarnCommand.class),
     WARNINGS_COMMAND("warnings", false, WarningsCommand.class),
+    NINO_COMMAND("nino", false),
+    SETTINGS_COMMAND("settings", false),
     // Server Moderation
     AUTOASSIGN_COMMAND("autoassign", false, AutoAssignCommand.class),
     FIX_COMMAND("fix", false, FixCommand.class),
@@ -108,7 +110,9 @@ public enum Permission {
     REMIND_COMMAND("remind", true, RemindCommand.class),
     TAGS_COMMAND("tags", true, TagsCommand.class),
     TAGS_ADMIN("tags.admin", false),
-    BLACKLIST_BYPASS("blacklist.bypass", false);
+    BLACKLIST_BYPASS("blacklist.bypass", false),
+    COLOR_COMMAND("color", true),
+    JUMBO_COMMAND("jumbo", true);
 
     public static final Permission[] VALUES = Permission.values();
 

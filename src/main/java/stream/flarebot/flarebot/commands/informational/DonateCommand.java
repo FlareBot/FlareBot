@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 
@@ -38,6 +39,11 @@ public class DonateCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}donate` - Shows donation options";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return null;
     }
 
     @Override

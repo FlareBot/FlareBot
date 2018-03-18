@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
@@ -51,6 +52,11 @@ public class BetaCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}beta` - Shows the beta information";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return null;
     }
 
     @Override

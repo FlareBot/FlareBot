@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
@@ -44,6 +45,11 @@ public class UnbanCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}unban <user>` - Unbans a user";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.UNBAN_COMMAND;
     }
 
     @Override

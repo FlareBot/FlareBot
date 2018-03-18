@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
@@ -51,6 +52,11 @@ public class TempBanCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}tempban <user> <time> [reason]` - Temp bans a user.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.TEMPBAN_COMMAND;
     }
 
     @Override

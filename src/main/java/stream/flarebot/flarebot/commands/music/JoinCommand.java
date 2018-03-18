@@ -52,6 +52,11 @@ public class JoinCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.JOIN_COMMAND;
+    }
+
+    @Override
     public String[] getAliases() {
         return new String[]{"summon"};
     }

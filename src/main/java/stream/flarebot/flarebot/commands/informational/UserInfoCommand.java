@@ -94,6 +94,11 @@ public class UserInfoCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.USERINFO_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.GENERAL;
     }

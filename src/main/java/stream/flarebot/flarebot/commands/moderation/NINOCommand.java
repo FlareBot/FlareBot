@@ -1,6 +1,5 @@
 package stream.flarebot.flarebot.commands.moderation;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -8,6 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
@@ -148,6 +148,11 @@ public class NINOCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.NINO_COMMAND;
+    }
+
+    @Override
     public String getExtraInfo() {
         return "If you are setting a message it will overwrite the current one (If there's only one!) otherwise " +
                 "it will add to the messages.\n" +
@@ -167,7 +172,7 @@ public class NINOCommand implements Command {
 
     private void listMessages(GuildWrapper wrapper, int page, TextChannel channel, User user) {
         List<String> messages = wrapper.getNINO().getRemoveMessages();
-        if(messages.size() == 0) {
+        if (messages.size() == 0) {
             MessageUtils.sendWarningMessage("There are no messages for this guild!", channel);
             return;
         }

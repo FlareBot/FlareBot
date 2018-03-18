@@ -7,6 +7,7 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
@@ -91,6 +92,11 @@ public class ServerInfoCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}serverinfo [guild_id]` - Gets the info on a guild (server).";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SERVERINFO_COMMAND;
     }
 
     @Override

@@ -1,19 +1,13 @@
 package stream.flarebot.flarebot.commands.useful;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import org.apache.commons.lang3.StringUtils;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.general.VariableUtils;
 
 import java.awt.Color;
@@ -156,6 +150,11 @@ public class TagsCommand implements Command {
                 "`{%}tags add <tag_name> <tag_message>` - Adds a tag to the guild.\n" +
                 "`{%}tags edit <tag_name> <tag_message>` - Edits an already existing tag.\n" +
                 "`{%}tags remove <tag_name>` - Removes a tag from the guild.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.TAGS_COMMAND;
     }
 
     @Override

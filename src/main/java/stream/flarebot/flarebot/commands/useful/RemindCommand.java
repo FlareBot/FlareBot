@@ -9,10 +9,11 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
@@ -100,6 +101,11 @@ public class RemindCommand implements Command {
                 "`{%}remind <duration> dm <reminder>` - Reminds a user about something after a duration via Direct Messages.\n" +
                 "`{%}remind list` - Lists your current reminders.\n" +
                 "`{%}remind clear` - Clears your current reminders.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.REMIND_COMMAND;
     }
 
     @Override

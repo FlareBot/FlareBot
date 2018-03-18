@@ -153,7 +153,7 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("clone") && args.length >= 4) {
-                        if(guild.getPermissions().cloneGroup(group, args[3])) {
+                        if (guild.getPermissions().cloneGroup(group, args[3])) {
                             MessageUtils.sendMessage("Cloned group Successfully", channel);
                             return;
                         } else {
@@ -161,7 +161,7 @@ public class PermissionsCommand implements Command {
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("rename") && args.length >= 4) {
-                        if(guild.getPermissions().renameGroup(group, args[3])) {
+                        if (guild.getPermissions().renameGroup(group, args[3])) {
                             MessageUtils.sendMessage("Renamed group Successfully", channel);
                             return;
                         } else {
@@ -396,6 +396,11 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions groups` - Lists all the groups in a server.\n" +
                 "`{%}permissions list` - Lists all the permissions for FlareBot!\n" +
                 "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.PERMISSIONS_COMMAND;
     }
 
 

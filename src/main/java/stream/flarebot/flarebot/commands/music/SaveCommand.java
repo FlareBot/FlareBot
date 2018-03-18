@@ -79,6 +79,11 @@ public class SaveCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.SAVE_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MUSIC;
     }

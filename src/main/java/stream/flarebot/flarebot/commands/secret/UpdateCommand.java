@@ -9,8 +9,8 @@ import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.InternalCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
@@ -23,7 +23,7 @@ import java.net.URL;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class UpdateCommand implements Command {
+public class UpdateCommand implements InternalCommand {
 
     private static AtomicBoolean queued = new AtomicBoolean(false);
 

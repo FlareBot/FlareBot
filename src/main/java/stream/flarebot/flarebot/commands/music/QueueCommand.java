@@ -2,11 +2,7 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -132,6 +128,11 @@ public class QueueCommand implements Command {
         return "`{%}queue` - Lists the current items in the queue.\n" +
                 "`{%}queue clear` - Clears the queue\n" +
                 "`{%}queue remove <#>` - Removes an item from the queue.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.QUEUE_COMMAND;
     }
 
     @Override

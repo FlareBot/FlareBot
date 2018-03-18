@@ -1,10 +1,6 @@
 package stream.flarebot.flarebot.commands.general;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
@@ -13,6 +9,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportMessage;
 import stream.flarebot.flarebot.objects.ReportStatus;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
@@ -78,6 +75,11 @@ public class ReportCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}report <user> <reason>` - Reports a user to your guild moderators.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.REPORT_COMMAND;
     }
 
     @Override

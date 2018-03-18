@@ -7,8 +7,8 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.stream.Collectors;
@@ -124,6 +124,11 @@ public class SettingsCommand implements Command {
                 "`{%}settings blacklist list users|channels` - List the blacklist of users or channels.\n" +
                 "`{%}settings blacklist add|remove <user|channel>` - Blacklist a user or channel.\n" +
                 "`{%}settings list` - List the settings and their current values.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SETTINGS_COMMAND;
     }
 
     @Override

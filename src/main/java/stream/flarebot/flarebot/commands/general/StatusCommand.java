@@ -11,6 +11,7 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.ShardUtils;
 
@@ -107,6 +108,11 @@ public class StatusCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}status [shardId]` - Check the status of the bot [or a shard]";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.STATUS_COMMAND;
     }
 
     @Override

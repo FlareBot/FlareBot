@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ShardUtils;
 import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
@@ -59,6 +60,11 @@ public class ShardInfoCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}shardinfo` - Shows info about the shards.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SHARDINFO_COMMAND;
     }
 
     @Override

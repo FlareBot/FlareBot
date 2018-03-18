@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 
@@ -39,6 +40,11 @@ public class CommandUsageCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}usage <command_name>` - Displays the usage for another command.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.USAGE_COMMAND;
     }
 
     @Override

@@ -1,18 +1,14 @@
 package stream.flarebot.flarebot.commands.secret;
 
-import net.dv8tion.jda.core.entities.Icon;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.commands.Command;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.InternalCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
 import java.io.IOException;
 import java.net.URL;
 
-public class ChangeAvatarCommand implements Command {
+public class ChangeAvatarCommand implements InternalCommand {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
