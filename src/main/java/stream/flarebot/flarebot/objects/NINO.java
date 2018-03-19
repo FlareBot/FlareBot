@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 public class NINO {
@@ -25,6 +26,9 @@ public class NINO {
         this.whitelist.add("discord.gg/discord-developers");
         this.whitelist.add("discord.gg/TTAUGvZ");
         this.removeMessages.add("No no no, you post not an invite here!\nYes, hmmm.");
+
+        this.urlFlags.addAll(Arrays.stream(URLCheckFlag.values).filter(URLCheckFlag::isDefaultFlag)
+                .collect(Collectors.toSet()));
     }
 
     public boolean isEnabled() {
@@ -82,5 +86,11 @@ public class NINO {
         this.getURLFlags().add(flag);
         if (flags.length > 0)
             this.getURLFlags().addAll(Arrays.asList(flags));
+    }
+
+    public void resetFlags() {
+        this.urlFlags.clear();
+        this.urlFlags.addAll(Arrays.stream(URLCheckFlag.values).filter(URLCheckFlag::isDefaultFlag)
+                .collect(Collectors.toSet()));
     }
 }

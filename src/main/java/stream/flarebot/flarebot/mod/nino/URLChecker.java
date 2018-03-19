@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.util.Pair;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -29,7 +30,7 @@ public class URLChecker {
 
     private static final ConcurrentHashMap<UUID, Byte> redirects = new ConcurrentHashMap<>();
 
-    private static final Pattern URL_PATTERN = Pattern.compile("(https?://)?(([\\w-]+)\\.)?([\\w-]+)(\\.[\\w+]+)+(/[\\w-]+(\\.[\\w+]{1,5})?)*");
+    private static final Pattern URL_PATTERN = Pattern.compile("(?:https?://|www\\.)([^\\s/$.?#].[^\\s]*)");
 
     private static URLChecker instance;
 
@@ -42,17 +43,26 @@ public class URLChecker {
     public void checkMessage(GuildWrapper wrapper, String message, BiConsumer<URLCheckFlag, String> callback) {
         Matcher m = URL_PATTERN.matcher(message);
         if (!m.find()) return;
+
+        String url = normalizeUrl(m.group(1));
+        /*if (!validURL(url))
+            return;*/
+
         EXECUTOR.submit(() -> {
             Set<URLCheckFlag> flags = wrapper.getNINO().getURLFlags();
 
-            String url = normalizeUrl(m.group());
             Pair<URLCheckFlag, String> pair = checkURL(url, flags);
 
             if (pair != null) {
+                // Returned if it's a whitelisted URL
+                if (pair.getKey() == null && pair.getValue() != null) return;
+                logger.info("{} was found to be under the flag {} ({})", url, pair.getKey(), pair.getValue());
                 callback.accept(pair.getKey(), pair.getValue());
                 return;
-            }else {
+            } else {
+                logger.debug("{} was not flagged, going to try and follow the URL.", url);
                 if ((pair = followURL(url, flags, null)) != null) {
+                    logger.debug("{} was found to be under the flag {} ({}) after following it", url, pair.getKey(), pair.getValue());
                     callback.accept(pair.getKey(), pair.getValue());
                     return;
                 }
@@ -64,12 +74,18 @@ public class URLChecker {
 
     private Pair<URLCheckFlag, String> checkURL(String url, Set<URLCheckFlag> flags) {
         Matcher matcher;
+        logger.debug("Checking {} with flags: {}", url, Arrays.toString(flags.toArray()));
         // Check whitelisted domains
+        if ((matcher = URLConstants.WHITELISTED_DOMAINS_PATTERN.matcher(url)).find()) {
+            return new Pair<>(null, matcher.group());
+        }
 
         // Blacklist
+        // I may want to implement this in the future but right now I don't think it's needed.
 
         // IP Grabber
         if (flags.contains(URLCheckFlag.IP_GRABBER)) {
+            logger.debug(URLConstants.IP_GRABBER_PATTERN.toString());
             if ((matcher = URLConstants.IP_GRABBER_PATTERN.matcher(url)).find()) {
                 return new Pair<>(URLCheckFlag.IP_GRABBER, matcher.group());
             }
@@ -83,7 +99,11 @@ public class URLChecker {
         }
 
         // Phishing
-
+        if (flags.contains(URLCheckFlag.PHISHING)) {
+            if ((matcher = URLConstants.PHISHING_PATTERN.matcher(url)).find()) {
+                return new Pair<>(URLCheckFlag.PHISHING, matcher.group());
+            }
+        }
 
         // Suspicious TLDs
         if (flags.contains(URLCheckFlag.SUSPICIOUS)) {
@@ -136,10 +156,6 @@ public class URLChecker {
 
     private String normalizeUrl(String url) {
         String normalized = url;
-        if (normalized.contains(" ")) {
-            logger.info(url);
-        }
-
         if (!url.startsWith("http")) {
             normalized = "http://" + url;
         }
@@ -150,12 +166,13 @@ public class URLChecker {
     public void runTests() {
         List<String> tests = ImmutableList.of(
                 "Check this out https://i.go.iplogger.com/12dxzfcs.php",
-                "cool.webcam",
-                "discord.gg/b1nzy",
-                "flarebot.stream",
-                "http://bit.ly/2Ix3h5k",
-                "iplogger.com",
-                "http://test.iplogger.com/t?=192.0.0.1"
+                "http://cool.webcam",
+                "http://www.discord.gg/b1nzy",
+                "https://flarebot.stream",
+                //"http://bit.ly/2Ix3h5k",
+                "www.iplogger.com",
+                "http://test.iplogger.com/t?=192.0.0.1",
+                "http://bit.ly/2FY9rJW"
         );
 
         GuildWrapper wrapper = new GuildWrapper("1");

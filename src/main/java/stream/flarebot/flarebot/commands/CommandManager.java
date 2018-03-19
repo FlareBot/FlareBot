@@ -21,6 +21,7 @@ import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
 import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
 import stream.flarebot.flarebot.commands.secret.internal.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.internal.StatusCommand;
 import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
 import stream.flarebot.flarebot.commands.secret.update.UpdateJDACommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;

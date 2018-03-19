@@ -140,7 +140,7 @@ public class FutureAction {
             case TEMP_MUTE:
                 if (gw.getGuild().getTextChannelById(channelId) != null) {
                     ModlogHandler.getInstance().handleAction(gw,
-                            ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNMUTE.getEvent()),
+                            gw.getGuild().getTextChannelById(channelId),
                             null,
                             GuildUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
                             ModAction.UNMUTE,
@@ -152,7 +152,7 @@ public class FutureAction {
             case TEMP_BAN:
                 if (gw.getGuild().getTextChannelById(channelId) != null) {
                     ModlogHandler.getInstance().handleAction(gw,
-                            ModlogHandler.getInstance().getModlogChannel(gw, ModAction.UNBAN.getEvent()),
+                            gw.getGuild().getTextChannelById(channelId),
                             null,
                             GuildUtils.getUser(String.valueOf(target), String.valueOf(guildId), true),
                             ModAction.UNBAN,

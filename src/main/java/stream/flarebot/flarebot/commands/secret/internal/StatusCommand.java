@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.general;
+package stream.flarebot.flarebot.commands.secret.internal;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;

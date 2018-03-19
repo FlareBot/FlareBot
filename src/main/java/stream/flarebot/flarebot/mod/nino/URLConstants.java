@@ -23,10 +23,14 @@ public class URLConstants {
             "grabify.link"
     );
 
+    /**
+     * Catch the nasty IP Grabbers which are listed above,
+     */
     public static final Pattern IP_GRABBER_PATTERN = Pattern.compile(String.format("(%s)",
-            IP_GRABBERS.stream().collect(Collectors.joining("|"))));
+            IP_GRABBERS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
-    public static final Pattern DISCORD_INVITE_PATTERN = Pattern.compile("(discord\\.gg|discordapp\\.com/invite)/[\\w-._]{2,32}");
+    public static final Pattern DISCORD_INVITE_PATTERN = Pattern
+            .compile("(discord\\.gg|discordapp\\.com/invite)/[\\w-._]{2,32}", Pattern.CASE_INSENSITIVE);
 
     private static final Set<String> PHISHING = ImmutableSet.of(
             "paypal1.net-br.top",
@@ -35,7 +39,7 @@ public class URLConstants {
     );
 
     public static Pattern PHISHING_PATTERN = Pattern.compile(String.format("(%s)",
-            PHISHING.stream().collect(Collectors.joining("|"))));
+            PHISHING.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
     private static final Set<String> SUSPICIOUS_TLDS = ImmutableSet.of(
             "click",
@@ -51,15 +55,25 @@ public class URLConstants {
     );
 
     public static final Pattern SUSPICIOUS_TLDS_PATTERN = Pattern.compile(String.format("[\\w-]{1,256}\\.(%s)",
-            SUSPICIOUS_TLDS.stream().collect(Collectors.joining("|"))));
+            SUSPICIOUS_TLDS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
     /**
      * These are domains which may be caught by our blacklisted TLDs or other such methods. These have been confirmed
      * safe and are all good to go to <3
      */
-    public static final Set<String> WHITELISTED_DOMAINS = ImmutableSet.of(
-            "flarebot.stream"
+    private static final Set<String> WHITELISTED_DOMAINS = ImmutableSet.of(
+            "flarebot.stream", // Our website :p
+
+            "dankmeme.stream", // Image Server - https://nothing.domains/
+            "hacked-your.webcam", // Image Server - https://nothing.domains/
+            "jackloves.men", // Image Server - https://nothing.domains/
+            "is-info.men", // Image Server - https://whats-th.is/faq.html
+            "is-over.party", // Image Server - https://whats-th.is/faq.html
+            "while-at.work" // Image Server - https://whats-th.is/faq.html
     );
+
+    public static final Pattern WHITELISTED_DOMAINS_PATTERN = Pattern.compile(String.format("(%s)",
+            WHITELISTED_DOMAINS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
     /**
      * Get the Discord invite from a String, this will return for either discord.gg or discordapp.com/invite

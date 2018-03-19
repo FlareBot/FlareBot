@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.InternalCommand;
 //import stream.flarebot.flarebot.mod.nino.URLChecker;
+import stream.flarebot.flarebot.mod.nino.URLChecker;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 
 public class TestCommand implements InternalCommand {
