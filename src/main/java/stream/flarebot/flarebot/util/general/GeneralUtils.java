@@ -639,7 +639,7 @@ public class GeneralUtils {
                 return true;
             Guild g = Getters.getOfficialGuild();
 
-            if (g.getMember(user) != null) {
+            if (g != null && g.getMember(user) != null) {
                 for (long roleId : type.getRoleIds())
                     if (g.getMember(user).getRoles().contains(g.getRoleById(roleId)))
                         return true;

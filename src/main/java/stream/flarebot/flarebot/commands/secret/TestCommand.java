@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.secret;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -13,7 +14,9 @@ public class TestCommand implements InternalCommand {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        //URLChecker.instance().runTests();
+        channel.sendMessage("View profile: <http://discordapp.com/users/" + sender.getId() + ">").queue();
+        channel.sendMessage(new EmbedBuilder().setDescription("[Test](http://discordapp.com/users/" + sender.getId() + ")").build()).queue();
+        URLChecker.instance().runTests();
     }
 
     @Override
@@ -33,6 +36,6 @@ public class TestCommand implements InternalCommand {
 
     @Override
     public CommandType getType() {
-        return CommandType.SECRET;
+        return CommandType.RANDOM;
     }
 }

@@ -28,7 +28,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;

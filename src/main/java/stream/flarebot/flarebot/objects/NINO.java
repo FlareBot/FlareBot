@@ -1,7 +1,10 @@
 package stream.flarebot.flarebot.objects;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
+import stream.flarebot.flarebot.mod.nino.URLCheckFlag;
 import stream.flarebot.flarebot.util.RandomUtils;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +16,8 @@ public class NINO {
     private boolean enabled;
     private Set<String> whitelist;
     private List<String> removeMessages = new CopyOnWriteArrayList<>();
+
+    private Set<URLCheckFlag> urlFlags = new ConcurrentHashSet<>();
 
     public NINO() {
         this.enabled = false;
@@ -67,5 +72,15 @@ public class NINO {
 
     public List<String> getRemoveMessages() {
         return removeMessages;
+    }
+
+    public Set<URLCheckFlag> getURLFlags() {
+        return urlFlags;
+    }
+
+    public void addURLFlags(URLCheckFlag flag, URLCheckFlag... flags) {
+        this.getURLFlags().add(flag);
+        if (flags.length > 0)
+            this.getURLFlags().addAll(Arrays.asList(flags));
     }
 }

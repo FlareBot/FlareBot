@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.secret;
+package stream.flarebot.flarebot.commands.secret.update;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
