@@ -28,6 +28,7 @@ import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,7 @@ public class CommandManager {
 
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
+    @Nullable
     public Command getCommand(String s, User user) {
         if (PerGuildPermissions.isCreator(user) || PerGuildPermissions.isContributor(user) || PerGuildPermissions.isStaff(user)) {
             for (Command cmd : getInternalCommands()) {
