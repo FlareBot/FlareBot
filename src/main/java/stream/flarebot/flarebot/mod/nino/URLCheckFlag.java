@@ -2,6 +2,9 @@ package stream.flarebot.flarebot.mod.nino;
 
 import org.apache.commons.lang3.text.WordUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum URLCheckFlag {
 
     // Any sort of URL
@@ -22,7 +25,8 @@ public enum URLCheckFlag {
     // https://www.spamhaus.org/statistics/tlds/
     SUSPICIOUS(false);
 
-    public static URLCheckFlag[] values = values();
+    public static final URLCheckFlag[] values = values();
+    private static ArrayList<URLCheckFlag> defaults;
 
     private boolean defaultFlag;
     URLCheckFlag(boolean b) {
@@ -31,6 +35,17 @@ public enum URLCheckFlag {
 
     public boolean isDefaultFlag() {
         return defaultFlag;
+    }
+
+    public static List<URLCheckFlag> getDefaults() {
+        if (defaults == null || defaults.size() == 0) {
+            defaults = new ArrayList<>();
+            for (URLCheckFlag flag : values) {
+                if (flag.isDefaultFlag())
+                    defaults.add(flag);
+            }
+        }
+        return defaults;
     }
 
     @Override

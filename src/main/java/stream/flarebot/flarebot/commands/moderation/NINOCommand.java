@@ -4,8 +4,10 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.nino.URLCheckFlag;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ColorUtils;
@@ -16,21 +18,60 @@ import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationList;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class NINOCommand implements Command {
+
+    private static final Pattern seperator = Pattern.compile(", ?");
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("enable") || args[0].equalsIgnoreCase("disable")) {
                 boolean enabled = args[0].equalsIgnoreCase("enable");
-                guild.getNINO().setEnabled(enabled);
-                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(FormatUtils.formatCommandPrefix(guild,
-                        "I have "
-                                + (!enabled ? "disabled anti-invite protection!" : "enabled anti-invite protection!\n"
-                                + "To see the whitelist do `{%}nino whitelist list` and to post the invite attempts to "
-                                + " the modlog enable it with `{%}modlog enable Invite Posted <#channel>`")))
+                ArrayList<URLCheckFlag> flags = new ArrayList<>();
+
+                if (args.length >= 2) {
+                    if (args[1].equalsIgnoreCase("all"))
+                        flags.addAll(Arrays.asList(URLCheckFlag.values));
+                    else {
+                        String[] strFlags = seperator.split(MessageUtils.getMessage(args, 1));
+                        URLCheckFlag checkFlag;
+                        for (String flag : strFlags) {
+                            if ((checkFlag = URLCheckFlag.getFlag(flag)) != null)
+                                flags.add(checkFlag);
+                            else {
+                                MessageUtils.sendWarningMessage("'" + flag + "' is not a valid flag!", channel);
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                if (enabled) {
+                    if (flags.isEmpty())
+                        flags.addAll(URLCheckFlag.getDefaults());
+
+                    guild.getNINO().getURLFlags().addAll(flags);
+                } else {
+                    if (flags.isEmpty())
+                        guild.getNINO().getURLFlags().clear();
+                    else
+                        guild.getNINO().getURLFlags().removeAll(flags);
+                }
+
+                boolean all = guild.getNINO().getURLFlags().size() == URLCheckFlag.values.length;
+                FlareBot.LOGGER.info(Arrays.toString(guild.getNINO().getURLFlags().toArray()) + ", " + URLCheckFlag.getDefaults().toString());
+
+                channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(
+                        FormatUtils.formatCommandPrefix(guild, "I have "
+                                + (!enabled ? "disabled NINO!"
+                                : "enabled " + (all ? "all" : Arrays.toString(flags.toArray())) + " flags!" +
+                                "\nTo see the whitelist do `{%}nino whitelist list` and to post the"
+                                + " attempts to the modlog enable it with `{%}modlog enable NINO <#channel>`")))
                         .setColor(enabled ? ColorUtils.GREEN : ColorUtils.RED).build()).queue();
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 if (args.length == 2) {
@@ -140,11 +181,12 @@ public class NINOCommand implements Command {
 
     @Override
     public String getUsage() {
-        return "`{%}nino enable|disable` - Enable or disable the anti-invite!\n" +
+        return "`{%}nino enable|disable <flags...>` - Enable or disable a flag or multiple by comma separation!\n" +
                 "`{%}nino whitelist list` - List the current whitelisted invites.\n" +
-                "`{%}nino whitelist add|remove <invite>` - Configure the whitelist.\n" +
+                "`{%}nino whitelist add|remove <url>` - Configure the whitelist.\n" +
                 "`{%}nino message set|add|remove <message>` - Set, add or remove messages for removal.\n" +
-                "`{%}nino message list` - List the messages currently set for NINO!";
+                "`{%}nino message list` - List the messages currently set for NINO!\n" +
+                "`{%}nino flags` - List the flags enabled and disabled";
     }
 
     @Override
