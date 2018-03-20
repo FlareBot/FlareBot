@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.commands.moderation;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -21,7 +22,9 @@ import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class NINOCommand implements Command {
 
@@ -63,13 +66,12 @@ public class NINOCommand implements Command {
                         guild.getNINO().getURLFlags().removeAll(flags);
                 }
 
-                boolean all = guild.getNINO().getURLFlags().size() == URLCheckFlag.values.length;
-                FlareBot.LOGGER.info(Arrays.toString(guild.getNINO().getURLFlags().toArray()) + ", " + URLCheckFlag.getDefaults().toString());
+                boolean all = guild.getNINO().getURLFlags().size() == URLCheckFlag.getDefaults().size();
 
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(
                         FormatUtils.formatCommandPrefix(guild, "I have "
-                                + (!enabled ? "disabled NINO!"
-                                : "enabled " + (all ? "all" : Arrays.toString(flags.toArray())) + " flags!" +
+                                + (!enabled ? "disabled " + (all ? "all" : "the " + Arrays.toString(flags.toArray())) + " flag(s)!"
+                                : "enabled " + (all ? "all" : "the " + Arrays.toString(flags.toArray())) + " flag(s)!" +
                                 "\nTo see the whitelist do `{%}nino whitelist list` and to post the"
                                 + " attempts to the modlog enable it with `{%}modlog enable NINO <#channel>`")))
                         .setColor(enabled ? ColorUtils.GREEN : ColorUtils.RED).build()).queue();
@@ -163,6 +165,21 @@ public class NINOCommand implements Command {
                     listMessages(guild, page, channel, sender);
                 } else
                     MessageUtils.sendUsage(this, channel, sender, args);
+            } else if (args[0].equalsIgnoreCase("flags")) {
+                Set<URLCheckFlag> flags = guild.getNINO().getURLFlags();
+                boolean all = flags.size() == URLCheckFlag.getDefaults().size();
+
+                EmbedBuilder eb = MessageUtils.getEmbed(sender).setTitle("NINO Flags");
+                if (!flags.isEmpty())
+                    eb.addField("Enabled", flags.stream()
+                                    .map(URLCheckFlag::toString)
+                                    .collect(Collectors.joining("\n")), false);
+
+                if (!all)
+                    eb.addField("Disabled", URLCheckFlag.getDefaults().stream().filter(flags::contains)
+                            .map(URLCheckFlag::toString)
+                            .collect(Collectors.joining("\n")), false);
+                channel.sendMessage(eb.build()).queue();
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         } else
