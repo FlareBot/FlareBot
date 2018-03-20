@@ -13,8 +13,6 @@ public class BotMetrics {
     private long voiceChannelCount;
 
     public boolean count() {
-        LoggerFactory.getLogger(BotMetrics.class).info("count() called");
-
         if (FlareBot.instance().getShardManager() == null) return false;
         for (JDA jda : Getters.getShards()) {
             if (jda.getStatus() != JDA.Status.CONNECTED)
