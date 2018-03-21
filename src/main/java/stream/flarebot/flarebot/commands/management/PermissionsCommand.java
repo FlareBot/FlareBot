@@ -395,7 +395,7 @@ public class PermissionsCommand implements Command {
                 "`{%}permissions user <user> clear` - Clears all user specific permissions from the specified user!\n\n" +
                 "`{%}permissions groups` - Lists all the groups in a server.\n" +
                 "`{%}permissions list` - Lists all the permissions for FlareBot!\n" +
-                "`{%}permissions reset|restoredefault` - Resets all of the guilds perms or resets the default group permissions.";
+                "`{%}permissions reset` - Resets all of the guilds perms.";
     }
 
     @Override
