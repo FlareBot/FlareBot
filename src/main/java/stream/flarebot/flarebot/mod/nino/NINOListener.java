@@ -57,7 +57,7 @@ public class NINOListener implements EventListener {
                                 "come to our " + Constants.INVITE_MARKDOWN + " otherwise you can just whitelist for your guild. " +
                                 "Check out the NINO command for mor info.", false);
                     } else if (flag == URLCheckFlag.PHISHING) {
-                        eb.addField(MessageUtils.ZERO_WIDTH_SPACE, "These are sites which we have found to phis for " +
+                        eb.addField(MessageUtils.ZERO_WIDTH_SPACE, "These are sites which we have found to phish for " +
                                 "users personal information such as users account info or other. These are mainly " +
                                 "ones we know about and have been seen used around Discord. If you wish to report a " +
                                 "new one please join our " + Constants.INVITE_MARKDOWN, false);
