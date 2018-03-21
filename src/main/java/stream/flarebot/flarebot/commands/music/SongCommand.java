@@ -58,7 +58,8 @@ public class SongCommand implements Command {
             buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (owner, user, message1) -> {
                 if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.SKIP_COMMAND)) {
                     Command cmd = FlareBot.getCommandManager().getCommand("skip", user);
-                    cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
+                    if (cmd != null)
+                        cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
                 }
             }));
             ButtonUtil.sendButtonedMessage(channel, eb.build(), buttonGroup);

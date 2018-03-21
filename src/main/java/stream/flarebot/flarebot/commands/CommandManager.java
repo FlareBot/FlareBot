@@ -20,11 +20,15 @@ import stream.flarebot.flarebot.commands.random.JumboCommand;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
 import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.internal.StatusCommand;
+import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.update.UpdateJDACommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +62,7 @@ public class CommandManager {
 
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
+    @Nullable
     public Command getCommand(String s, User user) {
         if (PerGuildPermissions.isCreator(user) || PerGuildPermissions.isContributor(user) || PerGuildPermissions.isStaff(user)) {
             for (Command cmd : getInternalCommands()) {

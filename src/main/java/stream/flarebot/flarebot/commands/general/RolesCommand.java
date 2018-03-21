@@ -41,7 +41,7 @@ public class RolesCommand implements Command {
                     PaginationUtil.SplitMethod.NEW_LINES, 20))
                     .setTitle("Roles")
                     .setCodeBlock("js")
-                    .build(), page, channel, sender);
+                    .build(), page - 1, channel, sender);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }

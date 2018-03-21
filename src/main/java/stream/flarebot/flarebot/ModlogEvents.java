@@ -118,8 +118,8 @@ public class ModlogEvents implements EventListener {
         else if (event instanceof VoiceChannelDeleteEvent)
             onVoiceChannelDelete((VoiceChannelDeleteEvent) event, guildWrapper);
             // MESSAGES
-        else if (event instanceof GuildMessageReceivedEvent)
-            onGuildMessageReceived((GuildMessageReceivedEvent) event, guildWrapper);
+        /*else if (event instanceof GuildMessageReceivedEvent)
+            onGuildMessageReceived((GuildMessageReceivedEvent) event, guildWrapper);*/
         else if (event instanceof MessageUpdateEvent)
             onMessageUpdate((MessageUpdateEvent) event, guildWrapper);
         else if (event instanceof MessageDeleteEvent)
@@ -341,31 +341,9 @@ public class ModlogEvents implements EventListener {
         handleChannelDelete(wrapper, event.getChannel());
     }
 
-    private void onGuildMessageReceived(GuildMessageReceivedEvent event, @Nonnull GuildWrapper wrapper) {
-        if (event.getAuthor().isBot()) return;
-        if (event.getMember().hasPermission(event.getChannel(), Permission.MESSAGE_MANAGE)) return;
-        if (wrapper.getNINO().isEnabled()) {
-            String invite = MessageUtils.getInvite(event.getMessage().getContentRaw());
-            for (String inv : wrapper.getNINO().getWhitelist())
-                if (invite == null || invite.equalsIgnoreCase(inv))
-                    return;
+    /*private void onGuildMessageReceived(GuildMessageReceivedEvent event, @Nonnull GuildWrapper wrapper) {
 
-            if (invite != null) {
-                event.getMessage().delete().queue(aVoid -> {
-                    String msg = wrapper.getNINO().getRemoveMessage();
-                    if (msg != null)
-                        event.getChannel().sendMessage(
-                                VariableUtils.parseVariables(msg, wrapper, event.getChannel(), event.getAuthor())
-                        ).queue();
-                });
-
-                if (cannotHandle(wrapper, ModlogEvent.INVITE_POSTED)) return;
-                ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.INVITE_POSTED, event.getAuthor(),
-                        new MessageEmbed.Field("Invite", invite, false)
-                );
-            }
-        }
-    }
+    }*/
 
     private void onMessageUpdate(MessageUpdateEvent event, @Nonnull GuildWrapper wrapper) {
         if (cannotHandle(wrapper, ModlogEvent.MESSAGE_EDIT)) return;

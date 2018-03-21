@@ -28,7 +28,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.secret.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
@@ -93,7 +93,7 @@ public class Events extends ListenerAdapter {
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
-                    Metrics.buttonsPressed.labels(emote, event.getMessageId());
+                    Metrics.buttonsPressed.labels(emote);
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for (MessageReaction reaction : message.getReactions()) {
                             if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
@@ -232,10 +232,6 @@ public class Events extends ListenerAdapter {
     public void onGuildJoin(GuildJoinEvent event) {
         if (event.getJDA().getStatus() == JDA.Status.CONNECTED &&
                 event.getGuild().getSelfMember().getJoinDate().plusMinutes(2).isAfter(OffsetDateTime.now())) {
-            if (Metrics.guilds.get() == 0)
-                Metrics.guilds.set(Getters.getGuildCache().size());
-            else
-                Metrics.guilds.inc();
             Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
                     .setColor(new Color(96, 230, 144))
                     .setThumbnail(event.getGuild().getIconUrl())
@@ -250,10 +246,6 @@ public class Events extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        if (Metrics.guilds.get() == 0)
-            Metrics.guilds.set(Getters.getGuildCache().size());
-        else
-            Metrics.guilds.dec();
         Constants.getGuildLogChannel().sendMessage(new EmbedBuilder()
                 .setColor(new Color(244, 23, 23))
                 .setThumbnail(event.getGuild().getIconUrl())

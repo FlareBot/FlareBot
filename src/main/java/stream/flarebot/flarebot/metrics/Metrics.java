@@ -7,6 +7,7 @@ import io.prometheus.client.exporter.HTTPServer;
 import io.prometheus.client.hotspot.DefaultExports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import stream.flarebot.flarebot.metrics.collectors.BotCollector;
 
 import java.io.IOException;
 
@@ -32,6 +33,8 @@ public class Metrics {
 
     public Metrics() {
         DefaultExports.initialize();
+
+        new BotCollector(new BotMetrics()).register();
 
         try {
             server = new HTTPServer(9191);
@@ -68,11 +71,6 @@ public class Metrics {
      * FlareBot
      */
     // General
-    public static final Gauge guilds = Gauge.build()
-            .name("flarebot_guild_total")
-            .help("The amount of guilds we're in")
-            .register();
-
     public static final Counter blocksGivenOut = Counter.build()
             .name("flarebot_guild_blocked_total")
             .help("Total number of times we've blocked guilds")
@@ -82,7 +80,7 @@ public class Metrics {
     public static final Counter buttonsPressed = Counter.build()
             .name("flarebot_buttons_pressed_total")
             .help("Total number of times a button was pressed")
-            .labelNames("button", "message_id")
+            .labelNames("button")
             .register();
 
     // Commands
@@ -124,6 +122,6 @@ public class Metrics {
     public static Counter httpRequestCounter = Counter.build()
             .name("flarebot_okhttp_requests_total")
             .help("Total OkHttp requests made and the requester")
-            .labelNames("request_sender", "event")
+            .labelNames("request_sender")
             .register();
 }

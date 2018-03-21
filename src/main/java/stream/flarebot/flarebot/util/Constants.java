@@ -16,6 +16,7 @@ public class Constants {
     private static final String FLAREBOT_API = "https://api.flarebot.stream";
     private static final String FLAREBOT_API_DEV = "http://localhost:8880";
     public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
+    public static final String INVITE_MARKDOWN = "[Support Server](" + INVITE_URL + ")";
 
     public static final long DEVELOPER_ID = 226788297156853771L;
     public static final long CONTRIBUTOR_ID = 272324832279003136L;

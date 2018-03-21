@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.secret;
+package stream.flarebot.flarebot.commands.secret.internal;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -43,7 +43,7 @@ public class ShardRestartCommand implements InternalCommand {
 
     @Override
     public CommandType getType() {
-        return CommandType.SECRET;
+        return CommandType.INTERNAL;
     }
 
     @Override

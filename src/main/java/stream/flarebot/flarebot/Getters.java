@@ -92,7 +92,7 @@ public class Getters {
         }
     }
 
-    // Other
+    // Audio
     public static long getConnectedVoiceChannels() {
         return getShardManager().getGuildCache().stream()
                 .filter(c -> c.getAudioManager().getConnectedChannel() != null).count();
@@ -112,16 +112,20 @@ public class Getters {
                 .count();
     }
 
+    public static int getSongsQueued() {
+        return flareBot().getMusicManager().getPlayers().stream()
+                .mapToInt(p -> p.getPlaylist().size())
+                .sum();
+    }
+
+    // Other
     public static List<JDA> getShards() {
         return flareBot().getShardManager().getShards();
     }
 
     @Nonnull
     public static SelfUser getSelfUser() {
-        JDA client = flareBot().getClient();
-        if (client == null)
-            throw new IllegalStateException("Getters#getSelfUser was called when no shards were connected!");
-        return client.getSelfUser();
+        return flareBot().getClient().getSelfUser();
     }
 
     @Nonnull

@@ -2,7 +2,10 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
@@ -14,9 +17,9 @@ import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class QueueCommand implements Command {
@@ -31,7 +34,7 @@ public class QueueCommand implements Command {
             MessageUtils.sendWarningMessage("This command is deprecated! Please use `{%}queue` instead!", channel);
         }
         if (args.length < 1 || args.length > 2) {
-            send(member.getUser().openPrivateChannel().complete(), channel, member);
+            send(channel, member);
         } else {
             if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("clear")) {
@@ -44,7 +47,7 @@ public class QueueCommand implements Command {
                 } else if (args[0].equalsIgnoreCase("remove")) {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 } else if (args[0].equalsIgnoreCase("here")) {
-                    send(channel, channel, member);
+                    send(channel, member);
                 } else {
                     MessageUtils.sendUsage(this, channel, sender, args);
                 }
@@ -80,9 +83,10 @@ public class QueueCommand implements Command {
         }
     }
 
-    private void send(MessageChannel mchannel, TextChannel channel, Member sender) {
+    private void send(TextChannel channel, Member sender) {
         PlayerManager manager = FlareBot.instance().getMusicManager();
         Track currentTrack = manager.getPlayer(channel.getGuild().getId()).getPlayingTrack();
+
         if (!manager.getPlayer(channel.getGuild().getId()).getPlaylist().isEmpty()
                 || currentTrack != null) {
             List<String> songs = new ArrayList<>();
@@ -90,19 +94,18 @@ public class QueueCommand implements Command {
                     currentTrack.getTrack().getInfo().title,
                     YouTubeExtractor.WATCH_URL + currentTrack.getTrack().getIdentifier(),
                     currentTrack.getMeta().get("requester")));
-            Iterator<Track> it = manager.getPlayer(channel.getGuild().getId()).getPlaylist().iterator();
-            int i = 1;
-            while (it.hasNext() && songs.size() < 24) {
-                Track next = it.next();
-                String song = String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i++,
-                        next.getTrack().getInfo().title,
-                        YouTubeExtractor.WATCH_URL + next.getTrack().getIdentifier(),
-                        next.getMeta().get("requester"));
-                songs.add(song);
-            }
-            PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(songs.stream()
-                    .collect(Collectors.joining("\n")) + "\n", PaginationUtil.SplitMethod.CHAR_COUNT, 2000));
-            pe.setTitle("Queued Songs");
+
+            AtomicInteger i = new AtomicInteger(1);
+            manager.getPlayer(channel.getGuild().getId()).getPlaylist().forEach(track ->
+                    songs.add(String.format("%s. [`%s`](%s) | Requested by <@!%s>\n", i.getAndIncrement(),
+                            track.getTrack().getInfo().title,
+                            YouTubeExtractor.WATCH_URL + track.getTrack().getIdentifier(),
+                            track.getMeta().get("requester"))));
+
+            PagedEmbedBuilder pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(songs.stream()
+                    // 21 for 10 per page. 2 new lines per song and 1 more because it's annoying
+                    .collect(Collectors.joining("\n")) + "\n", PaginationUtil.SplitMethod.NEW_LINES, 21))
+                    .setTitle("Queued Songs");
             PaginationUtil.sendEmbedPagedMessage(pe.build(), 0, channel, sender.getUser());
         } else {
             MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);
