@@ -1,13 +1,11 @@
 package stream.flarebot.flarebot.tasks;
 
-import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
