@@ -289,10 +289,9 @@ public class Events extends ListenerAdapter {
         }
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
             return;
-        if (VoteUtil.contains("Skip current song", event.getGuild())) {
-            if (event.getChannelLeft().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
-                VoteUtil.getVoteGroup("Skip current song", event.getGuild()).remoreAllowedUser(event.getMember().getUser());
-            }
+        if (VoteUtil.contains("Skip current song", event.getGuild()) &&
+                event.getChannelLeft().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+            VoteUtil.getVoteGroup("Skip current song", event.getGuild()).remoreAllowedUser(event.getMember().getUser());
         }
     }
 

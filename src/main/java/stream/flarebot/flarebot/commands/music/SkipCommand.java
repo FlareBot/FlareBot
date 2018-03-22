@@ -68,9 +68,9 @@ public class SkipCommand implements Command {
                 MessageUtils.sendErrorMessage("You cannot skip if you aren't listening to it!", channel);
                 return;
             }
-            if (VoteUtil.contains("Skip current song", guild.getGuild())) {
+            if (VoteUtil.contains("Skip current song", guild.getGuild()))
                 MessageUtils.sendWarningMessage("Their is already a vote to skip current song! Vote with `{%}skip yes | no`", channel, sender);
-            } else {
+            else {
                 VoteGroup group = new VoteGroup("Skip current song");
                 List<User> users = new ArrayList<>();
                 for(Member inChannelMember : channel.getGuild().getSelfMember().getVoiceState().getChannel().getMembers()) {
@@ -108,9 +108,8 @@ public class SkipCommand implements Command {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
                     if(songMessage)
                         editSong(sender, message, channel);
-                    if(VoteUtil.contains("Skip current song", guild.getGuild())) {
+                    if(VoteUtil.contains("Skip current song", guild.getGuild()))
                         VoteUtil.remove("Skip current song", guild.getGuild());
-                    }
                     skips.put(channel.getGuild().getId(), true);
                 } else {
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this command!")
@@ -138,9 +137,8 @@ public class SkipCommand implements Command {
                     MessageUtils.sendWarningMessage("We don't have a vote running!", channel, sender);
                 else
                     VoteUtil.getVoteGroup("Skip current song", guild.getGuild()).addVote(vote, sender);
-            } else {
+            } else
                 MessageUtils.sendUsage(this, channel, sender, args);
-            }
         }
     }
 
