@@ -26,6 +26,21 @@ public class ButtonUtil {
     }
 
     /**
+     * Sends an embed button message with a set of buttons, and returns the message.
+     *
+     * @return The message
+     *
+     * @param channel The TextChannel to send it to.
+     * @param embed   The embed to send.
+     * @param buttons The buttons to display.
+     */
+    public static Message sendReturnedButtonedMessage(TextChannel channel, MessageEmbed embed, ButtonGroup buttons) {
+        Message message = channel.sendMessage(embed).complete();
+        handleSuccessConsumer(channel, message, buttons);
+        return message;
+    }
+
+    /**
      * Sends a string message with a set of buttons.
      *
      * @param channel The TextChannel to send it to.

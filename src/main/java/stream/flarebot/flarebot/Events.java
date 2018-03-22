@@ -45,6 +45,7 @@ import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.general.VariableUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
+import stream.flarebot.flarebot.util.votes.VoteUtil;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -272,6 +273,14 @@ public class Events extends ListenerAdapter {
                 .hasPlayer(event.getGuild().getId())) {
             flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
         }
+        if(event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+            return;
+        }
+        if(VoteUtil.contains("Skip current song", event.getGuild())) {
+            if(event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+                VoteUtil.getVoteGroup("Skip current song", event.getGuild()).addAllowedUser(event.getMember().getUser());
+            }
+        }
     }
 
     @Override
@@ -287,6 +296,14 @@ public class Events extends ListenerAdapter {
             }
         } else {
             handleVoiceConnectivity(event.getChannelLeft());
+        }
+        if(event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+            return;
+        }
+        if(VoteUtil.contains("Skip current song", event.getGuild())) {
+            if(event.getChannelLeft().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+                VoteUtil.getVoteGroup("Skip current song", event.getGuild()).remoreAllowedUser(event.getMember().getUser());
+            }
         }
     }
 
