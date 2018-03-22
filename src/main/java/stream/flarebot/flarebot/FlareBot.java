@@ -13,7 +13,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import io.github.binaryoverload.JSONConfig;
-import io.prometheus.client.exporter.HTTPServer;
 import io.sentry.Sentry;
 import io.sentry.SentryClient;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
@@ -33,7 +32,6 @@ import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -61,9 +59,7 @@ import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.tasks.VoiceChannelCleanup;
 import stream.flarebot.flarebot.util.*;
-import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
-import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
 
@@ -81,18 +77,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class FlareBot {
 
     public static final Logger LOGGER;
     public static final Gson GSON = new GsonBuilder().create();
-    public static final AtomicBoolean RUNNING = new AtomicBoolean(false);
+    private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
     public static final AtomicBoolean EXITING = new AtomicBoolean(false);
     public static final AtomicBoolean UPDATING = new AtomicBoolean(false);
     public static final AtomicBoolean NOVOICE_UPDATING = new AtomicBoolean(false);
@@ -136,7 +130,7 @@ public class FlareBot {
             if (!file.exists() && !file.createNewFile())
                 throw new IllegalStateException("Can't create config file!");
             try {
-                config = new JSONConfig("config.json");
+                config = new JSONConfig(new File("config.json"), '.', new char[] {'-', '_', '<', '>'});
             } catch (NullPointerException e) {
                 LOGGER.error("Invalid JSON!", e);
                 System.exit(1);
@@ -673,7 +667,6 @@ public class FlareBot {
         return shardManager.getShards().size() == shardManager.getShardsTotal();
     }
 
-
     public FlareBotManager getManager() {
         return this.manager;
     }
@@ -682,7 +675,6 @@ public class FlareBot {
         this.playerCache.computeIfAbsent(userId, k -> new PlayerCache(userId, null, null, null));
         return this.playerCache.get(userId);
     }
-
 
     public boolean isTestBot() {
         return testBot;

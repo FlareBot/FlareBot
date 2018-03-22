@@ -16,15 +16,30 @@ import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.awt.Color;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
+
+    private final Pattern groupNamePattern = Pattern.compile("[\\w-]{3,32}");
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("group")) {
                 String groupString = args[1];
+                if (groupNamePattern.matcher(groupString).matches()) {
+
+                } else {
+                    if (groupString.length() > 32)
+                        MessageUtils.sendWarningMessage("Please make sure the group name is a maximum of 32 chars!", channel);
+                    else if (groupString.length() < 3)
+                        MessageUtils.sendWarningMessage("Please make sure the group name is a minimum of 3 chars!", channel);
+                    else
+                        MessageUtils.sendWarningMessage("You used some invalid characters in your group name!\n" +
+                                "Please only use alphanumeric (letters and numbers) and `-`, `_`.", channel);
+                }
+
                 Group group = getPermissions(channel).getGroup(groupString);
                 if (args.length >= 3) {
                     if (group == null && !args[2].equalsIgnoreCase("create")) {

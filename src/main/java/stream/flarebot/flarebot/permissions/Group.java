@@ -38,12 +38,11 @@ public class Group {
 
     public Permission.Reply hasPermission(Permission permission) {
         for (String s : permissions) {
-            boolean hasPermission =
-                    new PermissionNode(s.substring(s.startsWith("-") ? 1 : 0)).test(permission.getPermission());
-            if (s.startsWith("-") && hasPermission)
-                return Permission.Reply.DENY;
-            if (hasPermission)
+            if (new PermissionNode(s.substring(s.startsWith("-") ? 1 : 0)).test(permission.getPermission())) {
+                if (s.startsWith("-"))
+                    return Permission.Reply.DENY;
                 return Permission.Reply.ALLOW;
+            }
         }
         return Permission.Reply.NEUTRAL;
     }
