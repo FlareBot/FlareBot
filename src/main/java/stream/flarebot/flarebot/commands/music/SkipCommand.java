@@ -134,11 +134,10 @@ public class SkipCommand implements Command {
             }
             VoteGroup.Vote vote = VoteGroup.Vote.parseVote(args[0]);
             if (vote != null) {
-                if(!VoteUtil.contains("Skip current song", guild.getGuild())) {
+                if(!VoteUtil.contains("Skip current song", guild.getGuild()))
                     MessageUtils.sendWarningMessage("We don't have a vote running!", channel, sender);
-                } else {
+                else
                     VoteUtil.getVoteGroup("Skip current song", guild.getGuild()).addVote(vote, sender);
-                }
             } else {
                 MessageUtils.sendUsage(this, channel, sender, args);
             }
