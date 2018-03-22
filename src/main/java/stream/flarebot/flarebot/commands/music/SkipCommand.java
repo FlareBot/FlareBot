@@ -113,7 +113,9 @@ public class SkipCommand implements Command {
             } else if (args[0].equalsIgnoreCase("cancel")) {
 
                 if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL))
-                    musicManager.getPlayer(guild.getGuildId()).skip();
+                    if(VoteUtil.contains(skipUUID, channel.getGuild())){
+                        VoteUtil.remove(skipUUID, channel.getGuild());
+                    }
                 else
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
                             .queue();
