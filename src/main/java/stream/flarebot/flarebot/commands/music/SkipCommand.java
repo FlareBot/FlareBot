@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -30,7 +31,7 @@ import static stream.flarebot.flarebot.commands.music.SongCommand.getLink;
 
 public class SkipCommand implements Command {
     private Map<String, Boolean> skips = new HashMap<>();
-
+    private static final UUID skipUUID = UUID.randomUUID();
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         boolean songMessage = message.getAuthor().getIdLong() == Getters.getSelfUser().getIdLong();
@@ -62,10 +63,10 @@ public class SkipCommand implements Command {
                 MessageUtils.sendErrorMessage("You cannot skip if you aren't listening to it!", channel);
                 return;
             }
-            if (VoteUtil.contains("Skip current song", guild.getGuild()))
+            if (VoteUtil.contains(skipUUID, guild.getGuild()))
                 MessageUtils.sendWarningMessage("Their is already a vote to skip current song! Vote with `{%}skip yes | no`", channel, sender);
             else {
-                VoteGroup group = new VoteGroup("Skip current song");
+                VoteGroup group = new VoteGroup("Skip current song", skipUUID);
                 List<User> users = new ArrayList<>();
                 for(Member inChannelMember : channel.getGuild().getSelfMember().getVoiceState().getChannel().getMembers()) {
                     if(channel.getGuild().getSelfMember().getUser().getIdLong() != inChannelMember.getUser().getIdLong()) {
@@ -73,7 +74,7 @@ public class SkipCommand implements Command {
                     }
                 }
                 group.limitUsers(users);
-                VoteUtil.sendVoteMessage((vote) -> {
+                VoteUtil.sendVoteMessage(skipUUID, (vote) -> {
                     if(vote.equals(VoteGroup.Vote.NONE) || vote.equals(VoteGroup.Vote.NO)) {
                         MessageUtils.sendMessage("Results are in: Keep!", channel);
                     } else {
@@ -89,7 +90,7 @@ public class SkipCommand implements Command {
                             editSong(user, message1, channel);
                         }
                         skips.put(channel.getGuild().getId(), true);
-                        VoteUtil.remove("Skip current song", guild.getGuild());
+                        VoteUtil.remove(skipUUID, guild.getGuild());
                     } else {
                         channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this button!")
                                 .queue();
@@ -102,8 +103,8 @@ public class SkipCommand implements Command {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
                     if(songMessage)
                         editSong(sender, message, channel);
-                    if(VoteUtil.contains("Skip current song", guild.getGuild()))
-                        VoteUtil.remove("Skip current song", guild.getGuild());
+                    if(VoteUtil.contains(skipUUID, guild.getGuild()))
+                        VoteUtil.remove(skipUUID, guild.getGuild());
                     skips.put(channel.getGuild().getId(), true);
                 } else {
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this command!")
@@ -127,10 +128,10 @@ public class SkipCommand implements Command {
             }
             VoteGroup.Vote vote = VoteGroup.Vote.parseVote(args[0]);
             if (vote != null) {
-                if(!VoteUtil.contains("Skip current song", guild.getGuild()))
+                if(!VoteUtil.contains(skipUUID, guild.getGuild()))
                     MessageUtils.sendWarningMessage("We don't have a vote running!", channel, sender);
                 else
-                    VoteUtil.getVoteGroup("Skip current song", guild.getGuild()).addVote(vote, sender);
+                    VoteUtil.getVoteGroup(skipUUID, guild.getGuild()).addVote(vote, sender);
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         }
@@ -150,6 +151,10 @@ public class SkipCommand implements Command {
                     .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
                             FormatUtils.formatDuration(track.getTrack().getDuration())), false);
         message.editMessage(eb.build()).queue();
+    }
+
+    public static UUID getSkipUUID() {
+        return skipUUID;
     }
 
     @Override

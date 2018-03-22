@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class VoteUtil {
@@ -20,7 +21,7 @@ public class VoteUtil {
     private static Map<String, VoteGroup> groupMap = new ConcurrentHashMap<>();
     private static Map<String, VoteGroup.VoteRunnable> runnableMap = new ConcurrentHashMap<>();
 
-    public static void sendVoteMessage(VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, User user, ButtonGroup.Button... optionalButtons) {
+    public static void sendVoteMessage(UUID id, VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, User user, ButtonGroup.Button... optionalButtons) {
         EmbedBuilder votesEmbed = new EmbedBuilder();
         votesEmbed.setDescription("Vote to " + group.getMessageDesc());
         votesEmbed.addField("Yes Votes", "0", true);
@@ -30,8 +31,8 @@ public class VoteUtil {
         group.setVotesEmbed(votesEmbed);
         ButtonGroup buttonGroup = new ButtonGroup(user.getIdLong());
 
-        groupMap.put(group.getMessageDesc() + channel.getGuild().getId(), group);
-        runnableMap.put(group.getMessageDesc() + channel.getGuild().getId(), voteRunnable);
+        groupMap.put(id + channel.getGuild().getId(), group);
+        runnableMap.put(id + channel.getGuild().getId(), voteRunnable);
 
         buttonGroup.addButton(new ButtonGroup.Button(355776056092917761L, (owner, user1, message) -> {
             if (group.addVote(VoteGroup.Vote.YES, user1)) {
@@ -66,28 +67,28 @@ public class VoteUtil {
         }.delay(timeout);
     }
 
-    public static VoteGroup getVoteGroup(String messageDesc, Guild guild) {
-        return groupMap.get(messageDesc + guild.getId());
+    public static VoteGroup getVoteGroup(UUID uuid, Guild guild) {
+        return groupMap.get(uuid + guild.getId());
     }
 
-    public static boolean contains(String messageDesc, Guild guild) {
-        return groupMap.containsKey(messageDesc + guild.getId());
+    public static boolean contains(UUID uuid, Guild guild) {
+        return groupMap.containsKey(uuid + guild.getId());
     }
 
-    public static void remove(String messageDesc, Guild guild) {
-        VoteGroup group = groupMap.get(messageDesc + guild.getId());
+    public static void remove(UUID uuid, Guild guild) {
+        VoteGroup group = groupMap.get(uuid + guild.getId());
         String message = group.getVoteMessage().getId();
-        groupMap.remove(messageDesc + guild.getId());
+        groupMap.remove(uuid + guild.getId());
         Scheduler.cancelTask("Vote-" + message);
         group.getVoteMessage().getChannel().deleteMessageById(group.getVoteMessage().getId()).queue();
     }
 
-    public static void finishNow(String messageDesc, Guild guild) {
-        VoteGroup group = groupMap.get(messageDesc + guild.getId());
+    public static void finishNow(UUID uuid, Guild guild) {
+        VoteGroup group = groupMap.get(uuid + guild.getId());
         String message = group.getVoteMessage().getId();
-        groupMap.remove(messageDesc + guild.getId());
-        runnableMap.get(messageDesc + guild.getId()).run(group.won());
-        runnableMap.remove(messageDesc + guild.getId());
+        groupMap.remove(uuid + guild.getId());
+        runnableMap.get(uuid + guild.getId()).run(group.won());
+        runnableMap.remove(uuid + guild.getId());
         Scheduler.cancelTask("Vote-" + message);
         group.getVoteMessage().getChannel().deleteMessageById(group.getVoteMessage().getId()).queue();
     }

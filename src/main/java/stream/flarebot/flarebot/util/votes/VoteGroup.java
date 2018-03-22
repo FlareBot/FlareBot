@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class VoteGroup {
 
@@ -22,8 +23,11 @@ public class VoteGroup {
     private Message voteMessage;
     private EmbedBuilder votesEmbed;
 
-    public VoteGroup(String messageDesc) {
+    private UUID id;
+
+    public VoteGroup(String messageDesc, UUID id) {
         this.messageDesc = messageDesc;
+        this.id = id;
     }
 
     public boolean addVote(Vote vote, User user) {
@@ -35,7 +39,7 @@ public class VoteGroup {
             else
                 yesVotes++;
             if (allowedUsers.size() == totalVotes()) {
-                VoteUtil.finishNow(messageDesc, voteMessage.getGuild());
+                VoteUtil.finishNow(id, voteMessage.getGuild());
                 return true;
             }
             users.add(user.getIdLong());

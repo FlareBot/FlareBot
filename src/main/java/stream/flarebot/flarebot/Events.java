@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.music.SkipCommand;
 import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
@@ -267,9 +268,9 @@ public class Events extends ListenerAdapter {
         }
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
             return;
-        if (VoteUtil.contains("Skip current song", event.getGuild()) &&
+        if (VoteUtil.contains(SkipCommand.getSkipUUID(), event.getGuild()) &&
                 event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
-            VoteUtil.getVoteGroup("Skip current song", event.getGuild()).addAllowedUser(event.getMember().getUser());
+            VoteUtil.getVoteGroup(SkipCommand.getSkipUUID(), event.getGuild()).addAllowedUser(event.getMember().getUser());
         }
     }
 
@@ -289,9 +290,9 @@ public class Events extends ListenerAdapter {
         }
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
             return;
-        if (VoteUtil.contains("Skip current song", event.getGuild()) &&
+        if (VoteUtil.contains(SkipCommand.getSkipUUID(), event.getGuild()) &&
                 event.getChannelLeft().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
-            VoteUtil.getVoteGroup("Skip current song", event.getGuild()).remoreAllowedUser(event.getMember().getUser());
+            VoteUtil.getVoteGroup(SkipCommand.getSkipUUID(), event.getGuild()).remoreAllowedUser(event.getMember().getUser());
         }
     }
 
