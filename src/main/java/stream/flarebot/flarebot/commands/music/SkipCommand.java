@@ -3,9 +3,7 @@ package stream.flarebot.flarebot.commands.music;
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -30,10 +28,11 @@ import stream.flarebot.flarebot.util.votes.VoteUtil;
 import static stream.flarebot.flarebot.commands.music.SongCommand.getLink;
 
 public class SkipCommand implements Command {
-    private Map<String, Boolean> skips = new HashMap<>();
     private static final UUID skipUUID = UUID.randomUUID();
+
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+
         boolean songMessage = message.getAuthor().getIdLong() == Getters.getSelfUser().getIdLong();
         PlayerManager musicManager = FlareBot.instance().getMusicManager();
         if (!channel.getGuild().getAudioManager().isConnected() ||
@@ -81,7 +80,7 @@ public class SkipCommand implements Command {
                         MessageUtils.sendMessage("Skipping!", channel);
                         if(songMessage)
                             editSong(sender, message, channel);
-                        skips.put(guild.getGuildId(), true);
+                        musicManager.getPlayer(guild.getGuildId()).skip();
                     }
                 }, group, TimeUnit.MINUTES.toMillis(1), channel, sender, new ButtonGroup.Button("\u23ED", (owner, user, message1) -> {
                     if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
@@ -89,7 +88,7 @@ public class SkipCommand implements Command {
                         if(songMessage) {
                             editSong(user, message1, channel);
                         }
-                        skips.put(channel.getGuild().getId(), true);
+                        musicManager.getPlayer(guild.getGuildId()).skip();
                         VoteUtil.remove(skipUUID, guild.getGuild());
                     } else {
                         channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this button!")
@@ -105,7 +104,7 @@ public class SkipCommand implements Command {
                         editSong(sender, message, channel);
                     if(VoteUtil.contains(skipUUID, guild.getGuild()))
                         VoteUtil.remove(skipUUID, guild.getGuild());
-                    skips.put(channel.getGuild().getId(), true);
+                    musicManager.getPlayer(guild.getGuildId()).skip();
                 } else {
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this command!")
                             .queue();
@@ -113,12 +112,11 @@ public class SkipCommand implements Command {
                 return;
             } else if (args[0].equalsIgnoreCase("cancel")) {
 
-                if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL)) {
-                    skips.put(channel.getGuild().getId(), true);
-                } else {
+                if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL))
+                    musicManager.getPlayer(guild.getGuildId()).skip();
+                else
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
                             .queue();
-                }
                 return;
             }
             if (!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||

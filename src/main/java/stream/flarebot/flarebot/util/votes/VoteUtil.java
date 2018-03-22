@@ -89,7 +89,7 @@ public class VoteUtil {
         groupMap.remove(uuid + guild.getId());
         runnableMap.get(uuid + guild.getId()).run(group.won());
         runnableMap.remove(uuid + guild.getId());
-        Scheduler.cancelTask("Vote-" + message);
+        Scheduler.cancelTask("Votes-" + message);
         group.getVoteMessage().getChannel().deleteMessageById(group.getVoteMessage().getId()).queue();
     }
 }
