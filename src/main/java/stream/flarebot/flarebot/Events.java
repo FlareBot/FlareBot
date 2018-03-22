@@ -265,13 +265,11 @@ public class Events extends ListenerAdapter {
                 .hasPlayer(event.getGuild().getId())) {
             flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
         }
-        if(event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+        if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
             return;
-        }
-        if(VoteUtil.contains("Skip current song", event.getGuild())) {
-            if(event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
-                VoteUtil.getVoteGroup("Skip current song", event.getGuild()).addAllowedUser(event.getMember().getUser());
-            }
+        if (VoteUtil.contains("Skip current song", event.getGuild()) &&
+                event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+            VoteUtil.getVoteGroup("Skip current song", event.getGuild()).addAllowedUser(event.getMember().getUser());
         }
     }
 
@@ -289,11 +287,10 @@ public class Events extends ListenerAdapter {
         } else {
             handleVoiceConnectivity(event.getChannelLeft());
         }
-        if(event.getMember().getUser().equals(event.getJDA().getSelfUser())) {
+        if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
             return;
-        }
-        if(VoteUtil.contains("Skip current song", event.getGuild())) {
-            if(event.getChannelLeft().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+        if (VoteUtil.contains("Skip current song", event.getGuild())) {
+            if (event.getChannelLeft().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
                 VoteUtil.getVoteGroup("Skip current song", event.getGuild()).remoreAllowedUser(event.getMember().getUser());
             }
         }

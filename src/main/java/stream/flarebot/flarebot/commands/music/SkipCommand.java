@@ -57,9 +57,8 @@ public class SkipCommand implements Command {
         if (args.length == 0 && currentTrack.getMeta().get("requester").equals(sender.getId())) {
             channel.sendMessage("Skipped your own song!").queue();
             musicManager.getPlayer(guild.getGuildId()).skip();
-            if(songMessage) {
+            if(songMessage)
                 editSong(sender, message, channel);
-            }
             return;
         }
 
@@ -85,9 +84,8 @@ public class SkipCommand implements Command {
                         MessageUtils.sendMessage("Results are in: Keep!", channel);
                     } else {
                         MessageUtils.sendMessage("Skipping!", channel);
-                        if(songMessage) {
+                        if(songMessage)
                             editSong(sender, message, channel);
-                        }
                         skips.put(guild.getGuildId(), true);
                     }
                 }, group, TimeUnit.MINUTES.toMillis(1), channel, sender, new ButtonGroup.Button("⏭", (owner, user, message1) -> {
@@ -108,9 +106,8 @@ public class SkipCommand implements Command {
             if (args[0].equalsIgnoreCase("force")) {
                 if (getPermissions(channel).hasPermission(member, Permission.SKIP_FORCE)) {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
-                    if(songMessage) {
+                    if(songMessage)
                         editSong(sender, message, channel);
-                    }
                     if(VoteUtil.contains("Skip current song", guild.getGuild())) {
                         VoteUtil.remove("Skip current song", guild.getGuild());
                     }
@@ -150,9 +147,8 @@ public class SkipCommand implements Command {
 
     public void editSong(User sender, Message message, TextChannel channel) {
         Track track = FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlayingTrack();
-        if(track == null) {
+        if(track == null)
             return;
-        }
         EmbedBuilder eb = MessageUtils.getEmbed(sender)
                 .addField("Current Song", getLink(track), false)
                 .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg");

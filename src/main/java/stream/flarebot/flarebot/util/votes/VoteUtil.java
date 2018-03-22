@@ -12,13 +12,13 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class VoteUtil {
 
-    private static Map<String, VoteGroup> groupMap = new HashMap<>();
-    private static Map<String, VoteGroup.VoteRunnable> runnableMap = new HashMap<>();
+    private static Map<String, VoteGroup> groupMap = new ConcurrentHashMap<>();
+    private static Map<String, VoteGroup.VoteRunnable> runnableMap = new ConcurrentHashMap<>();
 
     public static void sendVoteMessage(VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, User user, ButtonGroup.Button... optionalButtons) {
         EmbedBuilder votesEmbed = new EmbedBuilder();

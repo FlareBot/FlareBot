@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VoteGroup {
+
     private int yesVotes = 0;
     private int noVotes = 0;
 
-    private List<Long> users = new ArrayList<>();
+    private final List<Long> users = new ArrayList<>();
     private List<Long> allowedUsers = null;
 
-    private String messageDesc;
+    private final String messageDesc;
 
     private Message voteMessage;
     private EmbedBuilder votesEmbed;
@@ -24,18 +25,14 @@ public class VoteGroup {
     }
 
     public boolean addVote(Vote vote, User user) {
-        if (allowedUsers != null && voteMessage != null) {
-            if (!allowedUsers.contains(user.getIdLong())) {
-                return false;
-            }
-        }
+        if (allowedUsers != null && voteMessage != null && !allowedUsers.contains(user.getIdLong()))
+            return false;
         if (!users.contains(user.getIdLong())) {
-            if (vote == Vote.NO) {
+            if (vote == Vote.NO)
                 noVotes++;
-            } else {
+            else
                 yesVotes++;
-            }
-            if(allowedUsers.size() == votes()) {
+            if (allowedUsers.size() == votes()) {
                 VoteUtil.finishNow(messageDesc, voteMessage.getGuild());
                 return true;
             }
@@ -47,22 +44,20 @@ public class VoteGroup {
                 voteMessage.editMessage(votesEmbed.build()).queue();
             }
             return true;
-        } else {
+        } else
             return false;
-        }
     }
 
     public Vote won() {
-        if (yesVotes > noVotes) {
+        if (yesVotes > noVotes)
             return Vote.YES;
-        } else if (noVotes > yesVotes) {
+        else if (noVotes > yesVotes)
             return Vote.NO;
-        } else {
+        else
             return Vote.NONE;
-        }
     }
 
-    public int votes() {
+    public int totalVotes() {
         return yesVotes + noVotes;
     }
 
