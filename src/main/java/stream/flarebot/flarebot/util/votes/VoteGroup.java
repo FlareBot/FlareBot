@@ -5,15 +5,17 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VoteGroup {
 
     private int yesVotes = 0;
     private int noVotes = 0;
 
-    private final List<Long> users = new ArrayList<>();
-    private List<Long> allowedUsers = null;
+    private final Set<Long> users = new HashSet<>();
+    private Set<Long> allowedUsers = new HashSet<>();
 
     private final String messageDesc;
 
@@ -101,7 +103,7 @@ public class VoteGroup {
         for (User user : users) {
             userIds.add(user.getIdLong());
         }
-        this.allowedUsers = userIds;
+        this.allowedUsers = new HashSet<>(userIds);
     }
 
     public void addAllowedUser(User user) {
