@@ -96,13 +96,15 @@ public class Events extends ListenerAdapter {
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
                     Metrics.buttonsPressed.labels(emote).inc();
-                    event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
-                        for (MessageReaction reaction : message.getReactions()) {
-                            if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
-                                reaction.removeReaction(event.getUser()).queue();
+                    if(event.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                            for (MessageReaction reaction : message.getReactions()) {
+                                if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
+                                    reaction.removeReaction(event.getUser()).queue();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                     return;
                 }
             }
