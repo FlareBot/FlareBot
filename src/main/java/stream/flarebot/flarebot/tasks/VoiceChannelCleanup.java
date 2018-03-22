@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.tasks;
 
+import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -64,6 +65,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
                         if (System.currentTimeMillis() - lastUsed >= CLEANUP_THRESHOLD) {
                             killedVcs.incrementAndGet();
                             guild.getAudioManager().closeAudioConnection();
+                            FlareBot.instance().getMusicManager().getPlayer(guild.getIconId()).getPlaylist().clear();
                             VC_LAST_USED.remove(vc.getIdLong());
                         }
                     }
