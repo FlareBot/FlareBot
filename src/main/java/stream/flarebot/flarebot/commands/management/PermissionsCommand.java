@@ -28,9 +28,7 @@ public class PermissionsCommand implements Command {
         if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("group")) {
                 String groupString = args[1];
-                if (groupNamePattern.matcher(groupString).matches()) {
-
-                } else {
+                if (!groupNamePattern.matcher(groupString).matches()) {
                     if (groupString.length() > 32)
                         MessageUtils.sendWarningMessage("Please make sure the group name is a maximum of 32 chars!", channel);
                     else if (groupString.length() < 3)
@@ -38,6 +36,7 @@ public class PermissionsCommand implements Command {
                     else
                         MessageUtils.sendWarningMessage("You used some invalid characters in your group name!\n" +
                                 "Please only use alphanumeric (letters and numbers) and `-`, `_`.", channel);
+                    return;
                 }
 
                 Group group = getPermissions(channel).getGroup(groupString);
