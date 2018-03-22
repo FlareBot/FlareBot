@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.ColorUtils;
@@ -19,7 +20,7 @@ public class VoteUtil {
     private static Map<String, VoteGroup> groupMap = new HashMap<>();
     private static Map<String, VoteGroup.VoteRunnable> runnableMap = new HashMap<>();
 
-    public static void sendVoteMessage(VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, ButtonGroup.Button... optionalButtons) {
+    public static void sendVoteMessage(VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, User user, ButtonGroup.Button... optionalButtons) {
         EmbedBuilder votesEmbed = new EmbedBuilder();
         votesEmbed.setDescription("Vote to " + group.getMessageDesc());
         votesEmbed.addField("Yes Votes", "0", true);
@@ -27,20 +28,20 @@ public class VoteUtil {
         String messageDesc = group.getMessageDesc();
         votesEmbed.setColor(ColorUtils.FLAREBOT_BLUE);
         group.setVotesEmbed(votesEmbed);
-        ButtonGroup buttonGroup = new ButtonGroup();
+        ButtonGroup buttonGroup = new ButtonGroup(user.getIdLong());
 
         groupMap.put(group.getMessageDesc() + channel.getGuild().getId(), group);
         runnableMap.put(group.getMessageDesc() + channel.getGuild().getId(), voteRunnable);
 
-        buttonGroup.addButton(new ButtonGroup.Button(355776056092917761L, (user, message) -> {
-            if (group.addVote(VoteGroup.Vote.YES, user)) {
+        buttonGroup.addButton(new ButtonGroup.Button(355776056092917761L, (owner, user1, message) -> {
+            if (group.addVote(VoteGroup.Vote.YES, user1)) {
                 MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("You voted yes on " + messageDesc).build(), 2000, channel);
             } else {
                 MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("You cannot vote on " + messageDesc).build(), 2000, channel);
             }
         }));
-        buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (user, message) -> {
-            if (group.addVote(VoteGroup.Vote.NO, user)) {
+        buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (owner, user1, message) -> {
+            if (group.addVote(VoteGroup.Vote.NO, user1)) {
                 MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("You voted no on " + messageDesc).build(), 2000, channel);
             } else {
                 MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("You cannot vote on " + messageDesc).build(), 2000, channel);

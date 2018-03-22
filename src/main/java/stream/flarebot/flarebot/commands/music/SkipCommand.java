@@ -90,7 +90,7 @@ public class SkipCommand implements Command {
                         }
                         skips.put(guild.getGuildId(), true);
                     }
-                }, group, TimeUnit.MINUTES.toMillis(1), channel, new ButtonGroup.Button("⏭", ((user, message1) -> {
+                }, group, TimeUnit.MINUTES.toMillis(1), channel, sender, new ButtonGroup.Button("⏭", (owner, user, message1) -> {
                     if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
                         musicManager.getPlayer(channel.getGuild().getId()).skip();
                         if(songMessage) {
@@ -102,7 +102,7 @@ public class SkipCommand implements Command {
                         channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this button!")
                                 .queue();
                     }
-                })));
+                }));
             }
         } else {
             if (args[0].equalsIgnoreCase("force")) {
