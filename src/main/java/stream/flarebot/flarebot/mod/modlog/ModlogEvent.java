@@ -65,7 +65,8 @@ public enum ModlogEvent {
             false),
     FLAREBOT_PURGE("Purge", "Triggers when a user does a purge with FlareBot.", ColorUtils.FLAREBOT_BLUE, false),
     
-    INVITE_POSTED("Invite Posted", "Triggers when a Discord invite is posted", ColorUtils.ORANGE, false, false, true);
+    INVITE_POSTED("Invite Posted", "Triggers when a Discord invite is posted.", ColorUtils.ORANGE, false, false, true),
+    NINO("NINO Caught Link", "Triggers when NINO catches a spoopy link!", ColorUtils.ORANGE, false, false, true);
 
     public static final ModlogEvent[] values = values();
     public static final List<ModlogEvent> events = Arrays.asList(values);

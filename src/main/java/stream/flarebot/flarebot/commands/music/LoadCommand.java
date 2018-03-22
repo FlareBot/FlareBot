@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.List;
@@ -43,6 +44,11 @@ public class LoadCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}load <playlist>` - Loads a playlist.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.LOAD_COMMAND;
     }
 
     @Override

@@ -7,8 +7,8 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.util.stream.Collectors;
@@ -57,7 +57,7 @@ public class SettingsCommand implements Command {
                         else
                             MessageUtils.sendWarningMessage("Invalid blacklist item!", channel);
                     } else if (args[1].equalsIgnoreCase("add")) {
-                        TextChannel tc = GeneralUtils.getChannel(args[2], guild);
+                        TextChannel tc = GuildUtils.getChannel(args[2], guild);
                         if (tc != null) {
                             guild.getSettings().getChannelBlacklist().add(tc.getIdLong());
                             MessageUtils.sendSuccessMessage("Added " + tc.getAsMention() + " to the blacklist!",
@@ -74,7 +74,7 @@ public class SettingsCommand implements Command {
                         MessageUtils.sendWarningMessage("Invalid channel or user! Try the ID if you're sure the " +
                                 "entity is valid", channel);
                     } else if (args[1].equalsIgnoreCase("remove")) {
-                        TextChannel tc = GeneralUtils.getChannel(args[2], guild);
+                        TextChannel tc = GuildUtils.getChannel(args[2], guild);
                         if (tc != null) {
                             if (!guild.getSettings().getChannelBlacklist().contains(tc.getIdLong())) {
                                 MessageUtils.sendWarningMessage("That channel is not blacklisted!", channel);
@@ -124,6 +124,11 @@ public class SettingsCommand implements Command {
                 "`{%}settings blacklist list users|channels` - List the blacklist of users or channels.\n" +
                 "`{%}settings blacklist add|remove <user|channel>` - Blacklist a user or channel.\n" +
                 "`{%}settings list` - List the settings and their current values.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SETTINGS_COMMAND;
     }
 
     @Override

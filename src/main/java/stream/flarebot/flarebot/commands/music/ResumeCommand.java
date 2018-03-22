@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class ResumeCommand implements Command {
@@ -39,6 +40,11 @@ public class ResumeCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}resume` - Resumes the playlist.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.RESUME_COMMAND;
     }
 
     @Override

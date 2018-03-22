@@ -1,12 +1,14 @@
 package stream.flarebot.flarebot.util.general;
 
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Message;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.util.Constants;
 
 import java.awt.*;
 import java.text.SimpleDateFormat;
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FormatUtils {
 
@@ -25,6 +29,9 @@ public class FormatUtils {
             .appendMinutes().appendSuffix(" Minute ", " Minutes ")
             .appendSeconds().appendSuffix(" Second", " Seconds")
             .toFormatter();
+
+    private static final Pattern rawMentions = Pattern.compile("<@\\d{16,18}>");
+    private static final Pattern displayMentions = Pattern.compile("@.{2,32}#\\d{4}");
 
     /**
      * Formats a duration to a readable string.
@@ -60,9 +67,10 @@ public class FormatUtils {
      * @return The String with the prefix in place of of {%}.
      */
     public static String formatCommandPrefix(Guild guild, String usage) {
+        if (guild == null) return Constants.COMMAND_CHAR_STRING;
         String prefix = String.valueOf(GuildUtils.getPrefix(guild));
         if (usage.contains("{%}"))
-            return usage.replaceAll("\\{%}", prefix);
+            return usage.replace("{%}", prefix);
         return usage;
     }
 
@@ -177,5 +185,23 @@ public class FormatUtils {
     public static String truncate(int length, String string, boolean ellipse) {
         return string.substring(0, Math.min(string.length(), length - (ellipse ? 3 : 0))) + (string.length() >
                 length - (ellipse ? 3 : 0) && ellipse ? "..." : "");
+    }
+
+    /**
+     * Strip a message of all mentions, this is compatible with {@link Message#getContentDisplay()} and
+     * {@link Message#getContentRaw()}.
+     *
+     * @param message The message to be stripped
+     * @return A message with no raw and display mentions in.
+     */
+    public static String stripMentions(String message) {
+        String stripped = message;
+        Matcher matcher;
+        if ((matcher = rawMentions.matcher(message)).find())
+            stripped = matcher.replaceAll("");
+
+        if ((matcher = displayMentions.matcher(message)).find())
+            stripped = matcher.replaceAll("");
+        return stripped;
     }
 }

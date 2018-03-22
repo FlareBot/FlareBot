@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.GitHandler;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.implementations.MultiSelectionContent;
@@ -50,6 +51,11 @@ public class InfoCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}info [section]` - Sends info about the bot.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.INFO_COMMAND;
     }
 
     @Override

@@ -29,7 +29,7 @@ public class DataInterceptor implements Interceptor {
     @ParametersAreNonnullByDefault
     public Response intercept(Chain chain) throws IOException {
         requests.incrementAndGet();
-        Metrics.httpRequestCounter.labels(sender.getName(), chain.request().url().encodedPath()).inc();
+        Metrics.httpRequestCounter.labels(sender.getName()).inc();
         return chain.proceed(chain.request());
     }
 

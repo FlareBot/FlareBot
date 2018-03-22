@@ -51,6 +51,11 @@ public class ForceBanCommand implements Command {
     }
 
     @Override
+    public stream.flarebot.flarebot.permissions.Permission getPermission() {
+        return stream.flarebot.flarebot.permissions.Permission.FORCEBAN_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }

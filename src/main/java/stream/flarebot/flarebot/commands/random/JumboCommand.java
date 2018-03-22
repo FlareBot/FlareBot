@@ -1,16 +1,11 @@
 package stream.flarebot.flarebot.commands.random;
 
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.requests.Route;
-import net.dv8tion.jda.core.requests.restaction.MessageAction;
+import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.io.IOException;
@@ -29,7 +24,7 @@ public class JumboCommand implements Command {
                     channel.sendMessage("**Name: ** `:" + e.getName() + ":`"
                             + "\n**ID: **" + e.getId()
                             + "\n**Server: **" + (e.getGuild() != null ? e.getGuild().getName()
-                            + " (" + e.getGuild().getId() + ")": "Unknown")
+                            + " (" + e.getGuild().getId() + ")" : "Unknown")
                             + "\n**Link: **" + e.getImageUrl()).queue();
                     return;
                 }
@@ -67,6 +62,11 @@ public class JumboCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}jumbo <emote>` - See an emote in it's true size because who doesn't love jumbo sized stuff?";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.JUMBO_COMMAND;
     }
 
     @Override

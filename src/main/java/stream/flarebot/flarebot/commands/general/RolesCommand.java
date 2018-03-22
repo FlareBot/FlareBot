@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
@@ -36,10 +37,11 @@ public class RolesCommand implements Command {
             for (Role r : roles)
                 sb.append(r.getName()).append(" (").append(r.getId()).append(")\n");
 
-            PaginationUtil.sendEmbedPagedMessage(new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20))
+            PaginationUtil.sendEmbedPagedMessage(new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(),
+                    PaginationUtil.SplitMethod.NEW_LINES, 20))
                     .setTitle("Roles")
                     .setCodeBlock("js")
-                    .build(), page, channel);
+                    .build(), page - 1, channel, sender);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
@@ -58,6 +60,11 @@ public class RolesCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}roles [page]` - Gets the roles for the current server.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.ROLES_COMMAND;
     }
 
     @Override

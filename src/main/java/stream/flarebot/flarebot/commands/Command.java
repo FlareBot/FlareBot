@@ -24,9 +24,7 @@ public interface Command {
         return null;
     }
 
-    default stream.flarebot.flarebot.permissions.Permission getPermission() {
-        return stream.flarebot.flarebot.permissions.Permission.getPermission(this.getClass());
-    }
+    stream.flarebot.flarebot.permissions.Permission getPermission();
 
     default EnumSet<Permission> getDiscordPermission() {
         return EnumSet.noneOf(Permission.class);

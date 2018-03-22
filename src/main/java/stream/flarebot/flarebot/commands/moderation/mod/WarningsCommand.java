@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
@@ -73,6 +74,11 @@ public class WarningsCommand implements Command {
     public String getUsage() {
         return "`{%}warnings [user]` - Check the warnings on a guild or the warnings of a user.\n" +
                 "`{%}warnings stats` - Check warning stats for this guild.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.WARNINGS_COMMAND;
     }
 
     @Override

@@ -167,4 +167,7 @@ public class WebUtils {
         }
     }
 
+    public static OkHttpClient getClient() {
+        return client;
+    }
 }

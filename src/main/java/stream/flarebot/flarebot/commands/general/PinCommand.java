@@ -62,6 +62,11 @@ public class PinCommand implements Command {
     }
 
     @Override
+    public stream.flarebot.flarebot.permissions.Permission getPermission() {
+        return stream.flarebot.flarebot.permissions.Permission.PIN_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }

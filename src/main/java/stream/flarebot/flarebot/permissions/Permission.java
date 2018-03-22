@@ -1,20 +1,6 @@
 package stream.flarebot.flarebot.permissions;
 
-import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
-import stream.flarebot.flarebot.commands.currency.ConvertCommand;
-import stream.flarebot.flarebot.commands.currency.CurrencyCommand;
-import stream.flarebot.flarebot.commands.general.*;
-import stream.flarebot.flarebot.commands.informational.*;
-import stream.flarebot.flarebot.commands.management.PermissionsCommand;
-import stream.flarebot.flarebot.commands.management.SetPrefixCommand;
-import stream.flarebot.flarebot.commands.management.WelcomeCommand;
-import stream.flarebot.flarebot.commands.moderation.*;
-import stream.flarebot.flarebot.commands.moderation.mod.*;
-import stream.flarebot.flarebot.commands.music.*;
-import stream.flarebot.flarebot.commands.random.AvatarCommand;
-import stream.flarebot.flarebot.commands.useful.RemindCommand;
-import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 
 import java.util.EnumSet;
@@ -32,95 +18,94 @@ public enum Permission {
     CAGEGORY_CURRENCY("category.currency", false, CommandType.CURRENCY),
     CAGEGORY_RANDOM("category.random", false, CommandType.RANDOM),
     // Currency
-    CONVERT_COMMAND("convert", true, ConvertCommand.class),
-    CURRENCY_COMMAND("currency", true, CurrencyCommand.class),
+    CONVERT_COMMAND("convert", true),
+    CURRENCY_COMMAND("currency", true),
     // General
-    USAGE_COMMAND("usage", true, CommandUsageCommand.class),
-    HELP_COMMAND("help", true, HelpCommand.class),
-    INFO_COMMAND("info", true, InfoCommand.class),
-    INVITE_COMMAND("invite", true, InviteCommand.class),
-    REPORT_COMMAND("report", true, ReportCommand.class),
-    SELFASSIGN_COMMAND("selfassign", true, SelfAssignCommand.class),
+    USAGE_COMMAND("usage", true),
+    HELP_COMMAND("help", true),
+    INFO_COMMAND("info", true),
+    INVITE_COMMAND("invite", true),
+    REPORT_COMMAND("report", true),
+    SELFASSIGN_COMMAND("selfassign", true),
     SELFASSIGN_ADMIN("selfassign.admin", false),
-    SERVERINFO_COMMAND("serverinfo", true, ServerInfoCommand.class),
-    SHARDINFO_COMMAND("shardinfo", true, ShardInfoCommand.class),
-    STATS_COMMAND("stats", true, StatsCommand.class),
-    STATUS_COMMAND("status", true, StatusCommand.class),
-    USERINFO_COMMAND("userinfo", true, UserInfoCommand.class),
+    SERVERINFO_COMMAND("serverinfo", true),
+    SHARDINFO_COMMAND("shardinfo", true),
+    STATS_COMMAND("stats", true),
+    STATUS_COMMAND("status", true),
+    USERINFO_COMMAND("userinfo", true),
     USERINFO_OTHER("userinfo.other", true),
     // Moderation
-    BAN_COMMAND("ban", false, BanCommand.class),
-    FORCEBAN_COMMAND("forceban", false, ForceBanCommand.class),
-    KICK_COMMAND("kick", false, KickCommand.class),
-    MODLOG_COMMAND("modlog", false, ModlogCommand.class),
-    MUTE_COMMAND("mute", false, MuteCommand.class),
-    TEMPBAN_COMMAND("tempban", false, TempBanCommand.class),
-    TEMPMUTE_COMMAND("tempmute", false, TempMuteCommand.class),
-    UNBAN_COMMAND("unban", false, UnbanCommand.class),
-    UNMUTE_COMMAND("unmute", false, UnmuteCommand.class),
-    WARN_COMMAND("warn", false, WarnCommand.class),
-    WARNINGS_COMMAND("warnings", false, WarningsCommand.class),
+    BAN_COMMAND("ban", false),
+    FORCEBAN_COMMAND("forceban", false),
+    KICK_COMMAND("kick", false),
+    MODLOG_COMMAND("modlog", false),
+    MUTE_COMMAND("mute", false),
+    TEMPBAN_COMMAND("tempban", false),
+    TEMPMUTE_COMMAND("tempmute", false),
+    UNBAN_COMMAND("unban", false),
+    UNMUTE_COMMAND("unmute", false),
+    WARN_COMMAND("warn", false),
+    WARNINGS_COMMAND("warnings", false),
+    NINO_COMMAND("nino", false),
+    SETTINGS_COMMAND("settings", false),
     // Server Moderation
-    AUTOASSIGN_COMMAND("autoassign", false, AutoAssignCommand.class),
-    FIX_COMMAND("fix", false, FixCommand.class),
-    LOCKCHAT_COMMAND("lockchat", false, LockChatCommand.class),
-    PERMISSIONS_COMMAND("permissions", false, PermissionsCommand.class),
-    PIN_COMMAND("pin", false, PinCommand.class),
-    PRUNE_COMMAND("prune", false, PruneCommand.class),
-    PURGE_COMMAND("purge", false, PurgeCommand.class),
-    REPORTS_COMMAND("reports", true, ReportsCommand.class),
+    AUTOASSIGN_COMMAND("autoassign", false),
+    FIX_COMMAND("fix", false),
+    LOCKCHAT_COMMAND("lockchat", false),
+    PERMISSIONS_COMMAND("permissions", false),
+    PIN_COMMAND("pin", false),
+    PRUNE_COMMAND("prune", false),
+    PURGE_COMMAND("purge", false),
+    REPORTS_COMMAND("reports", true),
     REPORTS_LIST("reports.list", false),
     REPORTS_VIEW("reports.view", false),
     REPORTS_STATUS("reports.status", false),
-    ROLES_COMMAND("roles", false, RolesCommand.class),
-    SETPREFIX_COMMAND("setprefix", false, SetPrefixCommand.class),
-    WELCOME_COMMAND("welcome", false, WelcomeCommand.class),
+    ROLES_COMMAND("roles", false),
+    SETPREFIX_COMMAND("setprefix", false),
+    WELCOME_COMMAND("welcome", false),
     // Music
-    DELETE_COMMAND("playlist.delete", false, DeleteCommand.class),
-    JOIN_COMMAND("join", true, JoinCommand.class),
+    DELETE_COMMAND("playlist.delete", false),
+    JOIN_COMMAND("join", true),
     JOIN_OTHER("join.other", false),
-    LEAVE_COMMAND("leave", true, LeaveCommand.class),
+    LEAVE_COMMAND("leave", true),
     LEAVE_OTHER("leave.other", false),
-    LOAD_COMMAND("playlist.load", true, LoadCommand.class),
-    LOOP_COMMAND("loop", true, LoopCommand.class),
-    MUSICANNOUNCE_COMMAND("songannounce", false, MusicAnnounceCommand.class),
-    PAUSE_COMMAND("pause", true, PauseCommand.class),
-    PLAY_COMMAND("play", true, PlayCommand.class),
-    QUEUE_COMMAND("queue", true, QueueCommand.class),
+    LOAD_COMMAND("playlist.load", true),
+    LOOP_COMMAND("loop", true),
+    MUSICANNOUNCE_COMMAND("songannounce", false),
+    PAUSE_COMMAND("pause", true),
+    PLAY_COMMAND("play", true),
+    QUEUE_COMMAND("queue", true),
     QUEUE_CLEAR("queue.clear", true),
-    PLAYLISTS_COMMAND("playlists", true, PlaylistsCommand.class),
-    REPEAT_COMMAND("repeat", true, RepeatCommand.class),
-    RESUME_COMMAND("resume", true, ResumeCommand.class),
-    SAVE_COMMAND("playlist.save", true, SaveCommand.class),
+    PLAYLISTS_COMMAND("playlists", true),
+    REPEAT_COMMAND("repeat", true),
+    RESUME_COMMAND("resume", true),
+    SAVE_COMMAND("playlist.save", true),
     SAVE_OVERWRITE("playlist.save.overwrite", false),
-    SEARCH_COMMAND("search", true, SearchCommand.class),
-    SEEK_COMMAND("seek", true, SeekCommand.class),
-    SHUFFLE_COMMAND("shuffle", true, ShuffleCommand.class),
-    SKIP_COMMAND("skip", true, SkipCommand.class),
+    SEARCH_COMMAND("search", true),
+    SEEK_COMMAND("seek", true),
+    SHUFFLE_COMMAND("shuffle", true),
+    SKIP_COMMAND("skip", true),
     SKIP_FORCE("skip.force", false),
     SKIP_CANCEL("skip.cancel", false),
-    SONG_COMMAND("song", true, SongCommand.class),
-    SONGNICK_COMMAND("songnick", false, SongNickCommand.class),
-    STOP_COMMAND("stop", false, StopCommand.class),
+    SONG_COMMAND("song", true),
+    SONGNICK_COMMAND("songnick", false),
+    STOP_COMMAND("stop", false),
     // Misc
-    AVATAR_COMMAND("avatar", true, AvatarCommand.class),
+    AVATAR_COMMAND("avatar", true),
     AVATAR_OTHER("avatar.other", false),
-    REMIND_COMMAND("remind", true, RemindCommand.class),
-    TAGS_COMMAND("tags", true, TagsCommand.class),
+    REMIND_COMMAND("remind", true),
+    TAGS_COMMAND("tags", true),
     TAGS_ADMIN("tags.admin", false),
-    BLACKLIST_BYPASS("blacklist.bypass", false);
+    BLACKLIST_BYPASS("blacklist.bypass", false),
+    COLOR_COMMAND("color", true),
+    JUMBO_COMMAND("jumbo", true);
 
     public static final Permission[] VALUES = Permission.values();
 
     private String permission;
     private boolean defaultPerm;
-    private Class<? extends Command> command;
     private CommandType commandType;
 
-    private static final Map<Class<? extends Command>, Permission> COMMAND_PERMISSION_MAP =
-            GeneralUtils.getReverseMapping(
-                    Permission.class,
-                    Permission::getCommand);
     private static final Map<CommandType, Permission> COMMAND_TYPE_MAP =
             GeneralUtils.getReverseMapping(
                     Permission.class,
@@ -132,12 +117,6 @@ public enum Permission {
     Permission(String permission, boolean defaultPerm) {
         this.permission = "flarebot." + permission;
         this.defaultPerm = defaultPerm;
-    }
-
-    Permission(String permission, boolean defaultPerm, Class<? extends Command> command) {
-        this.permission = "flarebot." + permission;
-        this.defaultPerm = defaultPerm;
-        this.command = command;
     }
 
     Permission(String permission, boolean defaultPerm, CommandType commandType) {
@@ -159,16 +138,8 @@ public enum Permission {
         return defaultPerm;
     }
 
-    public Class<? extends Command> getCommand() {
-        return command;
-    }
-
     public CommandType getCommandType() {
         return commandType;
-    }
-
-    public static Permission getPermission(Class<? extends Command> command) {
-        return COMMAND_PERMISSION_MAP.get(command);
     }
 
     public static Permission getPermission(CommandType commandType) {

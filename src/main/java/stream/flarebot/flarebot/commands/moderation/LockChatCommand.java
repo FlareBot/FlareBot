@@ -76,6 +76,11 @@ public class LockChatCommand implements Command {
     }
 
     @Override
+    public stream.flarebot.flarebot.permissions.Permission getPermission() {
+        return stream.flarebot.flarebot.permissions.Permission.LOCKCHAT_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }

@@ -15,14 +15,20 @@ import stream.flarebot.flarebot.commands.moderation.*;
 import stream.flarebot.flarebot.commands.moderation.mod.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.random.AvatarCommand;
+import stream.flarebot.flarebot.commands.random.ColorCommand;
 import stream.flarebot.flarebot.commands.random.JumboCommand;
 import stream.flarebot.flarebot.commands.secret.*;
 import stream.flarebot.flarebot.commands.secret.internal.ChangelogCommand;
 import stream.flarebot.flarebot.commands.secret.internal.PostUpdateCommand;
+import stream.flarebot.flarebot.commands.secret.internal.ShardRestartCommand;
+import stream.flarebot.flarebot.commands.secret.internal.StatusCommand;
+import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
+import stream.flarebot.flarebot.commands.secret.update.UpdateJDACommand;
 import stream.flarebot.flarebot.commands.useful.RemindCommand;
 import stream.flarebot.flarebot.commands.useful.TagsCommand;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,9 +62,10 @@ public class CommandManager {
 
     // https://bots.are-pretty.sexy/214501.png
     // New way to process commands, this way has been proven to be quicker overall.
+    @Nullable
     public Command getCommand(String s, User user) {
-        if (PerGuildPermissions.isCreator(user) || (FlareBot.instance().isTestBot() && PerGuildPermissions.isContributor(user))) {
-            for (Command cmd : getCommandsByType(CommandType.SECRET)) {
+        if (PerGuildPermissions.isCreator(user) || PerGuildPermissions.isContributor(user) || PerGuildPermissions.isStaff(user)) {
+            for (Command cmd : getInternalCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
                     return cmd;
                 for (String alias : cmd.getAliases())
@@ -66,7 +73,7 @@ public class CommandManager {
             }
         }
         for (Command cmd : getCommands()) {
-            if (cmd.getType() == CommandType.SECRET) continue;
+            if (cmd.getType().isInternal()) continue;
             if (cmd.getCommand().equalsIgnoreCase(s))
                 return cmd;
             for (String alias : cmd.getAliases())
@@ -165,6 +172,7 @@ public class CommandManager {
         registerCommand(new BetaCommand());
         registerCommand(new DonateCommand());
         registerCommand(new JumboCommand());
+        registerCommand(new ColorCommand());
     }
 
     private void registerCommand(Command command) {
@@ -179,9 +187,11 @@ public class CommandManager {
         return commands.stream().filter(command -> command.getType() == type).collect(Collectors.toSet());
     }
 
+    public Set<Command> getInternalCommands() {
+        return commands.stream().filter(command -> command.getType().isInternal()).collect(Collectors.toSet());
+    }
+
     public int count() {
         return commands.size();
     }
-
-
 }

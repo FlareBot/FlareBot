@@ -1,12 +1,7 @@
 package stream.flarebot.flarebot.commands.moderation;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.MessageHistory;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import stream.flarebot.flarebot.commands.Command;
@@ -20,11 +15,7 @@ import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class PurgeCommand implements Command {
@@ -142,6 +133,11 @@ public class PurgeCommand implements Command {
     public String getUsage() {
         return "`{%}purge <user> <amount>` - Purges a certain amount of messages from a user.\n" +
                 "`{%}purge <amount>` - Purges a certain amount of messages.";
+    }
+
+    @Override
+    public stream.flarebot.flarebot.permissions.Permission getPermission() {
+        return stream.flarebot.flarebot.permissions.Permission.PURGE_COMMAND;
     }
 
     @Override

@@ -56,6 +56,11 @@ public class KickCommand implements Command {
     }
 
     @Override
+    public stream.flarebot.flarebot.permissions.Permission getPermission() {
+        return stream.flarebot.flarebot.permissions.Permission.KICK_COMMAND;
+    }
+
+    @Override
     public CommandType getType() {
         return CommandType.MODERATION;
     }

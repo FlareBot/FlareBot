@@ -8,6 +8,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 
 public class StopCommand implements Command {
 
@@ -29,6 +30,11 @@ public class StopCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}stop` - Stops the current playlist.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.STOP_COMMAND;
     }
 
     @Override

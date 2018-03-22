@@ -13,8 +13,10 @@ import java.util.List;
 public class ButtonGroup {
 
     private List<Button> buttons;
+    private long ownerID;
 
-    public ButtonGroup() {
+    public ButtonGroup(long ownerID) {
+        this.ownerID = ownerID;
         buttons = new ArrayList<>();
     }
 
@@ -30,6 +32,10 @@ public class ButtonGroup {
 
     public List<Button> getButtons() {
         return buttons;
+    }
+
+    public long getOwner() {
+        return ownerID;
     }
 
     public static class Button {
@@ -71,8 +77,8 @@ public class ButtonGroup {
                 message.addReaction(Getters.getEmoteById(emoteId)).queue();
         }
 
-        public void onClick(User user) {
-            runnable.run(user, message);
+        public void onClick(long ownerID, User user) {
+            runnable.run(ownerID, user, message);
         }
     }
 }

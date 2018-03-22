@@ -5,34 +5,19 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.InternalCommand;
+//import stream.flarebot.flarebot.mod.nino.URLChecker;
+import stream.flarebot.flarebot.mod.nino.URLChecker;
 import stream.flarebot.flarebot.objects.GuildWrapper;
-import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.general.VariableUtils;
-import stream.flarebot.flarebot.util.votes.VoteGroup;
-import stream.flarebot.flarebot.util.votes.VoteUtil;
 
-import java.util.concurrent.TimeUnit;
-
-public class TestCommand implements Command {
+public class TestCommand implements InternalCommand {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if(args.length == 0) {
-            VoteUtil.sendVoteMessage((vote) -> {
-                channel.sendMessage("Vote: " + vote).queue();
-            }, new VoteGroup("test"), TimeUnit.MINUTES.toMillis(1), channel);
-        } else {
-            if(VoteUtil.contains("test", channel.getGuild())) {
-                VoteGroup.Vote vote = VoteGroup.Vote.parseVote(args[0]);
-                if(vote == null) {
-                    MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription(args[0] + " Isn't a valid vote").build(), 5000, channel);
-                } else {
-                    VoteUtil.getVoteGroup("test", channel.getGuild()).addVote(vote, sender);
-                }
-            }
-        }
+        channel.sendMessage("View profile: <http://discordapp.com/users/" + sender.getId() + ">").queue();
+        channel.sendMessage(new EmbedBuilder().setDescription("[Test](http://discordapp.com/users/" + sender.getId() + ")").build()).queue();
+        URLChecker.instance().runTests();
     }
 
     @Override
@@ -52,6 +37,6 @@ public class TestCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.SECRET;
+        return CommandType.RANDOM;
     }
 }

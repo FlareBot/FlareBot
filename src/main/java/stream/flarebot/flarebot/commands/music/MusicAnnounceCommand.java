@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.util.regex.Pattern;
@@ -49,6 +50,11 @@ public class MusicAnnounceCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}announce here|off` - Sets the music announce channel or turns it off.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.MUSICANNOUNCE_COMMAND;
     }
 
     @Override

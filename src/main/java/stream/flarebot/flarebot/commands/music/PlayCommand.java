@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
@@ -65,6 +66,11 @@ public class PlayCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}play <search_term/URL>` - Searches for a song on YouTube.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.PLAY_COMMAND;
     }
 
     @Override

@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.GitHandler;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ShardUtils;
 
 import java.io.UnsupportedEncodingException;
@@ -16,13 +17,13 @@ import java.net.URLEncoder;
 
 public class ReportBugCommand implements Command {
 
-    private static final String ISSUE_TEMPLATE = "<!-- Issue tracker is **ONLY** used for reporting bugs. " +
-            "NO FEATURE REQUESTS HERE! Use [the official guild](https://discordapp.com/invite/TTAUGvZ) " +
-            "for feature requests and suggestions. -->\n" +
+    private static final String ISSUE_TEMPLATE = "<!--\n" +
+            "Issue tracker is **ONLY** used for reporting bugs. NO FEATURE REQUESTS HERE! Use " +
+            "[the official guild](https://discordapp.com/invite/TTAUGvZ) for feature requests and suggestions.\n" +
+            "-->\n" +
             "\n" +
             "## Summary of the issue\n" +
-            "<!--- Provide a general summary of the issue in the Title above -->\n" +
-            "%s" +
+            "%s\n" +
             "\n" +
             "## Expected Behavior\n" +
             "<!--- Tell us what should happen -->\n" +
@@ -30,12 +31,8 @@ public class ReportBugCommand implements Command {
             "## Current Behavior\n" +
             "<!--- Tell us what happens instead of the expected behavior -->\n" +
             "\n" +
-            "## Possible Solution\n" +
-            "<!--- Not obligatory, but suggest a fix/reason for the bug, -->\n" +
-            "\n" +
             "## Steps to Reproduce\n" +
-            "<!--- Provide a link to a live example, or an unambiguous set of steps to -->\n" +
-            "<!--- reproduce this bug. Include code to reproduce, if relevant -->\n" +
+            "<!--- Provide steps you took to reproduce the issue -->\n" +
             "1.\n" +
             "2.\n" +
             "3.\n" +
@@ -59,9 +56,9 @@ public class ReportBugCommand implements Command {
         boolean foundPipe = false;
         for (String s : args) {
             if (!foundPipe)
-                title.append(s);
+                title.append(s).append(" ");
             else
-                summary.append(s);
+                summary.append(s).append(" ");
             if (s.endsWith("|") || s.equals("|"))
                 foundPipe = true;
         }
@@ -80,9 +77,9 @@ public class ReportBugCommand implements Command {
                     guild.getGuildId() + ", " + sender.getIdLong()
             );
             String url = "https://github.com/FlareBot/FlareBot/issues/new?title="
-                    + URLEncoder.encode(title.toString(), "UTF-8")
+                    + URLEncoder.encode(title.toString().trim(), "UTF-8")
                     + "&body=" + URLEncoder.encode(
-                            String.format(ISSUE_TEMPLATE, summary.toString(), context)
+                    String.format(ISSUE_TEMPLATE, summary.toString().trim(), context)
                     , "UTF-8");
 
             channel.sendMessage(sender.getAsMention() + " please click the link to open your report!\n" + url).queue();
@@ -100,7 +97,7 @@ public class ReportBugCommand implements Command {
 
     @Override
     public String[] getAliases() {
-        return new String[] {"bug", "bugs", "reportb", "issue"};
+        return new String[]{"bug", "bugs", "reportb", "issue"};
     }
 
     @Override
@@ -111,6 +108,11 @@ public class ReportBugCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}report <Title> | <Summary of the issue>";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return null;
     }
 
     @Override

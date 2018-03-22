@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.awt.Color;
@@ -54,6 +55,11 @@ public class DeleteCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}delete <playlist>` - Deletes a playlist.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.DELETE_COMMAND;
     }
 
     @Override

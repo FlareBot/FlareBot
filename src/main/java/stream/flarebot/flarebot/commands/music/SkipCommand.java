@@ -64,7 +64,7 @@ public class SkipCommand implements Command {
         }
 
         if (args.length != 1) {
-            if(!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
+            if (!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
                     channel.getGuild().getMember(sender).getVoiceState().getChannel().getIdLong() != channel.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
                 MessageUtils.sendErrorMessage("You cannot skip if you aren't listening to it!", channel);
                 return;
@@ -130,7 +130,7 @@ public class SkipCommand implements Command {
                 }
                 return;
             }
-            if(!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
+            if (!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
                     channel.getGuild().getMember(sender).getVoiceState().getChannel().getIdLong() != channel.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
                 MessageUtils.sendWarningMessage("You cannot vote to skip if you aren't listening to it!", channel);
                 return;
@@ -181,6 +181,11 @@ public class SkipCommand implements Command {
         return "`{%}skip` - Starts a vote to skip the song.\n" +
                 "`{%}skip yes|no` - Vote yes or no to skip the current song.\n" +
                 "`{%}skip force` - Forces FlareBot to skip the current song.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SKIP_COMMAND;
     }
 
     @Override

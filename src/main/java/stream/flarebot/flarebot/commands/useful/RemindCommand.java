@@ -9,10 +9,11 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
@@ -32,18 +33,23 @@ public class RemindCommand implements Command {
                     Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
                     StringBuilder actionBuilder = new StringBuilder();
                     for (FutureAction action : futureActions) {
-                        if (action.getAction().equals(FutureAction.Action.REMINDER) || action.getAction().equals(FutureAction.Action.DM_REMINDER)) {
-                            if (action.getResponsible() == sender.getIdLong()) {
-                                LocalDateTime time = LocalDateTime.ofInstant(action.getExpires().toDate().toInstant(), TimeZone.getTimeZone("UTC").toZoneId());
-                                actionBuilder.append("`").append(FormatUtils.truncate(100, action.getContent())).append("` at ").append(FormatUtils.formatTime(time)).append(" via ")
-                                        .append(action.getAction().equals(FutureAction.Action.REMINDER) ? GuildUtils.getChannel(String.valueOf(action.getChannelId())).getAsMention() : "Direct Messages").append("\n\n");
-                            }
+                        if ((action.getAction().equals(FutureAction.Action.REMINDER)
+                                || action.getAction().equals(FutureAction.Action.DM_REMINDER))
+                                && action.getResponsible() == sender.getIdLong()) {
+                            LocalDateTime time = LocalDateTime.ofInstant(action.getExpires().toDate().toInstant(),
+                                    TimeZone.getTimeZone("UTC").toZoneId());
+                            actionBuilder.append("`").append(FormatUtils.truncate(100, action.getContent()))
+                                    .append("` at ").append(FormatUtils.formatTime(time)).append(" via ")
+                                    .append(action.getAction().equals(FutureAction.Action.REMINDER) ?
+                                            GuildUtils.getChannel(String.valueOf(action.getChannelId())).getAsMention()
+                                            : "Direct Messages").append("\n\n");
                         }
                     }
-                    PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
+                    PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(PaginationUtil
+                            .splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
                     pagedEmbedBuilder.setTitle("Reminders for " + MessageUtils.getTag(sender));
-                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel);
-                } else if(args[0].equalsIgnoreCase("clear")) {
+                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel, sender);
+                } else if (args[0].equalsIgnoreCase("clear")) {
                     Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
                     for (FutureAction action : futureActions) {
                         if (action.getAction().equals(FutureAction.Action.REMINDER) || action.getAction().equals(FutureAction.Action.DM_REMINDER)) {
@@ -95,6 +101,11 @@ public class RemindCommand implements Command {
                 "`{%}remind <duration> dm <reminder>` - Reminds a user about something after a duration via Direct Messages.\n" +
                 "`{%}remind list` - Lists your current reminders.\n" +
                 "`{%}remind clear` - Clears your current reminders.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.REMIND_COMMAND;
     }
 
     @Override

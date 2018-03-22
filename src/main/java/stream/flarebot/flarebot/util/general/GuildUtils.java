@@ -16,7 +16,6 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -141,7 +140,7 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s The string to get the user from.
+     * @param s       The string to get the user from.
      * @param guildId The string id of the {@link Guild} to get the user from.
      * @return null if the user wasn't found otherwise a {@link User}.
      */
@@ -153,7 +152,7 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s The string to get the user from
+     * @param s        The string to get the user from
      * @param forceGet If you want to get the user from Discord instead of from a guild
      * @return null if the user wasn't found otherwise a {@link User}
      * @throws
@@ -166,8 +165,8 @@ public class GuildUtils {
      * Gets a {@link User} from a string. Not case sensitive.
      * The string can eater be their name, their id, or them being mentioned.
      *
-     * @param s The string to get the user from.
-     * @param guildId The id of the {@link Guild} to get the user from.
+     * @param s        The string to get the user from.
+     * @param guildId  The id of the {@link Guild} to get the user from.
      * @param forceGet If you want to get the user from discord instead of from a guild.
      * @return null if the user wasn't found otherwise a {@link User}.
      */
@@ -236,7 +235,7 @@ public class GuildUtils {
      * The string can eater be the channel name, it's id, or it being mentioned.
      *
      * @param channelArg The string to get the channel from
-     * @param wrapper The Guild wrapper for the {@link Guild} that you want to get the channel from
+     * @param wrapper    The Guild wrapper for the {@link Guild} that you want to get the channel from
      * @return null if the channel couldn't be found otherwise a {@link TextChannel}
      */
     public static TextChannel getChannel(String channelArg, GuildWrapper wrapper) {
@@ -301,7 +300,9 @@ public class GuildUtils {
             }
             PlayerManager musicManager = FlareBot.instance().getMusicManager();
             channel.getGuild().getAudioManager().openAudioConnection(member.getVoiceState().getChannel());
-            if(musicManager.getPlayer(channel.getGuild().getId()).getPaused()) {
+            musicManager.getPlayer(channel.getGuild().getId()).play();
+
+            if (musicManager.getPlayer(channel.getGuild().getId()).getPaused()) {
                 MessageUtils.sendWarningMessage("The music is currently paused do `{%}resume`", channel);
             }
         } else {

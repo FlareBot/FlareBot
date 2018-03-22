@@ -13,9 +13,9 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 
@@ -35,8 +35,8 @@ public class SongCommand implements Command {
                 eb.addField("Amount Played", GeneralUtils.getProgressBar(track), true)
                         .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
                                 FormatUtils.formatDuration(track.getTrack().getDuration())), false);
-            ButtonGroup buttonGroup = new ButtonGroup();
-            buttonGroup.addButton(new ButtonGroup.Button("\u23EF", (user, message1) -> {
+            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong());
+            buttonGroup.addButton(new ButtonGroup.Button("\u23EF", (owner, user, message1) -> {
                 if (manager.hasPlayer(guild.getGuildId())) {
                     if (manager.getPlayer(guild.getGuild().getId()).getPaused()) {
                         if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.RESUME_COMMAND)) {
@@ -49,16 +49,17 @@ public class SongCommand implements Command {
                     }
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23F9", (user, message1) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23F9", (owner, user, message1) -> {
                 if (manager.hasPlayer(guild.getGuildId()) &&
                         getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.STOP_COMMAND)) {
                     manager.getPlayer(guild.getGuildId()).stop();
                 }
             }));
-            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (user, message1) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u23ED", (owner, user, message1) -> {
                 if (getPermissions(channel).hasPermission(guild.getGuild().getMember(user), Permission.SKIP_COMMAND)) {
                     Command cmd = FlareBot.getCommandManager().getCommand("skip", user);
-                    cmd.onCommand(user, guild, channel, message1, new String[0], guild.getGuild().getMember(user));
+                    if (cmd != null)
+                        cmd.onCommand(user, guild, channel, null, new String[0], guild.getGuild().getMember(user));
                 }
             }));
             ButtonUtil.sendButtonedMessage(channel, eb.build(), buttonGroup);
@@ -93,6 +94,11 @@ public class SongCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}song` - Displays info about the currently playing song.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SONG_COMMAND;
     }
 
     @Override

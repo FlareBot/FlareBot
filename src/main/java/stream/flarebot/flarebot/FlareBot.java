@@ -53,6 +53,7 @@ import stream.flarebot.flarebot.commands.CommandManager;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
+import stream.flarebot.flarebot.mod.nino.NINOListener;
 import stream.flarebot.flarebot.music.QueueListener;
 import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
@@ -335,6 +336,7 @@ public class FlareBot {
                     .addEventListeners(events)
                     .addEventListeners(new ModlogEvents())
                     .addEventListeners(Metrics.instance().jdaEventMetricsListener)
+                    .addEventListeners(new NINOListener())
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setShardsTotal(-1)
@@ -415,26 +417,25 @@ public class FlareBot {
      * This possibly-null will return the first connected JDA shard.
      * This means that a lot of methods like sending embeds works even with shard 0 offline.
      *
-     * @return The first possible JDA shard which is connected or null otherwise.
+     * @return The first possible JDA shard which is connected.
      */
-    @Nullable
+    @Nonnull
     public JDA getClient() {
         for (JDA jda : shardManager.getShardCache()) {
-            if (jda.getStatus() == JDA.Status.CONNECTED)
+            if (jda.getStatus() == JDA.Status.LOADING_SUBSYSTEMS || jda.getStatus() == JDA.Status.CONNECTED)
                 return jda;
         }
-        return null;
+        throw new IllegalStateException("getClient was called when no shards were connected!");
     }
 
     /**
-     * Get the SelfUser of the bot, this will be null if no shards are connected.
+     * Get the SelfUser of the bot, this will be returned from the first connected shard.
      *
-     * @return The bot SelfUser or null if no CONNECTED shard is found.
+     * @return The bot SelfUser from the first connected shard.
      */
-    @Nullable
+    @Nonnull
     public SelfUser getSelfUser() {
-        JDA shard = getClient();
-        return shard == null ? null : shard.getSelfUser();
+        return getClient().getSelfUser();
     }
 
     private void loadFutureTasks() {

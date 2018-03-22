@@ -5,6 +5,7 @@ import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
@@ -29,7 +30,7 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if (GeneralUtils.canRunCommand(type, sender)) {
+            if (GeneralUtils.canRunInternalCommand(type, sender)) {
                 List<String> pages = new ArrayList<>();
                 List<String> help = type.getCommands()
                         .stream().filter(cmd -> getPermissions(channel)
@@ -49,7 +50,7 @@ public class HelpCommand implements Command {
                 PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
                 builder.setTitle("***FlareBot " + type + " commands!***");
                 builder.setColor(Color.CYAN);
-                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel);
+                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender);
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
             }
@@ -86,7 +87,7 @@ public class HelpCommand implements Command {
         }
         PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
         builder.setColor(Color.CYAN);
-        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel);
+        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender);
     }
 
     @Override
@@ -108,6 +109,11 @@ public class HelpCommand implements Command {
     public String getUsage() {
         return "`{%}help` - Gives a list of commands.\n"
                 + "`{%}help <category>` - Gives a list of commands in a specific category.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.HELP_COMMAND;
     }
 
     @Override

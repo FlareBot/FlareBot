@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 
 public class LoopCommand implements Command {
 
@@ -37,6 +38,11 @@ public class LoopCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}loop` - Toggles looping of current playlist.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.LOOP_COMMAND;
     }
 
     @Override

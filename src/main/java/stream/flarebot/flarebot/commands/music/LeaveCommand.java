@@ -48,6 +48,11 @@ public class LeaveCommand implements Command {
     }
 
     @Override
+    public Permission getPermission() {
+        return Permission.LEAVE_COMMAND;
+    }
+
+    @Override
     public String[] getAliases() {
         return new String[]{"gtfo", "banish", "getout", "quit"};
     }

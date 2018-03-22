@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 public class SearchCommand implements Command {
@@ -30,6 +31,11 @@ public class SearchCommand implements Command {
     @Override
     public String getUsage() {
         return "`{%}search <URL/words>` - Searches for a song on YouTube.";
+    }
+
+    @Override
+    public Permission getPermission() {
+        return Permission.SEARCH_COMMAND;
     }
 
     @Override
