@@ -32,7 +32,7 @@ public class VoteGroup {
                 noVotes++;
             else
                 yesVotes++;
-            if (allowedUsers.size() == votes()) {
+            if (allowedUsers.size() == totalVotes()) {
                 VoteUtil.finishNow(messageDesc, voteMessage.getGuild());
                 return true;
             }
