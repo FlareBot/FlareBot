@@ -82,7 +82,7 @@ public class SkipCommand implements Command {
                             editSong(sender, message, channel);
                         skips.put(guild.getGuildId(), true);
                     }
-                }, group, TimeUnit.MINUTES.toMillis(1), channel, sender, new ButtonGroup.Button("⏭", (owner, user, message1) -> {
+                }, group, TimeUnit.MINUTES.toMillis(1), channel, sender, new ButtonGroup.Button("\u23ED", (owner, user, message1) -> {
                     if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
                         musicManager.getPlayer(channel.getGuild().getId()).skip();
                         if(songMessage) {
