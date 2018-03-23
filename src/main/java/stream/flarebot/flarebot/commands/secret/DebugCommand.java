@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.Events;
@@ -17,6 +18,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.commands.InternalCommand;
 import stream.flarebot.flarebot.music.VideoThread;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.tasks.VoiceChannelCleanup;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.web.DataInterceptor;
 
@@ -92,6 +94,17 @@ public class DebugCommand implements InternalCommand {
             }
             Player player = FlareBot.instance().getMusicManager().getPlayer(wrapper.getGuildId());
 
+            VoiceChannel vc = (wrapper.getGuild().getSelfMember().getVoiceState() != null
+                    && wrapper.getGuild().getSelfMember().getVoiceState().getChannel() != null
+                    ? wrapper.getGuild().getSelfMember().getVoiceState().getChannel() : null);
+
+            String lastActive = "Not tracked.";
+            if (VoiceChannelCleanup.VC_LAST_USED.containsKey(vc != null ? vc.getIdLong() : guild.getGuildIdLong())) {
+                long ms = VoiceChannelCleanup.VC_LAST_USED.get(vc != null ? vc.getIdLong()
+                        : guild.getGuildIdLong());
+                lastActive = String.valueOf(ms) + " (" + (System.currentTimeMillis() - ms) + "ms ago)";
+            }
+
             boolean isPlaying = player.getPlayingTrack() != null;
             Track track = player.getPlayingTrack();
             eb.setTitle("Bot Debug").setDescription(String.format("Player Debug for `" + wrapper.getGuildId() + "`"
@@ -99,13 +112,17 @@ public class DebugCommand implements InternalCommand {
                             + "\nCurrent Position: %s"
                             + "\nIs Paused: %b"
                             + "\nPlaylist Length: %s"
-                            + "\nIs Looping: %b",
+                            + "\nIs Looping: %b"
+                            + "\nVoice Channel: %s"
+                            + "\nLast Active: %s",
 
                     (isPlaying ? track.getTrack().getIdentifier() : "No current track"),
                     (isPlaying ? track.getTrack().getPosition() + "/" + track.getTrack().getDuration() : "N/A"),
                     player.getPaused(),
                     player.getPlaylist().size(),
-                    player.getLooping()
+                    player.getLooping(),
+                    (vc == null ? "null" : vc.toString()),
+                    lastActive
             ));
         } else {
             channel.sendMessage("Invalid debug option").queue();

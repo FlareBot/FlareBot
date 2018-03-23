@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class VoiceChannelCleanup extends FlareBotTask {
 
     private static final Logger logger = LoggerFactory.getLogger(VoiceChannelCleanup.class);
-    private static final Map<Long, Long> VC_LAST_USED = new HashMap<>();
+    public static final Map<Long, Long> VC_LAST_USED = new HashMap<>();
     private static final long CLEANUP_THRESHOLD = 15 * 60 * 1000;
 
     public VoiceChannelCleanup(String taskName) {

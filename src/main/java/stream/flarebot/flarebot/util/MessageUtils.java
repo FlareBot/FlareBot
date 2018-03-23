@@ -55,11 +55,12 @@ public class MessageUtils {
 
     private static final long GLOBAL_MSG_DELAY = TimeUnit.HOURS.toMillis(1);
     private static String globalMsg;
-    private static final List<String> globalMsgs = new CopyOnWriteArrayList<>(Arrays.asList(
+    private static final List<String> globalMsgs = new CopyOnWriteArrayList<>();
+    /*private static final List<String> globalMsgs = new CopyOnWriteArrayList<>(Arrays.asList(
             "Did you know we had a Twitter account? " +
                     "Follow us [here](https://twitter.com/discordflarebot) for updates, teasers and ~~memes~~professional content!",
             "Did you know I had a Patreon? It's a cool way to show support! Do `_donate` for more info!"
-    ));
+    ));*/
     private static Map<Long, Long> lastGlobalMsg = new ConcurrentHashMap<>();
 
     public static void sendPM(User user, String message) {
