@@ -4,9 +4,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,15 +37,17 @@ public class VoteGroup {
                 noVotes++;
             else
                 yesVotes++;
+
             if (allowedUsers.size() == totalVotes()) {
                 VoteUtil.finishNow(id, voteMessage.getGuild());
                 return true;
             }
+
             users.add(user.getIdLong());
             if (voteMessage != null) {
                 votesEmbed.clearFields();
-                votesEmbed.addField("Yes Votes", String.valueOf(yesVotes), true);
-                votesEmbed.addField("No Votes", String.valueOf(noVotes), true);
+                votesEmbed.addField("Yes", String.valueOf(yesVotes), true);
+                votesEmbed.addField("No", String.valueOf(noVotes), true);
                 voteMessage.editMessage(votesEmbed.build()).queue();
             }
             return true;
@@ -98,16 +99,11 @@ public class VoteGroup {
         void run(Vote vote);
     }
 
-    public void limitUsers() {
-        limitUsers(new ArrayList<>());
-    }
-
-    public void limitUsers(List<User> users) {
-        List<Long> userIds = new ArrayList<>();
+    public void limitUsers(Collection<? extends User> users) {
+        this.allowedUsers = new HashSet<>();
         for (User user : users) {
-            userIds.add(user.getIdLong());
+            allowedUsers.add(user.getIdLong());
         }
-        this.allowedUsers = new HashSet<>(userIds);
     }
 
     public void addAllowedUser(User user) {

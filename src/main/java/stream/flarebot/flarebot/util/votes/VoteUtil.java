@@ -22,10 +22,10 @@ public class VoteUtil {
     private static Map<String, VoteGroup.VoteRunnable> runnableMap = new ConcurrentHashMap<>();
 
     public static void sendVoteMessage(UUID id, VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, User user, ButtonGroup.Button... optionalButtons) {
-        EmbedBuilder votesEmbed = new EmbedBuilder();
-        votesEmbed.setDescription("Vote to " + group.getMessageDesc());
-        votesEmbed.addField("Yes Votes", "0", true);
-        votesEmbed.addField("No Votes", "0", true);
+        EmbedBuilder votesEmbed = new EmbedBuilder()
+                .setDescription("Vote to " + group.getMessageDesc())
+                .addField("Yes", "0", true)
+                .addField("No", "0", true);
         String messageDesc = group.getMessageDesc();
         votesEmbed.setColor(ColorUtils.FLAREBOT_BLUE);
         group.setVotesEmbed(votesEmbed);
@@ -41,6 +41,7 @@ public class VoteUtil {
                 MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("You cannot vote on " + messageDesc).build(), 2000, channel);
             }
         }));
+
         buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (owner, user1, message) -> {
             if (group.addVote(VoteGroup.Vote.NO, user1)) {
                 MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("You voted no on " + messageDesc).build(), 2000, channel);
@@ -48,9 +49,11 @@ public class VoteUtil {
                 MessageUtils.sendAutoDeletedMessage(new EmbedBuilder().setDescription("You cannot vote on " + messageDesc).build(), 2000, channel);
             }
         }));
+
         for(ButtonGroup.Button button : optionalButtons) {
             buttonGroup.addButton(button);
         }
+        
         Message voteMessage = ButtonUtil.sendReturnedButtonedMessage(channel, votesEmbed.build(), buttonGroup);
         group.setVoteMessage(voteMessage);
 
