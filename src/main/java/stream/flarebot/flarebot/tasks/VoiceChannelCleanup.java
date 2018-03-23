@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.tasks;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import org.slf4j.Logger;
@@ -93,7 +94,20 @@ public class VoiceChannelCleanup extends FlareBotTask {
                     return;
                 }
 
-                VoiceChannel vc = guild.getSelfMember().getVoiceState().getChannel();
+                if (guild.getSelfMember().getVoiceState() == null || 
+                    guild.getSelfMember().getVoiceState().getChannel() == null) {
+                    if (!VC_LAST_USED.containsKey(guildId)) {
+                        VC_LAST_USED.put(guildId, System.currentTimeMillis());
+                        return;
+                    }
+
+                    if (System.currentTimeMillis() - VC_LAST_USED.get(guildId) >= CLEANUP_THRESHOLD) {
+                        killedPlayers.incrementAndGet();
+                        cleanup(g, player, guildId);
+                        return;
+                    }
+                }
+                VoiceChannel vc = g.getSelfMember().getVoiceState().getChannel();
                 if (!isPlayingMusic(vc)) {
                     if (!VC_LAST_USED.containsKey(guildId)) {
                         VC_LAST_USED.put(guildId, System.currentTimeMillis());
