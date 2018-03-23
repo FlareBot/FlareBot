@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.music.SkipCommand;
 import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
@@ -45,6 +46,7 @@ import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.general.VariableUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
+import stream.flarebot.flarebot.util.votes.VoteUtil;
 
 import java.awt.Color;
 import java.time.LocalDateTime;
@@ -94,6 +96,9 @@ public class Events extends ListenerAdapter {
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
                     Metrics.buttonsPressed.labels(emote).inc();
+                    if (!event.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        return;
+                    }
                     event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
                         for (MessageReaction reaction : message.getReactions()) {
                             if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
@@ -264,6 +269,12 @@ public class Events extends ListenerAdapter {
                 .hasPlayer(event.getGuild().getId())) {
             flareBot.getMusicManager().getPlayer(event.getGuild().getId()).setPaused(false);
         }
+        if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
+            return;
+        if (VoteUtil.contains(SkipCommand.getSkipUUID(), event.getGuild()) &&
+                event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+            VoteUtil.getVoteGroup(SkipCommand.getSkipUUID(), event.getGuild()).addAllowedUser(event.getMember().getUser());
+        }
     }
 
     @Override
@@ -279,6 +290,12 @@ public class Events extends ListenerAdapter {
             }
         } else {
             handleVoiceConnectivity(event.getChannelLeft());
+        }
+        if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
+            return;
+        if (VoteUtil.contains(SkipCommand.getSkipUUID(), event.getGuild()) &&
+                event.getChannelLeft().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
+            VoteUtil.getVoteGroup(SkipCommand.getSkipUUID(), event.getGuild()).remoreAllowedUser(event.getMember().getUser());
         }
     }
 

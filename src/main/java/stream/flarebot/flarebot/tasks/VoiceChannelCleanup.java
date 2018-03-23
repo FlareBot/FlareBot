@@ -6,7 +6,6 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
@@ -64,6 +63,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
                         if (System.currentTimeMillis() - lastUsed >= CLEANUP_THRESHOLD) {
                             killedVcs.incrementAndGet();
                             guild.getAudioManager().closeAudioConnection();
+                            FlareBot.instance().getMusicManager().getPlayer(guild.getIconId()).getPlaylist().clear();
                             VC_LAST_USED.remove(vc.getIdLong());
                         }
                     }

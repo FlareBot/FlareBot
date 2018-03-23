@@ -2,31 +2,38 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-import net.dv8tion.jda.core.entities.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
-import stream.flarebot.flarebot.FlareBotManager;
+import stream.flarebot.flarebot.Getters;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
-import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.util.MessageUtils;
-import stream.flarebot.flarebot.util.buttons.ButtonUtil;
+import stream.flarebot.flarebot.util.general.FormatUtils;
+import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
+import stream.flarebot.flarebot.util.votes.VoteGroup;
+import stream.flarebot.flarebot.util.votes.VoteUtil;
 
-import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import static stream.flarebot.flarebot.commands.music.SongCommand.getLink;
 
 public class SkipCommand implements Command {
-
-    private Map<String, Map<String, Vote>> votes = new HashMap<>();
-    private Map<String, Boolean> skips = new HashMap<>();
+    private static final UUID skipUUID = UUID.randomUUID();
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
+        boolean songMessage = message.getAuthor().getIdLong() == Getters.getSelfUser().getIdLong();
         PlayerManager musicManager = FlareBot.instance().getMusicManager();
         if (!channel.getGuild().getAudioManager().isConnected() ||
                 musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack() == null) {
@@ -44,6 +51,8 @@ public class SkipCommand implements Command {
         if (args.length == 0 && currentTrack.getMeta().get("requester").equals(sender.getId())) {
             channel.sendMessage("Skipped your own song!").queue();
             musicManager.getPlayer(guild.getGuildId()).skip();
+            if (songMessage)
+                editSong(sender, message, channel);
             return;
         }
 
@@ -53,23 +62,50 @@ public class SkipCommand implements Command {
                 MessageUtils.sendErrorMessage("You cannot skip if you aren't listening to it!", channel);
                 return;
             }
-            if (votes.containsKey(channel.getGuild().getId())) {
-                String yes = String.valueOf(votes.get(channel.getGuild().getId()).values().stream()
-                        .filter(vote -> vote == Vote.YES)
-                        .count());
-                String no = String
-                        .valueOf(votes.get(channel.getGuild().getId()).size() - Long.valueOf(yes));
-                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
-                        .setDescription("Can't start a vote right now! " +
-                                "Another one in progress! Please use `" + guild.getPrefix() + "skip YES|NO` to vote!")
-                        .addField("Votes for YES:", yes, true)
-                        .addField("Votes for NO:", no, true).build()).queue();
-            } else getVotes(channel, member);
+            if (VoteUtil.contains(skipUUID, guild.getGuild()))
+                MessageUtils.sendWarningMessage("There is already a vote to skip current song! Vote with `{%}skip yes | no`", channel, sender);
+            else {
+                VoteGroup group = new VoteGroup("Skip current song", skipUUID);
+                List<User> users = new ArrayList<>();
+                for (Member inChannelMember : channel.getGuild().getSelfMember().getVoiceState().getChannel().getMembers()) {
+                    if (channel.getGuild().getSelfMember().getUser().getIdLong() != inChannelMember.getUser().getIdLong()) {
+                        users.add(inChannelMember.getUser());
+                    }
+                }
+                group.limitUsers(users);
+                VoteUtil.sendVoteMessage(skipUUID, (vote) -> {
+                            if (vote.equals(VoteGroup.Vote.NONE) || vote.equals(VoteGroup.Vote.NO)) {
+                                MessageUtils.sendMessage("Results are in: Keep!", channel);
+                            } else {
+                                MessageUtils.sendMessage("Skipping!", channel);
+                                if (songMessage)
+                                    editSong(sender, message, channel);
+                                musicManager.getPlayer(guild.getGuildId()).skip();
+                            }
+                        }, group, TimeUnit.MINUTES.toMillis(1), channel, sender,
+                        new ButtonGroup.Button("\u23ED", (owner, user, message1) -> {
+                            if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
+                                musicManager.getPlayer(channel.getGuild().getId()).skip();
+                                if (songMessage) {
+                                    editSong(user, message1, channel);
+                                }
+                                musicManager.getPlayer(guild.getGuildId()).skip();
+                                VoteUtil.remove(skipUUID, guild.getGuild());
+                            } else {
+                                channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this button!")
+                                        .queue();
+                            }
+                        }));
+            }
         } else {
             if (args[0].equalsIgnoreCase("force")) {
                 if (getPermissions(channel).hasPermission(member, Permission.SKIP_FORCE)) {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
-                    skips.put(channel.getGuild().getId(), true);
+                    if (songMessage)
+                        editSong(sender, message, channel);
+                    if (VoteUtil.contains(skipUUID, guild.getGuild()))
+                        VoteUtil.remove(skipUUID, guild.getGuild());
+                    musicManager.getPlayer(guild.getGuildId()).skip();
                 } else {
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this command!")
                             .queue();
@@ -78,95 +114,47 @@ public class SkipCommand implements Command {
             } else if (args[0].equalsIgnoreCase("cancel")) {
 
                 if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL)) {
-                    skips.put(channel.getGuild().getId(), true);
-                } else {
+                    if (VoteUtil.contains(skipUUID, channel.getGuild()))
+                        VoteUtil.remove(skipUUID, channel.getGuild());
+                } else
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
                             .queue();
-                }
                 return;
             }
             if (!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
                     channel.getGuild().getMember(sender).getVoiceState().getChannel().getIdLong() != channel.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
-                MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
+                MessageUtils.sendWarningMessage("You cannot vote to skip if you aren't listening to it!", channel);
                 return;
             }
-            Map<String, Vote> mvotes = getVotes(channel, member);
-            if (mvotes == null)
-                return;
-            if (mvotes.containsKey(sender.getId())) {
-                channel.sendMessage(MessageUtils.getEmbed(sender).setColor(new Color(229, 45, 39))
-                        .setDescription("***\u26A0 You already voted! \u26A0***")
-                        .addField("Your vote: ", mvotes.get(sender.getId()).toString(), true)
-                        .build()).queue();
-                return;
-            }
-            try {
-                Vote vote = Vote.valueOf(args[0].toUpperCase());
-                mvotes.put(sender.getId(), vote);
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setDescription(String.format("***Voted for %s***", vote))
-                        .addField("Current votes for " + vote, String
-                                .valueOf(votes.get(channel.getGuild().getId())
-                                        .values().stream().filter(v -> v == vote)
-                                        .count()), true).build()).queue();
-            } catch (IllegalArgumentException e) {
-                channel.sendMessage(MessageUtils.getEmbed(sender)
-                        .setColor(new Color(229, 45, 39))
-                        .setDescription("***\u26A0 Use YES|NO! \u26A0***").build()).queue();
-            }
+            VoteGroup.Vote vote = VoteGroup.Vote.parseVote(args[0]);
+            if (vote != null) {
+                if (!VoteUtil.contains(skipUUID, guild.getGuild()))
+                    MessageUtils.sendWarningMessage("Their is no vote currently running!", channel, sender);
+                else
+                    VoteUtil.getVoteGroup(skipUUID, guild.getGuild()).addVote(vote, sender);
+            } else
+                MessageUtils.sendUsage(this, channel, sender, args);
         }
     }
 
-    private Map<String, Vote> getVotes(TextChannel channel, Member sender) {
-        PlayerManager musicManager = FlareBot.instance().getMusicManager();
-        return this.votes.computeIfAbsent(channel.getGuild().getId(), s -> {
-            AtomicBoolean bool = new AtomicBoolean(false);
-            channel.getGuild().getVoiceChannels().stream().filter(c -> c.equals(sender.getVoiceState().getChannel()))
-                    .findFirst().ifPresent(c -> {
-                if (c.getMembers().size() == 2
-                        && c.equals(channel.getGuild().getSelfMember().getVoiceState().getChannel())) {
-                    bool.set(true);
-                    musicManager.getPlayer(s).skip();
-                }
-            });
-            if (bool.get()) {
-                channel.sendMessage(MessageUtils.getEmbed(sender.getUser())
-                        .setDescription("You were the only person in the channel.\nSkipping!")
-                        .build()).queue();
-                return null;
-            }
-            new FlareBotTask("Vote " + s) {
+    public void editSong(User sender, Message message, TextChannel channel) {
+        Track track = FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlayingTrack();
+        if (track == null)
+            return;
+        EmbedBuilder eb = MessageUtils.getEmbed(sender)
+                .addField("Current Song", getLink(track), false)
+                .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg");
+        if (track.getTrack().getInfo().isStream)
+            eb.addField("Amount Played", "Issa livestream ;)", false);
+        else
+            eb.addField("Amount Played", GeneralUtils.getProgressBar(track), true)
+                    .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
+                            FormatUtils.formatDuration(track.getTrack().getDuration())), false);
+        message.editMessage(eb.build()).queue();
+    }
 
-                @Override
-                public void run() {
-                    if (skips.getOrDefault(s, false)) {
-                        skips.remove(s);
-                        votes.remove(s);
-                        return;
-                    }
-                    long yesCount = votes.get(s).entrySet().stream()
-                            .filter(e -> e.getValue() == Vote.YES)
-                            .count();
-                    boolean skip = yesCount > (votes.get(s).size() - yesCount);
-                    channel.sendMessage(MessageUtils.getEmbed()
-                            .setDescription("The votes are in!")
-                            .addField("Results: ", (skip ? "Skip!" : "Keep!"), false).build())
-                            .queue();
-                    if (skip)
-                        musicManager.getPlayer(s).skip();
-                    votes.remove(s);
-                }
-            }.delay(TimeUnit.SECONDS.toMillis(20));
-
-            ButtonGroup buttons = new ButtonGroup(sender.getUser().getIdLong());
-            addButtons(buttons, channel);
-
-            ButtonUtil.sendButtonedMessage(channel, MessageUtils.getEmbed(sender.getUser()).setDescription("The vote to skip **" +
-                    musicManager.getPlayer(channel.getGuild().getId()).getPlayingTrack().getTrack().getInfo().title
-                    + "** has started!\nUse " + FlareBotManager.instance().getGuild(channel.getGuild().getId()).getPrefix() + "skip YES|NO to vote!")
-                    .build(), buttons);
-            return new HashMap<>();
-        });
+    public static UUID getSkipUUID() {
+        return skipUUID;
     }
 
     @Override
@@ -195,83 +183,5 @@ public class SkipCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
-    }
-
-    private enum Vote {
-        YES,
-        NO;
-
-        @Override
-        public String toString() {
-            return Character.toUpperCase(name().charAt(0)) + name().substring(1);
-        }
-    }
-
-    private void addButtons(ButtonGroup buttons, TextChannel channel) {
-        VoiceChannel vc = channel.getGuild().getSelfMember().getVoiceState().getChannel();
-        buttons.addButton(new ButtonGroup.Button(355776056092917761L, (owner, user, message) -> {
-            if (!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || channel.getGuild().getMember(user).getVoiceState().getChannel().getIdLong() != vc.getIdLong()) {
-                MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
-                return;
-            }
-            if (votes.containsKey(channel.getGuild().getId())) {
-                Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
-                if (voteMap.containsKey(user.getId())) {
-                    channel.sendMessage(MessageUtils.getEmbed(user).setColor(new Color(229, 45, 39))
-                            .setDescription("***\u26A0 You already voted! \u26A0***")
-                            .addField("Your vote: ", voteMap.get(user.getId()).toString(), true)
-                            .build()).queue();
-                } else {
-                    voteMap.put(user.getId(), Vote.YES);
-                    votes.put(channel.getGuild().getId(), voteMap);
-                    Vote vote = Vote.YES;
-                    channel.sendMessage(MessageUtils.getEmbed(user)
-                            .setDescription(String.format("***Voted for %s***", vote))
-                            .addField("Current votes for " + vote, String
-                                    .valueOf(votes.get(channel.getGuild().getId())
-                                            .values().stream().filter(v -> v == vote)
-                                            .count()), true).build()).queue();
-                }
-            } else {
-                MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
-            }
-        }));
-        buttons.addButton(new ButtonGroup.Button(355776081384570881L, (owner, user, message) -> {
-            if (!channel.getGuild().getMember(user).getVoiceState().inVoiceChannel() || channel.getGuild().getMember(user).getVoiceState().getChannel().getIdLong() != vc.getIdLong()) {
-                MessageUtils.sendErrorMessage("You cannot vote to skip if you aren't listening to it!", channel);
-                return;
-            }
-            if (votes.containsKey(channel.getGuild().getId())) {
-                Map<String, Vote> voteMap = votes.get(channel.getGuild().getId());
-                if (voteMap.containsKey(user.getId())) {
-                    channel.sendMessage(MessageUtils.getEmbed(user).setColor(new Color(229, 45, 39))
-                            .setDescription("***\u26A0 You already voted! \u26A0***")
-                            .addField("Your vote: ", voteMap.get(user.getId()).toString(), true)
-                            .build()).queue();
-                } else {
-                    voteMap.put(user.getId(), Vote.NO);
-                    votes.put(channel.getGuild().getId(), voteMap);
-                    Vote vote = Vote.NO;
-                    channel.sendMessage(MessageUtils.getEmbed(user)
-                            .setDescription(String.format("***Voted for %s***", vote))
-                            .addField("Current votes for " + vote, String
-                                    .valueOf(votes.get(channel.getGuild().getId())
-                                            .values().stream().filter(v -> v == vote)
-                                            .count()), true).build()).queue();
-                }
-            } else {
-                MessageUtils.sendErrorMessage(user.getAsMention() + " we currently don't have a vote running.", channel);
-            }
-        }));
-        buttons.addButton(new ButtonGroup.Button("\u23ED", (owner, user, message) -> {
-            PlayerManager musicManager = FlareBot.instance().getMusicManager();
-            if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
-                musicManager.getPlayer(channel.getGuild().getId()).skip();
-                skips.put(channel.getGuild().getId(), true);
-            } else {
-                channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this button!")
-                        .queue();
-            }
-        }));
     }
 }
