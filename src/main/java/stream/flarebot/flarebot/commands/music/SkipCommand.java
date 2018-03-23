@@ -63,7 +63,7 @@ public class SkipCommand implements Command {
                 return;
             }
             if (VoteUtil.contains(skipUUID, guild.getGuild()))
-                MessageUtils.sendWarningMessage("Their is already a vote to skip current song! Vote with `{%}skip yes | no`", channel, sender);
+                MessageUtils.sendWarningMessage("There is already a vote to skip current song! Vote with `{%}skip yes | no`", channel, sender);
             else {
                 VoteGroup group = new VoteGroup("Skip current song", skipUUID);
                 List<User> users = new ArrayList<>();
@@ -113,12 +113,12 @@ public class SkipCommand implements Command {
                 return;
             } else if (args[0].equalsIgnoreCase("cancel")) {
 
-                if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL))
-                    if (VoteUtil.contains(skipUUID, channel.getGuild())) {
+                if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL)) {
+                    if (VoteUtil.contains(skipUUID, channel.getGuild()))
                         VoteUtil.remove(skipUUID, channel.getGuild());
-                    } else
-                        channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
-                                .queue();
+                } else
+                    channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
+                            .queue();
                 return;
             }
             if (!channel.getGuild().getMember(sender).getVoiceState().inVoiceChannel() ||
