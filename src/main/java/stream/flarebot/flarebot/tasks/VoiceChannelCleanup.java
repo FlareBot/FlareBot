@@ -94,8 +94,8 @@ public class VoiceChannelCleanup extends FlareBotTask {
                     return;
                 }
 
-                if (guild.getSelfMember().getVoiceState() == null || 
-                    guild.getSelfMember().getVoiceState().getChannel() == null) {
+                if (g.getSelfMember().getVoiceState() == null || 
+                    g.getSelfMember().getVoiceState().getChannel() == null) {
                     if (!VC_LAST_USED.containsKey(guildId)) {
                         VC_LAST_USED.put(guildId, System.currentTimeMillis());
                         return;
