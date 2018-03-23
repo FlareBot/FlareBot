@@ -118,6 +118,9 @@ public class VoiceChannelCleanup extends FlareBotTask {
                         killedPlayers.incrementAndGet();
                         cleanup(g, player, guildId);
                     }
+                } else {
+                    if (VC_LAST_USED.containsKey(guildId))
+                        VC_LAST_USED.remove(guildId);
                 }
             } catch (Exception e) {
                 logger.error("Failed to check {} for inactive player!", player.getGuildId(), e);
