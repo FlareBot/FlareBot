@@ -27,10 +27,11 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
     @Override
     public void run() {
-        cleanup();
+        cleanupVoiceChannels();
+        cleanupPlayers();
     }
 
-    private void cleanup() {
+    private void cleanupVoiceChannels() {
         logger.info("Checking for guilds with an inactive voice channel");
         final AtomicInteger totalGuilds = new AtomicInteger(0);
         final AtomicInteger totalVcs = new AtomicInteger(0);
@@ -48,8 +49,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
                     if (getHumansInChannel(vc) == 0) {
                         killedVcs.incrementAndGet();
-                        VC_LAST_USED.remove(vc.getIdLong());
-                        guild.getAudioManager().closeAudioConnection();
+                        cleanup(guild, FlareBot.instance().getMusicManager().getPlayer(guild.getId()), vc.getIdLong());
                     } else if (isPlayingMusic(vc)) {
                         VC_LAST_USED.put(vc.getIdLong(), System.currentTimeMillis());
                     } else {
@@ -62,9 +62,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
                         if (System.currentTimeMillis() - lastUsed >= CLEANUP_THRESHOLD) {
                             killedVcs.incrementAndGet();
-                            guild.getAudioManager().closeAudioConnection();
-                            FlareBot.instance().getMusicManager().getPlayer(guild.getIconId()).getPlaylist().clear();
-                            VC_LAST_USED.remove(vc.getIdLong());
+                            cleanup(guild, FlareBot.instance().getMusicManager().getPlayer(guild.getId()), vc.getIdLong());
                         }
                     }
                 }
@@ -76,6 +74,53 @@ public class VoiceChannelCleanup extends FlareBotTask {
         logger.info("Checked {} guilds for inactive voice channels.", totalGuilds.get());
         logger.info("Killed {} out of {} voice connections!", killedVcs.get(), totalVcs.get());
         Metrics.voiceChannelsCleanedUp.inc(killedVcs.get());
+    }
+    
+    private void cleanupPlayers() {
+        logger.info("Checking for players which are inactive");
+        final AtomicInteger totalPlayers = new AtomicInteger(0);
+        final AtomicInteger killedPlayers = new AtomicInteger(0);
+
+        FlareBot.instance().getMusicManager().getPlayers().forEach(player -> {
+            try {
+                totalPlayers.incrementAndGet();
+                long guildId = Long.parseLong(player.getGuildId());
+                
+                Guild g = Getters.getGuildById(guildId);
+                if (g == null) {
+                    cleanup(g, player, guildId);
+                    killedPlayers.incrementAndGet();
+                    return;
+                }
+
+                VoiceChannel vc = guild.getSelfMember().getVoiceState().getChannel();
+                if (!isPlayingMusic(vc)) {
+                    if (!VC_LAST_USED.containsKey(guildId)) {
+                        VC_LAST_USED.put(guildId, System.currentTimeMillis());
+                        return;
+                    }
+
+                    if (System.currentTimeMillis() - VC_LAST_USED.get(guildId) >= CLEANUP_THRESHOLD) {
+                        killedPlayers.incrementAndGet();
+                        cleanup(g, player, guildId);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Failed to check {} for inactive player!", player.getGuildId(), e);
+            }
+        });
+
+        logger.info("Checked {} players for inactivity.", totalPlayers.get());
+        logger.info("Killed {} out of {} players!", killedPlayers.get(), totalPlayers.get());
+        //Metrics.voiceChannelsCleanedUp.inc(killedPlayers.get());
+    }
+    
+    private void cleanup(Guild guild, Player player, long id) {
+        if (guild != null)
+            guild.getAudioManager().closeAudioConnection();
+        player.getPlaylist().clear();
+        player.getPlayer().destroy();
+        VC_LAST_USED.remove(id);
     }
 
     private int getHumansInChannel(VoiceChannel channel) {
