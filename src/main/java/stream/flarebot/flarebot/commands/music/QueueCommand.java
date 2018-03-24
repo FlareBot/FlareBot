@@ -26,9 +26,6 @@ public class QueueCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
-        if (message.getContentRaw().substring(1).startsWith("playlist")) {
-            MessageUtils.sendWarningMessage("This command is deprecated! Please use `{%}queue` instead!", channel);
-        }
         PlayerManager manager = FlareBot.instance().getMusicManager();
         if (message.getContentRaw().substring(1).startsWith("playlist")) {
             MessageUtils.sendWarningMessage("This command is deprecated! Please use `{%}queue` instead!", channel);
