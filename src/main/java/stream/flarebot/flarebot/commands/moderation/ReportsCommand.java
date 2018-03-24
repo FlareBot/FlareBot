@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.objects.Report;
 import stream.flarebot.flarebot.objects.ReportStatus;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
@@ -64,7 +65,7 @@ public class ReportsCommand implements Command {
                         if (args.length == 2) {
                             page = GeneralUtils.getInt(args[1], 0);
                         }
-                        PaginationUtil.sendPagedMessage(channel, tb.build(), page, sender);
+                        PaginationUtil.sendPagedMessage(channel, tb.build(), page, sender, ButtonGroupConstants.REPORTS_LIST);
                     } else {
                         MessageUtils.sendErrorMessage("You need the permission `" + Permission.REPORTS_LIST + "`", channel);
                     }

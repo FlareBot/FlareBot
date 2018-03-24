@@ -58,14 +58,14 @@ public class PaginationUtil {
      * @param page        The starting page
      * @param sender      The member who requested the button
      */
-    public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page, User sender) {
+    public static void sendPagedMessage(TextChannel textChannel, PaginationList list, int page, User sender, String group) {
         if (page < 0 || page > list.getPages() - 1) {
             MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + list.getPages(), textChannel);
             return;
         }
         Integer[] pages = new Integer[]{page};
         if (list.getPages() > 1) {
-            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong());
+            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong(), group);
             buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (ownerID, user, message) -> {
                 //Start
                 pages[0] = 0;
@@ -115,13 +115,13 @@ public class PaginationUtil {
      * @param channel    The channel to send the paged message to.
      * @param sender     The user who requested the embed
      */
-    public static void sendEmbedPagedMessage(PagedEmbedBuilder.PagedEmbed pagedEmbed, int page, TextChannel channel, User sender) {
+    public static void sendEmbedPagedMessage(PagedEmbedBuilder.PagedEmbed pagedEmbed, int page, TextChannel channel, User sender, String group) {
         if (page < 0 || page > pagedEmbed.getPageTotal() - 1) {
             MessageUtils.sendErrorMessage("Invalid page: " + (page + 1) + " Total Pages: " + pagedEmbed.getPageTotal(), channel);
             return;
         }
         if (!pagedEmbed.isSinglePage()) {
-            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong());
+            ButtonGroup buttonGroup = new ButtonGroup(sender.getIdLong(), group);
             Integer[] pages = new Integer[]{page};
             buttonGroup.addButton(new ButtonGroup.Button("\u23EE", (ownerID, user, message) -> {
                 //Start

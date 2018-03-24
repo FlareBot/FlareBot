@@ -6,6 +6,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
@@ -41,7 +42,7 @@ public class RolesCommand implements Command {
                     PaginationUtil.SplitMethod.NEW_LINES, 20))
                     .setTitle("Roles")
                     .setCodeBlock("js")
-                    .build(), page - 1, channel, sender);
+                    .build(), page - 1, channel, sender, ButtonGroupConstants.ROLES);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }

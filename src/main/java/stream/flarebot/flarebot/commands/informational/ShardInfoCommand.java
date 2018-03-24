@@ -12,6 +12,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ShardUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.pagination.PagedTableBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
@@ -44,7 +45,7 @@ public class ShardInfoCommand implements Command {
                     .getSelfMember())).count()));
             tb.addRow(row);
         }
-        PaginationUtil.sendPagedMessage(channel, tb.build(), 0, sender);
+        PaginationUtil.sendPagedMessage(channel, tb.build(), 0, sender, ButtonGroupConstants.SHARDINFO);
     }
 
     @Override

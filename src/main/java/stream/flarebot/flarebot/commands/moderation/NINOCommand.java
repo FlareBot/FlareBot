@@ -5,7 +5,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.nino.URLCheckFlag;
@@ -13,6 +12,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
@@ -240,6 +240,6 @@ public class NINOCommand implements Command {
         PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(list);
         pagedEmbedBuilder.useGroups(4, "Message #");
         pagedEmbedBuilder.setTitle("NINO Message List");
-        PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), page - 1, channel, user);
+        PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), page - 1, channel, user, ButtonGroupConstants.NINO);
     }
 }

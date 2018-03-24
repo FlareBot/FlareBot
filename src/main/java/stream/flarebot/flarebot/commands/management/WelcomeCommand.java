@@ -9,6 +9,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
@@ -202,6 +203,6 @@ public class WelcomeCommand implements Command {
         PagedEmbedBuilder<String> pe = new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list + "\n", PaginationUtil.SplitMethod.CHAR_COUNT, 1024));
         pe.setTitle("Welcome Messages");
         pe.setCodeBlock("md");
-        PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, user);
+        PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, user, ButtonGroupConstants.WELCOME_LIST);
     }
 }

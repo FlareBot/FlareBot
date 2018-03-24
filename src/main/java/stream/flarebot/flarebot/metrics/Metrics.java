@@ -80,7 +80,7 @@ public class Metrics {
     public static final Counter buttonsPressed = Counter.build()
             .name("flarebot_buttons_pressed_total")
             .help("Total number of times a button was pressed")
-            .labelNames("button")
+            .labelNames("button", "group")
             .register();
 
     // Commands

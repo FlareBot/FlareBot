@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.music.extractors.YouTubeExtractor;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
@@ -103,7 +104,7 @@ public class QueueCommand implements Command {
                     // 21 for 10 per page. 2 new lines per song and 1 more because it's annoying
                     .collect(Collectors.joining("\n")) + "\n", PaginationUtil.SplitMethod.NEW_LINES, 21))
                     .setTitle("Queued Songs");
-            PaginationUtil.sendEmbedPagedMessage(pe.build(), 0, channel, sender.getUser());
+            PaginationUtil.sendEmbedPagedMessage(pe.build(), 0, channel, sender.getUser(), ButtonGroupConstants.QUEUE);
         } else {
             MessageUtils.sendErrorMessage(MessageUtils.getEmbed().setDescription("No songs in the playlist!"), channel);
         }

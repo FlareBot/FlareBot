@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.mod.modlog.ModlogAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
@@ -56,7 +57,7 @@ public class ModlogCommand implements Command {
                         tb.addRow(part);
                     }
                 }
-                PaginationUtil.sendPagedMessage(channel, tb.build(), page - 1, sender);
+                PaginationUtil.sendPagedMessage(channel, tb.build(), page - 1, sender, ButtonGroupConstants.MODLOG_LIST);
                 return;
             }
             if (args[0].equalsIgnoreCase("features")) {
@@ -259,7 +260,7 @@ public class ModlogCommand implements Command {
         PaginationUtil.sendEmbedPagedMessage(
                 new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(sb.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1024))
                         .setTitle("Modlog Events")
-                        .build(), page - 1, channel, user);
+                        .build(), page - 1, channel, user, ButtonGroupConstants.MODLOG_FEATURES);
 
     }
 }

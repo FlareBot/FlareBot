@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
@@ -123,7 +124,7 @@ public class PermissionsCommand implements Command {
                             pe.setTitle("Permissions for the group: " + group.getName());
                             pe.enableCodeBlock();
 
-                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, sender);
+                            PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, sender, ButtonGroupConstants.PERMISSIONS_GROUP);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("massadd")) {
@@ -251,7 +252,7 @@ public class PermissionsCommand implements Command {
                                         PaginationUtil.SplitMethod.NEW_LINES, 25))
                                         .setTitle("Groups for " + MessageUtils.getTag(user)).enableCodeBlock();
 
-                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel, sender);
+                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel, sender, ButtonGroupConstants.PERMISSIONS_USER_GROUPS);
                                 return;
                             }
                         }
@@ -294,7 +295,7 @@ public class PermissionsCommand implements Command {
                                         new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(list, PaginationUtil.SplitMethod.NEW_LINES, 25));
                                 pe.setTitle("Permissions for " + MessageUtils.getTag(user));
                                 pe.enableCodeBlock();
-                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel, sender);
+                                PaginationUtil.sendEmbedPagedMessage(pe.build(), page, channel, sender, ButtonGroupConstants.PERMISSIONS_USER_PERMISSIONS);
                                 return;
                             }
                         }
@@ -313,7 +314,7 @@ public class PermissionsCommand implements Command {
                             PagedEmbedBuilder<String> embedBuilder =
                                     new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(perms, PaginationUtil.SplitMethod.NEW_LINES, 20));
                             embedBuilder.setTitle("Permissions for " + MessageUtils.getTag(user));
-                            PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel, sender);
+                            PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel, sender, ButtonGroupConstants.PERMISSIONS_USER_CHECK);
                             return;
                         }
                     } else if (args[2].equalsIgnoreCase("clear")) {
@@ -345,7 +346,7 @@ public class PermissionsCommand implements Command {
                             new PagedEmbedBuilder<>(PaginationUtil.splitStringToList(stringBuilder.toString(), PaginationUtil.SplitMethod.NEW_LINES, 20));
                     pe.setTitle("Groups");
                     pe.enableCodeBlock();
-                    PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, sender);
+                    PaginationUtil.sendEmbedPagedMessage(pe.build(), page - 1, channel, sender, ButtonGroupConstants.PERMISSIONS_GROUPS);
                     return;
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
@@ -365,7 +366,7 @@ public class PermissionsCommand implements Command {
                                 20
                         ));
                 embedBuilder.setTitle("Permissions");
-                PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel, sender);
+                PaginationUtil.sendEmbedPagedMessage(embedBuilder.build(), 0, channel, sender, ButtonGroupConstants.PERMISSIONS_LIST);
                 return;
             } else if (args[0].equalsIgnoreCase("reset")) {
                 guild.setPermissions(new PerGuildPermissions());

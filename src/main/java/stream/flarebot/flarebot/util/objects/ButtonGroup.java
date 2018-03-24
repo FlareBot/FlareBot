@@ -14,10 +14,12 @@ public class ButtonGroup {
 
     private List<Button> buttons;
     private long ownerID;
+    private String name;
 
-    public ButtonGroup(long ownerID) {
+    public ButtonGroup(long ownerID, String name) {
         this.ownerID = ownerID;
         buttons = new ArrayList<>();
+        this.name = name;
     }
 
     /**
@@ -36,6 +38,10 @@ public class ButtonGroup {
 
     public long getOwner() {
         return ownerID;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public static class Button {

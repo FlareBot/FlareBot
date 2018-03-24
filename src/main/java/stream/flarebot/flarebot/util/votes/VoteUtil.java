@@ -21,7 +21,7 @@ public class VoteUtil {
     private static Map<String, VoteGroup> groupMap = new ConcurrentHashMap<>();
     private static Map<String, VoteGroup.VoteRunnable> runnableMap = new ConcurrentHashMap<>();
 
-    public static void sendVoteMessage(UUID id, VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, User user, ButtonGroup.Button... optionalButtons) {
+    public static void sendVoteMessage(UUID id, VoteGroup.VoteRunnable voteRunnable, VoteGroup group, long timeout, TextChannel channel, User user, String buttonGroupString, ButtonGroup.Button... optionalButtons) {
         EmbedBuilder votesEmbed = new EmbedBuilder()
                 .setDescription("Vote to " + group.getMessageDesc())
                 .addField("Yes", "0", true)
@@ -29,7 +29,7 @@ public class VoteUtil {
         String messageDesc = group.getMessageDesc();
         votesEmbed.setColor(ColorUtils.FLAREBOT_BLUE);
         group.setVotesEmbed(votesEmbed);
-        ButtonGroup buttonGroup = new ButtonGroup(user.getIdLong());
+        ButtonGroup buttonGroup = new ButtonGroup(user.getIdLong(), buttonGroupString);
 
         groupMap.put(id + channel.getGuild().getId(), group);
         runnableMap.put(id + channel.getGuild().getId(), voteRunnable);

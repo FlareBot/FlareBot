@@ -102,7 +102,7 @@ public class Events extends ListenerAdapter {
                     });
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
-                    Metrics.buttonsPressed.labels(emote).inc();
+                    Metrics.buttonsPressed.labels(emote, ButtonUtil.getButtonGroup(event.getMessageId()).getName()).inc();
                     if (!event.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                         return;
                     }

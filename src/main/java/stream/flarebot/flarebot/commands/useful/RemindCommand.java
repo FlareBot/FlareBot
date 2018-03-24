@@ -13,6 +13,7 @@ import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
@@ -48,7 +49,7 @@ public class RemindCommand implements Command {
                     PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(PaginationUtil
                             .splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
                     pagedEmbedBuilder.setTitle("Reminders for " + MessageUtils.getTag(sender));
-                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel, sender);
+                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel, sender, ButtonGroupConstants.REMIND_LIST);
                 } else if (args[0].equalsIgnoreCase("clear")) {
                     Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
                     for (FutureAction action : futureActions) {

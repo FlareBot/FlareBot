@@ -20,6 +20,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
@@ -82,7 +83,7 @@ public class SkipCommand implements Command {
                                     editSong(sender, message, channel);
                                 musicManager.getPlayer(guild.getGuildId()).skip();
                             }
-                        }, group, TimeUnit.MINUTES.toMillis(1), channel, sender,
+                        }, group, TimeUnit.MINUTES.toMillis(1), channel, sender, ButtonGroupConstants.VOTE_SKIP,
                         new ButtonGroup.Button("\u23ED", (owner, user, message1) -> {
                             if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
                                 musicManager.getPlayer(channel.getGuild().getId()).skip();

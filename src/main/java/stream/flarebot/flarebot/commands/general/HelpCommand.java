@@ -7,6 +7,7 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationList;
@@ -50,7 +51,7 @@ public class HelpCommand implements Command {
                 PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
                 builder.setTitle("***FlareBot " + type + " commands!***");
                 builder.setColor(Color.CYAN);
-                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender);
+                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender, ButtonGroupConstants.HELP);
             } else {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
             }
@@ -87,7 +88,7 @@ public class HelpCommand implements Command {
         }
         PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
         builder.setColor(Color.CYAN);
-        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender);
+        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender, ButtonGroupConstants.HELP);
     }
 
     @Override
