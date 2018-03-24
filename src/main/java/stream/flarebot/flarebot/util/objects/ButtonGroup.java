@@ -73,8 +73,11 @@ public class ButtonGroup {
             this.message = message;
             if (unicode != null)
                 message.addReaction(unicode).queue();
-            else
-                message.addReaction(Getters.getEmoteById(emoteId)).queue();
+            else {
+                try {
+                    message.addReaction(Getters.getEmoteById(emoteId)).queue();
+                } catch (IllegalArgumentException ignored) {}
+            }
         }
 
         public void onClick(long ownerID, User user) {
