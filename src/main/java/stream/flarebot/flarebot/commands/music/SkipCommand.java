@@ -103,8 +103,7 @@ public class SkipCommand implements Command {
                     musicManager.getPlayer(channel.getGuild().getId()).skip();
                     if (songMessage)
                         editSong(sender, message, channel);
-                    if (VoteUtil.contains(skipUUID, guild.getGuild()))
-                        VoteUtil.remove(skipUUID, guild.getGuild());
+                    VoteUtil.remove(skipUUID, guild.getGuild());
                     musicManager.getPlayer(guild.getGuildId()).skip();
                 } else {
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_FORCE + "` which is required for use of this command!")
@@ -114,8 +113,7 @@ public class SkipCommand implements Command {
             } else if (args[0].equalsIgnoreCase("cancel")) {
 
                 if (getPermissions(channel).hasPermission(member, Permission.SKIP_CANCEL)) {
-                    if (VoteUtil.contains(skipUUID, channel.getGuild()))
-                        VoteUtil.remove(skipUUID, channel.getGuild());
+                    VoteUtil.remove(skipUUID, channel.getGuild());
                 } else
                     channel.sendMessage("You are missing the permission `" + Permission.SKIP_CANCEL + "` which is required for use of this command!")
                             .queue();
