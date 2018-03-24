@@ -46,6 +46,7 @@ public class AnalyticsHandler {
                 @Override
                 public void run() {
                     JSONObject data = sender.processData();
+                    if (data == null) return;
                     try {
                         FlareBot.getLog(this.getClass()).debug("Sending analytics to " + sender.endpoint()
                                 + " with body: `" + data.toString() + "`");
