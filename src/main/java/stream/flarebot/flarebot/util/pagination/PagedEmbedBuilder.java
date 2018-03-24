@@ -2,6 +2,9 @@ package stream.flarebot.flarebot.util.pagination;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import stream.flarebot.flarebot.Getters;
+import stream.flarebot.flarebot.util.ColorUtils;
+import stream.flarebot.flarebot.util.Constants;
 
 import java.awt.Color;
 import java.util.List;
@@ -66,7 +69,9 @@ public class PagedEmbedBuilder<T> {
      */
     public PagedEmbed build() {
         boolean pageCounts = false;
-        if (list.getPages() > 1)
+        int pages = list.getPages() < groupsPerPage ? 1 : (list.getPages() / groupsPerPage) +
+                (list.getPages() % groupsPerPage != 0 ? 1 : 0);
+        if (pages > 1)
             pageCounts = true;
         return new PagedEmbed(title, codeBlock, hasCodeBlock, list, pageCounts, color, groupPrefix, groupsPerPage);
     }
@@ -135,7 +140,7 @@ public class PagedEmbedBuilder<T> {
          * @return the {@link MessageEmbed} page.
          */
         public MessageEmbed getEmbed(int page) {
-            EmbedBuilder pageEmbed = new EmbedBuilder();
+            EmbedBuilder pageEmbed = new EmbedBuilder().setColor(ColorUtils.FLAREBOT_BLUE);
             if (title != null)
                 pageEmbed.setTitle(title);
             if(useGroups) {

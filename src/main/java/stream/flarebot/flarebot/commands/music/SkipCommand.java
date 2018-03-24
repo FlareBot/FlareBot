@@ -100,7 +100,6 @@ public class SkipCommand implements Command {
         } else {
             if (args[0].equalsIgnoreCase("force")) {
                 if (getPermissions(channel).hasPermission(member, Permission.SKIP_FORCE)) {
-                    musicManager.getPlayer(channel.getGuild().getId()).skip();
                     if (songMessage)
                         editSong(sender, message, channel);
                     VoteUtil.remove(skipUUID, guild.getGuild());
