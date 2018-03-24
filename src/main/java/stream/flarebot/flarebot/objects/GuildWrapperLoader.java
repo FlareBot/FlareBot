@@ -26,6 +26,8 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
 
     private List<Long> loadTimes = new CopyOnWriteArrayList<>();
 
+    public static final char[] ALLOWED_SPECIAL_CHARACTERS = {'$', '_', ' ', '&', '%', '£', '!', '*', '@', '#', ':'};
+
     @Override
     @ParametersAreNonnullByDefault
     public GuildWrapper load(String id) {
@@ -70,7 +72,15 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
                 throw new IllegalArgumentException("Invalid JSON! '" + json + "'", e1);
             }
             if (!data.getLong("dataVersion").isPresent()) {
-                data = firstMigration(data);
+                try {
+                    data = firstMigration(data);
+                } catch (Exception e1) {
+                    FlareBot.LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
+                            "Guild ID: " + id + "\n" +
+                            "Guild JSON: " + json + "\n" +
+                            "Error: " + e.getMessage(), e);
+                    throw new IllegalArgumentException("Invalid JSON! '" + json + "'", e1);
+                }
                 data.set("dataVersion", 1);
             }
 
@@ -111,11 +121,13 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
     private JSONConfig firstMigration(JSONConfig data) {
         if (data.getSubConfig("permissions.groups").isPresent()) {
             List<Group> groups = new ArrayList<>();
+            data.setAllowedSpecialCharacters(ALLOWED_SPECIAL_CHARACTERS);
             JSONConfig config = data.getSubConfig("permissions.groups").get();
             for (String s : config.getKeys(false)) {
-                if (config.getElement(s).isPresent())
+                if (config.getElement(s).isPresent()) {
                     groups.add(FlareBot.GSON.fromJson(config.getElement(s).get().getAsJsonObject().toString(),
-                        Group.class));
+                            Group.class));
+                }
             }
             data.set("permissions.groups", groups);
         }
