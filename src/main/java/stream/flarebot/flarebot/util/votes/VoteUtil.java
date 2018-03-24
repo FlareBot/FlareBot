@@ -80,6 +80,7 @@ public class VoteUtil {
 
     public static void remove(UUID uuid, Guild guild) {
         VoteGroup group = groupMap.get(uuid + guild.getId());
+        if (group == null) return;
         String message = group.getVoteMessage().getId();
         groupMap.remove(uuid + guild.getId());
         Scheduler.cancelTask("Vote-" + message);

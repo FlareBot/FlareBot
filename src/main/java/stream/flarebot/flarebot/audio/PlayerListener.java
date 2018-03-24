@@ -12,11 +12,13 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.Getters;
+import stream.flarebot.flarebot.commands.music.SkipCommand;
 import stream.flarebot.flarebot.commands.music.SongCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
+import stream.flarebot.flarebot.util.votes.VoteUtil;
 
 public class PlayerListener extends AudioEventAdapter {
 
@@ -34,6 +36,8 @@ public class PlayerListener extends AudioEventAdapter {
         if (player.getPlaylist().isEmpty()) {
             FlareBotManager.instance().getLastActive().put(Long.parseLong(player.getGuildId()), System.currentTimeMillis());
         }
+
+        VoteUtil.remove(SkipCommand.getSkipUUID(), wrapper.getGuild());
 
         if (wrapper.isSongnickEnabled()) {
             if (GuildUtils.canChangeNick(player.getGuildId())) {
