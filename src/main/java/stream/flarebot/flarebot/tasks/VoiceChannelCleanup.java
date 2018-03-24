@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class VoiceChannelCleanup extends FlareBotTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(VoiceChannelCleanup.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VoiceChannelCleanup.class);
     public static final Map<Long, Long> VC_LAST_USED = new HashMap<>();
     private static final long CLEANUP_THRESHOLD = 15 * 60 * 1000;
 
@@ -33,7 +33,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
     }
 
     private void cleanupVoiceChannels() {
-        logger.info("Checking for guilds with an inactive voice channel");
+        LOGGER.info("Checking for guilds with an inactive voice channel");
         final AtomicInteger totalGuilds = new AtomicInteger(0);
         final AtomicInteger totalVcs = new AtomicInteger(0);
         final AtomicInteger killedVcs = new AtomicInteger(0);
@@ -68,17 +68,17 @@ public class VoiceChannelCleanup extends FlareBotTask {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Failed to check {} for inactive voice connection!", guild.getIdLong(), e);
+                LOGGER.error("Failed to check {} for inactive voice connection!", guild.getIdLong(), e);
             }
         });
 
-        logger.info("Checked {} guilds for inactive voice channels.", totalGuilds.get());
-        logger.info("Killed {} out of {} voice connections!", killedVcs.get(), totalVcs.get());
+        LOGGER.info("Checked {} guilds for inactive voice channels.", totalGuilds.get());
+        LOGGER.info("Killed {} out of {} voice connections!", killedVcs.get(), totalVcs.get());
         Metrics.voiceChannelsCleanedUp.inc(killedVcs.get());
     }
     
     private void cleanupPlayers() {
-        logger.info("Checking for players which are inactive");
+        LOGGER.info("Checking for players which are inactive");
         final AtomicInteger totalPlayers = new AtomicInteger(0);
         final AtomicInteger killedPlayers = new AtomicInteger(0);
 
@@ -123,12 +123,12 @@ public class VoiceChannelCleanup extends FlareBotTask {
                         VC_LAST_USED.remove(guildId);
                 }
             } catch (Exception e) {
-                logger.error("Failed to check {} for inactive player!", player.getGuildId(), e);
+                LOGGER.error("Failed to check {} for inactive player!", player.getGuildId(), e);
             }
         });
 
-        logger.info("Checked {} players for inactivity.", totalPlayers.get());
-        logger.info("Killed {} out of {} players!", killedPlayers.get(), totalPlayers.get());
+        LOGGER.info("Checked {} players for inactivity.", totalPlayers.get());
+        LOGGER.info("Killed {} out of {} players!", killedPlayers.get(), totalPlayers.get());
         //Metrics.voiceChannelsCleanedUp.inc(killedPlayers.get());
     }
     
