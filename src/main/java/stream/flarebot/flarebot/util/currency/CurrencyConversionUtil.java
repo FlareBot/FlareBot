@@ -1,5 +1,6 @@
 package stream.flarebot.flarebot.util.currency;
 
+import com.google.gson.JsonSyntaxException;
 import io.github.binaryoverload.JSONConfig;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -47,7 +48,12 @@ public class CurrencyConversionUtil {
         Response res = WebUtils.get(new Request.Builder().get().url(CurrencyApiRoutes.CrytoApi.BASIC_TICKER.getCompiledUrl("usd", currency)));
         if (!res.isSuccessful() || res.body() == null) throw new IOException();
 
-        JSONConfig config = new JSONConfig(res.body().byteStream());
+        JSONConfig config;
+        try {
+            config = new JSONConfig(res.body().byteStream());
+        } catch (JsonSyntaxException ignored) {
+            return false;
+        }
         if (config.getBoolean("success").isPresent()) {
             return config.getBoolean("success").get();
         }
