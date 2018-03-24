@@ -90,7 +90,7 @@ public class PaginationUtil {
                 pages[0] = list.getPages() - 1;
                 message.editMessage(list.getPage(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (ownerID, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u274C", (ownerID, user, message) -> {
                 // Delete
                 if (user.getIdLong() == ownerID ||
                         message.getGuild().getMember(user).hasPermission(Permission.MANAGE_PERMISSIONS)) {
@@ -147,7 +147,7 @@ public class PaginationUtil {
                 pages[0] = pagedEmbed.getPageTotal() - 1;
                 message.editMessage(pagedEmbed.getEmbed(pages[0])).queue();
             }));
-            buttonGroup.addButton(new ButtonGroup.Button(355776081384570881L, (ownerID, user, message) -> {
+            buttonGroup.addButton(new ButtonGroup.Button("\u274C", (ownerID, user, message) -> {
                 // Delete
                 if (user.getIdLong() == ownerID ||
                         message.getGuild().getMember(user).hasPermission(Permission.MANAGE_PERMISSIONS)) {
