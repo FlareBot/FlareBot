@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.entities.*;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.GuildWrapperLoader;
 import stream.flarebot.flarebot.permissions.Group;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permission;
@@ -72,6 +73,9 @@ public class PermissionsCommand implements Command {
                             }
                         }
                     } else if (args[2].equalsIgnoreCase("create")) {
+                        if (!GuildWrapperLoader.ALLOWED_CHARS_REGEX.matcher(groupString).matches()) {
+                            MessageUtils.sendErrorMessage("This group name has invalid characters! Please only use word characters and any of these: `" + new String(GuildWrapperLoader.ALLOWED_SPECIAL_CHARACTERS) + "`", channel);
+                        }
                         if (getPermissions(channel).addGroup(groupString)) {
                             MessageUtils.sendSuccessMessage("Successfully created group: `" + groupString + "`", channel, sender);
                             return;

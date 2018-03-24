@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
+
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.database.CassandraController;
@@ -27,6 +29,7 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
     private List<Long> loadTimes = new CopyOnWriteArrayList<>();
 
     public static final char[] ALLOWED_SPECIAL_CHARACTERS = {'$', '_', ' ', '&', '%', '£', '!', '*', '@', '#', ':'};
+    public static final Pattern ALLOWED_CHARS_REGEX = Pattern.compile("[^\\w" + new String(ALLOWED_SPECIAL_CHARACTERS) + "]");
 
     @Override
     @ParametersAreNonnullByDefault
@@ -46,7 +49,7 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
                     return new GuildWrapper(id);
                 }
 
-                data = new JSONConfig(parser.parse(json).getAsJsonObject());
+                data = new JSONConfig(parser.parse(json).getAsJsonObject(), '.', ALLOWED_SPECIAL_CHARACTERS);
                 if (data.getLong("dataVersion").isPresent() && data.getLong("dataVersion").getAsLong() == 0)
                     data = firstMigration(data);
 
@@ -63,7 +66,7 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
             }
 
             try {
-                data = new JSONConfig(parser.parse(json).getAsJsonObject());
+                data = new JSONConfig(parser.parse(json).getAsJsonObject(), '.', ALLOWED_SPECIAL_CHARACTERS);
             } catch (Exception e1) {
                 FlareBot.LOGGER.error(Markers.TAG_DEVELOPER, "Failed to load GuildWrapper!!\n" +
                         "Guild ID: " + id + "\n" +
