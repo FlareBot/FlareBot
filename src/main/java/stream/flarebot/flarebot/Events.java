@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
+import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -48,10 +49,11 @@ import stream.flarebot.flarebot.util.general.VariableUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import stream.flarebot.flarebot.util.votes.VoteUtil;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,13 +95,19 @@ public class Events extends ListenerAdapter {
                 if ((event.getReactionEmote() != null && event.getReactionEmote().isEmote()
                         && event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
-                    event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
-                        for (MessageReaction reaction : message.getReactions()) {
-                            if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
-                                reaction.removeReaction(event.getUser()).queue();
+                    try {
+                        event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                            for (MessageReaction reaction : message.getReactions()) {
+                                if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
+                                    reaction.removeReaction(event.getUser()).queue();
+                                }
                             }
-                        }
-                    });
+                        });
+                    } catch (InsufficientPermissionException e) {
+                        event.getGuild().getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
+                            privateChannel.sendMessage("I cannot remove reactions from messages in the channel: " + event.getChannel().getName() + "! Please give me the `MESSAGE_HISTORY` permission to allow me to do this!").queue();
+                        }, ignored -> {});
+                    }
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
                     Metrics.buttonsPressed.labels(emote, ButtonUtil.getButtonGroup(event.getMessageId()).getName()).inc();
