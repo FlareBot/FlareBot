@@ -271,6 +271,8 @@ public class Events extends ListenerAdapter {
         }
         if (event.getMember().getUser().equals(event.getJDA().getSelfUser()))
             return;
+        if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null)
+            return;
         if (VoteUtil.contains(SkipCommand.getSkipUUID(), event.getGuild()) &&
                 event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
             VoteUtil.getVoteGroup(SkipCommand.getSkipUUID(), event.getGuild()).addAllowedUser(event.getMember().getUser());
