@@ -46,8 +46,7 @@ import stream.flarebot.flarebot.analytics.GuildCountAnalytics;
 import stream.flarebot.flarebot.api.ApiRequester;
 import stream.flarebot.flarebot.api.ApiRoute;
 import stream.flarebot.flarebot.audio.PlayerListener;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandManager;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.database.CassandraController;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
@@ -58,12 +57,26 @@ import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import stream.flarebot.flarebot.scheduler.FutureAction;
 import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.tasks.VoiceChannelCleanup;
-import stream.flarebot.flarebot.util.*;
+import stream.flarebot.flarebot.util.Constants;
+import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.MigrationHandler;
+import stream.flarebot.flarebot.util.ShardUtils;
+import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.web.ApiFactory;
 import stream.flarebot.flarebot.web.DataInterceptor;
+import stream.flarebot.flarebot.ws.WebSocketFactory;
+import stream.flarebot.flarebot.ws.WebSocketListener;
 
-import java.io.*;
+import javax.annotation.Nonnull;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -72,7 +85,12 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -80,7 +98,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.annotation.Nonnull;
 
 public class FlareBot {
 
@@ -130,7 +147,7 @@ public class FlareBot {
             if (!file.exists() && !file.createNewFile())
                 throw new IllegalStateException("Can't create config file!");
             try {
-                config = new JSONConfig(new File("config.json"), '.', new char[] {'-', '_', '<', '>'});
+                config = new JSONConfig(new File("config.json"), '.', new char[]{'-', '_', '<', '>'});
             } catch (NullPointerException e) {
                 LOGGER.error("Invalid JSON!", e);
                 System.exit(1);
@@ -333,6 +350,7 @@ public class FlareBot {
                     .addEventListeners(new NINOListener())
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
+                    .setWebsocketFactory(new WebSocketFactory(new WebSocketListener()))
                     .setShardsTotal(-1)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
                     .setHttpClientBuilder(client.newBuilder())
