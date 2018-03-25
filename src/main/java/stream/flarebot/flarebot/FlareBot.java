@@ -350,7 +350,7 @@ public class FlareBot {
                     .addEventListeners(new NINOListener())
                     .setToken(config.getString("bot.token").get())
                     .setAudioSendFactory(new NativeAudioSendFactory())
-                    //.setWebsocketFactory(new WebSocketFactory(new WebSocketListener()))
+                    .setWebsocketFactory(new WebSocketFactory(new WebSocketListener()))
                     .setShardsTotal(-1)
                     //.setGameProvider(shardId -> setStatus("_help | _invite", shardId))
                     .setHttpClientBuilder(client.newBuilder())
