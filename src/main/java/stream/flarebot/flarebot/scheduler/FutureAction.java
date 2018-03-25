@@ -136,6 +136,7 @@ public class FutureAction {
 
     public void execute() {
         GuildWrapper gw = FlareBotManager.instance().getGuild(String.valueOf(guildId));
+        if (gw == null || gw.getGuild() == null) return;
         switch (action) {
             case TEMP_MUTE:
                 if (gw.getGuild().getTextChannelById(channelId) != null) {
