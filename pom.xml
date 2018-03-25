@@ -26,16 +26,16 @@
         <!--
         Waiting for my PR to be merged (https://github.com/DV8FromTheWorld/JDA/pull/637)
         -->
-        <!--<dependency>
+        <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.5.1_342</version>
-        </dependency>-->
-        <dependency>
+            <version>3.5.1_353</version>
+        </dependency>
+        <!--<dependency>
             <groupId>com.github.WalshyDev</groupId>
             <artifactId>JDA</artifactId>
             <version>9029b24d37</version>
-        </dependency>
+        </dependency>-->
 
         <!-- Lavaplayer related -->
         <dependency>
