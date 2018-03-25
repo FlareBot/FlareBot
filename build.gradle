@@ -25,8 +25,8 @@ repositories {
     maven { url "https://repo.eclipse.org/content/groups/releases/" }
 }
 dependencies {
-    //compile group: 'net.dv8tion', name: 'JDA', version: '3.5.1_342'
-    compile group: 'com.github.WalshyDev', name: 'JDA', version: '9029b24d37'
+    //compile group: 'net.dv8tion', name: 'JDA', version: '3.5.1_353'
+    //compile group: 'com.github.WalshyDev', name: 'JDA', version: '9029b24d37'
 
     compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.56'
     compile(group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.5') {
