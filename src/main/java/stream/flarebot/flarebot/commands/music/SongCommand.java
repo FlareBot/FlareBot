@@ -63,6 +63,9 @@ public class SongCommand implements Command {
                         cmd.onCommand(user, guild, channel, message1, new String[0], guild.getGuild().getMember(user));
                 }
             }));
+            buttonGroup.addButton(new ButtonGroup.Button("\uD83D\uDD01", (ownerID, user, message1) -> {
+                updateSongMessage(user, message1, message1.getTextChannel());
+            }));
             ButtonUtil.sendButtonedMessage(channel, eb.build(), buttonGroup);
         } else {
             channel.sendMessage(MessageUtils.getEmbed(sender)
@@ -105,6 +108,22 @@ public class SongCommand implements Command {
     @Override
     public CommandType getType() {
         return CommandType.MUSIC;
+    }
+
+    public static void updateSongMessage(User sender, Message message, TextChannel channel) {
+        Track track = FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlayingTrack();
+        if (track == null)
+            return;
+        EmbedBuilder eb = MessageUtils.getEmbed(sender)
+                .addField("Current Song", getLink(track), false)
+                .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg");
+        if (track.getTrack().getInfo().isStream)
+            eb.addField("Amount Played", "Issa livestream ;)", false);
+        else
+            eb.addField("Amount Played", GeneralUtils.getProgressBar(track), true)
+                    .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
+                            FormatUtils.formatDuration(track.getTrack().getDuration())), false);
+        message.editMessage(eb.build()).queue();
     }
 
 }

@@ -2,32 +2,25 @@ package stream.flarebot.flarebot.commands.music;
 
 import com.arsenarsen.lavaplayerbridge.PlayerManager;
 import com.arsenarsen.lavaplayerbridge.player.Track;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBot;
 import stream.flarebot.flarebot.Getters;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
-import stream.flarebot.flarebot.util.general.FormatUtils;
-import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.objects.ButtonGroup;
 import stream.flarebot.flarebot.util.votes.VoteGroup;
 import stream.flarebot.flarebot.util.votes.VoteUtil;
 
-import static stream.flarebot.flarebot.commands.music.SongCommand.getLink;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class SkipCommand implements Command {
     private static final UUID skipUUID = UUID.randomUUID();
@@ -53,7 +46,7 @@ public class SkipCommand implements Command {
             channel.sendMessage("Skipped your own song!").queue();
             musicManager.getPlayer(guild.getGuildId()).skip();
             if (songMessage)
-                editSong(sender, message, channel);
+                SongCommand.updateSongMessage(sender, message, channel);
             return;
         }
 
@@ -80,7 +73,7 @@ public class SkipCommand implements Command {
                             } else {
                                 MessageUtils.sendMessage("Skipping!", channel);
                                 if (songMessage)
-                                    editSong(sender, message, channel);
+                                    SongCommand.updateSongMessage(sender, message, channel);
                                 musicManager.getPlayer(guild.getGuildId()).skip();
                             }
                         }, group, TimeUnit.MINUTES.toMillis(1), channel, sender, ButtonGroupConstants.VOTE_SKIP,
@@ -88,7 +81,7 @@ public class SkipCommand implements Command {
                             if (getPermissions(channel).hasPermission(channel.getGuild().getMember(user), Permission.SKIP_FORCE)) {
                                 musicManager.getPlayer(channel.getGuild().getId()).skip();
                                 if (songMessage) {
-                                    editSong(user, message1, channel);
+                                    SongCommand.updateSongMessage(user, message1, channel);
                                 }
                                 musicManager.getPlayer(guild.getGuildId()).skip();
                                 VoteUtil.remove(skipUUID, guild.getGuild());
@@ -102,7 +95,7 @@ public class SkipCommand implements Command {
             if (args[0].equalsIgnoreCase("force")) {
                 if (getPermissions(channel).hasPermission(member, Permission.SKIP_FORCE)) {
                     if (songMessage)
-                        editSong(sender, message, channel);
+                        SongCommand.updateSongMessage(sender, message, channel);
                     VoteUtil.remove(skipUUID, guild.getGuild());
                     musicManager.getPlayer(guild.getGuildId()).skip();
                 } else {
@@ -133,22 +126,6 @@ public class SkipCommand implements Command {
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         }
-    }
-
-    public void editSong(User sender, Message message, TextChannel channel) {
-        Track track = FlareBot.instance().getMusicManager().getPlayer(channel.getGuild().getId()).getPlayingTrack();
-        if (track == null)
-            return;
-        EmbedBuilder eb = MessageUtils.getEmbed(sender)
-                .addField("Current Song", getLink(track), false)
-                .setThumbnail("https://img.youtube.com/vi/" + track.getTrack().getIdentifier() + "/hqdefault.jpg");
-        if (track.getTrack().getInfo().isStream)
-            eb.addField("Amount Played", "Issa livestream ;)", false);
-        else
-            eb.addField("Amount Played", GeneralUtils.getProgressBar(track), true)
-                    .addField("Time", String.format("%s / %s", FormatUtils.formatDuration(track.getTrack().getPosition()),
-                            FormatUtils.formatDuration(track.getTrack().getDuration())), false);
-        message.editMessage(eb.build()).queue();
     }
 
     public static UUID getSkipUUID() {
