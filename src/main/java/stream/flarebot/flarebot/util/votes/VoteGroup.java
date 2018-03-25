@@ -91,8 +91,11 @@ public class VoteGroup {
         NONE;
 
         public static Vote parseVote(String vote) {
-            Vote parsedVote = Vote.valueOf(vote.toUpperCase());
-            return parsedVote == Vote.NONE ? null : parsedVote;
+            for (Vote v : values()) {
+                if (v.name().equalsIgnoreCase(vote))
+                    return v;
+            }
+            return Vote.NONE;
         }
     }
 
