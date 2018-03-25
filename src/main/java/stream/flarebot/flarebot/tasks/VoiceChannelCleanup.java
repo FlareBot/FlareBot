@@ -106,6 +106,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
                         cleanup(g, player, guildId);
                         return;
                     }
+                    return;
                 }
                 VoiceChannel vc = g.getSelfMember().getVoiceState().getChannel();
                 if (!isPlayingMusic(vc)) {
