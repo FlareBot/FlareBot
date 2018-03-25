@@ -64,7 +64,7 @@ public class Metrics {
     public static final Counter websocketEvents = Counter.build()
             .name("flarebot_websocket_events_total")
             .help("Total number of WebSocket events fired")
-            .labelNames("op_code", "event_name", "type") // Use the simple name of the event class eg GuildMessageReceivedEvent, DisconnectEvent
+            .labelNames("op_code", "event_name", "type")
             .register();
 
     public static final Counter failedRestActions = Counter.build()
