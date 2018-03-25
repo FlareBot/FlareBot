@@ -20,7 +20,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VoiceChannelCleanup.class);
     public static final Map<Long, Long> VC_LAST_USED = new HashMap<>();
-    private static final long CLEANUP_THRESHOLD = 15 * 60 * 1000;
+    private static final long CLEANUP_THRESHOLD = 5 * 60 * 1000;
 
     public VoiceChannelCleanup(String taskName) {
         super(taskName, TimeUnit.MINUTES.toMillis(20), TimeUnit.MINUTES.toMillis(5));
