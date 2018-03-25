@@ -840,7 +840,7 @@ public class FlareBot {
                 }
             }
         }.repeat(10_000, 10_000);
-        new VoiceChannelCleanup("VoiceChannelCleanup");
+        //new VoiceChannelCleanup("VoiceChannelCleanup");
     }
 
     public static JSONConfig getConfig() {
