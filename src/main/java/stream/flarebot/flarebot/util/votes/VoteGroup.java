@@ -87,6 +87,7 @@ public class VoteGroup {
     public enum Vote {
         YES,
         NO,
+        FORCE,
         NONE;
 
         public static Vote parseVote(String vote) {
