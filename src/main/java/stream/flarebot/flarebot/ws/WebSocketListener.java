@@ -5,29 +5,13 @@ import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
-import net.dv8tion.jda.core.WebSocketCode;
 import org.json.JSONObject;
 import stream.flarebot.flarebot.metrics.Metrics;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class WebSocketListener implements com.neovisionaries.ws.client.WebSocketListener {
-
-    public static HashMap<Integer, String> websocketCodes = new HashMap<>();
-
-    static {
-        for (Field field : WebSocketCode.class.getFields()) {
-            try {
-                websocketCodes.put((Integer) field.get(null), field.getName());
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        websocketCodes.put(5, "VOICE_SERVER_PING");
-    }
 
     @Override
     public void onStateChanged(WebSocket webSocket, WebSocketState webSocketState) throws Exception {
