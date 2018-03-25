@@ -23,7 +23,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
     private static final long CLEANUP_THRESHOLD = 15 * 60 * 1000;
 
     public VoiceChannelCleanup(String taskName) {
-        super(taskName, TimeUnit.MINUTES.toMillis(20), TimeUnit.MINUTES.toMillis(15));
+        super(taskName, TimeUnit.MINUTES.toMillis(20), TimeUnit.MINUTES.toMillis(5));
     }
 
     @Override
