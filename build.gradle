@@ -28,14 +28,14 @@ dependencies {
     //compile group: 'net.dv8tion', name: 'JDA', version: '3.5.1_353'
     //compile group: 'com.github.WalshyDev', name: 'JDA', version: '9029b24d37'
 
-    compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.56'
+    compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.2.58'
     compile(group: 'com.sedmelluq', name: 'jda-nas', version: '1.0.5') {
         exclude(module: 'JDA')
     }
     /*compile(group: 'com.arsenarsen.lavaplayer-bridge', name: 'jda-impl', version: '1.16-SNAPSHOT') {
         exclude(module: 'JDA')
     }*/
-    compile(group: 'com.github.FlareBot', name: 'lavaplayerbridge', version: '7cf3eba') {
+    compile(group: 'com.github.FlareBot', name: 'lavaplayerbridge', version: '64a5cfb94b') {
         exclude(module: 'JDA')
     }
 

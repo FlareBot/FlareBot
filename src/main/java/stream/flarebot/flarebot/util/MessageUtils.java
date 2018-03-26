@@ -71,6 +71,12 @@ public class MessageUtils {
         }
     }
 
+    public static void sendPM(TextChannel channel, User user, String message, String fail) {
+        user.openPrivateChannel().queue(pc -> pc.sendMessage(message).queue(), t -> {
+            channel.sendMessage(fail).queue();
+        });
+    }
+
     public static void sendPM(TextChannel channel, User user, String message) {
         try {
             user.openPrivateChannel().complete()
