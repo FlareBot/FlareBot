@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.objects.NINO;
 import stream.flarebot.flarebot.util.Pair;
 
 import java.io.IOException;
@@ -30,8 +31,6 @@ public class URLChecker {
 
     private static final ConcurrentHashMap<UUID, Byte> redirects = new ConcurrentHashMap<>();
 
-    private static final Pattern URL_PATTERN = Pattern.compile("(?:https?://|www\\.)([^\\s/$.?#].[^\\s]*)");
-
     private static URLChecker instance;
 
     public static URLChecker instance() {
@@ -41,7 +40,9 @@ public class URLChecker {
     }
 
     public void checkMessage(GuildWrapper wrapper, String message, BiConsumer<URLCheckFlag, String> callback) {
-        Matcher m = URL_PATTERN.matcher(message);
+        NINO nino = wrapper.getNINO();
+        Matcher m = nino.getNINOMode() == NINOMode.AGGRESSIVE ? URLConstants.URL_PATTERN_NO_PROTOCOL.matcher(message)
+                : URLConstants.URL_PATTERN.matcher(message);
         if (!m.find()) return;
 
         String url = normalizeUrl(m.group(1));
@@ -60,6 +61,7 @@ public class URLChecker {
                 callback.accept(pair.getKey(), pair.getValue());
                 return;
             } else {
+                if (nino.getNINOMode() == NINOMode.RELAXED) return; // Shouldn't follow.
                 logger.debug("{} was not flagged, going to try and follow the URL.", url);
                 if ((pair = followURL(url, flags, null)) != null) {
                     logger.debug("{} was found to be under the flag {} ({}) after following it", url, pair.getKey(), pair.getValue());

@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 public class URLConstants {
 
+    public static final Pattern URL_PATTERN = Pattern.compile("(https?://|www\\.)([\\w-#_?$]+\\.[^\\s]*)");
+    public static final Pattern URL_PATTERN_NO_PROTOCOL = Pattern.compile("(https?://|www\\.)?([\\w-#_?$]+\\.[^\\s]*)");
+
     private static final Set<String> IP_GRABBERS = ImmutableSet.of(
             "iplogger.com",
             "iplogger.org",

@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.mod.nino;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public enum URLCheckFlag {
@@ -26,6 +27,7 @@ public enum URLCheckFlag {
     SUSPICIOUS(false);
 
     public static final URLCheckFlag[] values = values();
+    private static ArrayList<URLCheckFlag> all;
     private static ArrayList<URLCheckFlag> defaults;
 
     private boolean defaultFlag;
@@ -35,6 +37,14 @@ public enum URLCheckFlag {
 
     public boolean isDefaultFlag() {
         return defaultFlag;
+    }
+
+    public static List<URLCheckFlag> getAllFlags() {
+        if (all == null || all.size() == 0) {
+            all = new ArrayList<>();
+            all.addAll(Arrays.asList(values));
+        }
+        return all;
     }
 
     public static List<URLCheckFlag> getDefaults() {

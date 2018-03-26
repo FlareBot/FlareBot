@@ -12,7 +12,7 @@ import stream.flarebot.flarebot.commands.Command;
 
 public class Constants {
 
-    public static final String OFFICIAL_GUILD = "226785954537406464";
+    public static final long OFFICIAL_GUILD = 226785954537406464L;
     private static final String FLAREBOT_API = "https://api.flarebot.stream";
     private static final String FLAREBOT_API_DEV = "http://localhost:8880";
     public static final String INVITE_URL = "https://discord.gg/TTAUGvZ";
@@ -26,6 +26,7 @@ public class Constants {
     public static final char COMMAND_CHAR = '_';
     public static final String COMMAND_CHAR_STRING = String.valueOf(COMMAND_CHAR);
 
+    @Deprecated
     public static Guild getOfficialGuild() {
         return Getters.getGuildById(OFFICIAL_GUILD);
     }

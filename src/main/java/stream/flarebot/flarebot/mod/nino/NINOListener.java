@@ -68,8 +68,6 @@ public class NINOListener implements EventListener {
                     );
                 });
             }
-
-            runLegacyInvite(wrapper, event);
         }
     }
 

@@ -27,6 +27,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
+import net.dv8tion.jda.core.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.Request;
@@ -374,14 +375,22 @@ public class Events extends ListenerAdapter {
             if (!message.isEmpty()) {
                 RedisController.set(event.getMessageId(), GeneralUtils.getRedisMessageJson(event.getMessage()), "nx", "ex", 86400);
             }
+
+            // Random fun stuff
+            if (event.getGuild().getIdLong() == Constants.OFFICIAL_GUILD) {
+                if (message.equalsIgnoreCase("rip")) {
+                    event.getMessage().addReaction("\uD83C\uDDEB").queue(); // F
+                } else if (message.toLowerCase().contains("i cri")) {
+                    event.getMessage().addReaction("\uD83D\uDE22").queue(); // Cry
+                }
+            }
         }
     }
 
     @Override
-    public void onUserOnlineStatusUpdate(UserOnlineStatusUpdateEvent event) {
-        if (event.getPreviousOnlineStatus() == OnlineStatus.OFFLINE) {
+    public void onUserUpdateOnlineStatus(UserUpdateOnlineStatusEvent event) {
+        if (event.getOldOnlineStatus() == OnlineStatus.OFFLINE)
             flareBot.getPlayerCache(event.getUser().getId()).setLastSeen(LocalDateTime.now());
-        }
     }
 
     @Override
@@ -468,7 +477,7 @@ public class Events extends ListenerAdapter {
         }
 
         // Internal stuff
-        if (event.getGuild().getId().equals(Constants.OFFICIAL_GUILD) && !handleOfficialGuildStuff(event, cmd))
+        if (event.getGuild().getIdLong() == Constants.OFFICIAL_GUILD && !handleOfficialGuildStuff(event, cmd))
             return;
 
         dispatchCommand(cmd, args, event, guild);

@@ -5,9 +5,12 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.mod.nino.NINOMode;
 import stream.flarebot.flarebot.mod.nino.URLCheckFlag;
+import stream.flarebot.flarebot.mod.nino.URLConstants;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ColorUtils;
@@ -15,12 +18,14 @@ import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
 import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
+import stream.flarebot.flarebot.util.general.GuildUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationList;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -40,6 +45,8 @@ public class NINOCommand implements Command {
                 if (args.length >= 2) {
                     if (args[1].equalsIgnoreCase("all"))
                         flags.addAll(Arrays.asList(URLCheckFlag.values));
+                    else if (args[1].equalsIgnoreCase("default"))
+                        flags.addAll(URLCheckFlag.getDefaults());
                     else {
                         String[] strFlags = seperator.split(MessageUtils.getMessage(args, 1));
                         URLCheckFlag checkFlag;
@@ -66,43 +73,63 @@ public class NINOCommand implements Command {
                         guild.getNINO().getURLFlags().removeAll(flags);
                 }
 
-                boolean all = guild.getNINO().getURLFlags().size() == URLCheckFlag.getDefaults().size();
+                boolean all = (enabled ? guild.getNINO().getURLFlags().size() == URLCheckFlag.getAllFlags().size()
+                        : guild.getNINO().getURLFlags().isEmpty());
 
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription(
                         FormatUtils.formatCommandPrefix(guild, "I have "
-                                + (!enabled ? "disabled " + (all ? "all" : "the " + Arrays.toString(flags.toArray())) + " flag(s)!"
-                                : "enabled " + (all ? "all" : "the " + Arrays.toString(flags.toArray())) + " flag(s)!" +
-                                "\nTo see the whitelist do `{%}nino whitelist list` and to post the"
-                                + " attempts to the modlog enable it with `{%}modlog enable NINO <#channel>`")))
-                        .setColor(enabled ? ColorUtils.GREEN : ColorUtils.RED).build()).queue();
+                                + (enabled ? "enabled " : "disabled ")
+                                + (all ? "all the flags." : "the " + listToString(flags) + " flag(s)!")
+                                + "\n\nTo see the whitelist do `{%}nino whitelist list` and to post the"
+                                + " attempts to the modlog enable it with `{%}modlog enable NINO <#channel>`")
+                ).setColor(enabled ? ColorUtils.GREEN : ColorUtils.RED).build()).queue();
             } else if (args[0].equalsIgnoreCase("whitelist")) {
                 if (args.length == 2) {
                     if (args[1].equalsIgnoreCase("list")) {
                         StringBuilder sb = new StringBuilder();
+                        StringBuilder channels = new StringBuilder();
                         for (String invite : guild.getNINO().getWhitelist())
                             sb.append("`").append(invite).append("`").append("\n");
+
+                        for (long channelId : guild.getNINO().getChannels()) {
+                            if (guild.getGuild().getTextChannelById(channelId) != null)
+                                channels.append(guild.getGuild().getTextChannelById(channelId).getAsMention()).append("\n");
+                            else
+                                guild.getNINO().getChannels().remove(channelId);
+                        }
+
                         channel.sendMessage(MessageUtils.getEmbed(sender).setColor(ColorUtils.FLAREBOT_BLUE)
-                                .addField("Whitelisted invites", sb.toString(), false).build()).queue();
+                                .addField("Whitelisted Invites", sb.toString(), false)
+                                .addField("Whitelisted Channels", channels.toString(), false)
+                                .build()).queue();
                     } else
                         MessageUtils.sendUsage(this, channel, sender, args);
                 } else if (args.length == 3) {
                     if (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove")) {
-                        String invite = args[2];
-                        if (invite != null) {
-                            if (args[1].equalsIgnoreCase("add")) {
-                                guild.getNINO().addInvite(invite);
-                                MessageUtils.sendSuccessMessage("Added `" + invite + "` to the whitelist!", channel, sender);
-                            } else {
-                                if (guild.getNINO().getWhitelist().contains(invite)) {
-                                    guild.getNINO().removeInvite(invite);
-                                    MessageUtils.sendWarningMessage("Removed `" + invite + "` from the whitelist!",
-                                            channel, sender);
-                                } else
-                                    MessageUtils.sendWarningMessage("That invite is not whitelisted!", channel, sender);
-                            }
-                        } else
-                            MessageUtils.sendWarningMessage("That is not a valid invite! If you believe it is please tell " +
-                                    "us on our support server!", channel, sender);
+                        String whitelist = args[2];
+                        boolean added = args[1].equalsIgnoreCase("add");
+
+                        TextChannel tc = GuildUtils.getChannel(whitelist, guild);
+                        if (tc != null) {
+                            if (added)
+                                guild.getNINO().addChannel(tc.getIdLong());
+                            else
+                                guild.getNINO().removeChannel(tc.getIdLong());
+
+                            MessageUtils.sendSuccessMessage((added ? "Added " : "Removed ") + tc.getAsMention()
+                                    + (added ? " to" : " from") + " the whitelist!", channel, sender);
+                        } else if (URLConstants.URL_PATTERN_NO_PROTOCOL.matcher(whitelist).matches()) {
+                            if (added)
+                                guild.getNINO().addUrl(whitelist);
+                            else
+                                guild.getNINO().removeUrl(whitelist);
+
+                            MessageUtils.sendSuccessMessage((added ? "Added " : "Removed ") + "`" + whitelist
+                                    + "` " + (added ? "to" : "from") + " the whitelist!", channel, sender);
+                        } else {
+                            MessageUtils.sendWarningMessage("That is an invalid input! " +
+                                    "Please try and whitelist a Discord invite or ", channel);
+                        }
                     } else
                         MessageUtils.sendUsage(this, channel, sender, args);
                 } else
@@ -167,19 +194,45 @@ public class NINOCommand implements Command {
                     MessageUtils.sendUsage(this, channel, sender, args);
             } else if (args[0].equalsIgnoreCase("flags")) {
                 Set<URLCheckFlag> flags = guild.getNINO().getURLFlags();
-                boolean all = flags.size() == URLCheckFlag.getDefaults().size();
+                boolean all = flags.size() == URLCheckFlag.getAllFlags().size();
 
-                EmbedBuilder eb = MessageUtils.getEmbed(sender).setTitle("NINO Flags");
+                EmbedBuilder eb = MessageUtils.getEmbed(sender);
                 if (!flags.isEmpty())
                     eb.addField("Enabled", flags.stream()
-                                    .map(URLCheckFlag::toString)
-                                    .collect(Collectors.joining("\n")), false);
+                            .map(URLCheckFlag::toString)
+                            .collect(Collectors.joining("\n")), false);
 
                 if (!all)
-                    eb.addField("Disabled", URLCheckFlag.getDefaults().stream().filter(flags::contains)
+                    eb.addField("Disabled", URLCheckFlag.getAllFlags().stream().filter(f -> !flags.contains(f))
                             .map(URLCheckFlag::toString)
                             .collect(Collectors.joining("\n")), false);
                 channel.sendMessage(eb.build()).queue();
+            } else if (args[0].equalsIgnoreCase("mode")) {
+                if (args.length == 2) {
+                    NINOMode mode = NINOMode.getMode(args[1]);
+                    if (mode == null)
+                        MessageUtils.sendWarningMessage("That is an invalid mode!", channel);
+                    else {
+                        guild.getNINO().setMode(mode.getMode());
+                        MessageUtils.sendSuccessMessage("Changed NINO's mode to " + mode.toString(), channel, sender);
+                    }
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    for (NINOMode mode : NINOMode.values())
+                        sb.append(mode.toString()).append(" (").append(mode.getMode()).append(") - ")
+                                .append(mode.getExplanation()).append("\n");
+
+                    MessageUtils.sendMessage("Current Mode: " + guild.getNINO().getNINOMode().toString() +
+                            "\nNINO will " + WordUtils.uncapitalize(guild.getNINO().getNINOMode().getExplanation(), '~') +
+                            "\n\n**Available Modes**\n" +
+                            sb.toString().trim() + "\n\n\n" +
+                            "Protocol is the `http://` or `https://` at the start of a URL. Example: `https://google.com`\n" +
+                            "Following a URL is when we will check to see if it is a masked link " +
+                            "(something like goo.gl, bit.ly etc) and if so follow the redirects and if we see a bad " +
+                            "link then it will be caught. This means people can't hide bad links. " +
+                            "It does have the disadvantage of being a bit slower though (it will still catch before " +
+                            "any human can click it). Example: `https://goo.gl/NfYi94`", channel, sender);
+                }
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         } else
@@ -193,17 +246,18 @@ public class NINOCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "Configure and enable FlareBot's anti-invite protection!";
+        return "Configure and enable FlareBot's URL protection!";
     }
 
     @Override
     public String getUsage() {
         return "`{%}nino enable|disable <flags...>` - Enable or disable a flag or multiple by comma separation!\n" +
-                "`{%}nino whitelist list` - List the current whitelisted invites.\n" +
+                "`{%}nino whitelist list` - List the current whitelisted URLs.\n" +
                 "`{%}nino whitelist add|remove <url>` - Configure the whitelist.\n" +
                 "`{%}nino message set|add|remove <message>` - Set, add or remove messages for removal.\n" +
                 "`{%}nino message list` - List the messages currently set for NINO!\n" +
-                "`{%}nino flags` - List the flags enabled and disabled";
+                "`{%}nino flags` - List the flags enabled and disabled\n" +
+                "`{%}nino mode <mode>` - Change the mode for NINO, it is recommended for most guilds to use mode 1.";
     }
 
     @Override
@@ -241,5 +295,9 @@ public class NINOCommand implements Command {
         pagedEmbedBuilder.useGroups(4, "Message #");
         pagedEmbedBuilder.setTitle("NINO Message List");
         PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), page - 1, channel, user, ButtonGroupConstants.NINO);
+    }
+
+    private String listToString(Collection<URLCheckFlag> c) {
+        return "`" + c.stream().map(URLCheckFlag::toString).collect(Collectors.joining(", ")) + "`";
     }
 }

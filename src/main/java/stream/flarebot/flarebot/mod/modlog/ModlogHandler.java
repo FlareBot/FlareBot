@@ -193,7 +193,7 @@ public class ModlogHandler {
                             channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
                                     .setDescription("The ban hammer has been struck on " + target.getName()
                                             + " <:banhammer:368861419602575364>\nReason: " + rsn)
-                                    .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
+                                    .setImage(channel.getGuild().getIdLong() == Constants.OFFICIAL_GUILD ?
                                             "https://flarebot.stream/img/banhammer.png" : null)
                                     .build()).queue());
                     break;
@@ -202,7 +202,7 @@ public class ModlogHandler {
                             channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
                                     .setDescription("The ban hammer has been forcefully struck on " + target.getName()
                                             + " <:banhammer:368861419602575364>\nReason: " + rsn)
-                                    .setImage(channel.getGuild().getId().equals(Constants.OFFICIAL_GUILD) ?
+                                    .setImage(channel.getGuild().getIdLong() == Constants.OFFICIAL_GUILD ?
                                             "https://flarebot.stream/img/banhammer.png" : null)
                                     .build()).queue());
                     break;
@@ -212,8 +212,8 @@ public class ModlogHandler {
                         channel.sendMessage(new EmbedBuilder()
                                 .setDescription("The ban hammer has been struck on " + target.getName() + " for "
                                         + FormatUtils.formatJodaTime(period) + "\nReason: " + rsn)
-                                .setImage(channel.getGuild().getId()
-                                        .equals(Constants.OFFICIAL_GUILD) ? "https://flarebot.stream/img/banhammer.png" : null)
+                                .setImage(channel.getGuild().getIdLong() == Constants.OFFICIAL_GUILD
+                                        ? "https://flarebot.stream/img/banhammer.png" : null)
                                 .setColor(Color.WHITE).build()).queue();
                         Scheduler.queueFutureAction(channel.getGuild().getIdLong(), channel.getIdLong(), sender.getIdLong(),
                                 target.getIdLong(), reason, period, FutureAction.Action.TEMP_BAN);
