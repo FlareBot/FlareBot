@@ -378,7 +378,7 @@ public class Events extends ListenerAdapter {
 
             // Random fun stuff
             if (event.getGuild().getIdLong() == Constants.OFFICIAL_GUILD) {
-                if (message.equalsIgnoreCase("rip")) {
+                if (message.contains("rip")) {
                     event.getMessage().addReaction("\uD83C\uDDEB").queue(); // F
                 } else if (message.toLowerCase().contains("i cri")) {
                     event.getMessage().addReaction("\uD83D\uDE22").queue(); // Cry
