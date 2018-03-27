@@ -26,7 +26,6 @@ import net.dv8tion.jda.core.events.message.guild.GenericGuildMessageEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.role.RoleDeleteEvent;
-import net.dv8tion.jda.core.events.user.UserOnlineStatusUpdateEvent;
 import net.dv8tion.jda.core.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -46,6 +45,7 @@ import stream.flarebot.flarebot.objects.PlayerCache;
 import stream.flarebot.flarebot.objects.Welcome;
 import stream.flarebot.flarebot.util.Constants;
 import stream.flarebot.flarebot.util.MessageUtils;
+import stream.flarebot.flarebot.util.RandomUtils;
 import stream.flarebot.flarebot.util.WebUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonUtil;
 import stream.flarebot.flarebot.util.errorhandling.Markers;
@@ -63,6 +63,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -81,6 +82,7 @@ public class Events extends ListenerAdapter {
 
     private final Logger LOGGER = FlareBot.getLog(this.getClass());
     private final Pattern multiSpace = Pattern.compile(" {2,}");
+    private final Pattern rip = Pattern.compile("\\brip [a-zA-Z0-9]+\\b", Pattern.CASE_INSENSITIVE);
 
     private FlareBot flareBot;
 
@@ -115,7 +117,9 @@ public class Events extends ListenerAdapter {
                         });
                     } catch (InsufficientPermissionException e) {
                         event.getGuild().getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
-                            privateChannel.sendMessage("I cannot remove reactions from messages in the channel: " + event.getChannel().getName() + "! Please give me the `MESSAGE_HISTORY` permission to allow me to do this!").queue();
+                            privateChannel.sendMessage("I cannot remove reactions from messages in the channel: "
+                                    + event.getChannel().getName() + "! Please give me the `MESSAGE_HISTORY` " +
+                                    "permission to allow me to do this!").queue();
                         }, ignored -> {});
                     }
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
@@ -378,10 +382,20 @@ public class Events extends ListenerAdapter {
 
             // Random fun stuff
             if (event.getGuild().getIdLong() == Constants.OFFICIAL_GUILD) {
-                if (message.contains("rip")) {
+                if (rip.matcher(message).find()) {
                     event.getMessage().addReaction("\uD83C\uDDEB").queue(); // F
-                } else if (message.toLowerCase().contains("i cri")) {
+                } else if (message.toLowerCase().startsWith("i cri")) {
                     event.getMessage().addReaction("\uD83D\uDE22").queue(); // Cry
+                } else if ((message.toLowerCase().contains("bellend") || message.toLowerCase().contains("bollocks"))
+                        && RandomUtils.getInt(0, 20) == 20) {
+                    event.getMessage().addReaction("\uD83C\uDDEC\uD83C\uDDE7").queue(); // GB flag
+                    event.getMessage().addReaction("\u0023\u20E3").queue(); // #
+                    event.getMessage().addReaction("\u0031\u20E3").queue(); // 1
+                    Constants.logEG("UK#1", null, event.getGuild(), event.getAuthor());
+                } else if (message.toLowerCase().equalsIgnoreCase("fuck") && RandomUtils.getInt(0, 100) == 100) {
+                    GeneralUtils.sendImage("https://flarebot.stream/img/pissed-off-thats-why.gif",
+                            "pissed-off-thats-why.gif", event.getAuthor());
+                    Constants.logEG("Pissed Off", null, event.getGuild(), event.getAuthor());
                 }
             }
         }
@@ -401,7 +415,7 @@ public class Events extends ListenerAdapter {
         Request.Builder request = new Request.Builder().url(statusHook);
         RequestBody body = RequestBody.create(WebUtils.APPLICATION_JSON, new JSONObject()
                 .put("content", String.format("onStatusChange: %s -> %s SHARD: %d",
-                        event.getOldStatus(), event.getStatus(),
+                        event.getOldStatus(), event.getNewStatus(),
                         event.getJDA().getShardInfo() != null ? event.getJDA().getShardInfo().getShardId()
                                 : null)).toString());
         WebUtils.postAsync(request.post(body));
