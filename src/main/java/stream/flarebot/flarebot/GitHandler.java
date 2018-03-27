@@ -47,21 +47,23 @@ public class GitHandler {
 
 
     public static Git getGit() {
-        try {
-            git = Git.open(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"));
-        } catch (RepositoryNotFoundException e) {
+        if (git == null) {
             try {
-                git = Git.cloneRepository()
-                        .setDirectory(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"))
-                        .setURI("https://github.com/FlareBot/FlareBot.git")
-                        .call();
-            } catch (GitAPIException e1) {
-                e1.printStackTrace();
+                git = Git.open(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"));
+            } catch (RepositoryNotFoundException e) {
+                try {
+                    git = Git.cloneRepository()
+                            .setDirectory(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"))
+                            .setURI("https://github.com/FlareBot/FlareBot.git")
+                            .call();
+                } catch (GitAPIException e1) {
+                    e1.printStackTrace();
+                    git = null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
                 git = null;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            git = null;
         }
         return git;
     }
