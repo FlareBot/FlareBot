@@ -36,8 +36,8 @@ public class VoiceChannelCleanup extends FlareBotTask {
             return;
         }
 
-        //cleanupVoiceChannels();
-        cleanupPlayers();
+        cleanupVoiceChannels();
+        //cleanupPlayers();
     }
 
     private void cleanupVoiceChannels() {
