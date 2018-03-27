@@ -18,11 +18,13 @@ public class GitHandler {
     static {
         Git git;
         try {
-            git = Git.open(new File("FlareBot/"));
+            git = Git.open(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"));
         } catch (RepositoryNotFoundException e) {
             try {
-                git =
-                        Git.cloneRepository().setDirectory(new File("FlareBot/")).setURI("https://github.com/FlareBot/FlareBot.git").call();
+                git = Git.cloneRepository()
+                        .setDirectory(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"))
+                        .setURI("https://github.com/FlareBot/FlareBot.git")
+                        .call();
             } catch (GitAPIException e1) {
                 e1.printStackTrace();
                 git = null;

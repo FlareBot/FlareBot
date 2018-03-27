@@ -535,9 +535,8 @@ public class FlareBot {
                 .put("voice_channels", Getters.getVoiceChannelCache().size())
                 .put("connected_voice_channels", Getters.getConnectedVoiceChannels())
                 .put("active_voice_channels", Getters.getActiveVoiceChannels())
-                .put("num_queued_songs", Getters.getGuildCache().stream()
-                        .mapToInt(guild -> musicManager.getPlayer(guild.getId())
-                                .getPlaylist().size()).sum())
+                .put("num_queued_songs", getMusicManager().getPlayers().stream()
+                        .mapToInt(player -> player.getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
                 .put("uptime", getUptime())
                 .put("http_requests", dataInterceptor.getRequests().intValue());
@@ -822,7 +821,7 @@ public class FlareBot {
             }
         }.repeat(0, TimeUnit.SECONDS.toMillis(30));
 
-        new FlareBotTask("ActivityChecker") {
+        /*new FlareBotTask("ActivityChecker") {
             @Override
             public void run() {
                 for (VoiceChannel channel : Getters.getConnectedVoiceChannel()) {
@@ -839,7 +838,7 @@ public class FlareBot {
                         channel.getGuild().getAudioManager().closeAudioConnection();
                 }
             }
-        }.repeat(10_000, 10_000);
+        }.repeat(10_000, 10_000);*/
         new VoiceChannelCleanup("VoiceChannelCleanup");
     }
 
