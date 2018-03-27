@@ -12,11 +12,41 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 public class GitHandler {
 
-    private static final Git GIT;
+    private static Git git;
     private static RevCommit latestCommit;
 
-    static {
-        Git git;
+    public static Repository getRepository() {
+        if (getGit() != null) {
+            return getGit().getRepository();
+        }
+        return null;
+    }
+
+    public static void updateRepo(File directory) throws GitAPIException {
+        if (getGit() != null) {
+            getGit().pull().call();
+        } else {
+            Git.cloneRepository().setDirectory(directory).setURI("https://github.com/FlareBot/FlareBot.git").call();
+        }
+
+    }
+
+    public static RevCommit getLatestCommit() {
+        if (git != null && latestCommit == null) {
+            if (getRepository() != null) {
+                try (RevWalk walk = new RevWalk(getRepository())) {
+                    Ref head = getRepository().exactRef(getRepository().getFullBranch());
+                    GitHandler.latestCommit = walk.parseCommit(head.getObjectId());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return latestCommit;
+    }
+
+
+    public static Git getGit() {
         try {
             git = Git.open(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"));
         } catch (RepositoryNotFoundException e) {
@@ -33,42 +63,7 @@ public class GitHandler {
             e.printStackTrace();
             git = null;
         }
-        GIT = git;
-    }
-
-    public static Repository getRepository() {
-        if (GIT != null) {
-            return GIT.getRepository();
-        }
-        return null;
-    }
-
-    public static void updateRepo(File directory) throws GitAPIException {
-        if (GIT != null) {
-            GIT.pull().call();
-        } else {
-            Git.cloneRepository().setDirectory(directory).setURI("https://github.com/FlareBot/FlareBot.git").call();
-        }
-
-    }
-
-    public static RevCommit getLatestCommit() {
-        if (latestCommit == null) {
-            if (getRepository() != null) {
-                try (RevWalk walk = new RevWalk(getRepository())) {
-                    Ref head = getRepository().exactRef(getRepository().getFullBranch());
-                    GitHandler.latestCommit = walk.parseCommit(head.getObjectId());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return latestCommit;
-    }
-
-
-    public static Git getGit() {
-        return GIT;
+        return git;
     }
 
     public static String getLatestCommitId() {
