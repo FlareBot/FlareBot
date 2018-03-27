@@ -141,10 +141,11 @@ public class VoiceChannelCleanup extends FlareBotTask {
     }
     
     private void cleanup(Guild guild, Player player, long id) {
-        if (guild != null)
+        if (guild != null && guild.getSelfMember().getVoiceState() != null
+                && guild.getSelfMember().getVoiceState().getChannel() != null)
             guild.getAudioManager().closeAudioConnection();
-        player.getPlaylist().clear();
-        player.getPlayer().destroy();
+
+        FlareBot.instance().getMusicManager().deletePlayer(player);
         VC_LAST_USED.remove(id);
     }
 
