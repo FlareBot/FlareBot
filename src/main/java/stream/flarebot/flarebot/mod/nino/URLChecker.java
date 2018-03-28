@@ -113,6 +113,13 @@ public class URLChecker {
                 return new Pair<>(URLCheckFlag.SUSPICIOUS, matcher.group());
             }
         }
+        
+        // Screamers
+        if (flags.contains(URLCheckFlag.SCREAMERS)) {
+            if ((matcher = URLConstants.SCREAMERS_PATTERN.matcher(url)).find()) {
+                return new Pair<>(URLCheckFlag.SCREAMERS, matcher.group());
+            }
+        }
 
         // URL
         if (flags.contains(URLCheckFlag.URL)) {
