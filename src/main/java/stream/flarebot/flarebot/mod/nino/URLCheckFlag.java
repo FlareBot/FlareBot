@@ -16,6 +16,8 @@ public enum URLCheckFlag {
     DISCORD_INVITE(true),
     // Phishing links which we have blacklisted
     PHISHING(true),
+    // Screamers
+    SCREAMERS(true),
 
     // Any other blacklisted domains (This is a recommended flag!)
     // -- This is currently not implemented, will see in the future if it should be.
