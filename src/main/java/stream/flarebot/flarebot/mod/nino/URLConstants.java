@@ -60,6 +60,16 @@ public class URLConstants {
     public static final Pattern SUSPICIOUS_TLDS_PATTERN = Pattern.compile(String.format("[\\w-]{1,256}\\.(%s)",
             SUSPICIOUS_TLDS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
+    private static final Set<String> SCREAMERS = ImmutableSet.of(
+            "akk.li",
+            "dvorak.org",
+            "ebaumsworld.com",
+            "soulsphere.org"
+    );
+    
+    public static final Pattern SCREAMERS_PATTERN = Pattern.compile(String.format("(%s)",
+            SCREAMERS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
+    
     /**
      * These are domains which may be caught by our blacklisted TLDs or other such methods. These have been confirmed
      * safe and are all good to go to <3
