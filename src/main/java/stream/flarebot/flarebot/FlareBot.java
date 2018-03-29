@@ -147,7 +147,7 @@ public class FlareBot {
             if (!file.exists() && !file.createNewFile())
                 throw new IllegalStateException("Can't create config file!");
             try {
-                config = new JSONConfig(new File("config.json"), '.', new char[]{'-', '_', '<', '>', '@'});
+                config = new JSONConfig(new File("config.json"), '.', new char[]{'-', '_', '<', '>'});
             } catch (NullPointerException e) {
                 LOGGER.error("Invalid JSON!", e);
                 System.exit(1);
