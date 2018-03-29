@@ -24,9 +24,8 @@ public class ActivityAnalytics implements AnalyticSender {
 
         IntSummaryStatistics statistics;
         try {
-            statistics = Getters.getGuildCache().stream()
-                    .filter(guild -> !FlareBot.instance().getMusicManager().getPlayer(guild.getId()).getPlaylist().isEmpty())
-                    .mapToInt(guild -> FlareBot.instance().getMusicManager().getPlayer(guild.getId()).getPlaylist().size())
+            statistics = FlareBot.instance().getMusicManager().getPlayers().stream()
+                    .mapToInt(player -> player.getPlaylist().size())
                     .summaryStatistics();
         } catch (IllegalArgumentException ignored) {
             return null;

@@ -14,13 +14,16 @@ import stream.flarebot.flarebot.scheduler.FlareBotTask;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class VoiceChannelCleanup extends FlareBotTask {
 
+    private static final AtomicBoolean ENABLED = new AtomicBoolean(true);
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VoiceChannelCleanup.class);
     public static final Map<Long, Long> VC_LAST_USED = new HashMap<>();
-    private static final long CLEANUP_THRESHOLD = 5 * 60 * 1000;
+    private static final long CLEANUP_THRESHOLD = TimeUnit.MINUTES.toMillis(20);
 
     public VoiceChannelCleanup(String taskName) {
         super(taskName, TimeUnit.MINUTES.toMillis(20), TimeUnit.MINUTES.toMillis(5));
@@ -28,8 +31,13 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
     @Override
     public void run() {
+        if (!ENABLED.get()) {
+            cancel();
+            return;
+        }
+
         cleanupVoiceChannels();
-        cleanupPlayers();
+        //cleanupPlayers();
     }
 
     private void cleanupVoiceChannels() {
@@ -89,7 +97,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
                 
                 Guild g = Getters.getGuildById(guildId);
                 if (g == null) {
-                    cleanup(g, player, guildId);
+                    cleanup(null, player, guildId);
                     killedPlayers.incrementAndGet();
                     return;
                 }
@@ -129,14 +137,15 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
         LOGGER.info("Checked {} players for inactivity.", totalPlayers.get());
         LOGGER.info("Killed {} out of {} players!", killedPlayers.get(), totalPlayers.get());
-        //Metrics.voiceChannelsCleanedUp.inc(killedPlayers.get());
+        Metrics.voiceChannelsCleanedUp.inc(killedPlayers.get());
     }
     
     private void cleanup(Guild guild, Player player, long id) {
-        if (guild != null)
+        if (guild != null && guild.getSelfMember().getVoiceState() != null
+                && guild.getSelfMember().getVoiceState().getChannel() != null)
             guild.getAudioManager().closeAudioConnection();
-        player.getPlaylist().clear();
-        player.getPlayer().destroy();
+
+        FlareBot.instance().getMusicManager().deletePlayer(player);
         VC_LAST_USED.remove(id);
     }
 

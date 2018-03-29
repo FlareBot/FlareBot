@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.56</version>
+            <version>1.2.58</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.github.FlareBot</groupId>
             <artifactId>lavaplayerbridge</artifactId>
-            <version>7cf3eba</version>
+            <version>64a5cfb94b</version>
             <exclusions>
                 <exclusion>
                     <artifactId>JDA</artifactId>

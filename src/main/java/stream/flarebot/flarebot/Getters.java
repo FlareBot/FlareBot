@@ -82,11 +82,8 @@ public class Getters {
 
     @Nullable
     public static User retrieveUserById(long id) {
-        JDA client = flareBot().getClient();
-        if (client == null)
-            return null;
         try {
-            return client.retrieveUserById(id).complete();
+            return flareBot().getClient().retrieveUserById(id).complete();
         } catch (ErrorResponseException e) {
             return null;
         }

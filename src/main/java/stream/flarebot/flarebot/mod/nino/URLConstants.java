@@ -1,14 +1,23 @@
 package stream.flarebot.flarebot.mod.nino;
 
 import com.google.common.collect.ImmutableSet;
+import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.util.MessageUtils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class URLConstants {
+
+    public static final Pattern URL_PATTERN = Pattern.compile("(https?://|www\\.)([\\w-#_?$]+\\.[^\\s]*)");
+    public static final Pattern URL_PATTERN_NO_PROTOCOL = Pattern.compile("(https?://|www\\.)?([\\w-#_?$]+\\.[^\\s]*)");
 
     private static final Set<String> IP_GRABBERS = ImmutableSet.of(
             "iplogger.com",
@@ -57,6 +66,21 @@ public class URLConstants {
     public static final Pattern SUSPICIOUS_TLDS_PATTERN = Pattern.compile(String.format("[\\w-]{1,256}\\.(%s)",
             SUSPICIOUS_TLDS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
+    private static final Set<String> SCREAMERS = ImmutableSet.of(
+            "akk.li",
+            "dvorak.org",
+            "ebaumsworld.com",
+            "soulsphere.org"
+    );
+    
+    public static final Pattern SCREAMERS_PATTERN = Pattern.compile(String.format("(%s)",
+            SCREAMERS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
+
+    private static final Set<String> NSFW = fetchNSFWSites();
+
+    public static final Pattern NSFW_PATTERN = Pattern.compile(String.format("(%s)",
+            NSFW.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
+
     /**
      * These are domains which may be caught by our blacklisted TLDs or other such methods. These have been confirmed
      * safe and are all good to go to <3
@@ -74,6 +98,18 @@ public class URLConstants {
 
     public static final Pattern WHITELISTED_DOMAINS_PATTERN = Pattern.compile(String.format("(%s)",
             WHITELISTED_DOMAINS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
+
+    private static Set<String> fetchNSFWSites() {
+        try {
+            FileReader fr = new FileReader(new File("nsfw.txt"));
+            BufferedReader br = new BufferedReader(fr);
+
+            return ImmutableSet.copyOf(br.lines().collect(Collectors.toSet()));
+        } catch (FileNotFoundException e) {
+            LoggerFactory.getLogger(URLConstants.class).warn("Could not load NSFW list!!");
+            return ImmutableSet.of();
+        }
+    }
 
     /**
      * Get the Discord invite from a String, this will return for either discord.gg or discordapp.com/invite

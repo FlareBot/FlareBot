@@ -12,38 +12,19 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 public class GitHandler {
 
-    private static final Git GIT;
+    private static Git git;
     private static RevCommit latestCommit;
 
-    static {
-        Git git;
-        try {
-            git = Git.open(new File("FlareBot/"));
-        } catch (RepositoryNotFoundException e) {
-            try {
-                git =
-                        Git.cloneRepository().setDirectory(new File("FlareBot/")).setURI("https://github.com/FlareBot/FlareBot.git").call();
-            } catch (GitAPIException e1) {
-                e1.printStackTrace();
-                git = null;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            git = null;
-        }
-        GIT = git;
-    }
-
     public static Repository getRepository() {
-        if (GIT != null) {
-            return GIT.getRepository();
+        if (getGit() != null) {
+            return getGit().getRepository();
         }
         return null;
     }
 
     public static void updateRepo(File directory) throws GitAPIException {
-        if (GIT != null) {
-            GIT.pull().call();
+        if (getGit() != null) {
+            getGit().pull().call();
         } else {
             Git.cloneRepository().setDirectory(directory).setURI("https://github.com/FlareBot/FlareBot.git").call();
         }
@@ -51,7 +32,7 @@ public class GitHandler {
     }
 
     public static RevCommit getLatestCommit() {
-        if (latestCommit == null) {
+        if (git != null && latestCommit == null) {
             if (getRepository() != null) {
                 try (RevWalk walk = new RevWalk(getRepository())) {
                     Ref head = getRepository().exactRef(getRepository().getFullBranch());
@@ -66,7 +47,25 @@ public class GitHandler {
 
 
     public static Git getGit() {
-        return GIT;
+        if (git == null) {
+            try {
+                git = Git.open(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"));
+            } catch (RepositoryNotFoundException e) {
+                try {
+                    git = Git.cloneRepository()
+                            .setDirectory(FlareBot.instance().isTestBot() ? new File(".") : new File("FlareBot/"))
+                            .setURI("https://github.com/FlareBot/FlareBot.git")
+                            .call();
+                } catch (GitAPIException e1) {
+                    e1.printStackTrace();
+                    git = null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                git = null;
+            }
+        }
+        return git;
     }
 
     public static String getLatestCommitId() {

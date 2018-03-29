@@ -49,15 +49,15 @@ public class RemindCommand implements Command {
                     PagedEmbedBuilder<String> pagedEmbedBuilder = new PagedEmbedBuilder<>(PaginationUtil
                             .splitStringToList(actionBuilder.toString(), PaginationUtil.SplitMethod.CHAR_COUNT, 1000));
                     pagedEmbedBuilder.setTitle("Reminders for " + MessageUtils.getTag(sender));
-                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel, sender, ButtonGroupConstants.REMIND_LIST);
+                    PaginationUtil.sendEmbedPagedMessage(pagedEmbedBuilder.build(), 0, channel, sender,
+                            ButtonGroupConstants.REMIND_LIST);
                 } else if (args[0].equalsIgnoreCase("clear")) {
                     Set<FutureAction> futureActions = FlareBot.instance().getFutureActions();
                     for (FutureAction action : futureActions) {
-                        if (action.getAction().equals(FutureAction.Action.REMINDER) || action.getAction().equals(FutureAction.Action.DM_REMINDER)) {
-                            if (action.getResponsible() == sender.getIdLong()) {
+                        if ((action.getAction().equals(FutureAction.Action.REMINDER)
+                                || action.getAction().equals(FutureAction.Action.DM_REMINDER))
+                                && action.getResponsible() == sender.getIdLong())
                                 action.delete();
-                            }
-                        }
                     }
                     MessageUtils.sendSuccessMessage("Cleared your reminders successfully", channel, sender);
                 } else {
@@ -78,11 +78,12 @@ public class RemindCommand implements Command {
                 reminder = MessageUtils.getMessage(args, 1);
                 action = FutureAction.Action.REMINDER;
             }
-            channel.sendMessage("\uD83D\uDC4D I will remind you in " + FormatUtils.formatJodaTime(period).toLowerCase() + " (at "
-                    + FormatUtils.formatPrecisely(period) + ") to `" + reminder + "`").queue();
+            channel.sendMessage(sender.getAsMention() + " \uD83D\uDC4D I will remind you in "
+                    + FormatUtils.formatJodaTime(period).toLowerCase() + " (at " + FormatUtils.formatPrecisely(period)
+                    + ") to `" + reminder + "`").queue();
 
-            Scheduler.queueFutureAction(guild.getGuildIdLong(), channel.getIdLong(), sender.getIdLong(), reminder.substring(0,
-                    Math.min(reminder.length(), 1000)), period, action);
+            Scheduler.queueFutureAction(guild.getGuildIdLong(), channel.getIdLong(), sender.getIdLong(),
+                    reminder.substring(0, Math.min(reminder.length(), 1000)), period, action);
         }
     }
 
@@ -117,10 +118,5 @@ public class RemindCommand implements Command {
     @Override
     public String[] getAliases() {
         return new String[]{"r", "reminder"};
-    }
-
-    @Override
-    public boolean isBetaTesterCommand() {
-        return true;
     }
 }

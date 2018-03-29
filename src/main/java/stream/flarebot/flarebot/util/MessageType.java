@@ -9,7 +9,7 @@ public enum MessageType {
     WARNING(Color.YELLOW),
     MODERATION(Color.WHITE),
     ERROR(Color.RED),
-    NEUTRAL(null);
+    NEUTRAL(ColorUtils.FLAREBOT_BLUE);
 
     private final Color color;
 

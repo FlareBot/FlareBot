@@ -116,7 +116,8 @@ public class FlareBot {
     private static String version = null;
 
     static {
-        handleLogArchive();
+        handleLogArchive("latest.log");
+        handleLogArchive("debug-latest.log");
         LOGGERS = new ConcurrentHashMap<>();
         LOGGER = getLog(FlareBot.class.getName());
     }
@@ -256,7 +257,7 @@ public class FlareBot {
         return getLog(clazz.getName());
     }
 
-    private static void handleLogArchive() {
+    private static void handleLogArchive(String file) {
         try {
             byte[] buffer = new byte[1024];
             String time = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss").format(new Date());
@@ -264,8 +265,8 @@ public class FlareBot {
             File dir = new File("logs");
             if (!dir.exists() && !dir.mkdir())
                 LOGGER.error("Failed to create directory for latest log!");
-            File f = new File(dir, "latest.log " + time + ".zip");
-            File latestLog = new File("latest.log");
+            File f = new File(dir, file + "@" + time + ".zip");
+            File latestLog = new File(file);
 
             FileOutputStream fos = new FileOutputStream(f);
             ZipOutputStream zos = new ZipOutputStream(fos);
@@ -535,9 +536,8 @@ public class FlareBot {
                 .put("voice_channels", Getters.getVoiceChannelCache().size())
                 .put("connected_voice_channels", Getters.getConnectedVoiceChannels())
                 .put("active_voice_channels", Getters.getActiveVoiceChannels())
-                .put("num_queued_songs", Getters.getGuildCache().stream()
-                        .mapToInt(guild -> musicManager.getPlayer(guild.getId())
-                                .getPlaylist().size()).sum())
+                .put("num_queued_songs", getMusicManager().getPlayers().stream()
+                        .mapToInt(player -> player.getPlaylist().size()).sum())
                 .put("ram", (((runtime.totalMemory() - runtime.freeMemory()) / 1024) / 1024) + "MB")
                 .put("uptime", getUptime())
                 .put("http_requests", dataInterceptor.getRequests().intValue());
@@ -822,7 +822,7 @@ public class FlareBot {
             }
         }.repeat(0, TimeUnit.SECONDS.toMillis(30));
 
-        new FlareBotTask("ActivityChecker") {
+        /*new FlareBotTask("ActivityChecker") {
             @Override
             public void run() {
                 for (VoiceChannel channel : Getters.getConnectedVoiceChannel()) {
@@ -839,8 +839,8 @@ public class FlareBot {
                         channel.getGuild().getAudioManager().closeAudioConnection();
                 }
             }
-        }.repeat(10_000, 10_000);
-        //new VoiceChannelCleanup("VoiceChannelCleanup");
+        }.repeat(10_000, 10_000);*/
+        new VoiceChannelCleanup("VoiceChannelCleanup");
     }
 
     public static JSONConfig getConfig() {

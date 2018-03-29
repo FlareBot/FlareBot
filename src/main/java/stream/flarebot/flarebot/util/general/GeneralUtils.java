@@ -174,6 +174,23 @@ public class GeneralUtils {
      * The default value you pass is what it return if their was an error parsing the string.
      * This happens when the string you enter isn't an int. For example if you enter in 'no'.
      *
+     * @param s            The string to parse an byte from.
+     * @param defaultValue The default int value to get in case parsing fails.
+     * @return The int parsed from the string or the default value.
+     */
+    public static byte getByte(String s, byte defaultValue) {
+        try {
+            return Byte.parseByte(s);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Gets an int from a String.
+     * The default value you pass is what it return if their was an error parsing the string.
+     * This happens when the string you enter isn't an int. For example if you enter in 'no'.
+     *
      * @param s            The string to parse an int from.
      * @param defaultValue The default int value to get in case parsing fails.
      * @return The int parsed from the string or the default value.
