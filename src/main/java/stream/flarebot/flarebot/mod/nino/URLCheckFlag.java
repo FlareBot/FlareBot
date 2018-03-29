@@ -51,6 +51,12 @@ public enum URLCheckFlag {
         return all;
     }
 
+    public static List<URLCheckFlag> getDebugFlags() {
+        List<URLCheckFlag> flags = getAllFlags();
+        flags.remove(URLCheckFlag.URL);
+        return flags;
+    }
+
     public static List<URLCheckFlag> getDefaults() {
         if (defaults == null || defaults.size() == 0) {
             defaults = new ArrayList<>();

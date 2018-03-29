@@ -82,7 +82,7 @@ public class Events extends ListenerAdapter {
 
     private final Logger LOGGER = FlareBot.getLog(this.getClass());
     private final Pattern multiSpace = Pattern.compile(" {2,}");
-    private final Pattern rip = Pattern.compile("\\brip [a-zA-Z0-9]+\\b", Pattern.CASE_INSENSITIVE);
+    private final Pattern rip = Pattern.compile("\\brip( [a-zA-Z0-9]+)?\\b", Pattern.CASE_INSENSITIVE);
 
     private FlareBot flareBot;
 
@@ -567,7 +567,7 @@ public class Events extends ListenerAdapter {
         COMMAND_POOL.submit(() -> {
             LOGGER.info(
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
-                            .toString(args) + " in " + event.getChannel() + "! Sender: " +
+                            .toString(args).replace("\n", "\\n") + " in " + event.getChannel() + "! Sender: " +
                             event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator());
             // We're sending a lot of commands... Let's change the way this works soon :D
             /*ApiRequester.requestAsync(ApiRoute.DISPATCH_COMMAND, new JSONObject().put("command", cmd.getCommand())

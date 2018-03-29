@@ -5,10 +5,8 @@ import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.HashSet;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,8 +61,8 @@ public class URLConstants {
             "stream"
     );
 
-    public static final Pattern SUSPICIOUS_TLDS_PATTERN = Pattern.compile(String.format("[\\w-]{1,256}\\.(%s)",
-            SUSPICIOUS_TLDS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
+    public static final Pattern SUSPICIOUS_TLDS_PATTERN = Pattern.compile("[\\w-]{1,256}\\.("
+            + SUSPICIOUS_TLDS.stream().collect(Collectors.joining("|")) + ")", Pattern.CASE_INSENSITIVE);
 
     private static final Set<String> SCREAMERS = ImmutableSet.of(
             "akk.li",
@@ -72,11 +70,11 @@ public class URLConstants {
             "ebaumsworld.com",
             "soulsphere.org"
     );
-    
+
     public static final Pattern SCREAMERS_PATTERN = Pattern.compile(String.format("(%s)",
             SCREAMERS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
-    private static final Set<String> NSFW = fetchNSFWSites();
+    public static final Set<String> NSFW = fetchNSFWSites();
 
     public static final Pattern NSFW_PATTERN = Pattern.compile(String.format("(%s)",
             NSFW.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
@@ -91,22 +89,25 @@ public class URLConstants {
             "dankmeme.stream", // Image Server - https://nothing.domains/
             "hacked-your.webcam", // Image Server - https://nothing.domains/
             "jackloves.men", // Image Server - https://nothing.domains/
+
             "is-info.men", // Image Server - https://whats-th.is/faq.html
             "is-over.party", // Image Server - https://whats-th.is/faq.html
-            "while-at.work" // Image Server - https://whats-th.is/faq.html
+            "while-at.work", // Image Server - https://whats-th.is/faq.html
+
+            "is-at-a.party", // Image Server - https://ratelimited.me/
+            "got-drunk-at-a.party", // Image Server - https://ratelimited.me/
+            "spies-on-my.webcam" // Image Server - https://ratelimited.me/
     );
 
     public static final Pattern WHITELISTED_DOMAINS_PATTERN = Pattern.compile(String.format("(%s)",
             WHITELISTED_DOMAINS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
     private static Set<String> fetchNSFWSites() {
-        try {
-            FileReader fr = new FileReader(new File("nsfw.txt"));
-            BufferedReader br = new BufferedReader(fr);
-
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(URLConstants.class.getClassLoader()
+                .getResourceAsStream("nino/nsfw.txt")))) {
             return ImmutableSet.copyOf(br.lines().collect(Collectors.toSet()));
-        } catch (FileNotFoundException e) {
-            LoggerFactory.getLogger(URLConstants.class).warn("Could not load NSFW list!!");
+        } catch (IOException e) {
+            LoggerFactory.getLogger(URLConstants.class).error("Failed to load NSFW!");
             return ImmutableSet.of();
         }
     }
