@@ -23,24 +23,11 @@ import java.util.stream.Collectors;
 
 public class PermissionsCommand implements Command {
 
-    private final Pattern groupNamePattern = Pattern.compile("[\\w-]{3,32}");
-
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
         if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("group")) {
                 String groupString = args[1];
-                if (!groupNamePattern.matcher(groupString).matches()) {
-                    if (groupString.length() > 32)
-                        MessageUtils.sendWarningMessage("Please make sure the group name is a maximum of 32 chars!", channel);
-                    else if (groupString.length() < 3)
-                        MessageUtils.sendWarningMessage("Please make sure the group name is a minimum of 3 chars!", channel);
-                    else
-                        MessageUtils.sendWarningMessage("You used some invalid characters in your group name!\n" +
-                                "Please only use alphanumeric (letters and numbers) and `-`, `_`.", channel);
-                    return;
-                }
-
                 Group group = getPermissions(channel).getGroup(groupString);
                 if (args.length >= 3) {
                     if (group == null && !args[2].equalsIgnoreCase("create")) {
@@ -75,7 +62,13 @@ public class PermissionsCommand implements Command {
                         }
                     } else if (args[2].equalsIgnoreCase("create")) {
                         if (!GuildWrapperLoader.ALLOWED_CHARS_REGEX.matcher(groupString).matches()) {
-                            MessageUtils.sendErrorMessage("This group name has invalid characters! Please only use word characters and any of these: `" + new String(GuildWrapperLoader.ALLOWED_SPECIAL_CHARACTERS) + "`", channel);
+                            if (groupString.length() > 32)
+                                MessageUtils.sendErrorMessage("Please make sure the group name is a maximum of 32 chars!", channel);
+                            else if (groupString.length() < 3)
+                                MessageUtils.sendErrorMessage("Please make sure the group name is a minimum of 3 chars!", channel);
+                            else
+                                MessageUtils.sendErrorMessage("This group name has invalid characters! Please only use alphanumeric characters (Letters and numbers) and any of these: `" + new String(GuildWrapperLoader.ALLOWED_SPECIAL_CHARACTERS) + "`", channel);
+                            return;
                         }
                         if (getPermissions(channel).addGroup(groupString)) {
                             MessageUtils.sendSuccessMessage("Successfully created group: `" + groupString + "`", channel, sender);
