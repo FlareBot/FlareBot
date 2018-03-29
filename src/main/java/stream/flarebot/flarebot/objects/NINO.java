@@ -84,6 +84,10 @@ public class NINO {
         return whitelistedUrls;
     }
 
+    public Set<Long> getWhitelistedChannels() {
+        return whitelistedChannels;
+    }
+
     public List<String> getRemoveMessages() {
         return removeMessages;
     }

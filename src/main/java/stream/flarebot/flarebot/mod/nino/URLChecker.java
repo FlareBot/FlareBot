@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.mod.nino;
 
 import com.google.common.collect.ImmutableList;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.objects.GuildWrapper;
@@ -39,7 +40,8 @@ public class URLChecker {
         return instance;
     }
 
-    public void checkMessage(GuildWrapper wrapper, String message, BiConsumer<URLCheckFlag, String> callback) {
+    public void checkMessage(GuildWrapper wrapper, TextChannel channel, String message,
+                             BiConsumer<URLCheckFlag, String> callback) {
         NINO nino = wrapper.getNINO();
         Matcher m = nino.getNINOMode() == NINOMode.AGGRESSIVE ? URLConstants.URL_PATTERN_NO_PROTOCOL.matcher(message)
                 : URLConstants.URL_PATTERN.matcher(message);
@@ -52,7 +54,7 @@ public class URLChecker {
         EXECUTOR.submit(() -> {
             Set<URLCheckFlag> flags = wrapper.getNINO().getURLFlags();
 
-            Pair<URLCheckFlag, String> pair = checkURL(url, flags);
+            Pair<URLCheckFlag, String> pair = checkURL(url, flags, channel);
 
             if (pair != null) {
                 // Returned if it's a whitelisted URL
@@ -63,7 +65,7 @@ public class URLChecker {
             } else {
                 if (nino.getNINOMode() == NINOMode.RELAXED) return; // Shouldn't follow.
                 logger.debug("{} was not flagged, going to try and follow the URL.", url);
-                if ((pair = followURL(url, flags, null)) != null) {
+                if ((pair = followURL(url, channel, flags, null)) != null) {
                     logger.debug("{} was found to be under the flag {} ({}) after following it", url, pair.getKey(), pair.getValue());
                     callback.accept(pair.getKey(), pair.getValue());
                     return;
@@ -74,7 +76,7 @@ public class URLChecker {
         });
     }
 
-    private Pair<URLCheckFlag, String> checkURL(String url, Set<URLCheckFlag> flags) {
+    private Pair<URLCheckFlag, String> checkURL(String url, Set<URLCheckFlag> flags, TextChannel channel) {
         Matcher matcher;
         logger.debug("Checking {} with flags: {}", url, Arrays.toString(flags.toArray()));
         // Check whitelisted domains
@@ -121,6 +123,13 @@ public class URLChecker {
             }
         }
 
+        // NSFW
+        if (flags.contains(URLCheckFlag.NSFW) && channel != null && !channel.isNSFW()) {
+            if ((matcher = URLConstants.NSFW_PATTERN.matcher(url)).find()) {
+                return new Pair<>(URLCheckFlag.NSFW, matcher.group());
+            }
+        }
+
         // URL
         if (flags.contains(URLCheckFlag.URL)) {
             return new Pair<>(URLCheckFlag.URL, url);
@@ -129,7 +138,7 @@ public class URLChecker {
         return null;
     }
 
-    private Pair<URLCheckFlag, String> followURL(String url, Set<URLCheckFlag> flags, UUID uuid) {
+    private Pair<URLCheckFlag, String> followURL(String url, TextChannel channel, Set<URLCheckFlag> flags, UUID uuid) {
         UUID redirectUUID = uuid;
         if (uuid != null && redirects.containsKey(uuid)) {
             if (redirects.get(uuid) == 10) // Have a fallback so we don't follow a redirect loop forever.
@@ -149,12 +158,12 @@ public class URLChecker {
             if (location != null) {
                 logger.info("{} ({}) wants to redirect to {}", url, resp, location);
 
-                Pair<URLCheckFlag, String> pair = checkURL(location, flags);
+                Pair<URLCheckFlag, String> pair = checkURL(location, flags, channel);
                 if (pair != null)
                     return pair;
 
                 redirects.put(redirectUUID, (byte) (uuid != null ? redirects.get(uuid) + 1 : 1));
-                return followURL(location, flags, redirectUUID);
+                return followURL(location, channel, flags, redirectUUID);
             } else
                 return null;
         } catch (IOException e) {
@@ -189,7 +198,7 @@ public class URLChecker {
                 URLCheckFlag.PHISHING, URLCheckFlag.SUSPICIOUS);
 
         for (String url : tests) {
-            instance().checkMessage(wrapper, url, (flag, u) -> logger.info(url + " - " + flag));
+            instance().checkMessage(wrapper, null, url, (flag, u) -> logger.info(url + " - " + flag));
         }
     }
 }

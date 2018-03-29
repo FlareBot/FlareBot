@@ -31,14 +31,20 @@ public class NINOListener implements EventListener {
 
         GuildWrapper wrapper = FlareBotManager.instance().getGuild(event.getGuild().getId());
         if (wrapper.getNINO().isEnabled()) {
-            // This event is deprecated and will be removed fully soon!
-            if (!wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.INVITE_POSTED) &&
-                    !wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.NINO)) return;
+
+            // Apply the channel whitelist.
+            if (wrapper.getNINO().getWhitelistedChannels().contains(event.getChannel().getIdLong()))
+                return;
 
             if (wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.NINO)) {
                 AtomicReference<String> msg = new AtomicReference<>(FormatUtils.stripMentions(event.getMessage().getContentDisplay()));
-                URLChecker.instance().checkMessage(wrapper, msg.get(), (flag, url) -> {
+                URLChecker.instance().checkMessage(wrapper, event.getChannel(), msg.get(), (flag, url) -> {
                     if (flag == null || url == null) return;
+
+                    for (String s : wrapper.getNINO().getWhitelist()) {
+                        if (url.equalsIgnoreCase(s))
+                            return;
+                    }
 
                     event.getMessage().delete().queue();
 
@@ -68,35 +74,6 @@ public class NINOListener implements EventListener {
                     );
                 });
             }
-        }
-    }
-
-    private void runLegacyInvite(GuildWrapper wrapper, GuildMessageReceivedEvent event) {
-        String invite = MessageUtils.getInvite(event.getMessage().getContentRaw());
-        if (invite == null) return;
-        for (String inv : wrapper.getNINO().getWhitelist())
-            if (invite.equalsIgnoreCase(inv))
-                return;
-
-        event.getMessage().delete().queue(aVoid -> {
-            String msg = wrapper.getNINO().getRemoveMessage();
-            if (msg != null)
-                event.getChannel().sendMessage(
-                        VariableUtils.parseVariables(msg, wrapper, event.getChannel(), event.getAuthor())
-                ).queue();
-        });
-
-        if (wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.INVITE_POSTED)
-                && !wrapper.getModeration().isEventEnabled(wrapper, ModlogEvent.NINO))
-            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.INVITE_POSTED, event.getAuthor(),
-                    new MessageEmbed.Field("Invite", invite, false),
-                    new MessageEmbed.Field("Deprecated", "This event has been deprecated in favour of the `NINO` " +
-                            "event! Please enable that event!", false)
-            );
-        else {
-            ModlogHandler.getInstance().postToModlog(wrapper, ModlogEvent.NINO, event.getAuthor(),
-                    new MessageEmbed.Field("Invite", invite, false)
-            );
         }
     }
 }
