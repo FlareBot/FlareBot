@@ -82,7 +82,7 @@ public class Events extends ListenerAdapter {
 
     private final Logger LOGGER = FlareBot.getLog(this.getClass());
     private final Pattern multiSpace = Pattern.compile(" {2,}");
-    private final Pattern rip = Pattern.compile("\\brip [a-zA-Z0-9]+\\b", Pattern.CASE_INSENSITIVE);
+    private final Pattern rip = Pattern.compile("\\brip( [a-zA-Z0-9]+)?\\b", Pattern.CASE_INSENSITIVE);
 
     private FlareBot flareBot;
 
