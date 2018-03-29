@@ -29,7 +29,7 @@ public class GuildWrapperLoader extends CacheLoader<String, GuildWrapper> {
     private List<Long> loadTimes = new CopyOnWriteArrayList<>();
 
     public static final char[] ALLOWED_SPECIAL_CHARACTERS = {'$', '_', ' ', '&', '%', '£', '!', '*', '@', '#', ':'};
-    public static final Pattern ALLOWED_CHARS_REGEX = Pattern.compile("[^\\w" + new String(ALLOWED_SPECIAL_CHARACTERS) + "]");
+    public static final Pattern ALLOWED_CHARS_REGEX = Pattern.compile("[\\w" + new String(ALLOWED_SPECIAL_CHARACTERS) + "\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}]{3,32}");
 
     @Override
     @ParametersAreNonnullByDefault
