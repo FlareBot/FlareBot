@@ -123,4 +123,9 @@ public class NINO {
     public void setMode(byte b) {
         this.mode = b;
     }
+
+    public void setFlags(Collection<URLCheckFlag> flags) {
+        this.urlFlags.clear();
+        this.urlFlags.addAll(flags);
+    }
 }

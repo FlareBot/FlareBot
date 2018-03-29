@@ -10,8 +10,10 @@ import stream.flarebot.flarebot.commands.Command;
 import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.nino.NINOMode;
 import stream.flarebot.flarebot.mod.nino.URLCheckFlag;
+import stream.flarebot.flarebot.mod.nino.URLChecker;
 import stream.flarebot.flarebot.mod.nino.URLConstants;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.ColorUtils;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -233,6 +235,11 @@ public class NINOCommand implements Command {
                             "It does have the disadvantage of being a bit slower though (it will still catch before " +
                             "any human can click it). Example: `https://goo.gl/NfYi94`", channel, sender);
                 }
+            } else if (args[0].equalsIgnoreCase("test")) {
+                if (!PerGuildPermissions.isCreator(sender)) return;
+                String links = MessageUtils.getMessage(args, 1);
+
+                URLChecker.instance().runTests(links.split("\n"), channel);
             } else
                 MessageUtils.sendUsage(this, channel, sender, args);
         } else

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import stream.flarebot.flarebot.FlareBotManager;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.objects.NINO;
 import stream.flarebot.flarebot.util.Pair;
@@ -16,11 +17,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class URLChecker {
 
@@ -47,9 +48,7 @@ public class URLChecker {
                 : URLConstants.URL_PATTERN.matcher(message);
         if (!m.find()) return;
 
-        String url = normalizeUrl(m.group(1));
-        /*if (!validURL(url))
-            return;*/
+        String url = normalizeUrl(m.group(0));
 
         EXECUTOR.submit(() -> {
             Set<URLCheckFlag> flags = wrapper.getNINO().getURLFlags();
@@ -58,8 +57,11 @@ public class URLChecker {
 
             if (pair != null) {
                 // Returned if it's a whitelisted URL
-                if (pair.getKey() == null && pair.getValue() != null) return;
-                logger.info("{} was found to be under the flag {} ({})", url, pair.getKey(), pair.getValue());
+                if (pair.getKey() == null && pair.getValue() != null) {
+                    callback.accept(null, null);
+                    return;
+                }
+                logger.debug("{} was found to be under the flag {} ({})", url, pair.getKey(), pair.getValue());
                 callback.accept(pair.getKey(), pair.getValue());
                 return;
             } else {
@@ -115,7 +117,7 @@ public class URLChecker {
                 return new Pair<>(URLCheckFlag.SUSPICIOUS, matcher.group());
             }
         }
-        
+
         // Screamers
         if (flags.contains(URLCheckFlag.SCREAMERS)) {
             if ((matcher = URLConstants.SCREAMERS_PATTERN.matcher(url)).find()) {
@@ -124,7 +126,7 @@ public class URLChecker {
         }
 
         // NSFW
-        if (flags.contains(URLCheckFlag.NSFW) && channel != null && !channel.isNSFW()) {
+        if (flags.contains(URLCheckFlag.NSFW) && channel != null && !channel.isNSFW() && !URLConstants.NSFW.isEmpty()) {
             if ((matcher = URLConstants.NSFW_PATTERN.matcher(url)).find()) {
                 return new Pair<>(URLCheckFlag.NSFW, matcher.group());
             }
@@ -140,12 +142,14 @@ public class URLChecker {
 
     private Pair<URLCheckFlag, String> followURL(String url, TextChannel channel, Set<URLCheckFlag> flags, UUID uuid) {
         UUID redirectUUID = uuid;
-        if (uuid != null && redirects.containsKey(uuid)) {
-            if (redirects.get(uuid) == 10) // Have a fallback so we don't follow a redirect loop forever.
+        // Have a fallback so we don't follow a redirect loop forever.
+        if (uuid != null) {
+            if (redirects.containsKey(uuid) && redirects.get(uuid) == 10)
                 return null;
-            else
-                redirectUUID = UUID.randomUUID();
-        }
+            else // Something weird happened, let's just handle it as it should be handled.
+                redirects.put(uuid, (byte) 1);
+        } else
+            redirectUUID = UUID.randomUUID();
 
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -167,7 +171,7 @@ public class URLChecker {
             } else
                 return null;
         } catch (IOException e) {
-            logger.error("Failed to follow URL! URL: " + url, e);
+            logger.warn("Failed to follow URL! URL: " + url + ", Message: " + e.getMessage());
             return null;
         }
     }
@@ -200,5 +204,36 @@ public class URLChecker {
         for (String url : tests) {
             instance().checkMessage(wrapper, null, url, (flag, u) -> logger.info(url + " - " + flag));
         }
+    }
+
+    public void runTests(String[] links, TextChannel channel) {
+        GuildWrapper wrapper = FlareBotManager.instance().getGuild(channel.getGuild().getId());
+
+        byte before = wrapper.getNINO().getMode();
+        Set<URLCheckFlag> oldFlags = wrapper.getNINO().getURLFlags();
+        wrapper.getNINO().setMode(NINOMode.AGGRESSIVE.getMode());
+        wrapper.getNINO().setFlags(URLCheckFlag.getDebugFlags());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Links:\n");
+        CountDownLatch countDownLatch = new CountDownLatch(links.length);
+        for (String link : links) {
+            instance().checkMessage(wrapper, null, link.trim(), (flag, u) -> {
+                if (flag != null)
+                    sb.append(link.trim()).append(" - ").append(flag).append("\n");
+                logger.info("{} - {}", link.trim(), flag);
+                countDownLatch.countDown();
+            });
+        }
+        try {
+            countDownLatch.await();
+
+            channel.sendMessage(sb.toString()).queue();
+        } catch (InterruptedException e) {
+            logger.error("Failed to wait for checks", e);
+            channel.sendMessage("Something went wrong: " + e.getMessage()).queue();
+        }
+        wrapper.getNINO().setMode(before);
+        wrapper.getNINO().setFlags(oldFlags);
     }
 }
