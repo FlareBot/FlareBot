@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.managers.AudioManager;
 import org.apache.commons.lang3.text.WordUtils;
 import stream.flarebot.flarebot.Events;
 import stream.flarebot.flarebot.FlareBot;
@@ -22,6 +23,7 @@ import stream.flarebot.flarebot.tasks.VoiceChannelCleanup;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.web.DataInterceptor;
 
+import javax.annotation.Nullable;
 import java.util.stream.Collectors;
 
 public class DebugCommand implements InternalCommand {
@@ -94,9 +96,10 @@ public class DebugCommand implements InternalCommand {
             }
             Player player = FlareBot.instance().getMusicManager().getPlayer(wrapper.getGuildId());
 
-            VoiceChannel vc = (wrapper.getGuild().getSelfMember().getVoiceState() != null
-                    && wrapper.getGuild().getSelfMember().getVoiceState().getChannel() != null
-                    ? wrapper.getGuild().getSelfMember().getVoiceState().getChannel() : null);
+            AudioManager manager = wrapper.getGuild().getAudioManager();
+
+            @Nullable
+            VoiceChannel vc = manager.getConnectedChannel();
 
             String lastActive = "Not tracked.";
             if (VoiceChannelCleanup.VC_LAST_USED.containsKey(vc != null ? vc.getIdLong() : guild.getGuildIdLong())) {
@@ -107,13 +110,16 @@ public class DebugCommand implements InternalCommand {
 
             boolean isPlaying = player.getPlayingTrack() != null;
             Track track = player.getPlayingTrack();
+
             eb.setTitle("Bot Debug").setDescription(String.format("Player Debug for `" + wrapper.getGuildId() + "`"
                             + "\nCurrent Track: %s"
                             + "\nCurrent Position: %s"
                             + "\nIs Paused: %b"
                             + "\nPlaylist Length: %s"
                             + "\nIs Looping: %b"
+                            + "\nConnecting: %b"
                             + "\nVoice Channel: %s"
+                            + "\nConnection State: %s"
                             + "\nLast Active: %s",
 
                     (isPlaying ? track.getTrack().getIdentifier() : "No current track"),
@@ -121,7 +127,9 @@ public class DebugCommand implements InternalCommand {
                     player.getPaused(),
                     player.getPlaylist().size(),
                     player.getLooping(),
+                    manager.isAttemptingToConnect(),
                     (vc == null ? "null" : vc.toString()),
+                    manager.getConnectionStatus().toString(),
                     lastActive
             ));
         } else {

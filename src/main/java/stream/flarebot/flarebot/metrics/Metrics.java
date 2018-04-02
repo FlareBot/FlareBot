@@ -122,6 +122,11 @@ public class Metrics {
             .help("Total inactive voice channels that were cleaned up")
             .register();
 
+    public static final Counter playersCleanedUp = Counter.build()
+            .name("flarebot_music_players_cleanedup_total")
+            .help("Total inactive players that were cleaned up")
+            .register();
+
     /*
      * HTTP
      */
