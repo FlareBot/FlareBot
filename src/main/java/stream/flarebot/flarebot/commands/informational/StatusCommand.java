@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.secret.internal;
+package stream.flarebot.flarebot.commands.informational;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
@@ -117,6 +117,6 @@ public class StatusCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.INTERNAL;
+        return CommandType.GENERAL;
     }
 }
