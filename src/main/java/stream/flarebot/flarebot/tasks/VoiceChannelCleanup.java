@@ -99,7 +99,8 @@ public class VoiceChannelCleanup extends FlareBotTask {
                 Guild g = Getters.getGuildById(guildId);
                 if (g == null) {
                     //cleanup(null, player, guildId);
-                    songsCleared.set(songsCleared.getAndAdd(player.getPlaylist().size()));
+
+                    songsCleared.set(songsCleared.addAndGet(player.getPlaylist().size()));
                     killedPlayers.incrementAndGet();
                     return;
                 }
@@ -113,7 +114,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
                     if (System.currentTimeMillis() - VC_LAST_USED.get(guildId) >= CLEANUP_THRESHOLD) {
                         killedPlayers.incrementAndGet();
-                        songsCleared.set(songsCleared.getAndAdd(player.getPlaylist().size()));
+                        songsCleared.set(songsCleared.addAndGet(player.getPlaylist().size()));
                         //cleanup(g, player, guildId);
                         return;
                     }
@@ -128,7 +129,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
                     if (System.currentTimeMillis() - VC_LAST_USED.get(guildId) >= CLEANUP_THRESHOLD) {
                         killedPlayers.incrementAndGet();
-                        songsCleared.set(songsCleared.getAndAdd(player.getPlaylist().size()));
+                        songsCleared.set(songsCleared.addAndGet(player.getPlaylist().size()));
                         //cleanup(g, player, guildId);
                     }
                 } else {
@@ -141,8 +142,8 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
         logger.info("Checked {} players for inactivity.", totalPlayers.get());
         logger.info("Killed {} out of {} players!", killedPlayers.get(), totalPlayers.get());
-        logger.info("CLeaned {} songs from playlists", songsCleared.get());
-        Metrics.voiceChannelsCleanedUp.inc(killedPlayers.get());
+        logger.info("Cleaned {} songs from playlists", songsCleared.get());
+        Metrics.playersCleanedUp.inc(killedPlayers.get());
     }
     
     private void cleanup(Guild guild, Player player, long id) {
