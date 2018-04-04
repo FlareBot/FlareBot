@@ -2,9 +2,9 @@ package stream.flarebot.flarebot;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -15,9 +15,7 @@ import stream.flarebot.flarebot.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,6 +77,17 @@ public class Getters {
     public static User getUserById(long id) {
         return getShardManager().getUserById(id);
     }
+
+    @Nullable
+    public static Role getRoleById(String id) {
+        return getShardManager().getRoleById(id);
+    }
+
+    @Nullable
+    public static Role getRoleById(long id) {
+        return getShardManager().getRoleById(id);
+    }
+
 
     @Nullable
     public static User retrieveUserById(long id) {
