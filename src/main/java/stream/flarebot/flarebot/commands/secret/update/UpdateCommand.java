@@ -14,6 +14,7 @@ import stream.flarebot.flarebot.commands.InternalCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.PerGuildPermissions;
 import stream.flarebot.flarebot.scheduler.FlareBotTask;
+import stream.flarebot.flarebot.scheduler.Scheduler;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.io.BufferedReader;
@@ -53,6 +54,16 @@ public class UpdateCommand implements InternalCommand {
                     } else {
                         MessageUtils.sendErrorMessage("There is already an update queued!", channel);
                     }
+                } else if (args[0].equalsIgnoreCase("cancel")) {
+                    if (!queued.getAndSet(true)) {
+                        MessageUtils.sendErrorMessage("There is no update queued!", channel);
+                    } else {
+                        if (Scheduler.cancelTask("Scheduled-Update")) {
+                            MessageUtils.sendSuccessMessage("Cancelled Update!", channel);
+                        } else {
+                            MessageUtils.sendErrorMessage("Could not cancel update!", channel);
+                        }
+                    }
                 } else {
                     if (!queued.getAndSet(true)) {
                         Period p;
@@ -78,8 +89,9 @@ public class UpdateCommand implements InternalCommand {
                         channel.sendMessage("I will now update to the latest version in " + p.toStandardSeconds()
                                 .getSeconds() + " seconds.")
                                 .queue();
-                    } else
+                    } else {
                         channel.sendMessage("There is already an update queued!").queue();
+                    }
                 }
             }
         }
