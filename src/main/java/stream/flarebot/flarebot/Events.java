@@ -117,12 +117,7 @@ public class Events extends ListenerAdapter {
                             });
                         }
                     } catch (InsufficientPermissionException e) {
-                        event.getGuild().getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
-                            privateChannel.sendMessage("I cannot remove reactions from messages in the channel: "
-                                    + event.getChannel().getName() + "! Please give me the `MESSAGE_HISTORY` " +
-                                    "permission to allow me to do this!").queue();
-                        }, ignored -> {
-                        });
+                        
                     }
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
