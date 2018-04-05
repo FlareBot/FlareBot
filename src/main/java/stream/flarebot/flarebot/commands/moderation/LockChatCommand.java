@@ -85,7 +85,7 @@ public class LockChatCommand implements Command {
             channel.sendMessage(new EmbedBuilder().setColor(locking ? ColorUtils.RED : ColorUtils.GREEN)
                     .setDescription("The chat has been " + (locking ? "locked" : "unlocked") + " by a staff member"
                             + (locking && time > 0 ? " for "
-                            + FormatUtils.formatTime(time, TimeUnit.MILLISECONDS, true, true) : "") + "!"
+                            + FormatUtils.formatTime(time, TimeUnit.MILLISECONDS, true, false) : "") + "!"
                             + (reason != null ? "\nReason: " + reason : ""))
                     .build()).queue();
 

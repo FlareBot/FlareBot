@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import stream.flarebot.flarebot.util.MessageUtils;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Set;
@@ -103,8 +104,7 @@ public class URLConstants {
             WHITELISTED_DOMAINS.stream().collect(Collectors.joining("|"))), Pattern.CASE_INSENSITIVE);
 
     private static Set<String> fetchNSFWSites() {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(URLConstants.class.getClassLoader()
-                .getResourceAsStream("nino/nsfw.txt")))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("nino/nsfw.txt"))) {
             return ImmutableSet.copyOf(br.lines().collect(Collectors.toSet()));
         } catch (IOException e) {
             LoggerFactory.getLogger(URLConstants.class).error("Failed to load NSFW!");
