@@ -81,10 +81,10 @@ public class VoteUtil {
     public static void remove(UUID uuid, Guild guild) {
         VoteGroup group = groupMap.get(uuid + guild.getId());
         if (group == null) return;
-        String message = group.getVoteMessage().getId();
+        long message = group.getMessageId();
         groupMap.remove(uuid + guild.getId());
         Scheduler.cancelTask("Vote-" + message);
-        group.getVoteMessage().getChannel().deleteMessageById(group.getVoteMessage().getId()).queue();
+        group.getVoteMessage().getChannel().deleteMessageById(group.getMessageId()).queue();
     }
 
     public static void finishNow(UUID uuid, Guild guild) {
