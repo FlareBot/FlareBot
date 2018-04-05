@@ -14,21 +14,19 @@ public class PerGuildPermissions {
     private final List<Group> groups = Collections.synchronizedList(new ArrayList<>());
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
-    public boolean hasPermission(Member user, Permission permission) {
+    public Permission.Reply getPermission(Member user, Permission permission) {
         // So we can go into servers and figure out any issues they have.
         if (isCreator(user.getUser()))
-            return true;
+            return Permission.Reply.ALLOW;
         if (user.isOwner())
-            return true;
+            return Permission.Reply.ALLOW;
         if (user.getPermissions().contains(net.dv8tion.jda.core.Permission.ADMINISTRATOR))
-            return true;
+            return Permission.Reply.ALLOW;
         if (isContributor(user.getUser()) && FlareBot.instance().isTestBot())
-            return true;
-        if (getUser(user).hasPermission(permission) == Permission.Reply.ALLOW)
-            return true;
-        if (getUser(user).hasPermission(permission) == Permission.Reply.DENY) {
-            return false;
-        }
+            return Permission.Reply.ALLOW;
+        if (getUser(user).hasPermission(permission) != Permission.Reply.NEUTRAL)
+            return getUser(user).hasPermission(permission);
+
         Permission.Reply hasPerm = Permission.Reply.NEUTRAL;
         synchronized (groups) {
             for (Group g : groups) {
@@ -43,11 +41,13 @@ public class PerGuildPermissions {
                 }
             }
         }
-        if (hasPerm == Permission.Reply.NEUTRAL) {
-            return permission.isDefaultPerm();
-        } else {
-            return hasPerm == Permission.Reply.ALLOW;
-        }
+        return hasPerm;
+    }
+
+    public boolean hasPermission(Member user, Permission permission) {
+        Permission.Reply reply = getPermission(user, permission);
+        return reply == Permission.Reply.ALLOW ||
+                (reply == Permission.Reply.NEUTRAL && permission.isDefaultPerm());
     }
 
     public User getUser(Member user) {

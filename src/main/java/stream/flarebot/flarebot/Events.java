@@ -34,8 +34,8 @@ import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.music.SkipCommand;
-import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
+import stream.flarebot.flarebot.commands.music.*;
+import stream.flarebot.flarebot.commands.secret.update.*;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
@@ -63,7 +63,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -120,7 +119,8 @@ public class Events extends ListenerAdapter {
                             privateChannel.sendMessage("I cannot remove reactions from messages in the channel: "
                                     + event.getChannel().getName() + "! Please give me the `MESSAGE_HISTORY` " +
                                     "permission to allow me to do this!").queue();
-                        }, ignored -> {});
+                        }, ignored -> {
+                        });
                     }
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
@@ -509,14 +509,20 @@ public class Events extends ListenerAdapter {
         return true;
     }
 
+    /**
+     * This handles if the user has permission to run a command. This should return <b>true</b> if the user does NOT
+     * have permission to run the command.
+     *
+     * @param cmd The command to be ran.
+     * @param e   The event this came from.
+     * @return If the user has permission to run the command, this will return <b>true</b> if they do NOT have permission.
+     */
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
-        if (cmd.getDiscordPermission() != null) {
-            if (!cmd.getDiscordPermission().isEmpty())
-                if (e.getMember().getPermissions().containsAll(cmd.getDiscordPermission()))
-                    return false;
-        }
+        stream.flarebot.flarebot.permissions.Permission.Reply permReply = cmd.getPermissions(e.getChannel())
+                .getPermission(e.getMember(), cmd.getPermission());
         if (cmd.getPermission() != null) {
-            if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
+            if (permReply ==
+                    stream.flarebot.flarebot.permissions.Permission.Reply.DENY) {
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
                                 .setDescription("You are missing the permission ``"
                                         + cmd
@@ -524,6 +530,16 @@ public class Events extends ListenerAdapter {
                         e.getChannel());
                 delete(e.getMessage());
                 return true;
+            }
+        }
+
+        if (permReply == stream.flarebot.flarebot.permissions.Permission.Reply.ALLOW) return false;
+
+        if (cmd.getDiscordPermission() != null) {
+            if (!cmd.getDiscordPermission().isEmpty()) {
+                for (Permission perm : cmd.getDiscordPermission())
+                    if (e.getMember().getPermissions().contains(perm))
+                        return false;
             }
         }
 

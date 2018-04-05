@@ -18,6 +18,7 @@ import stream.flarebot.flarebot.util.pagination.PaginationUtil;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,10 +35,12 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if (type.isInternal() && GeneralUtils.canRunInternalCommand(type, sender))
-                sendCommands(guild, channel, member, type);
-            else
+            if (type.isInternal() && !GeneralUtils.canRunInternalCommand(type, sender)) {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
+                return;
+            }
+
+            sendCommands(guild, channel, member, type);
         } else
             sendCommands(channel.getGuild(), channel, sender);
     }
