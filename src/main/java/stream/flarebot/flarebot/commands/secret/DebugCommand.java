@@ -107,7 +107,7 @@ public class DebugCommand implements InternalCommand {
                     + "\n\nFor full guild data do `_guild data " + wrapper.getGuildIdLong() + "`",
 
                     wrapper.dataVersion, GuildWrapper.DATA_VERSION,
-                    wrapper.getPrefix(),
+                    MessageUtils.escapeMarkdown(String.valueOf(wrapper.getPrefix())),
                     wrapper.isBlocked(),
                     wrapper.getBetaAccess(),
                     wrapper.getWelcome().isGuildEnabled(), wrapper.getWelcome().isDmEnabled(),
