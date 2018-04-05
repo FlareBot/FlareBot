@@ -543,10 +543,16 @@ public class Events extends ListenerAdapter {
             }
         }
 
-        return !cmd.getPermissions(e.getChannel()).hasPermission(
-                e.getMember(),
-                stream.flarebot.flarebot.permissions.Permission.getPermission(cmd.getType())
-        ) && cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
+        if (permReply == stream.flarebot.flarebot.permissions.Permission.Reply.NEUTRAL && !cmd.isDefaultPermission()) {
+            MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
+                            .setDescription("You are missing the permission ``"
+                                    + cmd.getPermission()
+                                    + "`` which is required for use of this command!").build(), 5000,
+                    e.getChannel());
+            delete(e.getMessage());
+            return true;
+        }
+        return cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
     }
 
     private void delete(Message message) {

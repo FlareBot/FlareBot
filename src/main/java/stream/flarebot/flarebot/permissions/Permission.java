@@ -56,7 +56,7 @@ public enum Permission {
     PIN_COMMAND("pin", false),
     PRUNE_COMMAND("prune", false),
     PURGE_COMMAND("purge", false),
-    REPORTS_COMMAND("reports", true),
+    REPORTS_COMMAND("reports", false),
     REPORTS_LIST("reports.list", false),
     REPORTS_VIEW("reports.view", false),
     REPORTS_STATUS("reports.status", false),
