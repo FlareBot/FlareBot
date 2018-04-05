@@ -10,8 +10,6 @@ import stream.flarebot.flarebot.commands.InternalCommand;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.ParseUtils;
-import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
-import stream.flarebot.flarebot.util.pagination.PaginationList;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -39,6 +37,7 @@ public class FindCommand implements InternalCommand {
 
             if (parsedUser == null && parsedGuild == null) {
                 channel.sendMessage("Supply a valid user or guild!").queue();
+                return;
             }
 
             if (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase("guild")) {
@@ -47,7 +46,7 @@ public class FindCommand implements InternalCommand {
                             + "\nID: " + parsedGuild.getId()
                             + "\nOwner: " + parsedGuild.getOwner()
                     ).queue();
-                } else if (parsedUser != null) {
+                } else {
                     List<Guild> guilds = new ArrayList<>();
                     for (Guild g : parsedUser.getMutualGuilds())
                         if (g.getOwner().getUser().getIdLong() == parsedUser.getIdLong()) guilds.add(g);
@@ -61,8 +60,7 @@ public class FindCommand implements InternalCommand {
                         channel.sendMessage("Found guilds:\n" + sb.toString()).queue();
                     else
                         channel.sendMessage("Didn't find any guilds").queue();
-                } else
-                    channel.sendMessage("Couldn't find a server from that input").queue();
+                }
             }
         } else
             MessageUtils.sendUsage(this, channel, sender, args);
