@@ -1,9 +1,12 @@
 package stream.flarebot.flarebot.commands.general;
 
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import stream.flarebot.flarebot.FlareBotManager;
-import stream.flarebot.flarebot.commands.Command;
-import stream.flarebot.flarebot.commands.CommandType;
+import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
@@ -31,33 +34,12 @@ public class HelpCommand implements Command {
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
                 return;
             }
-            if (GeneralUtils.canRunInternalCommand(type, sender)) {
-                List<String> pages = new ArrayList<>();
-                List<String> help = type.getCommands()
-                        .stream().filter(cmd -> getPermissions(channel)
-                                .hasPermission(member, cmd.getPermission()))
-                        .map(command -> guild.getPrefix() + command.getCommand() + " - " + command
-                                .getDescription() + '\n')
-                        .collect(Collectors.toList());
-                StringBuilder sb = new StringBuilder();
-                for (String s : help) {
-                    if (sb.length() + s.length() > 1024) {
-                        pages.add(sb.toString());
-                        sb.setLength(0);
-                    }
-                    sb.append(s);
-                }
-                pages.add(sb.toString());
-                PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
-                builder.setTitle("***FlareBot " + type + " commands!***");
-                builder.setColor(Color.CYAN);
-                PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender, ButtonGroupConstants.HELP);
-            } else {
+            if (type.isInternal() && GeneralUtils.canRunInternalCommand(type, sender))
+                sendCommands(guild, channel, member, type);
+            else
                 channel.sendMessage(MessageUtils.getEmbed(sender).setDescription("No such category!").build()).queue();
-            }
-        } else {
+        } else
             sendCommands(channel.getGuild(), channel, sender);
-        }
     }
 
     private void sendCommands(Guild guild, TextChannel channel, User sender) {
@@ -89,6 +71,29 @@ public class HelpCommand implements Command {
         PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
         builder.setColor(Color.CYAN);
         PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, sender, ButtonGroupConstants.HELP);
+    }
+
+    public void sendCommands(GuildWrapper guild, TextChannel channel, Member member, CommandType type) {
+        List<String> pages = new ArrayList<>();
+        List<String> help = type.getCommands()
+                .stream().filter(cmd -> getPermissions(channel)
+                        .hasPermission(member, cmd.getPermission()))
+                .map(command -> guild.getPrefix() + command.getCommand() + " - " + command
+                        .getDescription() + '\n')
+                .collect(Collectors.toList());
+        StringBuilder sb = new StringBuilder();
+        for (String s : help) {
+            if (sb.length() + s.length() > 1024) {
+                pages.add(sb.toString());
+                sb.setLength(0);
+            }
+            sb.append(s);
+        }
+        pages.add(sb.toString());
+        PagedEmbedBuilder<String> builder = new PagedEmbedBuilder<>(new PaginationList<>(pages));
+        builder.setTitle("***FlareBot " + type + " commands!***")
+                .setColor(Color.CYAN);
+        PaginationUtil.sendEmbedPagedMessage(builder.build(), 0, channel, member.getUser(), ButtonGroupConstants.HELP);
     }
 
     @Override
