@@ -85,7 +85,38 @@ public class DebugCommand implements InternalCommand {
                             .collect(Collectors.joining("\n")))
             ));
         } else if (args[0].equalsIgnoreCase("server") || args[0].equalsIgnoreCase("guild")) {
+            GuildWrapper wrapper = guild;
+            if (args.length == 2)
+                wrapper = FlareBotManager.instance().getGuild(args[1]);
+            if (wrapper == null) {
+                channel.sendMessage("I can't find that guild!").queue();
+                return;
+            }
 
+            eb.setTitle("Server Debug").setDescription(String.format("Debug for " + wrapper.getGuildIdLong()
+                    + "\nData Ver: %s (%s)"
+                    + "\nPrefix: %s"
+                    + "\nBlocked: %b"
+                    + "\nBeta: %b"
+                    + "\nWelcomes: %b/%b"
+                    + "\nNINO: %b"
+                    + "\nSong nick: "
+                    + "\nPerms: %s"
+                    + "\nMute role: %s"
+                    + "\nsettings: %s"
+                    + "\n\nFor full guild data do `_guild data " + wrapper.getGuildIdLong() + "`",
+
+                    wrapper.dataVersion, GuildWrapper.DATA_VERSION,
+                    wrapper.getPrefix(),
+                    wrapper.isBlocked(),
+                    wrapper.getBetaAccess(),
+                    wrapper.getWelcome().isGuildEnabled(), wrapper.getWelcome().isDmEnabled(),
+                    wrapper.getNINO().isEnabled(),
+                    wrapper.isSongnickEnabled(),
+                    MessageUtils.paste(FlareBot.GSON.toJson(wrapper.getPermissions())),
+                    wrapper.getMutedRole(),
+                    wrapper.getSettings().toString()
+            ));
         } else if (args[0].equalsIgnoreCase("player") || args[0].equalsIgnoreCase("music")) {
             GuildWrapper wrapper = guild;
             if (args.length == 2)

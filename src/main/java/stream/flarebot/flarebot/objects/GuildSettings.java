@@ -2,6 +2,7 @@ package stream.flarebot.flarebot.objects;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -49,5 +50,14 @@ public class GuildSettings {
 
     public void removeUserFromBlacklist(long userId) {
         this.userBlacklist.remove(userId);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{deleteCommands: %b, channelBlacklist: %s, userBlacklist: %s}",
+                deleteCommands,
+                Arrays.toString(channelBlacklist.toArray()),
+                Arrays.toString(userBlacklist.toArray())
+        );
     }
 }
