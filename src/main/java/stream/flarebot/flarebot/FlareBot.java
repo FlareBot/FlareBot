@@ -516,7 +516,7 @@ public class FlareBot {
     }
 
     public void scheduleUpdate() {
-        new FlareBotTask("Auto-Update") {
+        new FlareBotTask("Scheduled-Update") {
             @Override
             public void run() {
                 quit(true);
