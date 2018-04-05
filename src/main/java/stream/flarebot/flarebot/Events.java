@@ -107,13 +107,15 @@ public class Events extends ListenerAdapter {
                         && event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     try {
-                        event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
-                            for (MessageReaction reaction : message.getReactions()) {
-                                if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
-                                    reaction.removeReaction(event.getUser()).queue();
+                        if(event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                            event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                                for (MessageReaction reaction : message.getReactions()) {
+                                    if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
+                                        reaction.removeReaction(event.getUser()).queue();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     } catch (InsufficientPermissionException e) {
                         event.getGuild().getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
                             privateChannel.sendMessage("I cannot remove reactions from messages in the channel: "
