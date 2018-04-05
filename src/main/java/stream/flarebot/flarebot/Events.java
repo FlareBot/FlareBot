@@ -33,6 +33,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 import stream.flarebot.flarebot.commands.*;
 import stream.flarebot.flarebot.commands.music.*;
 import stream.flarebot.flarebot.commands.secret.update.*;
@@ -587,6 +588,13 @@ public class Events extends ListenerAdapter {
 
     private void dispatchCommand(Command cmd, String[] args, GuildMessageReceivedEvent event, GuildWrapper guild) {
         COMMAND_POOL.submit(() -> {
+            Map<String, String> mdcContext = (MDC.getCopyOfContextMap() == null ? new HashMap<>() : MDC.getCopyOfContextMap());
+            mdcContext.put("command", cmd.getCommand());
+            mdcContext.put("args", Arrays.toString(args).replace("\n", "\\n"));
+            mdcContext.put("guild", event.getGuild().getId());
+            mdcContext.put("user", event.getAuthor().getId());
+            MDC.setContextMap(mdcContext);
+
             LOGGER.info(
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args).replace("\n", "\\n") + " in " + event.getChannel() + "! Sender: " +
