@@ -1,4 +1,4 @@
-package stream.flarebot.flarebot.commands.secret;
+package stream.flarebot.flarebot.commands.secret.internal;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
 import com.arsenarsen.lavaplayerbridge.player.Track;
@@ -188,7 +188,7 @@ public class DebugCommand implements InternalCommand {
 
     @Override
     public CommandType getType() {
-        return CommandType.DEBUG;
+        return CommandType.INTERNAL;
     }
 
     private String getMB(long bytes) {
