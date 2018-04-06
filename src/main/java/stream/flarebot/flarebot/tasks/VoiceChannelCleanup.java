@@ -40,8 +40,6 @@ public class VoiceChannelCleanup extends FlareBotTask {
             return;
         }
 
-        closedConnections.set(0);
-
         cleanupVoiceChannels();
         try {
             Thread.sleep(60_000); // WebSocket is 120 events in 60 second period. Let's wait till it's reset before possibly sending a large amount more
@@ -53,6 +51,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
     }
 
     private void cleanupVoiceChannels() {
+        closedConnections.set(0);
         logger.info("Checking for guilds with an inactive voice channel");
         final AtomicInteger totalGuilds = new AtomicInteger(0);
         final AtomicInteger totalVcs = new AtomicInteger(0);
@@ -98,6 +97,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
     }
 
     private void cleanupPlayers() {
+        closedConnections.set(0);
         logger.info("Checking for players which are inactive");
         final AtomicInteger totalPlayers = new AtomicInteger(0);
         final AtomicInteger killedPlayers = new AtomicInteger(0);
