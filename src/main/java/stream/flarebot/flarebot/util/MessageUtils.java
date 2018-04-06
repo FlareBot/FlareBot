@@ -466,10 +466,9 @@ public class MessageUtils {
         return msg.toString().trim();
     }
 
-//    public static String escapeMarkdown(String s) {
-//        return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
-//    }
-//    This doesn't work atm due to discord issue
+    public static String escapeMarkdown(String s) {
+        return ESCAPE_MARKDOWN.matcher(s).replaceAll("\\\\$0");
+    }
 
     public static String getNextArgument(String message, String from) {
         if (!message.contains(from)) return null;

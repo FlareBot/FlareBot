@@ -77,7 +77,7 @@ public class PlaylistsCommand implements Command {
                     String toAppend;
                     if (row.getString("scope").equalsIgnoreCase("global")) {
                         toAppend = String.format("%s. %s\n", i++,
-                                row.getString("playlist_name"));
+                                MessageUtils.escapeMarkdown(row.getString("playlist_name")));
                         globalSb.append(toAppend);
                     } else {
                         if (loopingGlobal) {
@@ -85,7 +85,7 @@ public class PlaylistsCommand implements Command {
                             i = 1;
                         }
                         toAppend = String.format("%s. %s\n", i++,
-                                row.getString("playlist_name"));
+                                MessageUtils.escapeMarkdown(row.getString("playlist_name")));
                         if (sb.length() + toAppend.length() > 1024) {
                             songs.add(sb.toString());
                             sb = new StringBuilder();
