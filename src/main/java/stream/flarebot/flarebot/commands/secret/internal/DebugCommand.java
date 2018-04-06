@@ -100,7 +100,7 @@ public class DebugCommand implements InternalCommand {
                     + "\nBeta: %b"
                     + "\nWelcomes: %b/%b"
                     + "\nNINO: %b"
-                    + "\nSong nick: "
+                    + "\nSong nick: %b"
                     + "\nPerms: %s"
                     + "\nMute role: %s"
                     + "\nsettings: %s"
