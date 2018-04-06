@@ -32,6 +32,8 @@ public class PlayerListener extends AudioEventAdapter {
     public void onTrackEnd(AudioPlayer aplayer, AudioTrack atrack, AudioTrackEndReason reason) {
         GuildWrapper wrapper = FlareBotManager.instance().getGuild(player.getGuildId());
 
+        if (wrapper == null) return;
+
         // No song on next
         if (player.getPlaylist().isEmpty()) {
             FlareBotManager.instance().getLastActive().put(Long.parseLong(player.getGuildId()), System.currentTimeMillis());

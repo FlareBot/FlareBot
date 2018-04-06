@@ -421,8 +421,4 @@ public class PermissionsCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    @Override
-    public EnumSet<net.dv8tion.jda.core.Permission> getDiscordPermission() {
-        return EnumSet.of(net.dv8tion.jda.core.Permission.MANAGE_PERMISSIONS);
-    }
 }

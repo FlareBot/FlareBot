@@ -60,8 +60,4 @@ public class ForceBanCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    @Override
-    public EnumSet<Permission> getDiscordPermission() {
-        return EnumSet.of(Permission.BAN_MEMBERS);
-    }
 }
