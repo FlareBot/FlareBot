@@ -14,19 +14,21 @@ public class PerGuildPermissions {
     private final List<Group> groups = Collections.synchronizedList(new ArrayList<>());
     private final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
 
-    public Permission.Reply getPermission(Member user, Permission permission) {
+    public boolean hasPermission(Member user, Permission permission) {
         // So we can go into servers and figure out any issues they have.
         if (isCreator(user.getUser()))
-            return Permission.Reply.ALLOW;
+            return true;
         if (user.isOwner())
-            return Permission.Reply.ALLOW;
+            return true;
         if (user.getPermissions().contains(net.dv8tion.jda.core.Permission.ADMINISTRATOR))
-            return Permission.Reply.ALLOW;
+            return true;
         if (isContributor(user.getUser()) && FlareBot.instance().isTestBot())
-            return Permission.Reply.ALLOW;
-        if (getUser(user).hasPermission(permission) != Permission.Reply.NEUTRAL)
-            return getUser(user).hasPermission(permission);
-
+            return true;
+        if (getUser(user).hasPermission(permission) == Permission.Reply.ALLOW)
+            return true;
+        if (getUser(user).hasPermission(permission) == Permission.Reply.DENY) {
+            return false;
+        }
         Permission.Reply hasPerm = Permission.Reply.NEUTRAL;
         synchronized (groups) {
             for (Group g : groups) {
@@ -41,13 +43,12 @@ public class PerGuildPermissions {
                 }
             }
         }
-        return hasPerm;
-    }
-
-    public boolean hasPermission(Member user, Permission permission) {
-        Permission.Reply reply = getPermission(user, permission);
-        return reply == Permission.Reply.ALLOW ||
-                (reply == Permission.Reply.NEUTRAL && permission.isDefaultPerm());
+        if (hasPerm == Permission.Reply.NEUTRAL) {
+            return (!permission.getDiscordPerm().isEmpty() && user.hasPermission(permission.getDiscordPerm()))
+                    || permission.isDefaultPerm();
+        } else {
+            return hasPerm == Permission.Reply.ALLOW;
+        }
     }
 
     public User getUser(Member user) {

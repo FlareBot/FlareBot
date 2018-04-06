@@ -118,7 +118,7 @@ public class Events extends ListenerAdapter {
                             });
                         }
                     } catch (InsufficientPermissionException e) {
-                        
+
                     }
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
@@ -294,6 +294,7 @@ public class Events extends ListenerAdapter {
         if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null)
             return;
         if (VoteUtil.contains(SkipCommand.getSkipUUID(), event.getGuild()) &&
+                event.getGuild().getSelfMember().getVoiceState().inVoiceChannel() &&
                 event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
             VoteUtil.getVoteGroup(SkipCommand.getSkipUUID(), event.getGuild()).addAllowedUser(event.getMember().getUser());
         }
@@ -516,11 +517,8 @@ public class Events extends ListenerAdapter {
      * @return If the user has permission to run the command, this will return <b>true</b> if they do NOT have permission.
      */
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
-        stream.flarebot.flarebot.permissions.Permission.Reply permReply = cmd.getPermissions(e.getChannel())
-                .getPermission(e.getMember(), cmd.getPermission());
         if (cmd.getPermission() != null) {
-            if (permReply ==
-                    stream.flarebot.flarebot.permissions.Permission.Reply.DENY) {
+            if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
                                 .setDescription("You are missing the permission ``"
                                         + cmd
@@ -531,26 +529,10 @@ public class Events extends ListenerAdapter {
             }
         }
 
-        if (permReply == stream.flarebot.flarebot.permissions.Permission.Reply.ALLOW) return false;
-
-        if (cmd.getDiscordPermission() != null) {
-            if (!cmd.getDiscordPermission().isEmpty()) {
-                for (Permission perm : cmd.getDiscordPermission())
-                    if (e.getMember().getPermissions().contains(perm))
-                        return false;
-            }
-        }
-
-        if (permReply == stream.flarebot.flarebot.permissions.Permission.Reply.NEUTRAL && !cmd.isDefaultPermission()) {
-            MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
-                            .setDescription("You are missing the permission ``"
-                                    + cmd.getPermission()
-                                    + "`` which is required for use of this command!").build(), 5000,
-                    e.getChannel());
-            delete(e.getMessage());
-            return true;
-        }
-        return cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
+        return !cmd.getPermissions(e.getChannel()).hasPermission(
+                e.getMember(),
+                stream.flarebot.flarebot.permissions.Permission.getPermission(cmd.getType())
+        ) && cmd.getPermission() == null && cmd.getType() != CommandType.SECRET;
     }
 
     private void delete(Message message) {

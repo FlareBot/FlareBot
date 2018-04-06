@@ -61,11 +61,6 @@ public class SetPrefixCommand implements Command {
     }
 
     @Override
-    public EnumSet<Permission> getDiscordPermission() {
-        return EnumSet.of(Permission.MANAGE_SERVER);
-    }
-
-    @Override
     public String[] getAliases() {
         return new String[]{"setprefix"};
     }

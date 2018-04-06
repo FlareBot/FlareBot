@@ -65,8 +65,4 @@ public class KickCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    @Override
-    public EnumSet<Permission> getDiscordPermission() {
-        return EnumSet.of(Permission.KICK_MEMBERS);
-    }
 }

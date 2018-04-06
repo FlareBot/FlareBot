@@ -71,8 +71,4 @@ public class PinCommand implements Command {
         return CommandType.MODERATION;
     }
 
-    @Override
-    public EnumSet<Permission> getDiscordPermission() {
-        return EnumSet.of(Permission.MESSAGE_MANAGE);
-    }
 }
