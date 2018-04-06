@@ -90,6 +90,7 @@ public enum Permission {
     SONG_COMMAND("song", true),
     SONGNICK_COMMAND("songnick", false),
     STOP_COMMAND("stop", false),
+    KILL_COMMAND("kill", false),
     // Misc
     AVATAR_COMMAND("avatar", true),
     AVATAR_OTHER("avatar.other", false),

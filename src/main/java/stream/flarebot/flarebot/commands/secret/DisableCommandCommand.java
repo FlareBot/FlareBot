@@ -84,7 +84,7 @@ public class DisableCommandCommand implements InternalCommand {
 
     @Override
     public String[] getAliases() {
-        return new String[]{"fuckthat", "kill", "disablecmd"};
+        return new String[]{"fuckthat", "disablecmd"};
     }
 
     private String getEmote(boolean b) {

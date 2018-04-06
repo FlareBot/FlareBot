@@ -40,12 +40,12 @@ public class ChangeAvatarCommand implements InternalCommand {
 
     @Override
     public String getCommand() {
-        return "avatar";
+        return "changeavatar";
     }
 
     @Override
     public String getDescription() {
-        return "";
+        return "Change the bot avatar";
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ChangeAvatarCommand implements InternalCommand {
     }
 
     @Override
-    public boolean isDefaultPermission() {
-        return false;
+    public String[] getAliases() {
+        return new String[]{"cavatar"};
     }
 }
