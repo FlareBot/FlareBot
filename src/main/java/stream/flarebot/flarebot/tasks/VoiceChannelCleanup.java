@@ -1,6 +1,7 @@
 package stream.flarebot.flarebot.tasks;
 
 import com.arsenarsen.lavaplayerbridge.player.Player;
+import net.dv8tion.jda.core.audio.hooks.ConnectionStatus;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -25,6 +26,9 @@ public class VoiceChannelCleanup extends FlareBotTask {
     public static final Map<Long, Long> VC_LAST_USED = new HashMap<>();
     private static final long CLEANUP_THRESHOLD = TimeUnit.MINUTES.toMillis(20);
 
+    private static final int WEBSOCKET_THRESHOLD = 50;
+    private static final AtomicInteger closedConnections = new AtomicInteger(0);
+
     public VoiceChannelCleanup(String taskName) {
         super(taskName, TimeUnit.MINUTES.toMillis(20), TimeUnit.MINUTES.toMillis(5));
     }
@@ -36,7 +40,15 @@ public class VoiceChannelCleanup extends FlareBotTask {
             return;
         }
 
+        closedConnections.set(0);
+
         cleanupVoiceChannels();
+        try {
+            Thread.sleep(60_000); // WebSocket is 120 events in 60 second period. Let's wait till it's reset before possibly sending a large amount more
+        } catch (InterruptedException e) {
+            logger.error("Failed to sleep till the websocket reset", e);
+            return;
+        }
         cleanupPlayers();
     }
 
@@ -84,7 +96,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
         logger.info("Killed {} out of {} voice connections!", killedVcs.get(), totalVcs.get());
         Metrics.voiceChannelsCleanedUp.inc(killedVcs.get());
     }
-    
+
     private void cleanupPlayers() {
         logger.info("Checking for players which are inactive");
         final AtomicInteger totalPlayers = new AtomicInteger(0);
@@ -95,18 +107,18 @@ public class VoiceChannelCleanup extends FlareBotTask {
             try {
                 totalPlayers.incrementAndGet();
                 long guildId = Long.parseLong(player.getGuildId());
-                
+
                 Guild g = Getters.getGuildById(guildId);
                 if (g == null) {
-                    //cleanup(null, player, guildId);
+                    cleanup(null, player, guildId);
 
                     songsCleared.set(songsCleared.addAndGet(player.getPlaylist().size()));
                     killedPlayers.incrementAndGet();
                     return;
                 }
 
-                if (g.getSelfMember().getVoiceState() == null || 
-                    g.getSelfMember().getVoiceState().getChannel() == null) {
+                if (g.getSelfMember().getVoiceState() == null ||
+                        g.getSelfMember().getVoiceState().getChannel() == null) {
                     if (!VC_LAST_USED.containsKey(guildId)) {
                         VC_LAST_USED.put(guildId, System.currentTimeMillis());
                         return;
@@ -115,7 +127,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
                     if (System.currentTimeMillis() - VC_LAST_USED.get(guildId) >= CLEANUP_THRESHOLD) {
                         killedPlayers.incrementAndGet();
                         songsCleared.set(songsCleared.addAndGet(player.getPlaylist().size()));
-                        //cleanup(g, player, guildId);
+                        cleanup(g, player, guildId);
                         return;
                     }
                     return;
@@ -130,7 +142,7 @@ public class VoiceChannelCleanup extends FlareBotTask {
                     if (System.currentTimeMillis() - VC_LAST_USED.get(guildId) >= CLEANUP_THRESHOLD) {
                         killedPlayers.incrementAndGet();
                         songsCleared.set(songsCleared.addAndGet(player.getPlaylist().size()));
-                        //cleanup(g, player, guildId);
+                        cleanup(g, player, guildId);
                     }
                 } else {
                     VC_LAST_USED.remove(guildId);
@@ -142,15 +154,19 @@ public class VoiceChannelCleanup extends FlareBotTask {
 
         logger.info("Checked {} players for inactivity.", totalPlayers.get());
         logger.info("Killed {} out of {} players!", killedPlayers.get(), totalPlayers.get());
-        logger.info("Cleaned {} songs from playlists", songsCleared.get());
+        logger.info("Cleaned {} songs from players", songsCleared.get());
         Metrics.playersCleanedUp.inc(killedPlayers.get());
     }
-    
+
     private void cleanup(Guild guild, Player player, long id) {
         if (guild != null && guild.getSelfMember().getVoiceState() != null
                 && guild.getSelfMember().getVoiceState().getChannel() != null
-                && guild.getAudioManager().isConnected())
+                && guild.getAudioManager().isConnected()
+                && guild.getAudioManager().getConnectionStatus() == ConnectionStatus.CONNECTED
+                && closedConnections.get() < WEBSOCKET_THRESHOLD) { // Cut off at threshold in-case we send too many
             guild.getAudioManager().closeAudioConnection();
+            closedConnections.incrementAndGet();
+        }
 
         FlareBot.instance().getMusicManager().deletePlayer(player);
         VC_LAST_USED.remove(id);
