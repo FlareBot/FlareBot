@@ -55,6 +55,7 @@ public class GeneralUtils {
     private static final Pattern timeRegex = Pattern.compile("^([0-9]*):?([0-9]*)?:?([0-9]*)?$");
 
     private static final PeriodFormatter periodParser = new PeriodFormatterBuilder()
+            .appendWeeks().appendSuffix("w")
             .appendDays().appendSuffix("d")
             .appendHours().appendSuffix("h")
             .appendMinutes().appendSuffix("m")
