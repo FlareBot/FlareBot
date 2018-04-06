@@ -296,6 +296,7 @@ public class Events extends ListenerAdapter {
         if (event.getGuild().getSelfMember().getVoiceState().getChannel() == null)
             return;
         if (VoteUtil.contains(SkipCommand.getSkipUUID(), event.getGuild()) &&
+                event.getGuild().getSelfMember().getVoiceState().inVoiceChannel() &&
                 event.getChannelJoined().getIdLong() == event.getGuild().getSelfMember().getVoiceState().getChannel().getIdLong()) {
             VoteUtil.getVoteGroup(SkipCommand.getSkipUUID(), event.getGuild()).addAllowedUser(event.getMember().getUser());
         }
@@ -510,11 +511,6 @@ public class Events extends ListenerAdapter {
     }
 
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
-        if (cmd.getDiscordPermission() != null) {
-            if (!cmd.getDiscordPermission().isEmpty())
-                if (e.getMember().getPermissions().containsAll(cmd.getDiscordPermission()))
-                    return false;
-        }
         if (cmd.getPermission() != null) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
                 MessageUtils.sendAutoDeletedMessage(MessageUtils.getEmbed(e.getAuthor()).setColor(Color.red)
