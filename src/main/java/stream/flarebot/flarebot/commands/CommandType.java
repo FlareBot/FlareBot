@@ -16,7 +16,6 @@ public enum CommandType {
     RANDOM(false),
     INFORMATIONAL(false),
     SECRET(false, Constants.DEVELOPER_ID),
-    DEBUG(false, Constants.CONTRIBUTOR_ID, Constants.DEVELOPER_ID),
     INTERNAL(false, Constants.STAFF_ID, Constants.CONTRIBUTOR_ID, Constants.DEVELOPER_ID);
 
     private static final CommandType[] values = values();
@@ -25,7 +24,7 @@ public enum CommandType {
     // If it shows up in help
     private boolean defaultType;
     // If it is restricted to staff, contribs or devs
-    private long[] internalRoleIds = new long[] {-1};
+    private long[] internalRoleIds = new long[] {};
 
     CommandType(boolean defaultType) {
         this.defaultType = defaultType;
@@ -46,7 +45,7 @@ public enum CommandType {
     }
     
     public boolean isInternal() {
-        return internalRoleIds[0] > 0;
+        return internalRoleIds.length > 0;
     }
 
     public static CommandType[] getTypes() {

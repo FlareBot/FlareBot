@@ -57,7 +57,7 @@ public class ButtonUtil {
                     "disabled", channel);
             return;
         }
-        if (!channel.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+        if (!channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_MANAGE)) {
             MessageUtils.sendErrorMessage("We don't have permission to manage reactions so you won't be getting the best experience with buttons", channel);
         }
         for (ButtonGroup.Button button : buttonGroup.getButtons()) {

@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 public class GuildWrapper {
 
     public static transient final long DATA_VERSION = 1;
-    private final long dataVersion = DATA_VERSION;
+    public final long dataVersion = DATA_VERSION;
 
     private String guildId;
     private char prefix = Constants.COMMAND_CHAR;

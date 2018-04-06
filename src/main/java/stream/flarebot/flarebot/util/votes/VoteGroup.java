@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.util.votes;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import stream.flarebot.flarebot.Getters;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -20,6 +21,7 @@ public class VoteGroup {
     private final String messageDesc;
 
     private Message voteMessage;
+    private long messageId;
     private EmbedBuilder votesEmbed;
 
     private UUID id;
@@ -39,7 +41,7 @@ public class VoteGroup {
                 yesVotes++;
 
             if (allowedUsers.size() == totalVotes()) {
-                VoteUtil.finishNow(id, voteMessage.getGuild());
+                VoteUtil.finishNow(id, Getters.getGuildById(voteMessage.getId()));
                 return true;
             }
 
@@ -70,6 +72,7 @@ public class VoteGroup {
 
     public void setVoteMessage(Message message) {
         this.voteMessage = message;
+        this.messageId = message.getIdLong();
     }
 
     public void setVotesEmbed(EmbedBuilder embed) {
@@ -78,6 +81,10 @@ public class VoteGroup {
 
     public Message getVoteMessage() {
         return voteMessage;
+    }
+
+    public long getMessageId() {
+        return messageId;
     }
 
     public String getMessageDesc() {

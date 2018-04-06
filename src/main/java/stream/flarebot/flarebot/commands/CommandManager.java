@@ -151,6 +151,7 @@ public class CommandManager {
         registerCommand(new GuildCommand());
         registerCommand(new DisableCommandCommand());
         registerCommand(new DebugCommand());
+        registerCommand(new FindCommand());
     }
 
     private void registerMiscCommands() {

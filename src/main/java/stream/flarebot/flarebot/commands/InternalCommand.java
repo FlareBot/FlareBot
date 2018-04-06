@@ -37,4 +37,9 @@ public interface InternalCommand extends Command {
     default Permission getPermission() {
         return null;
     }
+
+    @Override
+    default CommandType getType() {
+        return CommandType.INTERNAL;
+    }
 }

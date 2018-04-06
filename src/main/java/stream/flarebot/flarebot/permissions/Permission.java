@@ -57,7 +57,7 @@ public enum Permission {
     PIN_COMMAND("pin", false, net.dv8tion.jda.core.Permission.MESSAGE_MANAGE),
     PRUNE_COMMAND("prune", false, net.dv8tion.jda.core.Permission.MANAGE_SERVER),
     PURGE_COMMAND("purge", false, net.dv8tion.jda.core.Permission.MESSAGE_MANAGE),
-    REPORTS_COMMAND("reports", true),
+    REPORTS_COMMAND("reports", false),
     REPORTS_LIST("reports.list", false),
     REPORTS_VIEW("reports.view", false),
     REPORTS_STATUS("reports.status", false),

@@ -37,7 +37,7 @@ public class LockChatCommand implements Command {
         @Nonnull
         AtomicReference<TextChannel> tc = new AtomicReference<>(channel);
         if (args.length >= 1) {
-            TextChannel tmp = ParseUtils.parseChannel(guild.getGuild(), args[0]);
+            TextChannel tmp = ParseUtils.parseChannel(guild.getGuild(), args[0], false);
             if (tmp != null)
                 tc.set(tmp);
 

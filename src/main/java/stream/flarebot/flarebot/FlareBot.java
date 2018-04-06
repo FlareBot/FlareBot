@@ -337,7 +337,7 @@ public class FlareBot {
                 if (e.getErrorCode() == -1) // Socket timeout
                     return;
             }
-            LOGGER.warn("Failed RestAction", t);
+            LOGGER.warn("Failed RestAction - " + t.getMessage());
         };
 
         events = new Events(this);

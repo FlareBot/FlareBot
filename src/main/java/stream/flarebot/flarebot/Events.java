@@ -33,9 +33,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 import stream.flarebot.flarebot.commands.*;
-import stream.flarebot.flarebot.commands.music.SkipCommand;
-import stream.flarebot.flarebot.commands.secret.update.UpdateCommand;
+import stream.flarebot.flarebot.commands.music.*;
+import stream.flarebot.flarebot.commands.secret.update.*;
 import stream.flarebot.flarebot.database.RedisController;
 import stream.flarebot.flarebot.metrics.Metrics;
 import stream.flarebot.flarebot.mod.modlog.ModlogEvent;
@@ -63,7 +64,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -108,19 +108,17 @@ public class Events extends ListenerAdapter {
                         && event.getReactionEmote().getIdLong() == button.getEmoteId())
                         || (button.getUnicode() != null && event.getReactionEmote().getName().equals(button.getUnicode()))) {
                     try {
-                        event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
-                            for (MessageReaction reaction : message.getReactions()) {
-                                if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
-                                    reaction.removeReaction(event.getUser()).queue();
+                        if(event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                            event.getChannel().getMessageById(event.getMessageId()).queue(message -> {
+                                for (MessageReaction reaction : message.getReactions()) {
+                                    if (reaction.getReactionEmote().equals(event.getReactionEmote())) {
+                                        reaction.removeReaction(event.getUser()).queue();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     } catch (InsufficientPermissionException e) {
-                        event.getGuild().getOwner().getUser().openPrivateChannel().queue(privateChannel -> {
-                            privateChannel.sendMessage("I cannot remove reactions from messages in the channel: "
-                                    + event.getChannel().getName() + "! Please give me the `MESSAGE_HISTORY` " +
-                                    "permission to allow me to do this!").queue();
-                        }, ignored -> {});
+
                     }
                     button.onClick(ButtonUtil.getButtonGroup(event.getMessageId()).getOwner(), event.getUser());
                     String emote = event.getReactionEmote() != null ? event.getReactionEmote().getName() + "(" + event.getReactionEmote().getId() + ")" : button.getUnicode();
@@ -510,6 +508,14 @@ public class Events extends ListenerAdapter {
         return true;
     }
 
+    /**
+     * This handles if the user has permission to run a command. This should return <b>true</b> if the user does NOT
+     * have permission to run the command.
+     *
+     * @param cmd The command to be ran.
+     * @param e   The event this came from.
+     * @return If the user has permission to run the command, this will return <b>true</b> if they do NOT have permission.
+     */
     private boolean handleMissingPermission(Command cmd, GuildMessageReceivedEvent e) {
         if (cmd.getPermission() != null) {
             if (!cmd.getPermissions(e.getChannel()).hasPermission(e.getMember(), cmd.getPermission())) {
@@ -561,6 +567,13 @@ public class Events extends ListenerAdapter {
 
     private void dispatchCommand(Command cmd, String[] args, GuildMessageReceivedEvent event, GuildWrapper guild) {
         COMMAND_POOL.submit(() -> {
+            Map<String, String> mdcContext = (MDC.getCopyOfContextMap() == null ? new HashMap<>() : MDC.getCopyOfContextMap());
+            mdcContext.put("command", cmd.getCommand());
+            mdcContext.put("args", Arrays.toString(args).replace("\n", "\\n"));
+            mdcContext.put("guild", event.getGuild().getId());
+            mdcContext.put("user", event.getAuthor().getId());
+            MDC.setContextMap(mdcContext);
+
             LOGGER.info(
                     "Dispatching command '" + cmd.getCommand() + "' " + Arrays
                             .toString(args).replace("\n", "\\n") + " in " + event.getChannel() + "! Sender: " +
