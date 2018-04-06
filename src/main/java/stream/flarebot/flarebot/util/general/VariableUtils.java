@@ -120,7 +120,7 @@ public class VariableUtils {
             parsed = parsed
                     .replace("{channel}", channel.getName())
                     .replace("{channel_mention}", channel.getAsMention())
-                    .replace("{topic}", channel.getTopic())
+                    .replace("{topic}", channel.getTopic() == null ? "No Topic" : channel.getTopic())
                     .replace("{category}", (channel.getParent() != null ? channel.getParent().getName() : "no category"));
         }
 
