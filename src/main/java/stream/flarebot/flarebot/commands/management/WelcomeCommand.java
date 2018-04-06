@@ -10,6 +10,7 @@ import stream.flarebot.flarebot.objects.GuildWrapper;
 import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.buttons.ButtonGroupConstants;
+import stream.flarebot.flarebot.util.general.FormatUtils;
 import stream.flarebot.flarebot.util.general.GeneralUtils;
 import stream.flarebot.flarebot.util.pagination.PagedEmbedBuilder;
 import stream.flarebot.flarebot.util.pagination.PaginationUtil;
@@ -59,7 +60,7 @@ public class WelcomeCommand implements Command {
                                         int id = Integer.valueOf(args[3]);
                                         String welcome = guild.getWelcome().getDmMessages().get(id);
                                         guild.getWelcome().getDmMessages().remove(id);
-                                        channel.sendMessage("Removed welcome message `" + welcome + "`").queue();
+                                        channel.sendMessage("Removed welcome message: " + welcome).queue();
                                         return;
                                     } else {
                                         MessageUtils.sendUsage(this, channel, sender, args);
@@ -73,8 +74,8 @@ public class WelcomeCommand implements Command {
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 3);
                                 guild.getWelcome().getDmMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `"
-                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
+                                channel.sendMessage("Added welcome message: "
+                                        + welcomeMessage).queue();
                             } else {
                                 MessageUtils.sendUsage(this, channel, sender, args);
                             }
@@ -134,8 +135,7 @@ public class WelcomeCommand implements Command {
                             if (args[2].equalsIgnoreCase("add")) {
                                 String welcomeMessage = MessageUtils.getMessage(args, 3);
                                 guild.getWelcome().getGuildMessages().add(welcomeMessage);
-                                channel.sendMessage("Added welcome message `"
-                                        + MessageUtils.escapeMarkdown(welcomeMessage) + "`").queue();
+                                channel.sendMessage("Added welcome message: " + welcomeMessage).queue();
                             } else {
                                 MessageUtils.sendUsage(this, channel, sender, args);
                             }
