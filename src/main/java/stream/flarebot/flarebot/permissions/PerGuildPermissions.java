@@ -44,7 +44,7 @@ public class PerGuildPermissions {
             }
         }
         if (hasPerm == Permission.Reply.NEUTRAL) {
-            return (user.hasPermission(permission.getDiscordPerm()) && permission.getDiscordPerm().size() > 0)
+            return (user.hasPermission(permission.getDiscordPerm()) && !permission.getDiscordPerm().isEmpty())
                     || permission.isDefaultPerm();
         } else {
             return hasPerm == Permission.Reply.ALLOW;
