@@ -107,6 +107,7 @@ public class CommandManager {
         registerCommand(new DeleteCommand());
         registerCommand(new PlaylistsCommand());
         registerCommand(new SeekCommand());
+        registerCommand(new KillCommand());
     }
 
     private void registerModerationCommands() {

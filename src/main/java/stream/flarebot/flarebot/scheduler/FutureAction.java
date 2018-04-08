@@ -71,10 +71,15 @@ public class FutureAction {
         this.responsible = responsible;
         this.target = target;
         this.content = content;
-        this.delay = new Period(expires.minus(created.getMillis()).getMillis());
         this.expires = expires;
         this.created = created;
         this.action = action;
+
+        if (expires.minus(created.getMillis()).getMillis() > Integer.MAX_VALUE) {
+            delete();
+            return;
+        }
+        this.delay = new Period(expires.minus(created.getMillis()).getMillis());
     }
 
     public FutureAction(long guildId, long channelId, long responsible, long target, String content,
@@ -88,6 +93,9 @@ public class FutureAction {
         this.created = new DateTime(DateTimeZone.UTC);
         this.expires = created.plus(delay);
         this.action = action;
+
+        if (delay.getMillis() <= 0)
+            delete();
     }
 
     public FutureAction(long guildId, long channelId, long responsible, String content, Period delay, Action action) {

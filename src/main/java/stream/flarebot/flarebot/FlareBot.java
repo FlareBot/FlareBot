@@ -34,6 +34,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -82,8 +83,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
@@ -463,6 +466,7 @@ public class FlareBot {
                                 row.getLong("target"), row.getString("content"), new DateTime(row.getTimestamp("expires_at")),
                                 new DateTime(row.getTimestamp("created_at")),
                                 FutureAction.Action.valueOf(row.getString("action").toUpperCase()));
+
                 try {
                     if (new DateTime().isAfter(fa.getExpires()))
                         fa.execute();
