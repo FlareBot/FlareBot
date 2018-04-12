@@ -2,7 +2,11 @@ package stream.flarebot.flarebot.mod.modlog;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.HierarchyException;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.joda.time.Period;
@@ -134,7 +138,7 @@ public class ModlogHandler {
      */
     public void handleAction(GuildWrapper wrapper, TextChannel channel, User sender, User target, ModAction modAction,
                              String reason, long duration) {
-        String rsn = (reason == null ? "No reason given!" : "(`" + reason.replaceAll("`", "'") + "`)");
+        String rsn = (reason == null ? "No reason given!" : reason.replaceAll("`", "'"));
         Member member = null;
         if (target != null) {
             member = wrapper.getGuild().getMember(target);
@@ -172,7 +176,7 @@ public class ModlogHandler {
         // Check if the person is below the target in role hierarchy
         if (member != null && sender != null && !canInteract(wrapper.getGuild().getMember(sender), member, wrapper)) {
             MessageUtils.sendErrorMessage(String.format("You cannot %s a user who is higher than you in the role hierarchy!",
-                       modAction.getLowercaseName()), channel);
+                    modAction.getLowercaseName()), channel);
             return;
         }
 
@@ -196,6 +200,15 @@ public class ModlogHandler {
                                     .setImage(channel.getGuild().getIdLong() == Constants.OFFICIAL_GUILD ?
                                             "https://flarebot.stream/img/banhammer.png" : null)
                                     .build()).queue());
+                    break;
+                case SOFTBAN:
+                    channel.getGuild().getController().ban(target, 7, reason).queue(aVoid -> {
+                        channel.sendMessage(new EmbedBuilder().setColor(Color.GREEN)
+                                .setDescription(target.getName() + " was softly hit with the ban hammer... " +
+                                        "this time\nReason: " + rsn)
+                                .build()).queue();
+                        channel.getGuild().getController().unban(target).queue();
+                    });
                     break;
                 case FORCE_BAN:
                     channel.getGuild().getController().ban(target.getId(), 7, reason).queue(aVoid ->
@@ -221,6 +234,7 @@ public class ModlogHandler {
                     break;
                 }
                 case UNBAN:
+                    if (target == null) return;
                     wrapper.getGuild().getController().unban(target).queue();
 
                     MessageUtils.sendSuccessMessage("Unbanned " + target.getAsMention() + "!", channel, sender);
@@ -294,24 +308,24 @@ public class ModlogHandler {
         // TODO: Infraction
         postToModlog(wrapper, modAction.getEvent(), target, sender, rsn);
     }
-    
+
     private boolean canInteract(Member sender, Member target, GuildWrapper wrapper) {
         if (target.isOwner() || target.hasPermission(Permission.ADMINISTRATOR))
-           return true;
-        
+            return true;
+
         if (target.getRoles().isEmpty() || sender.getRoles().isEmpty()) {
             return true;
         }
 
-         Role muteRole = wrapper.getMutedRole();
-         Role topMemberRole = sender.getRoles().get(0);
-         Role topTargetRole = target.getRoles().get(0);
-         if (muteRole != null) {
-             if (topMemberRole.getIdLong() == muteRole.getIdLong() && sender.getRoles().size() > 1)
-                 topMemberRole = sender.getRoles().get(1);
-             if (topTargetRole.getIdLong() == muteRole.getIdLong() && target.getRoles().size() > 1)
-                    topTargetRole = target.getRoles().get(1);
-         }
-         return topMemberRole.getPosition() > topTargetRole.getPosition();
+        Role muteRole = wrapper.getMutedRole();
+        Role topMemberRole = sender.getRoles().get(0);
+        Role topTargetRole = target.getRoles().get(0);
+        if (muteRole != null) {
+            if (topMemberRole.getIdLong() == muteRole.getIdLong() && sender.getRoles().size() > 1)
+                topMemberRole = sender.getRoles().get(1);
+            if (topTargetRole.getIdLong() == muteRole.getIdLong() && target.getRoles().size() > 1)
+                topTargetRole = target.getRoles().get(1);
+        }
+        return topMemberRole.getPosition() > topTargetRole.getPosition();
     }
 }

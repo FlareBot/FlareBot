@@ -9,10 +9,11 @@ import stream.flarebot.flarebot.commands.CommandType;
 import stream.flarebot.flarebot.mod.modlog.ModAction;
 import stream.flarebot.flarebot.mod.modlog.ModlogHandler;
 import stream.flarebot.flarebot.objects.GuildWrapper;
+import stream.flarebot.flarebot.permissions.Permission;
 import stream.flarebot.flarebot.util.MessageUtils;
 import stream.flarebot.flarebot.util.general.GuildUtils;
 
-public class BanCommand implements Command {
+public class SoftBanCommand implements Command {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message message, String[] args, Member member) {
@@ -26,7 +27,7 @@ public class BanCommand implements Command {
             if (args.length >= 2)
                 reason = MessageUtils.getMessage(args, 1);
 
-            ModlogHandler.getInstance().handleAction(guild, channel, sender, target, ModAction.BAN, reason);
+            ModlogHandler.getInstance().handleAction(guild, channel, sender, target, ModAction.SOFTBAN, reason);
         } else {
             MessageUtils.sendUsage(this, channel, sender, args);
         }
@@ -34,22 +35,17 @@ public class BanCommand implements Command {
 
     @Override
     public String getCommand() {
-        return "ban";
+        return "softban";
     }
 
     @Override
     public String getDescription() {
-        return "Bans a user";
+        return "Ban a user to clean their messages - this unbans right away! (Basically a kick + large purge)";
     }
 
     @Override
     public String getUsage() {
-        return "`{%}ban <user> [reason]` - Bans a user with an optional reason.";
-    }
-
-    @Override
-    public stream.flarebot.flarebot.permissions.Permission getPermission() {
-        return stream.flarebot.flarebot.permissions.Permission.BAN_COMMAND;
+        return "`{%}softban <user> [reason]` - Softban a user with an optional reason";
     }
 
     @Override
@@ -57,4 +53,8 @@ public class BanCommand implements Command {
         return CommandType.MODERATION;
     }
 
+    @Override
+    public Permission getPermission() {
+        return Permission.SOFTBAN_COMMAND;
+    }
 }

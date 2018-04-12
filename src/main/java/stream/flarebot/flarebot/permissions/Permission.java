@@ -37,6 +37,7 @@ public enum Permission {
     USERINFO_OTHER("userinfo.other", true),
     // Moderation
     BAN_COMMAND("ban", false, net.dv8tion.jda.core.Permission.BAN_MEMBERS),
+    SOFTBAN_COMMAND("softban", false, net.dv8tion.jda.core.Permission.BAN_MEMBERS),
     FORCEBAN_COMMAND("forceban", false, net.dv8tion.jda.core.Permission.BAN_MEMBERS),
     KICK_COMMAND("kick", false, net.dv8tion.jda.core.Permission.KICK_MEMBERS),
     MODLOG_COMMAND("modlog", false),

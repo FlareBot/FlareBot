@@ -30,6 +30,7 @@ public enum ModlogEvent {
 
     // These are events triggered mostly by our mod actions
     USER_BANNED("User Banned", "Triggers when a user is banned, either through Discord or a bot", ColorUtils.RED, true, true),
+    USER_SOFTBANNED("User Soft Banned", "Triggers when a user is softbanned using FlareBot", ColorUtils.RED, true, true),
     USER_TEMP_BANNED("User Temp Banned", "Triggers when a user is temporarily banned using FlareBot", ColorUtils.RED, true, true),
     USER_UNBANNED("User Unbanned", "Triggers when a user is unbanned, either through Discord or a bot", ColorUtils.FLAREBOT_BLUE, true, true),
 

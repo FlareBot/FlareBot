@@ -3,6 +3,7 @@ package stream.flarebot.flarebot.mod.modlog;
 public enum ModAction {
 
     BAN(true, ModlogEvent.USER_BANNED),
+    SOFTBAN(true, ModlogEvent.USER_SOFTBANNED),
     FORCE_BAN(true, ModlogEvent.USER_BANNED),
     TEMP_BAN(true, ModlogEvent.USER_TEMP_BANNED),
     UNBAN(false, ModlogEvent.USER_UNBANNED),
