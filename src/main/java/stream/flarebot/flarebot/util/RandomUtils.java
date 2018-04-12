@@ -16,6 +16,6 @@ public class RandomUtils {
     }
 
     public static int getInt(int min, int max) {
-        return random.nextInt((Math.max(max + 1, Integer.MAX_VALUE)) - min) + min;
+        return random.nextInt((max == Integer.MAX_VALUE ? Integer.MAX_VALUE : max + 1) - min) + min;
     }
 }

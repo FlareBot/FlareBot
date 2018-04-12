@@ -130,7 +130,7 @@ public class VariableUtils {
             int min = 1;
             int max = 100;
             if (matcher.groupCount() >= 2) {
-                min = (matcher.group(3) != null ? GeneralUtils.getInt(matcher.group(2), min) : min);
+                min = (matcher.group(2) != null ? GeneralUtils.getInt(matcher.group(2), min) : min);
                 max = (matcher.group(3) != null ? GeneralUtils.getInt(matcher.group(3), max) : max);
             }
             parsed = matcher.replaceAll(String.valueOf(RandomUtils.getInt(min, max)));
