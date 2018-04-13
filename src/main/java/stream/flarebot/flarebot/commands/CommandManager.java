@@ -54,7 +54,7 @@ public class CommandManager {
     // New way to process commands, this way has been proven to be quicker overall.
     @Nullable
     public Command getCommand(String s, User user) {
-        if (PerGuildPermissions.isCreator(user) || PerGuildPermissions.isContributor(user) || PerGuildPermissions.isStaff(user)) {
+        if (PerGuildPermissions.isCreator(user) || PerGuildPermissions.isContributor(user) || PerGuildPermissions.isAdmin(user)) {
             for (Command cmd : getInternalCommands()) {
                 if (cmd.getCommand().equalsIgnoreCase(s))
                     return cmd;

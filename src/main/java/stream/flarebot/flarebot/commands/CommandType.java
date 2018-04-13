@@ -16,7 +16,7 @@ public enum CommandType {
     RANDOM(false),
     INFORMATIONAL(false),
     SECRET(false, Constants.DEVELOPER_ID),
-    INTERNAL(false, Constants.STAFF_ID, Constants.CONTRIBUTOR_ID, Constants.DEVELOPER_ID);
+    INTERNAL(false, Constants.ADMINS_ID, Constants.CONTRIBUTOR_ID, Constants.DEVELOPER_ID);
 
     private static final CommandType[] values = values();
     private static final CommandType[] defaultTypes = fetchDefaultTypes();

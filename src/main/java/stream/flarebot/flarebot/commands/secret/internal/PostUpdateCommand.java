@@ -13,7 +13,7 @@ public class PostUpdateCommand implements InternalCommand {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {
-        if (guild.getGuildId().equals("226785954537406464") && PerGuildPermissions.isStaff(sender)) {
+        if (guild.getGuildId().equals("226785954537406464") && PerGuildPermissions.isAdmin(sender)) {
             if (args.length == 0) {
                 channel.sendMessage("You kinda need like.... a message to announce... like yeah...").queue();
                 return;

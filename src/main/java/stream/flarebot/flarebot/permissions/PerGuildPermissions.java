@@ -104,8 +104,8 @@ public class PerGuildPermissions {
         return checkOfficialGuildForRole(user, Constants.CONTRIBUTOR_ID);
     }
 
-    public static boolean isStaff(net.dv8tion.jda.core.entities.User user) {
-        return checkOfficialGuildForRole(user, Constants.STAFF_ID);
+    public static boolean isAdmin(net.dv8tion.jda.core.entities.User user) {
+        return checkOfficialGuildForRole(user, Constants.ADMINS_ID);
     }
 
     public void moveGroup(Group group, int pos) {

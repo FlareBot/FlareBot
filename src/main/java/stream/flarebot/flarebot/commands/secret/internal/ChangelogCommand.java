@@ -15,7 +15,7 @@ public class ChangelogCommand implements InternalCommand {
 
     @Override
     public void onCommand(User sender, GuildWrapper guild, TextChannel channel, Message msg, String[] args, Member member) {
-        if (PerGuildPermissions.isStaff(sender)) {
+        if (PerGuildPermissions.isAdmin(sender)) {
             if (args.length == 0) {
                 channel.sendMessage("Specify a version or PR to post about!").queue();
                 return;
