@@ -135,6 +135,7 @@ public class CommandManager {
         registerCommand(new FixCommand());
         registerCommand(new NINOCommand());
         registerCommand(new SettingsCommand());
+        registerCommand(new SoftBanCommand ());
     }
 
     private void registerSecretCommands() {
