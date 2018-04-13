@@ -70,7 +70,7 @@ public class RemindCommand implements Command {
             Period period;
             if ((period = GeneralUtils.getTimeFromInput(args[0], channel)) == null) return;
 
-            if (period.toStandardDuration().getMillis() <= 0 || period.getMonths() > 1) {
+            if (period.toStandardDuration().getMillis() <= 0 || (period.toStandardDuration().getStandardDays() / 31d) > 1) {
                 channel.sendMessage("Oh jeez, that's quite a long time! I don't think I can remember that!").queue();
                 return;
             }
