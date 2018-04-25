@@ -493,6 +493,11 @@ public class Events extends ListenerAdapter {
         if (event.getGuild().getIdLong() == Constants.OFFICIAL_GUILD && !handleOfficialGuildStuff(event, cmd))
             return;
 
+        if (event.getGuild().getIdLong() != Constants.OFFICIAL_GUILD && cmd.getType() == CommandType.MUSIC) {
+            MessageUtils.sendInfoMessage("FlareBot is closing down, as part of this we have disabled music commands, please read the announcement [here](https://docs.flarebot.stream). Please use the remaining available commands to move any data you wish over to other bots.\nBots we recommend:\nFredBoat - Music\nDyno - Moderation\nMee6 - Random stuff", event.getChannel());
+            return;
+        }
+        
         dispatchCommand(cmd, args, event, guild);
     }
 
